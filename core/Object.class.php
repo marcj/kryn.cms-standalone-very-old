@@ -343,9 +343,6 @@ class Object {
             }
         }
 
-        if (!$pOptions['foreignKeys'])
-            $pOptions['foreignKeys'] = '*';
-
         $item = $obj->getItem($primaryKey, $pOptions);
 
         if ($pOptions['permissionCheck'] && $aclCondition = \Core\Acl::getListingCondition($pObjectKey)){
@@ -404,12 +401,12 @@ class Object {
                 $pOptions['fields'] = '*';
         }
 
-        if ($pCondition !== false && $pCondition !== null && !is_array($pCondition)){
-            $pCondition = array($pCondition);
-        }
+        if ($pCondition)
+            $pCondition = dbPrimaryKeyToCondition($pCondition, $pObjectKey);
+
 
         if ($obj->definition['limitDataSets'])
-            $pCondition = $pCondition ? array($obj->definition['limitDataSets'], 'AND', $pCondition) : $obj->definition['limitDataSets'];
+            $pCondition = $pCondition ? array($pCondition, 'AND', $obj->definition['limitDataSets']) : $obj->definition['limitDataSets'];
 
         if ($pOptions['permissionCheck'] && $aclCondition = \Core\Acl::getListingCondition($pObjectKey)){
             if ($pCondition)
@@ -476,21 +473,31 @@ class Object {
 
 
     /**
-     *
      * Counts the items of $pObjectKey filtered by $pCondition
      *
-     * @static
-     * @param $pObjectUri
-     * @param string $pAdditionalCondition
+     * @param string $pObjectKey
+     * @param array $pCondition
+     * @param array $pOptions
      * @return array
      */
-    public static function getCount($pObjectUri, $pAdditionalCondition = ''){
+    public static function getCount($pObjectKey, $pCondition = null, $pOptions){
 
-        $obj = self::getClass($pObjectUri);
+        $obj = self::getClass($pObjectKey);
 
-        if (!$obj) return array('error'=>'object_not_found');
+        if ($pCondition)
+            $pCondition = dbPrimaryKeyToCondition($pCondition, $pObjectKey);
 
-        return $obj->getCount($pAdditionalCondition);
+        if ($obj->definition['limitDataSets'])
+            $pCondition = $pCondition ? array($pCondition, 'AND', $obj->definition['limitDataSets']) : $obj->definition['limitDataSets'];
+
+        if ($pOptions['permissionCheck'] && $aclCondition = \Core\Acl::getListingCondition($pObjectKey)){
+            if ($pCondition)
+                $pCondition = array($aclCondition, 'AND', $pCondition);
+            else
+                $pCondition = $aclCondition;
+        }
+
+        return $obj->getCount($pCondition);
 
     }
 
@@ -624,7 +631,6 @@ class Object {
 
         if ($pCondition)
             $pCondition = dbPrimaryKeyToCondition($pCondition, $pObjectKey);
-
 
         if ($pOptions['permissionCheck'] && $aclCondition = \Core\Acl::getListingCondition($pObjectKey)){
             if ($pCondition)
@@ -791,8 +797,16 @@ class Object {
 
             if (is_null($complied))
                 $complied = $res;
-            else
-                $complied = $lastOperator == 'and' ? $complied && $res : $complied || $res;
+            else {
+                if ($lastOperator == 'and')
+                    $complied = $complied && $res;
+
+                if ($lastOperator == 'and not')
+                    $complied = $complied && !$res;
+
+                if ($lastOperator == 'or')
+                    $complied = $complied || $res;
+            }
 
         }
 
@@ -806,7 +820,11 @@ class Object {
         $operator = $pCondition[1];
         $value = $pCondition[2];
 
-        $ovalue = $pObjectItem[$field];
+        if (is_numeric($field)){
+            $ovalue = $field;
+        } else {
+            $ovalue = $pObjectItem[$field];
+        }
 
         //'<', '>', '<=', '>=', '=', 'LIKE', 'IN', 'REGEXP'
         switch(strtoupper($operator)){

@@ -6,6 +6,8 @@ class ModuleNotFoundException extends Exception {}
 class ObjectNotFoundException extends Exception {}
 class ObjectItemNotFoundException extends Exception {}
 class ORMException extends Exception {}
+class ObjectMisconfiguration extends Exception {};
+class ObjectItemNotModified extends Exception {};
 
 class FieldNotFoundException extends Exception {}
 class FieldCanNotBeEmptyException extends Exception {}

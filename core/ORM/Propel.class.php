@@ -301,11 +301,11 @@ class Propel extends ORMAbstract {
 
         if (is_array($pOptions['order'])){
             foreach ($pOptions['order'] as $field => $direction){
-                if (!$this->tableMap->hasColumn($field))
+                if (!$this->tableMap->hasColumnByPhpName(ucfirst($field))){
                     throw new \FieldNotFoundException(tf('Field %s in object %s not found', $field, $this->objectKey));
-                else {
-                    $column = $this->tableMap->getColumn($field);
-                    
+                } else {
+                    $column = $this->tableMap->getColumnByPhpName(ucfirst($field));
+
                     $pQuery->orderBy($column->getName(), $direction);
                 }
             }
@@ -480,7 +480,6 @@ class Propel extends ORMAbstract {
 
         list($fields, $relations, $relationFields) = $this->getFields($pOptions['fields']);
         $selects = array_keys($fields);
-
         $query->select($selects);
 
         $this->mapOptions($query, $pOptions);
@@ -609,39 +608,51 @@ class Propel extends ORMAbstract {
 
     public function mapValues($pItem, $pValues){
 
-        $query = $this->getQueryClass();
-
         foreach ($pValues as $fieldName => $fieldValue){
 
             $field = $this->getField($fieldName);
-            if (!$field) continue;
             $fieldName = ucfirst($fieldName);
+
+            $set = 'set'.$fieldName;
+            $methodExist = method_exists($pItem, $set);
+
+            if (!$field && !$methodExist) continue;
 
             if ($field['type'] == 'object' || $this->tableMap->hasRelation($fieldName)){
 
-                $primaryKeys = \Core\Object::parsePk($field['object'], $fieldValue);
 
                 if ($field['objectRelation'] == 'nToM'){
 
+                    //$getItems = 'get'.underscore2Camelcase($fieldName).'s';
                     $setItems = 'set'.underscore2Camelcase($fieldName).'s';
+                    $clearItems = 'clear'.underscore2Camelcase($fieldName).'s';
 
-                    $foreignQuery = $this->getQueryClass($field['object']);
 
-                    foreach ($primaryKeys as $primaryKey){
-                        $propelPks[] = $this->getPropelPk($primaryKey);
+                    if ($fieldValue){
+
+                        $foreignQuery = $this->getQueryClass($field['object']);
+
+                        $foreignObjClass = \Core\Object::getClass($field['object']);
+
+                        foreach ($fieldValue as $value){
+                            $primaryKeys[] = $foreignObjClass->normalizePrimaryKey($value);
+                        }
+
+                        $propelPks = array();
+                        foreach ($primaryKeys as $primaryKey){
+                            $propelPks[] = $this->getPropelPk($primaryKey);
+                        }
+
+                        $collItems = $foreignQuery->findPks($propelPks);
+                        $pItem->$setItems($collItems);
+                    } else {
+                        $pItem->$clearItems();
                     }
-
-                    $collItems = $foreignQuery->findPks($propelPks);
-
-                    $pItem->$setItems($collItems);
                     continue;
                 }
             }
 
-            if ($this->tableMap->hasColumnByPhpName($fieldName) && $column = $this->tableMap->getColumnByPhpName($fieldName)){
-
-                $set = 'set'.$column->getPhpName();
-
+            if ($methodExist){
                 $pItem->$set($fieldValue);
             } else {
                 throw new \FieldNotFoundException(tf('Field %s in object %s not found', $fieldName, $this->objectKey));

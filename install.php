@@ -1097,7 +1097,7 @@ function step3(){
             <div style="color: silver">Let it empty, to change no group.</div>
         </td>
         <td>
-            <input type="text" class="ka-Input" name="fileGroupPermission" value="">
+            <input type="text" class="ka-Input" name="fileGroupName" value="">
         </td>
     </tr>
     <tr>

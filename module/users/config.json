@@ -234,11 +234,6 @@
             ],
             "chooserFieldDataModel": "default",
             "chooserFieldType": "default",
-            "chooserBrowserAutoColumns": [
-                
-            ],
-            "chooserBrowserDataModel": "default",
-            "chooserBrowserType": "default",
             "fields": {
                 "id": {
                     "label": "ID",
@@ -314,29 +309,31 @@
         "group": {
             "table": "system_group",
             "labelField": "name",
-            "nested": 0,
+            "defaultSelection": "name, description",
+            "limitDataSets": [
+                [
+                    "id",
+                    ">",
+                    "0"
+                ]
+            ],
+            "nested": false,
             "dataModel": "propel",
-            "multiLanguage": 0,
-            "domainDepended": 0,
-            "chooserFieldDataModelCondition": [
+            "multiLanguage": false,
+            "domainDepended": false,
+            "treeIconMapping": [
                 
             ],
-            "chooserFieldDataModel": "default",
-            "chooserFieldDataModelField": "name",
-            "chooserFieldType": "default",
-            "chooserBrowserAutoColumns": {
+            "treeFixedIcon": false,
+            "browserColumns": {
                 "name": {
-                    "label": "[[Name]]",
                     "type": "text",
-                    "width": "40%"
+                    "width": "30%"
                 },
                 "description": {
-                    "label": "[[Description]]",
                     "type": "text"
                 }
             },
-            "chooserBrowserDataModel": "default",
-            "chooserBrowserType": "default",
             "fields": {
                 "id": {
                     "label": "ID",
@@ -359,7 +356,7 @@
     "admin": {
         "users": {
             "title": "[[Users]]",
-            "class": "\\Users\\Admin\\UserList",
+            "class": "\\Users\\Admin\\User",
             "type": "combine",
             "icon": "#icon-users-2",
             "isLink": true,
@@ -369,7 +366,7 @@
             "children": {
                 "add": {
                     "title": "[[Users add]]",
-                    "class": "\\Users\\Admin\\UserEdit",
+                    "class": "\\Users\\Admin\\User",
                     "type": "add",
                     "isLink": false,
                     "multi": false,
@@ -378,7 +375,7 @@
                 },
                 "edit": {
                     "title": "[[Users edit]]",
-                    "class": "\\Users\\Admin\\UserEdit",
+                    "class": "\\Users\\Admin\\User",
                     "type": "edit",
                     "isLink": false,
                     "multi": false,
@@ -414,34 +411,28 @@
                 },
                 "groups": {
                     "title": "[[Groups]]",
-                    "class": "usersAdminGroupList",
+                    "class": "\\Users\\Admin\\Groups",
                     "type": "combine",
                     "isLink": true,
                     "multi": false,
                     "children": {
                         "edit": {
                             "title": "[[Group edit]]",
-                            "class": "usersAdminGroupEdit",
+                            "class": "\\Users\\Admin\\Groups",
                             "type": "edit",
                             "isLink": false,
                             "multi": false,
                             "fixedWidth": 475,
-                            "fixedHeight": 200,
-                            "children": [
-                                
-                            ]
+                            "fixedHeight": 200
                         },
                         "add": {
                             "title": "[[Group add]]",
-                            "class": "usersAdminGroupAdd",
+                            "class": "\\Users\\Admin\\Groups",
                             "type": "add",
                             "isLink": false,
                             "multi": false,
                             "fixedWidth": 375,
-                            "fixedHeight": 200,
-                            "children": [
-                                
-                            ]
+                            "fixedHeight": 200
                         }
                     }
                 },

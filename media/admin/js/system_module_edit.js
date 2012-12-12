@@ -2472,6 +2472,13 @@ var admin_system_module_edit = new Class({
                                         needValue: 'custom',
                                         desc: t('You can allow extensions to set some properties when providing your object chooser.'),
                                         type: 'fieldTable'
+                                    },
+                                    browserOptions: {
+                                        label: t('Browser options'),
+                                        type: 'fieldTable',
+                                        needValue: 'custom',
+                                        withoutChildren: true,
+                                        addLabel: t('Add option')
                                     }
                                 }
                             },

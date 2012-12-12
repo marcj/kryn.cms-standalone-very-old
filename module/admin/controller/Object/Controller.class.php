@@ -404,7 +404,7 @@ class Controller {
     /**
      * Object items output for user interface chooser window/browser. /admin/backend/browser-objects?uri=...
      *
-     * This method does check against object property 'chooserBrowserDataModelClass'. If set, we use
+     * This method does check against object property 'browserDataModel'. If custom, we use
      * this class to get the items.
      *
      * @param string $pObjectKey
@@ -428,9 +428,14 @@ class Controller {
         $definition = \Core\Kryn::$objects[$pObjectKey];
         if (!$definition) throw new \ObjectNotFoundException(tf('Object %s can not be found.', $pObjectKey));
 
+        if (!$definition['browserColumns'])
+            throw new \ObjectMisconfiguration(tf('Object %s does not have browser columns.', $pObjectKey));
+
+        $fields = array_keys($definition['browserColumns']);
+
         $options = array(
             'permissionCheck' => true,
-            'fields' => $pFields,
+            'fields' => $fields,
             'limit'  => $pLimit,
             'offset' => $pOffset,
             'order'  => $pOrder
@@ -438,9 +443,9 @@ class Controller {
 
         $condition = $this->buildFilter($_);
 
-        if ($definition['chooserBrowserDataModel'] == 'custom'){
+        if ($definition['browserDataModel'] == 'custom'){
 
-            $class = $definition['chooserBrowserDataModelClass'];
+            $class = $definition['browserDataModelClass'];
             if (!class_exists($class)) throw new \ClassNotFoundException(tf('The class %s can not be found.', $class));
 
             $dataModel = new $class($pObjectKey);

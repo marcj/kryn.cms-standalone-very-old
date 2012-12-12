@@ -54,9 +54,8 @@ var admin_system_module_editWindow = new Class({
             },
 
             titleField: {
-                label: t('Window title field'),
+                label: t('Window title field (Optional)'),
                 needValue: 'adminWindowEdit',
-                againstField: 'class',
                 desc: t('Defines which field the window should use for his title.')
             },
 
@@ -323,6 +322,7 @@ var admin_system_module_editWindow = new Class({
                     {label: t('Direction')}
                 ],
                 withOrder: true,
+                asHash: true,
                 fields: {
                     field: {
                         type: 'text'

@@ -62,9 +62,11 @@
                 
             ],
             "treeFixedIcon": false,
-            "browserColumns": [
-                
-            ],
+            "browserColumns": {
+                "name": {
+                    "type": "text"
+                }
+            },
             "fields": {
                 "id": {
                     "type": "number",

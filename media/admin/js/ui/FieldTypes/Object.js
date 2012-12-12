@@ -255,7 +255,7 @@ ka.FieldTypes.Object = new Class({
             value: this.objectId,
             cookie: this.options.cookie,
             objects: this.options.objects,
-            chooserOptions: this.options.chooserOptions
+            browserOptions: this.options.browserOptions
         };
 
         if (this.objectId)
@@ -327,9 +327,9 @@ ka.FieldTypes.Object = new Class({
 
         //compatibility
         if (this.options.domain){
-            if (!this.options.chooserOptions) this.options.chooserOptions = {};
-            if (!this.options.chooserOptions.node) this.options.chooserOptions.node = {};
-            this.options.chooserOptions.node.domain = this.options.domain;
+            if (!this.options.browserOptions) this.options.browserOptions = {};
+            if (!this.options.browserOptions.node) this.options.browserOptions.node = {};
+            this.options.browserOptions.node.domain = this.options.domain;
         }
 
         var chooserParams = {
@@ -346,7 +346,7 @@ ka.FieldTypes.Object = new Class({
             value: this.objectId,
             cookie: this.options.cookie,
             objects: this.options.objects,
-            chooserOptions: this.options.chooserOptions
+            browserOptions: this.options.browserOptions
         };
 
         if (this.objectId)

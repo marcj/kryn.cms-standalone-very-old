@@ -116,9 +116,11 @@ ka.WindowList = new Class({
 
     getSortField: function(){
 
-        var field = null, direction;
+        var field = null, direction = 'asc';
 
-        if (this.classProperties.order){
+        if ( (typeOf(this.classProperties.order) == 'array' && this.classProperties.order.length > 0) ||
+            (typeOf(this.classProperties.order) == 'object' && Object.getLength(this.classProperties.order) > 0) ){
+
             if (typeOf(this.classProperties.order) == 'array'){
                 Array.each(this.classProperties.order, function(order, f){
                     if (!field){
@@ -133,6 +135,14 @@ ka.WindowList = new Class({
                         direction = order;
                     }
                 });
+            }
+        } else {
+            //just use first column
+            if (this.classProperties.columns){
+                Object.each(this.classProperties.columns, function(col, id){
+                    if (field) return;
+                    field = id;
+                })
             }
         }
 

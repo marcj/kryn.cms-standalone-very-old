@@ -480,8 +480,8 @@
             },
             "treeDefaultIcon": "#icon-paper",
             "treeFixedIcon": false,
-            "chooserBrowserJavascriptClass": "ka.Files",
-            "chooserBrowserOptions": {
+            "browserInterfaceClass": "ka.Files",
+            "browserOptions": {
                 "onlyUserDefined": {
                     "label": "[[Only user defined files]]",
                     "type": "checkbox",
@@ -521,11 +521,8 @@
                     "empty": 1
                 }
             },
-            "chooserBrowserType": "custom",
-            "chooserBrowserAutoColumns": [
-                
-            ],
-            "chooserBrowserDataModel": "default",
+            "browserInterface": "custom",
+            "browserDataModel": "default",
             "fields": {
                 "id": {
                     "label": "[[ID]]",
@@ -607,12 +604,8 @@
                 
             ],
             "treeFixedIcon": false,
-            "chooserBrowserJavascriptClass": "ka.NodeTree",
-            "chooserBrowserOptions": [
-                
-            ],
-            "chooserBrowserDataModel": "none",
-            "chooserBrowserType": "custom",
+            "browserDataModel": "none",
+            "browserInterface": "custom",
             "fields": {
                 "id": {
                     "label": "[[ID]]",
@@ -756,27 +749,21 @@
         },
         "domain": {
             "labelField": "domain",
+            "labelTemplate": "[{lang}] {domain}",
+            "defaultSelection": "domain, lang",
+            "limitDataSets": [
+                
+            ],
             "nested": false,
             "multiLanguage": false,
             "domainDepended": false,
-            "chooserFieldDataModelCondition": [
+            "treeIconMapping": [
                 
             ],
-            "chooserFieldDataModel": "default",
-            "chooserFieldType": "default",
-            "chooserBrowserAutoColumns": {
-                "lang": {
-                    "label": "[[Language]]",
-                    "type": "lang",
-                    "width": "30%"
-                },
-                "domain": {
-                    "label": "[[Domain]]",
-                    "type": "text"
-                }
-            },
-            "chooserBrowserDataModel": "default",
-            "chooserBrowserType": "default",
+            "treeFixedIcon": false,
+            "browserColumns": [
+                
+            ],
             "fields": {
                 "id": {
                     "label": "ID",
@@ -825,9 +812,6 @@
                 
             ],
             "treeFixedIcon": false,
-            "chooserBrowserAutoColumns": [
-                
-            ],
             "fields": {
                 "code": {
                     "type": "text",

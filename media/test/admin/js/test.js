@@ -5,7 +5,9 @@ var test_test = new Class({
 
         this.win = pWin;
 
-
+        new ka.Select(this.win.content, {
+            object: 'domain'
+        });
 
         new ka.Select(this.win.content, {
             object: 'language'
@@ -46,7 +48,7 @@ var test_test = new Class({
         }).inject(this.win.content);
 
         var field = {
-            chooserBrowserTreeIconMapping: {
+            bla: {
                 label: t('Icon path mapping'),
                 type: 'array',
                 asHash: true,
@@ -69,7 +71,7 @@ var test_test = new Class({
         var fieldObj = new ka.Parse(div, field);
 
         fieldObj.setValue({
-            chooserBrowserTreeIconMapping: {peter: "10"}
+            bla: {peter: "10"}
         });
 
         var items = [];

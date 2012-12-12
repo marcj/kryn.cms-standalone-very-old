@@ -201,6 +201,7 @@ abstract class ClientAbstract {
      * @return \User
      */
     public function getUser(){
+        //TODO, build in caching
         return $this->getSession()->getUser();
     }
 

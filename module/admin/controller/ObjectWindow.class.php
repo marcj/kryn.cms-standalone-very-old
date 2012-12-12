@@ -290,7 +290,10 @@ abstract class ObjectWindow {
             $this->titleField = $this->objectDefinition['label'];
 
         //resolv shortcuts
-        $this->prepareFieldDefinition($this->fields);
+        if ($this->fields)
+            $this->prepareFieldDefinition($this->fields);
+        if ($this->columns)
+            $this->prepareFieldDefinition($this->columns);
 
         //do magic with type select and add all fields to _fields.
         $this->prepareFieldItem($this->fields);
@@ -391,6 +394,19 @@ abstract class ObjectWindow {
             $i++;
         }
 
+
+        foreach ($pFields as $key => &$field){
+
+            if (!isset($field['label']) && $this->objectDefinition['fields'][$key]['label'])
+                $field['label'] = $this->objectDefinition['fields'][$key]['label'];
+
+            if (!isset($field['desc']) && $this->objectDefinition['fields'][$key]['desc'])
+                $field['desc'] = $this->objectDefinition['fields'][$key]['desc'];
+
+            if (!isset($field['label']))
+                $field['label'] = '!!No title defined!!';
+        }
+
         foreach ($pFields as $key => &$field)
             if ($field['depends']) $this->prepareFieldDefinition($field['depends']);
 
@@ -416,7 +432,6 @@ abstract class ObjectWindow {
                 $pFields = null;
                 return;
             }
-
 
             if(substr($pKey,0,2) != '__' && substr($pKey, -2) != '__'){
 
@@ -540,6 +555,7 @@ abstract class ObjectWindow {
     public function getItems($pLimit = null, $pOffset = null) {
 
         $options   = array();
+        $options['permissionCheck'] = $this->getPermissionCheck();
         $options['offset'] = $pOffset;
         $options['limit'] = $pLimit ? $pLimit : $this->itemsPerPage;
 
@@ -547,14 +563,14 @@ abstract class ObjectWindow {
 
         $condition = $this->getCondition();
 
-        if ($customCondition = $this->getCustomListingCondition())
-            $condition = $condition + $condition;
+        if ($extraCondition = $this->getCustomListingCondition())
+            $condition = !$condition ? $extraCondition : array($condition, 'AND', $extraCondition);
 
         $options['order'] = $this->getOrder();
 
         $options['fields'] = array_keys($this->getColumns());
 
-        $maxItems = $obj->getCount($condition, $options);
+        $maxItems = \Core\Object::getCount($this->object, $condition, $options);
 
         if ($maxItems > 0)
             $maxPages = ceil($maxItems / $this->itemsPerPage);
@@ -574,7 +590,7 @@ abstract class ObjectWindow {
                 $condition = $langCondition;
         }
 
-        $items = $obj->getItems($condition, $options);
+        $items = \Core\Object::getList($this->object, $condition, $options);
 
         foreach ($items as &$item){
             $item = $this->prepareRow($item);
@@ -737,7 +753,7 @@ abstract class ObjectWindow {
                 $data[$key] = $_POST[$key]?:$_GET[$key];
             }
 
-            if (($field['saveOnlyFilled'] || $field['saveOnlyFilled']) && ($data[$field] === '' || $data[$field] === null))
+            if (($field['saveOnlyFilled'] || $field['saveOnlyIsFilled']) && ($data[$key] === '' || $data[$key] === null))
                 unset($data[$key]);
 
             if ($field['required'] && ($data[$key] === '' || $data[$key] === null) )

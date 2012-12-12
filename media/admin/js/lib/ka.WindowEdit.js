@@ -836,14 +836,15 @@ ka.WindowEdit = new Class({
             }
 
             this.lastSaveRq = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code+objectId,
-                noErrorReporting: ['DuplicateKeysException'],
+                noErrorReporting: ['DuplicateKeysException', 'ObjectItemNotModified'],
                 noCache: true, onComplete: function (res) {
+
 
                 if (!res.data){
                     if (pPublish) {
-                        this.saveAndPublishBtn.stopTip(t('Failed'));
+                        this.saveAndPublishBtn.stopTip(t('No changes'));
                     } else {
-                        this.saveBtn.stopTip(t('Failed'));
+                        this.saveBtn.stopTip(t('No changes'));
                     }
                     return;
                 }
@@ -857,7 +858,7 @@ ka.WindowEdit = new Class({
                     }.bind(this));
 
                     if (pPublish) {
-                        this.saveAndPublishBtn.stopTip(_('Failed'));
+                        this.saveAndPublishBtn.stopTip(t('Failed'));
                     } else {
                         this.saveBtn.stopTip(t('Failed'));
                     }

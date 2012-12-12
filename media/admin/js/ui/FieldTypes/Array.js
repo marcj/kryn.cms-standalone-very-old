@@ -2,6 +2,10 @@ ka.FieldTypes.Array = new Class({
     
     Extends: ka.FieldAbstract,
 
+    options: {
+        asHash: false
+    },
+
     createLayout: function(){
 
         var table = new Element('table', {

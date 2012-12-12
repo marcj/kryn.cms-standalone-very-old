@@ -170,9 +170,7 @@ ka.Select = new Class({
                 fields = this.options.objectFields;
             else if (this.options.objectLabel)
                 fields.push(this.options.objectLabel);
-            else {
-                //fields.push(this.objectDefinition.labelField);
-            }
+
             if (typeOf(fields) == 'string'){
                 fields = fields.replace(/[^a-zA-Z0-9_]/g, '').split(',');
             }
@@ -235,7 +233,7 @@ ka.Select = new Class({
             object: this.options.object,
             offset: pOffset,
             limit: pCount,
-            fields: this.objectFields.join(',')
+            fields: this.objectFields ? this.objectFields.join(',') : null
         });
 
     },
@@ -498,6 +496,11 @@ ka.Select = new Class({
 
         var data = pData;
 
+        if (this.options.object && !this.options.labelTemplate){
+            //just return ka.getObjectLabel
+            return ka.getObjectLabelByItem(this.options.object, data);
+        }
+
         if (typeOf(data) == 'string')
             data = {label: data};
         else if (typeOf(data) == 'array'){
@@ -505,15 +508,13 @@ ka.Select = new Class({
             data = {label: data[0], kaSelectImage: data[1]};
         }
 
-        if (!data.kaSelectImage) data.kaSelectImage = '';
-
         var template = this.labelTemplate;
 
         if (this.options.object && this.objectDefinition.labelTemplate){
             template = this.objectDefinition.labelTemplate;
         }
 
-        if (typeOf(this.options.labelTemplate) == 'string'){
+        if (this.options.labelTemplate){
             template = this.options.labelTemplate;
         }
 
@@ -527,6 +528,8 @@ ka.Select = new Class({
         }
 
         if (!data.kaSelectImage) data.kaSelectImage = '';
+
+        if (typeOf(data.label) == 'null') data.label = '';
 
         return mowla.fetch(template, data);
     },

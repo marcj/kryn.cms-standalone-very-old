@@ -247,6 +247,7 @@ abstract class ORMAbstract {
      * @abstract
      * @param array $pPrimaryKey
      * @param array $pValues
+     * @throws \ObjectItemNotModified
      */
     abstract public function update($pPrimaryKey, $pValues);
 
@@ -266,7 +267,7 @@ abstract class ORMAbstract {
      * @param        $pTargetPk
      * @param string $pMode into, below|down, before|up
      * @param        $pTargetObjectKey
-     * @throws \Exception
+     * @throws      \NotImplementedException
      */
     public function move($pPk, $pTargetPk = null, $pMode = 'into', $pTargetObjectKey = null){
         throw new \NotImplementedException('Move method is not implemented for this object layer.');

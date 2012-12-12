@@ -77,7 +77,7 @@ ka.translate = function(pMsg, pPlural, pCount, pContext) {
 }
 
 window.tf = function(){
-    var args = arguments;
+    var args = Array.from(arguments);
     var text = args.shift();
     return text.sprintf.apply(text, args);
 }
@@ -415,6 +415,7 @@ ka.getObjectUrl = function(pObjectKey, pId){
  * @param pUrl
  */
 ka.getObjectKey = function(pUrl){
+    if (typeOf(pUrl) != 'string') throw 'pUrl is not a string';
 
     if (pUrl.indexOf('object://') == 0)
         pUrl = pUrl.substr(9);
@@ -558,6 +559,7 @@ ka.getObjectLabel = function(pUri, pCb){
 ka.getObjectLabelQ = {};
 ka.getObjectLabelBusy = {};
 ka.getObjectLabelQTimer = {};
+
 /**
  * Returns the object label, based on a label field or label template (defined
  * in the object definition).
@@ -601,10 +603,10 @@ ka.getObjectLabelByItem = function(pObjectKey, pItem, pMode){
 /**
  * Returns all labels for a object item.
  *
- * @param {Array}  pFields
- * @param {Object} pItem
+ * @param {Object}  pFields  The array of fields definition, that defines /how/ you want to show the data. limited range of 'type' usage.
+ * @param {Object}  pItem
  * @param {String} pObjectKey
- * @param {Boolean} pRelationsAsArray
+ * @param {Boolean} pRelationsAsArray Relations would be returned as arrays/origin or as string(default).
  *
  * @return {Object}
  */
@@ -625,7 +627,7 @@ ka.getObjectLabels = function(pFields, pItem, pObjectKey, pRelationsAsArray){
  * Returns a single label for a field of a object item.
  *
  * @param {Object} pValue
- * @param {String }pField
+ * @param {Object} pField The array of fields definition, that defines /how/ you want to show the data. limited range of 'type' usage.
  * @param {String} pFieldId
  * @param {String} pObjectKey
  * @param {Boolean} pRelationsAsArray
@@ -634,22 +636,42 @@ ka.getObjectLabels = function(pFields, pItem, pObjectKey, pRelationsAsArray){
  */
 ka.getObjectFieldLabel = function(pValue, pField, pFieldId, pObjectKey, pRelationsAsArray){
 
-    if (!pField) return pValue[pFieldId] || '';
+    var fields = ka.getObjectDefinition(pObjectKey);
+    if (!fields) throw 'Object not found '+pObjectKey;
 
-    var value = pValue[pFieldId] || '';
-
-    var field = pField;
-    if (field.type == 'predefined'){
-        field = ka.getObjectDefinition(field.object).fields[field.field];
+    var fieldId = pFieldId;
+    if (pFieldId.indexOf('.') > 0){
+        fieldId = pFieldId.split('.')[0];
     }
 
-    if (field.format == 'timestamp') {
+    fields = fields['fields'];
+    var field = fields[fieldId];
+
+    var showAsField = pField || field;
+    if (!showAsField.type){
+        Object.each(field, function(v, i){
+            if (!showAsField[i])
+                showAsField[i] = v;
+        });
+    }
+
+    pValue = Object.clone(pValue);
+
+    if (!field) return typeOf(pValue[fieldId]) != 'null' ? pValue[fieldId] : '';
+
+    var value = pValue[fieldId] || '';
+
+    if (showAsField.type == 'predefined'){
+        showAsField = ka.getObjectDefinition(field.object).fields[field.field];
+    }
+
+    if (showAsField.format == 'timestamp') {
         value = new Date(value * 1000).toLocaleString();
     }
 
-    if (field.type == 'datetime' || field.type == 'date') {
+    if (showAsField.type == 'datetime' || showAsField.type == 'date') {
         if (value != 0 && value) {
-            var format = ( !field.format ) ? '%d.%m.%Y %H:%M' : field.format;
+            var format = ( !showAsField.format ) ? '%d.%m.%Y %H:%M' : showAsField.format;
             value = new Date(value * 1000).format(format);
         } else {
             value = '';
@@ -668,6 +690,7 @@ ka.getObjectFieldLabel = function(pValue, pField, pFieldId, pObjectKey, pRelatio
             label = def.labelField;
         }
     }
+
     if (typeOf(pValue[relation]) == 'object'){
         //to-one relation
         value = {};
@@ -675,7 +698,7 @@ ka.getObjectFieldLabel = function(pValue, pField, pFieldId, pObjectKey, pRelatio
             value[label] = pValue[relation][label];
             return value;
         } else {
-            return pValue[relation][label];
+            return pValue[relation] ? pValue[relation][label] : '';
         }
     }
 
@@ -700,19 +723,14 @@ ka.getObjectFieldLabel = function(pValue, pField, pFieldId, pObjectKey, pRelatio
         value = pValue[pFieldId +'_'+ pField.table_label] || pValue[pFieldId +'_'+ pField.tableLabel] || pValue[pFieldId + '__label'];
     }
 
-    if (field.type == 'imagemap'){
+    if (showAsField.type && showAsField.type.toLowerCase() == 'imagemap'){
+        //TODO
     }
 
     if (field.imageMap) {
         return '<img src="' + _path + field.imageMap[value] + '"/>';
-    } else if (field.type == 'html') {
-        return value;
-    } else if(typeOf(value) == 'string'){
-        return value.replace('<', '&lt;').replace('>', '&gt;');
-    } else if(typeOf(value) == 'number'){
-        return value;
     }
-    return '';
+    return value;
 }
 
 /**

@@ -5,7 +5,6 @@ ka.ObjectTable = new Class({
     container: false,
     objectKey: '',
     win: false,
-
     options: {
         multi: false,
         itemsPerPage: 20
@@ -31,7 +30,9 @@ ka.ObjectTable = new Class({
         this.setOptions(pChooserBrowserOptions);
         this.win = pWindowInstance;
 
-        this._createLayout();
+        if (this._createLayout()){
+            this.loadPage(1);
+        }
 
     },
 
@@ -43,7 +44,15 @@ ka.ObjectTable = new Class({
 
         var objectDefinition = ka.getObjectDefinition(this.objectKey);
 
-        Object.each(objectDefinition.chooserBrowserAutoColumns, function(column, key){
+        if (!objectDefinition.browserColumns || Object.getLength(objectDefinition.browserColumns) == 0){
+            new Element('div', {
+                text: tf('The object %s does not have any browser columns defined.', this.objectKey),
+                style: 'padding: 50px; color: gray; text-align: center;'
+            }).inject(this.subcontainer);
+            return false;
+        }
+
+        Object.each(objectDefinition.browserColumns, function(column, key){
             columns.include([column.label?column.label:key, column.width?column.width:null]);
         });
 
@@ -127,9 +136,9 @@ ka.ObjectTable = new Class({
         .addEvent('click', this.pageToRight.bind(this))
         .inject(this.pagination);
 
-        this.loadPage(1);
-
         this.absBar.tween('bottom', 0);
+
+        return true;
     },
 
     toggleSearch: function(){
@@ -204,7 +213,7 @@ ka.ObjectTable = new Class({
         var fields = [];
 
         var objectDefinition = ka.getObjectDefinition(this.objectKey);
-        Object.each(objectDefinition.chooserBrowserAutoColumns, function(column, key){
+        Object.each(objectDefinition.browserColumns, function(column, key){
             fields.push(key);
         });
 
@@ -214,7 +223,7 @@ ka.ObjectTable = new Class({
             fields: fields.join(',')
         }
 
-        this.lr = new Request.JSON({url: _path+'admin/backend/object/'+this.objectKey, noCache: 1, onComplete: function(pRes){
+        this.lr = new Request.JSON({url: _path+'admin/backend/browser-object/'+this.objectKey, noCache: 1, onComplete: function(pRes){
 
             this.renderResult(pRes.data);
             this.renderActions(pPage, Math.ceil(this.itemsCount/this.options.itemsPerPage), this.itemsCount);
@@ -246,12 +255,19 @@ ka.ObjectTable = new Class({
 
             var row  = [];
 
-            Object.each(objectDefinition.chooserBrowserAutoColumns, function(column, key){
+            Object.each(objectDefinition.browserColumns, function(column, key){
 
-                value = ka.getObjectLabel(item, column, key, this.objectKey);
+                //value = ka.getObjectLabel(item, column, key, this.objectKey);
+
+                value = ka.getObjectFieldLabel(
+                    item,
+                    column,
+                    key,
+                    this.objectKey
+                );
                 row.include(value);
                 
-            });
+            }.bind(this));
 
             var tr = this.table.addRow(row);
             tr.store('item', item);

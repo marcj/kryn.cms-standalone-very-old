@@ -42,8 +42,6 @@ class Editor {
         $windows   = array();
         $whiteList = array('\Admin\ObjectWindow');
 
-        $c = strlen(PATH_MODULE.$pName.'/');
-
         foreach ($classes as $class){
 
             $content = SystemFile::getContent($class);
@@ -60,7 +58,7 @@ class Editor {
 
                     $clazz = '\\'.$clazz;
 
-                    $windows[substr($class, $c)] = $clazz;
+                    $windows[$class] = $clazz;
                 }
             }
 
@@ -741,14 +739,16 @@ class Editor {
      */
     public function newWindow($pClass, $pModule, $pForce = false){
 
+        if (substr($pClass, 0, 1) != '\\')
+            $pClass = '\\'.$pClass;
+
         if (class_exists($pClass) && !$pForce){
             $reflection = new \ReflectionClass($pClass);
             throw new \FileAlreadyExistException(tf('Class already exist in %s', $reflection->getFileName()));
         }
 
-        $actualPath = str_replace('\\', '/', lcfirst(substr($pClass, 1))).'.class.php';
-        $fSlash = strpos($actualPath, '/');
-        $actualPath = 'module/'.$pModule.'/controller/'.substr($actualPath, $fSlash+1);
+        $actualPath = str_replace('\\', '/', substr($pClass, 1)).'.class.php';
+        $actualPath = 'module/'.$pModule.'/controller/'.$actualPath;
 
         if (file_exists($actualPath) && !$pForce){
             throw new \FileAlreadyExistException(tf('File already exist, %s', $actualPath));
@@ -761,7 +761,7 @@ class Editor {
 
         $parentClass = '\Admin\ObjectWindow';
 
-        $namespace = substr(substr($pClass, 1), 0, $lSlash);
+        $namespace = ucfirst($pModule).substr($pClass, 0, $lSlash);
         if (substr($namespace, -1) == '\\')
             $namespace = substr($namespace, 0, -1);
 

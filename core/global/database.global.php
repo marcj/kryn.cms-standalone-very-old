@@ -605,12 +605,12 @@ function dbExtractOrderFields($pValues, $pTable = ''){
  * 
  * @see PrimaryKeys
  * 
- * @param array       $pPrimaryValue
- * @param string      $pTable Adds the table name in front of the field names. ($pTable.<column>)
- * @param string|bool $pObjectKey
+ * @param array  $pCondition
+ * @param string $pObjectKey
+ * @param string $pTable Adds the table name in front of the field names. ($pTable.<column>)
  * @return bool|string
  */
-function dbPrimaryKeyToCondition($pCondition, $pObjectKey = false, $pTable = ''){
+function dbPrimaryKeyToCondition($pCondition, $pObjectKey = null, $pTable = ''){
 
     $result = array();
 
@@ -807,12 +807,16 @@ function dbConditionSingleField($pCondition, &$pData, $pTable = '', &$pFieldName
 
     if ($pCondition[0] === NULL) return '';
 
-    if (($pos = strpos($pCondition[0], '.')) === false){
-        $result = ($pTable?dbQuote($pTable).'.':'').dbQuote($pCondition[0]).' ';
-        if ($pFieldNames !== null) $pFieldNames[] = $pCondition[0];
+    if (!is_numeric($pCondition[0])){
+        if (($pos = strpos($pCondition[0], '.')) === false){
+            $result = ($pTable?dbQuote($pTable).'.':'').dbQuote($pCondition[0]).' ';
+            if ($pFieldNames !== null) $pFieldNames[] = $pCondition[0];
+        } else {
+            $result = dbQuote(substr($pCondition[0], 0, $pos)).'.'.dbQuote(substr($pCondition[0], $pos)).' ';
+            if ($pFieldNames !== null) $pFieldNames[] = substr($pCondition[0], $pos);
+        }
     } else {
-        $result = dbQuote(substr($pCondition[0], 0, $pos)).'.'.dbQuote(substr($pCondition[0], $pos)).' ';
-        if ($pFieldNames !== null) $pFieldNames[] = substr($pCondition[0], $pos);
+        $result = $pCondition[0];
     }
 
     if (strtolower($pCondition[1]) == 'regexp')

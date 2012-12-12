@@ -10,6 +10,7 @@ ka.Parse = new Class({
         allTableItems: false,
         allSmall: false,
         tableitem_title_width: false,
+        returnDefault: false,
         tabsInWindowHeader: false
     },
 
@@ -379,7 +380,7 @@ ka.Parse = new Class({
 
                         if (pos == items.length - 1) {
                             val = obj.getValue();
-                            if (typeOf(val) !== 'null' && val !== '' && val !== obj.options['default'])
+                            if (typeOf(val) !== 'null' && val !== '' && (this.options.returnDefault == true || val !== obj.options['default']))
                                 last[key] = val;
                         } else {
                             last[key] = {};
@@ -389,10 +390,10 @@ ka.Parse = new Class({
                     res = Object.merge(res, newRes);
                 } else {
                     val = obj.getValue();
-                    if (typeOf(val) !== 'null' && val !== '' && val !== obj.options['default'])
+                    if (typeOf(val) !== 'null' && val !== '' && (this.options.returnDefault == true || val !== obj.options['default']))
                         res[id] = val;
                 }
-            });
+            }.bind(this));
         }
 
         return res;

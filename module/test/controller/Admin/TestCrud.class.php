@@ -36,7 +36,7 @@ class TestCrud extends \Admin\ObjectWindow {
   ),
 );
 
-    public $itemLayout = '<h2>{item.name}</h2>';
+    public $itemLayout = '<h2>{name}</h2>';
 
     public $itemsPerPage = 10;
 

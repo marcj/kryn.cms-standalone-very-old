@@ -54,7 +54,7 @@ var users_users_acl = new Class({
         this.objectTab = this.tabs.addPane(t('Objects'), '');
 
         this.actions = new ka.ButtonGroup(this.win.titleGroups);
-        this.btnSave = this.actions.addButton(t('Save'), 'admin/images/button-save.png', this.save.bind(this));
+        this.btnSave = this.actions.addButton(t('Save'), 'media/admin/images/button-save.png', this.save.bind(this));
 
         this.tabs.hide();
         this.actions.hide();
@@ -72,6 +72,7 @@ var users_users_acl = new Class({
 
         //ka.getObjectDefinition(pObjectKey);
         this.currentObject = pObjectKey;
+        logger('loadObjectRules: '+this.currentObject);
 
         this.btnAddExact.setStyle('display', 'none');
 
@@ -345,7 +346,6 @@ var users_users_acl = new Class({
         this.objectsCustomSplitCount.set('text', '('+ruleCounter.custom+')');
         this.objectsExactSplitCount.set('text', '('+ruleCounter.exact+')');
 
-        logger(this.currentAcls);
         Array.each(this.currentAcls, function(rule){
             if (rule.object != this.currentObject) return;
 
@@ -721,7 +721,7 @@ var users_users_acl = new Class({
             var div = new Element('div', {
                 'class': 'ka-list-combine-item'
             })
-            .addEvent('click', this.loadObjectRules.bind(this, objectKey))
+            .addEvent('click', function(){this.loadObjectRules(objectKey)}.bind(this))
             .inject(this.objectList);
 
             var h2 = new Element('h2', {
@@ -729,7 +729,7 @@ var users_users_acl = new Class({
             }).inject(div);
 
             div.count = new Element('span', {
-                style: 'font-size: normal; color: silver;'
+                style: 'font-weight: normal; color: silver;'
             }).inject(h2);
 
             if (object.desc){
@@ -846,7 +846,7 @@ var users_users_acl = new Class({
             style: 'cursor: pointer; position: relative; top: -1px; float: right;',
             title: t('Add')
         })
-        .addEvent('click', this.openEditRuleDialog.bind(this, this.currentObject, {constraint_type: 1}))
+        .addEvent('click', function(){ this.openEditRuleDialog(this.currentObject, {constraint_type: 1})}.bind(this))
         .inject(this.objectsExactSplit);
 
         this.objectRules = new Element('div', {
@@ -880,13 +880,13 @@ var users_users_acl = new Class({
 
         document.id(this.selectModes).setStyle('width', 120);
 
-        this.selectModes.addImage(-1, tc('usersAclModes', 'All rules'), 'admin/images/icons/tick.png');
-        this.selectModes.addImage(0,  tc('usersAclModes', 'Combined'), 'admin/images/icons/arrow_in.png');
-        this.selectModes.addImage(1,  tc('usersAclModes', 'List'), 'admin/images/icons/application_view_list.png');
-        this.selectModes.addImage(2,  tc('usersAclModes', 'View'), 'admin/images/icons/application_form.png');
-        this.selectModes.addImage(3,  tc('usersAclModes', 'Add'), 'admin/images/icons/application_form_add.png');
-        this.selectModes.addImage(4,  tc('usersAclModes', 'Edit'), 'admin/images/icons/application_form_edit.png');
-        this.selectModes.addImage(5,  tc('usersAclModes', 'Delete'), 'admin/images/icons/application_form_delete.png');
+        this.selectModes.addImage(-1, tc('usersAclModes', 'All rules'), 'media/admin/images/icons/tick.png');
+        this.selectModes.addImage(0,  tc('usersAclModes', 'Combined'), 'media/admin/images/icons/arrow_in.png');
+        this.selectModes.addImage(1,  tc('usersAclModes', 'List'), 'media/admin/images/icons/application_view_list.png');
+        this.selectModes.addImage(2,  tc('usersAclModes', 'View'), 'media/admin/images/icons/application_form.png');
+        this.selectModes.addImage(3,  tc('usersAclModes', 'Add'), 'media/admin/images/icons/application_form_add.png');
+        this.selectModes.addImage(4,  tc('usersAclModes', 'Edit'), 'media/admin/images/icons/application_form_edit.png');
+        this.selectModes.addImage(5,  tc('usersAclModes', 'Delete'), 'media/admin/images/icons/application_form_delete.png');
 
         this.lastRulesModeFilter = false;
 
@@ -992,7 +992,6 @@ var users_users_acl = new Class({
 
     openEditRuleDialog: function(pObject, pRuleDiv){
 
-        logger(pObject);
 
         this.currentRuleDiv = typeOf(pRuleDiv)=='element'?pRuleDiv:null;
 
@@ -1067,9 +1066,9 @@ var users_users_acl = new Class({
                 inputWidth: 140,
                 'default': '2',
                 items: {
-                    '2': [t('Inherited'), 'admin/images/icons/arrow_turn_bottom_left.png'],
-                    '0': [t('Deny'), 'admin/images/icons/exclamation.png'],
-                    '1': [t('Allow'), 'admin/images/icons/accept.png']
+                    '2': [t('Inherited'), 'media/admin/images/icons/arrow_turn_bottom_left.png'],
+                    '0': [t('Deny'), 'media/admin/images/icons/exclamation.png'],
+                    '1': [t('Allow'), 'media/admin/images/icons/accept.png']
                 }
 
             },
@@ -1086,12 +1085,12 @@ var users_users_acl = new Class({
                 inputWidth: 140,
                 'default': '0',
                 items: {
-                    '0': [tc('usersAclModes', 'Combined'), 'admin/images/icons/arrow_in.png'],
-                    '1': [tc('usersAclModes', 'List'), 'admin/images/icons/application_view_list.png'],
-                    '2': [tc('usersAclModes', 'View'), 'admin/images/icons/application_form.png'],
-                    '3': [tc('usersAclModes', 'Add'), 'admin/images/icons/application_form_add.png'],
-                    '4': [tc('usersAclModes', 'Edit'), 'admin/images/icons/application_form_edit.png'],
-                    '5': [tc('usersAclModes', 'Delete'), 'admin/images/icons/application_form_delete.png']
+                    '0': [tc('usersAclModes', 'Combined'), 'media/admin/images/icons/arrow_in.png'],
+                    '1': [tc('usersAclModes', 'List'), 'media/admin/images/icons/application_view_list.png'],
+                    '2': [tc('usersAclModes', 'View'), 'media/admin/images/icons/application_form.png'],
+                    '3': [tc('usersAclModes', 'Add'), 'media/admin/images/icons/application_form_add.png'],
+                    '4': [tc('usersAclModes', 'Edit'), 'media/admin/images/icons/application_form_edit.png'],
+                    '5': [tc('usersAclModes', 'Delete'), 'media/admin/images/icons/application_form_delete.png']
                 }
             },
 
@@ -1115,7 +1114,11 @@ var users_users_acl = new Class({
         if (!this.currentDefinition.nested)
             delete fields.sub;
 
-        this.editRuleKaObj = new ka.Parse(this.editRuleDialog.content, fields, {allTableItems:1, tableitem_title_width: 180}, {win: this.win});
+        this.editRuleKaObj = new ka.Parse(this.editRuleDialog.content, fields, {
+            allTableItems:1,
+            tableitem_title_width: 180,
+            returnDefault: true
+        }, {win: this.win});
 
         var rule = Object.clone(typeOf(pRuleDiv) == 'element'? pRuleDiv.rule : typeOf(pRuleDiv) == 'object'?pRuleDiv:{});
 
@@ -1290,7 +1293,7 @@ var users_users_acl = new Class({
             }).inject(pChildContainer);
 
             new Element('img', {
-                src: _path+this.getEntryPointIcon(item)
+                src: _path+'media/'+this.getEntryPointIcon(item)
             }).inject(element, 'top');
 
             var code = pCode+'/'+index;
@@ -1356,7 +1359,7 @@ var users_users_acl = new Class({
 
                     new Element('span', {
                         text: ' ('+item.ruleCount+')',
-                        style: 'color: silver; font-size: 12px;'
+                        style: 'color: silver; font-size: 12px; font-weight: normal;'
                     }).inject(h2);
 
                     var subline = new Element('div', {
@@ -1403,7 +1406,7 @@ var users_users_acl = new Class({
 
                     new Element('span', {
                         text: ' ('+item.ruleCount+')',
-                        style: 'color: silver; font-size: 12px;'
+                        style: 'color: silver; font-size: 12px; font-weight: normal;'
                     }).inject(h2);
 
 
@@ -1633,7 +1636,7 @@ var users_users_acl = new Class({
         dom.rule = pRule;
 
         dom.ruleIcon = new Element('img', {
-            src: _path + 'admin/images/icons/'+accessIcon+'.png',
+            src: _path + 'media/admin/images/icons/'+accessIcon+'.png',
             style: 'position: absolute; left: -13px; top: 4px; width: 10px;'
         }).inject(dom);
 
@@ -1703,12 +1706,12 @@ var users_users_acl = new Class({
         this.win.setBlocked(true);
 
         var req = {
-            target_type: this.currentTargetType,
-            target_id: this.currentTargetRsn,
+            targetType: this.currentTargetType,
+            targetId: this.currentTargetRsn,
             rules: this.currentAcls
         };
 
-        this.lastSaveRq = new Request.JSON({url: _path+'admin/users/acl/save', onComplete: function(){
+        this.lastSaveRq = new Request.JSON({url: _path+'admin/users/acl', onComplete: function(){
 
             this.unsavedContent = false;
             this.btnSave.stopTip(t('Saved'));

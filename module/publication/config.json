@@ -330,7 +330,7 @@
             "chooserFieldDataModel": "default",
             "chooserFieldDataModelField": "title",
             "chooserFieldType": "default",
-            "chooserBrowserAutoColumns": {
+            "browserColumns": {
                 "title": {
                     "label": "[[Title]]",
                     "type": "text",
@@ -343,8 +343,8 @@
                     "empty": true
                 }
             },
-            "chooserBrowserDataModel": "default",
-            "chooserBrowserType": "default",
+            "browserDataModel": "default",
+            "browserInterface": "default",
             "fields": {
                 "id": {
                     "label": "[[Id]]",
@@ -490,18 +490,14 @@
             "chooserFieldDataModel": "default",
             "chooserFieldDataModelField": "title",
             "chooserFieldType": "default",
-            "chooserBrowserTreeRootObjectIconMapping": [
-                
-            ],
-            "chooserBrowserTreeRootObjectFixedIcon": 0,
-            "chooserBrowserAutoColumns": {
+            "browserColumns": {
                 "title": {
                     "label": "[[Title]]",
                     "type": "text"
                 }
             },
-            "chooserBrowserDataModel": "default",
-            "chooserBrowserType": "default",
+            "browserDataModel": "default",
+            "browserInterface": "default",
             "selectable": 1,
             "fields": {
                 "id": {

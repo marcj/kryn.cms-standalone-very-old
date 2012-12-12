@@ -761,7 +761,7 @@ ka.WindowCombine = new Class({
                     value = time.timeDiffInWords();
 
                 } else {
-                    value = _('No value');
+                    value = t('No value');
                 }
 
             }
@@ -1139,7 +1139,10 @@ ka.WindowCombine = new Class({
         var item = new Element('div', {
             html: layout,
             'class': 'ka-list-combine-item'
-        }).store('item', pItem).addEvent('click', this.loadItem.bind(this, pItem));
+        }).store('item', pItem);
+
+        if (this.classProperties.edit)
+            item.addEvent('click', this.loadItem.bind(this, pItem));
 
 
         //parse template
@@ -1149,12 +1152,6 @@ ka.WindowCombine = new Class({
             this.classProperties['object'],
             true
         );
-
-        var data = {
-            'window': window,
-            item: data,
-            origin: pItem.values
-        };
 
         mowla.render(item, data);
 

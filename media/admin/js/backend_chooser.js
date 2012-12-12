@@ -11,7 +11,7 @@ var admin_backend_chooser = new Class({
 
         /*
         <objectId>: {
-            <objectChooserOptions>
+            <objectbrowserOptions>
         }
         files:
 
@@ -33,8 +33,8 @@ var admin_backend_chooser = new Class({
         this.cookie = (this.win.params.cookie) ? this.win.params.cookie : '';
         this.cookie = 'kFieldChooser_' + this.cookie + '_';
 
-        if (!this.options.chooserOptions)
-            this.options.chooserOptions = {};
+        if (!this.options.browserOptions)
+            this.options.browserOptions = {};
 
         this.bottomBar = this.win.addBottomBar();
         this.bottomBar.addButton(t('Close'), this.win.close.bind(this.win));
@@ -172,10 +172,10 @@ var admin_backend_chooser = new Class({
         var bundle = this.tapPane.addPane(objectDefinition.label, objectDefinition.icon);
         this.pane2ObjectId[bundle.id] = pObjectKey;
 
-        var objectOptions = this.options.chooserOptions[pObjectKey];
+        var objectOptions = this.options.browserOptions[pObjectKey];
 
         if (this.options.objects.length == 1 && !objectOptions){
-            objectOptions = this.options.chooserOptions;
+            objectOptions = this.options.browserOptions;
         }
 
         if (!objectOptions)
@@ -183,15 +183,15 @@ var admin_backend_chooser = new Class({
 
         objectOptions.multi = this.options.multi;
 
-        if (objectDefinition.chooserBrowserType == 'custom' && objectDefinition.chooserBrowserJavascriptClass){
+        if (objectDefinition.browserInterface == 'custom' && objectDefinition.browserInterfaceClass){
 
-            var chooserClass = window[objectDefinition.chooserBrowserJavascriptClass];
+            var chooserClass = window[objectDefinition.browserInterfaceClass];
 
-            var chooserClass = ka.getClass(objectDefinition.chooserBrowserJavascriptClass);
+            var chooserClass = ka.getClass(objectDefinition.browserInterfaceClass);
 
             if (!chooserClass){
                 this.win._alert(t("Can't find chooser class '%class%' in object '%object%'.")
-                    .replace('%class%', objectDefinition.chooserBrowserJavascriptClass)
+                    .replace('%class%', objectDefinition.browserInterfaceClass)
                     .replace('%object%', pObjectKey)
                 );
             } else {

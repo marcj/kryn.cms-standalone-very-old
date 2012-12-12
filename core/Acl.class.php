@@ -44,8 +44,18 @@ class Acl {
         if (self::$cache[$pObjectKey.'_'.$pMode] && $pForce == false)
             return self::$cache[$pObjectKey.'_'.$pMode];
 
-        $userId = Kryn::$client->user_id;
-        $inGroups = Kryn::$client->user['inGroups'];
+        $user = Kryn::getAdminClient()->getUser();
+        $userId = $user->getId();
+        $userGroups = $user->getUserGroups();
+
+        if (count($userGroups) > 0){
+            foreach ($userGroups as $group){
+                $inGroups[] = $group->getGroupId();
+            }
+            $inGroups = implode(', ', $inGroups);
+        } else {
+            $inGroups = '0';
+        }
 
         if (!$inGroups) $inGroups = '0';
         if (!$userId) $userId = '0';
@@ -151,7 +161,6 @@ class Acl {
             if ($rule['access'] == 1){
 
                 if ($result) $result .= ")\n\nOR\n";
-
 
                 if ($conditionObject)
                     $conditionObject[] = 'OR';
