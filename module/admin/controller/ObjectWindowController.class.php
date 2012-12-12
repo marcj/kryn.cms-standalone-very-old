@@ -94,7 +94,7 @@ class ObjectWindowController extends Server {
         return $obj->addItem();
     }
 
-    public function getItems($pObject = null, $pGetPosition = null){
+    public function getItems($pObject = null, $pLimit = null, $pOffset = null, $pGetPosition = null){
 
         $obj = $this->getObj();
 
@@ -106,7 +106,7 @@ class ObjectWindowController extends Server {
             $pk = \Core\Object::parsePk($obj->getObject(), $pObject);
             return $obj->getItem($pk[0]);
         } else {
-            return $obj->getItems();
+            return $obj->getItems($pLimit, $pOffset);
         }
 
     }

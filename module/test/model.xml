@@ -6,5 +6,6 @@
     <vendor type="mysql">
       <parameter name="Charset" value="utf8"/>
     </vendor>
+    <column name="lang" type="VARCHAR" size="3"/>
   </table>
 </database>

@@ -188,13 +188,13 @@ ka.buildUserMenu = function(){
 ka.clearCache = function () {
 
     if (!ka.cacheToolTip) {
-        ka.cacheToolTip = new ka.Tooltip($('ka-btn-clear-cache'), _('Clearing cache ...'), 'top');
+        ka.cacheToolTip = new ka.Tooltip($('ka-btn-clear-cache'), t('Clearing cache ...'), 'top');
     }
     ka.cacheToolTip.show();
 
-    new Request.JSON({url: _path + 'admin/backend/clearCache', noCache: 1, onComplete: function (res) {
-        ka.cacheToolTip.stop(_('Cache cleared'));
-    }}).get();
+    new Request.JSON({url: _path + 'admin/backend/cache', noCache: 1, onComplete: function (res) {
+        ka.cacheToolTip.stop(t('Cache cleared'));
+    }}).delete();
 
 
 }

@@ -327,7 +327,7 @@ ka.WindowCombine = new Class({
 
         if (this.mainLeftItems.getScroll().y - (this.mainLeftItems.getScrollSize().y - this.mainLeftItems.getSize().y) == 0) {
             this.loadMore(pAndScrollToSelect);
-        } else if (this.maxItems > 0 && (this.mainLeftItems.getScrollSize().y - this.mainLeftItems.getSize().y) == 0) {
+        } else if (this.count > 0 && (this.mainLeftItems.getScrollSize().y - this.mainLeftItems.getSize().y) == 0) {
             this.loadMore(pAndScrollToSelect);
 
             /*
@@ -349,7 +349,7 @@ ka.WindowCombine = new Class({
     },
 
     loadMore: function (pAndScrollToSelect) {
-        if (this.max < this.maxItems) {
+        if (this.max < this.count) {
             this.loadItems(this.max, (this.classProperties.itemsPerPage) ? this.classProperties.itemsPerPage : 5, pAndScrollToSelect);
         }
     },
@@ -359,13 +359,13 @@ ka.WindowCombine = new Class({
 
             var items = (this.classProperties.itemsPerPage) ? this.classProperties.itemsPerPage : 5;
             var newFrom = this.from - items;
-            var maxItems = items;
+            var items = items;
 
             if (newFrom < 0) {
-                maxItems += newFrom;
+                items += newFrom;
                 newFrom = 0;
             }
-            this.loadItems(newFrom, maxItems, pAndScrollToSelect);
+            this.loadItems(newFrom, items, pAndScrollToSelect);
         }
     },
 
@@ -391,7 +391,7 @@ ka.WindowCombine = new Class({
         var _this = this;
 
         if (this._lastItems) {
-            if (pFrom > this._lastItems.maxItems) {
+            if (pFrom > this._lastItems.count) {
                 return;
             }
         }
@@ -426,7 +426,7 @@ ka.WindowCombine = new Class({
 
             var res = response.data;
 
-            if (!res.items && (this.from == 0 || !this.from)) {
+            if (!res.count && (this.from == 0 || !this.from)) {
                 this.itemLoaderNoItems();
             }
 
@@ -446,8 +446,8 @@ ka.WindowCombine = new Class({
                 this.max = pFrom + nMax;
             }
 
-            if (res.maxItems > 0) {
-                if (this.max == res.maxItems) {
+            if (res.count > 0) {
+                if (this.max == res.count) {
                     this.itemLoaderEnd();
                 } else {
                     this.itemLoaderStop();
@@ -464,7 +464,7 @@ ka.WindowCombine = new Class({
 
             this.itemsFrom.set('html', this.from + 1);
             this.itemsLoaded.set('html', this.max);
-            this.itemsMax.set('html', res.maxItems);
+            this.itemsMax.set('html', res.count);
 
             if (pAndScrollToSelect) {
                 var target = this.mainLeftItems.getElement('.active');
@@ -484,7 +484,7 @@ ka.WindowCombine = new Class({
 
             if (this.from > 0 && this.mainLeftItems.getScroll().y == 0) {
                 this.loadPrevious(true);
-            } else if (res.maxItems > 0 && (this.mainLeftItems.getScrollSize().y - this.mainLeftItems.getSize().y) == 0) {
+            } else if (res.count > 0 && (this.mainLeftItems.getScrollSize().y - this.mainLeftItems.getSize().y) == 0) {
                 this.loadMore(true);
             }
 
@@ -641,10 +641,10 @@ ka.WindowCombine = new Class({
 
         this._lastItems = pItems;
 
-        this.maxPages = pItems.maxPages;
-        this.maxItems = pItems.maxItems;
+        this.pages = pItems.pages;
+        this.count = pItems.count;
 
-        //this.ctrlMax.set('text', '/ '+pItems.maxPages);
+        //this.ctrlMax.set('text', '/ '+pItems.pages);
 
         this.tempcount = 0;
 
@@ -1036,6 +1036,9 @@ ka.WindowCombine = new Class({
             this.lastRequest.cancel();
         }
 
+        this.order = {};
+        this.order[this.sortField] = this.sortDirection;
+
         this.lastRequest = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.oriWinCode, noCache: true, onComplete: function (response) {
 
             var position = response.data;
@@ -1053,6 +1056,7 @@ ka.WindowCombine = new Class({
                 this.clearItemList();
                 this.loadItems(from, range);
             } else {
+                this.loadItems(0, 1);
                 this.win.alert(t('Ooops. There was an error in the response of %s').replace('%s', 'GET '+_path + 'admin/' + this.win.module + '/' + this.oriWinCode));
             }
 
@@ -1060,105 +1064,22 @@ ka.WindowCombine = new Class({
             module: this.win.module,
             code: this.oriWinCode,
             getPosition: pPrimaries,
-            orderBy: this.sortField,
+            order: this.order,
             filter: this.searchEnable,
             language: (this.languageSelect) ? this.languageSelect.value : false,
-            filterVals: (this.searchEnable) ? this.getSearchVals() : '',
-            orderByDirection: this.sortDirection
+            filterVals: (this.searchEnable) ? this.getSearchVals() : ''
         });
 
     },
 
     saved: function (pItem, pRes, pPublished) {
 
-        logger('saved');
-
         if (pPublished) {
-            /*this.lastLoadedItem && (pItem[this.sortField] && this.lastLoadedItem[this.sortField] &&
-             this.lastLoadedItem[this.sortField] != pItem[this.sortField]) ){*/
 
             this.lastLoadedItem = pItem;
             this._lastItems = null;
 
             this.loadAround(this.win.params.selected);
-        }
-
-        return;
-
-        /*
-         var primaries = {};
-
-         this.currentEdit.classProperties.primary.each(function(primary){
-         primaries[primary] = this.currentItem.values[primary];
-         }.bind(this));
-
-         this.loadAround( primaries );
-
-         return;
-         */
-
-        //logger(pItem);
-        var sortedColumnChanged = false;
-
-        if (sortedColumnChanged) {
-            this.reload();
-        } else {
-
-            var target = false;
-            this.mainLeftItems.getChildren().each(function (item, i) {
-
-                if (item.retrieve('item') == this.currentItem) {
-                    target = item;
-                }
-
-            }.bind(this));
-
-            if (target != false) {
-
-                if (this.lastSavedUpdateRq) {
-                    this.lastSavedUpdateRq.cancel();
-                }
-
-                var req = {
-                    module: this.win.module,
-                    code: this.oriWinCode,
-                    primary: {}
-                };
-
-                this.currentEdit.classProperties.primary.each(function (primary) {
-                    req['primary'][primary] = this.currentItem.values[primary];
-                }.bind(this));
-
-                if (this.currentEdit.classProperties.multiLanguage) {
-                    req['language'] = this.currentItem.values['lang'];
-                }
-
-                this.lastSavedUpdateRq = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.oriWinCode,
-                    noCache: true, onComplete: function (response) {
-
-                        var res = response.data;
-
-                        var newItem = this.addItem(res.items[0]);
-                        newItem.inject(target, 'before');
-                        target.destroy();
-
-                        var splitTitle = this.getSplitTitle(this.currentItem);
-                        var splitTitleNew = this.getSplitTitle(res.item[0]);
-
-                        if (splitTitle != splitTitleNew) {
-
-                            //TODO delete all items and reload items around this one
-                            //this.reloadAround( req );
-
-                        }
-
-                        this.currentItem = res.items[0];
-
-                    }.bind(this)}).get(req);
-
-            } else {
-                this.reload();
-            }
         }
 
     },

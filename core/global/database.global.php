@@ -735,6 +735,7 @@ function dbPrimaryKeyToCondition($pCondition, $pObjectKey = false, $pTable = '')
 function dbConditionToSql($pConditions, &$pData, $pTablePrefix = '', $pObjectKey = '', &$pFieldNames = null){
 
     $result = '';
+    if ($pConditions === NULL) return '';
     if (!is_array($pConditions) && $pConditions !== false && $pConditions !== null) $pConditions = array($pConditions);
 
     if (is_array($pConditions) && !is_numeric(key($pConditions))){
@@ -804,6 +805,8 @@ function dbFullConditionToSql($pConditions, &$pData, $pTablePrefix, &$pFieldName
  */
 function dbConditionSingleField($pCondition, &$pData, $pTable = '', &$pFieldNames = null){
 
+    if ($pCondition[0] === NULL) return '';
+
     if (($pos = strpos($pCondition[0], '.')) === false){
         $result = ($pTable?dbQuote($pTable).'.':'').dbQuote($pCondition[0]).' ';
         if ($pFieldNames !== null) $pFieldNames[] = $pCondition[0];
@@ -818,12 +821,14 @@ function dbConditionSingleField($pCondition, &$pData, $pTable = '', &$pFieldName
         $result .= $pCondition[1];
 
     if (!is_numeric($pCondition[0])){
-        $pData[':p'.(count($pData)+1)] = $pCondition[2];
-        $p = ':p'.count($pData);
-        if (strtolower($pCondition[1]) == 'in'){
-            $result .= " ($p)";
-        } else {
-            $result .= ' '.$p;
+        if ($pCondition[2] !== NULL){
+            $pData[':p'.(count($pData)+1)] = $pCondition[2];
+            $p = ':p'.count($pData);
+            if (strtolower($pCondition[1]) == 'in'){
+                $result .= " ($p)";
+            } else {
+                $result .= ' '.$p;
+            }
         }
     } else {
         $result .= ' '.($pCondition[0]+0);

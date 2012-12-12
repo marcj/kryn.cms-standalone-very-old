@@ -484,7 +484,7 @@ abstract class ObjectWindow {
 
     public function getPosition($pPk){
 
-        $obj = \Core\Object::getClass($this->object);
+        /*$obj = \Core\Object::getClass($this->object);
         $primaryKey = $obj->normalizePrimaryKey($pPk);
 
         $condition = $this->getCondition();
@@ -493,7 +493,10 @@ abstract class ObjectWindow {
             $condition = $condition ? array_merge($condition, $customCondition) : $customCondition;
 
         $options['permissionCheck'] = $this->permissionCheck;
-        $items = $obj->getItems(null, $options);
+        */
+        $obj = \Core\Object::getClass($this->object);
+        $primaryKey = $obj->normalizePrimaryKey($pPk);
+        $items = $this->getItems();
 
         $position = 0;
 
@@ -522,24 +525,23 @@ abstract class ObjectWindow {
     }
 
     /**
-     * Returns items with some informations.
-     * 
+     * Returns items with some information.
+     *
      *   array(
      *       'items' => $items,
-     *       'maxPages' => $maxPages,
-     *       'maxItems' => $maxItems
+     *       'count' => $maxItems,
+     *       'pages' => $maxPages
      *   );
-     *   
-     * @param string $pPage
+     *
+     * @param int $pLimit
+     * @param int $pOffset
      * @return array
      */
-    public function getItems($pPage) {
-
-        $pPage = $pPage?$pPage:1;
+    public function getItems($pLimit = null, $pOffset = null) {
 
         $options   = array();
-        $options['offset'] = ($pPage * $this->itemsPerPage) - $this->itemsPerPage;
-        $options['limit'] = $this->itemsPerPage;
+        $options['offset'] = $pOffset;
+        $options['limit'] = $pLimit ? $pLimit : $this->itemsPerPage;
 
         $obj = \Core\Object::getClass($this->object);
 
@@ -559,6 +561,19 @@ abstract class ObjectWindow {
         else
             $maxPages = 0;
 
+        if ($this->getMultiLanguage()){
+            //add language condition
+            $langCondition = array(
+                array('lang', '=', getArgv('lang')+""),
+                'OR',
+                array('lang', 'IS NULL'),
+            );
+            if ($condition)
+                $condition = array($condition, 'AND', $langCondition);
+            else
+                $condition = $langCondition;
+        }
+
         $items = $obj->getItems($condition, $options);
 
         foreach ($items as &$item){
@@ -567,8 +582,8 @@ abstract class ObjectWindow {
 
         return array(
             'items' => $items,
-            'maxPages' => $maxPages,
-            'maxItems' => $maxItems
+            'count' => $maxItems,
+            'pages' => $maxPages
         );
     }
 
@@ -756,8 +771,8 @@ abstract class ObjectWindow {
     function prepareRow($pItem) {
 
         $visible = true;
-        $editable = $this->edit;
-        $deleteable = $this->remove;
+        $editable = $this->edit; //todo get from ACL
+        $deleteable = $this->remove; //todo, get from acl
 
         $res = null;
         if ($visible) {

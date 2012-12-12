@@ -438,7 +438,7 @@ ka.WindowList = new Class({
             src: myPath + 'control_end.png'
         }).addEvent('click',
             function () {
-                _this.loadPage(_this.lastResult.maxPages);
+                _this.loadPage(_this.lastResult.pages);
             }).inject(this.navi);
 
         if (this.classProperties.multiLanguage) {
@@ -637,7 +637,7 @@ ka.WindowList = new Class({
     loadPage: function (pPage) {
 
         if (this.lastResult && pPage != 1) {
-            if (pPage > this.lastResult.maxPages) {
+            if (pPage > this.lastResult.pages) {
                 return;
             }
         }
@@ -677,7 +677,7 @@ ka.WindowList = new Class({
         var req = {};
         this.ctrlPage.value = pPage;
 
-        req.page = pPage;
+        req.offset = (this.classProperties.itemsPerPage * pPage) - this.classProperties.itemsPerPage;
         req.lang = (this.languageSelect) ? this.languageSelect.value : false;
 
         req.orderBy = {};
@@ -708,7 +708,7 @@ ka.WindowList = new Class({
         }
 
         if (!pResult){
-            pResult = {page: 0, maxPages:0};
+            pResult = {page: 0, pages:0};
         }
 
         this.lastResult = pResult;
@@ -720,7 +720,7 @@ ka.WindowList = new Class({
         if (this.lastNoItemsDiv)
             this.lastNoItemsDiv.destroy();
 
-        if (pResult.maxItems == 0){
+        if (pResult.count == 0){
             this.ctrlPage.value = 0;
             this.lastNoItemsDiv = new Element('div', {
                 style: 'position: absolute; left: 0; right: 0; top: 0; bottom: 0; background-color: #eee',
@@ -738,12 +738,12 @@ ka.WindowList = new Class({
             this.ctrlPrevious.setStyle('opacity', 0.2);
         }
 
-        if (pResult.page >= pResult.maxPages) {
+        if (pResult.page >= pResult.pages) {
             this.ctrlNext.setStyle('opacity', 0.2);
             this.ctrlLast.setStyle('opacity', 0.2);
         }
 
-        this.ctrlMax.set('text', '/ ' + pResult.maxPages);
+        this.ctrlMax.set('text', '/ ' + pResult.pages);
 
         _this.tempcount = 0;
         if (pResult.items) {

@@ -56,7 +56,7 @@
             ],
             "nested": false,
             "dataModel": "propel",
-            "multiLanguage": false,
+            "multiLanguage": true,
             "domainDepended": false,
             "treeIconMapping": [
                 
@@ -73,6 +73,9 @@
                 },
                 "name": {
                     "type": "text"
+                },
+                "lang": {
+                    "type": "lang"
                 }
             },
             "label": "Test"
