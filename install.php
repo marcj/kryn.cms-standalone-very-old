@@ -910,7 +910,7 @@ function step2(){
         $dir = 'media/cache';
 
         if (!file_exists($dir))
-            if (!@touch($dir)){
+            if (!mkdir($dir)){
                 print "<div style='color: red'>Can not create media/cache folder.</div>";
             }
 
