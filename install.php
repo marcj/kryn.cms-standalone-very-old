@@ -518,6 +518,7 @@ function step5Done($pMsg){
 
     //fire extract scripts
     function step5_2(){
+        /*
         global $modules;
         $manager = new Admin\Module\Manager;
 
@@ -533,13 +534,14 @@ function step5Done($pMsg){
                 step5Failed($e->getMessage());
             }
         }
+        */
         step5Done(true);
     }
 
     //write propel build environment
     function step5_3(){
 
-        \Core\SystemFile::delete('propel');
+        \Core\TempFile::delete('propel');
 
         try {
             //create the propel config

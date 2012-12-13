@@ -46,22 +46,22 @@ class Local extends FALAbstract {
      */
     public function setPermission($pPath){
 
-        if (is_dir($pPath)){
+        if (is_dir($this->getRoot().$pPath)){
 
-            chmod($pPath, $this->dirMode);
+            chmod($this->getRoot().$pPath, $this->dirMode);
             if ($this->groupName)
-                chgrp($pPath, $this->groupName);
+                chgrp($this->getRoot().$pPath, $this->groupName);
 
-            $sub = find($pPath.'/*', false);
+            $sub = find($this->getRoot().$pPath.'/*', false);
             if (is_array($sub)){
                 foreach ($sub as $path){
-                    $this->setPermission($path);
+                    $this->setPermission(substr($path, 0, strlen($this->getRoot())));
                 }
             }
-        } else if (is_file($pPath)){
-            chmod($pPath, $this->fileMode);
+        } else if (is_file($this->getRoot().$pPath)){
+            chmod($this->getRoot().$pPath, $this->fileMode);
             if ($this->groupName)
-                chgrp($pPath, $this->groupName);
+                chgrp($this->getRoot().$pPath, $this->groupName);
         }
 
     }

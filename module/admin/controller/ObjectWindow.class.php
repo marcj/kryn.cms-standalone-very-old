@@ -404,7 +404,7 @@ abstract class ObjectWindow {
                 $field['desc'] = $this->objectDefinition['fields'][$key]['desc'];
 
             if (!isset($field['label']))
-                $field['label'] = '!!No title defined!!';
+                $field['label'] = '!!No title defined (either object or in objectWindow class!!';
         }
 
         foreach ($pFields as $key => &$field)
@@ -660,10 +660,21 @@ abstract class ObjectWindow {
      */
     public function getItem($pPk) {
 
+        $this->primaryKey = $pPk;
+
         $options['fields'] = $this->getFieldList();
         $options['permissionCheck'] = $this->getPermissionCheck();
 
         $item = \Core\Object::get($this->object, $pPk, $options);
+
+        //add custom values
+        foreach ($this->_fields as $key => $field){
+
+            if ($field['customValue'] && method_exists($this, $method = $field['customValue'])){
+                $item[$key] = $this->$method($field, $key);
+            }
+
+        }
 
         //check against additionaly our own custom condition
         if ($item && $condition = $this->getCondition())
@@ -692,7 +703,7 @@ abstract class ObjectWindow {
         $scopeId  = null;
 
         //do normal add through Core\Object
-        $result = \Core\Object::add($this->getObject(), $data,
+        $this->primaryKey = \Core\Object::add($this->getObject(), $data,
             $branchId,
             $treePos,
             $scopeId,
@@ -701,16 +712,16 @@ abstract class ObjectWindow {
 
         //handle customSaves
         foreach ($this->_fields as $key => $field){
-            if ($field['customSave']){
-                if (method_exists($this, $field['customSave']))
-                    call_user_method($field['customSave'], $this);
-            }
+            if ($field['customPostSave'] && method_exists($this, $method = $field['customPostSave']))
+                $this->$method($field, $key);
         }
 
-        return $result;
+        return $this->primaryKey;
     }
 
     public function saveItem($pPk){
+
+        $this->primaryKey = $pPk;
 
         $options['fields'] = $this->getFieldList();
         $options['permissionCheck'] = $this->getPermissionCheck();
@@ -724,7 +735,7 @@ abstract class ObjectWindow {
         if (!$item) throw new \ObjectItemNotFoundException(tf('Can not find the object item with primaryKey %s', print_r($pPk, true)));
 
         //collect values
-        $data = $this->collectData();
+        $data = $this->collectData($pPk);
 
         //do normal update through Core\Object
         $result = \Core\Object::update($this->getObject(), $pPk, $data, array('permissionCheck' => $this->getPermissionCheck()));
@@ -740,17 +751,30 @@ abstract class ObjectWindow {
         return $result;
     }
 
-    public function collectData(){
+    /**
+     * Collects all data from GET/POST that has to be saved.
+     * Iterates only through all defined fields in $fields.
+     *
+     * @param mixed $pPk primary key if this has been called for updating, and empty for creating a new record.
+     * @return array
+     * @throws \FieldCanNotBeEmptyException
+     */
+    public function collectData($pPk = null){
 
         $data = array();
 
         foreach ($this->_fields as $key => $field){
             if ($field['noSave']) continue;
 
-            if ($field['customValue'] && method_exists($this, $field['customValue'])){
-                $data[$key] = call_user_method($field['customValue'], $this);
-            } else if (!$field['customSave']){
-                $data[$key] = $_POST[$key]?:$_GET[$key];
+            $data[$key] = $_POST[$key]?:$_GET[$key];
+
+            if ($field['customValue'] && method_exists($this, $method = $field['customValue'])){
+                $data[$key] = $this->$method($field, $key);
+            }
+
+            if ($field['customSave'] && method_exists($this, $method = $field['customValue'])){
+                $this->$method($field, $key);
+                continue;
             }
 
             if (($field['saveOnlyFilled'] || $field['saveOnlyIsFilled']) && ($data[$key] === '' || $data[$key] === null))

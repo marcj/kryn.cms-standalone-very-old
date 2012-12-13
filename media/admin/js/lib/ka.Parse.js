@@ -1,3 +1,13 @@
+/**
+ *
+ * ka.Parse - builds forms from ka.Field definitions.
+ *
+ * This class handles also the visibility of the children container and
+ * the 'needValue' and 'againstField' property.
+ *
+ * @type {Class}
+ */
+
 ka.Parse = new Class({
 
     Implements: [Events, Options],
@@ -14,6 +24,13 @@ ka.Parse = new Class({
         tabsInWindowHeader: false
     },
 
+    /**
+     * Constructor
+     * @param {Element} pContainer
+     * @param {Object} pDefinition
+     * @param {Object} pOptions
+     * @param {Object} pRefs
+     */
     initialize: function (pContainer, pDefinition, pOptions, pRefs) {
         var self = this;
 
@@ -44,7 +61,7 @@ ka.Parse = new Class({
 
                         if (visible) obj.show(); else obj.hide();
 
-                        self.showChildContainer(this);
+                        self.updateChildrenContainerVisibility(this);
                     };
 
                     Array.each(obj.field.againstField, function(fieldKey){
@@ -54,15 +71,15 @@ ka.Parse = new Class({
                     check();
 
                     Array.each(obj.field.againstField, function(fieldKey){
-                        this.showChildContainer(this.fields[fieldKey]);
+                        this.updateChildrenContainerVisibility(this.fields[fieldKey]);
                     }.bind(this));
 
                 } else {
                     if (this.fields[obj.field.againstField]){
                         this.fields[obj.field.againstField].addEvent('check-depends', function(){
-                            this.setVisibility(this.fields[obj.field.againstField], obj);
+                            this.updateVisibility(this.fields[obj.field.againstField], obj);
                             if (obj.hasParent())
-                                self.showChildContainer(obj.getParent());
+                                self.updateChildrenContainerVisibility(obj.getParent());
                         }.bind(this));
                         this.fields[obj.field.againstField].fireEvent('check-depends');
                     } else {
@@ -73,6 +90,10 @@ ka.Parse = new Class({
         }.bind(this));
     },
 
+    /**
+     * Returns all field instances from type 'tab'.
+     * @return {Object}
+     */
     getTabButtons: function(){
 
         var res = {};
@@ -88,14 +109,30 @@ ka.Parse = new Class({
         return res;
     },
 
+    /**
+     * Returns the main DOM element.
+     *
+     * @return {Element}
+     */
     toElement: function () {
         return this.main;
     },
 
+    /**
+     * Fires a change event.
+     */
     fireChange: function(){
         this.fireEvent('change');
     },
 
+    /**
+     * Goes through every level and serach for ka.Field definitions.
+     * Parse it, creates the ka.Field and put'm to this.fields[].
+     *
+     * @param pLevel
+     * @param pContainer
+     * @param pDependField
+     */
     parseLevel: function (pLevel, pContainer, pDependField) {
         var self = this;
 
@@ -219,11 +256,11 @@ ka.Parse = new Class({
 
                             if (sub.field.againstField && sub.field.againstField != id) return;
 
-                            self.setVisibility(this, sub);
+                            self.updateVisibility(this, sub);
 
                         }.bind(this));
 
-                        self.showChildContainer(this);
+                        self.updateChildrenContainerVisibility(this);
 
                     }.bind(obj));
                 }
@@ -238,7 +275,11 @@ ka.Parse = new Class({
         }.bind(this));
     },
 
-    showChildContainer: function(pObj){
+    /**
+     * Updates the visibility of the children container.
+     * @param pObj
+     */
+    updateChildrenContainerVisibility: function(pObj){
 
         if (pObj.handleChildsMySelf) return;
 
@@ -260,45 +301,58 @@ ka.Parse = new Class({
 
     },
 
-    setVisibility: function(pField, pChild){
+    /**
+     * Updates the visibility of a field.
+     *
+     * @param pTarget
+     * @param pField
+     */
+    updateVisibility: function(pTarget, pField){
 
-        var visible = this.getVisibility(pField, pChild);
+        var visible = this.getVisibility(pTarget, pField);
         if (visible)
-            pChild.show();
+            pField.show();
         else
-            pChild.hide();
+            pField.hide();
     },
 
-    getVisibility: function(pField, pChild){
+    /**
+     * Returns whether a field should be visible or not.
+     *
+     * @param pTarget
+     * @param pField
+     * @return {Boolean}
+     */
+    getVisibility: function(pTarget, pField){
 
-        if (pField.isHidden()) return false;
+        if (pTarget.isHidden()) return false;
 
-        if (typeOf(pChild.field.needValue) == 'null') return true;
-        if (pChild.field.needValue === '') return true;
+        if (typeOf(pField.field.needValue) == 'null') return true;
+        if (pField.field.needValue === '') return true;
 
-        if (typeOf(pChild.field.needValue) == 'array') {
-            if (pChild.field.needValue.contains(pField.getValue())) {
+        if (typeOf(pField.field.needValue) == 'array') {
+            if (pField.field.needValue.contains(pTarget.getValue())) {
                 return true;
             } else {
                 return false;
             }
-        } else if (typeOf(pChild.field.needValue) == 'function') {
-            if (pChild.field.needValue.attempt(pField.getValue())) {
+        } else if (typeOf(pField.field.needValue) == 'function') {
+            if (pField.field.needValue.attempt(pTarget.getValue())) {
                 return true;
             } else {
                 return false;
             }
-        } else if (typeOf(pChild.field.needValue) == 'string' || typeOf(pChild.field.needValue) == 'number') {
+        } else if (typeOf(pField.field.needValue) == 'string' || typeOf(pField.field.needValue) == 'number') {
             var c = 'javascript:';
-            if (typeOf(pChild.field.needValue) == 'string' && pChild.field.needValue.substr(0,c.length) == c){
+            if (typeOf(pField.field.needValue) == 'string' && pField.field.needValue.substr(0,c.length) == c){
 
-                var evalString = pChild.field.needValue.substr(c);
-                var value = pField.getValue();
+                var evalString = pField.field.needValue.substr(c);
+                var value = pTarget.getValue();
                 var result = eval(evalString);
                 return (result)?true:false;
 
             } else {
-                if (pChild.field.needValue == pField.getValue()) {
+                if (pField.field.needValue == pTarget.getValue()) {
                     return true;
                 } else {
                     return false;
@@ -308,6 +362,40 @@ ka.Parse = new Class({
         return false;
     },
 
+    /**
+     * Checks all fields whether they are valid or not. This fires
+     * 'checkValid()' on each ka.Field instance, so it displays
+     * the user if a field is not valid.
+     *
+     * @return {Boolean}
+     */
+    checkValid: function(){
+
+        var ok = true;
+        Object.each(this.fields, function (field, id) {
+
+            if (id.substr(0,2) == '__' && id.substr(id.length-2) == '__')
+                return;
+
+            if (field.isHidden())
+                return;
+
+            if (!field.checkValid()) {
+                ok = false;
+            }
+
+        });
+
+        return ok;
+
+    },
+
+    /**
+     * Invisible validation check. This does not show any information to the user,
+     * if a field is invalid.
+     *
+     * @return {Boolean}
+     */
     isValid: function () {
 
         var ok = true;
@@ -328,6 +416,37 @@ ka.Parse = new Class({
         return ok;
     },
 
+    /**
+     * Returns all fields, which are invalid.
+     *
+     * @return {Object}
+     */
+    getInvalidFields: function () {
+
+        var fields = {};
+        Object.each(this.fields, function (field, id) {
+
+            if (id.substr(0,2) == '__' && id.substr(id.length-2) == '__')
+                return;
+
+            if (field.isHidden())
+                return;
+
+            if (!field.isValid()) {
+                fields[id] = field;
+            }
+
+        });
+
+        return fields;
+    },
+
+    /**
+     * Set the value of all fields.
+     *
+     * @param pValues
+     * @param pInternal
+     */
     setValue: function (pValues, pInternal) {
 
         if (typeOf(pValues) == 'string') {
@@ -343,14 +462,31 @@ ka.Parse = new Class({
         });
     },
 
+    /**
+     * Returns all fields as a flatten object.
+     *
+     * @return {Object}
+     */
     getFields: function () {
         return this.fields;
     },
 
+    /**
+     * Returns a field instance.
+     *
+     * @param {String} pField
+     * @return {ka.Field}
+     */
     getField: function (pField) {
         return this.fields[pField];
     },
 
+    /**
+     * Returns the value of a field.
+     *
+     * @param {String} pField
+     * @return {Mixed}
+     */
     getValue: function (pField) {
 
         var val;

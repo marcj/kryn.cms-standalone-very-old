@@ -5,7 +5,7 @@ ka.Field = new Class({
 
     Implements: [Options, Events],
 
-    Binds: ['fireChange'],
+    Binds: ['fireChange', 'checkValid'],
 
     options: {
 
@@ -200,6 +200,8 @@ ka.Field = new Class({
                 this.setValue(JSON.decode(cookieValue), true);
             }
         }
+
+        this.addEvent('change', this.checkValid);
 
         if (this.options.disabled){
             this.fieldObject.setDisabled(true);
@@ -455,7 +457,7 @@ ka.Field = new Class({
      * Sets the value.
      *
      * @param {Mixed} pValue
-     * @param {Boolean} pInternal Fires fireChange() whichs fires the 'change' event. Default is false.
+     * @param {Boolean} pInternal Fires fireChange() which fires the 'change' event. Default is false.
      */
     setValue: function (pValue, pInternal){
 
@@ -471,6 +473,7 @@ ka.Field = new Class({
             this.fireChange();
         } else {
             this.fireEvent('check-depends');
+            this.checkValid();
         }
     },
 
@@ -482,7 +485,6 @@ ka.Field = new Class({
         var value = this.getValue();
         this.fireEvent('change', [value, this, this.key]);
         this.fireEvent('check-depends');
-        this.checkValid();
 
         this.updateCookieStorage(value);
     },
@@ -496,7 +498,7 @@ ka.Field = new Class({
     },
 
     /**
-     * Finds the ka-window instance through a DOM lookup.
+     * Finds the ka.Window instance through a DOM lookup.
      *
      * @return {ka.Window} The window instance or null
      */

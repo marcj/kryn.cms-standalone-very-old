@@ -1,0 +1,44 @@
+{
+    "id": "5b46",
+    "database": {
+        "server": "127.0.0.1",
+        "user": "postgres",
+        "password": "marc",
+        "name": "postgres",
+        "prefix": "kryn_",
+        "type": "pgsql",
+        "persistent": "1"
+    },
+    "fileGroupPermission": "rw",
+    "fileGroupName": "everyone",
+    "fileEveryonePermission": "r",
+    "cache": {
+        "class": "\\Core\\Cache\\Files"
+    },
+    "passwordHashCompat": 0,
+    "passwordHashKey": "w.)9V>DTT`f^3\\rxR+wg*@^7V6$9\\\/N",
+    "displayErrors": "1",
+    "displayDetailedRestErrors": "1",
+    "logErrors": 0,
+    "systemTitle": "Fresh installation",
+    "client": {
+        "class": "\\Core\\Client\\KrynUsers",
+        "config": {
+            "emailLogin": false,
+            "store": {
+                "class": "database",
+                "config": [
+
+                ]
+            }
+        }
+    },
+    "timezone": "Europe\/Berlin",
+    "activeModules": [
+        "publication",
+        "search",
+        "sitemap",
+        "test",
+        "th_krynDemo"
+    ]
+}

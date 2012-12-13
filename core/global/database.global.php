@@ -127,7 +127,10 @@ function dbCommit(){
  * @return array
  */
 function dbExFetch($pQuery, $pParams = null) {
-    return dbExec($pQuery, $pParams)->fetch(PDO::FETCH_ASSOC);
+    $stm = dbQuery($pQuery, $pParams);
+    $items = $stm->fetch(PDO::FETCH_ASSOC);
+    $stm->closeCursor();
+    return $items;
 }
 
 /**
@@ -139,22 +142,53 @@ function dbExFetch($pQuery, $pParams = null) {
  * @return array
  */
 function dbExFetchAll($pQuery, $pParams = null) {
-    return dbExec($pQuery, $pParams)->fetchAll(PDO::FETCH_ASSOC);
+    $stm = dbQuery($pQuery, $pParams);
+    $items = $stm->fetchAll(PDO::FETCH_ASSOC);
+    $stm->closeCursor();
+    return $items;
 }
 
 
 
 /**
- * Executes an SQL query.
+ * Executes an SQL query and returns the PDOStatement.
+ * Do not forget to closeCursor().
  *
- * If $pParams is used a prepared statement is used.
- * If an SQLLogger is configured, the execution is logged.
+ * If $pParams is given a prepared statement is used.
  *
  * @param string $pQuery  The SQL query to execute
  * @param array  $pParams The parameters to bind to the query
  *
  * @return PDOStatement
  */
+function dbQuery($pQuery, $pParams = null) {
+    global $dbLastInsertedTable;
+
+    if (preg_match('/[\s\n\t]*INSERT[\t\n ]+INTO[\t\n ]+([a-z0-9\_\-]+)/is', $pQuery, $matches))
+        $dbLastInsertedTable = $matches[1];
+
+    if ($pParams !== null){
+        $sth = dbConnection()->prepare($pQuery);
+
+        if (!is_array($pParams)) $pParams = array($pParams);
+        $sth->execute($pParams);
+    } else {
+        $sth = dbConnection()->query($pQuery);
+    }
+    return $sth;
+}
+
+
+/**
+ * Executes an SQL statement and returns the number of affected rows.
+ *
+ * If $pParams is given a prepared statement is used.
+ *
+ * @param $pQuery
+ * @param array  $pParams The parameters to bind to the query
+ * @return int
+ */
+
 function dbExec($pQuery, $pParams = null) {
     global $dbLastInsertedTable;
 
@@ -163,12 +197,14 @@ function dbExec($pQuery, $pParams = null) {
 
     if ($pParams !== null){
         $sth = dbConnection()->prepare($pQuery);
+
         if (!is_array($pParams)) $pParams = array($pParams);
         $sth->execute($pParams);
+        $sth->closeCursor();
+        return $sth->rowCount();
     } else {
-        $sth = dbConnection()->query($pQuery);
+        return dbConnection()->exec($pQuery);
     }
-    return $sth;
 }
 
 /**
@@ -399,7 +435,8 @@ function dbNumRows($pStatement){
  * @return bool
  */
 function dbFree($pStatement){
-    return $pStatement->closeCursor();
+    if ($pStatement)
+        return $pStatement->closeCursor();
 }
 
 /**
@@ -504,7 +541,7 @@ function dbCount($pTable, $pWhere = false){
         if ($pWhere != false)
             $sql .= " WHERE $pWhere ";
 
-        $res = dbExec($sql);
+        $res = dbQuery($sql);
 
         $count = dbNumRows($res);
 

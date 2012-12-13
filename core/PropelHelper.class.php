@@ -12,14 +12,16 @@ class PropelHelper {
     public static function init(){
 
         try {
+            ob_start();
             $result = self::fullGenerator();
+            ob_clean();
         } catch(Exception $e){
             self::cleanup();
             Kryn::internalError('Propel initialization Error', is_array($e)?print_r($e,true):$e);
         }
 
         self::cleanup();
-        Kryn::internalMessage('Propel initialization', $result);
+
     }
 
     public static function getTempFolder(){
@@ -251,7 +253,7 @@ class PropelHelper {
         $tmp = self::getTempFolder();
 
         if (!mkdirr($folder = $tmp.'propel/build/conf/'))
-            throw new Exception('Can not create propel folder in '.$folder);
+            throw new \Exception('Can not create propel folder in '.$folder);
 
         $adapter = Kryn::$config['database']['type'];
         if ($adapter == 'postgresql') $adapter = 'pgsql';
@@ -333,10 +335,11 @@ class PropelHelper {
 
         foreach ($sql as $query){
             if (!trim($query)) continue;
+
             try {
                 dbExec($query);
-            } catch (\PDOException $e){
-                $result .= "[error] $query -> $e\n";
+            } catch (\Exception $ex){
+                $result .= "[error] $query -> $ex\n";
             }
         }
 
@@ -362,7 +365,7 @@ class PropelHelper {
         preg_match('/(.*)\/PropelMigration_([0-9]*)\.php/', $lastMigrationFile, $matches);
         $clazz = 'PropelMigration_'.$matches[2];
 
-        require($lastMigrationFile);
+        include_once($lastMigrationFile);
         $obj = new $clazz;
 
         $sql = $obj->getUpSQL();

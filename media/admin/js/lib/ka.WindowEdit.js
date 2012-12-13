@@ -137,38 +137,7 @@ ka.WindowEdit = new Class({
     _loadItem: function (pItem) {
         this.item = pItem;
 
-        this.previewUrls = pItem.preview_urls;
-
-        var first = false;
-
-        Object.each(this.fields, function (field, fieldId) {
-
-            if (first == false && typeOf(pItem.values[fieldId]) == 'string') {
-                this.win.setTitle(pItem.values[fieldId]);
-                first = true;
-            }
-            try {
-
-                if (typeOf(pItem.values[fieldId]) == 'null') {
-                    field.setValue('');
-
-                } else if (!field.field.startempty) {
-                    field.setValue(pItem.values[fieldId]);
-                }
-
-                if (field.field.depends) {
-                    field.fireEvent('change', field.getValue());
-                }
-
-            } catch (e) {
-                //logger( "Error with "+fieldId+": "+e);
-            }
-        }.bind(this));
-
-        if (this.classProperties.multiLanguage && this.languageSelect.getValue() != this.item.values.lang) {
-            this.languageSelect.setValue(this.item.values.lang);
-            this.changeLanguage();
-        }
+        this.setValue(pItem.values);
 
         this.renderVersionItems();
 
@@ -176,6 +145,54 @@ ka.WindowEdit = new Class({
         this.fireEvent('load', pItem);
 
         this.ritem = this.retrieveData(true);
+    },
+
+
+    setValue: function(pValue){
+
+        this.parserObject.setValue(pValue);
+
+        if (this.getTitleValue())
+            this.win.setTitle(this.getTitleValue());
+
+        if (this.classProperties.multiLanguage && this.languageSelect.getValue() != pValue.lang) {
+            this.languageSelect.setValue(pValue.lang);
+            this.changeLanguage();
+        }
+    },
+
+    /**
+     * Returns the vlaue of the field for the window title.
+     * @return {String}
+     */
+    getTitleValue: function(){
+
+        var value = this.parserObject.getValue();
+
+        var titleField = this.classProperties.titleField;
+        if (!this.classProperties.titleField){
+
+            Object.each(this.fields, function (field, fieldId) {
+                if (field.type != 'tab' && field.type != 'childrenSwitcher')
+                    if (!titleField) titleField = fieldId;
+            });
+        }
+
+        if (!this.fields[titleField]){
+            logger(tf('Field %s ($titleField) for the window title does not exists in the $fields variable', titleField));
+        }
+
+        if (titleField && this.fields[titleField]){
+
+            var value = ka.getObjectFieldLabel(
+                value,
+                this.fields[titleField],
+                titleField,
+                this.classProperties['object']
+            );
+            return value;
+        }
+        return '';
     },
 
     renderPreviews: function () {
@@ -387,13 +404,13 @@ ka.WindowEdit = new Class({
                 this.form.set('html', this.classProperties.layout);
             }
 
-            var parser = new ka.Parse(this.form, this.classProperties.fields, {tabsInWindowHeader: 1}, {win: this.win});
-            this.fields = parser.getFields();
+            this.parserObject = new ka.Parse(this.form, this.classProperties.fields, {tabsInWindowHeader: 1}, {win: this.win});
+            this.fields = this.parserObject.getFields();
 
-            this._buttons = parser.getTabButtons();
+            this._buttons = this.parserObject.getTabButtons();
 
-            if (parser.firstLevelTabBar)
-                this.topTabGroup = parser.firstLevelTabBar.buttonGroup;
+            if (this.parserObject.firstLevelTabBar)
+                this.topTabGroup = this.parserObject.firstLevelTabBar.buttonGroup;
 
         }
 
@@ -519,7 +536,16 @@ ka.WindowEdit = new Class({
 
     reset: function(){
 
+        this.setValue(this.item.values);
+    },
 
+    remove: function(){
+
+        this.win.confirm(tf('Really delete %s?', this.getTitleValue()), function(answer){
+
+
+
+        }.bind(this));
 
     },
 
@@ -533,7 +559,7 @@ ka.WindowEdit = new Class({
 
 
         this.removeBtn = new ka.Button([t('Remove'), '#icon-warning'])
-        .addEvent('click', this.reset.bind(this))
+        .addEvent('click', this.remove.bind(this))
         .inject(this.actionBar);
 
         document.id(this.removeBtn).addClass('ka-Button-red');
@@ -668,14 +694,38 @@ ka.WindowEdit = new Class({
 
     retrieveData: function (pWithoutEmptyCheck) {
 
-        var go = true;
-        var req = {};
+        if (!pWithoutEmptyCheck && !this.parserObject.isValid()){
+            var invalidFields = this.parserObject.getInvalidFields();
 
+            Object.each(invalidFields, function (item, fieldId) {
+
+                var properTabKey = this.fieldToTabOIndex[fieldId];
+                if (!properTabKey) return;
+                var tabButton = this.fields[properTabKey];
+
+                if (tabButton && !tabButton.isPressed()){
+
+                    tabButton.startTip(t('Invalid input!'));
+                    tabButton.toolTip.loader.set('src', _path + PATH_MEDIA + '/admin/images/icons/error.png');
+                    tabButton.toolTip.loader.setStyle('position', 'relative');
+                    tabButton.toolTip.loader.setStyle('top', '-2px');
+                    document.id(tabButton.toolTip).setStyle('top', document.id(tabButton.toolTip).getStyle('top').toInt()+2);
+
+                    tabButton.addEvent('click', this.removeTooltip);
+                } else {
+                    tabButton.stopTip();
+                }
+
+                item.highlight();
+            }.bind(this));
+
+            return false;
+        }
+
+        /*
         Object.each(this.fields, function (item, fieldId) {
 
             if (!instanceOf(item, ka.Field)) return;
-
-            if (['window_list'].contains(item.type)) return;
 
             if (!pWithoutEmptyCheck && !item.isHidden() && !item.isValid()) {
 
@@ -700,17 +750,13 @@ ka.WindowEdit = new Class({
 
                 go = false;
             }
-            var value = item.getValue();
-
-            if (item.field.relation == 'n-n') {
-                req[ fieldId ] = JSON.encode(value);
-            } else if (typeOf(value) == 'object') {
-                req[ fieldId ] = JSON.encode(value);
-            } else {
-                req[ fieldId ] = value;
-            }
 
         }.bind(this));
+
+        if (!go) return false;
+         */
+
+        var req = this.parserObject.getValue();
 
         if (this.classProperties.multiLanguage) {
             if (!pWithoutEmptyCheck && this.languageSelect.getValue() == ''){
@@ -728,9 +774,6 @@ ka.WindowEdit = new Class({
             req['lang'] = this.languageSelect.getValue();
         }
 
-        if (go == false) {
-            return false;
-        }
         return req;
 
     },
@@ -742,26 +785,7 @@ ka.WindowEdit = new Class({
         var currentData = this.retrieveData(true);
         if (!currentData) return true;
 
-        var hasUnsaved = false;
-
-        var blacklist = [];
-
-        Object.each(currentData, function (value, id) {
-            if (blacklist.contains(id)) return;
-
-            if (typeOf(this.ritem[id]) == 'null') {
-                this.ritem[id] = '';
-            }
-            if (typeOf(value) == 'null') {
-                value = '';
-            }
-
-            if (value + "" != this.ritem[id]) {
-                hasUnsaved = true;
-            }
-        }.bind(this));
-
-        return hasUnsaved;
+        return JSON.encode(currentData) == JSON.encode(this.ritem) ? false: true;
     },
 
     checkClose: function () {
@@ -771,7 +795,7 @@ ka.WindowEdit = new Class({
 
         if (hasUnsaved) {
             this.win.interruptClose = true;
-            this.win._confirm(_('There are unsaved data. Want to continue?'), function (pAccepted) {
+            this.win._confirm(t('There are unsaved data. Want to continue?'), function (pAccepted) {
                 if (pAccepted) {
                     this.win.close();
                 }
@@ -839,16 +863,6 @@ ka.WindowEdit = new Class({
                 noErrorReporting: ['DuplicateKeysException', 'ObjectItemNotModified'],
                 noCache: true, onComplete: function (res) {
 
-
-                if (!res.data){
-                    if (pPublish) {
-                        this.saveAndPublishBtn.stopTip(t('No changes'));
-                    } else {
-                        this.saveBtn.stopTip(t('No changes'));
-                    }
-                    return;
-                }
-
                 if(res.error == 'DuplicateKeysException'){
                     this.win._alert(t('Duplicate keys. Please change the values of marked fields.'));
 
@@ -874,18 +888,14 @@ ka.WindowEdit = new Class({
                 window.fireEvent('softReload', this.win.module + '/' + this.win.code.substr(0, this.win.code.lastIndexOf('/')));
 
                 if (pPublish) {
-                    this.saveAndPublishBtn.stopTip(_('Saved'));
+                    this.saveAndPublishBtn.stopTip(t('Saved'));
                 } else {
                     this.saveBtn.stopTip(t('Saved'));
                 }
 
 
                 if (!pClose && this.saveNoClose) {
-                    this.saveNoClose.stopTip(_('Done'));
-                }
-
-                if (res.version_id) {
-                    this.item.version = res.version_id;
+                    this.saveNoClose.stopTip(t('Done'));
                 }
 
                 if (this.classProperties.loadSettingsAfterSave == true) ka.loadSettings();

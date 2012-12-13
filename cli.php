@@ -27,6 +27,7 @@ $_SERVER['HTTP_ACCEPT'] = 'xml';
 $_GET['__url'] = 'admin/'.$argv[1];
 
 require('core/bootstrap.php');
+require('core/bootstrap.startup.php');
 
 /*
 * initialize administration controller

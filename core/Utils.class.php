@@ -19,12 +19,14 @@ class Utils {
     }
 
     public static function shutdownHandler(){
-        chdir(PATH);
-        $error = error_get_last();
-        if($error['type'] == 1){
-            self::errorHandler($error['type'], $error['message'], $error['file'], $error['line'], array(
-                $error
-            ));
+        if (Kryn::$config['displayErrors']){
+            chdir(PATH);
+            $error = error_get_last();
+            if($error['type'] == 1){
+                self::errorHandler($error['type'], $error['message'], $error['file'], $error['line'], array(
+                    $error
+                ));
+            }
         }
     }
     public static function errorHandler($pErrorCode, $pErrorStr, $pFile, $pLine, $pBacktrace = null){

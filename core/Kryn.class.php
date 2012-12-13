@@ -1287,13 +1287,13 @@ class Kryn {
     }
 
     /**
-     * Clears the language chaces
-     *
-     * @param string $pLang
+     * Clears the language caches.
      *
      * @internal
+     * @param null $pLang
+     * @return bool
      */
-    public static function clearLanguageCache($pLang = false) {
+    public static function clearLanguageCache($pLang = null) {
         if ($pLang == false) {
 
             $langs = dbTableFetch('system_langs', DB_FETCH_ALL, 'visible = 1');
@@ -1309,12 +1309,12 @@ class Kryn {
     /**
      * Load all translations of the specified language
      *
-     * @param string $pLang de, en, ...
-     *
      * @static
      * @internal
+     * @param string $pLang
+     * @param bool $pForce
      */
-    public static function loadLanguage($pLang = false, $pForce = false) {
+    public static function loadLanguage($pLang = null, $pForce = false) {
 
         if (!$pLang) $pLang = Kryn::getLanguage();
 
@@ -1374,6 +1374,64 @@ class Kryn {
         }
 
         include_once(self::getTempFolder().'core_gettext_plural_fn_' . $pLang . '.php');
+    }
+
+
+    public static function cleanup(){
+
+        self::$breadcrumbs = NULL;
+        self::$header = array();
+        self::$jsFiles = array();
+        self::$cssFiles = array('css/kryn_defaults.css');
+        self::$lang = NULL;
+        self::$language = NULL;
+        self::$languages = NULL;
+        self::$baseUrl = NULL;
+        self::$domain = NULL;
+        self::$page = NULL;
+        self::$current_page = NULL;
+        self::$forceKrynContent = NULL;
+        self::$pageHtml = NULL;
+        self::$url = NULL;
+        self::$urlWithGet = NULL;
+        self::$currentTheme = array();
+        self::$themeProperties = array();
+        self::$domainProperties = array();
+        self::$pageProperties = array();
+        self::$ssl = false;
+        self::$port = 0;
+        self::$objects = array();
+        self::$slot = NULL;
+        self::$contents = NULL;
+        self::$isStartpage = NULL;
+        self::$configs = NULL;
+        self::$modules = NULL;
+        self::$tables = NULL;
+        self::$extensions = array('core', 'admin', 'users');
+        self::$themes = NULL;
+        self::$dbConnection = NULL;
+        self::$dbConnectionIsSlave = \Propel::CONNECTION_WRITE;
+        self::$propelClassMap = array();
+        self::$smarty = array();
+        self::$config = NULL;
+        self::$cfg = NULL;
+        self::$adminClient = NULL;
+        self::$client = NULL;
+        self::$nestedLevels = array();
+        self::$unsearchableBegin = '<!--unsearchable-begin-->';
+        self::$unsearchableEnd = '<!--unsearchable-end-->';
+        self::$pageUrl = '';
+        self::$canonical = '';
+        self::$disableSearchEngine = false;
+        self::$cache = NULL;
+        self::$cacheFast = NULL;
+        self::$admin = false;
+        self::$urls = NULL;
+        self::$htmlHeadTop = NULL;
+        self::$htmlHeadEnd = NULL;
+        self::$htmlBodyTop = NULL;
+        self::$htmlBodyEnd = NULL;
+        //self::$cachedTempFolder = '';
     }
 
     /**

@@ -37,7 +37,7 @@ class SystemFile extends File {
 
         $class = '\Core\FAL\Local';
 
-        $params['root'] = './';
+        $params['root'] = PATH;
 
         if (static::$fsObjects[$class]) return static::$fsObjects[$class];
 

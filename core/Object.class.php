@@ -12,12 +12,6 @@ class Object {
     public static $instances = array();
 
     /**
-     * @var array
-     */
-    public static $cache = array();
-
-
-    /**
      * Translates the internal url to the real path.
      *
      * Example: getUri('file://45') => '/myImageFolder/Picture1.png'
@@ -50,6 +44,15 @@ class Object {
             return call_user_func(array($objectDefinition['_extension'], $objectDefinition['urlGetter']), $params);
 
         } else return false;
+    }
+
+
+    /**
+     * Removes the instances cache.
+     *
+     */
+    public static function cleanup(){
+        self::$instances = array();
     }
 
     /**
@@ -262,7 +265,7 @@ class Object {
         $url = 'object://'.$pObjectKey.'/';
         if (is_array($pPrimaryValues)){
             foreach ($pPrimaryValues as $key => $val){
-                $url .= $key.'='.rawurlencode($val).',';
+                $url .= rawurlencode($val).',';
             }
         } else {
             return $url . rawurlencode($pPrimaryValues);
@@ -473,6 +476,17 @@ class Object {
 
 
     /**
+     * Removes all records.
+     * @param string $pObjectKey
+     */
+    public static function clear($pObjectKey){
+
+        $obj = self::getClass($pObjectKey);
+        return $obj->clear();
+
+    }
+
+    /**
      * Counts the items of $pObjectKey filtered by $pCondition
      *
      * @param string $pObjectKey
@@ -480,7 +494,7 @@ class Object {
      * @param array $pOptions
      * @return array
      */
-    public static function getCount($pObjectKey, $pCondition = null, $pOptions){
+    public static function getCount($pObjectKey, $pCondition = null, $pOptions = null){
 
         $obj = self::getClass($pObjectKey);
 
@@ -552,11 +566,17 @@ class Object {
     }
 
     public static function removeFromUri($pObjectUri){
+        list($object_key, $object_id, $params) = self::parseUri($pObjectUri);
+        $obj = self::getClass($object_key);
+        return $obj->remove($object_id[0]);
     }
 
-    public static function remove($pObjectUri){
+    public static function remove($pObjectKey, $pPk){
+        $obj = self::getClass($pObjectKey);
+        return $obj->remove($pPk);
     }
 
+    /*
     public static function removeUsages($pObjectUri){
 
     }
@@ -568,6 +588,7 @@ class Object {
     public static function addUsage($pObjectUri, $pUseObjectId){
 
     }
+    */
 
     /**
      *

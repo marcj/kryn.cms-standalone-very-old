@@ -20,7 +20,7 @@ class ObjectFile extends \Core\ORM\Propel {
         foreach ($groups as $group){
 
             $item = array();
-            $primaryGroups = explode('-', $group);
+            $primaryGroups = explode(',', $group);
 
             foreach ($primaryGroups as $pos => $value){
 

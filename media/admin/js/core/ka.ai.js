@@ -389,7 +389,7 @@ ka.getObjectUrlId = function(pObjectKey, pItem){
         return ka.urlEncode(pItem)+'';
     } else {
         Array.each(pks, function(pk){
-            urlId += ka.urlEncode(pItem[pk])+'-';
+            urlId += ka.urlEncode(pItem[pk])+',';
         });
         return urlId.substr(0, urlId.length-1);
     }
@@ -427,8 +427,8 @@ ka.getObjectKey = function(pUrl){
 }
 
 /**
- * Returns the PK of an object from a internal object uri as object or string
- * urldecoded (So you need to apply pUrl urlencoded if not already).
+ * Returns the PK of an object from a internal object uri as object or string.
+ * Since the ID part of the url is urlencoded, we return it urldecoded.
  *
  * Examples:
  *
@@ -441,8 +441,8 @@ ka.getObjectKey = function(pUrl){
  *  pUrl = object://file/%2Fadmin%2Fimages%2Fhi.jpg
  *  => /admin/images/hi.jpg
  *
- * @param  string pUrl   object://user/1
- * @return array|string  If we have only one pk, it returns a string, otherwise an array.
+ * @param  {String} pUrl   object://user/1
+ * @return {String|Object}  If we have only one pk, it returns a string, otherwise an array.
  */
 ka.getObjectId = function(pUrl){
     if (typeOf(pUrl) != 'string') return pUrl;
@@ -456,20 +456,13 @@ ka.getObjectId = function(pUrl){
         var id = pUrl;
     }
 
-    if (id.indexOf(',') != -1){
-        Array.each(id.split(','), function(tId){
+    if (id.indexOf(';') != -1){
+        Array.each(id.split(';'), function(tId){
             res.push(ka.urlDecode(tId));
         });
         return res;
     } else {
-        if (id.indexOf(',') != -1){
-            Array.each(id.split(','), function(tId){
-                res.push(ka.urlDecode(tId));
-            });
-            return res.substr(0, res.length-1);
-        } else {
-            return ka.urlDecode(id);
-        }
+        return ka.urlDecode(id);
     }
 }
 
@@ -512,9 +505,9 @@ ka.getObjectLabel = function(pUri, pCb){
 
         var uri = 'object://'+objectKey+'/';
         Object.each(ka.getObjectLabelQ[objectKey], function(cbs, requestedUri){
-            uri += ka.getCroppedObjectId(requestedUri)+',';
+            uri += ka.getCroppedObjectId(requestedUri)+';';
         });
-        if (uri.substr(uri.length-1, 1)==',')
+        if (uri.substr(uri.length-1, 1)==';')
             uri = uri.substr(0, uri.length-1);
 
         new Request.JSON({url: _path + 'admin/backend/objects',
@@ -704,7 +697,7 @@ ka.getObjectFieldLabel = function(pValue, pField, pFieldId, pObjectKey, pRelatio
 
     if (typeOf(pValue[relation]) == 'array'){
         //to-many relation
-        //we join by pField['join'] char, default is ','
+        //we join by pField['join'] char, default is ';'
         value = [];
         Array.each(pValue[relation], function(relValue){
             value.push(relValue[label]);

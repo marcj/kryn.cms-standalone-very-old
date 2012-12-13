@@ -462,7 +462,7 @@ function clearfolder($pFolder) {
 }
 
 
-/* 
+/*
  * Resize a image to a fix resolution or to max dimension.
  *
  * @param string|resource $pSource Defines the target. As path or as image resource.

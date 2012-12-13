@@ -43,7 +43,7 @@ class File {
     public static function getLayer($pPath){
 
         $class = '\Core\FAL\Local';
-        $params['root'] = PATH_MEDIA;
+        $params['root'] = PATH.PATH_MEDIA;
         $mountName = '';
 
         if ($pPath != '/') {

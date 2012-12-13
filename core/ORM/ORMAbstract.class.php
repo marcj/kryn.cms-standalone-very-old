@@ -151,14 +151,14 @@ abstract class ORMAbstract {
     public function primaryStringToArray($pPrimaryKey){
 
         if ($pPrimaryKey === '') return false;
-        $groups = explode(',', $pPrimaryKey);
+        $groups = explode(';', $pPrimaryKey);
 
         $result = array();
 
         foreach ($groups as $group){
 
             $item = array();
-            $primaryGroups = explode('-', $group);
+            $primaryGroups = explode(',', $group);
 
             foreach ($primaryGroups as $pos => $value){
 
@@ -258,6 +258,15 @@ abstract class ORMAbstract {
      * @return int
      */
     abstract public function getCount($pCondition = null);
+
+
+    /**
+     * Removes all records.
+     *
+     * @abstract
+     * @return bool
+     */
+    abstract public function clear();
 
 
     /**

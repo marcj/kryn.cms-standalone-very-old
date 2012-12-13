@@ -196,12 +196,6 @@ class User extends \Admin\ObjectWindow {
                     'label' => 'Active account',
                     'type' => 'checkbox'
                 ),
-                'userBg' => array(
-                    'label' => 'Desktop background image',
-                    'type' => 'file',
-                    'noSave' => true,
-                    'customValue' => 'userBgValue',
-                ),
                 'groupMembership'
             )
         ),
@@ -245,58 +239,51 @@ class User extends \Admin\ObjectWindow {
         )
     );
 
-    public function saveItem($pPk){
-        $result = parent::saveItem($pPk);
+    public function collectData($pPk){
+        $data = parent::collectData();
 
-        //todo, save settings
+        //save settings
+        $settings = array();
+        if ($pPk){
+            $item = $this->getItem($pPk);
+            $settings = $item['settings'];
+        }
 
-        return $result;
+        $settingsFields = array('autocrawler', 'css3Shadow', 'userBg');
+        foreach ($settingsFields as $field){
+            $settings[$field] = $_POST[$field] ?: $_GET[$field];
+        }
+
+        $data['settings'] = new \Core\Properties($settings);
+
+        return $data;
     }
 
-    private function saveSetting( $pKey, $pVal ){
+    private function getSettings(){
 
-        $temp = dbTableFetch('system_user', $this->getPrimaryKey());
-        $settings = unserialize( $temp['settings'] );
+        if( !$this->cachedUser ){
 
-        $settings[$pKey] = $pVal;
-        $ssettings = serialize( $settings );
+            $options['fields'] = $this->getFieldList();
+            $options['fields'][] = 'settings';
+            $options['permissionCheck'] = $this->getPermissionCheck();
 
-        dbUpdate('system_user', $this->getPrimaryKey(), array('settings' => $ssettings));
+            $this->cachedUser = \Core\Object::get($this->object, $this->primaryKey, $options);
+        }
+
+        $settings = array();
+        if ($this->cachedUser['settings'])
+            $settings = $this->cachedUser['settings']->toArray();
+
+        return $settings;
     }
 
     private function getSetting( $pKey ){
 
-        if( !self::$cacheUser )
-            self::$cacheUser = dbTableFetch('system_user', $this->getPrimaryKey());
+        $settings = $this->getSettings();
 
-        $settings = unserialize(self::$cacheUser['settings']);
         return $settings[$pKey];
     }
 
-
-    /*
-     * Saver
-     *
-     */
-    public function saveUserBg(){
-        $this->saveSetting('userBg', getArgv('userBg',1));
-    }
-
-    public function saveLanguage(){
-        $this->saveSetting('adminLanguage', getArgv('adminLanguage'));
-    }
-
-    public function saveAutocrawler(){
-        $this->saveSetting('css3Shadow', getArgv('css3Shadow'));
-    }
-
-    public function saveCssShadow(){
-        $this->saveSetting('autocrawler', getArgv('autocrawler'));
-    }
-
-    public function saveAutocrawlerDelay(){
-        $this->saveSetting('autocrawler_minddelay', getArgv('autocrawler_minddelay'));
-    }
 
 
     /*

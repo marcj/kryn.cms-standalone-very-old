@@ -113,6 +113,7 @@ class Propel extends ORMAbstract {
             foreach ($pFields as $field){
 
                 $relationFieldSelection = '';
+                $relationName = '';
 
                 if ( ($pos = strpos($field, '.')) !== false){
                     $relationName = ucfirst(substr($field, 0, $pos));
@@ -387,7 +388,6 @@ class Propel extends ORMAbstract {
         $item = new $pClazz();
         $item->hydrateFromNames($pRow, \BasePeer::TYPE_PHPNAME);
 
-        $newRow = array();
         foreach ($pSelects as $select){
             $newRow[lcfirst($select)] = $item->{'get'.$select}();
         }
@@ -503,6 +503,15 @@ class Propel extends ORMAbstract {
     public function remove($pPk){
         $peer = $this->getPeerName();
         return $peer::doDelete($pPk);
+    }
+
+
+    /**
+     * {@inheritdoc}
+     */
+    public function clear(){
+        $peer = $this->getPeerName();
+        return $peer::doDeleteAll();
     }
 
     /**

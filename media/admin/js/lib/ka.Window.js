@@ -263,6 +263,10 @@ ka.Window = new Class({
     },
 
     _confirm: function (pText, pCallback) {
+        return this.confirm(pText, pCallback);
+    },
+
+    confirm: function (pText, pCallback) {
         return this._prompt(pText, null, pCallback, {
             'confirm': 1
         });

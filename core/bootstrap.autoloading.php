@@ -2,11 +2,6 @@
 
 namespace Core;
 
-/**
- * Load active modules into Kryn::$extensions.
- */
-Kryn::loadActiveModules();
-
 
 $propelClasses = Kryn::getTempFolder().'propel-classes/';
 //init auto-loader for propel libs.
@@ -21,19 +16,17 @@ spl_autoload_register(function($pClass) use ($propelClasses) {
     }
 
     if ($pClass == 'Smarty'){
-        include 'lib/Smarty/Smarty.class.php';
+        include PATH.'lib/Smarty/Smarty.class.php';
         return true;
     }
 });
 
+
 //init auto-loader for propel module models.
 foreach (Kryn::$extensions as $extension){
 
-    if (substr($pClass, 0, 1) == '\\')
-        $pClass = substr($pClass, 1);
-
     spl_autoload_register(function ($pClass) use ($extension) {
-        if (file_exists($clazz = 'module/'.$extension.'/model/'.$pClass.'.php')){
+        if (file_exists($clazz = PATH.'module/'.$extension.'/model/'.$pClass.'.php')){
             include $clazz;
             return true;
         }
@@ -56,27 +49,27 @@ spl_autoload_register(function($pClass){
 
     $clazz = substr($fullClazz, strlen($extension)+1);
 
-    if (file_exists($file = (($extension == 'core')?PATH_CORE:PATH_MODULE . $extension).'/controller/'.$clazz)){
+    if (file_exists($file = PATH.(($extension == 'core')?PATH_CORE:PATH_MODULE . $extension).'/controller/'.$clazz)){
         include($file);
         return true;
     }
 
-    if (file_exists($file = (($extension == 'core')?PATH_CORE:PATH_MODULE . $extension).'/lib/'.$clazz)){
+    if (file_exists($file = PATH.(($extension == 'core')?PATH_CORE:PATH_MODULE . $extension).'/lib/'.$clazz)){
         include($file);
         return true;
     }
 
-    if (file_exists($file = (($extension == 'core')?PATH_CORE:PATH_MODULE . $extension).'/'.$clazz)){
+    if (file_exists($file = PATH.(($extension == 'core')?PATH_CORE:PATH_MODULE . $extension).'/'.$clazz)){
         include($file);
         return true;
     }
 
-    if (file_exists($file = 'lib/'.$fullClazz)){
+    if (file_exists($file = PATH.'lib/'.$fullClazz)){
         include($file);
         return true;
     }
 
-    if (file_exists($file = 'lib/'.$fullClazzWC)){
+    if (file_exists($file = PATH.'lib/'.$fullClazzWC)){
         include($file);
         return true;
     }

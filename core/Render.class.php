@@ -291,7 +291,7 @@ class Render {
 
         if ($versionId > 0) {
 
-            $res = dbExec("
+            $res = dbQuery("
             SELECT c.*
             FROM
                 ".pfx."system_page_content c,
@@ -311,12 +311,14 @@ class Render {
                 }
             }
 
+            dbFree($res);
+
         } else {
 
             //compatibility o old kryns <=0.7
             $result = array();
 
-            $res = dbExec("SELECT * FROM ".pfx."system_page_content
+            $res = dbQuery("SELECT * FROM ".pfx."system_page_content
                 WHERE page_id = $pId
                 $box
                 AND (hide != 1 OR hide IS NULL)
@@ -325,6 +327,7 @@ class Render {
             while ($page = dbFetch($res)) {
                 $result[$page['box_id']][] = $page;
             }
+            dbFree($res);
         }
 
         Kryn::setCache('pageContents-' . $pId, $result);

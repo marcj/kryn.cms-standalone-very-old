@@ -44,10 +44,10 @@ ka.Checkbox = new Class({
 
     setValue:function (p) {
         if (typeOf(p) == 'null') p = false;
-        if (p == 0 || p == "0") p = false;
-        if (p == 1) p = true;
+        p = (!p || p == 'false') ? false : true;
+
         this.value = p;
-        if (this.value == 1) {
+        if (this.value) {
             this.box.addClass('ka-Checkbox-on');
             this.box.removeClass('ka-Checkbox-off');
         } else {
