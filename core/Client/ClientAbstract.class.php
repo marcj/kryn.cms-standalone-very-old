@@ -58,7 +58,7 @@ abstract class ClientAbstract {
      *       )
      *   )
      */
-    private $config = array();
+    public $config = array();
 
     /**
      * Instance of Cache class
@@ -381,7 +381,6 @@ abstract class ClientAbstract {
         $session = false;
 
         for ($i = 1; $i <= 25; $i++) {
-
             $session = $this->createSessionById($this->generateSessionId());
 
             if ($session) {
@@ -395,6 +394,7 @@ abstract class ClientAbstract {
                     $this->config['path']?:Kryn::getBaseUrl(), $this->config['domain']);
                 return $session;
             }
+
         }
 
         //after 25 tries, we stop and log it.
@@ -418,7 +418,7 @@ abstract class ClientAbstract {
         //this is a critical section, since between checking whether a session exists
         //and setting the session object, another thread or another server (in the cluster)
         //can write the cache key.
-        //So we LOCK all kryn php instances, like in multithreaded apps, but with all
+        //So we LOCK all kryn php instances, like in multi-threaded apps, but with all
         //cluster buddies too.
         Utils::appLock('ClientCreateSession');
 

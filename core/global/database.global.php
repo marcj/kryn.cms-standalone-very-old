@@ -364,8 +364,12 @@ function dbErrorInfo() {
  */
 function dbLastId(){
     if (\Core\Kryn::$config['database']['type'] == 'pgsql'){
-        $row = dbExfetch('SELECT LASTVAL() as last_val');
-        return $row['last_val'];
+        try {
+            $row = dbExfetch('SELECT LASTVAL() as last_val');
+            return $row['last_val'];
+        } catch (\Exception $e){
+            return 0;
+        }
     } else return dbConnection()->lastInsertId();
 }
 

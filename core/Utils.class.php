@@ -179,7 +179,7 @@ class Utils {
             }
         }
 
-        
+        return false;
     }
 
     /**
