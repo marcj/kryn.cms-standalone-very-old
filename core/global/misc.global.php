@@ -332,7 +332,7 @@ Content-Type: application/x-www-form-urlencoded\r\n\r\n";
         preg_match('~Location: (?P<location>\S+)~', $header, $match);
         $result = wget($match['location'], $pToFile);
     } elseif ($status >= 400) { // Any error
-        return false;
+        return array('status' => $status, 'content' => $result);
     }
 
     if ($pToFile) {
@@ -341,7 +341,7 @@ Content-Type: application/x-www-form-urlencoded\r\n\r\n";
         fputs($h, $result);
     }
 
-    return $result;
+    return array('status' => $status, 'content' => $result);
 }
 
 
