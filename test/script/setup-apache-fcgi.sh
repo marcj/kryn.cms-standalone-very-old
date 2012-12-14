@@ -13,7 +13,7 @@ sudo a2enmod suexec;
 cat test/config/default.apache2-vhost.conf | sed -e "s,ROOTPATH,`pwd`,g" | sudo tee /etc/apache2/sites-available/default > /dev/null;
 
 # create fgi script
-sudo cat > ../php-fcgi << EOF
+sudo cat > php-fcgi << EOF
 #!/bin/sh
 
 exec $PHP
