@@ -29,6 +29,9 @@ script:
   - sudo -u www-data phpunit Tests;
 
 after_failure:
+  - which php
+  - which php-cgi
+  - php-cgi -v
   - tail -n 50 /var/log/syslog
   - cat /var/log/apache2/*
   - cat /etc/apache2/sites-available/*;
