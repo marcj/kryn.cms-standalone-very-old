@@ -22,9 +22,9 @@ before_script:
 script:
   - sudo cat /etc/hosts;
   - sudo cat /etc/apache2/sites-available/default
-  - ls -al;
-  - ip a;
   - sudo chown -R www-data .;
   - sudo chmod -R g-w .;
+  - ls -al;
   - cd test;
   - sudo -u www-data phpunit Tests;
+  - curl http://localhost/;

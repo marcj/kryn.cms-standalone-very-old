@@ -30,7 +30,7 @@ class Manager {
 
     public static function get($pPath = '/', $pPostParam = null){
 
-        return wget('http://ilee'.$pPath, $pPostParam);
+        return wget('http://'.self::$config['domain'].$pPath, $pPostParam);
     }
 
     public static function uninstall(){
@@ -113,13 +113,14 @@ class Manager {
 
         $manager = new \Admin\Module\Manager;
 
+        $_GET['domain'] = self::$config['domain'];
+
         \Core\TempFile::remove('propel');
 
         if (!\Propel::isInit())
             \Propel::init(\Core\PropelHelper::getConfig());
         else
             \Propel::configure(\Core\PropelHelper::getConfig());
-
 
         try {
 
