@@ -6,7 +6,7 @@ class Manager {
 
     public static $config;
 
-    public static $configFile = 'default.postgresql.json';
+    public static $configFile = 'default.mysql.json';
 
     /**
      * @param null $pConfigFile Default is config/default.mysql.json
