@@ -1,7 +1,9 @@
 Kryn.cms
+========
 
 A AJAX PHP enterprise open-source Content-Management-System and Content-Management-Framework with full RESTful API.
-in development.
+
+[![Build Status](https://travis-ci.org/KrynLabs/Kryn.cms.png?branch=propel1.6)](https://travis-ci.org/KrynLabs/Kryn.cms)
 
 We're in development.
 
@@ -10,12 +12,14 @@ https://www.facebook.com/kryncms
 
 
 Installation
+------------
 
 1. Extract the tar/zip-ball
 2. Open the install.php through your browser
 
 
 Features
+--------
 
  - Propel ORM (MySQL, PostgreSQL)
  - getText i18n (plural support etc) with translator - compatible .po files
