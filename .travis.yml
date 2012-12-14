@@ -20,4 +20,7 @@ before_script:
     - mysql -e 'DROP DATABASE IF EXISTS test; CREATE DATABASE test;';
 
 script:
-  - cd test; sudo -u www-data phpunit Tests;
+  - sudo chown -R www-data .;
+  - sudo chmod -R g-w .;
+  - cd test;
+  - sudo -u www-data phpunit Tests;
