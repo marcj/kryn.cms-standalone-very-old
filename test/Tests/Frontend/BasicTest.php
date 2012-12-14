@@ -10,7 +10,7 @@ class BasicTest extends TestCaseWithInstallation {
     public function testGeneral(){
 
         $result = Manager::get('/');
-        $this->assertTrue($result != "");
+        $this->assertTrue($result['status'] == 200);
 
     }
 
