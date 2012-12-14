@@ -28,9 +28,14 @@ class Manager {
 
     }
 
-    public static function get($pPath = '/', $pPostParam = null){
+    public static function get($pPath = '/', $pPostData = null){
 
-        return wget('http://'.self::$config['domain'].$pPath, $pPostParam);
+        $content = wget('http://'.self::$config['domain'].$pPath, null, $pPostData);
+
+        var_dump('http://'.self::$config['domain'].$pPath);
+        var_dump($content);
+
+        return $content;
     }
 
     public static function uninstall(){

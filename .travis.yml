@@ -27,4 +27,3 @@ script:
   - ls -al;
   - cd test;
   - sudo -u www-data phpunit Tests;
-  - curl http://localhost/;
