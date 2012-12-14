@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<database>
+  <table name="publication_news" phpName="News">
+    <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true"/>
+    <column name="title" type="VARCHAR"/>
+    <column name="category_id"/>
+    <column name="files" type="LONGVARCHAR"/>
+    <column name="lang" type="VARCHAR" size="3"/>
+    <column name="intro" type="LONGVARCHAR"/>
+    <column name="content" type="LONGVARCHAR"/>
+    <column name="releaseat" type="BIGINT"/>
+    <column name="releasedate" type="BIGINT"/>
+    <column name="deactivate" type="BOOLEAN"/>
+    <column name="deactivatecomments" type="BOOLEAN"/>
+    <column name="commentscount" type="INTEGER"/>
+    <column name="tags" type="VARCHAR"/>
+    <column name="introimage" type="VARCHAR"/>
+    <column name="introimage2" type="VARCHAR"/>
+    <vendor type="mysql">
+      <parameter name="Charset" value="utf8"/>
+    </vendor>
+  </table>
+</database>
