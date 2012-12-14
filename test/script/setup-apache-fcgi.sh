@@ -1,6 +1,6 @@
 #!/bin/sh
 
-PHP=`which php`;
+PHP=`which php-cgi`;
 
 # install stuff
 sudo apt-get install apache2 libapache2-mod-fcgid;
