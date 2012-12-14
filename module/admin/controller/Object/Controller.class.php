@@ -74,7 +74,7 @@ class Controller {
 
         if (!$options['fields']){
             //use default fields from object definition
-            $definition = \Core\Kryn::$objects[$pObject];
+            $definition = \Core\Object::getDefinition($pObject);
             $options['fields'][] = $definition['label'];
 
             if ($definition['chooserBrowserTreeIcon'])
@@ -115,7 +115,7 @@ class Controller {
             $options['fields'] = array();
 
             //use default fields from object definition
-            $definition = \Core\Kryn::$objects[$pObject];
+            $definition = \Core\Object::getDefinition($pObject);
             $options['fields'][] = $definition['nestedLabel'];
 
             if ($definition['chooserBrowserTreeIcon'])
@@ -203,7 +203,7 @@ class Controller {
 
         list($object_key, $object_id) = \Core\Object::parseUri($pUri);
 
-        $definition = \Core\Kryn::$objects[$object_key];
+        $definition = \Core\Object::getDefinition($object_key);
         if (!$definition) throw new \ObjectNotFoundException(tf('Object %s does not exists.', $object_key));
 
         return \Core\Object::get($object_key, $object_id[0], array('fields' => $pFields, 'permissionCheck' => true));
@@ -221,7 +221,7 @@ class Controller {
      */
     public function getFieldItem($pObjectKey, $pPk, $pFields = null){
 
-        $definition = \Core\Kryn::$objects[$pObjectKey];
+        $definition = \Core\Object::getDefinition($pObjectKey);
         if (!$definition) throw new \ObjectNotFoundException(tf('Object %s does not exists.', $pObjectKey));
 
         if ($definition['chooserFieldDataModel'] != 'custom'){
@@ -262,7 +262,7 @@ class Controller {
             throw new \Exception(tf('No id given in uri %s.', $pUri));
         }
 
-        $definition = \Core\Kryn::$objects[$object_key];
+        $definition = \Core\Object::getDefinition($object_key);
         if (!$definition) throw new \ObjectNotFoundException(tf('Object %s can not be found.', $object_key));
 
         $items = \Core\Object::getList($object_key, $object_ids, array(
@@ -344,7 +344,7 @@ class Controller {
     public function getFieldItems($pObjectKey, $pFields = null, $pReturnHash = true, $pLimit = null, $pOffset = null,
                                   $pOrder = null, $_ = null){
 
-        $definition = \Core\Kryn::$objects[$pObjectKey];
+        $definition = \Core\Object::getDefinition($pObjectKey);
         if (!$definition) throw new \ObjectNotFoundException(tf('Object %s can not be found.', $pObjectKey));
 
         $options = array(
@@ -425,7 +425,7 @@ class Controller {
                                     $pOrder = null, $_ = null){
 
 
-        $definition = \Core\Kryn::$objects[$pObjectKey];
+        $definition = \Core\Object::getDefinition($pObjectKey);
         if (!$definition) throw new \ObjectNotFoundException(tf('Object %s can not be found.', $pObjectKey));
 
         if (!$definition['browserColumns'])

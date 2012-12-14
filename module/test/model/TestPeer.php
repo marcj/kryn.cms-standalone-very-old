@@ -1,5 +1,8 @@
 <?php
 
+namespace Test;
+
+use Test\om\BaseTestPeer;
 
 
 /**
@@ -11,7 +14,7 @@
  * application requirements.  This class will only be generated as
  * long as it does not already exist in the output directory.
  *
- * @package    propel.generator.kryn
+ * @package    propel.generator.Test
  */
 class TestPeer extends BaseTestPeer {
 

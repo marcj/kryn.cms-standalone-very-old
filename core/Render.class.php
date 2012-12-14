@@ -191,7 +191,7 @@ class Render {
                     $html .= '<script type="text/javascript" src="' . $js . '" ></script>' . "\n";
                 } else {
                     if ($mtime = @filemtime(PATH . PATH_MEDIA . $js) || $js == '/krynJavascriptGlobalPath.js') {
-                        $html .= '<script type="text/javascript" src="' . $cfg['path']
+                        $html .= '<script type="text/javascript" src="'
                             . ((substr($js,0,1)=='/') ? PATH_MEDIA . $js . '?c=' : substr($js, 1))
                             . $mtime . '" ></script>' . "\n";
                     }
@@ -225,7 +225,7 @@ class Render {
                 Kryn::fileWrite($jsCachedFile, $jsContent);
             }
 
-            $html .= '<script type="text/javascript" src="' . $cfg['path'] . $jsCachedFile . '" ></script>' . "\n";
+            $html .= '<script type="text/javascript" src="' . $jsCachedFile . '" ></script>' . "\n";
         }
 
 
@@ -257,7 +257,7 @@ class Render {
      * @param bool $pWithoutCache
      * @return array|string
      */
-    public static function &getPageContents($pId, $pBoxId = false, $pWithoutCache = false) {
+    public static function &getContents($pId, $pBoxId = false, $pWithoutCache = false) {
 
         $pId = $pId + 0;
 
@@ -270,7 +270,7 @@ class Render {
         if (!$page)
             return array();
 
-        $result =& Kryn::getCache('pageContents-' . $pId);
+        $result =& Kryn::getCache('contents-' . $pId);
         if (false && $result && !$pWithoutCache) return $result;
 
         $result = array();
@@ -294,7 +294,7 @@ class Render {
             $res = dbQuery("
             SELECT c.*
             FROM
-                ".pfx."system_page_content c,
+                ".pfx."system_content c,
                 ".pfx."system_page_version v
             WHERE 
                 v.id = $versionId
@@ -318,8 +318,8 @@ class Render {
             //compatibility o old kryns <=0.7
             $result = array();
 
-            $res = dbQuery("SELECT * FROM ".pfx."system_page_content
-                WHERE page_id = $pId
+            $res = dbQuery("SELECT * FROM ".pfx."system_content
+                WHERE node_id = $pId
                 $box
                 AND (hide != 1 OR hide IS NULL)
                 ORDER BY sortable_rank");
@@ -330,9 +330,9 @@ class Render {
             dbFree($res);
         }
 
-        Kryn::setCache('pageContents-' . $pId, $result);
+        Kryn::setCache('contents-' . $pId, $result);
 
-        return Kryn::getCache('pageContents-' . $pId);
+        return Kryn::getCache('contents-' . $pId);
     }
 
     /**
@@ -346,7 +346,7 @@ class Render {
      * @param bool $pProperties
      * @return mixed|string
      */
-    public static function renderPageContents($pPageId = false, $pSlotId = false, $pProperties = false) {
+    public static function renderPage($pPageId = false, $pSlotId = false, $pProperties = false) {
 
 
         if (Kryn::$contents) {
@@ -379,12 +379,12 @@ class Render {
         }
 
         $args = array($pPageId, $pSlotId);
-        Event::fire('preRenderPageContents', $args);
+        Event::fire('preRenderContents', $args);
 
         Kryn::addCss('css/_pages/' . $pPageId . '.css');
         Kryn::addJs('js/_pages/' . $pPageId . '.js');
 
-        Kryn::$contents =& self::getPageContents($pPageId);
+        Kryn::$contents =& self::getContents($pPageId);
 
         if (Kryn::$page->getType() == 3) { //deposit
             Kryn::$page->setLayout('core/blankLayout.tpl');
@@ -407,7 +407,7 @@ class Render {
 
 
         $arguments = array($pPageId, $pSlotId, &$html);
-        Event::fire('onRenderPageContents', $arguments);
+        Event::fire('onRenderContents', $arguments);
 
         return $html;
     }
@@ -629,7 +629,7 @@ class Render {
             case 'pointer':
 
                 if ($content['content'] + 0 > 0 && $content['content'] + 0 != Kryn::$page['id'])
-                    $content['content'] = self::renderPageContents($content['content'] + 0, 1, $pProperties);
+                    $content['content'] = self::renderContents($content['content'] + 0, 1, $pProperties);
 
                 break;
             case 'layoutelement':

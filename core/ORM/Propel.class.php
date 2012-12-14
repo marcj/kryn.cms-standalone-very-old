@@ -209,9 +209,9 @@ class Propel extends ORMAbstract {
      * @return Object The query class object.
      */
     public function getQueryClass($pName = null){
-        $objectKey = $pName?$pName:$this->getPhpName();
+        $objectKey = $pName ? $pName : $this->getPhpName();
 
-        $clazz = '\\'.ucfirst($objectKey).'Query';
+        $clazz = $objectKey.'Query';
         if (!class_exists($clazz)){
             throw new \ObjectNotFoundException(tf('The object query %s of %s does not exist.', $clazz, $objectKey));
         }
@@ -226,11 +226,11 @@ class Propel extends ORMAbstract {
      * @return string
      */
     public function getPeerName($pName = null){
-        $objectKey = $pName?$pName:$this->getPhpName();
+        $objectKey = $pName ? $pName : $this->getPhpName();
 
-        $clazz = '\\'.ucfirst($objectKey).'Peer';
+        $clazz = ucfirst($objectKey).'Peer';
         if (!class_exists($clazz)){
-            throw new \ObjectNotFoundException(tf('The object query %s of %s does not exist.', $clazz, $objectKey));
+            throw new \ObjectNotFoundException(tf('The object peer %s of %s does not exist.', $clazz, $objectKey));
         }
 
         return $clazz;
@@ -244,7 +244,9 @@ class Propel extends ORMAbstract {
      * @return string
      */
     public function getPhpName($pName = null){
-        return $pName ? ucfirst($pName) : ucfirst($this->definition['propelClassName'] ?: $this->objectKey);
+        return $pName ? ucfirst($pName) :
+            ucfirst($this->definition['propelClassName']
+            ?: $this->objectKey);
     }
 
 
@@ -425,7 +427,7 @@ class Propel extends ORMAbstract {
                 } else {
                     //*-to-many, we need a extra query
                     if (is_array($pRelationFields[$name])){
-                        $sClazz    = $relation->getRightTable()->getPhpName();
+                        $sClazz    = $relation->getRightTable()->getClassname();
                         $queryName = $sClazz.'Query';
                         $filterBy  = 'filterBy'.$relation->getSymmetricalRelation()->getName();
 
@@ -435,7 +437,7 @@ class Propel extends ORMAbstract {
 
                         $condition = array();
                         if ($pPermissionCheck){
-                            $condition = \Core\Acl::getListingCondition(lcfirst($sClazz));
+                            $condition = \Core\Permission::getListingCondition(lcfirst($sClazz));
                         }
                         $sStmt = $this->getStm($sQuery, $condition);
 
@@ -510,8 +512,8 @@ class Propel extends ORMAbstract {
      * {@inheritdoc}
      */
     public function clear(){
-        $peer = $this->getPeerName();
-        return $peer::doDeleteAll();
+        $query = $this->getQueryClass();
+        return $query->deleteAll();
     }
 
     /**

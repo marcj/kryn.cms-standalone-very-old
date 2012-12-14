@@ -1955,6 +1955,12 @@ var admin_system_module_edit = new Class({
         }).inject(this.pluginsPane);
 
         var tr = new Element('tr').inject(this.objectTBody);
+
+        new Element('th', {
+            text: t(''),
+            style: 'width: 20px;'
+        }).inject(tr);
+
         new Element('th', {
             text: t('Object key'),
             style: 'width: 260px;'
@@ -2562,28 +2568,36 @@ var admin_system_module_edit = new Class({
 
     addObject: function(pDefinition, pKey){
 
-
         var tr = new Element('tr', {
             'class': 'object'
         }).inject(this.objectTBody);
 
         tr.definition = pDefinition || {};
 
+        var helpTd = new Element('td', {
+            style: 'text-align: right; color: gray; padding-left: 3px;',
+            text: this.mod.charAt(0).toUpperCase()+this.mod.slice(1)+'\\'
+        }).inject(tr);
         var leftTd = new Element('td').inject(tr);
         var rightTd = new Element('td').inject(tr);
         var actionTd = new Element('td').inject(tr);
 
         var tr2 = new Element('tr').inject(this.objectTBody);
-        var bottomTd = new Element('td', {style: 'border-bottom: 1px solid silver', colspan: 4}).inject(tr2);
+        var bottomTd = new Element('td', {style: 'border-bottom: 1px solid silver', colspan: 5}).inject(tr2);
 
         var iKey = new ka.Field({
             type: 'text',
             noWrapper: true,
-            modifier: 'camelcase|trim|lcfirst',
+            modifier: 'camelcase|trim|ucfirst',
             value:pKey?pKey:''
         }, leftTd);
 
-        new Element('input', {'class': 'text', style: 'width: 250px;', value:pDefinition?pDefinition['label']:''}).inject(rightTd);
+
+        var iLabel = new ka.Field({
+            type: 'text',
+            noWrapper: true,
+            value:pDefinition?pDefinition['label']:''
+        }, rightTd);
 
         tr.store('key', iKey);
 

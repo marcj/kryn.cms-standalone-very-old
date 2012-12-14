@@ -21,7 +21,7 @@ namespace Core;
  * Does not support external mount points.
  *
  */
-class TempFile extends File {
+class TempFile extends MediaFile {
 
     public static $fsObjects = array();
 

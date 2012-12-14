@@ -1673,12 +1673,13 @@ ka.getObjectDefinition = function(pObjectKey){
 
     var definition;
 
-    Object.each(ka.settings.configs, function(config,extensionKey){
-        if (config.objects && config.objects[pObjectKey])
-            definition = config.objects[pObjectKey];
-    });
+    var module = (""+pObjectKey.split('\\')[0]).toLowerCase();
+    var name = pObjectKey.split('\\')[1];
 
-    return definition;
+    if (ka.settings.configs[module] && ka.settings.configs[module]['objects'][name]){
+        return ka.settings.configs[module]['objects'][name];
+    } else throw 'Object not found '+pObjectKey;
+
 }
 
 

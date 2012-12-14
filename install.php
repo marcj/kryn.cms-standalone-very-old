@@ -354,6 +354,7 @@ function checkConfig(){
           "passwordHashKey"    => Core\Client\ClientAbstract::getSalt(32),
 
           "displayErrors"        => $_REQUEST['displayErrors'],
+          "displayBeautyErrors"        => $_REQUEST['displayBeautyErrors'],
           "displayDetailedRestErrors"    => $_REQUEST['displayDetailedRestErrors'],
           "logErrors"            => 0,
           "systemTitle"          => $systemTitle,
@@ -509,8 +510,9 @@ function step5Done($pMsg){
 
         foreach ($modules as $module){
             try {
-                $manager->install('admin');
-                $manager->install('users');
+                $manager->install('core', true);
+                $manager->install('admin', true);
+                $manager->install('users', true);
             } catch (Exception $e){
                 step5Failed($e->getMessage()."\n".print_r($e,true));
             }
@@ -523,13 +525,14 @@ function step5Done($pMsg){
 
         \Core\TempFile::remove('propel');
 
-
-        \Core\Kryn::$config['activeModules'] = array('admin', 'users');
-        \Core\Kryn::$extensions = array('admin', 'users');
+        \Core\Kryn::$config['activeModules'] = array('core', 'admin', 'users');
+        \Core\Kryn::$extensions = array('core', 'admin', 'users');
 
         try {
             \Core\PropelHelper::generateClasses();
             \Core\PropelHelper::updateSchema();
+
+            //\Core\PropelHelper::cleanup();
         } catch (Exception $e){
             step5Failed($e->getMessage()."\n".print_r($e,true));
         }
@@ -543,6 +546,7 @@ function step5Done($pMsg){
         $manager = new Admin\Module\Manager;
 
         try {
+            $manager->installDatabase('core');
             $manager->installDatabase('admin');
             $manager->installDatabase('users');
         } catch (Exception $e){
@@ -576,6 +580,7 @@ function step5Done($pMsg){
         try {
             \Core\PropelHelper::generateClasses();
             \Core\PropelHelper::updateSchema();
+            \Core\PropelHelper::cleanup();
         } catch (Exception $e){
             step5Failed($e->getMessage()."\n".print_r($e,true));
         }
@@ -614,6 +619,10 @@ function step5Done($pMsg){
     }
 
     function step5Init(){
+
+        if (!file_exists('config.php')){
+            die('Config.php not found. Please open install.php without arguments again.');
+        }
 
         $subStep = $_GET['substep']+0;
         Kryn::$config = require('config.php');
@@ -1071,9 +1080,18 @@ function step3(){
     <tr>
         <td>
             Display errors
+            <div style="color: #aaa">Activates regular PHP error reporting.</div>
         </td>
         <td><input type="checkbox" checked="checked" name="displayErrors" value="1" /></td>
     </tr>
+    <tr>
+        <td>
+            Display beauty errors
+            <div style="color: #aaa">A fancy error view with highlighted code view of the debug trace.</div>
+        </td>
+        <td><input type="checkbox" checked="checked" name="displayBeautyErrors" value="1" /></td>
+    </tr>
+
     <tr>
         <td>
             Display detailed RESTful API Error information.

@@ -66,7 +66,7 @@ class TestCrud extends \Admin\ObjectWindow {
 
     public $export = true;
 
-    public $object = 'test';
+    public $object = 'Test\\Test';
 
     public $preview = false;
 

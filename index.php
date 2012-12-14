@@ -16,11 +16,14 @@
  * @author MArc Schmidt <marc@kryn.org>
  */
 
-require('core/bootstrap.checkFile.php');
+require('core/bootstrap.checkFile.php'); //deprecated, we should delete that.
 require('core/bootstrap.php');
 require('core/bootstrap.startup.php');
 
-if (getArgv(1) != 'admin') {
+/*
+ * Search domain
+ */
+if (!Core\Kryn::$admin) {
     Core\Kryn::searchDomain();
 }
 
@@ -35,17 +38,13 @@ if (Core\Kryn::$admin) {
     /*
      * initialize administration controller
      */
-    Core\Kryn::$modules['admin'] = new Admin\AdminController();
-
-}
-
-if (Core\Kryn::$admin) {
+    Core\Kryn::$modules['admin']  = $admin = new Admin\AdminController();
 
     /*
      * Start backend controller
      */
 
-    Core\Kryn::$modules['admin']->run();
+    $admin->run();
 
 } else {
 

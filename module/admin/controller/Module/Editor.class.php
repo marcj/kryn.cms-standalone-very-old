@@ -38,7 +38,7 @@ class Editor {
         Manager::prepareName($pName);
 
 
-        $classes   = find(PATH_MODULE . $pName . '/*', true);
+        $classes   = find(\Core\Kryn::getModuleDir($pName) . '/*', true);
         $windows   = array();
         $whiteList = array('\Admin\ObjectWindow');
 
@@ -112,7 +112,7 @@ class Editor {
     public function getModel($pName){
         Manager::prepareName($pName);
 
-        $path = PATH_MODULE . "$pName/model.xml";
+        $path = \Core\Kryn::getModuleDir($pName).'model.xml';
 
         if (!file_exists($path)){
             throw new \FileNotExistException(tf('The config file %s for %s does not exist.', $path ,$pName));
@@ -125,7 +125,7 @@ class Editor {
     public function saveModel($pName, $pModel){
         Manager::prepareName($pName);
 
-        $path = PATH_MODULE . "$pName/model.xml";
+        $path = \Core\Kryn::getModuleDir($pName).'model.xml';
 
         if (!is_writable($path)){
             throw new \FileNotWritableException(tf('The model file %s for %s is not writable.', $path ,$pName));
@@ -313,7 +313,6 @@ class Editor {
                         unset($col['autoIncrement']);
                         $col['required'] = "true";
 
-
                     }
 
                     //right columns
@@ -331,7 +330,6 @@ class Editor {
                         unset($col['autoIncrement']);
                         $col['required'] = "true";
 
-
                     }
 
                     //foreign keys
@@ -348,6 +346,8 @@ class Editor {
                         } else {
                             $foreignKey['phpName'] = ucfirst($pFieldKey).ucfirst($pObject);
                         }
+
+
 
                         foreach ($keys as $k => $v){
 
@@ -419,7 +419,7 @@ class Editor {
 
         if ($config['objects'][$pObject]['dataModel'] != 'propel') return false;
 
-        $path = PATH_MODULE . "$pName/model.xml";
+        $path = \Core\Kryn::getModuleDir($pName)."model.xml";
 
         if (!file_exists($path) && !touch($path))
             throw new \FileNotWritableException(tf('The module folder of module %s is not writable.', $pName));
@@ -447,6 +447,7 @@ class Editor {
 
         if (!$object['table']) throw new \Exception(tf('The object %s has no table defined.', $pObject));
 
+        $objectTable['namespace'] = ucfirst($pName);
         $objectTable['name'] = $object['table'];
         $objectTable['phpName'] = $object['propelClassName'] ?: ucfirst($pObject);
 
@@ -542,7 +543,7 @@ class Editor {
 
         $actualPath = str_replace('\\', '/', lcfirst(substr($pClass, 1))).'.class.php';
         $fSlash = strpos($actualPath, '/');
-        $actualPath = 'module/'.substr($actualPath, 0, $fSlash).'/controller/'.substr($actualPath, $fSlash+1);
+        $actualPath = \Core\Kryn::getModuleDir(substr($actualPath, 0, $fSlash)).'controller/'.substr($actualPath, $fSlash+1);
 
         $general = getArgv('general');
         $path = $general['file'];
@@ -585,8 +586,6 @@ class Editor {
         $sourcecode .= "\n}\n";
 
         $sourcecode = str_replace("\r", '', $sourcecode);
-
-        error_log($path);
 
         SystemFile::setContent($path, $sourcecode);
 
@@ -631,7 +630,7 @@ class Editor {
 
         $actualPath = str_replace('\\', '/', lcfirst(substr($pClass, 1))).'.class.php';
         $fSlash = strpos($actualPath, '/');
-        $actualPath = 'module/'.substr($actualPath, 0, $fSlash).'/controller/'.substr($actualPath, $fSlash+1);
+        $actualPath = \Core\Kryn::getModuleDir(substr($actualPath, 0, $fSlash)).'controller/'.substr($actualPath, $fSlash+1);
 
         $res = array(
             'class' => $pClass,
@@ -748,7 +747,7 @@ class Editor {
         }
 
         $actualPath = str_replace('\\', '/', substr($pClass, 1)).'.class.php';
-        $actualPath = 'module/'.$pModule.'/controller/'.$actualPath;
+        $actualPath = \Core\Kryn::getModuleDir($pModule).'controller/'.$actualPath;
 
         if (file_exists($actualPath) && !$pForce){
             throw new \FileAlreadyExistException(tf('File already exist, %s', $actualPath));

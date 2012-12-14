@@ -42,6 +42,8 @@ abstract class ORMAbstract {
      */
     public $definition;
 
+
+
     /**
      * Constructor
      *
@@ -261,7 +263,7 @@ abstract class ORMAbstract {
 
 
     /**
-     * Removes all records.
+     * Do whatever is needed, to clear all items out of this object scope.
      *
      * @abstract
      * @return bool

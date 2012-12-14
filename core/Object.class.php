@@ -37,7 +37,7 @@ class Object {
         $object_id = substr($pInternalUri, 0, $pos);
         $params = explode('/', substr($pInternalUri, $pos+2));
 
-        $objectDefinition = kryn::$objects[$object_id];
+        $objectDefinition = self::getDefinition($object_id);
         if (!$objectDefinition) return false;
 
         if (method_exists($objectDefinition['_extension'], $objectDefinition['urlGetter'])){
@@ -159,6 +159,17 @@ class Object {
         );
     }
 
+    public static function getDefinition($pObjectKey){
+        $temp   = explode('\\', $pObjectKey);
+        $module = strtolower($temp[0]);
+        $name   = $temp[1];
+
+        if (Kryn::$configs[$module] && ($res = Kryn::$configs[$module]['objects'][$name])){
+            $res['_module'] = $module;
+            return $res;
+        }
+    }
+
     /**
      * Converts the primary key statement of a uri to normalized structure.
      * Generates a array for the usage of Core\Object:get()
@@ -248,7 +259,8 @@ class Object {
 
 
     public static function checkField($pObjectKey, $pField){
-        if (!Kryn::$objects[$pObjectKey]['fields'][$pField])
+        $definition = self::getDefinition($pObjectKey);
+        if (!$definition['fields'][$pField])
             throw new \FieldNotFoundException(tf('Field %s in object %s not found.', $pField, $pObjectKey));
         return true;
     }
@@ -348,7 +360,7 @@ class Object {
 
         $item = $obj->getItem($primaryKey, $pOptions);
 
-        if ($pOptions['permissionCheck'] && $aclCondition = \Core\Acl::getListingCondition($pObjectKey)){
+        if ($pOptions['permissionCheck'] && $aclCondition = Permission::getListingCondition($pObjectKey)){
             if (!self::satisfy($item, $aclCondition)) return false;
         }
 
@@ -411,7 +423,7 @@ class Object {
         if ($obj->definition['limitDataSets'])
             $pCondition = $pCondition ? array($pCondition, 'AND', $obj->definition['limitDataSets']) : $obj->definition['limitDataSets'];
 
-        if ($pOptions['permissionCheck'] && $aclCondition = \Core\Acl::getListingCondition($pObjectKey)){
+        if ($pOptions['permissionCheck'] && $aclCondition = Permission::getListingCondition($pObjectKey)){
             if ($pCondition)
                 $pCondition = array($aclCondition, 'AND', $pCondition);
             else
@@ -433,7 +445,7 @@ class Object {
      */
     public static function &getClass($pObjectKey){
 
-        $definition =& \Core\Kryn::$objects[$pObjectKey];
+        $definition = self::getDefinition($pObjectKey);
         if (!$definition) throw new \ObjectNotFoundException(tf('Object not found %s', $pObjectKey));
 
         if (!self::$instances[$pObjectKey]){
@@ -504,7 +516,7 @@ class Object {
         if ($obj->definition['limitDataSets'])
             $pCondition = $pCondition ? array($pCondition, 'AND', $obj->definition['limitDataSets']) : $obj->definition['limitDataSets'];
 
-        if ($pOptions['permissionCheck'] && $aclCondition = \Core\Acl::getListingCondition($pObjectKey)){
+        if ($pOptions['permissionCheck'] && $aclCondition = Permission::getListingCondition($pObjectKey)){
             if ($pCondition)
                 $pCondition = array($aclCondition, 'AND', $pCondition);
             else
@@ -526,7 +538,7 @@ class Object {
     
         if ($pOptions['permissionCheck']){
             foreach ($pValues as $fieldName => $value){
-                if (!Acl::checkAdd($pObjectKey, $pBranchPk, $fieldName)){
+                if (!Permission::checkAdd($pObjectKey, $pBranchPk, $fieldName)){
                     throw new \NoFieldWritePermission(tf("No update permission to field '%s' in item '%s' from object '%s'", $fieldName, $pBranchPk, $pObjectKey));
                 }
             }
@@ -555,7 +567,7 @@ class Object {
 
         if ($pOptions['permissionCheck']){
             foreach ($pValues as $fieldName => $value){
-                if (!Acl::checkUpdate($pObjectKey, $pPk, $fieldName)){
+                if (!Permission::checkUpdate($pObjectKey, $pPk, $fieldName)){
                     throw new \NoFieldWritePermission(tf("No update permission to field '%s' in item '%s' from object '%s'", $fieldName, $pPk, $pObjectKey));
                 }
             }
@@ -610,7 +622,7 @@ class Object {
 
     public static function getTreeRoot($pObjectKey, $pScope, $pOptions = false){
 
-        $definition = kryn::$objects[$pObjectKey];
+        $definition = self::getDefinition($pObjectKey);
         if (!$definition['nestedRootAsObject'] && $pScope === null) throw new \Exception('No scope defined.');
 
         $pOptions['fields'] = $definition['nestedRootObjectLabelField'];
@@ -632,7 +644,7 @@ class Object {
     public static function getTree($pObjectKey, $pParentPrimaryKey = null, $pCondition = null, $pDepth = 0, $pScope = false, $pOptions = false){
 
         $obj = self::getClass($pObjectKey);
-        $definition = kryn::$objects[$pObjectKey];
+        $definition = self::getDefinition($pObjectKey);
 
         if ($pParentPrimaryKey)
             $parentPrimaryKey = $obj->normalizePrimaryKey($pParentPrimaryKey);
@@ -653,7 +665,7 @@ class Object {
         if ($pCondition)
             $pCondition = dbPrimaryKeyToCondition($pCondition, $pObjectKey);
 
-        if ($pOptions['permissionCheck'] && $aclCondition = \Core\Acl::getListingCondition($pObjectKey)){
+        if ($pOptions['permissionCheck'] && $aclCondition = Permission::getListingCondition($pObjectKey)){
             if ($pCondition)
                 $pCondition = array($aclCondition, 'AND', $pCondition);
             else
@@ -674,7 +686,7 @@ class Object {
      * @return array
      */
     public static function getPrimaries($pObjectId){
-        $objectDefinition =& kryn::$objects[$pObjectId];
+        $objectDefinition = self::getDefinition($pObjectId);
 
         $primaryFields = array();
         foreach ($objectDefinition['fields'] as $fieldKey => $field){
@@ -695,7 +707,7 @@ class Object {
      * @return array
      */
     public static function getPrimaryList($pObjectId){
-        $objectDefinition =& kryn::$objects[$pObjectId];
+        $objectDefinition = self::getDefinition($pObjectId);
 
         $primaryFields = array();
         foreach ($objectDefinition['fields'] as $fieldKey => $field){

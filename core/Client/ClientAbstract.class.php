@@ -32,7 +32,7 @@ abstract class ClientAbstract {
     /**
      * Current session instance.
      *
-     * @var \Session
+     * @var Session
      */
     private $session;
 
@@ -198,7 +198,7 @@ abstract class ClientAbstract {
     /**
      * Returns the user from current session.
      *
-     * @return \User
+     * @return User
      */
     public function getUser(){
         //TODO, build in caching
@@ -292,7 +292,7 @@ abstract class ClientAbstract {
      *    }
      *    
      *
-     * @param \User $pUser The newly created user.
+     * @param User $pUser The newly created user.
      */
     public function firstLogin($pUser) {
 
@@ -322,7 +322,7 @@ abstract class ClientAbstract {
     public function setUser($pUserId = null) {
 
         if ($pUserId !== null){
-            $user = \UserQuery::create()->findPk($pUserId);
+            $user = \Users\UserQuery::create()->findPk($pUserId);
 
             if (!$user){
                 throw new \Exception('User not found '.$pUserId);
@@ -342,7 +342,6 @@ abstract class ClientAbstract {
      */
     public function logout() {
         $this->setUser();
-        $this->syncStore();
     }
 
     /**
@@ -360,21 +359,20 @@ abstract class ClientAbstract {
      * 
      */
     public function syncStore() {
+
         if ($this->config['store']['class'] == 'database'){
             $this->getSession()->save();
-            Kryn::setPropelCacheObject('Session', null, $this->getSession());
+            Kryn::setPropelCacheObject('\Users\Session', $this->getSession()->getId(), $this->getSession());
         } else {
             $this->cache->set($this->tokenId . '_' . $this->token, serialize($this->getSession()), $this->config['timeout']);
         }
-
-        Kryn::removePropelCacheObject('Session', $this->getSession()->getId());
     }
 
     /**
      * Create new session in the backend and stores the newly created session id
      * into $this->token. Also set cookie.
      * 
-     * @return bool|\Session The session object
+     * @return bool|Session The session object
      */
     public function createSession() {
 
@@ -406,10 +404,10 @@ abstract class ClientAbstract {
 
 
     /**
-     * Creates a \Session object and store it in the current backend.
+     * Creates a Session object and store it in the current backend.
      * 
      * @param  string $pId
-     * @return bool|\Session Returns false, if something went wrong otherwise a \Session object.
+     * @return bool|Session Returns false, if something went wrong otherwise a Session object.
      */
     public function createSessionById($pId){
 
@@ -426,7 +424,7 @@ abstract class ClientAbstract {
         $session = $this->fetchSession($cacheKey);
         if ($session) return false;
 
-        $session = new \Session();
+        $session = new \Users\Session();
         $session->setId($pId)
             ->setTime(time())
             ->setIp($_SERVER['REMOTE_ADDR'])
@@ -497,7 +495,7 @@ abstract class ClientAbstract {
     /**
      * Trys to load a session based on current token or pToken from the cache or database backend.
      *
-     * @return bool|\Session false if the session does not exist, and Session object, if found.
+     * @return bool|Session false if the session does not exist, and Session object, if found.
      */
     protected function fetchSession($pToken = null) {
 
@@ -517,16 +515,16 @@ abstract class ClientAbstract {
     /**
      * Trys to load a session based on pToken from the database backend.
      *
-     * @return bool|\Session false if the session does not exist, and Session object, if found.
+     * @return bool|Session false if the session does not exist, and Session object, if found.
      */
     protected function loadSessionDatabase($pToken) {
 
-        $session = Kryn::getPropelCacheObject('Session', $pToken);
+        $session = Kryn::getPropelCacheObject('\Users\Session', $pToken);
 
         if (!$session) return false;
 
         if ($session->getTime() + $this->config['timeout'] < time()) {
-            Kryn::removePropelCacheObject('Session', $pToken);
+            Kryn::removePropelCacheObject('\Users\Session', $pToken);
             $session->delete();
             return false;
         }
@@ -537,7 +535,7 @@ abstract class ClientAbstract {
     /**
      * Trys to load a session based on current pToken from the cache backend.
      *
-     * @return bool|\Session false if the session does not exist, and Session object, if found.
+     * @return bool|Session false if the session does not exist, and Session object, if found.
      */
     public function loadSessionCache($pToken) {
 
@@ -667,14 +665,14 @@ abstract class ClientAbstract {
     }
 
     /**
-     * @param \Session $session
+     * @param Session $session
      */
     public function setSession($session){
         $this->session = $session;
     }
 
     /**
-     * @return \Session
+     * @return Session
      */
     public function getSession(){
         return $this->session;

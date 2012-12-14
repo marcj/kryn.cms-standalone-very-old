@@ -20,137 +20,6 @@ namespace Core;
 
 
 class Navigation {
-    public $navigations;
-
-    /**
-     * @static
-     * @param \Page $pParentPage
-     * @param bool $pWithFolders
-     * @param \mDomain $pDomain
-     * @param bool $pWithoutCache
-     * @return mixed
-     */
-    public static function getLinks($pParentPage = null, $pWithFolders = false, $pDomain = null, $pWithoutCache = false) {
-
-        if (!$pDomain) {
-            $pDomain = Kryn::$domain->getId();
-        }
-
-        $query = \PageQuery::create()
-            ->inTree($pDomain);
-
-        if (!$pWithFolders){
-            $query->filterByType(array(1,2));
-        }
-
-        //$query->filterByLvl(array('min' => 0));
-
-        $items = $query->find();
-
-        //var_dump($root);
-
-        exit;
-
-        return;
-
-        $s1 = new SystemPage();
-        $s1->setDomainId(3);
-        $s1->setTitle('Root 1');
-        $s1->save();
-
-        $s2 = new SystemPage();
-        $s2->setDomainId(3);
-        $s2->setTitle('Root 2');
-
-        $sub = new SystemPage();
-        $sub->setTitle('Sub #1 of Root 2');
-        $sub->insertAsFirstChildOf($s2);
-
-        $sub = new SystemPage();
-        $sub->setTitle('Sub #2 of Root 2');
-        $sub->insertAsFirstChildOf($s2);
-
-        $s2->save();
-
-        $s3 = new SystemPage();
-        $s3->setDomainId(3);
-        $s3->setTitle('Root 3');
-
-        $s3->save();
-
-        $root = SystemPageQuery::create()->findRoot(3);
-        var_dump($root);
-        exit;
-        foreach ($root->get() as $node) {
-            echo str_repeat(' ', $node->getLevel()) . $node->getTitle() . "<br/>";
-        }
-        exit;
-        $blog = SystemPageQuery::create()->findPk(1);
-
-        $nodes = SystemPageQuery::create()->findTree(1);
-
-        //print $nodes->toJSON();
-        var_dump($nodes);
-        exit;
-
-        return $nodes;
-
-        if ($pWithoutCache == false) {
-
-            $code = $pDomain;
-            $code .= '-'.$pId;
-            $code .= '-'.Kryn::$client->id;
-
-            $navigation =& Kryn::getCache('navigation-' . $code);
-        }
-
-        if ($pWithoutCache == true || !is_array($navigation)) {
-
-            $condition = array(
-                array('visible', '=', 1)
-            );
-
-            if ($pId == 0) {
-                $condition[] = 'AND';
-                $condition[] = array('domain_id', '=', $pDomain);
-            }
-
-            if (!$pWithFolders){
-                $condition[] = 'AND';
-                $condition[] = array('type', 'IN', '0,1');
-            }
-
-            if ($pId){
-                $condition[] = 'OR';
-                $condition[] = array('id', '=', $pId);
-            }
-
-            $nodes = SystemPageQuery::create()->findRoot($pId);
-
-            /*
-            $nodes = krynObjects::getTree('node', $pId, $condition, $pDepth, $pDomain, array(
-                'fields' => '*',
-                'permissionCheck' => true
-            ));*/
-
-            if (count($nodes) > 0){
-                foreach ($nodes as &$node) {
-                    if ($node['properties']) {
-                        $node['properties'] = json_decode($node['properties'], true);
-                    }
-                }
-
-                if (!$pWithoutCache) {
-                    Kryn::setCache('navigation-' . $code, $nodes, 60);
-                }
-            }
-
-        } else {
-            $nodes =& $navigation;
-        }
-
-        return $nodes;
-    }
 
     public static function arrayLevel($pArray, $pLevel) {
         return $pArray[$pLevel - 2];
@@ -215,7 +84,7 @@ class Navigation {
                 if (false && $cache) return $cache;
             }*/
 
-            $navigation = \PageQuery::create()->findRoot(Kryn::$domain->getId());
+            $navigation = NodeQuery::create()->findRoot(Kryn::$domain->getId());
         }
 
         if ($navigation !== false) {
@@ -224,7 +93,7 @@ class Navigation {
 
             if (Kryn::$domainProperties['kryn']['cacheNavigations'] !== 0) {
                 $res = tFetch($pTemplate);
-                Kryn::setCache($cacheKey, $res, 10);
+                //Kryn::setCache($cacheKey, $res, 10);
                 return $res;
             } else {
                 return tFetch($pTemplate);

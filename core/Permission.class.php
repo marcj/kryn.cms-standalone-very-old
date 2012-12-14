@@ -12,7 +12,7 @@
 
 namespace Core;
 
-class Acl {
+class Permission {
 
 
     public static $cache = array();

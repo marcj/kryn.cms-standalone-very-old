@@ -224,7 +224,7 @@ class Backend {
 
 
         if ($loadKeys == false || in_array('langs', $loadKeys)){
-            $tlangs = \LanguageQuery::create()->filterByVisible(true)->find()->toArray(null, null, \BasePeer::TYPE_STUDLYPHPNAME);
+            $tlangs = \Core\LanguageQuery::create()->filterByVisible(true)->find()->toArray(null, null, \BasePeer::TYPE_STUDLYPHPNAME);
 
             $langs = dbToKeyIndex($tlangs, 'code');
             $res['langs'] = $langs;
@@ -308,19 +308,21 @@ class Backend {
                         $childs = $this->getChildMenus("$extCode/$key", $value);
 
                         if (count($childs) == 0) {
-                            if (Kryn::checkUrlAccess("$extCode/$key")) {
+                            //todo, check against Permission::
+                            //if (Kryn::checkUrlAccess("$extCode/$key")) {
                                 unset($value['childs']);
                                 $links[$extCode][$key] = $value;
-                            }
+                            //}
                         } else {
                             $value['childs'] = $childs;
                             $links[$extCode][$key] = $value;
                         }
 
                     } else {
-                        if (Kryn::checkUrlAccess("$extCode/$key")) {
+                        //todo, check against Permission::
+                        //if (Kryn::checkUrlAccess("$extCode/$key")) {
                             $links[$extCode][$key] = $value;
-                        }
+                        //}
                     }
 
                     if ((!$links[$extCode][$key]['type'] && !$links[$extCode][$key]['childs']) ||

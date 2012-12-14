@@ -8,10 +8,10 @@ class GeneralTest extends TestCaseWithInstallation {
 
     public function testObject(){
 
-        $definition =& \Core\Kryn::$objects['test'];
+        $definition =& \Core\Object::getDefinition('Test\\Test');
         $this->assertNotEmpty($definition);
 
-        $objectClass = \Core\Object::getClass('test');
+        $objectClass = \Core\Object::getClass('Test\\Test');
         $this->assertNotEmpty($objectClass);
 
     }

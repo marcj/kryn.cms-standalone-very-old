@@ -1,6 +1,10 @@
 <?php
 
+namespace Users;
 
+use Users\om\BaseUser;
+
+use Core\Client\ClientAbstract;
 
 /**
  * Skeleton subclass for representing a row from the 'kryn_system_user' table.
@@ -25,10 +29,10 @@ class User extends BaseUser {
     public function setPassword($pPassword){
 
         if (!$this->getPasswdSalt()){
-            $this->setPasswdSalt(Core\Client\ClientAbstract::getSalt());
+            $this->setPasswdSalt(ClientAbstract::getSalt());
         }
 
-        $passwd = Core\Client\ClientAbstract::getHashedPassword($pPassword, $this->getPasswdSalt());
+        $passwd = ClientAbstract::getHashedPassword($pPassword, $this->getPasswdSalt());
 
         $this->setPasswd($passwd);
     }

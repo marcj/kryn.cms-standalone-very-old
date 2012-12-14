@@ -2,6 +2,8 @@
 
 namespace Admin;
 
+use Core\MediaFile;
+
 class ObjectFile extends \Core\ORM\Propel {
 
     /**
@@ -31,7 +33,7 @@ class ObjectFile extends \Core\ORM\Propel {
                 } else if (!$this->primaryKeys[$pos]) continue;
 
                 if (!is_numeric($value)){
-                    $file = \Core\File::getFile(rawurldecode($value));
+                    $file = MediaFile::getFile(rawurldecode($value));
                     if ($file)
                         $value = $file['id'];
                     else continue;
@@ -56,7 +58,7 @@ class ObjectFile extends \Core\ORM\Propel {
      */
     public function mapPrimaryKey(&$pPrimaryKey){
         if (!is_numeric($pPrimaryKey['id'])){
-            $file = \Core\File::getfile(urldecode($pPrimaryKey['id']));
+            $file = MediaFile::getfile(urldecode($pPrimaryKey['id']));
             $pPrimaryKey['id'] = $file['id'];
         }
     }
@@ -70,8 +72,8 @@ class ObjectFile extends \Core\ORM\Propel {
 
         parent::remove($pPrimaryKey);
 
-        $path = \Core\File::getPath($pPrimaryKey['id']);
-        return \Core\File::remove($path);
+        $path = MediaFile::getPath($pPrimaryKey['id']);
+        return MediaFile::remove($path);
     }
 
     /**
@@ -80,11 +82,11 @@ class ObjectFile extends \Core\ORM\Propel {
     public function add($pValues, $pBranchPk = false, $pMode = 'into', $pScope = 0){
 
         if ($pBranchPk)
-            $parentPath = is_numeric($pBranchPk['id'])? \Core\File::getPath($pBranchPk['id']) : $pBranchPk['id'];
+            $parentPath = is_numeric($pBranchPk['id'])? MediaFile::getPath($pBranchPk['id']) : $pBranchPk['id'];
 
         $path = $parentPath ? $parentPath . $pValues['name'] : $pValues['name'];
 
-        \Core\File::setContent($path, $pValues['content']);
+        MediaFile::setContent($path, $pValues['content']);
         return parent::add($pValues, $pBranchPk, $pMode, $pScope);
     }
 
@@ -95,8 +97,8 @@ class ObjectFile extends \Core\ORM\Propel {
 
         $this->mapPrimaryKey($pPrimaryKey);
 
-        $path = is_numeric($pPrimaryKey['id'])? \Core\File::getPath($pPrimaryKey['id']) : $pPrimaryKey['id'];
-        \Core\File::setContent($path, $pValues['content']);
+        $path = is_numeric($pPrimaryKey['id'])? MediaFile::getPath($pPrimaryKey['id']) : $pPrimaryKey['id'];
+        MediaFile::setContent($path, $pValues['content']);
 
         return parent::update($pPrimaryKey, $pValues);
     }
@@ -104,20 +106,20 @@ class ObjectFile extends \Core\ORM\Propel {
     public function getItem($pPrimaryKey, $pOptions = null){
 
         if ($pPrimaryKey)
-            $path = is_numeric($pPrimaryKey['id'])? \Core\File::getPath($pPrimaryKey['id']) : $pPrimaryKey['id'];
+            $path = is_numeric($pPrimaryKey['id'])? MediaFile::getPath($pPrimaryKey['id']) : $pPrimaryKey['id'];
         else
             $path = '/';
 
         if (!$path) return;
 
-        return \Core\File::getFile($path);
+        return MediaFile::getFile($path);
     }
 
     public function getItems($pCondition = null, $pOptions = null){
         $items = parent::getItems($pCondition, $pOptions);
         $result = array();
         foreach ($items as $item){
-            $file = \Core\File::getFile($item['path']);
+            $file = MediaFile::getFile($item['path']);
             if ($file)
                 $result[] = $file;
         }
@@ -129,11 +131,11 @@ class ObjectFile extends \Core\ORM\Propel {
 
         if ($pParentPrimaryKey)
             $path = is_numeric($pParentPrimaryKey['id'])?
-                \Core\File::getPath($pParentPrimaryKey['id']) : $pParentPrimaryKey['id'];
+                MediaFile::getPath($pParentPrimaryKey['id']) : $pParentPrimaryKey['id'];
         else
             $path = '/';
 
-        $files = \Core\File::getFiles($path);
+        $files = MediaFile::getFiles($path);
 
         foreach($files as &$file){
             if ($pDepth > 1 && $file['type'] == 'dir'){
@@ -142,7 +144,7 @@ class ObjectFile extends \Core\ORM\Propel {
                 $file['_childrenCount'] = count($file['_children']);
 
             } else if ($file['type'] == 'dir'){
-                $file['_childrenCount'] = \Core\File::getCount($file['path']);
+                $file['_childrenCount'] = MediaFile::getCount($file['path']);
 
             } else {
                 $file['_childrenCount'] = 0;

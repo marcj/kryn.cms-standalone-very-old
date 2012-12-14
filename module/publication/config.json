@@ -315,7 +315,7 @@
         ]
     },
     "objects": {
-        "news": {
+        "News": {
             "desc": "[[Articles]]",
             "table": "publication_news",
             "labelField": "title",

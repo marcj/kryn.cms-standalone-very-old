@@ -21,7 +21,7 @@ namespace Core;
  * This class resolves all mount points inside media/.
  *
  */
-class File {
+class MediaFile {
 
 
     /**
@@ -360,7 +360,7 @@ class File {
             }
             $sql = 'SELECT id, path FROM '.pfx.'system_file WHERE 1=0 OR '.implode(' OR ', $where);
 
-            $res = dbExec($sql, $vals);
+            $res = dbQuery($sql, $vals);
             $path2id = array();
 
             while ($row = dbFetch($res)){
@@ -379,8 +379,9 @@ class File {
                 } else {
                     $file['id'] = $path2id[$file['path']];
                 }
-                $file['writeaccess'] = \Core\Acl::checkUpdate('file', $file['path']);
+                $file['writeaccess'] = Permission::checkUpdate('file', $file['path']);
             }
+            dbFree($res);
         }
 
         return $items;

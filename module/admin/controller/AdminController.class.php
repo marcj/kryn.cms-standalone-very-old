@@ -34,8 +34,10 @@ class AdminController {
             return true;
         }
 
-        if (Kryn::checkUrlAccess($pUrl))
-            throw new \AccessDeniedException(tf('Access denied.'));
+        //todo, use Permission class
+
+        //if (Kryn::checkUrlAccess($pUrl))
+        //    throw new \AccessDeniedException(tf('Access denied.'));
     }
 
     public function exceptionHandler($pException){

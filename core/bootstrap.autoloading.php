@@ -9,6 +9,7 @@ spl_autoload_register(function($pClass) use ($propelClasses) {
 
     if (substr($pClass, 0, 1) == '\\')
         $pClass = substr($pClass, 1);
+    $pClass = str_replace('\\', '/', $pClass);
 
     if (file_exists($propelClasses.$pClass.'.php')){
         include $propelClasses.$pClass.'.php';
@@ -23,15 +24,23 @@ spl_autoload_register(function($pClass) use ($propelClasses) {
 
 
 //init auto-loader for propel module models.
-foreach (Kryn::$extensions as $extension){
 
-    spl_autoload_register(function ($pClass) use ($extension) {
-        if (file_exists($clazz = PATH.'module/'.$extension.'/model/'.$pClass.'.php')){
-            include $clazz;
-            return true;
-        }
-    });
-}
+spl_autoload_register(function ($pClass) {
+
+    $cwd = getcwd();
+    chdir(PATH);
+
+    $ext = strtolower(substr($pClass, 0, $sPos = strpos($pClass, '\\')));
+    $clazz = substr($pClass, $sPos+1);
+
+    if (file_exists($clazz = Kryn::getModuleDir($ext).'model/'.$clazz.'.php')){
+        include $clazz;
+        chdir($cwd);
+        return true;
+    }
+    chdir($cwd);
+
+});
 
 /**
  * Register auto loader.

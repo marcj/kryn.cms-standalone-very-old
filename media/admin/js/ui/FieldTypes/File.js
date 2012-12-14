@@ -9,7 +9,7 @@ ka.FieldTypes.File = new Class({
             returnPath: 1,
             onlyLocal: 1
         };
-        pOptions.objects = ['file'];
+        pOptions.objects = ['Core\\File'];
 
         this.parent(pFieldInstance, pOptions);
     }

@@ -131,10 +131,7 @@ class Manager {
         */
 
         $pModuleName = str_replace(".", "", $pModuleName);
-        $configFile = PATH_MODULE . "$pModuleName/config.json";
-
-        if ($pModuleName == 'core')
-            $configFile = "core/config.json";
+        $configFile = \Core\Kryn::getModuleDir($pModuleName) . "config.json";
 
         $extract = false;
 
@@ -355,14 +352,14 @@ class Manager {
 
         Manager::prepareName($pName);
         $config = self::getConfig($pName);
-        $hasPropelModels = SystemFile::exists('module/'.$pName.'/model.xml');
+        $hasPropelModels = SystemFile::exists(\Core\Kryn::getModuleDir($pName).'model.xml');
 
         \Core\Event::fire('admin/module/manager/uninstall/pre', $pName);
 
         //remove object data
         if ($config['objects']){
             foreach ($config['objects'] as $key => $object){
-                \Core\Object::clear($key);
+                \Core\Object::clear(ucfirst($pName).'\\'.$key);
             }
         }
 
@@ -370,7 +367,7 @@ class Manager {
 
         //catch all propel classes
         if ($hasPropelModels){
-            $propelClasses = find('module/'.$pName.'/model/');
+            $propelClasses = find(\Core\Kryn::getModuleDir($pName).'model/');
         }
 
         //remove files
@@ -382,8 +379,10 @@ class Manager {
                 }
             }
 
-            delDir('module/'.$pName);
-            delDir('media/'.$pName);
+            if ($pName != 'core'){
+                delDir('module/'.$pName);
+                delDir('media/'.$pName);
+            }
 
         }
 
@@ -395,7 +394,7 @@ class Manager {
         if ($hasPropelModels){
             //remove propel classes in temp
             foreach ($propelClasses as $propelClass){
-                $propelClasses = substr($propelClasses, strlen('module/'.$pName.'/model/'));
+                $propelClasses = substr($propelClasses, strlen(\Core\Kryn::getModuleDir($pName).'model/'));
                 \Core\TempFile::remove('propel-classes/Base'.$propelClass.'.php');
                 \Core\TempFile::remove('propel-classes/Base'.$propelClass.'Peer.php');
                 \Core\TempFile::remove('propel-classes/Base'.$propelClass.'Query.php');
@@ -459,7 +458,7 @@ class Manager {
     private function getScriptFile($pModule, $pName){
 
         self::prepareName($pModule);
-        return PATH_MODULE . $pModule . '/package/' . $pName . '.php';
+        return \Core\Kryn::getModuleDir($pModule) . 'package/' . $pName . '.php';
 
     }
 }

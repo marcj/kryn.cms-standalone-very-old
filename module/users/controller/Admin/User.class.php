@@ -75,7 +75,7 @@ class User extends \Admin\ObjectWindow {
 
     public $export = false;
 
-    public $object = 'user';
+    public $object = 'Users\User';
 
     public $preview = false;
 

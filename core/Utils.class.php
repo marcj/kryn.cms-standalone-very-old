@@ -19,13 +19,11 @@ class Utils {
     }
 
     public static function shutdownHandler(){
-        if (Kryn::$config['displayErrors']){
+        if (\Core\Kryn::$config['displayBeautyErrors']){
             chdir(PATH);
             $error = error_get_last();
             if($error['type'] == 1){
-                self::errorHandler($error['type'], $error['message'], $error['file'], $error['line'], array(
-                    $error
-                ));
+                self::errorHandler($error['type'], $error['message'], $error['file'], $error['line']);
             }
         }
     }

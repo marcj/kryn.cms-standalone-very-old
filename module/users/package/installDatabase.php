@@ -2,6 +2,15 @@
 
 if (!defined('KRYN_MANAGER')) return false;
 
+use Users\SessionQuery;
+use Users\UserGroupQuery;
+use Users\UserQuery;
+use Users\GroupQuery;
+use Core\AclQuery;
+
+use Users\Group;
+use Users\User;
+
 SessionQuery::create()->deleteAll();
 UserGroupQuery::create()->deleteAll();
 UserQuery::create()->deleteAll();

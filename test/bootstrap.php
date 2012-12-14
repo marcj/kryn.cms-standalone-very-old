@@ -17,5 +17,5 @@ error_reporting(E_COMPILE_ERROR|E_RECOVERABLE_ERROR|E_ERROR|E_CORE_ERROR|E_USER_
 ini_set('display_errors', 1);
 
 if (file_exists('../config.php')){
-    die("It seems Kryn.cms is already installed! Please delete the config.php. aborted.\n");
+    //die("It seems Kryn.cms is already installed! Please delete the config.php. aborted.\n");
 }

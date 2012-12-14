@@ -16,7 +16,7 @@ namespace Core;
  * krynLanguage - a class that handles .po files
  */
 
-class Language {
+class Lang {
 
 
     public static function getLanguage($pModuleName, $pLang) {
@@ -334,7 +334,7 @@ msgstr ""
             '/[\s\(\)\.](_l|_|t)\(\s*"(((\\\\.)|[^"])*)"\s*\)/',
 
             //t("asd"), _("asd")
-            "/[\s\(\)\.](_l|_|t)\(\s*'(((\\\\.)|[^'])*)'\s*\)/" => '[krynLanguage::evalString($p[2])] = true',
+            "/[\s\(\)\.](_l|_|t)\(\s*'(((\\\\.)|[^'])*)'\s*\)/" => '[self::evalString($p[2])] = true',
 
             //[[asd]]
             "/(\[\[)([^\]]*)\]\]/",
@@ -343,31 +343,31 @@ msgstr ""
             "/[\s\(\)\.]tc\(\s*'(((\\\\.)|[^'])*)'\s*,\s*'(((\\\\.)|[^'])*)'\s*\)/" => '[$p[1]."\004".$p[4]] = true',
 
             //tc("context", "translation")
-            '/[\s\(\)\.]tc\(\s*"(((\\\\.)|[^"])*)"\s*,\s*"(((\\\\.)|[^"])*)"\s*\)/' => '[krynLanguage::evalString($p[1]."\004".$p[4])] = true',
+            '/[\s\(\)\.]tc\(\s*"(((\\\\.)|[^"])*)"\s*,\s*"(((\\\\.)|[^"])*)"\s*\)/' => '[self::evalString($p[1]."\004".$p[4])] = true',
 
 
             // t("singular", "plural", $count, "context"
-            '/[\s\(\)\.]t\(\s*"(((\\\\.)|[^"])*)"\s*,\s*"(((\\\\.)|[^"])*)"\s*,[^,]*,\s*"(((\\\\.)|[^"])*)"\s*\)/' => '[krynLanguage::evalString($p[7]."\004".$p[1])] = array($p[1], $p[4])',
+            '/[\s\(\)\.]t\(\s*"(((\\\\.)|[^"])*)"\s*,\s*"(((\\\\.)|[^"])*)"\s*,[^,]*,\s*"(((\\\\.)|[^"])*)"\s*\)/' => '[self::evalString($p[7]."\004".$p[1])] = array($p[1], $p[4])',
 
             // t('singular', 'plural', *, 'context'
             "/[\s\(\)\.]t\(\s*'(((\\\\.)|[^'])*)'\s*,\s*'(((\\\\.)|[^'])*)'\s*,[^,]*,\s*'(((\\\\.)|[^'])*)'\s*\)/" => '[$p[7]."\004".$p[1]] = array($p[1], $p[4])',
 
 
             // t("singular", "plural", $count)
-            '/[\s\(\)\.]t\(\s*"(((\\\\.)|[^"])*)"\s*,\s*"(((\\\\.)|[^"])*)"\s*,[^\)]*\)/' => '[krynLanguage::evalString($p[1])] = array($p[1], $p[4])',
+            '/[\s\(\)\.]t\(\s*"(((\\\\.)|[^"])*)"\s*,\s*"(((\\\\.)|[^"])*)"\s*,[^\)]*\)/' => '[self::evalString($p[1])] = array($p[1], $p[4])',
 
             // t('singular', 'plural', $count)
             "/[\s\(\)\.]t\(\s*'(((\\\\.)|[^'])*)'\s*,\s*'(((\\\\.)|[^'])*)'\s*,[^\)]*\)/" => '[$p[1]] = array($p[1], $p[4])',
 
 
             //{t "singular" "plural" $count}
-            '/\{t\s+"(((\\\\.)|[^"])*)"\s+"(((\\\\.)|[^"])*)"\s+[^\}"]*\s*\}/' => '[krynLanguage::evalString($p[1])] = array($p[1], $p[4])',
+            '/\{t\s+"(((\\\\.)|[^"])*)"\s+"(((\\\\.)|[^"])*)"\s+[^\}"]*\s*\}/' => '[self::evalString($p[1])] = array($p[1], $p[4])',
 
             //{t "singular" "plural" $count "context}
-            '/\{t\s+"(((\\\\.)|[^"])*)"\s+"(((\\\\.)|[^"])*)"\s+[^\}]* \s*"(((\\\\.)|[^"])*)"\}/' => '[krynLanguage::evalString($p[7]."\004".$p[1])] = array($p[1], $p[4])',
+            '/\{t\s+"(((\\\\.)|[^"])*)"\s+"(((\\\\.)|[^"])*)"\s+[^\}]* \s*"(((\\\\.)|[^"])*)"\}/' => '[self::evalString($p[7]."\004".$p[1])] = array($p[1], $p[4])',
 
             //{tc "context" "translation"}
-            '/\{tc\s+"(((\\\\.)|[^"])*)"\s*"(((\\\\.)|[^"])*)"\s*\}/' => '[krynLanguage::evalString($p[1]."\004".$p[4])] = true',
+            '/\{tc\s+"(((\\\\.)|[^"])*)"\s*"(((\\\\.)|[^"])*)"\s*\}/' => '[self::evalString($p[1]."\004".$p[4])] = true',
 
         );
         //$GLOBALS['moduleTempLangs'][$pFile] = true;

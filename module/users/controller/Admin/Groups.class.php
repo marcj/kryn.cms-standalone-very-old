@@ -67,11 +67,11 @@ class Groups extends \Admin\ObjectWindow {
 
     public $export = false;
 
-    public $object = 'group';
+    public $object = 'Users\\Group';
 
     public $preview = false;
 
-    public $titleField = 'Groups';
+    public $titleField = 'name';
 
     public $workspace = false;
 

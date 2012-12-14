@@ -2,15 +2,18 @@
 
 namespace Admin;
 
+use Core\MediaFile;
+use Core\Permission;
+
 class File {
 
     public function getFiles($pPath){
 
         //todo, check read access
 
-        $files = \Core\File::getFiles($pPath);
+        $files = MediaFile::getFiles($pPath);
         foreach ($files as &$file){
-            $file['writeAccess'] = \Core\Acl::checkUpdate('file', $file['id']);
+            $file['writeAccess'] = Permission::checkUpdate('file', $file['id']);
         }
         return $files;
     }
@@ -20,8 +23,8 @@ class File {
 
         //todo, check read access
 
-        $file = \Core\File::getFile($pPath);
-        $file['writeAccess'] = \Core\Acl::checkUpdate('file', $file['id']);
+        $file = MediaFile::getFile($pPath);
+        $file['writeAccess'] = Permission::checkUpdate('file', $file['id']);
         return $file;
 
     }
@@ -30,7 +33,7 @@ class File {
 
         //todo, check read access
 
-        $image = \Core\File::getThumbnail($pPath, '50x50');
+        $image = MediaFile::getThumbnail($pPath, '50x50');
 
         $expires = 3600;
         header("Pragma: public");

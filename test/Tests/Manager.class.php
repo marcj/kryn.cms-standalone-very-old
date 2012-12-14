@@ -42,28 +42,30 @@ class Manager {
             die("Kryn.cms not installed. =>".implode(', ', $string)." \n");
         }
 
-        $config['displayErrors'] = 0; //0 otherwise the exceptionHandler of kryn is used, what breaks the PHPUnit.
+        $config['displayBeautyErrors'] = 0; //0 otherwise the exceptionHandler of kryn is used, what breaks the PHPUnit.
         $cfg = $config;
 
         $doit = true;
 
         require('../core/bootstrap.php');
-
-        require('../core/bootstrap.startup.php');
-        @ini_set('display_errors', 1);
-
         chdir(PATH);
+
+        require('core/bootstrap.startup.php');
+        \Core\Kryn::loadConfigs();
 
         $manager = new \Admin\Module\Manager;
 
-        foreach ($config['activeModules'] as $module){
-            $manager->uninstall($module, false, true);
-        }
+            foreach ($config['activeModules'] as $module){
+                $manager->uninstall($module, false, true);
+            }
 
-        $manager->uninstall('users', false, true);
-        $manager->uninstall('admin', false, true);
+            $manager->uninstall('users', false, true);
+            $manager->uninstall('admin', false, true);
+            $manager->uninstall('core', false, true);
 
-        \Core\PropelHelper::updateSchema();
+            \Core\PropelHelper::updateSchema();
+
+
 
         \Core\SystemFile::remove('config.php');
 
@@ -85,12 +87,14 @@ class Manager {
         $origin = getcwd();
 
         $cfg = $pConfig;
-        $cfg['displayErrors'] = 0; //0 otherwise the exceptionHandler of kryn is used, what breaks the PHPUnit.
+        $cfg['displayBeautyErrors'] = 0; //0 otherwise the exceptionHandler of kryn is used, what breaks the PHPUnit.
 
         if (!file_put_contents('../config.php', "<?php\n return ".var_export($cfg, true).'; '))
             throw new \FileNotWritableException('Can not install Kryn.cms. config.php not writeable.');
 
         require('../core/bootstrap.php');
+        require('../core/bootstrap.startup.php');
+        \Core\Kryn::loadConfigs();
         @ini_set('display_errors', 1);
 
         chdir(PATH);

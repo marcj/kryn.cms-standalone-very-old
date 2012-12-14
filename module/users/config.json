@@ -221,7 +221,7 @@
         }
     },
     "objects": {
-        "user": {
+        "User": {
             "table": "system_user",
             "labelField": "username",
             "nested": 0,
@@ -287,7 +287,7 @@
                 },
                 "groupMembership": {
                     "label": "[[Group membership]]",
-                    "object": "group",
+                    "object": "Users\\Group",
                     "objectLabel": "name",
                     "objectRelation": "nToM",
                     "objectRelationTable": "system_user_group",
@@ -306,7 +306,7 @@
             "label": "[[Users]]",
             "__dataModel__": "table"
         },
-        "group": {
+        "Group": {
             "table": "system_group",
             "labelField": "name",
             "defaultSelection": "name, description",

@@ -1,5 +1,8 @@
 <?php
 
+namespace Core;
+
+use Core\om\BaseDomain;
 
 
 /**

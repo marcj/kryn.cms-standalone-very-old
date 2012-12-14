@@ -6,7 +6,11 @@ chdir(PATH);
 @ini_set('display_errors', 0);
 
 if (\Core\Kryn::$config['displayErrors']){
-    set_error_handler("coreUtilsErrorHandler", E_COMPILE_ERROR|E_RECOVERABLE_ERROR|E_ERROR|E_CORE_ERROR|E_USER_ERROR|E_PARSE);
+    @ini_set('display_errors', 1);
+}
+
+if (\Core\Kryn::$config['displayBeautyErrors']){
+    set_error_handler("coreUtilsErrorHandler", E_CORE_ERROR|E_COMPILE_ERROR|E_RECOVERABLE_ERROR|E_ERROR|E_CORE_ERROR|E_USER_ERROR|E_PARSE);
     set_exception_handler("coreUtilsExceptionHandler");
 }
 register_shutdown_function('coreUtilsShutdownHandler');

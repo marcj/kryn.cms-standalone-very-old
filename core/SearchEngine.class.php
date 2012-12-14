@@ -12,7 +12,7 @@ namespace Core;
  * Search class
  */
 
-class Search {
+class SearchEngine {
 
     public static $forceSearchIndex = false;
 
@@ -87,10 +87,10 @@ class Search {
             return 7; //'No content found. Site was not indexed!', 7);
         }
 
-        $index = \SearchQuery::create()->findPk(array($a, Kryn::$domain->getId()));
+        $index = SearchQuery::create()->findPk(array($a, Kryn::$domain->getId()));
 
         if (!$index){
-            $index = new \Search();
+            $index = new Search();
         }
 
         //we now ready to index this content
@@ -98,9 +98,9 @@ class Search {
               ->setTitle(Kryn::$domain->getTitle())
               ->setMd5($contentMd5)
               ->setMdate(time())
-              ->setPageId(Kryn::$page->getId())
+              ->setNodeId(Kryn::$page->getId())
               ->setDomainId(Kryn::$domain->getId())
-              ->setPagecontent($indexedContent);
+              ->setContent($indexedContent);
 
         $index->save();
 
@@ -205,7 +205,7 @@ class Search {
         $indexes = dbExFetch("
             SELECT url, title , mdate, md5
             FROM %pfx%system_search
-            WHERE page_id =" . esc($pPageId) . " AND mdate > 0 ORDER BY url, mdate DESC", -1);
+            WHERE node_id =" . esc($pPageId) . " AND mdate > 0 ORDER BY url, mdate DESC", -1);
 
         $arIndexes = array();
         foreach ($indexes as $page) {
@@ -219,17 +219,17 @@ class Search {
     //insert a page into the search table for further indexing
     public static function disposePageForIndex($pUrl, $pTitle, $pDomainId, $pPageId = '0') {
 
-        $index = \SearchQuery::create()->findPk(array($pUrl, $pDomainId));
+        $index = SearchQuery::create()->findPk(array($pUrl, $pDomainId));
 
         if (!$index){
-            $index = new \Search();
+            $index = new Search();
         }
 
         //we now ready to index this content
         $index->setUrl($pUrl)
             ->setTitle($pTitle)
             ->setMdate(0)
-            ->setPageId($pPageId)
+            ->setNodeId($pPageId)
             ->setDomainId($pDomainId);
 
         $index->save();

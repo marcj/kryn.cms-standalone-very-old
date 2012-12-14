@@ -90,7 +90,7 @@ class Kryn {
 
     /**
      * Contains the current domain with all information (as defined in the database system_domain)
-     * @var \Domain
+     * @var Domain
      *
      * @static
      */
@@ -98,7 +98,7 @@ class Kryn {
 
     /**
      * Contains the current page with all information
-     * @var \Page
+     * @var Page
      * @static
      */
     public static $page;
@@ -196,7 +196,7 @@ class Kryn {
      * @var array
      * @static
      */
-    public static $objects = array();
+    //public static $objects = array();
 
     /**
      * Contains the current slot information.
@@ -327,7 +327,7 @@ class Kryn {
     public static $client;
 
     /**
-     * Contains all page objects of each Render::renderPageContents() call.
+     * Contains all page objects of each Render::renderPage() call.
      * For example {page id=<id>} calls this function.
      *
      * @var array
@@ -597,15 +597,15 @@ class Kryn {
 
         //Kryn::$tables =& Kryn::getCache('systemTablesv2');
         Kryn::$themes =& Kryn::getFastCache('systemThemes');
-        Kryn::$objects =& Kryn::getFastCache('systemObjects');
+        //Kryn::$objects =& Kryn::getFastCache('systemObjects');
 
         Kryn::$configs = array();
 
         //check if we need to load all config objects and do the extendConfig part
         if (/*!Kryn::$tables || $md5 != Kryn::$tables['__md5'] ||*/
-            !Kryn::$themes || $md5 != Kryn::$themes['__md5'] ||
-            !Kryn::$objects || $md5 != Kryn::$objects['__md5'] ||
-            count(Kryn::$objects) < 2
+            !Kryn::$themes || $md5 != Kryn::$themes['__md5'] //||
+            //!Kryn::$objects || $md5 != Kryn::$objects['__md5'] ||
+            //count(Kryn::$objects) < 2
             ) {
 
             foreach (Kryn::$extensions as $extension) {
@@ -629,7 +629,7 @@ class Kryn {
         /*
         * load object definitions
         */
-
+/*
         if (!Kryn::$objects || $md5 != Kryn::$objects['__md5'] || count(Kryn::$objects) < 2){
 
             Kryn::$objects = array();
@@ -642,7 +642,7 @@ class Kryn {
                 if ($config['objects'] && is_array($config['objects'])){
 
                     foreach ($config['objects'] as $objectId => $objectDefinition){
-                        $objectDefinition['_extension'] = $extension; //caching
+                        $objectDefinition['_module'] = $extension; //caching
                         Kryn::$objects[$objectId] = $objectDefinition;
                     }
                 }
@@ -651,6 +651,7 @@ class Kryn {
             Kryn::setFastCache('systemObjects', Kryn::$objects);
         }
         unset(Kryn::$objects['__md5']);
+*/
 
         /*
          * load themes
@@ -741,11 +742,9 @@ class Kryn {
     public static function getModuleConfig($pModule, $pLang = false, $pNoCache = false ) {
 
         $pModule = str_replace('.', '', $pModule);
+        $pModule = self::getModuleDir($pModule);
 
-        if ($pModule == 'core')
-            $config = "core/config.json";
-        else
-            $config = PATH_MODULE . "$pModule/config.json";
+        $config = $pModule."config.json";
 
         if (!file_exists($config)) {
             return false;
@@ -760,7 +759,6 @@ class Kryn {
             $configObj = Kryn::getFastCache($cacheCode);
 
         }
-
 
         if (!$configObj || $configObj['mtime'] != $mtime) {
 
@@ -926,82 +924,6 @@ class Kryn {
         header("HTTP/1.1 301 Moved Permanently");
         header('Location: ' . $pUrl);
         exit;
-    }
-
-    /**
-     * Checks the access to specified /admin pUrl.
-     *
-     * @param string $pUrl
-     * @param krynAuth|bool $pClient If you want to use another user object.
-     *
-     * @return bool
-     * @static
-     */
-    public static function checkUrlAccess($pUrl, $pClient = false) {
-
-        return true;
-
-        if (!$pClient)
-            global $client;
-        else
-            $client = $pClient;
-
-        if (substr($pUrl, 0, 6) != 'admin/') {
-            $pUrl = 'admin/' . $pUrl;
-        }
-
-        /*
-            types:
-                1: admin ($admin) and frontend
-                2: pages (backend access for special uses)
-                3: files (internal)
-
-            target_type:
-                1: group
-                2: user
-        */
-
-        $inGroups = $client->user['inGroups'];
-        if (!$inGroups) $inGroups = 0;
-
-        $code = esc($pUrl);
-        if (substr($code, -1) != '/')
-            $code .= '/';
-
-        $userId = $client->user_id;
-
-        $acls = dbExfetch("
-                SELECT code, access FROM %pfx%system_acl
-                WHERE
-                type = 1 AND
-                (
-                    ( target_type = 1 AND target_id IN ($inGroups) AND '$code' LIKE code )
-                    OR
-                    ( target_type = 2 AND target_id IN ($userId) AND '$code' LIKE code )
-                )
-                ORDER BY code DESC
-        ", DB_FETCH_ALL);
-
-        //$acls = krynAcl::getRules(1);
-
-        if (count($acls) > 0) {
-            $firstCode = $acls[0]['code'];
-            $count = 1;
-            foreach ($acls as $acl) {
-                if ($count == 1 && $acl['access'] == 1) {
-                    //first acl granted access
-                    return true;
-                }
-                if ($count > 1 && $firstCode == $acl['code'] && $acl['access'] == 1) {
-                    //same code as first (same prio) but grant access
-                    return true;
-                }
-                $count++;
-            }
-            return false;
-        } else {
-            return false;
-        }
     }
 
     /**
@@ -1337,11 +1259,11 @@ class Kryn {
 
         if ((!Kryn::$lang || count(Kryn::$lang) == 0) || Kryn::$lang['__md5'] != $md5) {
 
-            Kryn::$lang = array('__md5' => $md5, '__plural' => Language::getPluralForm($pLang), '__lang' => $pLang);
+            Kryn::$lang = array('__md5' => $md5, '__plural' => Lang::getPluralForm($pLang), '__lang' => $pLang);
 
             foreach (Kryn::$extensions as $key) {
 
-                $po = Language::getLanguage($key, $pLang);
+                $po = Lang::getLanguage($key, $pLang);
                 Kryn::$lang = array_merge(Kryn::$lang, $po['translations']);
 
             }
@@ -1349,7 +1271,7 @@ class Kryn {
         }
 
         if (!TempFile::exists('core_gettext_plural_fn_' . $pLang . '.php') ||
-            !File::exists('cache/core_gettext_plural_fn_' . $pLang . '.js') || true) {
+            !MediaFile::exists('cache/core_gettext_plural_fn_' . $pLang . '.js') || true) {
 
             //write gettext_plural_fn_<langKey> so that we dont need to use eval()
             $pos = strpos(Kryn::$lang['__plural'], 'plural=');
@@ -1364,7 +1286,7 @@ class Kryn {
             $code = "function gettext_plural_fn_$pLang(n){\n";
             $code .= "    return " . $pluralForm . ";\n";
             $code .= "}";
-            File::setContent('cache/core_gettext_plural_fn_' . $pLang . '.js', $code);
+            MediaFile::setContent('cache/core_gettext_plural_fn_' . $pLang . '.js', $code);
 
         }
 
@@ -1395,7 +1317,7 @@ class Kryn {
         self::$pageProperties = array();
         self::$ssl = false;
         self::$port = 0;
-        self::$objects = array();
+        //self::$objects = array();
         self::$slot = NULL;
         self::$contents = NULL;
         self::$isStartpage = NULL;
@@ -1445,7 +1367,7 @@ class Kryn {
             return unserialize($domainSerialized);
         }
 
-        $domain = \DomainQuery::create()->findPk($pDomainId);
+        $domain = DomainQuery::create()->findPk($pDomainId);
 
         if (!$domain){
             return false;
@@ -1467,7 +1389,7 @@ class Kryn {
      */
     public static function getPropelCacheObject($pObjectClassName, $pObjectPk) {
 
-        $cacheKey = 'Object-'.$pObjectClassName.'_'.$pObjectPk;
+        $cacheKey = 'Object-'.str_replace('\'', '_',$pObjectClassName).'_'.$pObjectPk;
         if ($serialized = self::getCache($cacheKey)){
             return unserialize($serialized);
         }
@@ -1498,7 +1420,7 @@ class Kryn {
             $pk = urlencode($pk);
         }
 
-        $cacheKey = 'Object-'.$pObjectClassName.'_'.$pk;
+        $cacheKey = 'Object-'.str_replace('\'', '_',$pObjectClassName).'_'.$pk;
 
         $clazz = $pObjectClassName.'Query';
         $object = $pObject;
@@ -1522,9 +1444,9 @@ class Kryn {
      */
     public static function removePropelCacheObject($pObjectClassName, $pObjectPk = null){
         if ($pObjectPk){
-            self::deleteCache('Object-'.$pObjectClassName.'_'.$pObjectPk, null);
+            self::deleteCache('Object-'.str_replace('\'', '_',$pObjectClassName).'_'.$pObjectPk, null);
         } else {
-            self::invalidateCache('Object-'.$pObjectClassName);
+            self::invalidateCache('Object-'.str_replace('\'', '_',$pObjectClassName));
         }
     }
 
@@ -1545,7 +1467,7 @@ class Kryn {
             return unserialize($pageSerialized);
         }
 
-        $page = \PageQuery::create()->findPk($pPageId);
+        $page = NodeQuery::create()->findPk($pPageId);
 
         if (!$page){
             return false;
@@ -1921,7 +1843,7 @@ class Kryn {
         $pageId = 0;
 
         if ($url == '') {
-            $pageId = Kryn::$domain->getStartpageId();
+            $pageId = Kryn::$domain->getStartnodeId();
 
             if (!$pageId > 0) {
                 Kryn::internalError(null, tf('There is no start page for domain %s', Kryn::$domain->getDomain()));
@@ -1935,7 +1857,7 @@ class Kryn {
         Kryn::$page = self::getPage($pageId);
         if (!Kryn::$page) return false;
 
-        $title = (self::$page->getPageTitle()) ? self::$page->getPageTitle() : self::$page->getTitle();
+        $title = (self::$page->getAlternativeTitle()) ? self::$page->getAlternativeTitle() : self::$page->getTitle();
 
         $e = explode('::', self::$domain->getTitleFormat());
         if ($e[0] && $e[1] && $e[0] != 'admin' && $e[0] != 'self' && method_exists($e[0], $e[1])) {
@@ -2076,7 +1998,7 @@ class Kryn {
 
         }
 
-        if (Kryn::$domain->getStartpageId() == Kryn::$page->getId() && !Kryn::$isStartpage) {
+        if (Kryn::$domain->getStartnodeId() == Kryn::$page->getId() && !Kryn::$isStartpage) {
             Kryn::redirect(Kryn::$baseUrl);
         }
 
@@ -2138,7 +2060,7 @@ class Kryn {
         if (!Kryn::$page->getLayout()) {
             Kryn::$pageHtml = self::internalError(t('No layout'), tf('No layout chosen for the page %s.', Kryn::$page->getTitle()));
         } else {
-            Kryn::$pageHtml = Render::renderPageContents();
+            Kryn::$pageHtml = Render::renderPage();
         }
 
         Kryn::$pageHtml = str_replace('\[[', '[[', Kryn::$pageHtml);
@@ -2152,7 +2074,7 @@ class Kryn {
         }
 
         if (Kryn::$disableSearchEngine == false) {
-            $resCode = Search::createPageIndex(Kryn::$pageHtml);
+            $resCode = SearchEngine::createPageIndex(Kryn::$pageHtml);
 
             if ($resCode == 2) {
                 Kryn::notFound('invalid-arguments');
@@ -2478,6 +2400,16 @@ class Kryn {
             $path .= '/';
 
         return $path;
+    }
+
+    /**
+     * Returns the module directory.
+     *
+     * @param string $pModule
+     * @return string
+     */
+    public static function getModuleDir($pModule){
+        return $pModule == 'core' ? 'core/' : PATH_MODULE.strtolower($pModule).'/';
     }
 }
 

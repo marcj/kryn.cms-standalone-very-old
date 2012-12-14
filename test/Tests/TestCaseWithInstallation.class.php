@@ -11,16 +11,35 @@ namespace Tests;
  */
 class TestCaseWithInstallation extends \PHPUnit_Framework_TestCase {
 
-    protected function setUp(){
-        if (!$this->bootUp++){
-            Manager::freshInstallation();
-            Manager::bootupCore();
-        }
-    }
 
-    protected function tearDown(){
-        if ($this->bootUp--)
+    public function run(\PHPUnit_Framework_TestResult $result = NULL){
+
+        if ($result === NULL) {
+            $result = $this->createResult();
+        }
+        if (!$this->bootUp++){
+            try {
+                Manager::freshInstallation();
+                Manager::bootupCore();
+            } catch (\Exception $ex){
+                die($ex);
+                $result->addError($this, $ex, 0);
+                return $result;
+            }
+        }
+
+        $result = parent::run($result);
+
+        try {
             Manager::uninstall();
+        } catch (\Exception $ex){
+            die($ex);
+            $result->addError($this, $ex, 0);
+            return $result;
+        }
+
+        return $result;
+
     }
 
 }

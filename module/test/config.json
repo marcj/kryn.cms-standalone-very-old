@@ -48,7 +48,7 @@
         }
     },
     "objects": {
-        "test": {
+        "Test": {
             "table": "test_test",
             "labelField": "name",
             "limitDataSets": [

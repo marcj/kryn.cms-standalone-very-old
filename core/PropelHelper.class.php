@@ -68,7 +68,7 @@ class PropelHelper {
 
             if ($extension == 'kryn') continue;
 
-            if (file_exists($schema = PATH_MODULE.$extension.'/model.xml')){
+            if (file_exists($schema = \Core\Kryn::getModuleDir($extension).'model.xml')){
 
                 simplexml_load_file($schema);
                 if ($errors = libxml_get_errors())
@@ -109,7 +109,6 @@ class PropelHelper {
 
         $content  = self::execute('om');
 
-
         if (is_array($content)){
             throw new \Exception("Propel generateClasses failed: \n". $content[0]);
         }
@@ -126,7 +125,7 @@ class PropelHelper {
 
             if ($extension == 'kryn') continue;
 
-            if (file_exists($schema = PATH_MODULE.$extension.'/model.xml')){
+            if (file_exists($schema = \Core\Kryn::getModuleDir($extension).'model.xml')){
 
                 $tables = simplexml_load_file ($schema);
 
@@ -168,24 +167,23 @@ class PropelHelper {
 
             foreach ($files as $key => $file){
 
-                $target    = PATH_MODULE.$extension.'/model/'.$file;
+                $target  = \Core\Kryn::getModuleDir($extension).'model/'.$file;
 
                 self::$classDefinition[basename($file)] = $target;
 
                 if (!is_numeric($key) ){
-                    $target = PATH_MODULE.$extension.'/model/'.$file;
+                    $target = \Core\Kryn::getModuleDir($extension).'model/'.$file;
                     //do not remove the class files which we can edit
                     if (file_exists($target)) continue;
                 } else {
-                    $target = $tmp.'propel-classes/'.basename($file);
+                    $target = $tmp.'propel-classes/'.ucfirst($extension).'/'.$file;
                 }
-
 
                 $targetDir = dirname($target);
                 if (!is_dir($targetDir)) if(!mkdirr($targetDir))
                     die(tf('Can not create folder %s', $targetDir));
 
-                $source = $tmp . 'propel/build/classes/kryn/'.$file;
+                $source = $tmp . 'propel/build/classes/'.ucfirst($extension).'/'.$file;
 
                 if (!file_exists($source)){
                     die(tf('File %s not found', $source));
@@ -359,16 +357,16 @@ class PropelHelper {
             unlink($file);
         }
 
-        $schemeData = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n  <database name=\"kryn\" defaultIdMethod=\"native\">\n";
+        $schemeData = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n  <database name=\"kryn\" defaultIdMethod=\"native\"\n";
 
         foreach (Kryn::$extensions as $extension){
 
             if ($extension == 'kryn') continue;
 
-            if (file_exists($schema = PATH_MODULE.$extension.'/model.xml')){
+            if (file_exists($schema = \Core\Kryn::getModuleDir($extension).'model.xml')){
 
                 $tables = simplexml_load_file($schema);
-                $newSchema = $schemeData;
+                $newSchema = $schemeData.' namespace="'.ucfirst($extension).'">';
 
                 foreach ($tables->table as $table){
                     $newSchema .= $table->asXML()."\n    ";
@@ -382,7 +380,7 @@ class PropelHelper {
 
         }
 
-        file_put_contents($tmp . 'propel/schema.xml', $schemeData."</database>");
+        file_put_contents($tmp . 'propel/schema.xml', $schemeData."></database>");
 
         return true;
     }

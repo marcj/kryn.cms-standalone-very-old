@@ -273,7 +273,7 @@ abstract class ObjectWindow {
 
         $this->entryPoint = $pEntryPoint;
 
-        $this->objectDefinition = Kryn::$objects[$this->object];
+        $this->objectDefinition = \Core\Object::getDefinition($this->object);
         if (!$this->objectDefinition && $this->object && !$pWithoutObjectCheck){
             throw new \ObjectNotFoundException("Can not find object '".$this->object."'");
         }
