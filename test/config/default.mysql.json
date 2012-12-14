@@ -5,7 +5,7 @@
     "id": "5b46",
     "database": {
         "server": "127.0.0.1",
-        "user": "root",
+        "user": "kryn",
         "password": "",
         "name": "test",
         "prefix": "kryn_",
@@ -14,7 +14,7 @@
         "persistent": "0"
     },
     "fileGroupPermission": "rw",
-    "fileGroupName": "everyone",
+    "fileGroupName": "www-data",
     "fileEveryonePermission": "r",
     "cache": {
         "class": "\\Core\\Cache\\Files"

@@ -11,8 +11,11 @@ namespace Tests;
  */
 class TestCaseWithInstallation extends \PHPUnit_Framework_TestCase {
 
+    public $currentDir = '';
 
     public function run(\PHPUnit_Framework_TestResult $result = NULL){
+
+        $this->currentDir = getcwd();
 
         if ($result === NULL) {
             $result = $this->createResult();
@@ -28,7 +31,10 @@ class TestCaseWithInstallation extends \PHPUnit_Framework_TestCase {
             }
         }
 
+        chdir('..');
+        var_dump(getcwd());
         $result = parent::run($result);
+        chdir($this->currentDir);
 
         try {
             Manager::uninstall();

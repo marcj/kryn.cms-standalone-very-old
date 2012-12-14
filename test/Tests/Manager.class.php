@@ -27,6 +27,11 @@ class Manager {
 
     }
 
+    public static function get($pPath = '/', $pPostParam = null){
+
+        return wget('http://ilee'.$pPath, $pPostParam);
+    }
+
     public static function uninstall(){
 
         $origin = getcwd();

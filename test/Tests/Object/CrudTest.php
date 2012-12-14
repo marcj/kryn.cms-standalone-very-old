@@ -2,7 +2,6 @@
 
 namespace Tests\Object;
 
-use Tests\Manager;
 use Tests\TestCaseWithInstallation;
 
 class CreateTest extends TestCaseWithInstallation {

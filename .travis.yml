@@ -5,12 +5,23 @@ php:
   - 5.4
 
 env:
-  - DB=mysql DB_USER=root
+  - DB=mysql DB_USER=root TEMP=/var/tmp/
 
 before_script:
   # MySQL
   - sh -c "if [ '$DB' = 'mysql' ]; then mysql -e 'DROP DATABASE IF EXISTS test; '; fi"
   - sh -c "if [ '$DB' = 'mysql' ]; then mysql -e 'CREATE DATABASE test'; fi"
+
+before_script:
+    - sudo cat "127.0.0.1    ilee" > /etc/hosts
+    - sudo apt-get install apache2
+    - sudo a2enmod rewrite
+    - echo "export PATH=/home/vagrant/.phpenv/bin:$PATH" | sudo tee -a /etc/apache2/envvars > /dev/null
+    - echo "$(curl -fsSL https://gist.github.com/raw/4285552/c99eabb35a586a95d1be177afc3f61899a6db5c8/gistfile1.txt)" | sed -e "s,PATH,`pwd`/web,g" | sudo tee /etc/apache2/sites-available/default > /dev/null
+    - sudo service apache2 restart
+    - mysql -u root -e "CREATE USER 'kryn'@'localhost' IDENTIFIED BY ''"
+    - mysql -u root -e "GRANT ALL PRIVILEGES ON *.* TO 'kryn'@'localhost' WITH GRANT OPTION;"
+    - mysql -e 'DROP DATABASE IF EXISTS test; CREATE DATABASE test;';
 
 script:
   - cd test; phpunit Tests;
