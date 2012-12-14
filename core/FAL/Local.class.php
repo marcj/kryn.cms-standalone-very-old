@@ -44,8 +44,8 @@ class Local extends FALAbstract {
         if (substr($root, -1) != '/')
             $root .= '/';
 
-        if (substr($pPath, -1) == '/')
-            $pPath = substr($pPath, 0, -1);
+        if (substr($pPath, 0, 1) == '/')
+            $pPath = substr($pPath, 1);
 
         return $root . $pPath;
     }
