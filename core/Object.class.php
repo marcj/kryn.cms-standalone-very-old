@@ -170,6 +170,14 @@ class Object {
         }
     }
 
+
+    public static function getName($pObjectKey){
+        if (strpos($pObjectKey, '\\') === false) return $pObjectKey;
+        $temp   = explode('\\', $pObjectKey);
+        $name   = $temp[1];
+        return $name;
+    }
+
     /**
      * Converts the primary key statement of a uri to normalized structure.
      * Generates a array for the usage of Core\Object:get()

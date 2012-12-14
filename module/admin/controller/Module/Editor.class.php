@@ -147,7 +147,7 @@ class Editor {
             $column =& $pRefColumn;
 
 
-        $object =& kryn::$objects[$pObject];
+        $object = \Core\Object::getDefinition($pObject);
 
 
         switch(strtolower($pField['type'])){
@@ -251,7 +251,7 @@ class Editor {
 
             case 'object':
 
-                $foreignObject = kryn::$objects[$pField['object']];
+                $foreignObject = \Core\Object::getDefinition($pField['object']);
                 if (!$foreignObject) continue;
 
                 if ($pField['objectRelation'] == 'n-1'){
@@ -277,7 +277,7 @@ class Editor {
 
                     //n-n, we need a extra table
                                         
-                    $tableName = $pField['objectRelationTable'] ? $pField['objectRelationTable'] : $pObject.'_'.$pField['object'];
+                    $tableName = $pField['objectRelationTable'] ? $pField['objectRelationTable'] : $pObject.'_'.\Core\Object::getName($pField['object']);
 
                     $tablePhpName = underscore2Camelcase($tableName);
                     if ($pField['objectRelationPhpName'])
@@ -302,7 +302,7 @@ class Editor {
                     $leftPrimaries = \Core\Object::getPrimaries($pObject);
                     foreach ($leftPrimaries as $key => $primary){
 
-                        $name = $pObject.'_'.$key;
+                        $name = strtolower(\Core\Object::getName($pObject)).'_'.$key;
                         $cols = $relationTable->xpath('column[@name=\''.$name.'\']');
                         $foreignKeys[$object['table']][$key] = $name;
                         if ($cols) continue;
@@ -319,7 +319,7 @@ class Editor {
                     $leftPrimaries = \Core\Object::getPrimaries($pField['object']);
                     foreach ($leftPrimaries as $key => $primary){
 
-                        $name = $pField['object'].'_'.$key;
+                        $name = strtolower(\Core\Object::getName($pField['object'])).'_'.$key;
                         $foreignKeys[$foreignObject['table']][$key] = $name;
                         $cols = $relationTable->xpath('column[@name=\''.$name.'\']');
                         if ($cols) continue;
@@ -344,9 +344,8 @@ class Editor {
                         if ($table == $foreignObject['table']){
                             $foreignKey['phpName'] = ucfirst($pFieldKey);
                         } else {
-                            $foreignKey['phpName'] = ucfirst($pFieldKey).ucfirst($pObject);
+                            $foreignKey['phpName'] = ucfirst($pFieldKey).\Core\Object::getName($pObject);
                         }
-
 
 
                         foreach ($keys as $k => $v){
@@ -447,7 +446,6 @@ class Editor {
 
         if (!$object['table']) throw new \Exception(tf('The object %s has no table defined.', $pObject));
 
-        $objectTable['namespace'] = ucfirst($pName);
         $objectTable['name'] = $object['table'];
         $objectTable['phpName'] = $object['propelClassName'] ?: ucfirst($pObject);
 
@@ -455,7 +453,7 @@ class Editor {
 
         foreach ($object['fields'] as $fieldKey => $field){
 
-            $columns = $this->getColumnFromField($pObject, $fieldKey, $field, $objectTable, $xml);
+            $columns = $this->getColumnFromField(ucfirst($pName).'\\'.$pObject, $fieldKey, $field, $objectTable, $xml);
 
             if (!$columns) continue;
 

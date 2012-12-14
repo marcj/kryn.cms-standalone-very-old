@@ -101,13 +101,15 @@ class PropelHelper {
     public static function generateClasses(){
 
         $tmp = self::getTempFolder();
+
         if (!file_exists($tmp . 'propel/runtime-conf.xml')){
             self::writeXmlConfig();
             self::writeBuildPorperties();
             self::collectSchemas();
         }
 
-        $content  = self::execute('om');
+        $content = self::execute('om');
+
 
         if (is_array($content)){
             throw new \Exception("Propel generateClasses failed: \n". $content[0]);
@@ -181,16 +183,16 @@ class PropelHelper {
 
                 $targetDir = dirname($target);
                 if (!is_dir($targetDir)) if(!mkdirr($targetDir))
-                    die(tf('Can not create folder %s', $targetDir));
+                    throw new \FileNotWritableException(tf('Can not create folder %s', $targetDir));
 
                 $source = $tmp . 'propel/build/classes/'.ucfirst($extension).'/'.$file;
 
                 if (!file_exists($source)){
-                    die(tf('File %s not found', $source));
+                    throw new \FileNotFoundException(tf('File %s not found', $source));
                 } else {
 
                     if (!rename($source, $target)){
-                        die(tf('Can not move file %s to %s', $source, $target));
+                        throw new \FileNotWritableException(tf('Can not move file %s to %s', $source, $target));
                     }
                     $content .= "[move][$extension] Class moved $file to $targetDir\n";
                 }

@@ -12,11 +12,13 @@ class ORM {
 	}
 
 	public function writeModels(){
-		return PropelHelper::callGen('models');
+        \Core\TempFile::remove('propel/');
+		return PropelHelper::generateClasses();
 	}
 
 	public function updateScheme(){
-		return PropelHelper::callGen('update');
+        \Core\TempFile::remove('propel/');
+		return PropelHelper::updateSchema();
 	}
 
 	public function checkScheme(){
