@@ -1271,7 +1271,7 @@ class Kryn {
         }
 
         if (!TempFile::exists('core_gettext_plural_fn_' . $pLang . '.php') ||
-            !MediaFile::exists('cache/core_gettext_plural_fn_' . $pLang . '.js') || true) {
+            !MediaFile::exists('cache/core_gettext_plural_fn_' . $pLang . '.js')) {
 
             //write gettext_plural_fn_<langKey> so that we dont need to use eval()
             $pos = strpos(Kryn::$lang['__plural'], 'plural=');
