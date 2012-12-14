@@ -345,6 +345,7 @@ function checkConfig(){
           'fileGroupPermission'      => $_REQUEST['fileGroupPermission'],
           'fileGroupName'      => $_REQUEST['fileGroupName'],
           'fileEveryonePermission'   => $_REQUEST['fileEveryonePermission'],
+          'fileTemp'   => $_REQUEST['fileTemp'] ? $_REQUEST['fileTemp'] : null,
 
           'cache' => array(
             'class' => '\Core\Cache\Files'
@@ -490,7 +491,7 @@ Your installation folder is <strong style="color: gray;"><?php echo getcwd(); ?>
 }
 
 function step5Failed($pError){
-    $msg = array('error' => $pError);
+    $msg = array('error' => $pError->getMessage(), 'exception' => (string)$pError);
     print json_encode($msg);
     exit;
 }
@@ -501,9 +502,23 @@ function step5Done($pMsg){
     exit;
 }
 
+    //prepare
+    function step5_1(){
+
+        try {
+
+            \Core\TempFile::createFolder('./');
+            \Core\MediaFile::createFolder('cache/');
+
+        } catch (\Exception $e){
+            step5Failed($e);
+        }
+
+        step5Done(true);
+    }
 
     //Install core modules
-    function step5_1(){
+    function step5_2(){
         global $modules;
 
         $manager = new Admin\Module\Manager;
@@ -514,14 +529,14 @@ function step5Done($pMsg){
                 $manager->install('admin', true);
                 $manager->install('users', true);
             } catch (Exception $e){
-                step5Failed($e->getMessage()."\n".print_r($e,true));
+                step5Failed($e);
             }
         }
         step5Done(true);
     }
 
     //Update ORM
-    function step5_2(){
+    function step5_3(){
 
         \Core\TempFile::remove('propel');
 
@@ -534,13 +549,13 @@ function step5Done($pMsg){
 
             //\Core\PropelHelper::cleanup();
         } catch (Exception $e){
-            step5Failed($e->getMessage()."\n".print_r($e,true));
+            step5Failed($e);
         }
         step5Done(true);
     }
 
     //execute installDatabase
-    function step5_3(){
+    function step5_4(){
         global $modules;
 
         $manager = new Admin\Module\Manager;
@@ -550,14 +565,14 @@ function step5Done($pMsg){
             $manager->installDatabase('admin');
             $manager->installDatabase('users');
         } catch (Exception $e){
-            step5Failed($e->getMessage()."\n".print_r($e,true));
+            step5Failed($e);
         }
         step5Done(true);
     }
 
 
     //Install modules
-    function step5_4(){
+    function step5_5(){
         global $modules;
 
         $manager = new \Admin\Module\Manager;
@@ -566,14 +581,14 @@ function step5Done($pMsg){
             try {
                 $manager->install($module, true);
             } catch (Exception $e){
-                step5Failed($e->getMessage()."\n".print_r($e,true));
+                step5Failed($e);
             }
         }
         step5Done(true);
     }
 
     //Update ORM
-    function step5_5(){
+    function step5_6(){
 
         \Core\TempFile::remove('propel');
 
@@ -582,13 +597,13 @@ function step5Done($pMsg){
             \Core\PropelHelper::updateSchema();
             \Core\PropelHelper::cleanup();
         } catch (Exception $e){
-            step5Failed($e->getMessage()."\n".print_r($e,true));
+            step5Failed($e);
         }
         step5Done(true);
     }
 
     //Execute module database-scripts
-    function step5_6(){
+    function step5_7(){
         global $modules;
 
         $manager = new \Admin\Module\Manager;
@@ -598,7 +613,7 @@ function step5Done($pMsg){
             try {
                 $manager->installDatabase($module);
             } catch (Exception $e){
-                step5Failed($e->getMessage()."\n".print_r($e,true));
+                step5Failed($e);
             }
         }
         step5Done(true);
@@ -606,7 +621,7 @@ function step5Done($pMsg){
 
 
     //cleanup
-    function step5_7(){
+    function step5_8(){
 
         \Core\PropelHelper::cleanup();
 
@@ -703,6 +718,7 @@ function step5(){
         window.addEvent('domready', function(){
 
             var steps = [
+                'Preparing ....',
                 'Install core modules ...',
                 'Update ORM ...',
                 'Execute database-scripts ...',
@@ -730,6 +746,11 @@ function step5(){
                         if (pResult.error){
                             document.id('progressError').setStyle('display', 'block');
                             document.id('progressError').set('html', pResult.error);
+                            if (pResult.exception){
+                                new Element('div', {
+                                    text: pResult.exception
+                                }).inject(document.id('progressError'));
+                            }
                             new Element('h2', {
                                 style: 'color: red',
                                 text: 'Error'
@@ -875,7 +896,6 @@ function step2(){
             print '<div style="color: green">libgd OK</div>';
         }
 
-        var_dump(class_exists('ZipArchive'));
         if(!extension_loaded('zip')){
             $anyThingOk = false;
             print '<div style="color: red">zip required.</div>';
@@ -906,75 +926,6 @@ function step2(){
         }
 
 ?>
-    </li>
-
-    <li><b>Public cache directory</b>
-        <?php
-
-        $dir = 'media/cache';
-
-        if (!file_exists($dir))
-            if (!mkdir($dir)){
-                print "<div style='color: red'>Can not create media/cache folder.</div>";
-            }
-
-        if (is_writable($dir)){
-          print "<div style='color: green'>$dir is writeable.</div>";
-        } else {
-          $anyThingOk = false;
-          print "<div style='color: red'>$dir is not writeable.</div>";
-        }
-
-?>
-    </li>
-
-
-    <li><b>Temp directory</b><br/>
-      <div style="color: gray; padding-bottom: 6px;">
-        This directory is used for file caches, smarty compiled templates, propel build<br/>
-        and other temporarily files. To set a different folder, you can overwrite the<br/>
-        environment var in this priority:<br/>
-        TMP, TEMP, TMPDIR or TEMPDIR
-      </div>
-<?php
-    
-    $tempFolder = Kryn::getTempFolder(false);
-
-    if (is_writable($tempFolder)){
-      print "<div style='color: green'>$tempFolder is writeable.</div>";
-      ?>
-      <div style="color: gray; padding-bottom: 6px;">
-        In the next step, you can set a installation id.<br/>
-        This is then be used as sub folder in temp to make these files unique. 
-      </div>
-      <?php
-    } else {
-      $anyThingOk = false;
-      print "<div style='color: red'>$tempFolder is not writeable.</div>";
-    }
-
-    ?>
-
-    </li>
-
-    <li><b>config.php permission</b><br/>
-<?php
-    
-    $configFile = 'config.php';
-
-    if (!file_exists($configFile))
-      if (!@touch($configFile)){
-        print "<div style='color: red'>Can not create $configFile.</div>";
-      }
-
-    if (is_writable($configFile)){
-      print "<div style='color: green'>$configFile exists and is writeable.</div>";
-    } else {
-      $anyThingOk = false;
-      print "<div style='color: red'>$configFile is not writeable.</div>";
-    }
-
-    ?>
     </li>
 
 
@@ -1052,7 +1003,7 @@ function step3(){
 
 <table style="width: 100%" cellpadding="3">
     <tr>
-        <td width="350">Title*</td>
+        <td width="450">Title*</td>
         <td>
             <input type="text" class="ka-Input" required name="systemTitle" value="Fresh installation">
         </td>
@@ -1105,12 +1056,13 @@ function step3(){
 <h3>Local Filesystem</h3>
 
 <table style="width: 100%" cellpadding="3">
+
     <tr>
-        <td colspan="2"><div style="color: #aaa">These settings are used only for new files created by Kryn.cms.</div>
+        <td colspan="2"><div style="color: #aaa;">Following settings are used only for new files created by Kryn.cms.</div>
         </td>
     </tr>
     <tr>
-        <td width="350">Default group owner
+        <td width="450">Default group owner
         </td>
         <td>
             <input type="text" class="ka-Input" name="fileGroupName" value="">
@@ -1127,13 +1079,22 @@ function step3(){
         </td>
     </tr>
     <tr>
-        <td width="250">Default everyone permission</td>
+        <td>Default everyone permission</td>
         <td>
             <select name="fileEveryonePermission">
                 <option value="-">None</option>
                 <option value="r">Read</option>
                 <option value="rw">Read and Write</option>
             </select>
+        </td>
+    </tr>
+    <tr>
+        <td>Temp directory
+            <div style="color: #aaa">A absolute path to a directory for temporary, local caching, propel build and smarty compiling files. If empty, we search in the environment in this priority:<br/>
+                TMP, TEMP, TMPDIR or TEMPDIR. If enything is empty, we use php's function sys_get_temp_dir().</div>
+        </td>
+        <td>
+            <input type="text" class="ka-Input" name="fileTemp" value="">
         </td>
     </tr>
 </table>
@@ -1144,7 +1105,7 @@ function step3(){
 
 <table style="width: 100%" cellpadding="3">
  	<tr>
-        <td width="350">Database PDO driver *</td>
+        <td width="450">Database PDO driver *</td>
         <td><select required name="type" id="db_type">
 <?php
 
@@ -1203,7 +1164,7 @@ function step3(){
         <td>Protect tables
             <div style="color: #aaa">
                 Per default, the ORM (Propel ORM) we use drops all tables in the defined database, which are not used
-                by Kryn.cms or modules. So you may enter here tables names (%pfx% available) comma saparated, to
+                by Kryn.cms or modules. So you may enter here table names (%pfx% available) comma saparated, to
                 protect these tables from the deletion.
             </div></td>
         <td><textarea style="height: 75px;" type="text" class="ka-Input" name="protectTables"></textarea></td>

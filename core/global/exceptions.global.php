@@ -14,6 +14,7 @@ class FieldCanNotBeEmptyException extends Exception {}
 class InvalidFieldException extends Exception {}
 class ArgumentMissingException extends Exception {}
 class NotImplementedException extends Exception {}
+class FileOperationPermittedException extends Exception {}
 
 class AccessDeniedException extends Exception {}
 

@@ -38,31 +38,54 @@ class Local extends FALAbstract {
      */
     public $groupName = '';
 
+    public function getFullPath($pPath){
+        $root = $this->getRoot();
+
+        if (substr($root, -1) != '/')
+            $root .= '/';
+
+        if (substr($pPath, -1) == '/')
+            $pPath = substr($pPath, 0, -1);
+
+        return $root . $pPath;
+    }
+
 
     /**
      * Sets file permissions on file/folder recursively.
      *
-     * @param  string $pPath the path
+     * @param  string $pPath
+     * @throws \FileOperationPermittedException
+     * @return bool
      */
     public function setPermission($pPath){
 
-        if (is_dir($this->getRoot().$pPath)){
+        $path = $this->getFullPath($pPath);
 
-            chmod($this->getRoot().$pPath, $this->dirMode);
-            if ($this->groupName)
-                chgrp($this->getRoot().$pPath, $this->groupName);
+        if (!file_exists($path)) return false;
 
-            $sub = find($this->getRoot().$pPath.'/*', false);
+        if ($this->groupName)
+            if (!chgrp($path, $this->groupName)){
+                throw new \FileOperationPermittedException(tf('Operation to chgrp the file %s to %s is permitted.', $path, $this->groupName));
+            }
+
+        if (is_dir($path)){
+
+            if (!chmod($path, $this->dirMode))
+                throw new \FileOperationPermittedException(tf('Operation to chmod the folder %s to %o is permitted.', $path, $this->dirMode));
+
+            $sub = find($path.'/*', false);
             if (is_array($sub)){
                 foreach ($sub as $path){
                     $this->setPermission(substr($path, 0, strlen($this->getRoot())));
                 }
             }
-        } else if (is_file($this->getRoot().$pPath)){
-            chmod($this->getRoot().$pPath, $this->fileMode);
-            if ($this->groupName)
-                chgrp($this->getRoot().$pPath, $this->groupName);
+        } else if (is_file($path)){
+            if (!chmod($path, $this->fileMode))
+                throw new \FileOperationPermittedException(tf('Operation to chmod the file %s to %o is permitted.', $path, $this->fileMode));
         }
+
+        return true;
 
     }
 
@@ -131,27 +154,45 @@ class Local extends FALAbstract {
      */
     public function createFile($pPath, $pContent = false) {
 
-        if (!file_exists(dirname($this->getRoot().$pPath)))
+        $path = $this->getFullPath($pPath);
+
+        if (!file_exists(dirname($path)))
             $this->createFolder(dirname($pPath));
 
-        if (!file_exists($this->getRoot().$pPath)){
-            if (($res = file_put_contents($this->getRoot().$pPath, $pContent) === false))
-                throw new \FileIOException(tf('Can not create file %s', $pPath));
+        if (!file_exists($path)){
+            if (($res = file_put_contents($path, $pContent) === false))
+                if (is_writable(dirname($path)))
+                    throw new \FileIOException(tf('Can not create file %s', $path));
+                else
+                    throw new \FileNotWritableException(tf('Can not create the file %s in %s, since it is not writeable.', $path, dirname($path)));
         }
 
-        $this->setPermission($this->getRoot().$pPath);
+        $this->setPermission($pPath);
 
         return $res === false ? false : true;
     }
 
+    /**
+     * @param string $pPath The full absolute path
+     * @return bool
+     * @throws \FileOperationPermittedException
+     * @throws \FileIOException
+     */
     private function _createFolder($pPath){
-        is_dir(dirname($pPath)) || $this->_createFolder(dirname($pPath));
 
-        if (!@mkdir($pPath, $this->dirMode))
-            throw new \FileIOException(tf('Can not create folder %s', $pPath));
+        is_dir(dirname($pPath)) or $this->_createFolder(dirname($pPath));
+
+        if (!is_dir($pPath)){
+            if (!@mkdir($pPath))
+                throw new \FileIOException(tf('Can not create folder %s.', $pPath));
+        }
 
         if ($this->groupName)
-            chgrp($pPath, $this->groupName);
+            if (!@chgrp($pPath, $this->groupName))
+                throw new \FileOperationPermittedException(tf('Operation to chgrp the folder %s to %s is permitted.', $pPath, $this->groupName));
+
+        if (!chmod($pPath, $this->dirMode))
+            throw new \FileOperationPermittedException(tf('Operation to chmod the folder %s to %o is permitted.', $pPath, $this->dirMode));
 
         return is_dir($pPath);
     }
@@ -160,10 +201,10 @@ class Local extends FALAbstract {
      * {@inheritDoc} 
      */
     public function createFolder($pPath) {
-        
-        if (!file_exists($path = $this->getRoot().$pPath))
+
+        if (!file_exists($path = $this->getFullPath($pPath)))
             return $this->_createFolder($path);
-        
+
         return false;
     }
 
@@ -172,14 +213,16 @@ class Local extends FALAbstract {
      */
     public function setContent($pPath, $pContent) {
 
-        if (!file_exists($this->getRoot().$pPath) )
-            $this->createFile($pPath);
- 
-        if (!is_writable($this->getRoot().$pPath)){
-            throw new \FileNotWritableException(tf('File %s is not writable.', $this->getRoot().$pPath));
-        }
+        $path = $this->getFullPath($pPath);
 
-        $res = file_put_contents($this->getRoot().$pPath, $pContent);
+        if (!file_exists($path) )
+            $this->createFile($pPath);
+
+        else if (!is_writable($path))
+            throw new \FileNotWritableException(tf('File %s is not writable.', $path));
+
+
+        $res = file_put_contents($path, $pContent);
         $this->setPermission($pPath);
 
         return $res === false?false:true;

@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+
 class Manager {
 
     public static $config;
@@ -97,7 +98,13 @@ class Manager {
         if (!file_put_contents('../config.php', "<?php\n return ".var_export($cfg, true).'; '))
             throw new \FileNotWritableException('Can not install Kryn.cms. config.php not writeable.');
 
+        $dir = 'media/cache';
+
         require('../core/bootstrap.php');
+
+        \Core\TempFile::createFolder('./');
+        \Core\MediaFile::createFolder('cache/');
+
         require('../core/bootstrap.startup.php');
         \Core\Kryn::loadConfigs();
         @ini_set('display_errors', 1);

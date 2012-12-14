@@ -2342,10 +2342,11 @@ class Kryn {
 
         if (!self::$cachedTempFolder){
 
-            if (getenv('TMP')) $folder = getenv('TMP');
-            if (getenv('TEMP')) $folder = getenv('TEMP');
-            if (getenv('TMPDIR')) $folder = getenv('TMPDIR');
-            if (getenv('TEMPDIR')) $folder = getenv('TEMPDIR');
+            $folder = Kryn::$config['fileTemp'];
+            if (!$folder && getenv('TMP')) $folder = getenv('TMP');
+            if (!$folder && getenv('TEMP')) $folder = getenv('TEMP');
+            if (!$folder && getenv('TMPDIR')) $folder = getenv('TMPDIR');
+            if (!$folder && getenv('TEMPDIR')) $folder = getenv('TEMPDIR');
 
             if (!$folder) $folder = sys_get_temp_dir();
 

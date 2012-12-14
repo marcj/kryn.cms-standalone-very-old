@@ -32,7 +32,6 @@ class TestCaseWithInstallation extends \PHPUnit_Framework_TestCase {
         }
 
         chdir('..');
-        var_dump(getcwd());
         $result = parent::run($result);
         chdir($this->currentDir);
 

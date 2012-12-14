@@ -8,9 +8,12 @@ class Utils {
 
 	public static function clearCache(){
 
-        clearfolder(Kryn::getTempFolder().'cache-object/');
-        clearfolder(Kryn::getTempFolder().'smarty-compile/');
-        clearfolder(PATH_MEDIA_CACHE);
+        \Core\TempFile::remove('cache-object');
+        \Core\TempFile::remove('smarty-compile');
+
+        \Core\MediaFile::remove('cache');
+        \Core\MediaFile::createFolder('cache');
+
 
         foreach (Kryn::$configs as $extKey => $config){
             if ($config['caches']){
