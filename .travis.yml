@@ -8,11 +8,6 @@ env:
   - DB=mysql DB_USER=root TEMP=/var/tmp/
 
 before_script:
-  # MySQL
-  - sh -c "if [ '$DB' = 'mysql' ]; then mysql -e 'DROP DATABASE IF EXISTS test; '; fi"
-  - sh -c "if [ '$DB' = 'mysql' ]; then mysql -e 'CREATE DATABASE test'; fi"
-
-before_script:
     - sudo sh -c "echo '127.0.0.1    ilee' >> /etc/hosts"
     - sudo apt-get install apache2
     - sudo a2enmod rewrite
