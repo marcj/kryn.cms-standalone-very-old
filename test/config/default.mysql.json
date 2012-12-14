@@ -5,7 +5,7 @@
     "id": "5b46",
     "database": {
         "server": "127.0.0.1",
-        "user": "kryn",
+        "user": "root",
         "password": "",
         "name": "test",
         "prefix": "kryn_",
