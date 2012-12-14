@@ -19,6 +19,8 @@ sudo cat > php-fcgi << EOF
 exec $PHP
 EOF
 
+chmod +x php-fcgi;
+
 
 # restart apache
 sudo service apache2 restart;
