@@ -25,6 +25,13 @@ class SystemFile extends File {
 
     public static $fsObjects = array();
 
+
+    //not permission check, since file object is only for media/ folder, so for File:: class.
+    public static $checkObject = false;
+
+    //we do not support mounts outside of media/.
+    public static $checkMounts = false;
+
 	/**
      *
      * Returns the instance of the local file layer.

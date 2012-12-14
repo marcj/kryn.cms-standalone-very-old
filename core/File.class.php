@@ -33,6 +33,22 @@ class File {
 
 
     /**
+     * Whether this class checks against the object 'file' and appends
+     * the 'id'. Checks also against permission/acl table.
+     *
+     * @var bool
+     */
+    public static $checkObject = true;
+
+
+    /**
+     * Whether this class checks for file mount.
+     *
+     * @var bool
+     */
+    public static $checkMounts = true;
+
+    /**
      *
      * Returns the instance of the file layer object for the given path.
      *
@@ -212,7 +228,7 @@ class File {
     public static function remove($pPath){
 
         $fs = static::getLayer($pPath);
-        return $fs->delete(static::normalizePath($pPath));
+        return $fs->remove(static::normalizePath($pPath));
 
     }
 
@@ -247,19 +263,21 @@ class File {
         $file = $fs->getFile($path);
         if (!$file) return null;
 
-        $item = \FileQuery::create()->filterByPath($pPath)->orderById()->findOne();
-        if (!$item){
-            //insert
-            $item = new \File();
-            $item->setPath($pPath);
-            $item->setHash($fs->getMd5($path));
-            $item->save();
-            $id = $item->getId();
-        } else {
-            $id = $item->getId();
-        }
+        if (static::$checkObject){
+            $item = \FileQuery::create()->filterByPath($pPath)->orderById()->findOne();
+            if (!$item){
+                //insert
+                $item = new \File();
+                $item->setPath($pPath);
+                $item->setHash($fs->getMd5($path));
+                $item->save();
+                $id = $item->getId();
+            } else {
+                $id = $item->getId();
+            }
 
-        $file['id'] = $id+0;
+            $file['id'] = $id+0;
+        }
 
         return $file;
     }
@@ -307,57 +325,62 @@ class File {
 
         if (count($items) == 0) return array();
 
-        if ($fs->getMountPoint())
-            foreach ($items as &$file)
-                $file['path'] = $fs->getMountPoint().$file['path'];
+        if (static::$checkMounts){
+            if ($fs->getMountPoint())
+                foreach ($items as &$file)
+                    $file['path'] = $fs->getMountPoint().$file['path'];
 
-        if($pPath == '/'){
-            if (is_array(Kryn::$config['mounts'])) {
-                foreach (Kryn::$config['mounts'] as $folder => &$config ){
-                    $magic = array(
-                        'path'  => '/'.$folder,
-                        'mount' => true,
-                        'name'  => $folder,
-                        'icon'  => $config['icon'],
-                        'ctime' => 0,
-                        'mtime' => 0,
-                        'type' => 'dir'
-                    );
-                    $items[] = $magic;
+            if($pPath == '/'){
+                if (is_array(Kryn::$config['mounts'])) {
+                    foreach (Kryn::$config['mounts'] as $folder => &$config ){
+                        $magic = array(
+                            'path'  => '/'.$folder,
+                            'mount' => true,
+                            'name'  => $folder,
+                            'icon'  => $config['icon'],
+                            'ctime' => 0,
+                            'mtime' => 0,
+                            'type' => 'dir'
+                        );
+                        $items[] = $magic;
+                    }
                 }
             }
         }
 
         uksort($items, "strnatcasecmp");
 
-        $where = array();
-        $vals  = array();
-        foreach($items as &$file){
-            $vals[]  = $file['path'];
-            $where[] = 'path = ?';
-        }
-        $sql = 'SELECT id, path FROM '.pfx.'system_file WHERE 1=0 OR '.implode(' OR ', $where);
 
-        $res = dbExec($sql, $vals);
-        $path2id = array();
-
-        while ($row = dbFetch($res)){
-            $path2id[$row['path']] = $row['id'];
-        }
-
-        foreach($items as &$file){
-
-            //todo, create new option 'show hidden files' in user settings and depend on that
-            //we'll show files with a dot at the beginning.
-
-            //$file['object_id'] = Object
-            if (!$path2id[$file['path']]){
-                $id = dbInsert('system_file', array('path' => $file['path'], 'hash' => $fs->getMd5($path)));
-                $file['id'] = $id;
-            } else {
-                $file['id'] = $path2id[$file['path']];
+        if (static::$checkObject){
+            $where = array();
+            $vals  = array();
+            foreach($items as &$file){
+                $vals[]  = $file['path'];
+                $where[] = 'path = ?';
             }
-            $file['writeaccess'] = \Core\Acl::checkUpdate('file', $file['path']);
+            $sql = 'SELECT id, path FROM '.pfx.'system_file WHERE 1=0 OR '.implode(' OR ', $where);
+
+            $res = dbExec($sql, $vals);
+            $path2id = array();
+
+            while ($row = dbFetch($res)){
+                $path2id[$row['path']] = $row['id'];
+            }
+
+            foreach($items as &$file){
+
+                //todo, create new option 'show hidden files' in user settings and depend on that
+                //we'll show files with a dot at the beginning.
+
+                //$file['object_id'] = Object
+                if (!$path2id[$file['path']]){
+                    $id = dbInsert('system_file', array('path' => $file['path'], 'hash' => $fs->getMd5($path)));
+                    $file['id'] = $id;
+                } else {
+                    $file['id'] = $path2id[$file['path']];
+                }
+                $file['writeaccess'] = \Core\Acl::checkUpdate('file', $file['path']);
+            }
         }
 
         return $items;
@@ -488,6 +511,10 @@ class File {
      *                        or return array with the information.
      */
     public static function getTrashFiles(){
+
+        if (!static::$checkObject){
+            return false;
+        }
 
         $files = array();
         $h = opendir(PATH_MEDIA.'trash/');

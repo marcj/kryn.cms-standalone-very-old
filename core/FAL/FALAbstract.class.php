@@ -234,12 +234,12 @@ abstract class FALAbstract {
     abstract public function getPublicUrl($pPath);
 
     /**
-     * Deletes a file or folder (resursive).
+     * Removes a file or folder (recursive).
      *
      * @param string $pPath
      * @return bool|int
      */
-    abstract public function delete($pPath);
+    abstract public function remove($pPath);
 
 
     /**

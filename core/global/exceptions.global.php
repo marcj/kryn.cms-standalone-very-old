@@ -28,3 +28,5 @@ class FileNotExistException extends Exception {}
 class FileIOException extends Exception {}
 class FileNotWritableException extends Exception {}
 class FileAlreadyExistException extends Exception {}
+
+class SecurityException extends Exception {}

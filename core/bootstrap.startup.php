@@ -3,10 +3,9 @@
 $cwd = getcwd();
 chdir(PATH);
 
-//@ini_set('display_errors', 0);
+@ini_set('display_errors', 0);
 
 if (\Core\Kryn::$config['displayErrors']){
-    die('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! FAIL!!!!!!!!!!!');
     set_error_handler("coreUtilsErrorHandler", E_COMPILE_ERROR|E_RECOVERABLE_ERROR|E_ERROR|E_CORE_ERROR|E_USER_ERROR|E_PARSE);
     set_exception_handler("coreUtilsExceptionHandler");
 }

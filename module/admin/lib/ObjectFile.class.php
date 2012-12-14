@@ -71,7 +71,7 @@ class ObjectFile extends \Core\ORM\Propel {
         parent::remove($pPrimaryKey);
 
         $path = \Core\File::getPath($pPrimaryKey['id']);
-        return \Core\File::delete($path);
+        return \Core\File::remove($path);
     }
 
     /**

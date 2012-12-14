@@ -1,6 +1,8 @@
 RewriteEngine On
 #RewriteBase /
 
+DirectoryIndex index.php
+
 <IfModule mod_php5.c>
     php_flag magic_quotes_gpc Off
 </IfModule>

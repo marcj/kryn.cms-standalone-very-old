@@ -60,11 +60,8 @@ class Manager {
             $manager->uninstall($module, false, true);
         }
 
-
         $manager->uninstall('users', false, true);
-
         $manager->uninstall('admin', false, true);
-
 
         \Core\PropelHelper::updateSchema();
 
@@ -121,7 +118,6 @@ class Manager {
         } catch (\Exception $ex){
             die($ex);
         }
-
 
         \Core\PropelHelper::cleanup();
 

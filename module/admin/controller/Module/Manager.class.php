@@ -291,6 +291,7 @@ class Manager {
      * If $pName points to a zip-file, we extract it in temp, fires the extract script and move it to our install root.
      *
      * @param string $pName
+     * @param bool   $pWithoutPropelUpdate
      * @return bool
      */
     public function install($pName, $pWithoutPropelUpdate = false){
@@ -308,11 +309,10 @@ class Manager {
 
         }
 
-        $config = self::getConfig($pName);
+        //$config = self::getConfig($pName);
         $hasPropelModels = SystemFile::exists('module/'.$pName.'/model.xml');
 
         $this->fireScript($pName, 'install');
-        $this->fireScript($pName, 'installDatabase');
 
         //fire update propel orm
         if (!$pWithoutPropelUpdate && $hasPropelModels){
@@ -327,6 +327,20 @@ class Manager {
 
     }
 
+    /**
+     * Fires the database package script.
+     *
+     * @param string $pName
+     * @return bool
+     */
+    public function installDatabase($pName){
+        error_log('INSTALLDATBASE: '.$pName);
+
+        $this->fireScript($pName, 'installDatabase');
+
+        return true;
+    }
+
 
     /**
      * Removes relevant data and object's data. Executes also the uninstall script.
@@ -334,6 +348,7 @@ class Manager {
      *
      * @param string $pName
      * @param bool   $pRemoveFiles
+     * @param bool   $pWithoutPropelUpdate
      * @return bool
      */
     public function uninstall($pName, $pRemoveFiles = true, $pWithoutPropelUpdate = false){
@@ -411,6 +426,8 @@ class Manager {
      *
      * @param string $pModule
      * @param string $pScript
+     * @throws \SecurityException
+     * @throws \Exception
      * @return bool
      */
     public function fireScript($pModule, $pScript){
@@ -421,14 +438,16 @@ class Manager {
 
         if (file_exists($file)){
 
-            //TODO, check if this script contains \defined('KRYN_MANGER'), otherweise it's not
-            //secure, and we throw an SecurityException.
+            $content = file_get_contents($file);
+            if (strpos($content, 'KRYN_MANAGER') === false){
+                throw new \SecurityException('!It is not safe, if your script can be external executed!');
+            }
 
             try {
                 include($file);
             } catch (\Exception $ex){
-                \Core\Event::fire('admin/module/manager/'.$pScript.'/failed', array($pModule, $ex));
-                return false;
+                \Core\Event::fire('admin/module/manager/'.$pScript.'/failed', $arg = array($pModule, $ex));
+                throw $ex;
             }
 
             \Core\Event::fire('admin/module/manager/'.$pScript, $pModule);

@@ -401,7 +401,7 @@ class Local extends FALAbstract {
     /**
      * {@inheritDoc} 
      */
-    public function delete($pPath){
+    public function remove($pPath){
 
         $path = $this->getRoot().$pPath;
 

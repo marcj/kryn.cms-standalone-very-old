@@ -501,7 +501,7 @@ function step5Done($pMsg){
 }
 
 
-    //fire pre scripts
+    //Install core modules
     function step5_1(){
         global $modules;
 
@@ -509,121 +509,99 @@ function step5Done($pMsg){
 
         foreach ($modules as $module){
             try {
-                $manager->installPre($module);
+                $manager->install('admin');
+                $manager->install('users');
             } catch (Exception $e){
-                step5Failed($e->getMessage());
-            } catch (RestException $e){
-                step5Failed($e->getMessage());
-            } catch (PDOException $e){
-                step5Failed($e->getMessage());
+                step5Failed($e->getMessage()."\n".print_r($e,true));
             }
         }
         step5Done(true);
     }
 
-    //fire extract scripts
+    //Update ORM
     function step5_2(){
-        /*
+
+        \Core\TempFile::remove('propel');
+
+
+        \Core\Kryn::$config['activeModules'] = array('admin', 'users');
+        \Core\Kryn::$extensions = array('admin', 'users');
+
+        try {
+            \Core\PropelHelper::generateClasses();
+            \Core\PropelHelper::updateSchema();
+        } catch (Exception $e){
+            step5Failed($e->getMessage()."\n".print_r($e,true));
+        }
+        step5Done(true);
+    }
+
+    //execute installDatabase
+    function step5_3(){
         global $modules;
+
         $manager = new Admin\Module\Manager;
 
-        //fire extract scripts, since we've already all files at place
+        try {
+            $manager->installDatabase('admin');
+            $manager->installDatabase('users');
+        } catch (Exception $e){
+            step5Failed($e->getMessage()."\n".print_r($e,true));
+        }
+        step5Done(true);
+    }
+
+
+    //Install modules
+    function step5_4(){
+        global $modules;
+
+        $manager = new \Admin\Module\Manager;
+
         foreach ($modules as $module){
             try {
-                $manager->installPre($module);
+                $manager->install($module, true);
             } catch (Exception $e){
-                step5Failed($e->getMessage());
-            } catch (RestException $e){
-                step5Failed($e->getMessage());
-            } catch (PDOException $e){
-                step5Failed($e->getMessage());
+                step5Failed($e->getMessage()."\n".print_r($e,true));
             }
         }
-        */
         step5Done(true);
     }
 
-    //write propel build environment
-    function step5_3(){
-
-        \Core\TempFile::delete('propel');
-
-        try {
-            //create the propel config
-            \Core\PropelHelper::writeXmlConfig();
-            \Core\PropelHelper::writeBuildPorperties();
-            \Core\PropelHelper::collectSchemas();
-        } catch (Exception $e){
-            step5Failed($e->getMessage());
-        }
-        step5Done(true);
-    }
-
-
-    //Write propel model classes
-    function step5_4(){
-
-        try {
-            $res = \Core\PropelHelper::generateClasses();
-        } catch (Exception $e){
-            step5Failed($e->getMessage());
-        }
-        step5Done($res);
-    }
-
-    //Update database schema
+    //Update ORM
     function step5_5(){
 
+        \Core\TempFile::remove('propel');
+
         try {
-            $res = \Core\PropelHelper::updateSchema();
+            \Core\PropelHelper::generateClasses();
+            \Core\PropelHelper::updateSchema();
         } catch (Exception $e){
-            step5Failed($e->getMessage());
+            step5Failed($e->getMessage()."\n".print_r($e,true));
         }
-        step5Done($res);
+        step5Done(true);
     }
 
-    //Fire package-database scripts
+    //Execute module database-scripts
     function step5_6(){
         global $modules;
 
         $manager = new \Admin\Module\Manager;
 
         foreach ($modules as $module){
+            if ($module == 'admin' || $module == 'users') continue;
             try {
                 $manager->installDatabase($module);
             } catch (Exception $e){
-                step5Failed($e->getMessage());
-            } catch (RestException $e){
-                step5Failed($e->getMessage());
-            } catch (PDOException $e){
-                step5Failed($e->getMessage());
+                step5Failed($e->getMessage()."\n".print_r($e,true));
             }
         }
         step5Done(true);
     }
 
-    //Fire package-post scripts
-    function step5_7(){
-        global $modules;
-
-        $manager = new \Admin\Module\Manager;
-
-        foreach ($modules as $module){
-            try {
-                $manager->installPost($module);
-            } catch (Exception $e){
-                step5Failed($e->getMessage());
-            } catch (RestException $e){
-                step5Failed($e->getMessage());
-            } catch (PDOException $e){
-                step5Failed($e->getMessage());
-            }
-        }
-        step5Done(true);
-    }
 
     //cleanup
-    function step5_8(){
+    function step5_7(){
 
         \Core\PropelHelper::cleanup();
 
@@ -657,6 +635,7 @@ function step5Done($pMsg){
 
             \Core\SystemFile::setContent('config.php', "<?php\nreturn ".var_export(Kryn::$config, true).";\n?>");
         }
+        Kryn::$extensions = Kryn::$config['activeModules'];
 
 
         if (file_exists($file = 'propel-config.php')){
@@ -664,7 +643,7 @@ function step5Done($pMsg){
             Core\Kryn::$propelClassMap = $propelConfig['classmap'];
         }
 
-        if ($subStep >= 6){
+        if ($subStep >= 1){
 
             \Propel::init(\Core\PropelHelper::getConfig());
         }
@@ -715,13 +694,12 @@ function step5(){
         window.addEvent('domready', function(){
 
             var steps = [
-                'Execute module pre-scripts ...',
-                'Execute module extract-scripts ...',
-                'Write propel build environment ...',
-                'Write propel model classes ...',
-                'Update database schema ...',
+                'Install core modules ...',
+                'Update ORM ...',
+                'Execute database-scripts ...',
+                'Install modules ...',
+                'Update ORM ...',
                 'Execute module database-scripts ...',
-                'Execute module post-scripts ...',
                 'Cleanup ...'
             ];
 
@@ -888,6 +866,7 @@ function step2(){
             print '<div style="color: green">libgd OK</div>';
         }
 
+        var_dump(class_exists('ZipArchive'));
         if(!extension_loaded('zip')){
             $anyThingOk = false;
             print '<div style="color: red">zip required.</div>';
