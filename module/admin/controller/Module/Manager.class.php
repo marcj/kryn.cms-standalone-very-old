@@ -35,25 +35,38 @@ class Manager {
     }
 
 
-    public function deactivate($pName){
+    public function deactivate($pName, $pReloadConfig = false){
         Manager::prepareName($pName);
 
         $idx = array_search($pName, Kryn::$config['activeModules']);
+        if ($idx !== false)
+            unset(Kryn::$config['activeModules'][$idx]);
 
-        if ($idx === false) return false;
+        $idx = array_search($pName, \Core\Kryn::$extensions);
+        if ($idx !== false)
+            unset(\Core\Kryn::$extensions[$idx]);
 
-        unset(Kryn::$config['activeModules'][$idx]);
+        if ($pReloadConfig)
+            Kryn::loadModuleConfigs();
+
         return self::saveMainConfig();
 
     }
 
-    public function activate($pName){
+    public function activate($pName, $pReloadConfig = false){
         Manager::prepareName($pName);
 
-        if (array_search($pName, Kryn::$config['activeModules']) === false){
+        if (array_search($pName, Kryn::$config['activeModules']) === false)
             Kryn::$config['activeModules'][] = $pName;
-            return self::saveMainConfig();
-        }
+
+        if (array_search($pName, \Core\Kryn::$extensions) === false)
+            \Core\Kryn::$extensions[] = $pName;
+
+        if ($pReloadConfig)
+            Kryn::loadModuleConfigs();
+
+        return self::saveMainConfig();
+
         return false;
     }
 
@@ -102,6 +115,10 @@ class Manager {
         }
 
         return $res;
+    }
+
+    public static function getConfig($pName){
+        return self::loadInfo($pName);
     }
 
 
@@ -243,13 +260,13 @@ class Manager {
     }
 
     /**
-     * Returns if all dependencies are fine.
+     * Returns true if all dependencies are fine.
      *
      * @param $pName
      *
      * @return boolean
      */
-    public function dependenciesCheck($pName){
+    public function hasOpenDependencies($pName){
 
 
 
@@ -260,150 +277,170 @@ class Manager {
      *
      * @param $pName
      */
-    public function dependenciesOpen($pName){
+    public function getOpenDependencies($pName){
 
 
 
     }
 
-    /**
-     * Executes the installation pre-script.
-     * Pre some database content, backup some files or stuff like that.
-     *
-     * @param $pName
-     * @return string
-     */
-    public function installPre($pName){
 
-        $file = $this->getScriptFile($pName, 'install-pre');
+    /**
+     * Activates a module, fires his install/installDatabase package scripts
+     * and updates the propel ORM, if the modules has a model.xml.
+     *
+     * If $pName points to a zip-file, we extract it in temp, fires the extract script and move it to our install root.
+     *
+     * @param string $pName
+     * @return bool
+     */
+    public function install($pName, $pWithoutPropelUpdate = false){
+
+        Manager::prepareName($pName);
+
+        if (is_file($pName)){
+            $zip = new \ZipArchive;
+            if ($zip->open($pName) === true){
+                $zip->extractTo(PATH);
+                $zip->close();
+
+                $this->fireScript($pName, 'extract');
+            }
+
+        }
+
+        $config = self::getConfig($pName);
+        $hasPropelModels = SystemFile::exists('module/'.$pName.'/model.xml');
+
+        $this->fireScript($pName, 'install');
+        $this->fireScript($pName, 'installDatabase');
+
+        //fire update propel orm
+        if (!$pWithoutPropelUpdate && $hasPropelModels){
+            //update propel
+            \Core\PropelHelper::updateSchema();
+            \Core\PropelHelper::cleanup();
+        }
+
+        $this->activate($pName, true);
+
+        return true;
+
+    }
+
+
+    /**
+     * Removes relevant data and object's data. Executes also the uninstall script.
+     * Removes database values, some files etc.
+     *
+     * @param string $pName
+     * @param bool   $pRemoveFiles
+     * @return bool
+     */
+    public function uninstall($pName, $pRemoveFiles = true, $pWithoutPropelUpdate = false){
+
+        Manager::prepareName($pName);
+        $config = self::getConfig($pName);
+        $hasPropelModels = SystemFile::exists('module/'.$pName.'/model.xml');
+
+        \Core\Event::fire('admin/module/manager/uninstall/pre', $pName);
+
+        //remove object data
+        if ($config['objects']){
+            foreach ($config['objects'] as $key => $object){
+                \Core\Object::clear($key);
+            }
+        }
+
+        $this->fireScript($pName, 'uninstall');
+
+        //catch all propel classes
+        if ($hasPropelModels){
+            $propelClasses = find('module/'.$pName.'/model/');
+        }
+
+        //remove files
+        if ($pRemoveFiles){
+
+            if ($config['extraFiles']){
+                foreach ($config['extraFiles'] as $file){
+                    delDir($file);
+                }
+            }
+
+            delDir('module/'.$pName);
+            delDir('media/'.$pName);
+
+        }
+
+        \Core\Event::fire('admin/module/manager/uninstall/post', $pName);
+
+        $this->deactivate($pName, true);
+
+        //fire update propel orm
+        if ($hasPropelModels){
+            //remove propel classes in temp
+            foreach ($propelClasses as $propelClass){
+                $propelClasses = substr($propelClasses, strlen('module/'.$pName.'/model/'));
+                \Core\TempFile::remove('propel-classes/Base'.$propelClass.'.php');
+                \Core\TempFile::remove('propel-classes/Base'.$propelClass.'Peer.php');
+                \Core\TempFile::remove('propel-classes/Base'.$propelClass.'Query.php');
+                \Core\TempFile::remove('propel-classes/'.$propelClass.'TableMap.php');
+            }
+
+            //update propel
+            if (!$pWithoutPropelUpdate){
+                \Core\PropelHelper::updateSchema();
+                $files = find(\Core\Kryn::getTempFolder().'/propel/');
+                var_dump($files);
+                var_dump($GLOBALS['sql']);
+                \Core\PropelHelper::cleanup();
+            }
+
+        }
+
+        return true;
+
+    }
+
+    /**
+     * Fires the script in module/$pModule/package/$pScript.php and its events.
+     *
+     * @event admin/module/manager/<$pScript>/pre
+     * @event admin/module/manager/<$pScript>/failed
+     * @event admin/module/manager/<$pScript>
+     *
+     * @param string $pModule
+     * @param string $pScript
+     * @return bool
+     */
+    public function fireScript($pModule, $pScript){
+
+        \Core\Event::fire('admin/module/manager/'.$pScript.'/pre', $pModule);
+
+        $file = $this->getScriptFile($pModule, $pScript);
+
         if (file_exists($file)){
 
-            require($file);
+            //TODO, check if this script contains \defined('KRYN_MANGER'), otherweise it's not
+            //secure, and we throw an SecurityException.
 
-            return 'execution_successful';
+            try {
+                include($file);
+            } catch (\Exception $ex){
+                \Core\Event::fire('admin/module/manager/'.$pScript.'/failed', array($pModule, $ex));
+                return false;
+            }
+
+            \Core\Event::fire('admin/module/manager/'.$pScript, $pModule);
         }
-        return false;
-
-    }
-
-    /**
-     * Executes the install-extract.php-script.
-     * Maybe fore some file adjustments.
-     *
-     * @param $pName
-     * @return string
-     */
-    public function installFireExtract($pName){
-
-        $file = $this->getScriptFile($pName, 'install-extract');
-        if (file_exists($file)){
-
-            require($file);
-
-            return 'execution_successful';
-        }
-        return false;
-
-    }
-
-    /**
-     * Extract the files and fires the the install-extract.php script..
-     *
-     * @param $pName
-     */
-    public function installExtract($pName){
-
-
-
-    }
-
-    /**
-     * Executes the installation database schema synchronisation.
-     *
-     * @param $pName
-     * @return string
-     */
-    public function installDatabase($pName){
-
-        $file = $this->getScriptFile($pName, 'install-database');
-        if (file_exists($file)){
-
-            include($file);
-
-            return 'execution_successful';
-        }
-        return false;
-
+        return true;
     }
 
 
-    /**
-     * Executes the installation post-script.
-     * Insert database values, convert some content etc.
-     *
-     * @param $pName
-     */
-    public function installPost($pName){
+    private function getScriptFile($pModule, $pName){
 
-
-
-
-    }
-
-
-    /**
-     * Executes the update pre-script.
-     * Pre some database content, backup some files or stuff like that.
-     *
-     * @param $pName
-     */
-    public function updatePre($pName){
-
-
-    }
-
-    /**
-     * Executes the update database schema synchronisation.
-     *
-     * @param $pName
-     */
-    public function updateDatabase($pName){
-
-
-
-    }
-
-
-    /**
-     * Executes the update file extraction.
-     *
-     * @param $pName
-     */
-    public function updateExtract($pName){
-
-
-
-    }
-
-
-    /**
-     * Executes the update post-script.
-     * Insert database values, convert some content etc.
-     *
-     * @param $pName
-     */
-    public function updatePost($pName){
-
-
-
-
-    }
-
-
-    private function getScriptFile($pExtension, $pName){
-
-        self::prepareName($pExtension);
-        return PATH_MODULE . $pExtension . '/package/' . $pName . '.php';
+        self::prepareName($pModule);
+        return PATH_MODULE . $pModule . '/package/' . $pName . '.php';
 
     }
 }

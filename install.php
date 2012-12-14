@@ -235,6 +235,10 @@ header("Content-Type: text/html; charset=utf-8");
           left: 0px;
       }
 
+      select {
+          width: 141px;
+      }
+
       .breaker { clear: both }
 
     </style>
@@ -334,6 +338,7 @@ function checkConfig(){
             'name'   => $_REQUEST['db'],
             'prefix' => $_REQUEST['prefix'],
             'type'   => $_REQUEST['type'],
+            'protectTables' => ($_REQUEST['protectTables'] ? explode(',', preg_replace('[^a-zA-Z_-%0-9]', '', $_REQUEST['protectTables'])) : array()),
             'persistent'   => $_REQUEST['persistent'],
           ),
 
@@ -807,7 +812,7 @@ Your installation file contains following modules:<br />
 ?>
 </table>
 </form>
-<b style="color: red;">All database tables we install will be dropped in the next step!</b><br /><br/>
+<b style="color: red;">All database tables related to these modules will be dropped in the next step!</b><br /><br/>
 <a href="?step=3" class="ka-Button" >Back</a>
 <a href="javascript: document.id('form.modules').submit();" class="ka-Button" >Install!</a>
 <?php
@@ -882,6 +887,15 @@ function step2(){
         } else {
             print '<div style="color: green">libgd OK</div>';
         }
+
+        if(!extension_loaded('zip')){
+            $anyThingOk = false;
+            print '<div style="color: red">zip required.</div>';
+        } else {
+            print '<div style="color: green">zip OK</div>';
+        }
+
+
 
         ?>
     </li>
@@ -1044,25 +1058,25 @@ function step3(){
 <form id="form" autocomplete="off" onsubmit="checkConfigEntries(); return false;">
 
   These settings are only the minimum settings to run Kryn.cms.<br/>
-  To set more detailed settings later, just login to the administration and open the settings window.
+  To set more detailed settings, just login to the administration and open the settings window after the installation.
 
 <h3>System</h3>
 
 <table style="width: 100%" cellpadding="3">
     <tr>
-        <td width="250">Title</td>
+        <td width="350">Title*</td>
         <td>
             <input type="text" class="ka-Input" required name="systemTitle" value="Fresh installation">
         </td>
     </tr>
     <tr>
-        <td width="250">Installation id</td>
+        <td>Installation id*</td>
         <td>
             <input type="text" class="ka-Input" required name="id" value="<?php echo dechex((time() / 1000) / mt_rand(10, 100)); ?>">
         </td>
     </tr>
     <tr>
-        <td width="250">Timezone</td>
+        <td>Timezone</td>
         <td>
             <select name="timezone">
                 <?php
@@ -1084,7 +1098,7 @@ function step3(){
     <tr>
         <td>
             Display detailed RESTful API Error information.
-            <div style="color: gray">Means file name, line number and backstrace.</div>
+            <div style="color: #aaa">Means file name, line number and backstrace.</div>
         </td>
         <td><input type="checkbox" checked="checked" name="displayDetailedRestErrors" value="1" /></td>
     </tr>
@@ -1095,15 +1109,18 @@ function step3(){
 
 <table style="width: 100%" cellpadding="3">
     <tr>
-        <td width="250">Default group name
-            <div style="color: silver">Let it empty, to change no group.</div>
+        <td colspan="2"><div style="color: #aaa">These settings are used only for new files created by Kryn.cms.</div>
+        </td>
+    </tr>
+    <tr>
+        <td width="350">Default group owner
         </td>
         <td>
             <input type="text" class="ka-Input" name="fileGroupName" value="">
         </td>
     </tr>
     <tr>
-        <td width="250">Default group permission</td>
+        <td>Default group permission</td>
         <td>
             <select name="fileGroupPermission">
                 <option value="rw">Read and Write</option>
@@ -1130,7 +1147,7 @@ function step3(){
 
 <table style="width: 100%" cellpadding="3">
  	<tr>
-        <td width="250">Database PDO driver</td>
+        <td width="350">Database PDO driver *</td>
         <td><select required name="type" id="db_type">
 <?php
 
@@ -1147,47 +1164,57 @@ function step3(){
     <tr>
         <td>
           Persistent connections
+            <div style="color: #aaa">You should probably deactivate this on the most low-cost and free web hoster.</div>
         </td>
         <td><input type="checkbox" checked="checked" name="persistent" value="1" /></td>
     </tr>
     <tr>
         <td>
-          Host
+          Host *
         </td>
         <td><input required type="text" class="ka-Input" name="server" id="db_server" value="localhost" /></td>
     </tr>
     <tr>
         <td>
           Port
-          <div style="color: silver">Empty for default</div>
+            <div style="color: #aaa">Empty for default</div>
         </td>
         <td><input type="text" class="ka-Input" style="width:50px" name="port" value="" /></td>
     </tr>
     <tr id="ui_username">
-        <td>Username</td>
+        <td>Username *</td>
         <td><input required type="text" class="ka-Input" name="username" id="db_username" /></td>
     </tr>
     <tr id="ui_password">
-        <td>Password</td>
+        <td>Password *</td>
         <td><input type="password" name="password" id="db_password" class="ka-Input" /></td>
     </tr>
     <tr id="ui_db">
         <td>
-        	Database name
+        	Database name *
         </td>
         <td><input required type="text" class="ka-Input" name="db" id="db_name" /></td>
     </tr>
     <tr>
-        <td>Table Prefix
-	        <div style="color: silver">
-	        	Please use only a lowercase string.
-	        </div></td>
+        <td>Table Prefix *
+            <div style="color: #aaa">
+                Please use only a lowercase string.
+            </div></td>
         <td><input required style="width: 80px" type="text" class="ka-Input" name="prefix" id="db_prefix" value="kryn_" /></td>
+    </tr>
+    <tr>
+        <td>Protect tables
+            <div style="color: #aaa">
+                Per default, the ORM (Propel ORM) we use drops all tables in the defined database, which are not used
+                by Kryn.cms or modules. So you may enter here tables names (%pfx% available) comma saparated, to
+                protect these tables from the deletion.
+            </div></td>
+        <td><textarea style="height: 75px;" type="text" class="ka-Input" name="protectTables"></textarea></td>
     </tr>
     <tr>
         <td colspan="2">
             <br />
-            More settings are available after the installation in the administration area.
+            * Required fields.
         </td>
     </tr>
 </table>

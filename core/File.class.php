@@ -42,9 +42,10 @@ class File {
      */
     public static function getLayer($pPath){
 
-        $class = '\Core\FAL\Local';
+        $class = 'Core\FAL\Local';
         $params['root'] = PATH.PATH_MEDIA;
         $mountName = '';
+
 
         if ($pPath != '/') {
 
@@ -63,10 +64,11 @@ class File {
         }
 
         if (static::$fsObjects[$class]) return static::$fsObjects[$class];
+
         if (class_exists($class))
             static::$fsObjects[$class] = new $class($mountName, $params);
         else
-            return false;
+            throw new \ClassNotFoundException(tf('Class %s not found.', $class));
 
         return static::$fsObjects[$class];
 
@@ -162,6 +164,7 @@ class File {
     public static function exists($pPath){
 
         $fs = static::getLayer($pPath);
+        if (!$fs) debug_print_backtrace();
         return $fs->fileExists(static::normalizePath($pPath));
 
     }
@@ -199,14 +202,14 @@ class File {
     }
 
     /**
-     * Deletes a file/folder.
+     * Removes a file/folder.
      * 
      * @static
      * @param string $pPath
      * 
      * @return bool
      */
-    public static function delete($pPath){
+    public static function remove($pPath){
 
         $fs = static::getLayer($pPath);
         return $fs->delete(static::normalizePath($pPath));

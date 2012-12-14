@@ -2,15 +2,9 @@
 
 namespace Tests\Object;
 
-use Tests\Manager;
+use Tests\TestCaseWithInstallation;
 
-class GeneralTest extends \PHPUnit_Framework_TestCase {
-
-
-    public static function setUpBeforeClass(){
-        Manager::freshInstallation();
-        Manager::bootupCore();
-    }
+class GeneralTest extends TestCaseWithInstallation {
 
     public function testObject(){
 
@@ -20,10 +14,6 @@ class GeneralTest extends \PHPUnit_Framework_TestCase {
         $objectClass = \Core\Object::getClass('test');
         $this->assertNotEmpty($objectClass);
 
-    }
-
-    public static function tearDownAfterClass(){
-        Manager::cleanup();
     }
 
 }

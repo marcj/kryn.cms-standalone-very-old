@@ -3,14 +3,9 @@
 namespace Tests\Object;
 
 use Tests\Manager;
+use Tests\TestCaseWithInstallation;
 
-class CreateTest extends \PHPUnit_Framework_TestCase {
-
-
-    public static function setUpBeforeClass(){
-        Manager::freshInstallation();
-        Manager::bootupCore();
-    }
+class CreateTest extends TestCaseWithInstallation {
 
     public function testObject(){
 
@@ -49,10 +44,6 @@ class CreateTest extends \PHPUnit_Framework_TestCase {
         $count = \Core\Object::getCount('test');
         $this->assertEquals(0, $count);
 
-    }
-
-    public static function tearDownAfterClass(){
-        Manager::cleanup();
     }
 
 }

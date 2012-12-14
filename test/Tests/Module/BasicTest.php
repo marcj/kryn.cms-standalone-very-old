@@ -3,14 +3,9 @@
 namespace Tests\Module;
 
 use Tests\Manager;
+use Tests\TestCaseWithInstallation;
 
-class BasicTest extends \PHPUnit_Framework_TestCase {
-
-
-    public static function setUpBeforeClass(){
-        Manager::freshInstallation();
-        Manager::bootupCore();
-    }
+class BasicTest extends TestCaseWithInstallation {
 
     public function testPrimaryKeys(){
 
@@ -27,10 +22,5 @@ class BasicTest extends \PHPUnit_Framework_TestCase {
         $this->assertTrue($active);
 
     }
-
-    public static function tearDownAfterClass(){
-        Manager::cleanup();
-    }
-
 
 }

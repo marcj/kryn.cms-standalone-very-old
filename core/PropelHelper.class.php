@@ -12,16 +12,16 @@ class PropelHelper {
     public static function init(){
 
         try {
-            ob_start();
             $result = self::fullGenerator();
-            ob_clean();
         } catch(Exception $e){
             self::cleanup();
+            die($e);
             Kryn::internalError('Propel initialization Error', is_array($e)?print_r($e,true):$e);
         }
 
         self::cleanup();
 
+        return $result;
     }
 
     public static function getTempFolder(){
@@ -100,9 +100,15 @@ class PropelHelper {
 
     public static function generateClasses(){
 
-        //delete old map/om folders
+        $tmp = self::getTempFolder();
+        if (!file_exists($tmp . 'propel/runtime-conf.xml')){
+            self::writeXmlConfig();
+            self::writeBuildPorperties();
+            self::collectSchemas();
+        }
 
         $content  = self::execute('om');
+
 
         if (is_array($content)){
             throw new \Exception("Propel generateClasses failed: \n". $content[0]);
@@ -112,44 +118,36 @@ class PropelHelper {
         return $content;
     }
 
-    public static function collectClassDefinition(){
+    public static function collectObjectToExtension(){
 
-        self::collectObjectToExtension();
 
-        foreach (self::$objectsToExtension as $name => $extension){
+        self::$objectsToExtension = array();
+        foreach (Kryn::$extensions as $extension){
 
-            if (!$name) continue;
+            if ($extension == 'kryn') continue;
 
-            $files = array(
-                'om/Base'.$name.'Peer.php',
-                'om/Base'.$name.'.php',
-                'map/'.$name.'TableMap.php',
-                'om/Base'.$name.'Query.php',
-                'x' => $name.'.php',
-                'y' => $name.'Peer.php',
-                'z' => $name.'Query.php'
-            );
+            if (file_exists($schema = PATH_MODULE.$extension.'/model.xml')){
 
-            foreach ($files as $key => $file){
-                $target    = PATH_MODULE.$extension.'/model/'.$file;
-                $targetDir = dirname(PATH_MODULE.$extension.'/model/'.$file);
-                self::$classDefinition[basename($file)] = $target;
+                $tables = simplexml_load_file ($schema);
+
+                foreach ($tables->table as $table){
+                    $attributes = $table->attributes();
+                    $clazz = (string)$attributes['phpName'];
+
+                    self::$objectsToExtension[$clazz] = $extension;
+
+                }
+
             }
-
         }
-
     }
+
 
     public static function moveClasses(){
 
         $tmp = self::getTempFolder();
 
         self::collectObjectToExtension();
-        
-        foreach (Kryn::$extensions as $extension){
-            delDir(PATH_MODULE.$extension.'/model/map/');
-            delDir(PATH_MODULE.$extension.'/model/om');
-        }
 
         $content = "\nMove class files<div style='color: gray;'>";
 
@@ -184,16 +182,17 @@ class PropelHelper {
 
 
                 $targetDir = dirname($target);
-                if (!is_dir($targetDir)) if(!mkdirr($targetDir)) die('Can not create folder '.$targetDir);
+                if (!is_dir($targetDir)) if(!mkdirr($targetDir))
+                    die(tf('Can not create folder %s', $targetDir));
 
                 $source = $tmp . 'propel/build/classes/kryn/'.$file;
 
                 if (!file_exists($source)){
-                    $content .= "[move][$extension] ERROR can not find $source.\n";
+                    die(tf('File %s not found', $source));
                 } else {
 
                     if (!rename($source, $target)){
-                        die('Can not move file '.$source.' to '.$target);
+                        die(tf('Can not move file %s to %s', $source, $target));
                     }
                     $content .= "[move][$extension] Class moved $file to $targetDir\n";
                 }
@@ -300,27 +299,34 @@ class PropelHelper {
         return true;
     }
 
+    /**
+     * Updates database's Schema.
+     *
+     * This function creates whatever is needed to do the job.
+     * (means, calls writeXmlConfig() etc if necessary).
+     *
+     * This function inits the Propel class.
+     *
+     * @param bool $pWithDrop
+     * @return string
+     * @throws \Exception
+     */
+    public static function updateSchema($pWithDrop = false){
 
+        $tmp = self::getTempFolder();
 
-
-
-
-    public static function updateSchema(){
-
-        $file = 'propel/build/conf/kryn-conf.php';
-
-        if (!file_exists($file)){
+        if (!file_exists($tmp . 'propel/runtime-conf.xml')){
             self::writeXmlConfig();
             self::writeBuildPorperties();
             self::collectSchemas();
         }
 
-
         if (!\Propel::isInit()){
             \Propel::init(self::getConfig());
         }
 
-        $sql = self::getSqlDiff();
+        $sql = self::getSqlDiff($pWithDrop);
+
         if (is_array($sql)){
             throw new \Exception("Propel updateSchema failed: \n". $sql[0]);
         }
@@ -332,81 +338,28 @@ class PropelHelper {
         $sql = explode(";\n", $sql."\n");
 
         $result = '';
+        $GLOBALS['sql'] = $sql;
 
         foreach ($sql as $query){
             if (!trim($query)) continue;
 
-            try {
-                dbExec($query);
-            } catch (\Exception $ex){
-                $result .= "[error] $query -> $ex\n";
-            }
+            dbExec($query);
         }
 
         return $result?$result:'ok';
     }
 
-    public static function getSqlDiff(){
-
-        $tmp = self::getTempFolder();
-        //remove all migration files
-        $files = find($tmp . 'propel/build/migrations/PropelMigration_*.php');
-        if ($files[0]) unlink($files[0]);
-
-
-        $content = self::execute('diff');
-        if (is_array($content)) return $content;
-
-        $files = find($tmp . 'propel/build/migrations/PropelMigration_*.php');
-        $lastMigrationFile = $files[0];
-
-        if (!$lastMigrationFile) return '';
-
-        preg_match('/(.*)\/PropelMigration_([0-9]*)\.php/', $lastMigrationFile, $matches);
-        $clazz = 'PropelMigration_'.$matches[2];
-
-        include_once($lastMigrationFile);
-        $obj = new $clazz;
-
-        $sql = $obj->getUpSQL();
-
-        $sql = $sql['kryn'];
-        unlink($lastMigrationFile);
-
-        $sql = preg_replace('/^DROP TABLE .*$/im', '', $sql);
-        $sql = preg_replace('/^#.*$/im', '', $sql);
-
-        return trim($sql);
-
-    }
-
-    public static function collectObjectToExtension(){
-
-        foreach (Kryn::$extensions as $extension){
-
-            if ($extension == 'kryn') continue;
-
-            if (file_exists($schema = PATH_MODULE.$extension.'/model.xml')){
-
-                $tables = simplexml_load_file ($schema);
-
-                foreach ($tables->table as $table){
-                    $attributes = $table->attributes();
-                    $clazz = (string)$attributes['phpName'];
-
-                    self::$objectsToExtension[$clazz] = $extension;
-
-                }
-
-            }
-        }
-    }
 
     public static function collectSchemas(){
 
         $tmp = self::getTempFolder();
 
-        $schemeData = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n  <database name=\"kryn\" defaultIdMethod=\"native\">";
+        $currentSchemas = find($tmp.'propel/*.schema.xml');
+        foreach ($currentSchemas as $file){
+            unlink($file);
+        }
+
+        $schemeData = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n  <database name=\"kryn\" defaultIdMethod=\"native\">\n";
 
         foreach (Kryn::$extensions as $extension){
 
@@ -417,7 +370,7 @@ class PropelHelper {
                 $tables = simplexml_load_file($schema);
                 $newSchema = $schemeData;
 
-                foreach ($tables->table as $table){ 
+                foreach ($tables->table as $table){
                     $newSchema .= $table->asXML()."\n    ";
                 }
 
@@ -429,7 +382,55 @@ class PropelHelper {
 
         }
 
+        file_put_contents($tmp . 'propel/schema.xml', $schemeData."</database>");
+
         return true;
+    }
+
+
+    public static function getSqlDiff(){
+
+        $tmp = self::getTempFolder();
+
+        //remove all migration files
+        $files = find($tmp . 'propel/build/migrations/PropelMigration_*.php');
+        if ($files[0]) unlink($files[0]);
+
+        $content = self::execute('diff');
+        if (is_array($content)) return $content;
+
+        $files = find($tmp . 'propel/build/migrations/PropelMigration_*.php');
+        $lastMigrationFile = $files[0];
+
+        if (!$lastMigrationFile) return '';
+
+        preg_match('/(.*)\/PropelMigration_([0-9]*)\.php/', $lastMigrationFile, $matches);
+        $clazz = 'PropelMigration_'.$matches[2];
+        $uid = str_replace('.', '_', uniqid('', true));
+        $newClazz = 'PropelMigration__'.$uid;
+
+        $content = file_get_contents($lastMigrationFile);
+        $content = str_replace('class '.$clazz, 'class PropelMigration__'.$uid, $content);
+        file_put_contents($lastMigrationFile, $content);
+
+        include($lastMigrationFile);
+        $obj = new $newClazz;
+
+        $sql = $obj->getUpSQL();
+
+        $sql = $sql['kryn'];
+        unlink($lastMigrationFile);
+
+        if (is_array($protectTables = \Core\Kryn::$config['database']['protectTables'])){
+            foreach ($protectTables as $table){
+                $table = str_replace('%pfx%', pfx, $table);
+                $sql = preg_replace('/^DROP TABLE (IF EXISTS|) '.$table.'(\n|\s)(.*)\n+/im', '', $sql);
+            }
+        }
+        $sql = preg_replace('/^#.*$/im', '', $sql);
+
+        return trim($sql);
+
     }
 
     public static function execute(){
@@ -489,6 +490,8 @@ class PropelHelper {
 
         rewind($outStreamS);
         $content = stream_get_contents($outStreamS);
+
+        $GLOBALS['PENIS'] = $content;
 
         if (strpos($content, "BUILD FINISHED") !== false && strpos($content, "Aborting.") === false){
             preg_match_all('/\[((propel[a-zA-Z-_]*)|phingcall)\] .*/', $content, $matches);

@@ -1,2 +1,5 @@
-<phpunit bootstrap="bootstrap.php">
+<phpunit bootstrap="bootstrap.php"
+         convertErrorsToExceptions="false"
+         convertNoticesToExceptions="false"
+         convertWarningsToExceptions="false">
 </phpunit>

@@ -5,7 +5,7 @@ mb_internal_encoding("UTF-8");
 $_time = time();
 $_start = microtime(true);
 
-error_reporting(E_COMPILE_ERROR|E_RECOVERABLE_ERROR|E_ERROR|E_CORE_ERROR|E_USER_ERROR);
+//error_reporting(E_COMPILE_ERROR|E_RECOVERABLE_ERROR|E_ERROR|E_CORE_ERROR|E_USER_ERROR);
 
 if (!defined('PATH')){
     define('PATH', realpath(dirname(__FILE__).'/../') . '/');

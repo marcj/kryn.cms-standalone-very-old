@@ -572,8 +572,8 @@ class Kryn {
         return $infos;
     }
 
-    public static function loadActiveModules() {
-        Kryn::$extensions = array('core', 'admin', 'users');
+    public static function loadActiveModules($pWithoutDefaults = false) {
+        Kryn::$extensions = $pWithoutDefaults ? array() : array('core', 'admin', 'users');
         if (Kryn::$config['activeModules'])
             Kryn::$extensions = array_merge(Kryn::$extensions, Kryn::$config['activeModules']);
     }
@@ -599,13 +599,16 @@ class Kryn {
         Kryn::$themes =& Kryn::getFastCache('systemThemes');
         Kryn::$objects =& Kryn::getFastCache('systemObjects');
 
+        Kryn::$configs = array();
+
         //check if we need to load all config objects and do the extendConfig part
         if (/*!Kryn::$tables || $md5 != Kryn::$tables['__md5'] ||*/
             !Kryn::$themes || $md5 != Kryn::$themes['__md5'] ||
-            !Kryn::$objects || $md5 != Kryn::$objects['__md5']
+            !Kryn::$objects || $md5 != Kryn::$objects['__md5'] ||
+            count(Kryn::$objects) < 2
             ) {
 
-            foreach (Kryn::$extensions as &$extension) {
+            foreach (Kryn::$extensions as $extension) {
                 Kryn::$configs[$extension] = Kryn::getModuleConfig($extension, false, true);
             }
 
@@ -622,11 +625,12 @@ class Kryn {
             }
         }
 
+
         /*
         * load object definitions
         */
 
-        if (!Kryn::$objects || $md5 != Kryn::$objects['__md5']){
+        if (!Kryn::$objects || $md5 != Kryn::$objects['__md5'] || count(Kryn::$objects) < 2){
 
             Kryn::$objects = array();
             Kryn::$objects['__md5'] = $md5;
@@ -665,6 +669,7 @@ class Kryn {
             Kryn::setFastCache('systemThemes', Kryn::$themes);
         }
         unset(Kryn::$themes['__md5']);
+
 
     }
 
@@ -756,9 +761,10 @@ class Kryn {
 
         }
 
+
         if (!$configObj || $configObj['mtime'] != $mtime) {
 
-            $json = Kryn::translate(Kryn::fileRead($config));
+            $json = Kryn::translate(SystemFile::getContent($config));
 
             $configObj = json_decode($json, 1);
 
@@ -1269,21 +1275,10 @@ class Kryn {
      * @internal
      */
     public static function isValidLanguage($pLang) {
-        if (strlen($pLang) != 2) return false;
 
-        $languages = Kryn::getCache('systemLanguages');
+        if (!Kryn::$config['languages'] && $pLang == 'en') return true; //default
 
-        if (!$languages) {
-            $languages = \LanguageQuery::create()->filterByVisible(true)->find()->toArray(null, null, \BasePeer::TYPE_STUDLYPHPNAME);
-            Kryn::setCache('systemLanguages', $languages);
-        }
-
-        foreach ($languages as $l) {
-            if ($l['code'] == $pLang) {
-                return true;
-            }
-        }
-        return false;
+        return array_search($pLang, Kryn::$config['languages']) !== true;
     }
 
     /**
@@ -1329,7 +1324,6 @@ class Kryn {
         $code = 'cacheLang_' . $pLang;
         Kryn::$lang =& Kryn::getFastCache($code);
 
-
         $md5 = '';
         //<div
         foreach (Kryn::$extensions as $key) {
@@ -1371,6 +1365,7 @@ class Kryn {
             $code .= "    return " . $pluralForm . ";\n";
             $code .= "}";
             File::setContent('cache/core_gettext_plural_fn_' . $pLang . '.js', $code);
+
         }
 
         include_once(self::getTempFolder().'core_gettext_plural_fn_' . $pLang . '.php');
@@ -1600,7 +1595,7 @@ class Kryn {
 
         $domains =& Kryn::getCache('systemDomains');
 
-        if (!$domains || $domains['r2d']) {
+        if (!$domains || !$domains['r2d']) {
             $domains = \Admin\Pages::updateDomainCache();
         }
 

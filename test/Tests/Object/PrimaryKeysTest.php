@@ -4,23 +4,15 @@ namespace Tests\Object;
 
 use Tests\Manager;
 
-class PrimaryKeysTest extends \PHPUnit_Framework_TestCase {
+use Tests\TestCaseWithInstallation;
 
-
-    public static function setUpBeforeClass(){
-        Manager::freshInstallation();
-        Manager::bootupCore();
-    }
+class PrimaryKeysTest extends TestCaseWithInstallation {
 
     public function testPrimaryKeys(){
 
-        $primaryKeys = \Core\Object::getPrimaryList('test');
-        $this->assertEquals(array('id'), $primaryKeys);
+        //$primaryKeys = \Core\Object::getPrimaryList('test');
+        //$this->assertEquals(array('id'), $primaryKeys);
 
-    }
-
-    public static function tearDownAfterClass(){
-        Manager::cleanup();
     }
 
 

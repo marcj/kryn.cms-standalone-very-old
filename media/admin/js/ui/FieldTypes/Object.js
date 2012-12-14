@@ -62,8 +62,6 @@ ka.FieldTypes.Object = new Class({
 
     renderObjectTable: function(){
 
-        //TODO, do it w/o chooserFieldDataModelFields, use instead labelTemplate
-
         this.chooserTable.empty();
 
         this.objectTableLoaderQueue = {};
@@ -84,7 +82,6 @@ ka.FieldTypes.Object = new Class({
                 ka.getObjectLabel(ka.getObjectUrl(this.options.object, id), function(label){
                     placeHolder.set('html', label);
                 });
-                //this.renderObjectTableLoadItem(id, placeHolder);
 
                 var actionBar = new Element('div');
 
@@ -119,79 +116,6 @@ ka.FieldTypes.Object = new Class({
         }.bind(this));
 
     },
-
-    /*renderObjectTableLoadItem: function(pId, pPlaceHolders){
-
-        if (this.objectLastTableLoaderTimer){
-            clearTimeout(this.objectLastTableLoaderTimer);
-        }
-        this.objectTableLoaderQueue[pId] = pPlaceHolders;
-
-        this.objectLastTableLoaderTimer = this.doObjectTableLoad.delay(50, this);
-    },
-
-    doObjectTableLoad: function(){
-
-        var url = 'object://'+this.options.object+'/';
-        var ids = [];
-
-        Object.each(this.objectTableLoaderQueue, function(placeholders, id){
-            ids.push(id);
-        });
-        url += ids.join(',');
-
-        if (this.lastRq)
-            this.lastRq.cancel();
-
-        this.lastRq = new Request.JSON({url: _path+'admin/backend/objects',
-        noErrorReporting: true,
-        onComplete: function(res){
-
-            if (res.error == 'no_object_access'){
-
-                this.chooserTable.empty();
-                new Element('div', {
-                    text: t('No access to this object.'),
-                    style: 'color: red; padding: 4px;'
-                }).inject(this.chooserTable, 'after');
-
-            } else if (res.error == 'object_not_found'){
-
-                this.chooserTable.empty();
-                new Element('div', {
-                    text: t('Object definition not found.'),
-                    style: 'color: red; padding: 4px;'
-                }).inject(this.chooserTable, 'after');
-
-            } else {
-
-                var fields = ka.getObjectDefinition(this.options.object).fields;
-                //chooserFieldDataModelFieldTemplate
-
-                Object.each(this.objectTableLoaderQueue, function(placeholders, id){
-
-                    Object.each(placeholders, function(td, colId){
-
-                        if (res.data[id]){
-                            var value = ka.getObjectLabel(res.data[id], fields[colId], colId);
-                            td.set('text', value);
-                        } else {
-                            td.set('text', t('--not found--'));
-                        }
-                    });
-
-                });
-
-            }
-
-
-        }.bind(this)}).get({
-            uri: url
-        });
-
-    },
-
-    */
 
     renderChooserSingle: function(){
 
@@ -402,57 +326,6 @@ ka.FieldTypes.Object = new Class({
             }
 
         }.bind(this));
-
-        /*
-        //TODO overhaul
-
-        if (this.lastPageChooserGetUrlRequest) {
-            this.lastPageChooserGetUrlRequest.cancel();
-        }
-
-        var objectKey = ka.getObjectKey(pObjectUri)
-        var definition = ka.getObjectDefinition(objectKey);
-
-        var fields = definition.labelField;
-        if (definition.chooserFieldDataModelFields)
-            fields = definition.chooserFieldDataModelFields;
-
-        this.lastPageChooserGetUrlRequest = new Request.JSON({url: _path + 'admin/backend/object', noCache: 1, onComplete: function(response){
-            if (!response.error){
-
-                if (response.data){
-                    //var definition = ka.getObjectDefinition(res.object);
-                    //var value = res.values[definition.chooserFieldDataModelField];
-                    var data = response.data;
-
-                    var label = data[definition.labelField];
-
-                    if (!this.options.fieldTemplate && !data.label && !label){
-                        Object.each(data, function(item){
-                            if (!data.label) data.label = item;
-                        });
-                        if (!data.label) data.label = '';
-                    } else {
-                        data.label = label;
-                    }
-
-                    var value = mowla.fetch(this.options.fieldTemplate?this.options.fieldTemplate:this.fieldTemplate, data);
-
-                    this.input.value = value;
-                    this.input.addClass('ka-Input-disabled');
-                } else if (!this.options.combobox) {
-                    this.input.value = 'not found: '+pObjectUri;
-                    this.input.removeClass('ka-Input-disabled');
-                    delete this.objectId;
-                } else {
-                    this.input.value = ka.getCroppedObjectId(pObjectUri);
-                }
-            } else if (!this.options.combobox) {
-                this.input.value = response.error;
-            }
-            this.input.fireEvent('blur');
-        }.bind(this)}).get({uri: pObjectUri, fields: fields});
-        */
 
     }
 

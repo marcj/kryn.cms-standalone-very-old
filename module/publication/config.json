@@ -324,12 +324,6 @@
             "multiLanguage": true,
             "domainDepended": false,
             "plugins": "newsDetail, newsList",
-            "chooserFieldDataModelCondition": [
-                
-            ],
-            "chooserFieldDataModel": "default",
-            "chooserFieldDataModelField": "title",
-            "chooserFieldType": "default",
             "browserColumns": {
                 "title": {
                     "label": "[[Title]]",
@@ -447,85 +441,6 @@
                 }
             },
             "label": "[[Article]]"
-        },
-        "news_comment": {
-            "label": "[[Comments]]",
-            "table": "publication_comments",
-            "desc": "",
-            "tableSync": false,
-            "class": "",
-            "plugins": "",
-            "selectable": false,
-            "fields": {
-                "id": {
-                    "label": "ID",
-                    "type": "number",
-                    "primaryKey": 1,
-                    "autoIncrement": 1,
-                    "empty": 1
-                },
-                "parent_id": {
-                    "label": "[[News]]",
-                    "object": "news",
-                    "labelField": "title",
-                    "objectRelation": "nTo1",
-                    "type": "object",
-                    "primaryKey": 0,
-                    "empty": 1
-                }
-            }
-        },
-        "news_category": {
-            "table": "publication_news_category",
-            "tableSync": 0,
-            "tableCondition": [
-                
-            ],
-            "nested": 0,
-            "multiLanguage": 1,
-            "domainDepended": 0,
-            "chooserFieldDataModelCondition": [
-                
-            ],
-            "chooserFieldDataModel": "default",
-            "chooserFieldDataModelField": "title",
-            "chooserFieldType": "default",
-            "browserColumns": {
-                "title": {
-                    "label": "[[Title]]",
-                    "type": "text"
-                }
-            },
-            "browserDataModel": "default",
-            "browserInterface": "default",
-            "selectable": 1,
-            "fields": {
-                "id": {
-                    "label": "ID",
-                    "type": "number",
-                    "primaryKey": 1,
-                    "autoIncrement": 1,
-                    "empty": 1
-                },
-                "title": {
-                    "label": "[[Title]]",
-                    "type": "text",
-                    "primaryKey": 0,
-                    "empty": 1
-                },
-                "url": {
-                    "label": "[[URL]]",
-                    "type": "text",
-                    "primaryKey": 0,
-                    "empty": 1
-                },
-                "lang": {
-                    "label": "[[Language]]",
-                    "type": "lang",
-                    "empty": 1
-                }
-            },
-            "label": "[[Article categories]]"
         }
     },
     "db": {

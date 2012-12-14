@@ -1,4 +1,7 @@
 {
+
+ "domain": "127.0.0.1",
+ "config": {
     "id": "5b46",
     "database": {
         "server": "127.0.0.1",
@@ -7,6 +10,7 @@
         "name": "postgres",
         "prefix": "kryn_",
         "type": "pgsql",
+        "protectTables": ["Test"],
         "persistent": "1"
     },
     "fileGroupPermission": "rw",
@@ -41,4 +45,5 @@
         "test",
         "th_krynDemo"
     ]
+}
 }

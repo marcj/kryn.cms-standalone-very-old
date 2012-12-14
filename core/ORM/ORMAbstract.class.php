@@ -270,6 +270,17 @@ abstract class ORMAbstract {
 
 
     /**
+     * Removes anything that is required to hold the data. E.g. SQL Tables, Drop Sequences, etc.
+     *
+     * @abstract
+     * @return bool
+     */
+    public function drop(){
+
+    }
+
+
+    /**
      *
      *
      * @param        $pPk

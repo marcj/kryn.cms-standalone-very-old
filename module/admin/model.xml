@@ -196,7 +196,7 @@
     <column name="force_https" type="BOOLEAN" required="false"/>
     <column name="access_from" type="BIGINT" required="false"/>
     <column name="access_to" type="BIGINT" required="false"/>
-    <column name="access_redirectto" type="INTEGER" size="255" required="false"/>
+    <column name="access_redirectto" type="INTEGER" required="false"/>
     <column name="access_nohidenavi" type="BOOLEAN" required="false"/>
     <column name="access_need_via" type="INTEGER" required="false"/>
     <column name="access_from_groups" type="VARCHAR" size="32" required="false"/>

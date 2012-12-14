@@ -175,8 +175,9 @@ class Local extends FALAbstract {
         if (!file_exists($this->getRoot().$pPath) )
             $this->createFile($pPath);
  
-        if (!is_writable($this->getRoot().$pPath))
+        if (!is_writable($this->getRoot().$pPath)){
             throw new \FileNotWritableException(tf('File %s is not writable.', $this->getRoot().$pPath));
+        }
 
         $res = file_put_contents($this->getRoot().$pPath, $pContent);
         $this->setPermission($this->getRoot().$pPath);

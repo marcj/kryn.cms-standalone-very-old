@@ -439,7 +439,7 @@ function dbNumRows($pStatement){
  * @return bool
  */
 function dbFree($pStatement){
-    if ($pStatement)
+    if ($pStatement && $pStatement instanceof \PDOStatement)
         return $pStatement->closeCursor();
 }
 

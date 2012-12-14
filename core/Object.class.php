@@ -434,7 +434,7 @@ class Object {
     public static function &getClass($pObjectKey){
 
         $definition =& \Core\Kryn::$objects[$pObjectKey];
-        if (!$definition) throw new \ObjectNotFoundException(tf('Can not get class for object %s', $pObjectKey));
+        if (!$definition) throw new \ObjectNotFoundException(tf('Object not found %s', $pObjectKey));
 
         if (!self::$instances[$pObjectKey]){
 
