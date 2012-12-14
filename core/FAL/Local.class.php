@@ -180,7 +180,7 @@ class Local extends FALAbstract {
         }
 
         $res = file_put_contents($this->getRoot().$pPath, $pContent);
-        $this->setPermission($this->getRoot().$pPath);
+        $this->setPermission($pPath);
 
         return $res === false?false:true;
     }
