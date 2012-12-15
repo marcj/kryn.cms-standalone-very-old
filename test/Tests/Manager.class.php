@@ -18,6 +18,22 @@ class Manager {
 
         self::$config = json_decode(file_get_contents($configFile), true);
 
+        if ($_ENV['DB_NAME'])
+            self::$config['database']['name'] = $_ENV['DB_NAME'];
+
+        if ($_ENV['DB_USER'])
+            self::$config['database']['user'] = $_ENV['DB_USER'];
+
+        if ($_ENV['DB_PW'])
+            self::$config['database']['password'] = $_ENV['DB_PW'];
+
+        if ($_ENV['DB_SERVER'])
+            self::$config['database']['server'] = $_ENV['DB_SERVER'];
+
+        if ($_ENV['DB_TYPE'])
+            self::$config['database']['type'] = $_ENV['DB_TYPE'];
+
+
         $cfg = self::$config['config'];
         $cfg['displayErrors'] = false;
 

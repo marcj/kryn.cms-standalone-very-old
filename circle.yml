@@ -1,0 +1,16 @@
+
+
+deployment:
+  staging:
+    branch: propel1.6
+    commands:
+      - ./test/script/setup-apache-fcgi.sh
+      - sudo chown -R www-data .;
+      - sudo chmod -R g-w .;
+
+
+test:
+  override:
+    - ls -al
+    - cd test
+    - sudo -u www-data phpunit Tests
