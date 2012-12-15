@@ -2,10 +2,19 @@
 
 mb_internal_encoding("UTF-8");
 
+
 $_time = time();
 $_start = microtime(true);
 
 error_reporting(E_COMPILE_ERROR|E_RECOVERABLE_ERROR|E_ERROR|E_CORE_ERROR|E_USER_ERROR);
+
+//fix PATH_INFO
+if (!$_SERVER['PATH_INFO']){
+    $pathInfo = explode('&', $_SERVER['QUERY_STRING']);
+    $_SERVER['PATH_INFO'] = $pathInfo[0];
+    array_shift($_GET);
+}
+
 
 if (!defined('PATH')){
     define('PATH', realpath(dirname(__FILE__).'/../') . '/');

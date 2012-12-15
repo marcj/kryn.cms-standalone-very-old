@@ -2364,7 +2364,7 @@ class Kryn {
             $id = 'kryn-'.self::$config['id'];
 
             if (!is_writable(self::$cachedTempFolder))
-                throw new FileIOException('Temp directory is not writeable. '.$folder);
+                throw new \FileIOException('Temp directory is not writeable. '.$folder);
 
             //add our id to folder, so this installation works inside of a own directory.
             $folder = self::$cachedTempFolder . $id.DIRECTORY_SEPARATOR;
