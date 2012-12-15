@@ -11,6 +11,4 @@ deployment:
 
 test:
   override:
-    - ls -al
-    - cd test
-    - phpunit Tests
+    - cd test; phpunit Tests
