@@ -55,7 +55,7 @@ make && make install;
 cd $BUILDPATH;
 
 # setup config
-cat ../test/config/default.apache2.conf >> apache2/conf/httpd.conf
+cat ../config/default.apache2.conf >> apache2/conf/httpd.conf
 
 # change port, path, load module
 sed -io 's/Listen\ 80$/Listen\ 8000/g' apache2/conf/httpd.conf;
