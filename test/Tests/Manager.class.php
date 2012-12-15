@@ -51,10 +51,11 @@ class Manager {
 
     public static function get($pPath = '/', $pPostData = null){
 
-        $content = wget('http://'.self::$config['domain'].$pPath, null, $pPostData);
+        $domain = self::$config['domain'];
+        if (self::$config['port'] && self::$config['port'] != 80)
+            $domain .= ':'.self::$config['port'];
 
-        var_dump('http://'.self::$config['domain'].$pPath);
-        var_dump($content);
+        $content = wget('http://'.$domain.$pPath, null, $pPostData);
 
         return $content;
     }
