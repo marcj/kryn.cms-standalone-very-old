@@ -14,10 +14,12 @@ class Manager {
      */
     public static function freshInstallation($pConfigFile = null){
 
-        $configFile = $pConfigFile ?: 'test/config/'.self::$configFile;
+        $configFile = $pConfigFile ?: 'test/config/'.(getenv('CONFIG_FILE')?getenv('CONFIG_FILE'):self::$configFile);
 
+        if (!file_exists($configFile)){
+            die("Config file not found: $configFile\n");
+        }
         self::$config = json_decode(file_get_contents($configFile), true);
-
 
         if (getenv('DOMAIN'))
             self::$config['domain'] = getenv('DOMAIN');
