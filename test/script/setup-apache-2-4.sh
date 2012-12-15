@@ -39,9 +39,13 @@ cd httpd-2.4.3;
 
 ./configure --prefix=$ROOTPATH/build/apache2 --with-apr=$ROOTPATH/build/apr --with-apr-util=$ROOTPATH/build/apr-util;
 make && make install;
+echo `pwd`;
+echo cd ..;
 cd ..;
+echo `pwd`;
 
 # setup config
+echo `pwd`;
 cat ../test/config/default.apache2.conf >> apache2/conf/httpd.conf
 
 # change port, path, load module
