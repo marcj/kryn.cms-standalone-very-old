@@ -9,12 +9,25 @@ if [ "$PHPCGI" == "" ]; then PHPCGI=`which php-cgi54`; fi;
 mkdir build;
 cd build;
 
+####
+# apr
+####
+#wget http://mirror3.layerjet.com/apache//apr/apr-1.4.6.tar.gz;
+#tar xf apr-1.4.6.tar.gz;
+#cd apr-1.4.6;
+#./configure;
+#make;
+#cd ..;
+
+####
+# Apache2
+####
 wget http://mirror3.layerjet.com/apache//httpd/httpd-2.4.3.tar.bz2;
 
 tar xf httpd-2.4.3.tar.bz2;
 cd httpd-2.4.3;
 
-./configure --prefix=$ROOTPATH/build/apache2
+./configure --prefix=$ROOTPATH/build/apache2 --with-included-apr
 make && make install;
 cd ..;
 
@@ -27,7 +40,9 @@ sed -i .origin "s,ROOTPATH,$ROOTPATH,g" apache2/conf/httpd.conf;
 #activaet modrewrite
 sed -i .origin "s,^#LoadModule rewrite_module,LoadModule rewrite_module,g" apache2/conf/httpd.conf;
 
-#setup fcgi
+####
+# mod_fcgi
+####
 
 wget http://apache.mirror.digionline.de//httpd/mod_fcgid/mod_fcgid-2.3.7.tar.bz2;
 tar xf mod_fcgid-2.3.7.tar.bz2;
