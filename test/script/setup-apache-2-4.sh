@@ -1,6 +1,7 @@
 #!/bin/sh
 
 ROOTPATH=`pwd`;
+BUILDPATH=`pwd`/build;
 PHPCGI=`which php5-cgi`;
 if [ "$PHPCGI" == "" ]; then PHPCGI=`which php-cgi`; fi;
 if [ "$PHPCGI" == "" ]; then PHPCGI=`which php-cgi53`; fi;
@@ -17,7 +18,7 @@ tar xf apr-1.4.6.tar.gz;
 cd apr-1.4.6;
 ./configure --prefix=$ROOTPATH/build/apr
 make && make install;
-cd ..;
+cd $BUILDPATH;
 
 
 ####
@@ -29,6 +30,8 @@ cd apr-util-1.5.1;
 ./configure --with-apr=../apr --prefix=$ROOTPATH/build/apr-util;
 make && make install;
 
+cd $BUILDPATH;
+
 ####
 # Apache2
 ####
@@ -39,13 +42,9 @@ cd httpd-2.4.3;
 
 ./configure --prefix=$ROOTPATH/build/apache2 --with-apr=$ROOTPATH/build/apr --with-apr-util=$ROOTPATH/build/apr-util;
 make && make install;
-echo `pwd`;
-echo cd ..;
-cd ..;
-echo `pwd`;
+cd $BUILDPATH;
 
 # setup config
-echo `pwd`;
 cat ../test/config/default.apache2.conf >> apache2/conf/httpd.conf
 
 # change port, path, load module
@@ -68,13 +67,13 @@ APXS=$ROOTPATH/build/apache2/bin/apxs ./configure.apxs;
 make & make install;
 
 #out to build;
-cd ..;
+cd $BUILDPATH;
 
 #rm -r httpd-2.4.3;
 #rm -r mod_fcgid-2.3.7;
 
 #out to ROOTPATH
-cd ..;
+cd $ROOTPATH;
 
 #setup php-fcgi script
 
@@ -86,6 +85,5 @@ $PHPCGI
 EOF
 
 chmod +x php-fcgi;
-
 
 echo "Buil done. Should work.";
