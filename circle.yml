@@ -13,4 +13,4 @@ test:
   override:
     - ls -al
     - cd test
-    - sudo -u www-data phpunit Tests
+    - phpunit Tests
