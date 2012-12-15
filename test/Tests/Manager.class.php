@@ -142,6 +142,10 @@ class Manager {
 
         try {
 
+            $manager->install('core', true);
+            $manager->install('admin', true);
+            $manager->install('users', true);
+
             foreach ($pConfig['activeModules'] as $module)
                 $manager->install($module, true);
 
