@@ -8,7 +8,9 @@ deployment:
       - ./build/apache2/bin/apachectl -k start
       - sudo chown -R www-data .;
       - sudo chmod -R g-w .;
+      - cd test;
 
 test:
   override:
-    - cd test; phpunit Tests
+    - phpunit Tests
+    - ls -al
