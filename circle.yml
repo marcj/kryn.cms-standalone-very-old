@@ -2,7 +2,7 @@
 
 deployment:
   staging:
-    branch: propel1.6
+    branch: build-circleci
     commands:
       - ./test/script/setup-apache-2-4.sh
       - ./build/apache2/bin/apachectl -k start
