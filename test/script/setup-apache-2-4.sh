@@ -12,12 +12,12 @@ cd build;
 ####
 # apr
 ####
-#wget http://mirror3.layerjet.com/apache//apr/apr-1.4.6.tar.gz;
-#tar xf apr-1.4.6.tar.gz;
-#cd apr-1.4.6;
-#./configure;
-#make;
-#cd ..;
+wget http://mirror3.layerjet.com/apache//apr/apr-1.4.6.tar.gz;
+tar xf apr-1.4.6.tar.gz;
+cd apr-1.4.6;
+./configure;
+make;
+cd ..;
 
 ####
 # Apache2
@@ -27,7 +27,7 @@ wget http://mirror3.layerjet.com/apache//httpd/httpd-2.4.3.tar.bz2;
 tar xf httpd-2.4.3.tar.bz2;
 cd httpd-2.4.3;
 
-./configure --prefix=$ROOTPATH/build/apache2 --with-included-apr
+./configure --prefix=$ROOTPATH/build/apache2 --with-apr=../apr-1.4.6/apr-1-config
 make && make install;
 cd ..;
 
