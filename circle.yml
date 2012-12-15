@@ -4,9 +4,6 @@ checkout:
   post:
     - ./test/script/setup-apache-2-4.sh
     - ./build/apache2/bin/apachectl -k start
-    - sudo chown -R www-data .;
-    - sudo chmod -R g-w .;
-    - cd test;
 
 test:
   override:
