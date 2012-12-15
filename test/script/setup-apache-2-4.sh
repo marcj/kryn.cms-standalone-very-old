@@ -19,6 +19,16 @@ cd apr-1.4.6;
 make;
 cd ..;
 
+
+####
+# apr-util
+####
+wget http://mirror.lwnetwork.org.uk/APACHE//apr/apr-util-1.5.1.tar.gz;
+tar xf apr-util-1.5.1.tar.gz;
+cd apr-util-1.5.1;
+./configure --with-apr=../apr-1.4.6;
+make;
+
 ####
 # Apache2
 ####
@@ -27,7 +37,7 @@ wget http://mirror3.layerjet.com/apache//httpd/httpd-2.4.3.tar.bz2;
 tar xf httpd-2.4.3.tar.bz2;
 cd httpd-2.4.3;
 
-./configure --prefix=$ROOTPATH/build/apache2 --with-apr=../apr-1.4.6/apr-1-config
+./configure --prefix=$ROOTPATH/build/apache2 --with-apr=../apr-1.4.6/apr-1-config --with-apr-util=../apr-util-1.5.1/apu-1-config
 make && make install;
 cd ..;
 
