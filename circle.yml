@@ -12,5 +12,4 @@ deployment:
 
 test:
   override:
-    - phpunit Tests
-    - ls -al
+    - phpunit test/Tests

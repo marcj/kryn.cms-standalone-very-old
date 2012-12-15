@@ -1,6 +1,6 @@
 {
 
- "domain": "127.0.0.1:8000",
+ "domain": "127.0.0.1:80200",
  "config": {
     "id": "5b46",
     "database": {
@@ -14,7 +14,7 @@
         "persistent": "0"
     },
     "fileGroupPermission": "rw",
-    "fileGroupName": "www-data",
+    "fileGroupName": "",
     "fileEveryonePermission": "r",
     "cache": {
         "class": "\\Core\\Cache\\Files"

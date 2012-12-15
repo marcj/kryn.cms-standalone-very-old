@@ -14,7 +14,7 @@
         "persistent": "1"
     },
     "fileGroupPermission": "rw",
-    "fileGroupName": "everyone",
+    "fileGroupName": "",
     "fileEveryonePermission": "r",
     "cache": {
         "class": "\\Core\\Cache\\Files"
