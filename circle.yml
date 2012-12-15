@@ -3,7 +3,7 @@
 checkout:
   post:
     - ./test/script/setup-apache-2-4.sh
-    - ./build/apache2/bin/apachectl -k start
+    - ./test/build/apache2/bin/apachectl -k start
 
 test:
   override:

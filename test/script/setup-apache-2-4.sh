@@ -12,8 +12,8 @@ cd BUILDPATH;
 # php5.3
 ####
 wget http://de1.php.net/distributions/php-5.4.9.tar.bz2;
-tar xf php-5.3.19.tar.bz2;
-cd php-5.3.19;
+tar xf php-5.4.9.tar.bz2;
+cd php-5.4.9;
 ./configure --prefix=$BUILDPATH/php53 --with-gd --enable-mbstring --with-pdo-mysql;
 make && make install;
 cd $BUILDPATH;
