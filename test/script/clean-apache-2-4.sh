@@ -1,7 +1,6 @@
 #!/bin/sh
 
+./test/build/apache2/bin/apachectl -k stop;
 
-build/apach2/bin/apachectrl stop;
-
-rm -r build/;
+rm -r test/build/;
 rm php-fcgi;
