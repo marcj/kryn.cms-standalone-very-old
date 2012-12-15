@@ -44,11 +44,11 @@ cd ..;
 # setup config
 cat ../test/config/default.apache2.conf >> apache2/conf/httpd.conf
 
-# change port
-sed -i .origin 's/Listen\ 80$/Listen\ 8000/g' apache2/conf/httpd.conf;
-sed -i .origin "s,ROOTPATH,$ROOTPATH,g" apache2/conf/httpd.conf;
+# change port, path, load module
+sed -io 's/Listen\ 80$/Listen\ 8000/g' apache2/conf/httpd.conf;
+sed -io "s,ROOTPATH,$ROOTPATH,g" apache2/conf/httpd.conf;
 #activaet modrewrite
-sed -i .origin "s,^#LoadModule rewrite_module,LoadModule rewrite_module,g" apache2/conf/httpd.conf;
+sed -io "s,^#LoadModule rewrite_module,LoadModule rewrite_module,g" apache2/conf/httpd.conf;
 
 ####
 # mod_fcgi
