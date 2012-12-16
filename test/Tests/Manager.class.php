@@ -24,6 +24,9 @@ class Manager {
         if (getenv('DOMAIN'))
             self::$config['domain'] = getenv('DOMAIN');
 
+        if (getenv('PORT'))
+            self::$config['port'] = getenv('PORT');
+
         if (getenv('DB_NAME'))
             self::$config['config']['database']['name'] = getenv('DB_NAME');
 
@@ -152,7 +155,13 @@ class Manager {
             \Core\PropelHelper::updateSchema();
             \Core\PropelHelper::generateClasses();
 
-            $doit = true;
+            $manager->installDatabase('core');
+            $manager->installDatabase('admin');
+            $manager->installDatabase('users');
+
+            foreach ($pConfig['activeModules'] as $module)
+                $manager->installDatabase($module);
+
             include('core/bootstrap.startup.php');
         } catch (\Exception $ex){
             die($ex);

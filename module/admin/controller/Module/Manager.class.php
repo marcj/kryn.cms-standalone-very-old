@@ -331,7 +331,6 @@ class Manager {
      * @return bool
      */
     public function installDatabase($pName){
-        error_log('INSTALLDATBASE: '.$pName);
 
         $this->fireScript($pName, 'installDatabase');
 
@@ -405,8 +404,6 @@ class Manager {
             if (!$pWithoutPropelUpdate){
                 \Core\PropelHelper::updateSchema();
                 $files = find(\Core\Kryn::getTempFolder().'/propel/');
-                var_dump($files);
-                var_dump($GLOBALS['sql']);
                 \Core\PropelHelper::cleanup();
             }
 
