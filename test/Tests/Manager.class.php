@@ -14,30 +14,38 @@ class Manager {
      */
     public static function freshInstallation($pConfigFile = null){
 
-        $configFile = $pConfigFile ?: 'config/'.self::$configFile;
+        $configFile = $pConfigFile ?: 'test/config/'.(getenv('CONFIG_FILE')?getenv('CONFIG_FILE'):self::$configFile);
 
+        if (!file_exists($configFile)){
+            die("Config file not found: $configFile\n");
+        }
         self::$config = json_decode(file_get_contents($configFile), true);
 
-        if ($_ENV['DB_NAME'])
-            self::$config['database']['name'] = $_ENV['DB_NAME'];
+        if (getenv('DOMAIN'))
+            self::$config['domain'] = getenv('DOMAIN');
 
-        if ($_ENV['DB_USER'])
-            self::$config['database']['user'] = $_ENV['DB_USER'];
+        if (getenv('PORT'))
+            self::$config['port'] = getenv('PORT');
 
-        if ($_ENV['DB_PW'])
-            self::$config['database']['password'] = $_ENV['DB_PW'];
+        if (getenv('DB_NAME'))
+            self::$config['config']['database']['name'] = getenv('DB_NAME');
 
-        if ($_ENV['DB_SERVER'])
-            self::$config['database']['server'] = $_ENV['DB_SERVER'];
+        if (getenv('DB_USER'))
+            self::$config['config']['database']['user'] = getenv('DB_USER');
 
-        if ($_ENV['DB_TYPE'])
-            self::$config['database']['type'] = $_ENV['DB_TYPE'];
+        if (getenv('DB_PW'))
+            self::$config['config']['database']['password'] = getenv('DB_PW');
 
+        if (getenv('DB_SERVER'))
+            self::$config['config']['database']['server'] = getenv('DB_SERVER');
+
+        if (getenv('DB_TYPE'))
+            self::$config['config']['database']['type'] = getenv('DB_TYPE');
 
         $cfg = self::$config['config'];
         $cfg['displayErrors'] = false;
 
-        if (file_exists('../config.php'))
+        if (file_exists('config.php'))
             self::uninstall();
 
         self::install($cfg);
@@ -46,25 +54,25 @@ class Manager {
 
     public static function get($pPath = '/', $pPostData = null){
 
-        $content = wget('http://'.self::$config['domain'].$pPath, null, $pPostData);
+        $domain = self::$config['domain'];
+        if (self::$config['port'] && self::$config['port'] != 80)
+            $domain .= ':'.self::$config['port'];
 
-        var_dump('http://'.self::$config['domain'].$pPath);
-        var_dump($content);
+        $content = wget('http://'.$domain.$pPath, null, $pPostData);
 
         return $content;
     }
 
     public static function uninstall(){
 
-        $origin = getcwd();
 
         $trace = debug_backtrace();
         foreach ($trace as $t){
             $string[] = basename($t['file']).':'.$t['line'];
         }
 
-        if (file_exists('../config.php')){
-            $config = include('../config.php');
+        if (file_exists('config.php')){
+            $config = include('config.php');
         } else {
             die("Kryn.cms not installed. =>".implode(', ', $string)." \n");
         }
@@ -74,8 +82,7 @@ class Manager {
 
         $doit = true;
 
-        require('../core/bootstrap.php');
-        chdir(PATH);
+        require('core/bootstrap.php');
 
         require('core/bootstrap.startup.php');
         \Core\Kryn::loadConfigs();
@@ -105,32 +112,25 @@ class Manager {
 
         \Admin\Utils::clearCache();
 
-        chdir($origin);
     }
 
 
     public static function install($pConfig){
 
-        $origin = getcwd();
-
         $cfg = $pConfig;
         $cfg['displayBeautyErrors'] = 0; //0 otherwise the exceptionHandler of kryn is used, what breaks the PHPUnit.
 
-        if (!file_put_contents('../config.php', "<?php\n return ".var_export($cfg, true).'; '))
+        if (!file_put_contents('config.php', "<?php\n return ".var_export($cfg, true).'; '))
             throw new \FileNotWritableException('Can not install Kryn.cms. config.php not writeable.');
 
-        $dir = 'media/cache';
-
-        require('../core/bootstrap.php');
+        require('core/bootstrap.php');
 
         \Core\TempFile::createFolder('./');
         \Core\MediaFile::createFolder('cache/');
 
-        require('../core/bootstrap.startup.php');
-        \Core\Kryn::loadConfigs();
+        require('core/bootstrap.startup.php');
         @ini_set('display_errors', 1);
-
-        chdir(PATH);
+        \Core\Kryn::loadConfigs();
 
         $manager = new \Admin\Module\Manager;
 
@@ -145,13 +145,23 @@ class Manager {
 
         try {
 
+            $manager->install('core', true);
+            $manager->install('admin', true);
+            $manager->install('users', true);
+
             foreach ($pConfig['activeModules'] as $module)
                 $manager->install($module, true);
 
             \Core\PropelHelper::updateSchema();
             \Core\PropelHelper::generateClasses();
 
-            $doit = true;
+            $manager->installDatabase('core');
+            $manager->installDatabase('admin');
+            $manager->installDatabase('users');
+
+            foreach ($pConfig['activeModules'] as $module)
+                $manager->installDatabase($module);
+
             include('core/bootstrap.startup.php');
         } catch (\Exception $ex){
             die($ex);
@@ -164,24 +174,23 @@ class Manager {
 
         \Admin\Utils::clearCache();
 
-        chdir($origin);
     }
 
     public static function bootupCore(){
 
-        if (file_exists('../config.php')){
-            $cfg = include('../config.php');
+        if (file_exists('config.php')){
+            $cfg = include('config.php');
         } else throw new \Exception('Kryn.cms not installed.');
 
-        $cfg = include('../config.php');
+        $cfg = include('config.php');
         $cfg['displayErrors'] = false;
 
         //todo, make it configable
         $_SERVER['PATH_INFO'] = '/';
         $_SERVER['SERVER_NAME'] = 'localhost';
 
-        require('../core/bootstrap.php');
-        require('../core/bootstrap.startup.php');
+        require('core/bootstrap.php');
+        require('core/bootstrap.startup.php');
 
         ini_set('display_errors', 1);
 

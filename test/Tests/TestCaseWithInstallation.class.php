@@ -31,9 +31,7 @@ class TestCaseWithInstallation extends \PHPUnit_Framework_TestCase {
             }
         }
 
-        chdir('..');
         $result = parent::run($result);
-        chdir($this->currentDir);
 
         try {
             Manager::uninstall();

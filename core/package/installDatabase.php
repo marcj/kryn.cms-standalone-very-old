@@ -1,5 +1,6 @@
 <?php
 
+namespace Core\InstallDatabase;
 
 if (!defined('KRYN_MANAGER')) return false;
 
@@ -133,6 +134,100 @@ $Nodes = array(
 
 );
 
+
+
+
+
+if (!function_exists(__NAMESPACE__.'\installNodes')){
+    /**
+     * @static
+     * @param Node $pNode
+     * @param array $pChildren
+     */
+    function installNodes($pNode, $pChildren){
+
+        /*
+        * 0: type
+        * 1: Title
+        * 2: layout
+        * 3: url
+        * 4: link target
+        * 5: contents
+        * 6: children
+        * 7: visible
+        */
+        foreach ($pChildren as $Node){
+            $oNode = new Node();
+            $oNode->setDomainId($pNode->getDomainId());
+            $oNode->setType($Node[0]);
+            $oNode->setTitle($Node[1]);
+            $oNode->setLayout($Node[2]);
+            $oNode->setUrl($Node[3]);
+            $oNode->setParentId($pNode->getId());
+            $oNode->insertAsLastChildOf($pNode);
+
+            if ($Node[4])
+                $oNode->setLink($Node[4]);
+
+            if ($Node[7] !== null)
+                $oNode->setVisible($Node[7]);
+            else
+                $oNode->setVisible(1);
+
+            $oNode->save();
+
+            if ($Node[5])
+                installContents($oNode, $Node[5]);
+
+            if ($Node[6]){
+                installNodes($oNode, $Node[6]);
+            }
+        }
+
+    }
+}
+
+
+if (!function_exists(__NAMESPACE__.'\installContents')){
+    /**
+     * @static
+     * @param Node $pNode
+     * @param array $pBoxedContents
+     */
+    function installContents($pNode, $pBoxedContents){
+
+        if (!is_array($pBoxedContents)) return;
+
+        /**
+         * 0: type74
+         * 1: title
+         * 2: template
+         * 3: content
+         *
+         */
+        foreach ($pBoxedContents as $boxId => $contents){
+            foreach ($contents as $content){
+
+                $oContent = new Content();
+
+                $oContent->setNodeId($pNode->getId());
+                $oContent->setBoxId($boxId);
+                $oContent->setType($content[0]);
+                $oContent->setTitle($content[1]);
+                $oContent->setTemplate($content[2]);
+                $oContent->setContent($content[3]);
+                $oContent->save();
+
+            }
+        }
+
+    }
+}
+
+
+
+
+
 /*
 * 0: type
 * 1: Title
@@ -188,95 +283,10 @@ if ($h) {
 dbUpdate('system_langs', array('code' => 'en'), array('visible' => 1));
 
 
-
-
-/**
- * @static
- * @param Node $pNode
- * @param array $pChildren
- */
-function installNodes($pNode, $pChildren){
-
-    /*
-    * 0: type
-    * 1: Title
-    * 2: layout
-    * 3: url
-    * 4: link target
-    * 5: contents
-    * 6: children
-    * 7: visible
-    */
-    foreach ($pChildren as $Node){
-        $oNode = new Node();
-        $oNode->setDomainId($pNode->getDomainId());
-        $oNode->setType($Node[0]);
-        $oNode->setTitle($Node[1]);
-        $oNode->setLayout($Node[2]);
-        $oNode->setUrl($Node[3]);
-        $oNode->setParentId($pNode->getId());
-        $oNode->insertAsLastChildOf($pNode);
-
-        if ($Node[4])
-            $oNode->setLink($Node[4]);
-
-        if ($Node[7] !== null)
-            $oNode->setVisible($Node[7]);
-        else
-            $oNode->setVisible(1);
-
-        $oNode->save();
-
-        if ($Node[5])
-            installContents($oNode, $Node[5]);
-
-        if ($Node[6]){
-            installNodes($oNode, $Node[6]);
-        }
-    }
-
-}
-
-
-/**
- * @static
- * @param Node $pNode
- * @param array $pBoxedContents
- */
-function installContents($pNode, $pBoxedContents){
-
-    if (!is_array($pBoxedContents)) return;
-
-    /**
-     * 0: type74
-     * 1: title
-     * 2: template
-     * 3: content
-     *
-     */
-    foreach ($pBoxedContents as $boxId => $contents){
-        foreach ($contents as $content){
-
-            $oContent = new Content();
-
-            $oContent->setNodeId($pNode->getId());
-            $oContent->setBoxId($boxId);
-            $oContent->setType($content[0]);
-            $oContent->setTitle($content[1]);
-            $oContent->setTemplate($content[2]);
-            $oContent->setContent($content[3]);
-            $oContent->save();
-
-        }
-    }
-
-}
-
-
 //search footer id
 $footerNavi = NodeQuery::create()->findOneByTitle('Footer Navigation');
 $footerText = NodeQuery::create()->findOneByTitle('Footer text');
 
-$domainThemeProperties = new Core\Properties('{"th_krynDemo":{"Kryn Demo":{"logo":"th_krynDemo/images/logo.png","title":"BUSINESSNAME","slogan":"Business Slogan comes here!","footer_deposit":"'.$footerText->getId().'","search_Node":"12","footer_navi":"'.$footerNavi->getId().'"}}}');
+$domainThemeProperties = new \Core\Properties('{"th_krynDemo":{"Kryn Demo":{"logo":"th_krynDemo/images/logo.png","title":"BUSINESSNAME","slogan":"Business Slogan comes here!","footer_deposit":"'.$footerText->getId().'","search_Node":"12","footer_navi":"'.$footerNavi->getId().'"}}}');
 $domain->setThemeProperties($domainThemeProperties);
 $domain->save();

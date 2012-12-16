@@ -523,12 +523,13 @@ class PropelHelper {
 propel.database = '.$adapter.'
 propel.database.url = '.$dsn.'
 propel.database.user = '.Kryn::$config['database']['user'].'
-propel.database.password = '.Kryn::$config['database']['passwd'].'
+propel.database.password = '.Kryn::$config['database']['password'].'
 propel.tablePrefix = '.Kryn::$config['database']['prefix'].'
 propel.database.encoding = utf8
 propel.project = kryn';
 
-        return file_put_contents($tmp . 'propel/build.properties', $properties)?true:false;
+        file_put_contents($tmp . 'propel/build.properties', $properties)?true:false;
+
     }
 
 

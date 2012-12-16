@@ -33,7 +33,7 @@ spl_autoload_register(function ($pClass) {
     $ext = strtolower(substr($pClass, 0, $sPos = strpos($pClass, '\\')));
     $clazz = substr($pClass, $sPos+1);
 
-    if (file_exists($clazz = Kryn::getModuleDir($ext).'model/'.$clazz.'.php')){
+    if (file_exists($clazz = PATH.Kryn::getModuleDir($ext).'model/'.$clazz.'.php')){
         include $clazz;
         chdir($cwd);
         return true;
