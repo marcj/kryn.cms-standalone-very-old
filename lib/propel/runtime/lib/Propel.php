@@ -30,7 +30,7 @@ class Propel
     /**
      * The Propel version.
      */
-    const VERSION = '1.6.7-dev';
+    const VERSION = '1.6.7';
 
     /**
      * A constant for <code>default</code>.
@@ -282,15 +282,15 @@ class Propel
     /**
      * Configure Propel a PHP (array) config file.
      *
-     * @param      string|array Path (absolute or relative to include_path) to config file or config as array.
+     * @param      string Path (absolute or relative to include_path) to config file.
      *
      * @throws PropelException If configuration file cannot be opened.
      *                             (E_WARNING probably will also be raised by PHP)
      */
     public static function configure($configFile)
     {
-        $configuration = $configFile;
 
+        $configuration = $configFile;
         if (is_string($configFile)){
             $configuration = include($configFile);
             if ($configuration === false) {

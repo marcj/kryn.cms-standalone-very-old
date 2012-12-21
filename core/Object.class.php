@@ -335,11 +335,10 @@ class Object {
      * @param array  $pOptions
      * @return array|bool
      */
-    public static function get($pObjectKey, $pPrimaryKey, $pOptions = array()){
+    public static function get($pObjectKey, $pPk, $pOptions = array()){
 
         $obj = self::getClass($pObjectKey);
-
-        $primaryKey = $obj->normalizePrimaryKey($pPrimaryKey);
+        $primaryKey = $obj->normalizePrimaryKey($pPk);
 
         if (!$pOptions['fields']){
             if ($obj->definition['defaultSelection'])
@@ -571,7 +570,7 @@ class Object {
      * @param  array $pOptions
      * @return boolean
      */
-    public static function update($pObjectKey, $pPk, $pValues, $pOptions){
+    public static function update($pObjectKey, $pPk, $pValues, $pOptions = null){
 
         if ($pOptions['permissionCheck']){
             foreach ($pValues as $fieldName => $value){
@@ -582,7 +581,8 @@ class Object {
         }
 
         $obj = self::getClass($pObjectKey);
-        return $obj->update($pPk, $pValues);
+        $primaryKey = $obj->normalizePrimaryKey($pPk);
+        return $obj->update($primaryKey, $pValues);
     }
 
     public static function removeFromUri($pObjectUri){
@@ -593,7 +593,8 @@ class Object {
 
     public static function remove($pObjectKey, $pPk){
         $obj = self::getClass($pObjectKey);
-        return $obj->remove($pPk);
+        $primaryKey = $obj->normalizePrimaryKey($pPk);
+        return $obj->remove($primaryKey);
     }
 
     /*

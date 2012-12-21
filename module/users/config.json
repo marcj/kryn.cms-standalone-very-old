@@ -269,6 +269,9 @@
                 "settings": {
                     "type": "properties"
                 },
+                "widgets": {
+                    "type": "properties"
+                },
                 "activate": {
                     "label": "[[Active account]]",
                     "type": "checkbox"

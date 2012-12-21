@@ -13,6 +13,7 @@
  *
  * @author     François Zaninotto
  * @author     heltem <heltem@o2php.com>
+ * @author     rozwell
  * @package    propel.generator.behavior.sortable
  */
 class SortableBehaviorPeerBuilderModifier
@@ -35,9 +36,9 @@ class SortableBehaviorPeerBuilderModifier
         return strtolower($this->behavior->getColumnForParameter($name)->getName());
     }
 
-        protected function getColumnConstant($name)
+    protected function getColumnConstant($name)
     {
-        return strtoupper($this->behavior->getColumnForParameter($name)->getName());
+        return $this->behavior->getColumnForParameter($name)->getName();
     }
 
     protected function getColumnPhpName($name)
@@ -49,7 +50,11 @@ class SortableBehaviorPeerBuilderModifier
     {
         $this->builder = $builder;
         $this->objectClassname = $builder->getStubObjectBuilder()->getClassname();
-        $this->peerClassname = $builder->getStubPeerBuilder()->getClassname();
+        $this->peerClassname   = $builder->getStubPeerBuilder()->getClassname();
+        $this->queryClassname  = $builder->getStubQueryBuilder()->getClassname();
+
+        $builder->declareClassFromBuilder($builder->getStubObjectBuilder());
+        $builder->declareClassFromBuilder($builder->getStubQueryBuilder());
     }
 
     public function staticAttributes($builder)
@@ -338,18 +343,19 @@ public static function deleteList(\$scope, PropelPDO \$con = null)
         $script .= "
  * @param      PropelPDO \$con Connection to use.
  */
-public static function shiftRank(\$delta, \$first, \$last = null, " . ($useScope ? "\$scope = null, " : "") . "PropelPDO \$con = null)
+public static function shiftRank(\$delta, \$first = null, \$last = null, " . ($useScope ? "\$scope = null, " : "") . "PropelPDO \$con = null)
 {
     if (\$con === null) {
         \$con = Propel::getConnection($peerClassname::DATABASE_NAME, Propel::CONNECTION_WRITE);
     }
 
-    \$whereCriteria = new Criteria($peerClassname::DATABASE_NAME);
-    \$criterion = \$whereCriteria->getNewCriterion($peerClassname::RANK_COL, \$first, Criteria::GREATER_EQUAL);
-    if (null !== \$last) {
-        \$criterion->addAnd(\$whereCriteria->getNewCriterion($peerClassname::RANK_COL, \$last, Criteria::LESS_EQUAL));
+    \$whereCriteria = {$this->queryClassname}::create();
+    if (null !== \$first) {
+        \$whereCriteria->add($peerClassname::RANK_COL, \$first, Criteria::GREATER_EQUAL);
     }
-    \$whereCriteria->add(\$criterion);";
+    if (null !== \$last) {
+        \$whereCriteria->addAnd($peerClassname::RANK_COL, \$last, Criteria::LESS_EQUAL);
+    }";
         if ($useScope) {
             $script .= "
     \$whereCriteria->add($peerClassname::SCOPE_COL, \$scope, Criteria::EQUAL);";

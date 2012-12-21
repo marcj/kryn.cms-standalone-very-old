@@ -822,7 +822,7 @@ class Criteria implements IteratorAggregate
             $firstCriterion->$operatorMethod($criterion);
         }
         if ($name === null) {
-            $this->add($firstCriterion, null, null);
+            $this->addAnd($firstCriterion, null, null);
         } else {
             $this->addCond($name, $firstCriterion, null, null);
         }
@@ -1399,7 +1399,7 @@ class Criteria implements IteratorAggregate
         if ( isset ( $this->map[$key] ) ) {
             $removed = $this->map[$key];
             unset ( $this->map[$key] );
-            if ( $removed instanceof Criterion ) {
+            if ($removed instanceof Criterion) {
                 return $removed->getValue();
             }
 

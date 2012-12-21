@@ -55,7 +55,7 @@ $settings = new \Core\Properties(array(
 $admin->setSettings($settings);
 $admin->save();
 
-$id = $admin->getId(0);
+$id = $admin->getId();
 dbUpdate('system_user', array('id' => $id), array('id' => 1));
 $admin->setId(1);
 

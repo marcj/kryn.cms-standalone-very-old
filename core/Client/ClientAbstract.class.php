@@ -376,8 +376,6 @@ abstract class ClientAbstract {
      */
     public function createSession() {
 
-        $session = false;
-
         for ($i = 1; $i <= 25; $i++) {
             $session = $this->createSessionById($this->generateSessionId());
 
@@ -436,6 +434,7 @@ abstract class ClientAbstract {
                 $session->save();
             } catch (\Exception $e){
                 Utils::appRelease('ClientCreateSession');
+                throw $e;
                 return false;
             }
         } else {

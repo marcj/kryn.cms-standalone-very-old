@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <database>
-  <table name="publication_news" phpName="News">
+  <table name="publication_news" phpName="News" allowPkInsert="true">
     <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true"/>
     <column name="title" type="VARCHAR"/>
-    <column name="category_id"/>
+    <column name="category_id" type="INTEGER"/>
     <column name="files" type="LONGVARCHAR"/>
     <column name="lang" type="VARCHAR" size="3"/>
     <column name="intro" type="LONGVARCHAR"/>
@@ -19,5 +19,12 @@
     <vendor type="mysql">
       <parameter name="Charset" value="utf8"/>
     </vendor>
+     <behavior name="workspace" />
+    <column name="created"/>
+    <column name="modified"/>
+  </table>
+  <table name="publication_news_category" phpName="NewsCategory" allowPkInsert="true">
+    <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true"/>
+    <column name="title" type="VARCHAR"/>
   </table>
 </database>

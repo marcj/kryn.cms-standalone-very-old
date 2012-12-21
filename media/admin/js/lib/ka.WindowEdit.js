@@ -126,7 +126,7 @@ ka.WindowEdit = new Class({
         if (this.lastRq)
             this.lastRq.cancel();
 
-        this.win.setLoading(true, null, {left: this.container.getStyle('left')});
+        this.win.setLoading(true, null, this.container.getCoordinates(this.win));
 
         this.lastRq = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code,
         noCache: true, onComplete: function (res) {
@@ -541,8 +541,21 @@ ka.WindowEdit = new Class({
 
     remove: function(){
 
+
         this.win.confirm(tf('Really delete %s?', this.getTitleValue()), function(answer){
 
+
+            this.win.setLoading(true, null, this.container.getCoordinates(this.win));
+
+            var object = ka.getObjectUrlId(this.classProperties['object'], this.winParams.item);
+            var objectId = '?object='+object;
+
+            this.lastDeleteRq = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code+objectId,
+            onComplete: function(pResponse){
+
+                logger(pResponse);
+
+            }}).delete();
 
 
         }.bind(this));
@@ -694,7 +707,7 @@ ka.WindowEdit = new Class({
 
     retrieveData: function (pWithoutEmptyCheck) {
 
-        if (!pWithoutEmptyCheck && !this.parserObject.isValid()){
+        if (!pWithoutEmptyCheck && !this.parserObject.checkValid()){
             var invalidFields = this.parserObject.getInvalidFields();
 
             Object.each(invalidFields, function (item, fieldId) {
@@ -721,40 +734,6 @@ ka.WindowEdit = new Class({
 
             return false;
         }
-
-        /*
-        Object.each(this.fields, function (item, fieldId) {
-
-            if (!instanceOf(item, ka.Field)) return;
-
-            if (!pWithoutEmptyCheck && !item.isHidden() && !item.isValid()) {
-
-                var properTabKey = this.fieldToTabOIndex[fieldId];
-                if (!properTabKey) return;
-                var tabButton = this.fields[properTabKey];
-
-                if (tabButton && !tabButton.isPressed()){
-
-                    tabButton.startTip(t('Please fill!'));
-                    tabButton.toolTip.loader.set('src', _path + PATH_MEDIA + '/admin/images/icons/error.png');
-                    tabButton.toolTip.loader.setStyle('position', 'relative');
-                    tabButton.toolTip.loader.setStyle('top', '-2px');
-                    document.id(tabButton.toolTip).setStyle('top', document.id(tabButton.toolTip).getStyle('top').toInt()+2);
-
-                    tabButton.addEvent('click', this.removeTooltip);
-                } else {
-                    tabButton.stopTip();
-                }
-
-                item.highlight();
-
-                go = false;
-            }
-
-        }.bind(this));
-
-        if (!go) return false;
-         */
 
         var req = this.parserObject.getValue();
 

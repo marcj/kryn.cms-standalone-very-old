@@ -43,17 +43,14 @@ class NestedSetBehaviorObjectBuilderModifier
     protected function setBuilder($builder)
     {
         $this->builder = $builder;
-        $this->objectClassname = $builder->getStubObjectBuilder()->getClassname();
-        $this->queryClassname = $builder->getStubQueryBuilder()->getClassname();
-        $this->peerClassname = $builder->getStubPeerBuilder()->getClassname();
-    }
 
-    /*
-    public function objectFilter(&$script, $builder)
-    {
-        $script = str_replace('implements Persistent', 'implements Persistent, NodeObject', $script);
+        $this->objectClassname = $builder->getStubObjectBuilder()->getClassname();
+        $this->queryClassname  = $builder->getStubQueryBuilder()->getClassname();
+        $this->peerClassname   = $builder->getStubPeerBuilder()->getClassname();
+
+        $this->builder->declareClass($builder->getStubObjectBuilder()->getFullyQualifiedClassname());
+        $this->builder->declareClass($builder->getStubQueryBuilder()->getFullyQualifiedClassname());
     }
-    */
 
     public function objectAttributes($builder)
     {
@@ -716,7 +713,7 @@ public function addNestedSetChild($objectName)
     if (\$this->collNestedSetChildren === null) {
         \$this->initNestedSetChildren();
     }
-    if (!\$this->collNestedSetChildren->contains($objectName)) { // only add it if the **same** object is not already associated
+    if (!in_array($objectName, \$this->collNestedSetChildren->getArrayCopy(), true)) { // only add it if the **same** object is not already associated
         \$this->collNestedSetChildren[]= $objectName;
         {$objectName}->setParent(\$this);
     }

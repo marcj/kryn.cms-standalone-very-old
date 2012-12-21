@@ -110,7 +110,7 @@ abstract class ORMAbstract {
     public function normalizePrimaryKey($pPrimaryKey){
         if (!is_array($pPrimaryKey)){
             $result = array();
-            $result[current($this->primaryKeys)] = $pPrimaryKey;
+            $result[$this->primaryKeys[0]] = $pPrimaryKey;
             return $result;
         } else if (is_numeric(key($pPrimaryKey))){
             $result = array();

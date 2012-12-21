@@ -13,6 +13,7 @@ class ObjectWindowController extends Server {
     public $entryPoint;
 
     public function exceptionHandler($pException){
+        die('asd');
         if (get_class($pException) != 'AccessDeniedException')
             \Core\Utils::exceptionHandler($pException);
     }
@@ -48,7 +49,7 @@ class ObjectWindowController extends Server {
 
                 $this
                     ->addGetRoute($trigger, 'getItems')
-                    ->addPostRoute($trigger, 'saveItem')
+                    ->addPostRoute($trigger, 'updateItem')
                     ->addPutRoute($trigger, 'addItem')
                     ->addDeleteRoute($trigger, 'removeItem')
                     ->addOptionsRoute($trigger, 'getInfo');
@@ -60,6 +61,11 @@ class ObjectWindowController extends Server {
     }
 
 
+    /**
+     * Translate the label/title item of $fields.
+     *
+     * @param $pFields
+     */
     public function translateFields(&$pFields){
 
         if (is_array($pFields)){
@@ -78,22 +84,56 @@ class ObjectWindowController extends Server {
 
     }
 
-    public function saveItem($pObject = null){
+    /**
+     * Proxy method for REST DELETE to remove().
+     *
+     * @param string $pObject
+     * @return mixed
+     */
+    public function removeItem($pObject = null){
+
+        $obj = $this->getObj();
+        $pk = \Core\Object::parsePk($obj->getObject(), $pObject);
+
+        return $obj->remove($pk[0]);
+    }
+
+    /**
+     * Proxy method for REST POST to update().
+     *
+     * @param null $pObject
+     * @return mixed
+     */
+    public function updateItem($pObject = null){
 
         $obj = $this->getObj();
 
         $pk = \Core\Object::parsePk($obj->getObject(), $pObject);
 
-        return $obj->saveItem($pk[0]);
+        return $obj->update($pk[0]);
     }
 
+    /**
+     * Proxy method for REST PUT to add().
+     *
+     * @return mixed
+     */
     public function addItem(){
 
         $obj = $this->getObj();
 
-        return $obj->addItem();
+        return $obj->add();
     }
 
+    /**
+     * Proxy method for REST GET to getItem/getItems/getPosition.
+     *
+     * @param string $pObject
+     * @param int $pLimit
+     * @param int $pOffset
+     * @param int $pGetPosition
+     * @return mixed
+     */
     public function getItems($pObject = null, $pLimit = null, $pOffset = null, $pGetPosition = null){
 
         $obj = $this->getObj();
@@ -111,6 +151,11 @@ class ObjectWindowController extends Server {
 
     }
 
+    /**
+     * Returns the class definition/properties of the class behind this REST endpoint.
+     *
+     * @return mixed
+     */
     public function getInfo(){
 
         $obj = $this->getObj();
@@ -118,11 +163,15 @@ class ObjectWindowController extends Server {
     }
 
 
+    /**
+     * Returns the class object, depended on the current entryPoint.
+     *
+     * @return mixed
+     * @throws \Exception
+     */
     public function getObj() {
 
         $class = $this->entryPoint['class'];
-
-        $module2LoadClass = $this->entryPoint['_module'];
 
         if (class_exists($class)){
             $obj = new $class($this->entryPoint);

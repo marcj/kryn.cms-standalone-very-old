@@ -10,6 +10,7 @@
     <column name="email" type="VARCHAR"/>
     <column name="desktop" type="OBJECT"/>
     <column name="settings" type="OBJECT"/>
+    <column name="widgets" type="OBJECT"/>
     <column name="activate" type="BOOLEAN"/>
     <column name="logins" type="INTEGER"/>
     <column name="lastlogin" type="INTEGER"/>

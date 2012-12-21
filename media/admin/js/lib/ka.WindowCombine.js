@@ -1107,10 +1107,10 @@ ka.WindowCombine = new Class({
         } else {
 
             if (this.classProperties.columns.title) {
-                layout += '<h2>{item.title}</h2>';
+                layout += '<h2>{title}</h2>';
                 titleAdded = true;
             } else if (this.classProperties.columns.name) {
-                layout += '<h2>{item.name}</h2>';
+                layout += '<h2>{name}</h2>';
                 nameAdded = true;
             }
 
@@ -1128,7 +1128,7 @@ ka.WindowCombine = new Class({
                     layout += ', ';
                 }
 
-                layout += "<span>{item."+id+"}</span>";
+                layout += "<span>{"+id+"}</span>";
                 c++;
 
             }.bind(this));
@@ -1153,6 +1153,8 @@ ka.WindowCombine = new Class({
             true
         );
 
+        logger(item);
+        logger(data);
         mowla.render(item, data);
 
         if (this.classProperties.remove == true) {

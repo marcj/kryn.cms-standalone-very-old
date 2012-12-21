@@ -560,12 +560,17 @@ class ModelCriteria extends Criteria
 
         // Add requested columns which are not withColumns
         $columnNames = is_array($this->select) ? $this->select : array($this->select);
+        // temporary store columns Alias or withColumn
+        $asColumns = $this->getAsColumns();
+        $this->asColumns = array();
         foreach ($columnNames as $columnName) {
             // check if the column was added by a withColumn, if not add it
-            if (!array_key_exists($columnName, $this->getAsColumns())) {
+            if (!array_key_exists($columnName, $asColumns)) {
                 $column = $this->getColumnFromName($columnName);
                 // always put quotes around the columnName to be safe, we strip them in the formatter
                 $this->addAsColumn('"' . $columnName . '"', $column[1]);
+            } else {
+                $this->addAsColumn($columnName, $asColumns[$columnName]);
             }
         }
     }
@@ -1325,42 +1330,6 @@ class ModelCriteria extends Criteria
         }
 
         return $stmt;
-    }
-
-
-
-    public function getSql()
-    {
-
-        // check that the columns of the main class are already added (if this is the primary ModelCriteria)
-        if (!$this->hasSelectClause() && !$this->getPrimaryCriteria()) {
-            $this->addSelfSelectColumns();
-        }
-        $this->configureSelectColumns();
-
-        $params = array();
-        $sql = BasePeer::createSelectSql($this, $params);
-
-        return array($sql, $params);
-    }
-
-    public function bindValues($sql, $params){
-
-        $con = Propel::getConnection($this->getDbName(), Propel::CONNECTION_READ);
-
-        $dbMap = Propel::getDatabaseMap($this->getDbName());
-        $db = Propel::getDB($this->getDbName());
-
-        try {
-            $stmt = $con->prepare($sql);
-            $db->bindValues($stmt, $params, $dbMap);
-        } catch (Exception $e) {
-            Propel::log($e->getMessage(), Propel::LOG_ERR);
-            throw new PropelException(sprintf('Unable to bind statement [%s]', $sql), $e);
-        }
-
-        return $stmt;
-
     }
 
     /**
@@ -2282,5 +2251,14 @@ class ModelCriteria extends Criteria
             Propel::log($e->getMessage(), Propel::LOG_ERR);
             throw new PropelException('Unable to execute query explain plan', $e);
         }
+    }
+
+    /**
+     * @param  PropelPDO $con = null
+     * @return boolean
+     */
+    public function exists($con = null)
+    {
+        return 0 !== $this->count($con);
     }
 }

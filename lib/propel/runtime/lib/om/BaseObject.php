@@ -138,7 +138,7 @@ abstract class BaseObject
     /**
      * Code to be run before persisting the object
      * @param  PropelPDO $con
-     * @return bloolean
+     * @return boolean
      */
     public function preSave(PropelPDO $con = null)
     {
@@ -149,71 +149,87 @@ abstract class BaseObject
      * Code to be run after persisting the object
      * @param PropelPDO $con
      */
-    public function postSave(PropelPDO $con = null) { }
+    public function postSave(PropelPDO $con = null)
+    {
+    }
 
-        /**
-         * Code to be run before inserting to database
-         * @param PropelPDO $con
-         * @return boolean
-         */
-        public function preInsert(PropelPDO $con = null)
-        {
-            return true;
-        }
+    /**
+     * Code to be run before inserting to database
+     * @param  PropelPDO $con
+     * @return boolean
+     */
+    public function preInsert(PropelPDO $con = null)
+    {
+        return true;
+    }
 
     /**
      * Code to be run after inserting to database
      * @param PropelPDO $con
      */
-    public function postInsert(PropelPDO $con = null) { }
+    public function postInsert(PropelPDO $con = null)
+    {
+    }
 
-        /**
-         * Code to be run before updating the object in database
-         * @param PropelPDO $con
-         * @return boolean
-         */
-        public function preUpdate(PropelPDO $con = null)
-        {
-            return true;
-        }
+    /**
+     * Code to be run before updating the object in database
+     * @param  PropelPDO $con
+     * @return boolean
+     */
+    public function preUpdate(PropelPDO $con = null)
+    {
+        return true;
+    }
 
     /**
      * Code to be run after updating the object in database
      * @param PropelPDO $con
      */
-    public function postUpdate(PropelPDO $con = null) { }
+    public function postUpdate(PropelPDO $con = null)
+    {
+    }
 
-        /**
-         * Code to be run before deleting the object in database
-         * @param PropelPDO $con
-         * @return boolean
-         */
-        public function preDelete(PropelPDO $con = null)
-        {
-            return true;
-        }
+    /**
+     * Code to be run before deleting the object in database
+     * @param  PropelPDO $con
+     * @return boolean
+     */
+    public function preDelete(PropelPDO $con = null)
+    {
+        return true;
+    }
 
     /**
      * Code to be run after deleting the object in database
      * @param PropelPDO $con
      */
-    public function postDelete(PropelPDO $con = null) { }
+    public function postDelete(PropelPDO $con = null)
+    {
+    }
 
-        /**
-         * Sets the modified state for the object to be false.
-         * @param      string $col If supplied, only the specified column is reset.
-         * @return     void
-         */
-        public function resetModified($col = null)
-        {
-            if ($col !== null) {
-                while (($offset = array_search($col, $this->modifiedColumns)) !== false) {
-                    array_splice($this->modifiedColumns, $offset, 1);
-                }
-            } else {
-                $this->modifiedColumns = array();
+    /**
+     * Code to be run after deleting the object in database
+     * @param PropelPDO $con
+     */
+    public function postHydrate($row, $startcol = 0, $rehydrate = false)
+    {
+    }
+
+    /**
+     * Sets the modified state for the object to be false.
+     * @param  string $col If supplied, only the specified column is reset.
+     * @return void
+     */
+    public function resetModified($col = null)
+    {
+        if ($col !== null) {
+            while (($offset = array_search($col, $this->modifiedColumns)) !== false) {
+                array_splice($this->modifiedColumns, $offset, 1);
             }
+        } else {
+            $this->modifiedColumns = array();
         }
+    }
 
     /**
      * Compares this with another <code>BaseObject</code> instance.  If
@@ -240,19 +256,18 @@ abstract class BaseObject
     }
 
     /**
-     * If the primary key is not <code>null</code>, return the hashcode of the
-     * primary key.  Otherwise calls <code>Object.hashCode()</code>.
+     * If the primary key is not null, return the hashcode of the
+     * primary key. Otherwise, return the hash code of the object.
      *
      * @return int Hashcode
      */
     public function hashCode()
     {
-        $ok = $this->getPrimaryKey();
-        if ($ok === null) {
-            return crc32(serialize($this));
+        if (null !== $this->getPrimaryKey()) {
+            return crc32(serialize($this->getPrimaryKey()));
         }
 
-        return crc32(serialize($ok)); // serialize because it could be an array ("ComboKey")
+        return crc32(serialize($this));
     }
 
     /**
@@ -320,6 +335,14 @@ abstract class BaseObject
         return Propel::log(get_class($this) . ': ' . $msg, $priority);
     }
 
+
+    /**
+     * Hydrates (populates) the object variables with values from the database resultset
+     * by a named array.
+     *
+     * @param array $row
+     * @param $fromType
+     */
     public function hydrateFromNames($row, $fromType){
 
         $numrow = array();
@@ -334,6 +357,7 @@ abstract class BaseObject
         $this->hydrate($numrow);
 
     }
+
 
     /**
      * Populate the current object from a string, using a given parser format

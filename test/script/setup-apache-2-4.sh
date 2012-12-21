@@ -9,7 +9,7 @@ cd BUILDPATH;
 
 
 ####
-# php5.3
+# php5.4
 ####
 wget http://de1.php.net/distributions/php-5.4.9.tar.bz2;
 tar xf php-5.4.9.tar.bz2;
@@ -96,4 +96,4 @@ EOF
 
 chmod +x php-fcgi;
 
-echo "Buil done. Should work.";
+echo "Build done. Should work.";

@@ -721,8 +721,8 @@ class Kryn {
             return Kryn::$domain->getLang();
         } else if ( getArgv(1) == 'admin' && getArgv('lang', 2)) {
             return getArgv('lang', 2);
-        } else if (Kryn::$adminClient) {
-            return Kryn::$adminClient->getSession()->getLanguage();
+        } else if (Kryn::getAdminClient() && Kryn::getAdminClient()->getSession()) {
+            return Kryn::getAdminClient()->getSession()->getLanguage();
         }
         return 'en';
 

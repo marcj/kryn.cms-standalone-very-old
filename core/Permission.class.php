@@ -89,6 +89,8 @@ class Permission {
             $rules[] = $rule;
         }
 
+        dbFree($res);
+
         self::$cache[$pObjectKey.'_'.$pMode] = $rules;
         return self::$cache[$pObjectKey.'_'.$pMode];
     }

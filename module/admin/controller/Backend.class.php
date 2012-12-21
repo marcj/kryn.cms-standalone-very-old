@@ -212,14 +212,7 @@ class Backend {
         }
 
         if ($loadKeys == false || in_array('domains', $loadKeys)){
-            $res['domains'] = array();
-            $qr = dbExec('SELECT * FROM '.pfx.'system_domain ORDER BY domain');
-            while ($row = dbFetch($qr)) {
-                //todo
-                //if (Core\Kryn::checkPageAcl($row['id'], 'showDomain', 'd')) {
-                //    $res['domains'][] = $row;
-                //}
-            }
+            $res['domains'] = \Core\Object::getList('Core\Domain', null, array('permissionCheck' => true));
         }
 
 

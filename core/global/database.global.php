@@ -190,21 +190,11 @@ function dbQuery($pQuery, $pParams = null) {
  */
 
 function dbExec($pQuery, $pParams = null) {
-    global $dbLastInsertedTable;
 
-    if (preg_match('/[\s\n\t]*INSERT[\t\n ]+INTO[\t\n ]+([a-z0-9\_\-]+)/is', $pQuery, $matches))
-        $dbLastInsertedTable = $matches[1];
-
-    if ($pParams !== null){
-        $sth = dbConnection()->prepare($pQuery);
-
-        if (!is_array($pParams)) $pParams = array($pParams);
-        $sth->execute($pParams);
-        $sth->closeCursor();
-        return $sth->rowCount();
-    } else {
-        return dbConnection()->exec($pQuery);
-    }
+    $stmt = dbQuery($pQuery, $pParams);
+    $int = $stmt->rowCount();
+    dbFree($stmt);
+    return $int;
 }
 
 /**
@@ -775,7 +765,6 @@ function dbPrimaryKeyToCondition($pCondition, $pObjectKey = null, $pTable = ''){
  */
 function dbConditionToSql($pConditions, &$pData, $pTablePrefix = '', $pObjectKey = '', &$pFieldNames = null){
 
-    $result = '';
     if ($pConditions === NULL) return '';
     if (!is_array($pConditions) && $pConditions !== false && $pConditions !== null) $pConditions = array($pConditions);
 
@@ -798,6 +787,176 @@ function dbConditionToSql($pConditions, &$pData, $pTablePrefix = '', $pObjectKey
 
     return dbFullConditionToSql($pConditions, $pData, $pTablePrefix, $pFieldNames);
 
+}
+
+/**
+ *
+ *
+ * @experimental Do not Use this.
+ * @param $pConditions
+ * @param string $pTablePrefix
+ * @param string $pObjectKey
+ */
+function dbFullConditionToCriteria($pConditions, $pObjectKey){
+
+    $criteria = new \Criteria;
+
+    $conds = array();
+    $where = array();
+    $peer = $pObjectKey.'Peer';
+
+    $dbMap = Propel::getDatabaseMap($peer::DATABASE_NAME);
+    $tableMap = $dbMap->getTable($peer::TABLE_NAME);
+
+    $criteria->setPrimaryTableName($pObjectKey);
+
+    $lastOperator = 'add';
+
+    if (is_array($pConditions)){
+        foreach ($pConditions as $condition){
+
+            if (is_array($condition) && is_array($condition[0])){
+
+
+                $lo = '';
+                $ncrit = new \Criteria();
+                $firstCriterion = null;
+                foreach ($condition as $sub){
+                    if (is_string($sub)){
+                        if (strtolower($sub) == 'or')
+                            $criteria->_or();
+                    } else {
+                        $f = $sub[0];
+
+                        if (($pos = strpos($f, '.')) === false && $pObjectKey)
+                            $field = $pObjectKey.'.'.$f;
+                        else
+                            $tableMap->getColumn($f)->getFullyQualifiedName();
+
+                        $nCriterion = new \Criterion($criteria, $f, $sub[2], $sub[1]);
+
+                        if (!$firstCriterion)
+                            $firstCriterion = $nCriterion;
+                        else
+                            $firstCriterion->addAnd($nCriterion);
+                    }
+                }
+
+                $criteria->add($firstCriterion);
+
+                //
+                //$conds['cond'.count($conds)] = dbFullConditionToCriteria($condition, $pTablePrefix);
+                //$lastCriteria = dbFullConditionToCriteria($condition, $pObjectKey);
+                //$result .= ' ('.dbFullConditionToCriteria($condition, $pTablePrefix).')';
+                //var_dump($lastCriteria->toString());
+                //$criteria->add($lastCriteria);
+
+
+//                22
+//                $temp = array();
+//                $c = 0;
+//                $cg = 0;
+//                $op = 'and';
+//                foreach ($condition as $sub){
+//
+//                    if (is_string($sub)){
+//                        $op = strtolower($sub);
+//                    } else {
+//                        $c++;
+//                        $criteria->addCond('cond'.$c, $sub[0], $sub[2], $sub[1]);
+//                        $temp[] = 'cond'.$c;
+//                    }
+//                    var_dump($temp);
+//                    if (count($temp) == 2){
+//                        $cg++;
+//                        $criteria->combine($temp, $op, 'condgroup'.$cg);
+//                        $temp = array();
+//                    }
+//                }
+//                if (count($temp) == 1)
+//                    $criteria->combine($temp, $op);
+//                $temp2 = array();
+//
+//
+//                bla AND (foo OR bar)
+//                bla AND  foo OR bar
+//
+//                true AND (true OR false) => true
+//                true and true or false   => true
+//
+//                false AND (false or true) => false
+//                false AND false or true   => true
+//
+//                for($i=0;$i<$cg;$i++){
+//                    $temp2[] = 'condgroup'.$i;
+//                    if (count($temp2) == 2){
+//                        $criteria->combine($temp2,)
+//                    }
+//                }
+
+
+
+
+
+
+                //$criteria->$lastOperator($lastCriteria);
+
+            } else if (is_array($condition)){
+
+                //$lastCriteria = new \Criterion();
+                $field = $condition[0];
+
+                if (($pos = strpos($field, '.')) === false && $pObjectKey)
+                    $field = $pObjectKey.'.'.$field;
+                else
+                    $tableMap->getColumn($field)->getFullyQualifiedName();
+
+                $criteria->$lastOperator($field, $condition[2], $condition[1]);
+                //$result .= dbConditionSingleField($condition, $pData, $pTablePrefix, $pFieldNames);
+
+            } else if (is_string($condition)){
+
+                $lastOperator = (strtolower($condition) == 'and') ? 'addAnd' : 'addOr';
+                //$criteria->$operatorMethod($lastCriteria, null, null);
+            }
+
+        }
+        //$criteria->combine($conds);
+        //$criteria->addAnd();
+    }
+
+    return $criteria;
+
+}
+
+function dbConditionToCriteria($pConditions, $pObjectKey = ''){
+
+    if ($pConditions === NULL) return '';
+    if (!is_array($pConditions) && $pConditions !== false && $pConditions !== null) $pConditions = array($pConditions);
+
+    if (is_array($pConditions) && !is_numeric(key($pConditions))){
+        //array( 'bla' => 'hui' );
+        //we have a structure like in dbPrimaryKeyToConditionToSql, so call it
+        return dbFullConditionToCriteria(dbPrimaryKeyToCondition($pConditions, $pObjectKey), $pObjectKey);
+    }
+
+    if (is_array($pConditions) && is_numeric(key($pConditions)) && is_string($pConditions[0])){
+        $pConditions = array($pConditions);
+    }
+
+
+    if (is_array($pConditions[0]) && !is_numeric(key($pConditions[0]))){
+        //array( array('bla' => 'bla', ... );
+        //we have a structure like in dbPrimaryKeyToConditionToSql, so call it
+        return dbFullConditionToCriteria(dbPrimaryKeyToCondition($pConditions, $pObjectKey), $pObjectKey);
+    }
+
+    if (!is_array($pConditions[0])){
+        //array( 1, 2, 3 );
+        return dbFullConditionToCriteria(dbPrimaryKeyToCondition($pConditions, $pObjectKey), $pObjectKey);
+    }
+
+    return dbFullConditionToCriteria($pConditions, $pObjectKey);
 }
 
 /**
@@ -825,10 +984,6 @@ function dbFullConditionToSql($pConditions, &$pData, $pTablePrefix, &$pFieldName
             }
 
         }
-    } else {
-        //only one condition, ex: array('id', '>', 0)
-        $result = dbFullConditionToSql($pConditions, $pData, $pTablePrefix, $pFieldNames);
-
     }
 
     return $result;

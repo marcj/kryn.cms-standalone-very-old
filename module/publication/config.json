@@ -17,7 +17,7 @@
     "admin": {
         "news": {
             "title": "[[Articles]]",
-            "class": "Publication\\Admin\\NewsList",
+            "class": "Publication\\Admin\\NewsCrud",
             "type": "combine",
             "icon": "#icon-newspaper",
             "isLink": true,
@@ -25,23 +25,17 @@
             "children": {
                 "add": {
                     "title": "[[Add]]",
-                    "class": "publicationNewsAdd",
+                    "class": "Publication\\Admin\\NewsCrud",
                     "type": "add",
                     "isLink": false,
-                    "multi": true,
-                    "children": [
-                        
-                    ]
+                    "multi": true
                 },
                 "edit": {
                     "title": "[[Edit]]",
-                    "class": "publicationNewsEdit",
+                    "class": "Publication\\Admin\\NewsCrud",
                     "type": "edit",
                     "isLink": false,
-                    "multi": true,
-                    "children": [
-                        
-                    ]
+                    "multi": true
                 },
                 "category": {
                     "title": "[[Category]]",
@@ -353,14 +347,12 @@
                     "primaryKey": 0,
                     "empty": 1
                 },
-                "category_id": {
+                "categoryId": {
                     "label": "[[Category]]",
-                    "object": "news_category",
+                    "object": "Publication\\NewsCategory",
                     "objectLabel": "title",
                     "objectRelation": "nTo1",
-                    "type": "object",
-                    "primaryKey": 0,
-                    "empty": 1
+                    "type": "object"
                 },
                 "files": {
                     "label": "Attachments",
@@ -441,6 +433,20 @@
                 }
             },
             "label": "[[Article]]"
+        },
+        "NewsCategory": {
+            "fields": {
+                "id": {
+                    "type": "number",
+                    "primaryKey": true,
+                    "autoIncrement": true
+                },
+                "title": {
+                    "label": "[[Title]]",
+                    "type": "text"
+                }
+            },
+            "label": "[[Article category]]"
         }
     },
     "db": {

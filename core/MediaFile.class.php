@@ -264,10 +264,10 @@ class MediaFile {
         if (!$file) return null;
 
         if (static::$checkObject){
-            $item = \FileQuery::create()->filterByPath($pPath)->orderById()->findOne();
+            $item = FileQuery::create()->filterByPath($pPath)->orderById()->findOne();
             if (!$item){
                 //insert
-                $item = new \File();
+                $item = new File();
                 $item->setPath($pPath);
                 $item->setHash($fs->getMd5($path));
                 $item->save();

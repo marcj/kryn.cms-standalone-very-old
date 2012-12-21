@@ -212,6 +212,16 @@ class ColumnMap
   }
 
   /**
+   * Whether this column is an integer
+   *
+   * @return boolean
+   */
+  public function isInteger()
+  {
+    return $this->getPdoType() === PDO::PARAM_INT;
+  }
+
+  /**
    * Whether this column is a text column (varchar, char, longvarchar).
    * @return     boolean
    */
@@ -472,7 +482,7 @@ class ColumnMap
   /**
    * Normalizes the column name, removing table prefix and uppercasing.
    *
-   * article.first_name becomes FIRST_NAME
+   * article.first_name becomes first_name
    *
    * @param      string $name
    * @return     string Normalized column name.
@@ -482,7 +492,6 @@ class ColumnMap
     if (false !== ($pos = strrpos($name, '.'))) {
       $name = substr($name, $pos + 1);
     }
-    $name = strtoupper($name);
 
     return $name;
   }

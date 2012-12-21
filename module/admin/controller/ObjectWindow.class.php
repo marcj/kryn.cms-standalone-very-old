@@ -289,11 +289,12 @@ abstract class ObjectWindow {
         if (!$this->titleField)
             $this->titleField = $this->objectDefinition['label'];
 
-        //resolv shortcuts
+        //resolve shortcuts
         if ($this->fields)
             $this->prepareFieldDefinition($this->fields);
         if ($this->columns)
             $this->prepareFieldDefinition($this->columns);
+
 
         //do magic with type select and add all fields to _fields.
         $this->prepareFieldItem($this->fields);
@@ -692,7 +693,7 @@ abstract class ObjectWindow {
      *
      * @return mixed False if some went wrong or a array with the new primary keys.
      */
-    public function addItem(){
+    public function add(){
 
         //collect values
         $data = $this->collectData();
@@ -719,7 +720,16 @@ abstract class ObjectWindow {
         return $this->primaryKey;
     }
 
-    public function saveItem($pPk){
+
+
+    public function remove($pPk){
+        $this->primaryKey = $pPk;
+        $options['permissionCheck'] = $this->getPermissionCheck();
+        return \Core\Object::remove($this->object, $pPk, $options);
+    }
+
+
+    public function update($pPk){
 
         $this->primaryKey = $pPk;
 

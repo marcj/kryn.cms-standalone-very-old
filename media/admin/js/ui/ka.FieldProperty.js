@@ -171,7 +171,7 @@ ka.FieldProperty = new Class({
                     needValue: 'object',
                     type: 'select',
                     items: {
-                        '1ToN': 'One to Many',
+                        'nTo1': 'Many to One',
                         'nToM': 'Many to Many'
                     }
                 },
@@ -472,11 +472,13 @@ ka.FieldProperty = new Class({
             this.kaFields.type.children.object.type = 'select';
             this.kaFields.type.children.object.items = {};
 
-            Object.each(ka.settings.configs, function(config,extensionKey){
+            Object.each(ka.settings.configs, function(config, extensionKey){
                 if (config.objects){
+                    extensionKey = extensionKey.charAt(0).toUpperCase()+extensionKey.substr(1);
                     Object.each(config.objects, function(object,object_key){
+                        object_key = object_key.charAt(0).toUpperCase()+object_key.substr(1);
                         if ((this.options.asFrameworkFieldDefinition && object.selectable) || !this.options.asFrameworkFieldDefinition)
-                            this.kaFields.type.children.object.items[object_key] = object.title+" ("+object_key+")";
+                            this.kaFields.type.children.object.items[extensionKey+'\\'+object_key] = object.label+" ("+extensionKey+'\\'+object_key+")";
                     }.bind(this));
                 }
             }.bind(this));

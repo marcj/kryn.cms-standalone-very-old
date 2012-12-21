@@ -119,6 +119,7 @@ class PropelHelper {
         return $content;
     }
 
+    /*
     public static function collectObjectToExtension(){
 
 
@@ -142,11 +143,57 @@ class PropelHelper {
             }
         }
     }
-
+*/
 
     public static function moveClasses(){
 
         $tmp = self::getTempFolder();
+
+        $result = '';
+
+        foreach (Kryn::$extensions as $extension){
+
+            $targetDir = $tmp.'propel-classes/'.ucfirst($extension);
+            $source = $tmp.'propel/build/classes/'.ucfirst($extension);
+
+            $files = find($source.'/*.php');
+            if ($files && !mkdirr($source))
+                throw new \FileNotWritableException(tf('Can not create folder %s', $source));
+
+            foreach ($files as $file){
+
+                $target  = \Core\Kryn::getModuleDir($extension).'model/'.basename($file);
+
+                if (file_exists($target)) continue;
+
+                if (!is_dir($targetDir) && !mkdirr($targetDir))
+                    throw new \FileNotWritableException(tf('Can not create folder %s', $targetDir));
+
+                if (!copy($file, $target))
+                    throw new \FileNotWritableException(tf('Can not move file %s to %s', $source, $target));
+
+                $result .= "[move][$extension] Class moved ".basename($file)." to $targetDir\n";
+
+            }
+
+            $file = $source.'/om';
+            if (is_dir($file)){
+                $target = $tmp.'propel-classes/'.ucfirst($extension).'/om';
+                copyr($file, $target);
+                $result .= "[move][$extension] OM folder moved ".basename($file)." to $target\n";
+            }
+
+            $file = $source.'/map';
+            if (is_dir($file)){
+                $target = $tmp.'propel-classes/'.ucfirst($extension).'/map';
+                copyr($file, $target);
+                $result .= "[move][$extension] MAP folder moved ".basename($file)." to $target\n";
+            }
+
+
+        }
+
+        return $result;
 
         self::collectObjectToExtension();
 
@@ -359,7 +406,7 @@ class PropelHelper {
             unlink($file);
         }
 
-        $schemeData = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n  <database name=\"kryn\" defaultIdMethod=\"native\"\n";
+        $schemeData = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n  <database name=\"kryn\" basePeer=\"\\Core\\PropelBasePeer\" defaultIdMethod=\"native\"\n";
 
         foreach (Kryn::$extensions as $extension){
 
@@ -373,6 +420,7 @@ class PropelHelper {
                 foreach ($tables->table as $table){
                     $newSchema .= $table->asXML()."\n    ";
                 }
+
 
                 $newSchema .= "</database>";
 
@@ -491,8 +539,6 @@ class PropelHelper {
         rewind($outStreamS);
         $content = stream_get_contents($outStreamS);
 
-        $GLOBALS['PENIS'] = $content;
-
         if (strpos($content, "BUILD FINISHED") !== false && strpos($content, "Aborting.") === false){
             preg_match_all('/\[((propel[a-zA-Z-_]*)|phingcall)\] .*/', $content, $matches);
             $result  = "\nCommand successfully: $cmd\n";
@@ -526,7 +572,12 @@ propel.database.user = '.Kryn::$config['database']['user'].'
 propel.database.password = '.Kryn::$config['database']['password'].'
 propel.tablePrefix = '.Kryn::$config['database']['prefix'].'
 propel.database.encoding = utf8
-propel.project = kryn';
+propel.project = kryn
+
+propel.namespace.autoPackage = true
+propel.behavior.workspace.class = behavior.WorkspaceBehavior
+
+';
 
         file_put_contents($tmp . 'propel/build.properties', $properties)?true:false;
 

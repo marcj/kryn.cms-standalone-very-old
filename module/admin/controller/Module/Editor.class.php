@@ -254,9 +254,42 @@ class Editor {
                 $foreignObject = \Core\Object::getDefinition($pField['object']);
                 if (!$foreignObject) continue;
 
-                if ($pField['objectRelation'] == 'n-1'){
 
-                    $primaries = \Core\Object::getPrimaries($pField['object']);
+                if ($pField['objectRelation'] == 'nTo1'){
+
+                    $leftPrimaries  = \Core\Object::getPrimaries($pObject);
+                    $rightPrimaries = \Core\Object::getPrimaries($pField['object']);
+
+                    $foreignObject = \Core\Object::getDefinition($pField['object']);
+
+                    $relationName = \Core\Object::getName($pField['object']);
+
+
+                    $foreigns = $pTable->xpath('foreign-key[@foreignTable=\''.$foreignObject['table'].'\']');
+                    if ($foreigns) $foreignKey = current($foreigns);
+                    else $foreignKey = $pTable->addChild('foreign-key');
+
+
+                    if (count($rightPrimaries) == 1){
+                        $column = $foreignKey->addChild('column');
+                        $column['local'] = $pFieldKey;
+
+                        //TODO implement this stuff
+                        //i guess we need camelcase2Underscore() here.
+
+
+                        //$column[]
+                    }
+
+                    //add left primary keys
+                    foreach ($leftPrimaries as $key){
+                        $column = $foreignKey->addChild('column');
+                        $column['local'] = $key;
+
+                    }
+
+
+                    /*
                     if (count(primaries) > 1){
                         //define extra columns
                         foreach ($primaries as $key => $primary){
@@ -271,17 +304,16 @@ class Editor {
 
                     } else if(count(primaries) == 1){
                         $this->getColumnFromField($pObject, key($primaries), current($primaries), $pTable, $pDatabase, $column);
-                    }
+                    }*/
 
                 } else {
 
                     //n-n, we need a extra table
-                                        
                     $tableName = $pField['objectRelationTable'] ? $pField['objectRelationTable'] : $pObject.'_'.\Core\Object::getName($pField['object']);
-
-                    $tablePhpName = underscore2Camelcase($tableName);
+                    $relationName = underscore2Camelcase($tableName);
                     if ($pField['objectRelationPhpName'])
-                        $tablePhpName = $pField['objectRelationPhpName'];
+                        $relationName = $pField['objectRelationPhpName'];
+
 
                     //search if we've already the table defined.
                     $tables = $pDatabase->xpath('table[@name=\''.$tableName.'\']');
@@ -294,7 +326,7 @@ class Editor {
                         $relationTable = current($tables);
                     }
 
-                    $relationTable['phpName'] = $tablePhpName;
+                    $relationTable['phpName'] = $relationName;
 
                     $foreignKeys = array();
 
