@@ -19,7 +19,7 @@ class Editor {
 
         $path = "core/config.json";
 
-        if ($pName != 'kryn')
+        if ($pName != 'core')
             $path = PATH_MODULE . "$pName/config.json";
 
 
@@ -146,9 +146,7 @@ class Editor {
         if ($pRefColumn)
             $column =& $pRefColumn;
 
-
         $object = \Core\Object::getDefinition($pObject);
-
 
         switch(strtolower($pField['type'])){
 
@@ -254,65 +252,57 @@ class Editor {
                 $foreignObject = \Core\Object::getDefinition($pField['object']);
                 if (!$foreignObject) continue;
 
+                $relationName = $pFieldKey;
+                if ($pField['objectRelationName'])
+                    $relationName = $pField['objectRelationName'];
 
                 if ($pField['objectRelation'] == 'nTo1'){
 
-                    $leftPrimaries  = \Core\Object::getPrimaries($pObject);
+                    $leftPrimaries  = \Core\Object::getPrimaryList($pObject);
                     $rightPrimaries = \Core\Object::getPrimaries($pField['object']);
 
                     $foreignObject = \Core\Object::getDefinition($pField['object']);
 
-                    $relationName = \Core\Object::getName($pField['object']);
+                    if (!$foreignObject['table'])
+                        continue;
 
 
                     $foreigns = $pTable->xpath('foreign-key[@foreignTable=\''.$foreignObject['table'].'\']');
                     if ($foreigns) $foreignKey = current($foreigns);
                     else $foreignKey = $pTable->addChild('foreign-key');
 
+                    $foreignKey['phpName'] = $relationName;
+                    $foreignKey['foreignTable'] = $foreignObject['table'];
 
                     if (count($rightPrimaries) == 1){
-                        $column = $foreignKey->addChild('column');
-                        $column['local'] = $pFieldKey;
 
-                        //TODO implement this stuff
-                        //i guess we need camelcase2Underscore() here.
+                        $references = $pTable->xpath('reference[@local=\''.$pFieldKey.'\']');
+                        if ($references) $reference = current($references);
+                        else $reference = $foreignKey->addChild('reference');
 
+                        $reference['local'] = camelcase2Underscore($pFieldKey);
+                        $reference['foreign'] = key($rightPrimaries);
 
-                        //$column[]
-                    }
+                    } else {
 
-                    //add left primary keys
-                    foreach ($leftPrimaries as $key){
-                        $column = $foreignKey->addChild('column');
-                        $column['local'] = $key;
+                        //add left primary keys
+                        foreach ($rightPrimaries as $key => $def){
+                            $references = $pTable->xpath('reference[@local=\''.$pFieldKey.'_'.$key.'\']');
+                            if ($references) $reference = current($references);
+                            else $reference = $foreignKey->addChild('reference');
 
-                    }
+                            $reference['local'] = camelcase2Underscore($pFieldKey).'_'.$key;
+                            $reference['foreign'] = $key;
 
-
-                    /*
-                    if (count(primaries) > 1){
-                        //define extra columns
-                        foreach ($primaries as $key => $primary){
-                            $columnId = $pFieldKey.ucfirst($key);
-                            $columns[$columnId] = $pField;
-
-                            $this->getColumnFromField($pObject, $columnId, $primary, $pTable, $pDatabase, $columns[$columnId]);
-
+                            //create additional fields
+                            $this->getColumnFromField($pObject, underscore2Camelcase($pFieldKey.'_'.$key), $def, $pTable, $pDatabase);
                         }
-                        
-                        return $columns;
-
-                    } else if(count(primaries) == 1){
-                        $this->getColumnFromField($pObject, key($primaries), current($primaries), $pTable, $pDatabase, $column);
-                    }*/
+                    }
 
                 } else {
 
                     //n-n, we need a extra table
                     $tableName = $pField['objectRelationTable'] ? $pField['objectRelationTable'] : $pObject.'_'.\Core\Object::getName($pField['object']);
-                    $relationName = underscore2Camelcase($tableName);
-                    if ($pField['objectRelationPhpName'])
-                        $relationName = $pField['objectRelationPhpName'];
 
 
                     //search if we've already the table defined.

@@ -136,7 +136,7 @@ ka.FieldProperty = new Class({
                     label: t('Table label column')
                 },
                 items: {
-                    needValue: ['select', 'checkboxgroup', 'imagegroup'],
+                    needValue: ['select', 'checkboxGroup', 'imageGroup'],
                     label: t('static items'),
                     desc: t('Use JSON notation. Array(key==label) or Object(key => label). Example: {"item1": "[[Item 1]]"} or ["Foo", "Bar", "Three"].')
                 },
@@ -151,25 +151,27 @@ ka.FieldProperty = new Class({
 
                 //object
                 'object': {
-                    needValue: ['object', 'predefined', 'fieldcondition', 'objectcondition'],
+                    needValue: ['object', 'predefined', 'fieldCondition', 'objectCondition'],
                     label: t('Objecy key'),
+                    required: true,
                     desc: t('The key of the object')
                 },
                 'field': {
-                    needValue: ['predefined', 'fieldcondition'],
+                    needValue: ['predefined', 'fieldCondition'],
                     label: t('Field key'),
                     desc: t('The key of the field')
                 },
                 'objectLabel': {
                     needValue: 'object',
-                    label: t('Object label field'),
-                    desc: t('The key of the field which should be used as label')
+                    label: t('Object label field (Optional)'),
+                    desc: t('The key of the field which should be used as label.')
                 },
 
                 'objectRelation': {
                     label: t('Relation'),
                     needValue: 'object',
                     type: 'select',
+                    required: true,
                     items: {
                         'nTo1': 'Many to One',
                         'nToM': 'Many to Many'
@@ -179,15 +181,15 @@ ka.FieldProperty = new Class({
                 'objectRelationTable': {
                     needValue: 'nToM',
                     againstField: 'objectRelation',
+                    required: true,
                     label :t('Relation table name'),
                     desc: t('The columns of this table are based on the primary keys of left and right table. Propel ORM generates a new model based on this value.')
                 },
                 
-                'objectRelationPhpName': {
-                    needValue: 'nToM',
+                'objectRelationName': {
                     againstField: 'objectRelation',
-                    label: t('Relation table php name'),
-                    desc: t('Default is the camelCased table name.')
+                    label: t('Relation name (Optional)'),
+                    desc: t('Default is the camelCased field name.')
                 },
 
                 //tab

@@ -352,7 +352,8 @@
         },
         "pages": {
             "title": "[[Pages]]",
-            "type": "custom",
+            "class": "Admin\\Admin\\NodeCrud",
+            "type": "combine",
             "icon": "#icon-screen-2",
             "isLink": true,
             "multi": true,

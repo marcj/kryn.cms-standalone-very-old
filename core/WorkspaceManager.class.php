@@ -4,9 +4,9 @@ namespace Core;
 
 //TODO all
 
-class Workspace {
+class WorkspaceManager {
 
-    private static $current = 0;
+    private static $current = 1;
 
     public static function getCurrent(){
         return static::$current;

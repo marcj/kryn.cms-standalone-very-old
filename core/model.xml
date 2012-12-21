@@ -72,13 +72,13 @@
     <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true"/>
     <column name="domain" type="VARCHAR" size="255" required="false"/>
     <column name="title_format" type="VARCHAR" size="255" required="false"/>
-    <column name="lang" type="VARCHAR" size="128" required="false"/>
+    <column name="lang" type="VARCHAR" size="3" required="false"/>
     <column name="startnode_id" type="INTEGER" required="false"/>
     <column name="alias" type="VARCHAR" size="255" required="false"/>
     <column name="redirect" type="VARCHAR" size="255" required="false"/>
     <column name="page404_id" phpName="Page404id" type="INTEGER" required="false"/>
     <column name="page404_interface" phpName="Page404interface" type="VARCHAR" size="128" required="false"/>
-    <column name="master" type="INTEGER" required="false"/>
+    <column name="master" type="BOOLEAN" required="false"/>
     <column name="resource_compression" type="INTEGER" required="false"/>
     <column name="layouts" type="LONGVARCHAR" required="false"/>
     <column name="phplocale" type="VARCHAR" size="128" required="false"/>
@@ -233,6 +233,7 @@
       <parameter name="Charset" value="utf8"/>
     </vendor>
     <column name="pid" type="INTEGER"/>
+    <column name="page_title" type="VARCHAR"/>
   </table>
   <table name="system_search" phpName="Search" idMethod="native">
     <column name="url" type="VARCHAR" size="255" primaryKey="true" required="true"/>
@@ -295,6 +296,18 @@
     <column name="langtitle" type="VARCHAR"/>
     <column name="userdefined" type="BOOLEAN"/>
     <column name="visible" type="BOOLEAN"/>
+    <vendor type="mysql">
+      <parameter name="Charset" value="utf8"/>
+    </vendor>
+  </table>
+  <table name="system_workspace" phpName="Workspace">
+    <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true"/>
+    <column name="title" type="VARCHAR"/>
+    <foreign-key phpName="owner" foreignTable="system_user">
+      <reference local="owner_id" foreign="id"/>
+    </foreign-key>
+    <column name="owner_id"/>
+    <column name="created" type="BIGINT"/>
     <vendor type="mysql">
       <parameter name="Charset" value="utf8"/>
     </vendor>

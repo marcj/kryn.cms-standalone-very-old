@@ -2,6 +2,8 @@ ka.WindowEdit = new Class({
 
     Implements: Events,
 
+    Binds: ['showVersions'],
+
     inline: false,
 
     fieldToTabOIndex: {}, //index fieldkey to main-tabid
@@ -115,11 +117,10 @@ ka.WindowEdit = new Class({
         return req;
     },
 
-    loadItem: function (pVersion) {
+    loadItem: function () {
         var _this = this;
 
         var req = {
-            version: pVersion,
             object: ka.getObjectUrlId(this.classProperties['object'], this.winParams.item)
         };
 
@@ -604,15 +605,37 @@ ka.WindowEdit = new Class({
         if (true) {
 
             this.previewBtn = new ka.Button([t('Preview'), '#icon-eye'])
-            //.addEvent('click', this._save.bind(this))
-            .inject(this.win.titleGroups);
-
-            document.id(this.previewBtn).addClass('ka-windowEdit-previewButton');
+                //.addEvent('click', this._save.bind(this))
+                .inject(this.win.titleGroups);
+            document.id(this.previewBtn).setStyle('float', 'right')
 
             //this.previewBtn = this.actionsNavi.addButton(t('Preview'), '#icon-eye-3', this.preview.bind(this));
         }
 
+        if (this.classProperties.workspace){
+
+
+            this.showVersionsBtn = new ka.Button([t('Versions'), '#icon-history'])
+                .addEvent('click', this.showVersions)
+                .inject(this.win.titleGroups);
+            document.id(this.showVersionsBtn).setStyle('float', 'right')
+        }
+
         this.checkTabFieldWidth();
+    },
+
+    showVersions: function(){
+
+        //for now, we use a dialog
+
+        var dialog = this.win.newDialog();
+
+
+        new ka.ObjectVersionGraph(dialog.content, {
+            object: ka.getObjectUrlId(this.classProperties['object'], this.winParams.item)
+        });
+
+
     },
 
     checkTabFieldWidth: function(){

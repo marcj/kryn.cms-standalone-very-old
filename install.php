@@ -577,7 +577,7 @@ function step5Done($pMsg){
         $manager = new \Admin\Module\Manager;
 
         foreach (Kryn::$extensions as $module){
-            if ($module == 'admin' || $module == 'users' || $module == 'users') continue;
+            if ($module == 'admin' || $module == 'users' || $module == 'core') continue;
             try {
                 $manager->install($module, true);
             } catch (Exception $e){
@@ -609,7 +609,7 @@ function step5Done($pMsg){
         $manager = new \Admin\Module\Manager;
 
         foreach (Kryn::$extensions as $module){
-            if ($module == 'admin' || $module == 'users' || $module == 'users') continue;
+            if ($module == 'admin' || $module == 'users' || $module == 'core') continue;
             try {
                 $manager->installDatabase($module);
             } catch (Exception $e){

@@ -4,7 +4,7 @@ namespace Tests\Object;
 
 use Tests\TestCaseWithInstallation;
 use \Core\Object;
-use \Core\Workspace;
+use \Core\WorkspaceManager;
 
 
 class WorkspacesTest extends TestCaseWithInstallation {
@@ -13,7 +13,7 @@ class WorkspacesTest extends TestCaseWithInstallation {
 
         Object::clear('Publication\\News');
 
-        Workspace::setCurrent(0);
+        WorkspaceManager::setCurrent(0);
         Object::add('Publication\\News', array(
             'title' => 'News 1 in workspace live'
         ));
@@ -22,7 +22,7 @@ class WorkspacesTest extends TestCaseWithInstallation {
         ));
 
 
-        Workspace::setCurrent(1);
+        WorkspaceManager::setCurrent(1);
         Object::add('Publication\\News', array(
             'title' => 'News 1 in workspace one'
         ));
@@ -36,22 +36,22 @@ class WorkspacesTest extends TestCaseWithInstallation {
 
 
         //anything inserted and selecting works correctly?
-        Workspace::setCurrent(0);
+        WorkspaceManager::setCurrent(0);
         $count = Object::getCount('Publication\\News');
         $this->assertEquals(2, $count);
 
-        Workspace::setCurrent(1);
+        WorkspaceManager::setCurrent(1);
         $count = Object::getCount('Publication\\News');
         $this->assertEquals(3, $count);
 
 
 
         //anything inserted and selecting works correctly, also through propel directly?
-        Workspace::setCurrent(0);
+        WorkspaceManager::setCurrent(0);
         $count = \Publication\NewsQuery::create()->count();
         $this->assertEquals(2, $count);
 
-        Workspace::setCurrent(1);
+        WorkspaceManager::setCurrent(1);
         $count = \Publication\NewsQuery::create()->count();
         $this->assertEquals(3, $count);
 

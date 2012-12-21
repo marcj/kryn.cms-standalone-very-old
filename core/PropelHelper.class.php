@@ -151,19 +151,25 @@ class PropelHelper {
 
         $result = '';
 
+        Kryn::$extensions = array_unique(Kryn::$extensions);
+
         foreach (Kryn::$extensions as $extension){
 
             $targetDir = $tmp.'propel-classes/'.ucfirst($extension);
             $source = $tmp.'propel/build/classes/'.ucfirst($extension);
 
+            $result .= " CHECK $targetDir \n";
             $files = find($source.'/*.php');
-            if ($files && !mkdirr($source))
+            if ($files && !mkdirr($targetDir))
                 throw new \FileNotWritableException(tf('Can not create folder %s', $source));
 
+            $result .= ' $FILES COUNT '.count($files)."\n";
+            $result .= " WHAT ".(is_dir($targetDir)+0)."\n";
             foreach ($files as $file){
 
                 $target  = \Core\Kryn::getModuleDir($extension).'model/'.basename($file);
 
+                $result .= "$file => ".(file_exists($target)+0)."\n";
                 if (file_exists($target)) continue;
 
                 if (!is_dir($targetDir) && !mkdirr($targetDir))
@@ -575,6 +581,7 @@ propel.database.encoding = utf8
 propel.project = kryn
 
 propel.namespace.autoPackage = true
+propel.packageObjectModel = true
 propel.behavior.workspace.class = behavior.WorkspaceBehavior
 
 ';

@@ -593,6 +593,29 @@ class Propel extends ORMAbstract {
         return $query->deleteAll();
     }
 
+    public function getVersions($pPk, $pOptions = null){
+
+        $queryClass = $this->getPhpName().'VersionQuery';
+        $query = new $queryClass();
+
+        $query->select(array('id', 'workspaceRev', 'workspaceAction', 'workspaceActionDate', 'workspaceActionUser'));
+
+        $query->filterByWorkspaceId(\Core\WorkspaceManager::getCurrent());
+
+        $this->mapPk($query, $pPk);
+
+        return $query->find()->toArray();
+
+    }
+
+    public function getVersionDiff($pPk, $pOptions = null){
+
+        //default is the diff to the previous
+
+    }
+
+
+
     /**
      * {@inheritdoc}
      */

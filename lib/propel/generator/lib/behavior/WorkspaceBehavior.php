@@ -14,7 +14,7 @@ class WorkspaceBehavior extends Behavior
     private $versionTable;
     private $versionTableName;
 
-    private $workspaceGetter = '\\Core\\Workspace::getCurrent()';
+    private $workspaceGetter = '\\Core\\WorkspaceManager::getCurrent()';
 
 
     public function modifyDatabase()

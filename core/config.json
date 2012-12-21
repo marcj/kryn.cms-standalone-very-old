@@ -1,122 +1,125 @@
 {
-  "title": "Kryn.core",
-  "desc": "Kryn core package",
-  "extraFiles": [
-    "index.php",
-    "install.php",
-    ".htaccess",
-    "inc\/template\/images\/",
-    "inc\/template\/css\/kryn_defaults.css",
-    "inc\/template\/css\/kryn_tinyMceContent.css",
-    "inc\/template\/css\/kryn_tinyMceContentElement.css",
-    "inc\/Kryn\/",
-    "inc\/pear\/",
-    "inc\/codemirror\/",
-    "inc\/smarty\/",
-    "inc\/tinymce\/"
-  ],
-  "domainProperties": {
-    "cacheNavigations": {
-        "label": "[[Cache navigation html]]",
-        "desc": "[[Some templates does not support this, which is a performance increase. If you have troubles, just deactivate it.]]",
-        "type": "checkbox",
-        "default": "1"
-    },
-    "cachePagesForAnons": {
-        "label": "[[Warp drive!]]",
-        "desc": "[[Cache the whole html of a page for anonymous users, which is a huge performance increase. Some layouts/templates does not support this. If you have troubles, just deactivate it.]]",
-        "type": "checkbox",
-        "default": "0"
-    }
-  },
-  "cacheDriver": {
-    "files": {
-        "title": "Files",
-        "class": "\\Core\\Cache\\Files",
-        "properties": {
-            "path": {
-                "label": "[[Path]]",
-                "type": "text",
-                "default": "cache/object/",
-                "desc": "[[Relative to install root]]"
-            }
+    "title": "Kryn.core",
+    "desc": "Kryn core package",
+    "extraFiles": [
+        "index.php",
+        "install.php",
+        ".htaccess",
+        "inc\/template\/images\/",
+        "inc\/template\/css\/kryn_defaults.css",
+        "inc\/template\/css\/kryn_tinyMceContent.css",
+        "inc\/template\/css\/kryn_tinyMceContentElement.css",
+        "inc\/Kryn\/",
+        "inc\/pear\/",
+        "inc\/codemirror\/",
+        "inc\/smarty\/",
+        "inc\/tinymce\/"
+    ],
+    "domainProperties": {
+        "cacheNavigations": {
+            "label": "[[Cache navigation html]]",
+            "desc": "[[Some templates does not support this, which is a performance increase. If you have troubles, just deactivate it.]]",
+            "type": "checkbox",
+            "default": "1"
+        },
+        "cachePagesForAnons": {
+            "label": "[[Warp drive!]]",
+            "desc": "[[Cache the whole html of a page for anonymous users, which is a huge performance increase. Some layouts\/templates does not support this. If you have troubles, just deactivate it.]]",
+            "type": "checkbox",
+            "default": "0"
         }
     },
-    "apc": {
-        "title": "APC",
-        "class": "\\Core\\Cache\\APC"
-    },
-    "redis": {
-        "title": "Redis",
-        "class": "\\Core\\Cache\\Redis",
-        "properties": {
-            "servers": {
-                "label": "Servers",
-                "type": "array",
-                "startWith": 1,
-                "asHash": 1,
-                "columns": [
-                    {"label": "[[IP]]"},
-                    {"label": "[[Port]]", "width": 50}
-                ],
-                "fields": {
-                    "ip": {
-                        "type": "text",
-                        "width": "95%",
-                        "empty": false
-                    },
-                    "port": {
-                        "type": "number",
-                        "width": 50,
-                        "empty": false
+    "cacheDriver": {
+        "files": {
+            "title": "Files",
+            "class": "\\Core\\Cache\\Files",
+            "properties": {
+                "path": {
+                    "label": "[[Path]]",
+                    "type": "text",
+                    "default": "cache\/object\/",
+                    "desc": "[[Relative to install root]]"
+                }
+            }
+        },
+        "apc": {
+            "title": "APC",
+            "class": "\\Core\\Cache\\APC"
+        },
+        "redis": {
+            "title": "Redis",
+            "class": "\\Core\\Cache\\Redis",
+            "properties": {
+                "servers": {
+                    "label": "Servers",
+                    "type": "array",
+                    "startWith": 1,
+                    "asHash": 1,
+                    "columns": [
+                        {
+                            "label": "[[IP]]"
+                        },
+                        {
+                            "label": "[[Port]]",
+                            "width": 50
+                        }
+                    ],
+                    "fields": {
+                        "ip": {
+                            "type": "text",
+                            "width": "95%",
+                            "empty": false
+                        },
+                        "port": {
+                            "type": "number",
+                            "width": 50,
+                            "empty": false
+                        }
                     }
                 }
             }
         }
-    }
-  },
-  "themes": {
-    "Kryn.cms": {
-      "layouts": [
-
-      ],
-      "navigations": {
-        "Main": "core\/navigation_main.tpl"
-      },
-      "contents": {
-        "Default": "core\/content_default.tpl"
-      },
-      "properties": [
-
-      ],
-      "publicProperties": [
-
-      ],
-      "layoutElement": {
-        "Full text": "core\/layoutelement\/full.tpl",
-        "Full slot": "core\/layoutelement\/full-slot.tpl",
-        "Two columns 10\/90": "core\/layoutelement\/2col-10-90.tpl",
-        "Two columns 20\/80": "core\/layoutelement\/2col-20-80.tpl",
-        "Two columns 30\/70": "core\/layoutelement\/2col-30-70.tpl",
-        "Two columns 40\/60": "core\/layoutelement\/2col-40-60.tpl",
-        "Two columns 50\/50": "core\/layoutelement\/2col-50-50.tpl",
-        "Two columns 60\/40": "core\/layoutelement\/2col-60-40.tpl",
-        "Two columns 70\/30": "core\/layoutelement\/2col-70-30.tpl",
-        "Two columns 80\/20": "core\/layoutelement\/2col-80-20.tpl",
-        "Two columns 90\/10": "core\/layoutelement\/2col-90-10.tpl"
-      }
-    }
-  },
-  "writableFiles": "core\/views\/*\n.htaccess\nmedia\/core\/*",
-  "owner": "1",
-  "category": "8",
-  "version": "1.0.0",
-  "community": "1",
-  "system": "1",
-  "tags": "",
-  "depends": "",
-
-
+    },
+    "themes": {
+        "Kryn.cms": {
+            "layouts": [
+                
+            ],
+            "navigations": {
+                "Main": "core\/navigation_main.tpl"
+            },
+            "contents": {
+                "Default": "core\/content_default.tpl"
+            },
+            "properties": [
+                
+            ],
+            "publicProperties": [
+                
+            ],
+            "layoutElement": {
+                "Full text": "core\/layoutelement\/full.tpl",
+                "Full slot": "core\/layoutelement\/full-slot.tpl",
+                "Two columns 10\/90": "core\/layoutelement\/2col-10-90.tpl",
+                "Two columns 20\/80": "core\/layoutelement\/2col-20-80.tpl",
+                "Two columns 30\/70": "core\/layoutelement\/2col-30-70.tpl",
+                "Two columns 40\/60": "core\/layoutelement\/2col-40-60.tpl",
+                "Two columns 50\/50": "core\/layoutelement\/2col-50-50.tpl",
+                "Two columns 60\/40": "core\/layoutelement\/2col-60-40.tpl",
+                "Two columns 70\/30": "core\/layoutelement\/2col-70-30.tpl",
+                "Two columns 80\/20": "core\/layoutelement\/2col-80-20.tpl",
+                "Two columns 90\/10": "core\/layoutelement\/2col-90-10.tpl"
+            }
+        }
+    },
+    "writableFiles": "core\/views\/*\n.htaccess\nmedia\/core\/*",
+    "owner": "1",
+    "category": "8",
+    "version": "1.0.0",
+    "community": "1",
+    "system": "1",
+    "tags": "",
+    "depends": "",
     "objects": {
         "File": {
             "propelClass": "\\Admin\\ObjectFile",
@@ -130,7 +133,7 @@
             "domainDepended": false,
             "chooserFieldType": "default",
             "chooserFieldDataModelCondition": [
-
+                
             ],
             "chooserFieldDataModelField": "path",
             "treeInterface": "default",
@@ -232,12 +235,16 @@
                     "empty": 1
                 }
             },
-            "label": "[[File]]"
+            "label": "[[File]]",
+            "__dataModel__": "table"
         },
         "Node": {
             "desc": "[[Pages, Links, Deposits and Navigation folder]]",
-            "table": "system_page",
+            "table": "system_node",
             "labelField": "title",
+            "limitDataSets": [
+                
+            ],
             "nestedLabel": "title",
             "nestedRootObject": "domain",
             "nestedRootObjectField": "domainId",
@@ -247,24 +254,26 @@
             "dataModel": "propel",
             "multiLanguage": false,
             "domainDepended": false,
-            "chooserFieldDataModelCondition": [
-
-            ],
-            "chooserFieldDataModel": "default",
-            "chooserFieldDataModelLabel": "title",
-            "chooserFieldDataModelFields": "title, lvl, accessDenied, accessFromGroups",
-            "chooserFieldType": "default",
             "treeInterfaceClass": "ka.NodeTree",
             "treeInterface": "custom",
-            "treeRootObjectIconPath": "\/admin\/images\/icons\/world.png",
-            "treeRootObjectFixedIcon": true,
             "treeIcon": "type",
             "treeIconMapping": [
-
+                
             ],
             "treeFixedIcon": false,
-            "browserDataModel": "none",
+            "treeRootObjectIconPath": "\/admin\/images\/icons\/world.png",
+            "treeRootObjectFixedIcon": true,
+            "browserInterfaceOptions": [
+                
+            ],
+            "browserOptions": [
+                
+            ],
             "browserInterface": "custom",
+            "browserColumns": [
+                
+            ],
+            "browserDataModel": "none",
             "fields": {
                 "id": {
                     "label": "[[ID]]",
@@ -403,25 +412,26 @@
                     "empty": 1
                 }
             },
-            "label": "[[Node]]",
-            "__dataModel__": "table"
+            "label": "[[Node]]"
         },
         "Domain": {
+            "table": "system_domain",
             "labelField": "domain",
             "labelTemplate": "[{lang}] {domain}",
             "defaultSelection": "domain, lang",
             "limitDataSets": [
-
+                
             ],
             "nested": false,
+            "dataModel": "propel",
             "multiLanguage": false,
             "domainDepended": false,
             "treeIconMapping": [
-
+                
             ],
             "treeFixedIcon": false,
             "browserColumns": [
-
+                
             ],
             "fields": {
                 "id": {
@@ -468,7 +478,7 @@
                 ]
             ],
             "treeIconMapping": [
-
+                
             ],
             "treeFixedIcon": false,
             "fields": {
@@ -491,6 +501,48 @@
                 }
             },
             "label": "[[Language]]"
+        },
+        "Workspace": {
+            "table": "system_workspace",
+            "limitDataSets": [
+                
+            ],
+            "nested": false,
+            "dataModel": "propel",
+            "multiLanguage": false,
+            "domainDepended": false,
+            "treeIconMapping": [
+                
+            ],
+            "treeFixedIcon": false,
+            "browserColumns": [
+                
+            ],
+            "fields": {
+                "id": {
+                    "type": "number",
+                    "primaryKey": true,
+                    "autoIncrement": true
+                },
+                "title": {
+                    "label": "[[Title]]",
+                    "type": "text"
+                },
+                "ownerId": {
+                    "object": "Users\\User",
+                    "objectLabel": "name",
+                    "objectRelation": "nTo1",
+                    "objectRelationName": "owner",
+                    "type": "object"
+                },
+                "created": {
+                    "type": "datetime"
+                }
+            },
+            "label": "Workspace"
         }
-    }
+    },
+    "__path": "core",
+    "installed": true,
+    "extensionCode": "core"
 }

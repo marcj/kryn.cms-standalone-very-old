@@ -2,6 +2,8 @@
 
 namespace Admin\Object;
 
+use Core\Object;
+
 /**
  * Controller
  *
@@ -207,6 +209,14 @@ class Controller {
         if (!$definition) throw new \ObjectNotFoundException(tf('Object %s does not exists.', $object_key));
 
         return \Core\Object::get($object_key, $object_id[0], array('fields' => $pFields, 'permissionCheck' => true));
+    }
+
+
+    public function getVersionsPerUri($pUri){
+
+
+        return Object::getVersionsFromUri($pUri);
+
     }
 
 

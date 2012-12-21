@@ -8,6 +8,8 @@ use Core\Domain;
 use Core\Node;
 use Core\Content;
 use Core\NodeQuery;
+use Core\Workspace;
+use Core\WorkspaceQuery;
 
 dbDelete('system_domain');
 dbDelete('system_node');
@@ -45,6 +47,18 @@ $root->setDomainId($domain->getId());
 $root->makeRoot();
 $root->setTitle('root');
 $root->save();
+
+
+//setup live workspace
+WorkspaceQuery::create()->deleteAll();
+$workspace = new Workspace();
+$workspace->setTitle('LIVE');
+$workspace->setOwnerId(1);
+$workspace->setCreated(time());
+$workspace->save();
+$id = $workspace->getId();
+if ($id != 1)
+    dbUpdate('system_workspace', array('id' => $id), array('id' => 1));
 
 $defaultLayout = 'th_krynDemo/layout_default.tpl';
 $defaultContentTemplate = 'th_krynDemo/content_default.tpl';

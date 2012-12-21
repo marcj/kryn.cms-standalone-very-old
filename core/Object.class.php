@@ -756,6 +756,20 @@ class Object {
     }
 
 
+    public static function getVersionsFromUri($pObjectUri, $pOptions = null){
+
+        list($objectKey, $objectId) = Object::parseUri($pObjectUri);
+        return self::getVersions($objectKey, $objectId[0], $pOptions);
+
+    }
+
+    public static function getVersions($pObjectKey, $pPk, $pOptions = null){
+        $obj = self::getClass($pObjectKey);
+        $primaryKey = $obj->normalizePrimaryKey($pPk);
+        return $obj->getVersions($primaryKey);
+
+    }
+
 
     public static function getParents($pObjectKey, $pObjectId){
         $obj = self::getClass($pObjectKey);
