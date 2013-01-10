@@ -130,7 +130,7 @@
                         },
                         "group": {
                             "type": "textboxList",
-                            "object": "group"
+                            "object": "Users\\Group"
                         }
                     }
                 }
@@ -173,7 +173,7 @@
                         "group": {
                             "type": "textlist",
                             "multi": true,
-                            "store": "admin\/backend\/stores\/groups"
+                            "object": "Users\\Group"
                         }
                     }
                 }
@@ -364,8 +364,9 @@
             "icon": "#icon-users-2",
             "isLink": true,
             "multi": false,
-            "minWidth": 650,
-            "defaultWidth": 650,
+            "minWidth": 700,
+            "defaultWidth": 900,
+            "defaultHeight": 475,
             "children": {
                 "add": {
                     "title": "[[Users add]]",
@@ -481,7 +482,7 @@
                 },
                 "category_id": {
                     "label": "[[Groups]]",
-                    "store": "admin\/backend\/stores\/groups",
+                    "object": "Users\\Group",
                     "type": "textlist",
                     "desc": "[[Which groups can login?]]"
                 }
