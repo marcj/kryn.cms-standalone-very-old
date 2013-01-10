@@ -158,13 +158,13 @@ class PropelHelper {
             $targetDir = $tmp.'propel-classes/'.ucfirst($extension);
             $source = $tmp.'propel/build/classes/'.ucfirst($extension);
 
-            $result .= " CHECK $targetDir \n";
+            //$result .= " CHECK $targetDir \n";
             $files = find($source.'/*.php');
             if ($files && !mkdirr($targetDir))
                 throw new \FileNotWritableException(tf('Can not create folder %s', $source));
 
-            $result .= ' $FILES COUNT '.count($files)."\n";
-            $result .= " WHAT ".(is_dir($targetDir)+0)."\n";
+            //$result .= ' $FILES COUNT '.count($files)."\n";
+            //$result .= " WHAT ".(is_dir($targetDir)+0)."\n";
             foreach ($files as $file){
 
                 $target  = \Core\Kryn::getModuleDir($extension).'model/'.basename($file);
@@ -200,60 +200,6 @@ class PropelHelper {
         }
 
         return $result;
-
-        self::collectObjectToExtension();
-
-        $content = "\nMove class files<div style='color: gray;'>";
-
-        foreach (self::$objectsToExtension as $name => $extension){
-
-            if (!$name) continue;
-
-            $files = array(
-                'om/Base'.$name.'Peer.php',
-                'om/Base'.$name.'.php',
-                'map/'.$name.'TableMap.php',
-                'om/Base'.$name.'Query.php',
-
-                'x' => $name.'.php',
-                'y' => $name.'Peer.php',
-                'z' => $name.'Query.php'
-            );
-
-            foreach ($files as $key => $file){
-
-                $target  = \Core\Kryn::getModuleDir($extension).'model/'.$file;
-
-                self::$classDefinition[basename($file)] = $target;
-
-                if (!is_numeric($key) ){
-                    $target = \Core\Kryn::getModuleDir($extension).'model/'.$file;
-                    //do not remove the class files which we can edit
-                    if (file_exists($target)) continue;
-                } else {
-                    $target = $tmp.'propel-classes/'.ucfirst($extension).'/'.$file;
-                }
-
-                $targetDir = dirname($target);
-                if (!is_dir($targetDir)) if(!mkdirr($targetDir))
-                    throw new \FileNotWritableException(tf('Can not create folder %s', $targetDir));
-
-                $source = $tmp . 'propel/build/classes/'.ucfirst($extension).'/'.$file;
-
-                if (!file_exists($source)){
-                    throw new \FileNotFoundException(tf('File %s not found', $source));
-                } else {
-
-                    if (!rename($source, $target)){
-                        throw new \FileNotWritableException(tf('Can not move file %s to %s', $source, $target));
-                    }
-                    $content .= "[move][$extension] Class moved $file to $targetDir\n";
-                }
-            }
-
-        }
-
-        return $content."</div>";
 
     }
 
