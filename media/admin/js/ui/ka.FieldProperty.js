@@ -14,7 +14,7 @@ ka.FieldProperty = new Class({
         },
 
         label: {
-            label: t('Label'),
+            label: t('Label (Optional)'),
             desc: t('Surround the value with [[ and ]] to make it multilingual.'),
             type: 'text'
         },
@@ -181,9 +181,8 @@ ka.FieldProperty = new Class({
                 'objectRelationTable': {
                     needValue: 'nToM',
                     againstField: 'objectRelation',
-                    required: true,
-                    label :t('Relation table name'),
-                    desc: t('The columns of this table are based on the primary keys of left and right table. Propel ORM generates a new model based on this value.')
+                    label :t('Relation table name (Optional)'),
+                    desc: t('The columns of this table are based on the primary keys of left and right table. Propel ORM generates a new model based on this value. Default value is &lt;moduleKey&gt;_&lt;currentObjectKey&gt;_&lt;fieldKey&gt;')
                 },
                 
                 'objectRelationName': {
@@ -659,9 +658,12 @@ ka.FieldProperty = new Class({
             fieldContainer = main;
         }
 
+        this.saveBtn = new ka.Button(t('Apply'));
+
         this.fieldObject = new ka.Parse(fieldContainer, this.kaFields, {
             allTableItems: this.options.allTableItems,
-            tableitem_title_width: this.options.tableitem_title_width
+            tableitem_title_width: this.options.tableitem_title_width,
+            saveButton: this.saveBtn
         }, {win:this.win});
 
         this.fieldObject.setValue(this.definition);
@@ -676,10 +678,11 @@ ka.FieldProperty = new Class({
         .addEvent('click', this.dialog.close)
         .inject(this.dialog.bottom);
 
-        new ka.Button(t('Apply'))
-        .addEvent('click', function(){
 
-            if (!this.fieldObject.isValid()){
+        this.saveBtn.addEvent('click', function(){
+
+            if (!this.fieldObject.checkValid()){
+
                 return;
             }
 
