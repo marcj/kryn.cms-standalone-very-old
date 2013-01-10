@@ -21,6 +21,7 @@ ka.Parse = new Class({
         allSmall: false,
         tableitem_title_width: false,
         returnDefault: false,
+        saveButton: false,
         tabsInWindowHeader: false
     },
 
@@ -119,10 +120,13 @@ ka.Parse = new Class({
     },
 
     /**
-     * Fires a change event.
+     * Fires a change event and handles some internal stuff.
      */
     fireChange: function(){
         this.fireEvent('change');
+
+        if (this.options.saveButton !== false)
+            this.options.saveButton.setEnabled(this.isValid());
     },
 
     /**
@@ -516,7 +520,8 @@ ka.Parse = new Class({
 
                         if (pos == items.length - 1) {
                             val = obj.getValue();
-                            if (typeOf(val) !== 'null' && val !== '' && (this.options.returnDefault == true || val !== obj.options['default']))
+                            if (typeOf(val) !== 'null' && val !== '' &&
+                                (obj.options.returnDefault == true || this.options.returnDefault == true || val !== obj.options['default']))
                                 last[key] = val;
                         } else {
                             last[key] = {};
@@ -526,7 +531,8 @@ ka.Parse = new Class({
                     res = Object.merge(res, newRes);
                 } else {
                     val = obj.getValue();
-                    if (typeOf(val) !== 'null' && val !== '' && (this.options.returnDefault == true || val !== obj.options['default']))
+                    if (typeOf(val) !== 'null' && val !== '' &&
+                        (obj.options.returnDefault == true || this.options.returnDefault == true || val !== obj.options['default']))
                         res[id] = val;
                 }
             }.bind(this));
