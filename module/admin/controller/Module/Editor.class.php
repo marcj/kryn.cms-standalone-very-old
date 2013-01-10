@@ -139,7 +139,18 @@ class Editor {
 
     }
 
-    public function getColumnFromField($pObject, $pFieldKey, $pField, &$pTable, &$pDatabase, &$pRefColumn = null){
+    /**
+     * @param string $pObject
+     * @param string $pFieldKey
+     * @param array $pField
+     * @param xml $pTable
+     * @param xml $pDatabase
+     * @param xml $pRefColumn
+     * @param string $pModuleKey
+     * @return array|bool
+     */
+    public function getColumnFromField($pObject, $pFieldKey, $pField, &$pTable, &$pDatabase, &$pRefColumn = null,
+                                       $pModuleKey = ''){
 
         $columns = array();
         $column  = array();
@@ -252,7 +263,7 @@ class Editor {
                 $foreignObject = \Core\Object::getDefinition($pField['object']);
                 if (!$foreignObject) continue;
 
-                $relationName = $pFieldKey;
+                $relationName = ucfirst($pFieldKey);
                 if ($pField['objectRelationName'])
                     $relationName = $pField['objectRelationName'];
 
@@ -295,15 +306,17 @@ class Editor {
                             $reference['foreign'] = $key;
 
                             //create additional fields
-                            $this->getColumnFromField($pObject, underscore2Camelcase($pFieldKey.'_'.$key), $def, $pTable, $pDatabase);
+                            $this->getColumnFromField($pObject, underscore2Camelcase($pFieldKey.'_'.$key), $def, $pTable, $pDatabase, $pModuleKey);
                         }
                     }
 
                 } else {
 
                     //n-n, we need a extra table
-                    $tableName = $pField['objectRelationTable'] ? $pField['objectRelationTable'] : $pObject.'_'.\Core\Object::getName($pField['object']);
 
+                    $probablyName = camelcase2Underscore($pModuleKey).'_'.camelcase2Underscore(\Core\Object::getName($pObject)).'_'.camelcase2Underscore($pFieldKey).'_relation';
+
+                    $tableName = $pField['objectRelationTable'] ? $pField['objectRelationTable'] : $probablyName;
 
                     //search if we've already the table defined.
                     $tables = $pDatabase->xpath('table[@name=\''.$tableName.'\']');
@@ -331,24 +344,24 @@ class Editor {
 
                         $col = $relationTable->addChild('column');
                         $col['name'] = $name;
-                        $this->getColumnFromField($pObject, $key, $primary, $pTable, $pDatabase, $col);
+                        $this->getColumnFromField($pObject, $key, $primary, $pTable, $pDatabase, $col, $pModuleKey);
                         unset($col['autoIncrement']);
                         $col['required'] = "true";
 
                     }
 
                     //right columns
-                    $leftPrimaries = \Core\Object::getPrimaries($pField['object']);
-                    foreach ($leftPrimaries as $key => $primary){
+                    $rightPrimaries = \Core\Object::getPrimaries($pField['object']);
+                    foreach ($rightPrimaries as $key => $primary){
 
-                        $name = strtolower(\Core\Object::getName($pField['object'])).'_'.$key;
+                        $name = camelcase2Underscore(\Core\Object::getName($pField['object'])).'_'.$key;
                         $foreignKeys[$foreignObject['table']][$key] = $name;
                         $cols = $relationTable->xpath('column[@name=\''.$name.'\']');
                         if ($cols) continue;
 
                         $col = $relationTable->addChild('column');
                         $col['name'] = $name;
-                        $this->getColumnFromField($pObject, $key, $primary, $pTable, $pDatabase, $col);
+                        $this->getColumnFromField($pObject, $key, $primary, $pTable, $pDatabase, $col, $pModuleKey);
                         unset($col['autoIncrement']);
                         $col['required'] = "true";
 
@@ -380,6 +393,15 @@ class Editor {
                             $reference['foreign'] = $k;
 
                         }
+                    }
+
+                    //workspace behavior if $pObject is workspaced
+                    if ($object['workspace']){
+
+                        $behaviors = $relationTable->xpath('behavior[@name=\'workspace\']');
+                        if ($behaviors) $behavior = current($behaviors);
+                        else $behavior = $relationTable->addChild('behavior');
+                        $behavior['name'] = 'workspace';
                     }
                     
                     $vendors = $relationTable->xpath('vendor[@type=\'mysql\']');
@@ -459,6 +481,7 @@ class Editor {
         } else {
             $xml = simplexml_load_string('<database></database>');
         }
+        $xml['namespace'] = ucfirst($pName);
 
         //search if we've already the table defined.
         $tables = $xml->xpath('table[@name=\''.$object['table'].'\']');
@@ -475,7 +498,7 @@ class Editor {
 
         foreach ($object['fields'] as $fieldKey => $field){
 
-            $columns = $this->getColumnFromField(ucfirst($pName).'\\'.$pObject, $fieldKey, $field, $objectTable, $xml);
+            $columns = $this->getColumnFromField(ucfirst($pName).'\\'.$pObject, $fieldKey, $field, $objectTable, $xml, $null, $pName);
 
             if (!$columns) continue;
 
@@ -500,6 +523,12 @@ class Editor {
 
         }
 
+        if ($object['workspace']){
+            $behaviors = $objectTable->xpath('behavior[@name=\'workspace\']');
+            if ($behaviors) $behavior = current($behaviors);
+            else $behavior = $objectTable->addChild('behavior');
+            $behavior['name'] = 'workspace';
+        }
 
         $vendors = $objectTable->xpath('vendor[@type=\'mysql\']');
         if ($vendors) $vendor = current($vendors);
