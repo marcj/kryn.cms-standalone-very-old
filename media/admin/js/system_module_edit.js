@@ -2028,10 +2028,16 @@ var admin_system_module_edit = new Class({
             text: 'ORM Error: '+pResponse.error
         }).inject(div);
 
-        new Element('div', {
+        var msg = new Element('div', {
             style: 'position: absolute; top: 70px; left: 5px; right: 5px; bottom: 5px; overflow: auto; white-space: pre; background-color: white; padding: 5px;',
             text: 'ORM Error: '+(pResponse.message||pResponse.error)
         }).inject(div);
+
+        new Element('div', {
+            style: 'white-space: pre; padding-top: 15px;',
+            text: JSON.encode(pResponse)
+        }).inject(msg);
+
 
         var dialog = this.win.newDialog(div, true);
         dialog.setStyle('width', '80%');
@@ -2141,6 +2147,8 @@ var admin_system_module_edit = new Class({
                         type: 'select',
                         label: t('Class'),
                         inputWidth: 200,
+                        'default': 'propel',
+                        returnDefault: true,
                         items: {
                             'propel': t('Propel ORM'),
                             'custom': t('Custom class')
@@ -2241,12 +2249,17 @@ var admin_system_module_edit = new Class({
                     multiLanguage: {
                         label: t('Multi-language'),
                         type: 'checkbox',
-                        desc: t("You need then a extra field 'lang' varchar(2)")
+                        desc: t('Adds a extra field \'lang\' varchar(2)')
+                    },
+                    workspace: {
+                        label: t('Workspace versioning'),
+                        type: 'checkbox',
+                        desc: t('')
                     },
                     domainDepended: {
                         label: t('Domain depended'),
                         type: 'checkbox',
-                        desc: t("You need then a extra field 'domain_id' int")
+                        desc: t('Adds a extra field \'domainId\' int')
                     },
                     plugins: {
                         label: t('Plugins (View controller)'),
