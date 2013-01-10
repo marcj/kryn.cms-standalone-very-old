@@ -38,8 +38,6 @@ var admin_system_settings = new Class({
 
     _createLayout: function () {
 
-        logger(this.langs);
-
         var fields = {
             '__general__': {
                 type: 'tab',
@@ -76,6 +74,7 @@ var admin_system_settings = new Class({
                     'cache[class]': {
                         label: t('Caching driver'),
                         type: 'select',
+                        desc: t('You should probably use a caching driver for external caching if you have load-balanced szenario, since this cache has to be known in every installation.'),
                         items: {
                         },
                         children: {
@@ -127,6 +126,10 @@ var admin_system_settings = new Class({
                         type: 'select',
                         items: this.timezones,
                         itemsKey: 'code'
+                    },
+                    fileGroupName: {
+                        label: t('File group owner'),
+                        type: 'text'
                     },
                     fileGroupPermission: {
                         label: t('File group permission'),
@@ -214,7 +217,7 @@ var admin_system_settings = new Class({
                     '__info__': {
                         'type': 'label',
                         'label': t('Frontend client handling'),
-                        'desc': t('You can overrite these settiongs per domain under <br />Pages -> Domain -> Session.')
+                        'desc': t('You can overrite these settings per domain under <br />Pages -> Domain -> Client.')
                     }
                 }
             }
@@ -373,7 +376,7 @@ var admin_system_settings = new Class({
         var fields = {
             'displayErrors': {
                 label: t('Display errors'),
-                desc: t('Prints errors to the frontend clients. You should deactivate this in productive systems'),
+                desc: t('Prints errors to the frontend clients. You should deactivate this in productive systems.'),
                 type: 'checkbox'
             },
             'logErrors': {
