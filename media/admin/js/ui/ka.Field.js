@@ -28,6 +28,8 @@ ka.Field = new Class({
 
         invisible: false,
 
+        returnDefault: false, //If this field has a default value, the field value won't be returned in the ka.Parse object per default if the value is the default value.
+
         cookieStorage: false, //stores the value in a cookie, and set it after a second load
 
         noWrapper: false //doesnt include the ka-field wrapper (title, description, etc), and inject the field controls directly to pContainer with just a single div around it.
