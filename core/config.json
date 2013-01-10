@@ -37,8 +37,7 @@
                 "path": {
                     "label": "[[Path]]",
                     "type": "text",
-                    "default": "cache\/object\/",
-                    "desc": "[[Relative to install root]]"
+                    "desc": "[[Relative to install root. Let it empty to use TMP, TEMP, TMPDIR or TEMPDIR env variable.]]"
                 }
             }
         },
@@ -120,6 +119,18 @@
     "system": "1",
     "tags": "",
     "depends": "",
+    "falDriver": {
+        "awsS3": {
+            "title": "[[Amazon S3 Cloud storage]]",
+            "class": "\\Core\\FAL\\AWSS3",
+            "properties": {
+                "bucket": {
+                    "type": "text",
+                    "label": "Bucket name"
+                }
+            }
+        }
+    },
     "objects": {
         "File": {
             "propelClass": "\\Admin\\ObjectFile",
@@ -235,8 +246,7 @@
                     "empty": 1
                 }
             },
-            "label": "[[File]]",
-            "__dataModel__": "table"
+            "label": "[[File]]"
         },
         "Node": {
             "desc": "[[Pages, Links, Deposits and Navigation folder]]",
@@ -541,8 +551,5 @@
             },
             "label": "Workspace"
         }
-    },
-    "__path": "core",
-    "installed": true,
-    "extensionCode": "core"
+    }
 }
