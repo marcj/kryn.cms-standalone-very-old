@@ -196,7 +196,7 @@ ka.Select = new Class({
 
         if (this.lastRq) this.lastRq.cancel();
 
-        this.lastRq = new Request.JSON({url: _path+'admin/backend/object/'+this.options.object,
+        this.lastRq = new Request.JSON({url: _path+'admin/backend/object/'+ka.urlEncode(this.options.object),
             noErrorReporting: ['NoAccessException'],
             onCancel: function(){
                 pCallback(false);
@@ -221,7 +221,6 @@ ka.Select = new Class({
                             label: item
                         });
 
-
                         this.cachedObjectItems[id] = item;
 
                     }.bind(this));
@@ -230,7 +229,7 @@ ka.Select = new Class({
                 }
             }.bind(this)
         }).get({
-            object: this.options.object,
+            //object: this.options.object,
             offset: pOffset,
             limit: pCount,
             fields: this.objectFields ? this.objectFields.join(',') : null
