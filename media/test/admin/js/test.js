@@ -6,11 +6,11 @@ var test_test = new Class({
         this.win = pWin;
 
         new ka.Select(this.win.content, {
-            object: 'domain'
+            object: 'Core\\Domain'
         });
 
         new ka.Select(this.win.content, {
-            object: 'language'
+            object: 'Core\\Language'
         });
 
 
