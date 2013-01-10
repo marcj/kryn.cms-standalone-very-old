@@ -130,14 +130,14 @@ class AdminController extends Server {
             );
         }
 
-        $users = \Core\Object::getList('user', $userFilter, array(
+        $users = \Core\Object::getList('Users\\User', $userFilter, array(
             'limit' => 10,
             'fields' => 'id,username, email, groups, first_name, last_name'
         ));
 
         self::setAclCount($users, 0);
 
-        $groups = \Core\Object::getList('group', $groupFilter, array(
+        $groups = \Core\Object::getList('Users\\Group', $groupFilter, array(
             'fields' => 'name',
             'limit' => 10
         ));
