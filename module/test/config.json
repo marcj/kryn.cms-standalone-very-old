@@ -81,6 +81,72 @@
                 }
             },
             "label": "Test"
+        },
+        "Item": {
+            "table": "test_item",
+            "labelField": "title",
+            "limitDataSets": [
+                
+            ],
+            "nested": false,
+            "dataModel": "propel",
+            "multiLanguage": false,
+            "workspace": true,
+            "domainDepended": false,
+            "treeIconMapping": [
+                
+            ],
+            "treeFixedIcon": false,
+            "browserColumns": [
+                
+            ],
+            "fields": {
+                "id": {
+                    "type": "number",
+                    "primaryKey": true,
+                    "autoIncrement": true
+                },
+                "title": {
+                    "type": "text"
+                },
+                "category": {
+                    "object": "Test\\ItemCategory",
+                    "objectRelation": "nToM",
+                    "type": "object"
+                }
+            },
+            "label": "",
+            "__dataModel__": "table"
+        },
+        "ItemCategory": {
+            "table": "test_item_category",
+            "labelField": "name",
+            "limitDataSets": [
+                
+            ],
+            "nested": false,
+            "dataModel": "propel",
+            "multiLanguage": false,
+            "workspace": true,
+            "domainDepended": false,
+            "treeIconMapping": [
+                
+            ],
+            "treeFixedIcon": false,
+            "browserColumns": [
+                
+            ],
+            "fields": {
+                "id": {
+                    "type": "number",
+                    "primaryKey": true,
+                    "autoIncrement": true
+                },
+                "name": {
+                    "type": "text"
+                }
+            },
+            "label": ""
         }
     },
     "plugins": {
