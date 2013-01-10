@@ -152,8 +152,20 @@ ka.WindowList = new Class({
         }
     },
 
+    checkClassProperties: function(){
+
+        if (!this.classProperties.columns || !Object.getLength(this.classProperties.columns)){
+            this.win.alert(t('This window class does not have columns defined.'));
+            return false;
+        }
+
+        return true;
+    },
+
     render: function (pValues) {
         this.classProperties = pValues;
+
+        if (!this.checkClassProperties()) return false;
 
         var sort = this.getSortField();
         this.sortField = sort.field;
