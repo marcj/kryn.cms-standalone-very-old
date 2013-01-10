@@ -136,32 +136,32 @@ class AdminController {
 
                     //admin/backend/object
                     ->addSubController('object', '\Admin\Object\Controller')
-                        ->addGetRoute('([a-zA-Z-_]+)/([^/]+)', 'getItem')
-                        ->addPostRoute('([a-zA-Z-_]+)/([^/]+)', 'postItem')
-                        ->addDeleteRoute('([a-zA-Z-_]+)/([^/]+)', 'deleteItem')
-                        ->addPutRoute('([a-zA-Z-_]+)', 'putItem')
-                        ->addGetRoute('([a-zA-Z-_]+)', 'getItems')
+                        ->addGetRoute('([a-zA-Z-_\.\\\\]+)/([^/]+)', 'getItem')
+                        ->addPostRoute('([a-zA-Z-_\.\\\\]+)/([^/]+)', 'postItem')
+                        ->addDeleteRoute('([a-zA-Z-_\.\\\\]+)/([^/]+)', 'deleteItem')
+                        ->addPutRoute('([a-zA-Z-_\.\\\\]+)', 'putItem')
+                        ->addGetRoute('([a-zA-Z-_\.\\\\]+)', 'getItems')
                     ->done()
 
                     //admin/backend/object-branch
                     ->addSubController('object-tree', '\Admin\Object\Controller')
-                        ->addGetRoute('([a-zA-Z-_]+)', 'getTree')
-                        ->addGetRoute('([a-zA-Z-_]+)/([^/]+)', 'getTreeBranch')
+                        ->addGetRoute('([a-zA-Z-_\.\\\\]+)', 'getTree')
+                        ->addGetRoute('([a-zA-Z-_\.\\\\]+)/([^/]+)', 'getTreeBranch')
                     ->done()
 
                 //admin/backend/object-count
                 ->addSubController('object-count', '\Admin\Object\Controller')
-                    ->addGetRoute('([a-zA-Z-_]+)', 'getCount')
+                    ->addGetRoute('([a-zA-Z-_\.\\\\]+)', 'getCount')
                 ->done()
 
                 //admin/backend/object-tree-root
                 ->addSubController('object-tree-root', '\Admin\Object\Controller')
-                ->addGetRoute('([a-zA-Z-_]+)', 'getTreeRoot')
+                ->addGetRoute('([a-zA-Z-_\.\\\\]+)', 'getTreeRoot')
                 ->done()
 
                 //admin/backend/object-move
                 ->addSubController('object-move', '\Admin\Object\Controller')
-                ->addGetRoute('([a-zA-Z-_]+)/([^/]+)', 'moveItem')
+                ->addGetRoute('([a-zA-Z-_\.\\\\]+)/([^/]+)', 'moveItem')
                 ->done()
 
 
