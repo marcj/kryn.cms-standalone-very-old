@@ -258,9 +258,7 @@ ka.getClass = function(pClassPath){
 ka.urlEncode = function(pValue){
 
     if (typeOf(pValue) == 'string'){
-        if (pValue.test(/[\/=\?#:]/)){
-            return encodeURIComponent(pValue);
-        }
+        return encodeURIComponent(pValue);
     } else if (typeOf(pValue) == 'array'){
         var result = '';
         Array.each(pValue, function(item){
@@ -503,7 +501,7 @@ ka.getObjectLabel = function(pUri, pCb){
 
         ka.getObjectLabelBusy = true;
 
-        var uri = 'object://'+objectKey+'/';
+        var uri = 'object://'+ka.urlEncode(objectKey)+'/';
         Object.each(ka.getObjectLabelQ[objectKey], function(cbs, requestedUri){
             uri += ka.getCroppedObjectId(requestedUri)+';';
         });
