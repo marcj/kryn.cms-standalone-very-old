@@ -19,7 +19,7 @@
     <vendor type="mysql">
       <parameter name="Charset" value="utf8"/>
     </vendor>
-     <behavior name="workspace" />
+    <behavior name="workspace" />
     <column name="created"/>
     <column name="modified"/>
   </table>

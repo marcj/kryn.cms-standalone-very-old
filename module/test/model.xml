@@ -21,9 +21,11 @@
     <column name="item_category_id" type="INTEGER" primaryKey="true" required="true"/>
     <foreign-key foreignTable="test_item" phpName="CategoryItem">
       <reference local="item_id" foreign="id"/>
+      <reference local="workspace_id" foreign="workspace_id"/>
     </foreign-key>
     <foreign-key foreignTable="test_item_category" phpName="Category">
       <reference local="item_category_id" foreign="id"/>
+      <reference local="workspace_id" foreign="workspace_id"/>
     </foreign-key>
     <behavior name="workspace"/>
     <vendor type="mysql">
