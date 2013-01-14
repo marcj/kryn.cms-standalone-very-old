@@ -660,7 +660,7 @@ function dbPrimaryKeyToCondition($pCondition, $pObjectKey = null, $pTable = ''){
     // 
     // pk: 
     // [ ["bla" => 1], ["bla" => 2] ]
-    if (is_array($pCondition) && is_array($pCondition[0]) && is_numeric(key($pCondition)) && is_numeric(key($pCondition[0]))){
+    if (is_array($pCondition) && array_key_exists(0, $pCondition) && is_array($pCondition[0]) && is_numeric(key($pCondition)) && is_numeric(key($pCondition[0]))){
         //its already a condition object
         return $pCondition;
     }
