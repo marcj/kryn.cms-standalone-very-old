@@ -181,6 +181,8 @@ ka.FieldAbstract = new Class({
             //remove the invalid icon and text
             this.invalidIcon.destroy();
             this.invalidText.destroy();
+
+            this.invalidIcon = null;
         }
 
     }
