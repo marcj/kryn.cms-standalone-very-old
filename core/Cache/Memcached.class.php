@@ -33,9 +33,9 @@ class Memcached implements CacheInterface {
 
 	public function set($pKey, $pValue, $pTimeout = null){
 		if ($this->connection instanceof Memcache)
-            return $this->connection->set($pCode, $pValue, 0, $pTimeout);
+            return $this->connection->set($pKey, $pValue, 0, $pTimeout);
         else
-            return $this->connection->set($pCode, $pValue, $pTimeout);
+            return $this->connection->set($pKey, $pValue, $pTimeout);
         
 	}
 

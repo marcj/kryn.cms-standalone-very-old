@@ -31,7 +31,7 @@ class Redis implements CacheInterface {
 	}
 
 	public function set($pKey, $pValue, $pTimeout = null){
-		return $this->connection->setex($pCode, $pTimeout, $pValue);
+		return $this->connection->setex($pKey, $pTimeout, $pValue);
 	}
 
 	public function delete($pKey){

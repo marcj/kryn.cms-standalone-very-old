@@ -9,6 +9,7 @@
 namespace Core\Client;
 
 use Core\Kryn;
+use Core\Event;
 use Core\Utils;
 use Users\Session;
 
@@ -64,19 +65,20 @@ abstract class ClientAbstract {
     /**
      * Instance of Cache class
      */
-    private $cache;
+    private $store;
 
     /**
      * Constructor
      *
      * @see $config
      */
-    function __construct($pConfig = array()) {
+    function __construct($pConfig = array(), $pStore = array()) {
 
-        if (!$pConfig['store']['class'])
-            $pConfig['store']['class'] = '\\Core\\Cache\\Files';
-    
         $this->config = array_merge($this->config, $pConfig);
+        $this->config['store'] = $pStore;
+
+        if (!$this->config['store']['class'])
+            $this->config['store']['class'] = '\\Core\\Cache\\Files';
 
         if ($this->config['tokenId'])
             $this->tokenId = $this->config['tokenId'];
@@ -90,15 +92,17 @@ abstract class ClientAbstract {
         if (!$this->config['cookiePath'] && Kryn::getDomain())
             $this->config['cookiePath'] = Kryn::getDomain()->getPath();
 
+        $this->config['store']['config']['ClientInstance'] = $this;
+
         if ($this->config['store']['class'] != 'database')
-            $this->store = new \Core\Cache\Controller($pConfig['store']['class'], $pConfig['store']['config']);
+            $this->store = new \Core\Cache\Controller($this->config['store']['class'], $this->config['store']['config']);
 
     }
 
     public function start() {
 
-        $this->token = $this->getClientToken();
-        error_log('sessionid: '.$this->token);
+        $this->setToken($this->getClientToken());
+        error_log('sessionid: '.$this->getToken().' - '.Kryn::getRequestedPath());
         $this->session = $this->fetchSession();
 
         if (!$this->session) {
@@ -136,11 +140,11 @@ abstract class ClientAbstract {
      */
     public function updateSession() {
 
-        $this->session->setTime(time());
-        $this->session->setRefreshed( $this->session->getRefreshed()+1 );
-        $this->session->setPage(Kryn::getRequestedPath(true));
+        $this->getSession()->setTime(time());
+        $this->getSession()->setRefreshed( $this->session->getRefreshed()+1 );
+        $this->getSession()->setPage(Kryn::getRequestedPath(true));
 
-        setCookie($this->tokenId, $this->token, time() + $this->config['timeout'],
+        setCookie($this->getTokenId(), $this->getToken(), time() + $this->config['timeout'],
             $this->config['path']?:Kryn::getBaseUrl(), $this->config['domain']);
 
 
@@ -392,7 +396,7 @@ abstract class ClientAbstract {
                 if ($this->config['store']['class'] == 'database')
                     $session->setIsStoredInDatabase(false);
 
-                $this->token = $session->getId();
+                $this->setToken($session->getId());
 
                 setCookie($this->tokenId, $this->token, time() + $this->config['timeout'],
                     $this->config['path']?:Kryn::getBaseUrl(), $this->config['domain']);
@@ -433,9 +437,13 @@ abstract class ClientAbstract {
         $session = new \Users\Session();
         $session->setId($pId)
             ->setTime(time())
-            ->setIp($_SERVER['REMOTE_ADDR'])
             ->setPage(Kryn::getRequestedPath(true))
+            ->setRefreshed(0)
             ->setUseragent($_SERVER['HTTP_USER_AGENT']);
+
+        //in some countries it's not allowed to store the IP per default
+        if (!$this->config['noIPStorage'])
+            $session->setIp($_SERVER['X-Forwarded-For'] ?: $_SERVER['REMOTE_ADDR']);
 
         if ($this->config['store']['class'] == 'database'){
             try {
@@ -467,21 +475,42 @@ abstract class ClientAbstract {
         return $this;
     }
 
+    /**
+     * @return bool
+     */
     public function getToken(){
         return $this->token;
     }
 
+    /**
+     * @return string
+     */
     public function getTokenId(){
         return $this->tokenId;
     }
 
-
+    /**
+     * @param $pToken
+     *
+     * @events Fires core/client/token-changed($newToken)
+     *
+     * @return ClientAbstract
+     */
     public function setToken($pToken){
+        if ($this->token != $pToken) $changed = true;
+
         $this->token = $pToken;
+
+        if ($changed)
+            Event::fire('core/client/token-changed', $this->token);
+
         return $this;
     }
 
-
+    /**
+     * @param $pTokenId
+     * @return ClientAbstract
+     */
     public function setTokenId($pTokenId){
         $this->tokenId = $pTokenId;
         return $this;
@@ -517,9 +546,10 @@ abstract class ClientAbstract {
 
 
     /**
-     * Trys to load a session based on pToken from the database backend.
+     * Tries to load a session based on pToken from the database backend.
      *
-     * @return bool|Session false if the session does not exist, and Session object, if found.
+     * @param $pToken
+     * @return \BaseObject|bool false if the session does not exist, and Session object, if found.
      */
     protected function loadSessionDatabase($pToken) {
 
@@ -538,8 +568,8 @@ abstract class ClientAbstract {
 
     /**
      * Tries to load a session based on current pToken from the cache backend.
-     *
-     * @return bool|Session false if the session does not exist, and Session object, if found.
+     * @param $pToken
+     * @return bool|\Users\Session false if the session does not exist, and Session object, if found.
      */
     public function loadSessionCache($pToken) {
 
@@ -681,7 +711,17 @@ abstract class ClientAbstract {
     }
 
 
+    /**
+     * Returns true if a session has already been loaded or
+     * a valid session cookie has been delivered.
+     *
+     * @return bool
+     */
     public function hasSession(){
+
+        if (!$this->session)
+            $this->session = $this->fetchSession();
+
         return $this->session instanceof Session;
     }
 
@@ -718,5 +758,21 @@ abstract class ClientAbstract {
     public function getConfig(){
         return $this->config;
     }
+
+    /**
+     * @param $store
+     */
+    public function setStore($store){
+        $this->store = $store;
+    }
+
+    /**
+     * @return \Core\Cache\Controller
+     */
+    public function getStore(){
+        return $this->store;
+    }
+
+
 }
 
