@@ -382,6 +382,13 @@ class Editor {
                             $foreignKey['phpName'] = ucfirst($pFieldKey).\Core\Object::getName($pObject);
                         }
 
+                        if ($object['workspace']){
+                            $references = $foreignKey->xpath('reference[@local=\'workspace_id\']');
+                            if ($references) $reference = current($references);
+                            else $reference = $foreignKey->addChild('reference');
+                            $reference['local'] = 'workspace_id';
+                            $reference['foreign'] = 'workspace_id';
+                        }
 
                         foreach ($keys as $k => $v){
 
