@@ -31,7 +31,11 @@ var admin_system_settings = new Class({
 
     },
 
-    renderData: function(pValues){
+    renderData: function(pResponse){
+
+        var data = pResponse.data;
+
+        this.fieldObject.setValue(data.system);
 
         this.win.setLoading(false);
     },
@@ -46,10 +50,12 @@ var admin_system_settings = new Class({
                     systemTitle: {
                         type: 'text',
                         label: 'System title',
+                        required: true,
                         desc: t('Appears in the administration title.')
                     },
                     checkUpdates: {
                         type: 'checkbox',
+                        'default': false,
                         label: t('Check for updates')
                     },
                     languages: {
@@ -87,7 +93,7 @@ var admin_system_settings = new Class({
 
                             'displayErrors': {
                                 label: t('Display errors'),
-                                desc: t('Prints errors to the frontend clients. You should deactivate this in productive systems'),
+                                desc: t('Prints errors to the frontend clients. You should deactivate this in productive systems.'),
                                 type: 'checkbox'
                             },
                             'displayDetailedRestErrors': {
@@ -108,14 +114,17 @@ var admin_system_settings = new Class({
                             },
                             'dbErrorPrintSql': {
                                 label: t('Display the full SQL in the error log'),
+                                'default': false,
                                 type: 'checkbox'
                             },
                             'dbExceptionsNoStop': {
                                 label: t('Do not stop the script during an query failure'),
+                                'default': false,
                                 type: 'checkbox'
                             },
                             'debugLogSqls': {
                                 label: t('[Debug] Log all SQL queries'),
+                                'default': false,
                                 desc: t('Deactivate this on productive machines, otherwise it will blow up your logs!'),
                                 type: 'checkbox'
                             }
@@ -140,6 +149,12 @@ var admin_system_settings = new Class({
                         label: t('File everyone permission'),
                         type: 'select',
                         items: {rw: t('Read/Write'), r: t('Read'), '-': t('Nothing')}
+                    },
+                    fileNoChangeMode: {
+                        label: t('Do not change file mode by existing files'),
+                        desc: t('In some circumstances it is necessary to disable the chmod call on existing files. For example if your IDE or a custom interface always changes the owner of Kryn.cms files.'),
+                        type: 'checkbox',
+                        'default': false
                     }
                 }
             },
@@ -205,7 +220,7 @@ var admin_system_settings = new Class({
                             }
                         }
                     },
-                    'session[class]': {
+                    'client[config][store][class]': {
                         type: 'select',
                         label: t('Session storage'),
                         items: {
@@ -280,15 +295,15 @@ var admin_system_settings = new Class({
                     }
 
 
-                    fields.__client__.children['session[class]'].items[driver.class] = driver.title;
+                    fields.__client__.children['client[class]'].items[driver.class] = driver.title;
 
                     if (driver.properties){
                         Object.each(driver.properties, function(property){
                             property.needValue = driver.class;
                         });
                         var properties = Object.clone(driver.properties);
-                        ka.addFieldKeyPrefix(properties, 'session[config]['+driver.class+']')
-                        Object.append(fields.__client__.children['session[class]'].children, properties);
+                        ka.addFieldKeyPrefix(properties, 'client[config]['+driver.class+']')
+                        Object.append(fields.__client__.children['client[class]'].children, properties);
                     }
                 });
             }
@@ -300,7 +315,8 @@ var admin_system_settings = new Class({
         this.saveBtn = this.bottomBar.addButton(t('Save')).setButtonStyle('blue').addEvent('click', this.save);
 
         this.fieldObject = new ka.Parse(this.win.content, fields, {
-            tabsInWindowHeader: true
+            tabsInWindowHeader: true,
+            saveButton: this.saveBtn
         }, {
             win: this.win
         });
@@ -340,316 +356,6 @@ var admin_system_settings = new Class({
         }.bind(this)}).post(data);
     },
 
-    penes: function(){
-
-        //        this.panes['install'] = new Element('div', {
-        //            'class': 'admin-system-module-pane'
-        //        }).inject( this.win.content );
-
-
-        this.fields = {};
-
-        var p = this.panes['general'];
-        this.fields['systemTitle'] = new ka.Field({
-            label: t('System title'), desc: 'Adds a title to the administration titel'
-        }).inject(p);
-
-
-        this.fields['update finder'] = new ka.Field({
-            label: t('Update finder'),
-            type: 'checkbox'
-        }).inject(p);
-
-        this.fields['communityEmail'] = new ka.Field({
-            label: t('Community connect'), desc: _('If you want to publish your own extensions, layout packs or other stuff, you have to connect with the community server. Enter your community email to connect with.')
-        }).inject(p);
-
-        this.fields['languages'] = new ka.Field({
-            label: t('Languages'), desc: t('Limit the language selection. (systemwide)'), empty: false,
-            type: 'textboxList', store: 'admin/backend/stores/languages'
-        }).inject(p);
-
-        this.changeType('general');
-
-        p = this.panes['system'];
-
-        var fields = {
-            'displayErrors': {
-                label: t('Display errors'),
-                desc: t('Prints errors to the frontend clients. You should deactivate this in productive systems.'),
-                type: 'checkbox'
-            },
-            'logErrors': {
-                label: t('Save debug informations into a file'),
-                desc: t('Stores the debug logs (klog()) into a file. Deactivates the log viewer.'),
-                type: 'checkbox',
-                depends: {
-                    'logErrorsFile': {
-                        needValue: 1,
-                        label: _('Log file'),
-                        desc: _('Example: inc/kryn.log')
-                    }
-                }
-            },
-            'db_error_print_sql': {
-                label: t('Display the full SQL in the logs when a query fails'),
-                type: 'checkbox'
-            },
-            'db_exceptions_nostop': {
-                label: t('Do not stop the script during an query failure'),
-                type: 'checkbox'
-            },
-            'debug_log_sqls': {
-                label: t('[Debug] Log SQL queries'),
-                desc: t('Deactivate this on productive machines, otherwise it will blow up your logs!'),
-                type: 'checkbox'
-            },
-            'timezone': {
-                label: _('Server timezone'),
-                type: 'select',
-                tableItems: this.timezones,
-                table_key: 'l',
-                table_label: 'l'
-            }
-        };
-
-        var systemFields = new ka.Parse(p, fields);
-        Object.each(systemFields.getFields(), function (item, id) {
-            this.fields[ id ] = item;
-        }.bind(this));
-
-
-        /*
-         *
-         * CDN
-         *
-         */
-
-        var p = this.panes['cdn'];
-
-        var fields = {
-            'cdn_folders': {
-                label: _('Magic folders'),
-                type: 'array',
-                asHash: true,
-                columns: [
-                    [t('Name'), 250],
-                    [t('Options')]
-                ],
-                fields: {
-
-                    name: {
-                        type: 'text'
-                    },
-
-                    options: {
-                        type: 'select',
-                        items: {
-                            bla: 'hi'
-                        },
-                        depends: {
-                            icon: {
-                                label: t('Icon file'),
-                                desc: t('Optional. Default is normal folder icon.'),
-                                type: 'file'
-                            }
-                        }
-                    }
-
-                }
-            }
-        };
-
-        var cdnFields = new ka.Parse(p, fields);
-        Object.each(cdnFields.getFields(), function (item, id) {
-            this.fields[ id ] = item;
-        }.bind(this));
-
-
-
-        /**
-         *
-         * AUTH
-         *
-         */
-
-
-        var p = this.panes['auth'];
-
-        var fields = {
-            'session_storage': {
-                label: t('Session storage'),
-                'default': 'database',
-                items: {
-                    'database': t('SQL Database')
-                }
-            },
-            'session_timeout': {
-                label: t('Session timeout'),
-                type: 'text',
-                'default': '3600'
-            },
-            'passwd_hash_compat': {
-                'type': 'checkbox',
-                'label': t('Activate the compatibility in the authentication with older Kryn.cms'),
-                'default': 1,
-                'desc': t('If you did upgrade from a older version than 1.0 than you should probably let this checkbox active.')
-            },
-            'info': {
-                'type': 'label',
-                'label': t('Frontend authentication'),
-                'desc': t('Frontend authentication settings are set under:<br />Pages -> Domain -> Session.')
-            },
-
-            'auth_class': {
-                'label': t('Backend authentication'),
-                'desc': t('Please note that the user "admin" authenticate always against the Kryn.cms user.'),
-                'type': 'select',
-                'table_items': {
-                    'kryn': t('Kryn.cms users')
-                },
-                depends: {
-                    'auth_params[email_login]': {
-                        'label': t('Allow email login'),
-                        'type': 'checkbox',
-                        'needValue': 'kryn'
-                    }
-                }
-            }
-        };
-
-        var origin = ka.getFieldCaching();
-        fields = Object.merge(fields, origin);
-
-        fields.cache_type.label = _('Session storage');
-
-        delete fields.cache_type.items.files;
-        fields.session_storage = Object.merge(fields.session_storage, fields.cache_type);
-
-        fields.session_storage['depends']['session_storage_config[servers]'] = Object.clone(origin.cache_type['depends']['cache_params[servers]']);
-        delete fields.session_storage['depends']['cache_params[servers]'];
-
-        fields.session_storage['depends']['session_storage_config[files_path]'] = Object.clone(origin.cache_type['depends']['cache_params[files_path]']);
-        delete fields.session_storage['depends']['cache_params[files_path]'];
-
-        delete fields.cache_type;
-
-        fields.session_storage['depends']['session_auto_garbage_collector'] = {
-            needValue: 'database',
-            label: _('Automatic session garbage collector'),
-            desc: _('Decreases the performance when dealing with huge count of sessions. For more performance start the session garbage collector through a cronjob. Press the help icon for more informations.'),
-            help: 'session_garbage_collector',
-            type: 'checkbox',
-            'default': '0'
-        };
-
-        this.auth_params = {};
-        this.auth_params_panes = {};
-
-        Object.each(ka.settings.configs, function (config, id) {
-            if (config.auth) {
-                Object.each(config.auth, function (auth_fields, auth_class) {
-                    Object.each(auth_fields, function (field, field_id) {
-                        //field.needValue = id+'/'+auth_class;
-                        //fields.auth_class.depends[ 'auth_params['+auth_class+']['+field_id+']'  ] = field;
-                        fields.auth_class.table_items[ id + '/' + auth_class  ] = auth_class.capitalize();
-                    }.bind(this));
-                }.bind(this));
-            }
-        }.bind(this));
-
-        this.authObj = new ka.Parse(p, fields);
-        Object.each(this.authObj.getFields(), function (item, id) {
-            this.fields[ id ] = item;
-        }.bind(this));
-
-        this.auth_params_objects = {};
-        Object.each(ka.settings.configs, function (config, id) {
-            if (config.auth) {
-                Object.each(config.auth, function (auth_fields, auth_class) {
-
-                    this.auth_params_panes[id + '/' + auth_class] = new Element('div', {
-                        'style': 'display: none;'
-                    }).inject(this.fields['auth_class'].childContainer);
-
-                    this.auth_params_objects[ id + '/' + auth_class ] = new ka.Parse(this.auth_params_panes[id + '/' + auth_class], auth_fields);
-                }.bind(this));
-            }
-        }.bind(this));
-
-        this.fields['auth_class'].addEvent('check-depends', function () {
-            Object.each(this.auth_params_panes, function (pane) {
-                pane.setStyle('display', 'none');
-            }.bind(this));
-            var pane = this.auth_params_panes[ this.fields['auth_class'].getValue() ];
-
-            if (pane) {
-                pane.setStyle('display', 'block');
-            }
-        }.bind(this));
-
-        this.fields['auth_class'].fireEvent('check-depends');
-
-
-        var p = this.panes['database'];
-
-        var databaseFields = {
-            type: {
-                label: t('Database type'),
-                empty: false,
-                type: 'select',
-                items: {
-                    mysql: 'MySQL',
-                    postgresql: 'PostgreSQL',
-                    sqlite: 'SQLite',
-                    mssql: 'MSSQL'
-                }
-            },
-            server: {
-                label: t('Database server'),
-                desc: t('Example: localhost. For SQLite enter the path'),
-                empty: false
-            },
-            user: {
-                needValue: ['postgresql', 'mysql', 'mssql'],
-                againstField: 'db_type',
-                label: t('Database login'), empty: false
-            },
-            passwd: {
-                needValue: ['postgresql', 'mysql', 'mssql'],
-                againstField: 'db_type',
-                label: t('Database password'), type: 'password'
-            },
-            name: {
-                needValue: ['postgresql', 'mysql', 'mssql'],
-                againstField: 'db_type',
-                label: t('Database name'), empty: false
-            },
-            prefix: {
-                label: t('Database prefix'), empty: false
-            }
-        };
-
-        this.databaseFieldObj = new ka.Parse(p, databaseFields);
-
-        var p = this.panes['caching'];
-
-        this.fields['media_cache'] = new ka.Field({
-            label: _('Media cache path'), desc: 'Default is cache/media/. This folder is for caching template files, so it should be available via HTTP.'
-        }).inject(p);
-
-        var origin = ka.getFieldCaching();
-
-        origin.cache_type['default'] = 'files';
-
-        this.cacheObj = new ka.Parse(p, origin);
-        Object.each(this.cacheObj.getFields(), function (item, id) {
-            this.fields[ id ] = item;
-        }.bind(this));
-
-        this.chachingPane = new Element('div').inject(p);
-
-    },
 
     changeType: function (pType) {
         Object.each(this.tabButtons, function (button, id) {
@@ -665,42 +371,6 @@ var admin_system_settings = new Class({
 
         this.lr = new Request.JSON({url: _path + 'admin/system/config', noCache: 1, onComplete: this.renderData}).get();
 
-        return;
-//        function (pResponse) {
-//
-//            var res  = pResponse.data;
-//
-//            this.systemValues = res.system;
-//            Object.each(this.fields, function (field, key) {
-//                if (!field) return;
-//
-//                if (key.indexOf('[') != -1) {
-//                    field.setArrayValue(res.system, key, true);
-//                } else {
-//                    field.setValue(res.system[key], true);
-//                }
-//
-//            });
-//
-//            if (res.system.auth_params) {
-//                if (this.auth_params_objects[res.system.auth_class]) {
-//                    this.auth_params_objects[res.system.auth_class].setValue(res.system.auth_params);
-//                }
-//            }
-//
-//            this.databaseFieldObj.setValue(res.system);
-//
-//            this.oldCommunityEmail = res.system['communityEmail'];
-//
-//            var langs = [];
-//            Object.each(res.langs, function (l, k) {
-//                langs.include(l.code);
-//            });
-//            this.fields['languages'].setValue(langs);
-//
-//            this.win.setLoading(false);
-//
-//        }.bind(this)}).get();
     },
 
     save23: function () {

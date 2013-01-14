@@ -32,6 +32,12 @@ class Local extends FALAbstract {
     public $fileMode = 0600;
 
     /**
+     * Defines whether we chmod the edited file or not.
+     * @var bool
+     */
+    public $changeMode = true;
+
+    /**
      * Default group owner name.
      *
      * @var string
@@ -119,6 +125,7 @@ class Local extends FALAbstract {
         $this->fileMode = octdec($this->fileMode);
         $this->dirMode  = octdec($this->dirMode);
         $this->groupName = Kryn::$config['fileGroupName'];
+        $this->changeMode = (Kryn::$config['fileNoChangeMode']+0 == 0); //if fileNoChangeMode=false, changeMode will be true
     }
 
 
@@ -160,14 +167,15 @@ class Local extends FALAbstract {
             $this->createFolder(dirname($pPath));
 
         if (!file_exists($path)){
-            if (($res = file_put_contents($path, $pContent) === false))
+            if (($res = file_put_contents($path, $pContent) === false)){
                 if (is_writable(dirname($path)))
                     throw new \FileIOException(tf('Can not create file %s', $path));
                 else
                     throw new \FileNotWritableException(tf('Can not create the file %s in %s, since it is not writeable.', $path, dirname($path)));
+            }
+            $this->setPermission($pPath);
         }
 
-        $this->setPermission($pPath);
 
         return $res === false ? false : true;
     }
@@ -185,14 +193,14 @@ class Local extends FALAbstract {
         if (!is_dir($pPath)){
             if (!@mkdir($pPath))
                 throw new \FileIOException(tf('Can not create folder %s.', $pPath));
+
+            if ($this->groupName)
+                if (!@chgrp($pPath, $this->groupName))
+                    throw new \FileOperationPermittedException(tf('Operation to chgrp the folder %s to %s is permitted.', $pPath, $this->groupName));
+
+            if (!chmod($pPath, $this->dirMode))
+                throw new \FileOperationPermittedException(tf('Operation to chmod the folder %s to %o is permitted.', $pPath, $this->dirMode));
         }
-
-        if ($this->groupName)
-            if (!@chgrp($pPath, $this->groupName))
-                throw new \FileOperationPermittedException(tf('Operation to chgrp the folder %s to %s is permitted.', $pPath, $this->groupName));
-
-        if (!chmod($pPath, $this->dirMode))
-            throw new \FileOperationPermittedException(tf('Operation to chmod the folder %s to %o is permitted.', $pPath, $this->dirMode));
 
         return is_dir($pPath);
     }
@@ -216,14 +224,15 @@ class Local extends FALAbstract {
         $path = $this->getFullPath($pPath);
 
         if (!file_exists($path) )
-            $this->createFile($pPath);
+            $fileCreated = $this->createFile($pPath);
 
         else if (!is_writable($path))
             throw new \FileNotWritableException(tf('File %s is not writable.', $path));
 
-
         $res = file_put_contents($path, $pContent);
-        $this->setPermission($pPath);
+
+        if (!$fileCreated && $this->changeMode)
+            $this->setPermission($pPath);
 
         return $res === false?false:true;
     }
