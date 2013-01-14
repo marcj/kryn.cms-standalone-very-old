@@ -23,12 +23,14 @@ class Utils {
             chdir(PATH);
             $error = error_get_last();
             if($error['type'] == 1){
-                self::errorHandler($error['type'], $error['message'], $error['file'], $error['line']);
+                $backtrace = array($error);
+                self::errorHandler($error['type'], $error['message'], $error['file'], $error['line'], $backtrace);
             }
         }
     }
     public static function errorHandler($pErrorCode, $pErrorStr, $pFile, $pLine, $pBacktrace = null){
 
+        ob_end_clean();
 
         if ($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'){
             $response = array(
