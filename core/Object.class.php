@@ -134,6 +134,9 @@ class Object {
         else
             $object_key = substr($pInternalUri, 0, $pos);
 
+        if (strpos($object_key, '%'))
+            $object_key = rawurldecode($object_key);
+
         $params = array();
 
         if ($questionPos !== false){
