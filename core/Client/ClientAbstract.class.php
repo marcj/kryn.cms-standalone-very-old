@@ -10,6 +10,7 @@ namespace Core\Client;
 
 use Core\Kryn;
 use Core\Utils;
+use Users\Session;
 
 /**
  * Client class.
@@ -73,7 +74,7 @@ abstract class ClientAbstract {
     function __construct($pConfig = array()) {
 
         if (!$pConfig['store']['class'])
-            throw new \Exception('The storage class has not been defined.');
+            $pConfig['store']['class'] = '\\Core\\Cache\\Files';
     
         $this->config = array_merge($this->config, $pConfig);
 
@@ -90,7 +91,7 @@ abstract class ClientAbstract {
             $this->config['cookiePath'] = Kryn::getDomain()->getPath();
 
         if ($this->config['store']['class'] != 'database')
-            $this->cache = new \Core\Cache\Controller($pConfig['store']['class'], $pConfig['store']['config']);
+            $this->store = new \Core\Cache\Controller($pConfig['store']['class'], $pConfig['store']['config']);
 
     }
 
@@ -129,7 +130,8 @@ abstract class ClientAbstract {
     }
 
     /**
-     * Updates the time and refreshed-counter of a session.
+     * Updates the time and refreshed-counter of a session,
+     * and updates the cookie timeout on the client side.
      * 
      */
     public function updateSession() {
@@ -137,7 +139,11 @@ abstract class ClientAbstract {
         $this->session->setTime(time());
         $this->session->setRefreshed( $this->session->getRefreshed()+1 );
         $this->session->setPage(Kryn::getRequestedPath(true));
-        
+
+        setCookie($this->tokenId, $this->token, time() + $this->config['timeout'],
+            $this->config['path']?:Kryn::getBaseUrl(), $this->config['domain']);
+
+
     }
 
     /**
@@ -360,11 +366,13 @@ abstract class ClientAbstract {
      */
     public function syncStore() {
 
-        if ($this->config['store']['class'] == 'database'){
-            $this->getSession()->save();
-            Kryn::setPropelCacheObject('\Users\Session', $this->getSession()->getId(), $this->getSession());
-        } else {
-            $this->cache->set($this->tokenId . '_' . $this->token, serialize($this->getSession()), $this->config['timeout']);
+        if ($this->hasSession()){
+            if ($this->config['store']['class'] == 'database'){
+                $this->getSession()->save();
+                Kryn::setPropelCacheObject('\Users\Session', $this->getSession()->getId(), $this->getSession());
+            } else {
+                $this->store->set($this->tokenId . '_' . $this->token, $this->session->exportTo('JSON'), $this->config['timeout']);
+            }
         }
     }
 
@@ -388,24 +396,24 @@ abstract class ClientAbstract {
 
                 setCookie($this->tokenId, $this->token, time() + $this->config['timeout'],
                     $this->config['path']?:Kryn::getBaseUrl(), $this->config['domain']);
+
                 return $session;
             }
 
         }
 
         //after 25 tries, we stop and log it.
-        klog('session', t("The system just tried to create a session 25 times, but can't generate a new free session id.'.
-            'Maybe the caching server is full or you forgot to setup a cronjob for the garbage collector."));
+        trigger_error("The system just tried to create a session 25 times, but can't generate a new free session id.'.
+            'Maybe the caching server is full or you forgot to setup a cronjob for the garbage collector.");
 
-        return false;
     }
 
 
     /**
      * Creates a Session object and store it in the current backend.
-     * 
-     * @param  string $pId
-     * @return bool|Session Returns false, if something went wrong otherwise a Session object.
+     * @param $pId
+     * @return bool|\Users\Session Returns false, if something went wrong otherwise a Session object.
+     * @throws \Exception
      */
     public function createSessionById($pId){
 
@@ -419,7 +427,7 @@ abstract class ClientAbstract {
         Utils::appLock('ClientCreateSession');
 
         //session id already used?
-        $session = $this->fetchSession($cacheKey);
+        $session = $this->fetchSession($pId);
         if ($session) return false;
 
         $session = new \Users\Session();
@@ -438,13 +446,10 @@ abstract class ClientAbstract {
                 return false;
             }
         } else {
-            $session->setIsStoredInDatabase(false);
-            if (!$this->cache->set(cacheKey, $session, $this->config['timeout'])){
+            if (!$this->store->set($cacheKey, $session->exportTo('JSON'), $this->config['timeout'])){
                 Utils::appRelease('ClientCreateSession');
                 return false;
             }
-
-            $this->store->set($cacheKey, $this->getSession(), $this->config['timeout']);
         }
 
         Utils::appRelease('ClientCreateSession');
@@ -458,7 +463,7 @@ abstract class ClientAbstract {
      * @return ClientAbstract $this
      */
     public function setAutoLoginLogout($pEnabled){
-        $this->confg['autoLoginLogout'] = $pEnabled;
+        $this->config['autoLoginLogout'] = $pEnabled;
         return $this;
     }
 
@@ -492,8 +497,8 @@ abstract class ClientAbstract {
     }
 
     /**
-     * Trys to load a session based on current token or pToken from the cache or database backend.
-     *
+     * Tries to load a session based on current token or pToken from the cache or database backend.
+     * @param string $pToken
      * @return bool|Session false if the session does not exist, and Session object, if found.
      */
     protected function fetchSession($pToken = null) {
@@ -532,23 +537,28 @@ abstract class ClientAbstract {
     }
 
     /**
-     * Trys to load a session based on current pToken from the cache backend.
+     * Tries to load a session based on current pToken from the cache backend.
      *
      * @return bool|Session false if the session does not exist, and Session object, if found.
      */
     public function loadSessionCache($pToken) {
 
         $cacheKey = $this->tokenId.'_'.$pToken;
-        $session = $this->cache->get($cacheKey);
+        $sessionData = $this->store->get($cacheKey);
+        if (!$sessionData) return false;
 
-        if ($session && $session->getTime() + $this->config['session_timeout'] < time()) {
-            $this->cache->delete($cacheKey);
+        $session = new Session;
+        $session->importFrom('JSON', $sessionData);
+
+        if (!$session->getId()) return false;
+
+        if ($session && $session->getTime() + $this->config['timeout'] < time()) {
+            $this->store->delete($cacheKey);
             return false;
         }
 
-        if (!$session) return false;
-
         return $session;
+
     }
 
     /**
@@ -670,10 +680,28 @@ abstract class ClientAbstract {
         $this->session = $session;
     }
 
+
+    public function hasSession(){
+        return $this->session instanceof Session;
+    }
+
     /**
+     * Returns the session object. If no session exists, we create one.
+     *
+     * So be carefully: If you just want to check whether a session exists, use
+     * hasSession() instead, since otherwise this method here
+     * creates a overhead with creating a session id, storing it in the backend and sending a cookie.
+     *
      * @return Session
      */
     public function getSession(){
+
+        if (!$this->session)
+            $this->session = $this->fetchSession();
+
+        if (!$this->session)
+            $this->session = $this->createSession();
+
         return $this->session;
     }
 
