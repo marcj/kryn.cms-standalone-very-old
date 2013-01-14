@@ -7,6 +7,7 @@ use Users\UserGroupQuery;
 use Users\UserQuery;
 use Users\GroupQuery;
 use Core\AclQuery;
+use Core\WorkspaceQuery;
 
 use Users\Group;
 use Users\User;
@@ -39,6 +40,7 @@ dbUpdate('system_group', array('id' => $id), array('id' => 1));
 $groupAdmin->setId(1);
 
 
+
 $admin = new User();
 $admin->setUsername('admin');
 $admin->setFirstName('Admini');
@@ -46,6 +48,8 @@ $admin->setLastName('strator');
 $admin->setEmail('admin@localhost');
 $admin->setActivate(1);
 $admin->setPassword('admin');
+$liveWorkspace = WorkspaceQuery::create()->findOneById(1);
+$admin->addWorkspace($liveWorkspace);
 
 $settings = new \Core\Properties(array(
     'userBg' => '/admin/images/userBgs/defaultImages/color-blue.jpg',

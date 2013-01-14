@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_URI']){
 }
 
 $domain->setPath($path);
-$domain->setTitleFormat('%title | Node title');
+$domain->setTitleFormat('%title | Node title - my website - change me under domain settings.');
 $domain->setMaster(1);
 $domain->setLang('en');
 $domain->setResourcecompression(1);
@@ -53,7 +53,6 @@ $root->save();
 WorkspaceQuery::create()->deleteAll();
 $workspace = new Workspace();
 $workspace->setTitle('LIVE');
-$workspace->setOwnerId(1);
 $workspace->setCreated(time());
 $workspace->save();
 $id = $workspace->getId();
