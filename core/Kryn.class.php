@@ -696,14 +696,6 @@ class Kryn {
                     }
                 }
             }
-            if ($config['db']) {
-                foreach ($config['db'] as $key => &$table) {
-                    if (Kryn::$tables[$key])
-                        Kryn::$tables[$key] = array_merge(Kryn::$tables[$key], $table);
-                    else
-                        Kryn::$tables[$key] = $table;
-                }
-            }
         }
     }
 
@@ -721,7 +713,7 @@ class Kryn {
             return Kryn::$domain->getLang();
         } else if ( getArgv(1) == 'admin' && getArgv('lang', 2)) {
             return getArgv('lang', 2);
-        } else if (Kryn::getAdminClient() && Kryn::getAdminClient()->getSession()) {
+        } else if (Kryn::getAdminClient() && Kryn::getAdminClient()->hasSession()) {
             return Kryn::getAdminClient()->getSession()->getLanguage();
         }
         return 'en';
@@ -954,7 +946,6 @@ class Kryn {
 
     /**
      * Init admin and frontend client.
-     * 
      */
     public static function initClient() {
 
@@ -987,6 +978,8 @@ class Kryn {
             Kryn::$client = new $frontClientClass($frontClientConfig);
             Kryn::$client->start();
         }
+
+        //TODO, if session language differs from laoded language, do loadLanguage(newLang)
     }
 
     /**
