@@ -2,6 +2,8 @@
 
 namespace Admin;
 
+use Core\SystemFile;
+
 class Config {
 
     public static function getLabels() {
@@ -21,23 +23,8 @@ class Config {
     }
 
     public static function saveConfig() {
-        global $cfg;
 
         $cfg = include('config.php');
-        $res = array();
-//
-//        if ($settings['system']['communityEmail'] != getArgv('communityEmail')
-//            && getArgv('communityEmail') != ''
-//        )
-//            $res['needPw'] = true;
-//
-//        if (getArgv('communityEmail') == '') {
-//            $_REQUEST['communityId'] = '';
-//            $_POST['communityId'] = '';
-//            $blacklist = array('languages');
-//        } else {
-//            $blacklist = array('communityEmail', 'communityId', 'languages');
-//        }
 
         $blacklist[] = 'passwd_hash_key';
 
@@ -50,16 +37,14 @@ class Config {
             }
         }
 
-        die("<?php \n\return " . var_export($cfg, true) . "\n?>");
-
-        file_put_contents('inc/config.php', "<?php \n\return " . var_export($cfg, true) . "\n?>");
+        SystemFile::setContent('config.php', "<?php return " . var_export($cfg, true) . "\n?>");
 
         dbUpdate('system_langs', array('visible' => 1), array('visible' => 0));
         $langs = getArgv('languages');
         foreach ($langs as $l)
             dbUpdate('system_langs', array('code' => $l), array('visible' => 1));
 
-        json($res);
+        return true;
     }
 
     public static function saveCommunity() {
