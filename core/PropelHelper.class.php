@@ -398,6 +398,8 @@ class PropelHelper {
 
         $content = self::execute('diff');
         if (is_array($content)) return $content;
+        if (strpos($content, '"sql-diff" failed'))
+            return array($content);
 
         $files = find($tmp . 'propel/build/migrations/PropelMigration_*.php');
         $lastMigrationFile = $files[0];
