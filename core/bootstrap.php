@@ -1,7 +1,5 @@
 <?php
 
-mb_internal_encoding("UTF-8");
-
 
 $_time = time();
 $_start = microtime(true);
@@ -37,6 +35,13 @@ if (!isset($cfg)){
         exit;
     }
 }
+
+
+if (!function_exists('mb_internal_encoding'))
+    die('FATAL ERROR: PHP module mbstring is not loaded. Aborted.');
+
+mb_internal_encoding("UTF-8");
+
 
 if (substr($_SERVER['PATH_INFO'], 0, 1) == '/')
     $_SERVER['PATH_INFO'] = substr($_SERVER['PATH_INFO'], 1);
