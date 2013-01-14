@@ -220,7 +220,7 @@ var admin_system_settings = new Class({
                             }
                         }
                     },
-                    'client[config][store][class]': {
+                    'client[store][class]': {
                         type: 'select',
                         label: t('Session storage'),
                         items: {
@@ -228,6 +228,13 @@ var admin_system_settings = new Class({
                         },
                         children: {
                         }
+                    },
+                    'client[store][autoStart]': {
+                        type: 'checkbox',
+                        'default': true,
+                        label: t('Session auto boot'),
+                        desc: t('You can deactivate the automatic distribution of session ids via cookie if you disable this option. To track the user, you have to start then the process in your module manually.')
+
                     },
                     '__info__': {
                         'type': 'label',
@@ -295,15 +302,15 @@ var admin_system_settings = new Class({
                     }
 
 
-                    fields.__client__.children['client[class]'].items[driver.class] = driver.title;
+                    fields.__client__.children['client[store][class]'].items[driver.class] = driver.title;
 
                     if (driver.properties){
                         Object.each(driver.properties, function(property){
                             property.needValue = driver.class;
                         });
                         var properties = Object.clone(driver.properties);
-                        ka.addFieldKeyPrefix(properties, 'client[config]['+driver.class+']')
-                        Object.append(fields.__client__.children['client[class]'].children, properties);
+                        ka.addFieldKeyPrefix(properties, 'client[store][config]['+driver.class+']')
+                        Object.append(fields.__client__.children['client[store][class]'].children, properties);
                     }
                 });
             }
@@ -333,11 +340,9 @@ var admin_system_settings = new Class({
 
         //map config
 
-        data.session.config = data.session.config ? data.session.config[data.session.class]:{};
         data.client.config = data.client.config ? data.client.config[data.client.class]:{};
         data.cache.config = data.cache.config ? data.cache.config[data.cache.class]:{};
 
-        logger(data);
 
         this.saveBtn.startTip(t('Saving ...'));
 

@@ -954,10 +954,12 @@ class Kryn {
 
         $defaultClientClass = Kryn::$config['client']['class'];
         $defaultClientConfig = Kryn::$config['client']['config'];
+        $defaultClientStore = Kryn::$config['client']['store'];
+        $defaultAutoStart = Kryn::$config['client']['autoStart'];
 
         if (Kryn::$admin) {
             
-            Kryn::$adminClient = new $defaultClientClass($defaultClientConfig);
+            Kryn::$adminClient = new $defaultClientClass($defaultClientConfig, $defaultClientStore);
 
             Kryn::$adminClient->start();
             Kryn::$client = Kryn::$adminClient;
@@ -969,14 +971,26 @@ class Kryn {
 
             $frontClientClass = $defaultClientClass;
             $frontClientConfig = $defaultClientConfig;
+            $frontendClientStore = $defaultClientStore;
+            $frontendAutoStart = $defaultAutoStart;
 
             if ($sessionProperties['class']){
                 $frontClientClass = $sessionProperties['class'];
                 $frontClientConfig = $sessionProperties['config'];
             }
 
-            Kryn::$client = new $frontClientClass($frontClientConfig);
-            Kryn::$client->start();
+            if ($sessionProperties['autoStart'])
+                $frontendAutoStart = $sessionProperties['autoStart'];
+
+            if ($sessionProperties['store'])
+                $frontendClientStore = $sessionProperties['store'];
+
+
+            Kryn::$client = new $frontClientClass($frontClientConfig, $frontendClientStore);
+
+            if ($frontendAutoStart)
+                Kryn::$client->start();
+
         }
 
         //TODO, if session language differs from laoded language, do loadLanguage(newLang)
