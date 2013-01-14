@@ -342,6 +342,8 @@ function checkConfig(){
             'persistent'   => $_REQUEST['persistent'],
           ),
 
+          'rename'      => $_REQUEST['rename']+0,
+
           'fileGroupPermission'      => $_REQUEST['fileGroupPermission'],
           'fileGroupName'      => $_REQUEST['fileGroupName'],
           'fileEveryonePermission'   => $_REQUEST['fileEveryonePermission'],
@@ -491,7 +493,12 @@ Your installation folder is <strong style="color: gray;"><?php echo getcwd(); ?>
 }
 
 function step5Failed($pError){
+
     $msg = array('error' => $pError->getMessage(), 'exception' => (string)$pError);
+
+    if ($pError instanceof \PDOException){
+        //$msg['sql'] = ;
+    }
     print json_encode($msg);
     exit;
 }
@@ -509,6 +516,13 @@ function step5Done($pMsg){
 
             \Core\TempFile::createFolder('./');
             \Core\MediaFile::createFolder('cache/');
+
+            \Core\PropelHelper::cleanup();
+
+            \Core\Kryn::$extensions = array();
+
+            \Core\PropelHelper::updateSchema();
+            \Core\PropelHelper::cleanup();
 
         } catch (\Exception $e){
             step5Failed($e);
@@ -629,7 +643,12 @@ function step5Done($pMsg){
         \Core\Kryn::loadConfigs();
 
         \Admin\Utils::clearCache();
-        
+
+
+        if (Kryn::$config['rename']){
+            !rename( 'install.php', 'install.doNotRemoveIt.'.rand(123,5123).rand(585,2319293).rand(9384394,313213133) );
+        }
+
         step5Done(true);
     }
 
@@ -687,12 +706,7 @@ function step5(){
 <br />
 <h2>Installation</h2>
 <?php
-    
-//    if( !rename( 'install.php', 'install.doNotRemoveIt.'.rand(123,5123).rand(585,2319293).rand(9384394,313213133) ) ){
-//        print '<div style="margin: 25px; border: 2px solid red; padding: 10px; padding-left: 25px;">
-//        	Can not rename install.php - please remove or rename the file for security reasons!
-//        	</div>';
-//    }
+
 ?>
     <div id="progress">
         <div id="progressMessage">Pending ...</div>
@@ -700,25 +714,44 @@ function step5(){
             <div id="progressBarIn" style="width: 0px"></div>
             <div id="progressBarText">0%</div>
         </div>
-        <div id="progressError" style="display: none;"></div>
+        <div id="progressError" style="display: none; overflow-x: auto;"></div>
     </div>
     <div id="installDone" style="display: none;">
-        <h3 style="color: green;">Installation successful.</h3>
-        Login: admin<br/>
-        Password: admin<br/>
+        <br />
+        <h3 style="color: green;">Installation successful!</h3>
+        <br />
+        <b>Administration login</b><br/>
+        <table width="50%">
+            <tr>
+                <td>Login:</td>
+                <td>admin</td>
+            </tr>
+            <tr>
+                <td>Password:</td>
+                <td>admin</td>
+            </tr>
+
+        </table>
+        !Please change your password as fast as possible!<br />
         <br/>
-        Please change your password as fast as possible!<br />
         <br/>
-        Go to:
-        <a href="./">Frontend</a> |
-        <a href="./admin">Administration</a>
+        &raquo; Go to:
+        <a target="_blank" href="./">Frontend</a> or <a target="_blank" href="./admin">Administration</a>
+        <br/>
+        <br/>
+        <div style="color: gray;  border: 1px solid silver; border-top: 1px dashed #888; padding: 15px; margin: 15px 0; border-radius: 5px;">
+            Developer information:<br/><br/>
+            To get the correct auto-completion in your IDE, you have to include the following folder to your project,
+            since there are all propel model classes.<br/>
+            <pre><?php echo Kryn::getTempFolder().'propel-classes/' ?></pre>
+        </div>
     </div>
 
     <script type="text/javascript">
         window.addEvent('domready', function(){
 
             var steps = [
-                'Preparing ....',
+                'Preparing and cleaning database ....',
                 'Install core modules ...',
                 'Update ORM ...',
                 'Execute database-scripts ...',
@@ -746,6 +779,11 @@ function step5(){
                         if (pResult.error){
                             document.id('progressError').setStyle('display', 'block');
                             document.id('progressError').set('html', pResult.error);
+                            if (pResult.sql){
+                                new Element('div', {
+                                    text: pResult.sql
+                                }).inject(document.id('progressError'));
+                            }
                             if (pResult.exception){
                                 new Element('div', {
                                     text: pResult.exception
@@ -1058,7 +1096,7 @@ function step3(){
 <table style="width: 100%" cellpadding="3">
 
     <tr>
-        <td colspan="2"><div style="color: #aaa;">Following settings are used only for new files created by Kryn.cms.</div>
+        <td colspan="2"><div style="color: #aaa;">Following settings are used only for modified files and new files created by Kryn.cms.</div>
         </td>
     </tr>
     <tr>
@@ -1174,6 +1212,17 @@ function step3(){
             <br />
             * Required fields.
         </td>
+    </tr>
+</table>
+
+<h3>Other</h3>
+<table style="width: 100%" cellpadding="3">
+    <tr>
+        <td width="450">
+            Rename install.php to random name
+            <div style="color: #aaa">Highly recommended for security reasons.</div>
+        </td>
+        <td><input type="checkbox" checked="checked" name="rename" value="1" /></td>
     </tr>
 </table>
 <div id="status" style="padding: 4px;"></div>
