@@ -21,6 +21,8 @@ ka.TextboxList = new Class({
 
     addValue: function(pItem){
 
+        if (typeOf(pItem) == 'null') return;
+
         var span = new Element('span', {
             'class': 'ka-textboxList-item'
         }).inject(this.title);
@@ -75,10 +77,14 @@ ka.TextboxList = new Class({
 
     setValue: function(pValue, pInternal){
 
+        this.clear();
+
+        if (typeOf(pValue) == 'null')
+            return;
+
         if (typeOf(pValue) != 'array')
             pValue = [pValue];
 
-        this.clear();
 
         Array.each(pValue, function(item){
             this.addValue(item);
