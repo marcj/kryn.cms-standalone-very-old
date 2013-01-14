@@ -527,7 +527,7 @@ ka.Parse = new Class({
                             last[key] = {};
                             last = last[key];
                         }
-                    });
+                    }.bind(this));
                     res = Object.merge(res, newRes);
                 } else {
                     val = obj.getValue();
