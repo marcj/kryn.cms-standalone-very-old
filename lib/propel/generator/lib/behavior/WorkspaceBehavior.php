@@ -37,8 +37,6 @@ class WorkspaceBehavior extends Behavior
     {
         $table = $this->getTable();
 
-        $this->addVersionTable();
-
         // add the column if not present
         if(!$table->hasColumn($this->prefix.'id')) {
             $table->addColumn(array(
@@ -68,6 +66,8 @@ class WorkspaceBehavior extends Behavior
                 'type'    => 'INTEGER'
             ));
         }
+
+        $this->addVersionTable();
 
         $table->setBasePeer('\WorkspaceBehaviorPeer');
 
@@ -122,6 +122,7 @@ class WorkspaceBehavior extends Behavior
                 if ($columnInVersionTable->hasReferrers()) {
                     $columnInVersionTable->clearReferrers();
                 }
+
                 if ($columnInVersionTable->isAutoincrement()) {
                     $columnInVersionTable->setAutoIncrement(false);
                 }
@@ -129,34 +130,11 @@ class WorkspaceBehavior extends Behavior
             }
 
             $versionTable->addColumn(array(
-                'name'    => $this->prefix.'id',
-                'type'    => 'INTEGER',
-                'primaryKey' => 'true'
-            ));
-
-            $versionTable->addColumn(array(
                 'name'    => $this->prefix.'rev',
                 'type'    => 'INTEGER',
                 'primaryKey' => 'true',
                 'autoIncrement' => 'true'
             ));
-
-            $versionTable->addColumn(array(
-                'name'    => $this->prefix.'action',
-                'type'    => 'INTEGER'
-            ));
-
-            $versionTable->addColumn(array(
-                'name'    => $this->prefix.'action_date',
-                'type'    => 'INTEGER'
-            ));
-
-            $versionTable->addColumn(array(
-                'name'    => $this->prefix.'action_user',
-                'type'    => 'INTEGER'
-            ));
-
-
 
             // create the foreign key
             $fk = new ForeignKey();
