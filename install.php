@@ -652,6 +652,29 @@ function step5Done($pMsg){
         step5Done(true);
     }
 
+    //debug
+    function step5_9(){
+
+        \Core\TempFile::remove('propel');
+
+        try {
+
+            $diff = \Core\PropelHelper::getSqlDiff();
+            header("Content-Type: text/plain");
+
+            echo $diff;
+
+
+            \Core\PropelHelper::cleanup();
+
+            exit;
+        } catch (Exception $e){
+            step5Failed($e);
+        }
+
+        step5Done(true);
+    }
+
     function step5Init(){
 
         if (!file_exists('config.php')){

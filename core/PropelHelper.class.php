@@ -312,18 +312,6 @@ class PropelHelper {
      */
     public static function updateSchema($pWithDrop = false){
 
-        $tmp = self::getTempFolder();
-
-        if (!file_exists($tmp . 'propel/runtime-conf.xml')){
-            self::writeXmlConfig();
-            self::writeBuildPorperties();
-            self::collectSchemas();
-        }
-
-        if (!\Propel::isInit()){
-            \Propel::init(self::getConfig());
-        }
-
         $sql = self::getSqlDiff($pWithDrop);
 
         if (is_array($sql)){
@@ -334,18 +322,20 @@ class PropelHelper {
             return "Schema up 2 date.";
         }
 
-        $sql = explode(";\n", $sql."\n");
-
-        $result = '';
         $GLOBALS['sql'] = $sql;
 
-        foreach ($sql as $query){
-            if (!trim($query)) continue;
+        dbBegin();
 
-            dbExec($query);
+        try {
+            dbExec($sql);
+        } catch (\PDOException $e){
+            dbRollback();
+            throw new \PDOException($e->getMessage().' in SQL: '.$query);
         }
 
-        return $result?$result:'ok';
+        dbCommit();
+
+        return 'ok';
     }
 
 
@@ -389,6 +379,18 @@ class PropelHelper {
 
 
     public static function getSqlDiff(){
+
+        $tmp = self::getTempFolder();
+
+        if (!file_exists($tmp . 'propel/runtime-conf.xml')){
+            self::writeXmlConfig();
+            self::writeBuildPorperties();
+            self::collectSchemas();
+        }
+
+        if (!\Propel::isInit()){
+            \Propel::init(self::getConfig());
+        }
 
         $tmp = self::getTempFolder();
 

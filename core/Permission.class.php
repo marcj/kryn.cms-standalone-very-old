@@ -60,23 +60,22 @@ class Permission {
         if (!$inGroups) $inGroups = '0';
         if (!$userId) $userId = '0';
 
-        $pObjectKey = esc($pObjectKey);
         $pMode += 0;
 
         $query = "
                 SELECT constraint_type, constraint_code, mode, access, sub, fields FROM ".pfx."system_acl
                 WHERE
-                object = '$pObjectKey' AND
-                (mode = $pMode OR mode = 0) AND
+                object = ? AND
+                (mode = ? OR mode = 0) AND
                 (
-                    ( target_type = 1 AND target_id IN ($inGroups))
+                    ( target_type = 1 AND target_id IN (?))
                     OR
-                    ( target_type = 2 AND target_id = $userId)
+                    ( target_type = 2 AND target_id = ?)
                 )
                 ORDER BY prio DESC
         ";
 
-        $res = dbExec($query);
+        $res = dbQuery($query, array($pObjectKey, $pMode, $inGroups, $userId));
         $rules = array();
 
         while ($rule = dbFetch($res)){

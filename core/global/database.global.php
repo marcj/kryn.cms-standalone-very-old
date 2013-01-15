@@ -97,16 +97,18 @@ function dbBegin(){
  * This also unlocks all locked tables.
  */
 function dbRollback(){
+    static $activeLock = false;
+    static $activeTransaction = false;
 
     dbConnection()->rollback();
-    if (database::$activeLock && Core\Kryn::$config['database']['type'] == 'mysql'){
+    if ($activeLock && Core\Kryn::$config['database']['type'] == 'mysql'){
         dbLock('UNLOCK TABLES');
-        database::$activeLock = false;
+        $activeLock = false;
     }
 
-    if (!database::$activeTransaction) return;
+    if (!$activeTransaction) return;
     dbExec('ROLLBACK');
-    database::$activeTransaction = false;
+    $activeTransaction = false;
 }
 
 /**
