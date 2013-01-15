@@ -17,19 +17,15 @@ class Files implements CacheInterface {
      */
     private $useJson = false;
 
+    /**
+     * {@inheritdoc}
+     */
     public function __construct($pConfig){
 
+
+        $this->testConfig($pConfig);
+
         if (!$pConfig['path']) $pConfig['path'] = \Core\Kryn::getTempFolder().'cache-object/';
-
-        if (!is_dir($pConfig['path'])) {
-            if (!mkdir($pConfig['path'])) {
-                throw new \Exception('Can not create cache folder: ' . $pConfig['path']);
-            }
-        }
-        
-        if (!is_writable($pConfig['path']))
-            throw new \Exception('Cache folder is not writable: ' . $pConfig['path']);
-
         $this->path = $pConfig['path'];
 
         if (Controller::getFastestCacheClass() == '\Core\Cache\Files')
@@ -43,6 +39,24 @@ class Files implements CacheInterface {
 
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function testConfig($pConfig){
+        if (!$pConfig['path']) $pConfig['path'] = \Core\Kryn::getTempFolder().'cache-object/';
+
+        if (!is_dir($pConfig['path'])) {
+            if (!mkdir($pConfig['path'])) {
+                throw new \Exception('Can not create cache folder: ' . $pConfig['path']);
+            }
+        }
+
+        if (!is_writable($pConfig['path']))
+            throw new \Exception('Cache folder is not writable: ' . $pConfig['path']);
+
+        return true;
+    }
+
     public function setPrefix($pPrefix){
         $this->prefix = $pPrefix;
     }
@@ -51,6 +65,9 @@ class Files implements CacheInterface {
         return $this->path . $this->prefix . urlencode($pKey) . ($this->useJson ? '.json' : '.php');
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function get($pKey){
         $path = $this->getPath($pKey);
         if (!file_exists($path)) return false;
@@ -63,6 +80,9 @@ class Files implements CacheInterface {
         return include($path);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function set($pKey, $pValue, $pTimeout = 0){
 
         $path = $this->getPath($pKey);
@@ -75,8 +95,12 @@ class Files implements CacheInterface {
 
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function delete($pKey){
         $path = $this->getPath($pKey);
         return @unlink($path);
     }
+
 }

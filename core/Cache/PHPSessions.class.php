@@ -12,6 +12,9 @@ class PHPSessions implements CacheInterface {
 
     private $config;
 
+    /**
+     * {@inheritdoc}
+     */
     public function __construct($pConfig){
         $this->config = $pConfig;
         $this->startSession();
@@ -21,6 +24,16 @@ class PHPSessions implements CacheInterface {
         Event::listen('core/client/token-changed', array($this, 'startSession'));
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function testConfig($pConfig){
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function startSession($pNewSession = null){
 
         if ($this->config['ClientInstance']){
@@ -38,14 +51,23 @@ class PHPSessions implements CacheInterface {
         session_start();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function get($pKey){
         return $_SESSION[$pKey];
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function set($pKey, $pValue, $pTimeout = null){
         return ($_SESSION[$pKey] = $pValue) ? true : false;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function delete($pKey){
         unset($_SESSION[$pKey]);
     }
