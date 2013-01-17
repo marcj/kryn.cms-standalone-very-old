@@ -16,20 +16,6 @@
         window._path = window._baseUrl = '{Kryn::getBaseUrl()}';
     </script>
 
-    <!--
-    <script type="text/javascript" src="lib/mooeditable/Source/MooEditable/MooEditable.js"></script>
-    <script type="text/javascript" src="lib/mooeditable/Source/MooEditable/MooEditable.UI.MenuList.js"></script>
-    <script type="text/javascript" src="lib/mooeditable/Source/MooEditable/MooEditable.Extras.js"></script>
-    <script type="text/javascript" src="lib/mooeditable/Source/MooEditable/MooEditable.Image.js"></script>
-    <script type="text/javascript" src="lib/mooeditable/Source/MooEditable/MooEditable.Table.js"></script>
-
-    <link rel="stylesheet" type="text/css" href="lib/mooeditable/Assets/MooEditable/MooEditable.css">
-    <link rel="stylesheet" type="text/css" href="lib/mooeditable/Assets/MooEditable/MooEditable.Extras.css">
-    <link rel="stylesheet" type="text/css" href="lib/mooeditable/Assets/MooEditable/MooEditable.SilkTheme.css">
-    <link rel="stylesheet" type="text/css" href="lib/mooeditable/Assets/MooEditable/MooEditable.Image.css">
-    <link rel="stylesheet" type="text/css" href="lib/mooeditable/Assets/MooEditable/MooEditable.Table.css">
-    -->
-
     <script type="text/javascript" src="admin/ui/possibleLangs?noCache={$random}" ></script>
     <script type="text/javascript" src="admin/ui/language?lang={if $smarty.cookies.kryn_language}{$smarty.cookies.kryn_language}{else}{$adminLanguage}{/if}&javascript=1" ></script>
     <script type="text/javascript" src="admin/ui/languagePluralForm?lang={if $smarty.cookies.kryn_language}{$smarty.cookies.kryn_language}{else}{$adminLanguage}{/if}" ></script>
