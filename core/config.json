@@ -256,7 +256,7 @@
                 
             ],
             "nestedLabel": "title",
-            "nestedRootObject": "domain",
+            "nestedRootObject": "Core\\Domain",
             "nestedRootObjectField": "domainId",
             "nestedRootObjectLabelField": "domain",
             "nestedRootAsObject": true,

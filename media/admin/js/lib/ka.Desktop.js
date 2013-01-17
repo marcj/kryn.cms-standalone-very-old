@@ -107,7 +107,7 @@ ka.Desktop = new Class({
                 html: _('Settings')
             }).addEvent('click', function () {
                 this.closeContext();
-                ka.wm.openWindow('admin', 'system/desktopSettings');
+                ka.wm.openWindow('admin/system/desktopSettings');
             }.bind(this)).inject(this.oldContext);
         }
 
@@ -254,7 +254,7 @@ ka.Desktop = new Class({
 
 
         m.addEvent('dblclick', function () {
-            ka.wm.openWindow(pIcon.module, pIcon.code, null, null, pIcon.params);
+            ka.wm.openWindow(pIcon.module + '/' + pIcon.code, null, null, pIcon.params);
         });
 
         pIcon.icon = m;

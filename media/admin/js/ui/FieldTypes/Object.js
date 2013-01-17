@@ -195,7 +195,7 @@ ka.FieldTypes.Object = new Class({
         var button = new ka.Button(t('Choose')).addEvent('click', function () {
 
             if (this.options.designMode) return;
-            ka.wm.openWindow('admin', 'backend/chooser', null, -1, chooserParams);
+            ka.wm.openWindow('admin/backend/chooser', null, -1, chooserParams);
 
         }.bind(this))
         .inject(rightTd);
@@ -285,7 +285,7 @@ ka.FieldTypes.Object = new Class({
         var button = new ka.Button(t('Add')).addEvent('click', function () {
 
             if (this.options.designMode) return;
-            ka.wm.openWindow('admin', 'backend/chooser', null, -1, chooserParams);
+            ka.wm.openWindow('admin/backend/chooser', null, -1, chooserParams);
 
         }.bind(this));
 

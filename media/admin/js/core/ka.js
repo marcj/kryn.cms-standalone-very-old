@@ -12,95 +12,736 @@ ka._links = {};
 window.PATH_MODULE = 'module/';
 window.PATH_MEDIA = 'media/';
 
-/*
- * Build the administration interface after login
+
+/**
+ * @deprecated Use t() instead
+ * @param string p
  */
-ka.init = function () {
-
-    //ka.buildClipboardMenu();
-    ka.buildUploadMenu();
-
-    if (!document.body.hasClass('ka-no-desktop')){
-        if (!ka.desktop)
-            ka.desktop = new ka.Desktop(document.id('desktop'));
-
-        ka.desktop.load();
-    }
-
-    if (!ka.helpsystem)
-        ka.helpsystem = new ka.Helpsystem(document.id('desktop'));
-
-
-    if (ka._iconSessionCounterDiv) {
-        ka._iconSessionCounterDiv.destroy();
-    }
-    ka._iconSessionCounterDiv = new Element('div', {
-        'class': 'iconbar-item icon-users',
-        title: t('Visitors')
-    }).inject(document.id('iconbar'));
-
-    ka._iconSessionCounter = new Element('span', {text: 0}).inject(ka._iconSessionCounterDiv);
-
-
-    window.addEvent('resize', ka.checkMainBarWidth);
-    ka.buildUserMenu();
-
-    window.fireEvent('init');
-
-    if (ka._crawler) {
-        ka._crawler.stop();
-        delete ka._crawler;
-        ka._crawler = new ka.Crawler();
-    } else {
-        ka._crawler = new ka.Crawler();
-    }
-
-    //ka.loadStream();
-
-    window.onbeforeunload = function (evt) {
-
-        if (ka.wm.getWindowsCount() > 0) {
-            var message = _('There are open windows. Are you sure you want to leaving the administration?');
-            if (typeof evt == 'undefined') {
-                evt = window.event;
-            }
-            if (evt) {
-                evt.returnValue = message;
-            }
-            return message;
-        }
-    };
-
-    $(document.body).addEvent('contextmenu', function (e) {
-        e = e || window.event;
-        e.cancelBubble = true;
-        e.returnValue = false;
-        if (e.stopPropagation) e.stopPropagation();
-        if (e.preventDefault) e.preventDefault();
-        if (e.target) {
-            $(e.target).fireEvent('mousedown', e);
-        }
-        return false;
-    });
-
-    window.addEvent('mouseup', function () {
-        ka.destroyLinkContext();
-    });
+window._ = function (p) {
+    return t(p);
+    //return _kml2html(p);
 };
 
 
-window.addEvent('stream', function (res) {
-    $('serverTime').set('html', res.time);
-    ka._iconSessionCounter.set('text', res.sessions_count);
-});
+/**
+ * Return a translated message pMsg with plural and context ability
+ *
+ * @param string pMsg     message id (msgid)
+ * @param string pPlural  message id plural (msgid_plural)
+ * @param int    pCount   the count for plural
+ * @param string pContext the message id of the context (msgctxt)
+ */
+window.t = function(pMsg, pPlural, pCount, pContext) {
+    return _kml2html(ka.translate(pMsg, pPlural, pCount, pContext));
+}
 
-window.addEvent('stream', function (res) {
-    if (res.corruptJson) {
-        Array.each(res.corruptJson, function (item) {
-            ka.helpsystem.newBubble(t('Extension config Syntax Error'), _('There is an error in your inc/module/%s/config.json').replace('%s', item), 4000);
+ka.translate = function(pMsg, pPlural, pCount, pContext) {
+    if (!ka && parent) ka = parent.ka;
+    if (ka && !ka.lang && parent && parent.ka) ka.lang = parent.ka.lang;
+    var id = (!pContext) ? pMsg : pContext + "\004" + pMsg;
+
+    if (ka.lang && ka.lang[id]){
+        if (typeOf(ka.lang[id]) == 'array') {
+            if (pCount){
+                var fn = 'gettext_plural_fn_'+ka.lang['__lang'];
+                var plural = window[fn](pCount)+0;
+
+                if (pCount && ka.lang[id][plural])
+                    return ka.lang[id][plural].replace('%d', pCount);
+                else
+                    return ((pCount === null || pCount === false || pCount === 1) ? pMsg : pPlural);
+            } else {
+                return ka.lang[id][0];
+            }
+        } else {
+            return ka.lang[id];
+        }
+    } else {
+        return ((!pCount || pCount === 1) && pCount !== 0) ? pMsg : pPlural;
+    }
+}
+
+window.tf = function(){
+    var args = Array.from(arguments);
+    var text = args.shift();
+    return text.sprintf.apply(text, args);
+}
+
+/**
+ * Return a translated message $pMsg within a context $pContext
+ *
+ * @param string pContext the message id of the context
+ * @param string pMsg     message id
+ */
+window.tc = function(pContext, pMsg) {
+    return t(pMsg, null, null, pContext);
+}
+
+window._kml2html = function (pRes) {
+
+    var kml = ['ka:help'];
+    if (pRes) {
+        pRes = pRes.replace(/<ka:help\s+id="(.*)">(.*)<\/ka:help>/g, '<a href="javascript:;" onclick="ka.wm.open(\'admin/help\', {id: \'$1\'}); return false;">$2</a>');
+    }
+    return pRes;
+}
+
+window.ka.findWindow = function(pElement){
+
+    if (!typeOf(pElement)){
+        throw 'ka.findWindow(): pElement is not an element.';
+    }
+
+    var window = pElement.getParent('.kwindow-border');
+
+    return window?window.retrieve('win'):false;
+
+}
+
+window.ka.entrypoint = {
+
+    open: function(pEntrypoint, pOptions, pSource, pInline, pDependWindowId){
+
+        var entrypoint = ka.entrypoint.get(pEntrypoint);
+
+        if (!entrypoint){
+            throw 'Can not be found entrypoint: '+pEntrypoint;
+            return false;
+        }
+
+        if (['custom', 'iframe', 'list', 'edit', 'add', 'combine'].contains(entrypoint.type)){
+            ka.wm.open(pEntrypoint, pOptions, pDependWindowId, pInline, pSource);
+        } else if(entrypoint.type == 'function'){
+            ka.entrypoint.exec(entrypoint, pOptions, pSource);
+        }
+
+
+    },
+
+    getRelative: function(pCurrent, pEntryPoint){
+
+        if (typeOf(pEntryPoint) != 'string' || !pEntryPoint) return pCurrent;
+
+        if (pEntryPoint.substr(0,1) == '/')
+            return pEntryPoint;
+
+        var current = pCurrent+'';
+        if (current.substr(current.length-1, 1) != '/')
+            current += '/';
+
+        return current+pEntryPoint;
+
+
+    },
+
+    //executes a entry point from type function
+    exec: function(pEntrypoint, pOptions, pSource){
+
+        if (pEntrypoint.functionType == 'global'){
+            if (window[pEntrypoint.functionName]){
+                window[pEntrypoint.functionName](pOptions);
+            }
+        } else if(pEntrypoint.functionType == 'code'){
+            eval(pEntrypoint.functionCode);
+        }
+
+    },
+
+    get: function(pEntrypoint){
+
+        if (typeOf(pEntrypoint) != 'string') return false;
+
+        var splitted = pEntrypoint.split('/');
+        var extension = splitted[0];
+
+        splitted.shift();
+
+        var code = splitted.join('/');
+
+        var tempEntry = false;
+
+        var path = [], config, notFound = false;
+
+        if (ka.settings.configs.admin.admin[extension]){
+            config = ka.settings.configs.admin;
+            splitted.unshift(extension);
+        } else
+            config = ka.settings.configs[extension];
+        if (!config){
+            throw 'Config not found for module '+extension;
+        }
+
+        tempEntry = config.admin[splitted.shift()];
+        path.push(tempEntry['title']);
+
+        while(item = splitted.shift()){
+            if (tempEntry.children && tempEntry.children[item]){
+                tempEntry = tempEntry.children[item];
+                path.push(tempEntry['title']);
+            } else {
+                notFound = true;
+                break;
+            }
+        };
+
+        if (notFound) return false;
+
+        tempEntry._path = path;
+        tempEntry._module = extension;
+        tempEntry._code = code;
+
+        return tempEntry;
+    }
+
+};
+
+/**
+ * Adds a prefix to the keys of pFields.
+ * Good to group some values of fields of ka.Parse.
+ *
+ * Example:
+ *
+ *   pFields = {
+ *      field1: {type: 'text', label: 'Field 1'},
+ *      field2: {type: 'checkbox', label: 'Field 2'}
+ *   }
+ *
+ *   pPrefix = 'options'
+ *
+ *   pFields will be changed to:
+ *   {
+ *      'options[field1]': {type: 'text', label: 'Field 1'},
+ *      'options[field2]': {type: 'checkbox', label: 'Field 2'}
+ *   }
+ *
+ * @param {Array} pFields Reference to object.
+ * @param {String} pPrefix
+ */
+ka.addFieldKeyPrefix = function(pFields, pPrefix){
+    Object.each(pFields, function(field, key){
+        pFields[pPrefix+'['+key+']'] = field;
+        delete pFields[key];
+        if (pFields.children)
+            ka.addFieldKeyPrefix(field.children, pPrefix);
+    });
+}
+
+/**
+ * Resolve path notations and returns the appropriate class.
+ *
+ * @param {String} pClassPath
+ * @return {Class|Function}
+ */
+ka.getClass = function(pClassPath){
+    pClassPath = pClassPath.replace('[\'', '');
+    pClassPath = pClassPath.replace('\']', '');
+
+    if (pClassPath.indexOf('.') > 0 ){
+        var path = pClassPath.split('.');
+        var clazz = null;
+        Array.each(path, function(item){
+            clazz = clazz ? clazz[item] : window[item];
+        });
+        return clazz;
+    }
+
+    return window[pClassPath];
+}
+
+/**
+ * Encodes a value from url usage.
+ * If Array, it encodes the whole array an implodes it with comma.
+ * If Object, it encodes the while object an implodes the <key>=<value> pairs with a comma.
+ *
+ * @param {String} pValue
+ * @return {STring}
+ */
+ka.urlEncode = function(pValue){
+
+    if (typeOf(pValue) == 'string'){
+        return encodeURIComponent(pValue);
+    } else if (typeOf(pValue) == 'array'){
+        var result = '';
+        Array.each(pValue, function(item){
+            result += ka.urlEncode(item)+',';
+        });
+        return result.substr(0, result.length-1);
+    } else if (typeOf(pValue) == 'object'){
+        var result = '';
+        Array.each(pValue, function(item, key){
+            result += key+'='+ka.urlEncode(item)+',';
+        });
+        return result.substr(0, result.length-1);
+    }
+
+    return pValue;
+
+}
+
+/**
+ * Decodes a value for url usage.
+ * @param {String} pValue
+ * @return {String}
+ */
+ka.urlDecode = function(pValue){
+
+    if (typeOf(pValue) != 'string') return pValue;
+
+    try {
+        return decodeURIComponent(pValue);
+    } catch(e){
+        return pValue;
+    }
+
+}
+
+/**
+ * Returns a absolute path.
+ * If pPath begins with # it returns pPath
+ * if pPath is not a string it returns pPath
+ * if pPath contains http:// on the beginning it returns pPath
+ *
+ * @param {String} pPath
+ * @return {String}
+ */
+ka.mediaPath = function(pPath){
+
+    if (typeOf(pPath) != 'string') return pPath;
+
+    if (pPath.substr(0,1) == '#') return pPath;
+
+    if (pPath.substr(0,1) == '/'){
+        return _path+pPath.substr(1);
+    } else if (pPath.substr(0,7) == 'http://'){
+        return pPath;
+    } else {
+        return _path+'media/'+pPath;
+    }
+
+}
+
+/**
+ * Returns a list of the primary keys if pObjectKey.
+ *
+ * @param {String} pObjectKey
+ * @return {Array}
+ */
+ka.getObjectPrimaryList = function(pObjectKey){
+    var def = ka.getObjectDefinition(pObjectKey);
+
+    var res = [];
+    Object.each(def.fields, function(field, key){
+        if (field.primaryKey)
+            res.push(key);
+    });
+
+    return res;
+}
+
+/**
+ * Return only the primary keys of pItem as object.
+ *
+ * @param {String} pObjectKey
+ * @param {Object} pItem
+ */
+ka.getObjectPk = function(pObjectKey, pItem){
+    var pks = ka.getObjectPrimaryList(pObjectKey);
+    var result = {};
+    Array.each(pks, function(pk){
+        result[pk] = pItem[pk];
+    });
+    return result;
+}
+
+/**
+ * This just cut off object://<objectName>/ and returns the primary key part.
+ *
+ * @param {String} pUri Internal uri
+ * @return {String}
+ */
+ka.getCroppedObjectId = function(pUri){
+
+    if (pUri.indexOf('object://') == 0)
+        pUri = pUri.substr(9);
+
+    var idx = pUri.indexOf('/');
+
+    return pUri.substr(idx+1);
+}
+
+/**
+ * Returns the id of an object item for the usage in urls (internal uri's) - urlencoded.
+ * If you need the full uri, you ka.getObjectUrl
+ *
+ * @param {String} pObjectKey
+ * @param {Array}  pItem
+ * @return {String} urlencoded internal uri part of the id.
+ */
+ka.getObjectUrlId = function(pObjectKey, pItem){
+    if (!pItem) throw 'pItem missing.';
+    var pks = ka.getObjectPrimaryList(pObjectKey);
+
+    if (pks.length == 0 ) throw pObjectKey+' does not have primary keys.';
+
+    var urlId = '';
+    if (pks.length == 1 && typeOf(pItem) != 'object'){
+        return ka.urlEncode(pItem)+'';
+    } else {
+        Array.each(pks, function(pk){
+            urlId += ka.urlEncode(pItem[pk])+',';
+        });
+        return urlId.substr(0, urlId.length-1);
+    }
+
+}
+
+/**
+ * Just convert the arguments into a new string :
+ *    object://<pObjectKey>/<pId>
+ *
+ *
+ * @param {String} pObjectKey
+ * @param {String} pId Has to be urlencoded (use ka.urlEncode())
+ * @return {String}
+ */
+ka.getObjectUrl = function(pObjectKey, pId){
+    return 'object://'+pObjectKey+'/'+pId;
+}
+
+/**
+ * Returns the object key (not id) from an object uri.
+ *
+ * @param pUrl
+ */
+ka.getObjectKey = function(pUrl){
+    if (typeOf(pUrl) != 'string') throw 'pUrl is not a string';
+
+    if (pUrl.indexOf('object://') == 0)
+        pUrl = pUrl.substr(9);
+
+    var idx = pUrl.indexOf('/');
+    if (idx == -1) return pUrl;
+
+    return pUrl.substr(0, idx);
+}
+
+/**
+ * Returns the PK of an object from a internal object uri as object or string.
+ * Since the ID part of the url is urlencoded, we return it urldecoded.
+ *
+ * Examples:
+ *
+ *  pUrl = object://user/1
+ *  => 1
+ *
+ *  pUrl = object://user/1/3
+ *  => [1,3]
+ *
+ *  pUrl = object://file/%2Fadmin%2Fimages%2Fhi.jpg
+ *  => /admin/images/hi.jpg
+ *
+ * @param  {String} pUrl   object://user/1
+ * @return {String|Object}  If we have only one pk, it returns a string, otherwise an array.
+ */
+ka.getObjectId = function(pUrl){
+    if (typeOf(pUrl) != 'string') return pUrl;
+    var res = [];
+
+    if (pUrl.indexOf('object://') != -1){
+        var id = pUrl.substr(10+pUrl.substr('object://'.length).indexOf('/'));
+    } else if (pUrl.indexOf('/') != -1){
+        var id = pUrl.substr(pUrl.indexOf('/'));
+    } else {
+        var id = pUrl;
+    }
+
+    if (id.indexOf(';') != -1){
+        Array.each(id.split(';'), function(tId){
+            res.push(ka.urlDecode(tId));
+        });
+        return res;
+    } else {
+        return ka.urlDecode(id);
+    }
+}
+
+/**
+ * Returns the object label, based on a label field or label template (defined
+ * in the object definition).
+ * This function calls perhaps the REST API to get all information.
+ * If you already have an item object, you should probably use ka.getObjectLabelByItem();
+ *
+ * You can call this function really fast consecutively, since it queues all and fires
+ * only one REST API call that receives all items at once per object key.(at least after 50ms of the last call).
+ *
+ * @param {String} pUri
+ * @param {Function} pCb the callback function.
+ *
+ */
+ka.getObjectLabel = function(pUri, pCb){
+
+    var objectKey = ka.getObjectKey(pUri);
+
+    if (ka.getObjectLabelBusy[objectKey]){
+        ka.getObjectLabel.delay(10, ka.getObjectLabel, [pUri, pCb]);
+        return;
+    }
+
+    if (ka.getObjectLabelQTimer[objectKey])
+        clearTimeout(ka.getObjectLabelQTimer[objectKey]);
+
+    if (!ka.getObjectLabelQ[objectKey])
+        ka.getObjectLabelQ[objectKey] = {};
+
+    if (!ka.getObjectLabelQ[objectKey][pUri])
+        ka.getObjectLabelQ[objectKey][pUri] = [];
+
+    ka.getObjectLabelQ[objectKey][pUri].push(pCb);
+
+    ka.getObjectLabelQTimer[objectKey] = (function(){
+
+        ka.getObjectLabelBusy = true;
+
+        var uri = 'object://'+ka.urlEncode(objectKey)+'/';
+        Object.each(ka.getObjectLabelQ[objectKey], function(cbs, requestedUri){
+            uri += ka.getCroppedObjectId(requestedUri)+';';
+        });
+        if (uri.substr(uri.length-1, 1)==';')
+            uri = uri.substr(0, uri.length-1);
+
+        new Request.JSON({url: _path + 'admin/backend/objects',
+            noCache: 1, noErrorReporting: true,
+            onComplete: function(pResponse){
+
+                var result, id, cb;
+
+                Object.each(pResponse.data, function(item, pk){
+
+                    id = 'object://'+objectKey+'/'+pk;
+                    result = ka.getObjectLabelByItem(objectKey, item);
+
+                    //if the pUri and id differs, then the appropriate cb
+                    //is not called. Like 'files' object that accepts
+                    //two ids: the numeric id and the path.
+                    //TODO, search solution for this
+
+                    if (ka.getObjectLabelQ[objectKey][id]){
+                        while( (cb = ka.getObjectLabelQ[objectKey][id].pop()) ){
+                            cb(result);
+                        }
+                    }
+
+                });
+
+                //call the callback of invalid requests with false argument.
+                Object.each(ka.getObjectLabelQ[objectKey], function(cbs){
+                    cbs.each(function(cb){
+                        cb.attempt(false);
+                    });
+                });
+
+                ka.getObjectLabelBusy[objectKey] = false;
+                ka.getObjectLabelQ[objectKey] = {};
+
+            }}).get({uri: uri, returnKeyAsRequested: 1});
+
+    }).delay(50);
+
+}
+ka.getObjectLabelQ = {};
+ka.getObjectLabelBusy = {};
+ka.getObjectLabelQTimer = {};
+
+/**
+ * Returns the object label, based on a label field or label template (defined
+ * in the object definition).
+ *
+ * @param {String} pObjectKey
+ * @param {Object} pItem
+ * @param {String} pMode 'default', 'field' or 'tree'. Default is 'default'
+ * @return {String}
+ */
+ka.getObjectLabelByItem = function(pObjectKey, pItem, pMode){
+
+    var definition = ka.getObjectDefinition(pObjectKey);
+    if (!definition) throw 'Object not found '+pObjectKey;
+
+    var template = definition.labelTemplate;
+    var label = definition.labelField;
+
+
+    /* field ui */
+    if (pMode == 'field' && definition.fieldTemplate)
+        template = definition.fieldTemplate;
+
+    if (pMode == 'field' && definition.fieldLabel)
+        label = definition.fieldLabel;
+
+    /* tree */
+    if (pMode == 'tree' && definition.treeTemplate)
+        template = definition.treeTemplate;
+
+    if (pMode == 'tree' && definition.treeLabel)
+        label = definition.treeLabel;
+
+    if (!template){
+        //we only have an label field, so return it
+        return mowla.fetch('{label}', {label: pItem[label]});
+    }
+
+    return mowla.fetch(template, pItem);
+}
+
+/**
+ * Returns all labels for a object item.
+ *
+ * @param {Object}  pFields  The array of fields definition, that defines /how/ you want to show the data. limited range of 'type' usage.
+ * @param {Object}  pItem
+ * @param {String} pObjectKey
+ * @param {Boolean} pRelationsAsArray Relations would be returned as arrays/origin or as string(default).
+ *
+ * @return {Object}
+ */
+ka.getObjectLabels = function(pFields, pItem, pObjectKey, pRelationsAsArray){
+
+    var data = pItem, dataKey;
+    Object.each(pFields, function(field, fieldId){
+        dataKey = fieldId;
+        if (pRelationsAsArray && dataKey.indexOf('.') > 0) dataKey = dataKey.split('.')[0];
+
+        data[dataKey] = ka.getObjectFieldLabel(pItem, field, fieldId, pObjectKey, pRelationsAsArray);
+    }.bind(this));
+
+    return data;
+}
+
+/**
+ * Returns a single label for a field of a object item.
+ *
+ * @param {Object} pValue
+ * @param {Object} pField The array of fields definition, that defines /how/ you want to show the data. limited range of 'type' usage.
+ * @param {String} pFieldId
+ * @param {String} pObjectKey
+ * @param {Boolean} pRelationsAsArray
+ *
+ * @return {String}
+ */
+ka.getObjectFieldLabel = function(pValue, pField, pFieldId, pObjectKey, pRelationsAsArray){
+
+    var fields = ka.getObjectDefinition(pObjectKey);
+    if (!fields) throw 'Object not found '+pObjectKey;
+
+    var fieldId = pFieldId;
+    if (pFieldId.indexOf('.') > 0){
+        fieldId = pFieldId.split('.')[0];
+    }
+
+    fields = fields['fields'];
+    var field = fields[fieldId];
+
+    var showAsField = pField || field;
+    if (!showAsField.type){
+        Object.each(field, function(v, i){
+            if (!showAsField[i])
+                showAsField[i] = v;
         });
     }
-});
+
+    pValue = Object.clone(pValue);
+
+    if (!field) return typeOf(pValue[fieldId]) != 'null' ? pValue[fieldId] : '';
+
+    var value = pValue[fieldId] || '';
+
+    if (showAsField.type == 'predefined'){
+        showAsField = ka.getObjectDefinition(field.object).fields[field.field];
+    }
+
+    if (showAsField.format == 'timestamp') {
+        value = new Date(value * 1000).toLocaleString();
+    }
+
+    if (showAsField.type == 'datetime' || showAsField.type == 'date') {
+        if (value != 0 && value) {
+            var format = ( !showAsField.format ) ? '%d.%m.%Y %H:%M' : showAsField.format;
+            value = new Date(value * 1000).format(format);
+        } else {
+            value = '';
+        }
+    }
+
+    //relations
+    var label, relation;
+    if (field.type == 'object' || !field.type){
+        if (pFieldId.indexOf('.') > 0){
+            relation = pFieldId.split('.')[0];
+            label = pFieldId.split('.')[1];
+        } else {
+            //find label
+            var def = ka.getObjectDefinition(pObjectKey);
+            label = def.labelField;
+        }
+    }
+
+    if (typeOf(pValue[relation]) == 'object'){
+        //to-one relation
+        value = {};
+        if (pRelationsAsArray){
+            value[label] = pValue[relation][label];
+            return value;
+        } else {
+            return pValue[relation] ? pValue[relation][label] : '';
+        }
+    }
+
+    if (typeOf(pValue[relation]) == 'array'){
+        //to-many relation
+        //we join by pField['join'] char, default is ';'
+        value = [];
+        Array.each(pValue[relation], function(relValue){
+            value.push(relValue[label]);
+        });
+        var joined = value.join(pField['join'] || ', ');
+        if (pRelationsAsArray){
+            value = {};
+            value[label] = joined;
+            return value;
+        } else {
+            return joined;
+        }
+    }
+
+    if (field.type == 'select') {
+        value = pValue[pFieldId +'_'+ pField.table_label] || pValue[pFieldId +'_'+ pField.tableLabel] || pValue[pFieldId + '__label'];
+    }
+
+    if (showAsField.type && showAsField.type.toLowerCase() == 'imagemap'){
+        //TODO
+    }
+
+    if (field.imageMap) {
+        return '<img src="' + _path + field.imageMap[value] + '"/>';
+    }
+    return value;
+}
+
+/**
+ * Returns the module title of the given module key.
+ *
+ * @param {String} pKey
+ * @return {String} Or false, if the module does not exist/its not activated.
+ */
+ka.getExtensionTitle = function(pKey){
+
+    var config = ka.settings.configs[pKey];
+    if (!config) return false;
+
+    if (typeOf(config.title) != 'string'){
+        return config.title[window._session.lang] || config.title['en'];
+    }
+
+    return config.title;
+}
 
 ka.tryLock = function (pWin, pKey, pForce) {
     if (!pForce) {
@@ -134,56 +775,6 @@ ka.bytesToSize = function (bytes) {
     return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i];
 };
 
-
-ka.toggleMainbar = function () {
-    if ($('border').getStyle('top').toInt() != 0) {
-        $('border').tween('top', 0);
-        $('arrowUp').setStyle('background-color', 'transparent');
-        $('arrowUp').morph({
-            'top': 0,
-            left: 0
-        });
-    } else {
-        $('border').tween('top', -76);
-        $('arrowUp').setStyle('background-color', '#399BC7');
-        $('arrowUp').morph({
-            'top': 61,
-            left: 32
-        });
-    }
-}
-
-
-ka.buildUserMenu = function(){
-    if (ka.userMenu) ka.userMenu.destroy();
-
-    ka.userMenu = new Element('div', {
-        'class': 'bar-dock-menu-style',
-        style: 'right: 36px;'
-    }).inject(document.id('border'))
-
-    new Element('a', {
-        text: t('Edit me')
-    })
-    .addEvent('click', function(){
-        ka.wm.open('users/users/editMe', {values: {id: window._user_id}});
-    })
-    .inject(ka.userMenu);
-
-    new Element('a', {
-        text: t('Logout')
-    })
-    .addEvent('click', function(){
-        ka.ai.logout();
-    })
-    .inject(ka.userMenu);
-
-    var xoffset = ka.userMenu.getSize().x;
-    xoffset -= document.id('user-username').getSize().x;
-    xoffset *= -1;
-
-    ka.makeMenu(document.id('user-username'), ka.userMenu, true, {y: 46, x: xoffset+2});
-}
 
 ka.clearCache = function () {
 
@@ -277,228 +868,6 @@ ka.resetWindows = function () {
     ka.wm.resizeAll();
 }
 
-ka.check4Updates = function () {
-    if (window._session.user_id == 0) return;
-    new Request.JSON({url: _path + 'admin/system/module/manager/check-updates', noCache: 1, onComplete: function (res) {
-        if (res && res.found) {
-            ka.displayNewUpdates(res.modules);
-        }
-        ka.check4Updates.delay(10 * (60 * 1000));
-    }}).get();
-}
-
-ka.checkPageAccessHasCode = function (pCodes, pAction) {
-    var access = (pCodes.indexOf(pAction) != -1 );
-
-    return access;
-
-    /*
-     Why did we do that?
-     if( !access ){
-
-     var acl_all = false;
-     var acl_tab = false;
-
-     $H(ka.settings.pageAcls).each(function(subAll,keyAll){
-
-     $H(subAll).each(function(tabSubs, tabKey){
-     if( tabSubs.indexOf(pAction) != -1 && tabKey != 'tree' ){
-     acl_tab = tabKey;
-     }
-     })
-
-     });
-
-     if( acl_tab ){
-     access = (pCodes.indexOf( acl_tab ) != -1 );
-     }
-
-     }
-     return access;
-     */
-}
-
-
-ka.checkDomainAccess = function (pRsn, pAction) {
-    return ka.checkPageAccess(pRsn, pAction, 'd');
-}
-
-ka.checkPageAccess = function (pRsn, pAction, pType) {
-    if (!pType) pType = 'p'; //p=page, d=domain
-
-    if (!pRsn) return false;
-
-    if (ka.settings.acl_pages.length == 0) return true;
-
-    var access = false;
-
-    var current_id = pRsn;
-    var current_type = pType;
-    var not_found = true;
-    var parent_acl = false;
-
-    var codes = [];
-
-    while (not_found) {
-
-        var acl = ka._getPageAcl(current_id, current_type);
-        if (acl && acl.code) {
-            codes = acl.code.split('[')[1].replace(']', '').split(',');
-            if (ka.checkPageAccessHasCode(codes, pAction)) {
-                if ((parent_acl == false) || (parent_acl == true && acl.code.indexOf('%') != -1)) {
-                    access = (acl.access == 1) ? true : false;
-                    not_found = false;
-                }
-            }
-        }
-
-        if (not_found == true && current_type == 'd') {
-            //no parent acl on domain-level
-            not_found = false;
-        }
-
-        if (not_found == true && current_type == 'p') {
-            //search and set parent
-            var parent = ka.getPageParent(current_id);
-            if (parent.domain) {
-                //parent is domain
-                current_id = parent.domain_id;
-                current_type = 'd';
-            } else {
-                current_id = parent.id;
-            }
-            parent_acl = true;
-        }
-    }
-
-
-    return access;
-}
-
-ka.getPageParent = function (pRsn) {
-
-    var domain_id = ka.getDomainOfPage(pRsn);
-
-    var page_tree = $H(ka.settings['menus_' + domain_id]).get(pRsn);
-    var result = {pid: 0, domain_id: domain_id, domain: true};
-
-    if (!page_tree) return result;
-
-    var page = page_tree[ page_tree.length - 1 ];
-
-    if (page_tree.length >= 1 && page) {
-        result = page;
-        result.domain_id = domain_id;
-    }
-
-    return result;
-}
-
-ka.getDomainOfPage = function (pRsn) {
-    var id = false;
-
-    pRsn = ',' + pRsn + ',';
-    Object.each(ka.settings.r2d, function (pages, domain_id) {
-        var pages = ',' + pages + ',';
-        if (pages.indexOf(pRsn) != -1) {
-            id = domain_id;
-        }
-    });
-    return id;
-}
-
-ka._getPageAcl = function (pRsn, pType) {
-    var acl = false;
-    ka.settings.acl_pages.each(function (item) {
-
-        var type = item.code.substr(0, 1);
-        if (pType != type) return;
-        var id = item.code.substr(1, item.code.length).split('[')[0].replace('%', '');
-        if (id == pRsn) {
-            acl = item;
-        }
-    })
-    return acl;
-}
-
-
-ka.checkAccess = function (pType, pCode, pAction, pRootHasAccess) {
-
-    //self::normalizeCode( $pCode );
-
-    if (!ka.settings.acls[pType] || ka.settings.acls[pType].length == 0) return true;
-
-    var access = false;
-
-    var current_code = $pCode;
-
-    var not_found = true;
-    var parent_acl = false;
-
-    var codes = [];
-
-
-    while (not_found) {
-
-        var acl = ka.getAcl(pType, current_code);
-
-        if (acl && acl['code']) {
-
-            var code = acl.code.replace(']', ''); //str_replace(']', '', $acl['code']);
-            var t = code.split('['); //explode('[', $code);
-            var codes = false;
-            if (t[1]) {
-                codes = t[1].split(',');
-            }
-
-            if (codes == false || codes.contains(pAction)) {
-                if ((parent_acl == false) || //i'am not a parent
-                    (parent_acl == true && acl.code.indexOf('%') > 0)) {
-                    access = (acl['access'] == 1) ? true : false;
-                    not_found = false; //done
-                }
-            }
-        }
-
-        if (current_code == '/') {
-            //we are at the top. no parents left
-            if (pRootHasAccess == true) {
-                access = true;
-            }
-            not_found = false; //go out
-        }
-
-        //go to parent
-        if (not_found == true && current_code != '/') {
-            //search and set parent
-            pos = current_code.indexOf('/'); //strpos($current_code, '/');
-            current_code = current_code.substr(0, pos); //substr( $current_code, 0, $pos );
-
-            parent_acl = true;
-        }
-    }
-
-    return access;
-}
-
-ka.getAcl = function (pType, current_code) {
-    var acls = ka.settings.acls[pType];
-
-    var acl = false;
-
-    acls.each(function (item, key) {
-
-        var code = item.code.replace('%', '');
-        var t = code.split('[');
-        code = t[0];
-        if (current_code == code) {
-            acl = item;
-        }
-
-    });
-    return acl;
-}
-
 
 ka.addStreamParam = function (pKey, pVal) {
     ka.streamParams[pKey] = pVal;
@@ -536,204 +905,6 @@ ka.loadStream = function () {
     }).delay(50);
 }
 
-ka.startSearchCrawlerInfo = function (pHtml) {
-    ka.stopSearchCrawlerInfo();
-
-    this.startSearchCrawlerInfoMenu = new Element('div', {
-        'class': 'ka-updates-menu',
-        style: 'left: 170px; width: 177px;'
-    }).inject($('border'));
-
-    this.startSearchCrawlerInfoMenuHtml = new Element('div', {
-        html: pHtml
-    }).inject(this.startSearchCrawlerInfoMenu);
-
-    this.startSearchCrawlerProgressLine = new Element('div', {
-        style: 'position: absolute; bottom: 1px; left: 4px; width: 0px; height: 1px; background-color: #444;'
-    }).inject(this.startSearchCrawlerInfoMenu);
-
-    this.startSearchCrawlerInfoMenu.tween('top', 48);
-}
-
-ka.setSearchCrawlerInfo = function (pHtml) {
-    this.startSearchCrawlerInfoMenuHtml.set('html', pHtml);
-}
-
-ka.stopSearchCrawlerInfo = function (pOutroText) {
-    if (!this.startSearchCrawlerInfoMenu) return;
-
-    var doOut = function () {
-        this.startSearchCrawlerInfoMenu.tween('top', 17);
-    }.bind(this);
-
-    if (pOutroText) {
-        this.startSearchCrawlerInfoMenuHtml.set('html', pOutroText);
-        doOut.delay(2000);
-    } else {
-        doOut.call();
-    }
-
-}
-
-ka.setSearchCrawlerProgress = function (pPos) {
-    var maxLength = 177 - 8;
-    var pos = maxLength * pPos / 100;
-    this.startSearchCrawlerProgressLine.set('tween', {duration: 100});
-    this.startSearchCrawlerProgressLine.tween('width', pos);
-}
-
-ka.stopSearchCrawlerProgress = function () {
-    this.startSearchCrawlerProgressLine.set('tween', {duration: 10});
-    this.startSearchCrawlerProgressLine.tween('width', 0);
-}
-
-ka.openSearchContextClose = function () {
-    if (ka.openSearchContextLast) {
-        ka.openSearchContextLast.destroy();
-    }
-
-}
-
-ka.openSearchContext = function () {
-
-    var button = $('ka-btn-create-search-index');
-
-    ka.openSearchContextClose();
-
-    this.openSearchContextLast = new Element('div', {
-        'class': 'ka-searchcontext'
-    }).inject($('border'));
-
-    var pos = button.getPosition($('border'));
-    var size = $('border').getSize();
-    var right = size.x - pos.x;
-
-    this.openSearchContextLast.setStyle('right', right - 30);
-
-    new Element('img', {
-        'class': 'ka-searchcontext-arrow',
-        src: _path + PATH_MEDIA + '/admin/images/ka-tooltip-corner-top.png'
-    }).inject(this.openSearchContextLast);
-
-    this.openSearchContextContent = new Element('div', {
-        'class': 'ka-searchcontext-content'
-    }).inject(this.openSearchContextLast);
-
-    this.openSearchContextBottom = new Element('div', {
-        'class': 'ka-searchcontext-bottom'
-    }).inject(this.openSearchContextLast);
-
-    new ka.Button(_('Indexed pages')).addEvent('click',
-        function () {
-            ka.wm.open('admin/system/searchIndexerList');
-        }).inject(this.openSearchContextBottom);
-
-
-    ka.openSearchContextClearIndex = new ka.Button(_('Clear index')).addEvent('click',
-        function () {
-            ka.openSearchContextClearIndex.startTip(_('Clearing index ...'));
-
-            new Request.JSON({url: _path + 'admin/backend/searchIndexer/clearIndex', noCache: 1, onComplete: function (pRes) {
-                ka.openSearchContextClearIndex.stopTip(_('Done'));
-            }.bind(this)}).post();
-        }).inject(this.openSearchContextBottom);
-
-    new Element('a', {
-        style: 'position: absolute; right: 5px; top: 3px; text-decoration: none; font-size: 13px;',
-        text: 'x',
-        title: _('Close'),
-        href: 'javascript: ;'
-    }).addEvent('click', ka.openSearchContextClose).inject(this.openSearchContextLast);
-
-    ka.openSearchContextLoad();
-
-}
-
-
-ka.openSearchContextLoad = function () {
-
-    ka.openSearchContextContent.set('html', '<br /><br /><div style="text-align: center; color: gray;">' + _('Loading ...') + '</div>');
-
-
-    ka.openSearchContextTable = new ka.Table([
-        [_('Domain'), 190],
-        [_('Indexed pages')]
-    ]);
-
-    new Request.JSON({url: _path + 'admin/backend/searchIndexer/getIndexedPages4AllDomains',
-        noCache: 1,
-        onComplete: function (pRes) {
-
-            ka.openSearchContextContent.empty();
-
-            ka.openSearchContextTable.inject(ka.openSearchContextContent);
-
-            if (pRes) {
-                pRes.each(function (domain) {
-                    ka.openSearchContextTable.addRow([domain.domain + '<span style="color:gray"> (' + domain.lang + ')</span>', domain.indexedcount]);
-                });
-            }
-
-        }
-    }).post();
-
-
-}
-
-
-ka.displayNewUpdates = function (pModules) {
-    if (this.newUpdatesMenu) {
-        this.newUpdatesMenu.destroy();
-    }
-
-    var html = _('New updates !');
-    /*
-     pModules.each(function(item){
-     html += item.name+' ('+item.newVersion+')<br />';
-     });
-     */
-    this.newUpdatesMenu = new Element('div', {
-        'class': 'ka-updates-menu',
-        html: html
-    })/*
-     .addEvent('mouseover', function(){
-     this.tween('height', this.scrollHeight );
-     })
-     .addEvent('mouseout', function(){
-     this.tween('height', 24 );
-     })
-     */.addEvent('click',
-        function () {
-            ka.wm.open('admin/system/module', {updates: 1});
-        }).inject($('border'));
-    this.newUpdatesMenu.tween('top', 48);
-}
-
-ka.buildClipboardMenu = function () {
-    ka.clipboardMenu = new Element('div', {
-        'class': 'ka-clipboard-menu'
-    }).inject($('header'), 'before');
-}
-
-ka.buildUploadMenu = function () {
-    ka.uploadMenu = new Element('div', {
-        'class': 'ka-upload-menu',
-        styles: {
-            height: 22
-        }
-    }).addEvent('mouseover',
-        function () {
-            this.tween('height', this.scrollHeight);
-        }).addEvent('mouseout',
-        function () {
-            this.tween('height', 22);
-        }).inject($('header'), 'before');
-
-    ka.uploadMenuInfo = new Element('div', {
-        'class': 'ka-upload-menu-info'
-    }).inject(ka.uploadMenu);
-}
-
 ka.getClipboard = function () {
     return ka.clipboard;
 }
@@ -747,770 +918,6 @@ ka.setClipboard = function (pTitle, pType, pValue) {
 ka.clearClipboard = function () {
     ka.clipboard = {};
     //ka.clipboardMenu.tween('top', 20);
-}
-
-ka.createModuleMenu = function () {
-    if (ka._moduleMenu) {
-        ka._moduleMenu.destroy();
-    }
-
-    ka._moduleMenu = new Element('div', {
-        'class': 'ka-module-menu',
-        style: 'left: -250px;'
-    }).addEvent('mouseover', ka.toggleModuleMenuIn.bind(this, true)).addEvent('mouseout', ka.toggleModuleMenuOut).inject(document.body);
-    ka._moduleMenu.set('tween', {transition: Fx.Transitions.Quart.easeOut});
-
-    ka.moduleToggler = new Element('div', {
-        'class': 'ka-module-toggler'
-    }).addEvent('click',
-        function () {
-            ka.toggleModuleMenuIn();
-        }).inject(ka._moduleMenu);
-
-    new Element('img', {
-        src: _path + PATH_MEDIA + _('admin/images/extensions-text.png')
-    }).addEvent('click', ka.toggleModuleMenuIn).inject(ka.moduleToggler);
-
-    new Element('div', {
-        html: _('Extensions'),
-        style: 'padding-left: 15px; color: white; font-weight: bold; padding-top: 4px;'
-    }).inject(ka._moduleMenu);
-
-    ka.moduleItems = new Element('div', {
-        'class': 'ka-module-items'
-    }).inject(ka._moduleMenu);
-
-
-    ka.moduleItemsScrollerContainer = new Element('div', {
-        'class': 'ka-module-items-scroller-container'
-    }).inject(ka._moduleMenu);
-
-    ka.moduleItemsScroller = new Element('div', {
-        'class': 'ka-module-items-scroller'
-    }).inject(ka.moduleItemsScrollerContainer);
-    //}).inject( ka._moduleMenu );
-
-    //window.addEvent('resize', ka.updateModuleItemsScrollerSize);
-
-
-    ka.moduleItemsScroller.addEvent('mousedown', function () {
-        ka.moduleItemsScrollerDown = true;
-    });
-
-    ka.moduleItems.addEvent('mousewheel', function (e) {
-
-        var newPos = ka.moduleItemsScrollSlider.step;
-
-        if (e.wheel > 0) {
-            //up
-            newPos--;
-        } else if (e.wheel < 0) {
-            //down
-            newPos++;
-        }
-        if (newPos > ka.moduleItemsScrollSlider.max) {
-            newPos = ka.moduleItemsScrollSlider.max;
-        }
-
-        if (newPos < ka.moduleItemsScrollSlider.min) {
-            newPos = ka.moduleItemsScrollSlider.min;
-        }
-
-        ka.moduleItemsScrollSlider.set(newPos);
-
-    });
-    ka.toggleModuleMenuOut(true);
-}
-
-ka.updateModuleItemsScrollerSize = function () {
-
-    var completeSize = ka.moduleItems.getScrollSize();
-    var size = ka.moduleItems.getSize();
-
-    var diffHeight = completeSize.y - size.y;
-
-    if (diffHeight > 12) {
-        ka.moduleItemsScroller.setStyle('display', 'block');
-
-        var proz = Math.ceil(diffHeight / (completeSize.y / 100));
-
-        var newDiffHeight = (proz / 100) * size.y;
-
-        var scrollBarHeight = size.y - newDiffHeight;
-
-        ka.moduleItemsScroller.setStyle('height', scrollBarHeight);
-
-        //if( ka.moduleItemsScrollSlider )
-        //	ka.moduleItemsScrollSlider.deattach();
-
-        ka.moduleItemsScrollSlider = new Slider(ka.moduleItemsScrollerContainer, ka.moduleItemsScroller, {
-            wheel: true,
-            mode: 'vertical',
-            steps: 25,
-            onChange: function (pPos) {
-                var scrollTop = ((pPos * 4) / 100) * diffHeight;
-                ka.moduleItems.scrollTo(0, scrollTop);
-            },
-            onComplete: function () {
-                ka.moduleItemsScrollerDown = false;
-            }
-        });
-        ka.moduleItemsScrollSlider.set(0);
-    } else {
-        ka.moduleItemsScroller.setStyle('display', 'none');
-        ka.moduleItems.scrollTo(0, 0);
-    }
-
-}
-
-ka.toggleModuleMenuIn = function (pOnlyStay) {
-
-
-    if (ka.lastModuleMenuOutTimer) {
-        clearTimeout(ka.lastModuleMenuOutTimer);
-    }
-
-    if (ka.ModuleMenuOutOpen == true) {
-        return;
-    }
-
-    if (pOnlyStay == true) {
-        return;
-    }
-
-    ka.ModuleMenuOutOpen = false;
-    ka._moduleMenu.set('tween', {transition: Fx.Transitions.Quart.easeOut, onComplete: function () {
-        ka.ModuleMenuOutOpen = true;
-    }});
-    ka._moduleMenu.tween('left', 0);
-    ka.moduleToggler.store('active', true);
-    ka.moduleItems.setStyle('right', 0);
-    //ka.moduleItemsScroller.setStyle('left', 188);
-    //ka.moduleItemsScrollerContainer.setStyle('right', 0);
-}
-
-ka.toggleModuleMenuOut = function (pForce) {
-
-    //if( !ka.ModuleMenuOutOpen && pForce != true )
-    //	return;
-
-    if (ka.lastModuleMenuOutTimer) {
-        clearTimeout(ka.lastModuleMenuOutTimer);
-    }
-
-    ka.ModuleMenuOutOpen = false;
-
-    ka.lastModuleMenuOutTimer = (function () {
-        ka._moduleMenu.set('tween', {transition: Fx.Transitions.Quart.easeOut, onComplete: function () {
-            ka.ModuleMenuOutOpen = false;
-        }});
-        ka._moduleMenu.tween('left', (ka._moduleMenu.getSize().x - 33) * -1);
-        ka.moduleToggler.store('active', false);
-        ka.moduleItems.setStyle('right', 40);
-        //ka.moduleItemsScrollerContainer.setStyle('right', 50);
-        ka.destroyLinkContext();
-    }).delay(300);
-
-}
-
-ka.toggleModuleMenu = function () {
-    if (ka.moduleToggler.retrieve('active') != true) {
-        ka.toggleModuleMenuIn();
-    } else {
-        ka.toggleModuleMenuOut();
-    }
-}
-
-ka.loadMenu = function () {
-
-    if (ka.lastLoadMenuReq) ka.lastLoadMenuReq.cancel();
-
-    ka.lastLoadMenuReq = new Request.JSON({url: _path + 'admin/backend/menus', noCache: true, onComplete: function (res) {
-
-        //ka.createModuleMenu();
-        //ka.moduleItems.empty();
-        $('mainLinks').empty();
-        if (ka.additionalMainMenu) {
-            ka.additionalMainMenu.destroy();
-            ka.additionalMainMenuContainer.destroy();
-            delete ka.additionalMainMenu;
-        }
-
-        ka.removedMainMenuItems = [];
-        delete ka.mainMenuItems;
-
-        var mlinks = res.data;
-
-        Object.each(mlinks['admin'], function (item, pCode) {
-            ka.addAdminLink(item, pCode, 'admin');
-        });
-
-        delete mlinks['admin'];
-
-        if (mlinks['users']) {
-            Object.each(mlinks['users'], function (item, pCode) {
-                ka.addAdminLink(item, pCode, 'users');
-            });
-        }
-        delete mlinks['users'];
-
-        Object.each(ka.settings.configs, function (config, extKey) {
-            if (!mlinks[extKey]) return;
-
-            Object.each(mlinks[extKey], function (item, pCode) {
-                ka.addAdminLink(item, pCode, extKey);
-            });
-
-        });
-
-        ka.needMainMenuWidth = false;
-
-        //ka.updateModuleItemsScrollerSize();
-        ka.checkMainBarWidth();
-
-
-    }}).get();
-};
-
-
-ka.removedMainMenuItems = [];
-
-ka.checkMainBarWidth = function () {
-
-    var windowSize = window.getSize().x;
-    if (windowSize < 500) {
-        if (!ka.toSmallWindowBlocker) {
-            ka.toSmallWindowBlocker = new Element('div', {
-                'style': 'position: absolute; left: 0px; right: 0px; top: 0px; bottom: 0px; z-index: 600000000; background-color: white;'
-            }).inject(document.body);
-            var t = new Element('table', {style: 'width: 100%; height: 100%'}).inject(ka.toSmallWindowBlocker);
-            var tr = new Element('tr').inject(t);
-            var td = new Element('td', {
-                align: 'center', valign: 'center',
-                text: _('Your browser window is too small.')
-            }).inject(tr);
-        }
-    } else if (ka.toSmallWindowBlocker) {
-        ka.toSmallWindowBlocker.destroy();
-        ka.toSmallWindowBlocker = null;
-    }
-
-    var iconbar = $('iconbar');
-    var menubar = $('mainLinks');
-    var header = $('header');
-
-    var menubarSize = menubar.getSize();
-    var iconbarSize = iconbar.getSize();
-    var headerSize = header.getSize();
-    //var searchBoxWidth = 263;
-    var searchBoxWidth = 221;
-
-
-    if (ka.additionalMainMenu) {
-        searchBoxWidth += ka.additionalMainMenu.getSize().x;
-    }
-
-    var curWidth = menubarSize.x + iconbarSize.x + searchBoxWidth;
-
-    if (!ka.needMainMenuWidth) {
-        //first run, read all children widths
-
-        if (!ka.mainMenuItems) {
-            ka.mainMenuItems = menubar.getChildren('a');
-        }
-
-        ka.mainMenuItems.each(function (menuitem, index) {
-            if (index == 0) return;
-            menuitem.store('width', menuitem.getSize().x);
-        });
-    }
-
-
-    //if( curWidth > headerSize.x ){
-
-    var childrens = menubar.getChildren('a');
-
-    var fullsize = 0;
-    var addMenuWidth = 50;
-
-    //diff is the free space we have to display menuitems
-    var diff = ((menubarSize.x + iconbarSize.x + searchBoxWidth) - headerSize.x);
-
-    //availWidth is now the availWidth we have for the menuitems
-    //var availWidth = menubarSize.x - diff - addMenuWidth;
-    var availWidth = window.getSize().x - (document.id('iconbar').getSize().x + 60);
-
-    if (!ka.needMainMenuWidth) {
-        ka.needMainMenuWidth = availWidth;
-    }
-
-    ka.removedMainMenuItems = [];
-
-    ka.mainMenuItems.each(function (menuitem, index) {
-        if (index == 0) return;
-
-        var width = menuitem.retrieve('width');
-        fullsize += width;
-
-        if (fullsize < availWidth) {
-            //we have place for this item
-            //check if this menuitem is in the additional menu bar or in origin
-            if (menuitem.retrieve('inAdditionalMenuBar') == true) {
-                menuitem.inject(menubar);
-                menuitem.store('inAdditionalMenuBar', false);
-            }
-        } else {
-            //we have no place for this menuitem
-            ka.removedMainMenuItems.include(menuitem);
-        }
-    });
-
-
-    if (ka.removedMainMenuItems.length > 0) {
-
-        if (!ka.additionalMainMenu) {
-            ka.additionalMainMenu = new Element('a', {
-                'class': 'ka-mainlink-additionalmenubar',
-                style: 'width: 17px; cursor: default;'
-            }).inject(menubar);
-
-            new Element('img', {
-                src: _path + PATH_MEDIA + '/admin/images/ka.mainmenu-additional.png',
-                style: 'width: 11px; height: 12px; left: 6px; top: 8px;'
-            }).inject(ka.additionalMainMenu);
-
-            ka.additionalMainMenuContainer = new Element('div', {
-                'class': 'ka-mainlink-additionalmenubar-container bar-dock-menu-style',
-                style: 'display: none'
-            }).inject($('border'));
-
-            ka.makeMenu(ka.additionalMainMenu, ka.additionalMainMenuContainer, true, {y: 48, x: -1});
-        }
-
-        ka.removedMainMenuItems.each(function (menuitem) {
-            menuitem.inject(ka.additionalMainMenuContainer);
-            menuitem.store('inAdditionalMenuBar', true);
-        });
-        ka.additionalMainMenu.inject(menubar);
-    } else {
-
-        if (ka.additionalMainMenu) {
-            ka.additionalMainMenu.destroy();
-            ka.additionalMainMenuContainer.destroy();
-            ka.additionalMainMenu = null;
-        }
-
-    }
-};
-
-ka.makeMenu = function (pToggler, pMenu, pCalPosition, pOffset) {
-
-
-    pMenu.setStyle('display', 'none');
-
-    var showMenu = function () {
-        pMenu.setStyle('display', 'block');
-        pMenu.store('ka.makeMenu.canHide', false);
-
-        if (pCalPosition) {
-            var pos = pToggler.getPosition($('border'));
-            if (pOffset) {
-                if (pOffset.x) {
-                    pos.x += pOffset.x;
-                }
-                if (pOffset.y) {
-                    pos.y += pOffset.y;
-                }
-            }
-            pMenu.setStyles({
-                'left': pos.x,
-                'top': pos.y
-            });
-        }
-    };
-
-    var _hideMenu = function () {
-        if (pMenu.retrieve('ka.makeMenu.canHide') != true) return;
-        pMenu.setStyle('display', 'none');
-    };
-
-    var hideMenu = function () {
-        pMenu.store('ka.makeMenu.canHide', true);
-        _hideMenu.delay(250);
-    };
-
-    pToggler.addEvent('mouseover', showMenu);
-    pToggler.addEvent('mouseout', hideMenu);
-    pMenu.addEvent('mouseover', showMenu);
-    pMenu.addEvent('mouseout', hideMenu);
-
-    //ka.additionalMainMenu, ka.additionalMainMenuContainer, true, {y: 80});
-}
-
-ka.addAdminLink = function (pLink, pCode, pExtCode) {
-
-    var mlink = false;
-
-    if (!pLink.isLink) return;
-
-    if (pCode == 'system') {
-
-        mlink = new Element('a', {
-            title: pLink.title,
-            text: ' ',
-            'class': 'bar-dock-logo first gradient'
-        });
-
-        new Element('img', {
-            src: _path + PATH_MEDIA + '/admin/images/dock-logo-icon.png'
-        }).inject(mlink);
-
-    } else {
-
-        mlink = new Element('a', {
-            text: pLink.title
-        });
-
-        if (pLink.icon) {
-            if (pLink.icon.substr(0,1) == '#'){
-                mlink.addClass(pLink.icon.substr(1));
-            } else {
-                mlink.addClass('ka-mainmenubar-item-hasIcon');
-                new Element('img', {
-                    src: _path + PATH_MEDIA + pLink.icon
-                }).inject(mlink);
-            }
-        }
-    }
-
-    var menu = new Element('div', {
-        'class': 'bar-dock-menu bar-dock-menu-style',
-        styles: {
-            display: 'none'
-        }
-    });
-
-    var hasActiveChilds = false;
-
-    Object.each(pLink.children, function (item, code) {
-
-        if (!item.isLink) return;
-
-        hasActiveChilds = true;
-        var sublink = new Element('a', {
-            html: item.title,
-            'class': 'ka-module-items-deactivated'
-        }).inject(menu);
-
-        if (item.type) {
-            sublink.removeClass('ka-module-items-deactivated');
-            sublink.addEvent('click', function () {
-                ka.wm.openWindow(pExtCode, pCode + '/' + code, pLink);
-            })
-        }
-
-        Object.each(item.children, function (subitem, subcode) {
-
-            if (!subitem.isLink) return;
-
-            var subsublink = new Element('a', {
-                html: subitem.title,
-                'class': 'ka-module-item-sub'
-            }).inject(menu);
-
-            if (subitem.type) {
-                subsublink.addClass('ka-module-items-activated');
-                subsublink.addEvent('click', function () {
-                    ka.wm.openWindow(pExtCode, pCode + '/' + code + '/' + subcode, pLink);
-                })
-            }
-        });
-
-    });
-
-    if (!hasActiveChilds){
-        menu.destroy();
-    } else {
-        var childOpener;
-
-        if (pCode != 'system') {
-            mlink.addClass('ka-menu-item-hasChilds');
-
-            childOpener = new Element('a', {
-                'class': 'ka-menu-item-childopener'
-            }).inject(mlink);
-
-            new Element('img', {
-                src: _path+ PATH_MEDIA + '/admin/images/ka-mainmenu-item-tree_minus.png'
-            })
-            .addEvent('mouseover',  function () {
-                childOpener.fireEvent('mouseover');
-            })
-            .addEvent('mousemove',  function () {
-                childOpener.fireEvent('mouseover');
-            })
-            .inject(childOpener);
-
-
-            childOpener.addEvent('click',function (e) {
-                e.stopPropagation();
-            });
-        } else {
-            childOpener = mlink;
-        }
-
-        childOpener.addEvent('mousemove', function (e) {
-            childOpener.fireEvent('mouseover');
-        });
-
-        childOpener.addEvent('mouseover', function (e) {
-
-            if (e)
-                e.stopPropagation();
-
-            if (ka.lastVisibleDockMenu && ka.lastVisibleDockMenu != menu)
-                ka.lastVisibleDockMenu.setStyle('display', 'none');
-
-            childOpener.store('allowToDisappear', false);
-
-            //find position
-            var position = mlink.getPosition(document.id('border'));
-            var size = mlink.getSize();
-            menu.setStyle('left', position.x-1);
-            menu.setStyle('top', 48);
-            menu.removeClass('ka-menu-withRightTopBorderRadius');
-
-            var addMenuBar = mlink.getParent('.ka-mainlink-additionalmenubar-container');
-
-            menu.removeEvents('mouseover');
-            menu.removeEvents('mouseout');
-
-            if (addMenuBar){
-                addMenuBar.removeClass('ka-mainlink-additionalmenubar-container-withoutBottomRightBorderRadius')
-
-                menu.setStyle('left', position.x+size.x);
-                menu.setStyle('top', position.y);
-                menu.addClass('ka-menu-withRightTopBorderRadius');
-                menu.setStyle('display', 'block');
-
-                if (menu.getPosition().y+menu.getSize().y > addMenuBar.getPosition().y+addMenuBar.getSize().y)
-                    addMenuBar.addClass('ka-mainlink-additionalmenubar-container-withoutBottomRightBorderRadius');
-
-                menu.addEvent('mouseover', function(){
-                    addMenuBar.store('ka.makeMenu.canHide', false);
-                });
-
-                menu.addEvent('mouseout', function(){
-                    addMenuBar.fireEvent('mouseout');
-                });
-
-                childOpener.addEvent('mouseover', function(){
-                    addMenuBar.store('ka.makeMenu.canHide', false);
-                });
-            }
-
-            menu.addEvent('mouseover', function () {
-                childOpener.store('allowToDisappear', false);
-            }).addEvent('mouseout', function () {
-                childOpener.fireEvent('mouseout');
-            }).inject($('header'), 'before');
-
-            menu.setStyle('display', 'block');
-            ka.lastVisibleDockMenu = menu;
-
-        }).addEvent('mouseout', function () {
-
-            childOpener.store('allowToDisappear', true);
-            (function () {
-                if (childOpener.retrieve('allowToDisappear') == true) {
-                    menu.setStyle('display', 'none');
-                }
-            }).delay(250);
-        });
-    }
-
-    ka._links[ pExtCode + '/' + pCode ] = {
-        level: 'main',
-        object: mlink,
-        link: pLink,
-        module: pExtCode,
-        code: pCode,
-        path: pExtCode + '/' + pCode,
-        title: pLink.title
-    };
-
-    mlink.inject($('mainLinks'));
-    pLink.module = pExtCode;
-    pLink.code = pCode;
-    mlink.store('link', pLink);
-    ka.linkClick(mlink);
-
-
-}
-
-
-ka.destroyLinkContext = function () {
-
-    if (ka._lastLinkContextDiv) {
-        ka._lastLinkContextDiv.destroy();
-        ka._lastLinkContextDiv = null;
-    }
-
-}
-
-ka.linkClick = function (pLink) {
-    var mlink = pLink.retrieve('link');
-
-    if (['iframe', 'list', 'combine', 'custom', 'add', 'edit'].indexOf(mlink.type) != -1) {
-
-        var link = ka._links[mlink.module + '/' + mlink.code];
-
-        pLink.getParent().addClass('ka-module-items-activated');
-
-        pLink.addEvent('click', function (e) {
-            ka.destroyLinkContext();
-
-            if (e.rightClick) return;
-            e.stopPropagation();
-            e.stop();
-
-            var windows = [];
-            Object.each(ka.wm.windows, function (pwindow) {
-                if (!pwindow) return;
-                if (pwindow.code == mlink.code && pwindow.module == mlink.module) {
-                    windows.include(pwindow);
-                }
-            }.bind(this));
-
-
-            if (windows.length == 0) {
-                //none exists, just open
-                ka.wm.open(mlink.module+'/'+mlink.code);
-            } else if (windows.length == 1) {
-                //only one is open, bring it to front
-                windows[0].toFront();
-            } else if (windows.length > 1) {
-                //open contextmenu
-                e.stopPropagation();
-                e.stop();
-                ka._openLinkContext(link);
-            }
-
-            delete windows;
-        });
-
-        pLink.addEvent('mouseup', function (e) {
-
-            if (e.rightClick) {
-                e.stopPropagation();
-                ka._openLinkContext(link);
-            }
-        });
-    }
-}
-
-ka._openLinkContext = function (pLink) {
-
-    if (ka._lastLinkContextDiv) {
-        ka._lastLinkContextDiv.destroy();
-        ka._lastLinkContextDiv = null;
-    }
-
-    var pos = {x: 0, y: 0};
-    var corner = false;
-
-    /*if( pLink.level == 'main' ){
-     var div = new Element('div', {
-     'class': 'ka-linkcontext-main'
-     }).inject( document.body );
-
-     pos = pLink.object.getPosition();
-     var size = pLink.object.getSize();
-
-     div.setStyle('left', pos.x);
-     //div.setStyle('width', size.x);
-     }
-     if( pLink.level == 'sub' ){
-     */
-
-    var parent = pLink.object.getParent('.ka-module-menu');
-    if (!parent) {
-        parent = document.body;
-    }
-    var div = new Element('div', {
-        'class': 'ka-linkcontext-main ka-linkcontext-sub'
-    }).inject(parent);
-
-    corner = new Element('div', {
-        'class': 'ka-tooltip-corner-top',
-        style: 'height: 15px; width: 30px;'
-    }).inject(div);
-
-    pos = pLink.object.getPosition(pLink.object.getParent('.ka-module-menu'));
-    var size = pLink.object.getSize();
-
-    div.setStyle('left', pos.x);
-    div.setStyle('top', pos.y + size.y);
-    if (pLink.level == 'main') {
-
-        corner.setStyle('bottom', 'auto');
-        corner.setStyle('top', -8);
-    }
-
-    ka._lastLinkContextDiv = div;
-
-    var windows = [];
-    Object.each(ka.wm.windows, function (pwindow) {
-        if (!pwindow) return;
-        if (pwindow.code == pLink.code && pwindow.module == pLink.module) {
-            windows.include(pwindow);
-        }
-    }.bind(this));
-
-    var opener = new Element('a', {
-        text: _('Open new %s').replace('%s', "'" + pLink.title + "'"),
-        'class': 'ka-linkcontext-opener'
-    }).addEvent('click',
-        function () {
-            ka.wm.openWindow(pLink.module, pLink.code);
-            ka._lastLinkContextDiv.destroy();
-        }).inject(div);
-
-    if (windows.length == 0) {
-        opener.addClass('ka-linkcontext-last');
-    }
-
-    var lastItem = false;
-    windows.each(function (window) {
-        lastItem = new Element('a', {
-            text: '#' + window.id + ' ' + window.getTitle()
-        }).addEvent('click',
-            function () {
-                window.toFront();
-                ka._lastLinkContextDiv.destroy();
-            }).inject(div);
-    });
-
-    if (pLink.level == 'sub') {
-        var bsize = div.getSize();
-        var wsize = window.getSize();
-        var mtop = div.getPosition(document.body).y;
-
-        if (mtop + bsize.y > wsize.y) {
-            mtop = pos.y - bsize.y;
-            div.setStyle('top', mtop);
-            corner.set('class', 'ka-tooltip-corner');
-            corner.setStyle('bottom', '-15px');
-        } else {
-            corner.setStyle('top', '-7px');
-        }
-        if (lastItem) {
-            lastItem.addClass('ka-linkcontext-last');
-        }
-    }
-
-    delete windows;
-
 }
 
 ka.closeDialogsBodys = [];
@@ -1670,8 +1077,6 @@ ka.getPrimaryListForObject = function(pObjectKey){
 }
 
 ka.getObjectDefinition = function(pObjectKey){
-
-    var definition;
 
     var module = (""+pObjectKey.split('\\')[0]).toLowerCase();
     var name = pObjectKey.split('\\')[1];

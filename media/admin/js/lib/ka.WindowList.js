@@ -1,6 +1,8 @@
 ka.WindowList = new Class({
     Implements: Events,
 
+    Binds: ['nestedItemSelected'],
+
     loadAlreadyTriggeredBySearch: false,
 
     initialize: function (pWindow, pOptions, pContainer) {
@@ -23,7 +25,8 @@ ka.WindowList = new Class({
         this.sortDirection = 'ASC';
         this.currentPage = 1;
 
-        this.oriWinCode = this.win.code;
+        //this.oriWinCode = this.win.code;
+        this.oriWinEntryPoint = this.win.entryPoint;
 
         this.load();
         var _this = this;
@@ -37,7 +40,7 @@ ka.WindowList = new Class({
     softReload: function (pCode) {
         if (this.win.closed) return;
 
-        if (pCode == this.win.module + '/' + this.win.code) {
+        if (pCode == this.win.getEntryPoint()) {
             this.reload();
         }
     },
@@ -51,7 +54,7 @@ ka.WindowList = new Class({
 
         this.container.set('html', '<div style="text-align: center; padding: 50px; color: silver">'+t('Loading definition ...')+'</div>');
 
-        new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code, noCache: true, onComplete: function (res) {
+        new Request.JSON({url: _path + 'admin/' + this.win.getEntryPoint(), noCache: true, onComplete: function (res) {
 
             if (res.error) return false;
 
@@ -64,7 +67,7 @@ ka.WindowList = new Class({
 
     deleteItem: function (pItem) {
         var _this = this;
-        this.lastRequest = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code + '?cmd=deleteItem', noCache: true, onComplete: function (res) {
+        this.lastRequest = new Request.JSON({url: _path + 'admin/' + this.win.getEntryPoint() + '?cmd=deleteItem', noCache: true, onComplete: function (res) {
 
             //todo, handle errors
             this.win.softReload();
@@ -227,6 +230,55 @@ ka.WindowList = new Class({
     },
 
     renderLayout: function () {
+
+        if (this.classProperties.asNested){
+            this.renderLayoutNested(this.container);
+        } else {
+            this.renderLayoutTable();
+            this.renderSearchPane();
+        }
+    },
+
+    renderLayoutNested: function(pContainer){
+        //todo
+
+        var objectOptions = {};
+
+        objectOptions.type = 'tree';
+        objectOptions.object = this.classProperties.object;
+        objectOptions.scopeChooser = true;
+
+        this.nestedField = new ka.Field(objectOptions, pContainer);
+
+        logger(this.classProperties);
+        if (this.classProperties.edit){
+            this.nestedField.getFieldObject().addEvent('select', this.nestedItemSelected);
+        }
+
+    },
+
+    nestedItemSelected: function(pItem, pDom){
+        //pDom.objectKey
+        //pDom.id
+
+        logger(pDom);
+        logger(pItem);
+        if (pDom.objectKey == this.classProperties.object){
+
+            if (_this.classProperties.edit){
+
+                ka.entrypoint.open(ka.entrypoint.getRelative(_this.win.getEntryPoint(), _this.classProperties.editEntrypoint), {
+                    item: pItem.values
+                }, this);
+
+            }
+
+        }
+
+    },
+
+    renderLayoutTable: function(){
+
         /* head */
 
         this.head = new Element('div', {
@@ -412,8 +464,6 @@ ka.WindowList = new Class({
             'class': 'ka-list-search-button'
         }).addEvent('click', this.toggleSearch.bind(this)).inject(this.bottom);
 
-        this.renderSearchPane();
-
         var myPath = _path + PATH_MEDIA + '/admin/images/icons/';
         this.navi = new Element('div', {
             'class': 'navi'
@@ -482,11 +532,7 @@ ka.WindowList = new Class({
 
                 this.actionsNavi.addButton(t('Add'), ka.mediaPath(this.classProperties.addIcon), function () {
 
-                    var entryPoint = _this.win.module+'/'+_this.win.code + '/add';
-                    if (_this.classProperties.addEntrypoint && _this.classProperties.addEntrypoint != 'add')
-                        entryPoint = _this.classProperties.addEntrypoint;
-
-                    ka.entrypoint.open(entryPoint, {
+                    ka.entrypoint.open(ka.entrypoint.getRelative(_this.win.getEntryPoint(), _this.classProperties.addEntrypoint), {
                         lang: (_this.languageSelect) ? _this.languageSelect.value : false
                     }, this);
 
@@ -504,6 +550,7 @@ ka.WindowList = new Class({
                     iconCustom = this.classProperties.iconCustom;
                 }
 
+                /*
                 winModule = _this.win.module;
                 if (this.classProperties.custom.module) {
                     winModule = this.classProperties.custom.module;
@@ -514,9 +561,10 @@ ka.WindowList = new Class({
                 if (this.classProperties.custom.code) {
                     customWinCode = this.classProperties.custom.code;
                 }
+                */
 
                 this.actionsNavi.addButton(this.classProperties.custom.name, ka.mediaPath(iconCustom), function () {
-                    ka.wm.openWindow(winModule, customWinCode, null, null, {
+                    ka.wm.openWindow(winModule + '/' + customWinCode, null, null, {
                         language: (_this.languageSelect) ? _this.languageSelect.value : false
                     });
 
@@ -560,7 +608,7 @@ ka.WindowList = new Class({
                     this.loader.show();
                 }
 
-                new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code + '?cmd=removeSelected', noCache: 1, onComplete: function (res) {
+                new Request.JSON({url: _path + 'admin/' + this.win.getEntryPoint() + '?cmd=removeSelected', noCache: 1, onComplete: function (res) {
 
                     //todo, handle errors
                     if (this.loader) {
@@ -594,8 +642,6 @@ ka.WindowList = new Class({
     exportTable: function () {
         //TODO, order ..
         var params = new Hash({
-            module: this.win.module,
-            code: this.win.code,
             exportType: this.exportType.value,
             orderBy: this.sortField,
             filter: this.searchEnable,
@@ -609,7 +655,7 @@ ka.WindowList = new Class({
             this.lastExportFrame.destroy();
         }
         this.lastExportForm = new Element('form', {
-            action: _path + 'admin/' + this.win.module + '/' + this.win.code + '?cmd=exportItems&' + params.toQueryString(),
+            action: _path + 'admin/' + this.win.getEntryPoint() + '?cmd=exportItems&' + params.toQueryString(),
             method: 'post',
             target: 'myExportFrame' + this.win.id
         }).inject(document.hidden);
@@ -712,7 +758,7 @@ ka.WindowList = new Class({
             });
         }
 
-        this.lastRequest = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code,
+        this.lastRequest = new Request.JSON({url: _path + 'admin/' + this.win.getEntryPoint(),
         noCache: true,
         onComplete: function (res) {
             this.currentPage = pPage;
@@ -796,10 +842,10 @@ ka.WindowList = new Class({
             'class': (_this.tempcount % 2) ? 'one' : 'two'
         }).inject(this.tbody);
 
-        if (this.options.relation_table) {
+        /*if (this.options.relation_table) {
             pItem.relation_table = this.options.relation_table;
             pItem.relation_params = this.options.relation_params_filtered;
-        }
+        }*/
 
         if (this.classProperties.remove == true) {
             var td = new Element('td', {
@@ -810,12 +856,10 @@ ka.WindowList = new Class({
                 this.classProperties.primary.each(function (primary) {
                     mykey[primary] = pItem.values[primary];
                 });
-                //if( this.classProperties.edit ){
                 this.checkboxes.include(new Element('input', {
                     value: JSON.encode(mykey),
                     type: 'checkbox'
                 }).inject(td));
-                //}
             }
         }
 
@@ -833,12 +877,7 @@ ka.WindowList = new Class({
 
                 if (_this.classProperties.edit){
 
-                    var entryPoint = _this.win.module+'/'+_this.win.code + '/edit';
-
-                    if (_this.classProperties.editCode && _this.classProperties.editCode != 'edit')
-                        entryPoint = _this.classProperties.editCode;
-
-                    ka.entrypoint.open(entryPoint, {
+                    ka.entrypoint.open(ka.entrypoint.getRelative(_this.win.getEntryPoint(), _this.classProperties.editEntrypoint), {
                         item: pItem.values
                     }, this);
 
@@ -932,12 +971,7 @@ ka.WindowList = new Class({
 
                 editIcon.addEvent('click', function () {
 
-                    var entryPoint = _this.win.module+'/'+_this.win.code + '/edit';
-
-                    if (_this.classProperties.editEntrypoint && _this.classProperties.editEntrypoint != 'edit')
-                        entryPoint = _this.classProperties.editEntrypoint;
-
-                    ka.entrypoint.open(entryPoint, {item: pItem.values}, this);
+                    ka.entrypoint.open(ka.entrypoint.getRelative(_this.win.getEntryPoint(), _this.classProperties.editEntrypoint), {item: pItem.values}, this);
 
                 }).inject(icon);
             }

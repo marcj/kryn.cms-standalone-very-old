@@ -1213,7 +1213,7 @@ ka.Files = new Class({
                     if (this.currentFile.type == 'dir'){
                         this.load(pPath);
                     } else if (this.currentFile.type == 'file') {
-                        ka.wm.openWindow('admin', 'files/edit', null, null, {file: {path: pPath}});
+                        ka.wm.openWindow('admin/files/edit', null, null, {file: {path: pPath}});
                     }
                 }
 
@@ -1759,7 +1759,7 @@ ka.Files = new Class({
                         this.win._alert(_('You cannot open a file in the trash folder. To view this file, press right click and choose recover.'));
                         return;
                     }
-                    ka.wm.openWindow('admin', 'files/edit', null, null, {file: file});
+                    ka.wm.openWindow('admin/files/edit', null, null, {file: file});
                 } else
                     this.loadPath(file.path);
             }
@@ -2943,7 +2943,7 @@ ka.Files = new Class({
                     if (file.type == 'dir')
                         this.loadPath(file.path);
                     else
-                        ka.wm.openWindow('admin', 'files/edit', null, null, {file: file});
+                        ka.wm.openWindow('admin/files/edit', null, null, {file: file});
                 }.bind(this));
 
 

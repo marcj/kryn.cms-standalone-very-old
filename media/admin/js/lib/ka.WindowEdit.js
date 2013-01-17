@@ -13,7 +13,8 @@ ka.WindowEdit = new Class({
     initialize: function (pWin, pContainer) {
         this.win = pWin;
 
-        this.winParams = Object.clone(this.win.params); //copy
+        this.winParams = Object.clone(this.win.getParameter()); //copy
+        logger(this.winParams);
 
         if (!this.winParams.item && this.winParams.values)
             this.winParams.item = this.winParams.values; //compatibility
@@ -42,7 +43,7 @@ ka.WindowEdit = new Class({
         this.win.addEvent('close', this.bCheckClose);
         this.win.addEvent('resize', this.bCheckTabFieldWidth);
 
-        if (this.win.module && this.win.code)
+        if (this.win.getEntryPoint())
             this.load();
     },
 
@@ -87,16 +88,33 @@ ka.WindowEdit = new Class({
 
     },
 
+    getModule: function(){
+        if (!this.module){
+            if (this.getEntryPoint().indexOf('/') > 0){
+                this.module = this.getEntryPoint().substr(0, this.getEntryPoint().indexOf('/'));
+            } else {
+                this.module = this.getEntryPoint();
+            }
+        }
+        return this.module;
+    },
+
+    getEntryPoint: function(){
+        return this.win.getEntryPoint();
+    },
+
     load: function () {
         var _this = this;
 
         this.container.set('html', '<div style="text-align: center; padding: 50px; color: silver">'+t('Loading definition ...')+'</div>');
 
-        new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code, noCache: true, onComplete: function(res){
-            if (!res.error)
-                this.render(res.data);
-            else 
-                this.container.set('html', '<div style="text-align: center; padding: 50px; color: red">'+t('Failed')+'</div>');
+        new Request.JSON({url: _path + 'admin/' + this.getEntryPoint(), noCache: true, onComplete: function(pResponse){
+
+
+            if (!pResponse.error && pResponse.data && pResponse.data._isClassDefinition)
+                this.render(pResponse.data);
+            else
+                this.container.set('html', '<div style="text-align: center; padding: 50px; color: red">'+t('Failed. No correct class definition returned. %s').replace('%s', 'admin/' + this.getEntryPoint()+'?_method=options')+'</div>');
 
         }.bind(this)}).get({_method: 'options'});
     },
@@ -129,7 +147,7 @@ ka.WindowEdit = new Class({
 
         this.win.setLoading(true, null, this.container.getCoordinates(this.win));
 
-        this.lastRq = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code,
+        this.lastRq = new Request.JSON({url: _path + 'admin/' + this.getEntryPoint(),
         noCache: true, onComplete: function (res) {
             this._loadItem(res.data);
         }.bind(this)}).get(req);
@@ -227,8 +245,7 @@ ka.WindowEdit = new Class({
 
         Object.each(this.classProperties.previewPlugins, function (item, pluginId) {
 
-            var title = ka.settings.configs[this.win.module].plugins[pluginId][0];
-
+            var title = ka.settings.configs[this.getModule()].plugins[pluginId][0];
 
             new Element('div', {
                 html: title,
@@ -238,7 +255,7 @@ ka.WindowEdit = new Class({
 
             var index = pluginId;
             if (pluginId.indexOf('/') === -1) {
-                index = this.win.module + '/' + pluginId;
+                index = this.getModule() + '/' + pluginId;
             }
 
             Object.each(this.classProperties.previewPluginPages[index], function (pages, domain_id) {
@@ -331,7 +348,7 @@ ka.WindowEdit = new Class({
     loadVersions: function () {
 
         var req = this.generateItemParams();
-        new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code, noCache: true, onComplete: function (res) {
+        new Request.JSON({url: _path + 'admin/' + this.getEntryPoint(), noCache: true, onComplete: function (res) {
 
             if (res && res.data.versions) {
                 this.item.versions = res.data.versions;
@@ -389,6 +406,7 @@ ka.WindowEdit = new Class({
         this.fireEvent('render');
 
         if (this.winParams){
+            logger(this.winParams);
             this.loadItem();
         }
     },
@@ -551,7 +569,7 @@ ka.WindowEdit = new Class({
             var object = ka.getObjectUrlId(this.classProperties['object'], this.winParams.item);
             var objectId = '?object='+object;
 
-            this.lastDeleteRq = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code+objectId,
+            this.lastDeleteRq = new Request.JSON({url: _path + 'admin/' + this.getEntryPoint() +'/'+objectId,
             onComplete: function(pResponse){
 
                 logger(pResponse);
@@ -835,13 +853,6 @@ ka.WindowEdit = new Class({
                 this.saveBtn.startTip(_('Save ...'));
             }
 
-            if (_this.win.module == 'users' && (_this.win.code == 'users/edit/' || _this.win.code == 'users/edit' ||
-                                                _this.win.code == 'users/editMe' || _this.win.code == 'users/editMe/')
-                ) {
-                if (!ka.settings['user']) ka.settings['user'] = {};
-                ka.settings['user']['adminLanguage'] = req['adminLanguage'];
-            }
-
             if (this.winParams && this.winParams.item) {
 
                 if (!this.windowAdd) {
@@ -861,7 +872,7 @@ ka.WindowEdit = new Class({
                 objectId = '?_method=put';
             }
 
-            this.lastSaveRq = new Request.JSON({url: _path + 'admin/' + this.win.module + '/' + this.win.code+objectId,
+            this.lastSaveRq = new Request.JSON({url: _path + 'admin/' + this.getEntryPoint()+'/'+objectId,
                 noErrorReporting: ['DuplicateKeysException', 'ObjectItemNotModified'],
                 noCache: true, onComplete: function (res) {
 
@@ -887,7 +898,7 @@ ka.WindowEdit = new Class({
                     this.winParams.item = ka.getObjectPk(this.classProperties['object'], req); //may we changed some pk
                 }
 
-                window.fireEvent('softReload', this.win.module + '/' + this.win.code.substr(0, this.win.code.lastIndexOf('/')));
+                window.fireEvent('softReload', this.win.getEntryPoint());
 
                 if (pPublish) {
                     this.saveAndPublishBtn.stopTip(t('Saved'));

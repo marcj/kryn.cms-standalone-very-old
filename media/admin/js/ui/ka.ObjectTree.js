@@ -228,7 +228,7 @@ ka.ObjectTree = new Class({
             this.rootA.childContainer = this.paneObjects;
 
         }
-        var objectUrl = this.objectKey;
+        var objectUrl = ka.urlEncode(this.objectKey);
 
         if (this.options.rootObject)
             objectUrl += '?'+Object.toQueryString({scope: this.options.scope});
@@ -251,8 +251,9 @@ ka.ObjectTree = new Class({
 
         this.rootLoaded = false;
 
-        this.lastFirstLevelRq = new Request.JSON({url: _path + 'admin/backend/object-tree-root/'+this.objectKey, noCache: 1,
-            onComplete: this.renderRoot.bind(this)}).get({
+        this.lastFirstLevelRq = new Request.JSON({url: _path + 'admin/backend/object-tree-root/'+ka.urlEncode(this.objectKey), noCache: 1,
+            onComplete: this.renderRoot.bind(this)
+        }).get({
             scope: this.options.scope
         });
 
@@ -469,6 +470,7 @@ ka.ObjectTree = new Class({
         }
 
         this.fireEvent('selection', [item, a])
+        this.fireEvent('select', [item, a])
         this.fireEvent('click', [item, a]);
 
         this.lastSelectedItem = a;
@@ -810,7 +812,7 @@ ka.ObjectTree = new Class({
         }).inject(pA.span);
 
         this.loadChildrenRequests[ pA.id ] = true;
-        new Request.JSON({url: _path + 'admin/backend/object-tree/'+this.objectKey+'/'+encodeURIComponent(pA.id),
+        new Request.JSON({url: _path + 'admin/backend/object-tree/'+ka.urlEncode(this.objectKey)+'/'+ka.urlEncode(pA.id),
             noCache: 1, onComplete: function(pResponse){
 
             this.removeChildren(pA);
@@ -1063,8 +1065,8 @@ ka.ObjectTree = new Class({
 
             if (target && source){
                 var code = pos[this.dragNDropPos];
-                var targetId = target.objectKey+'/'+target.id;
-                var sourceId = source.objectKey+'/'+source.id;
+                var targetId = target.objectKey+'/'+ka.urlEncode(target.id);
+                var sourceId = source.objectKey+'/'+ka.urlEncode(source.id);
 
                 if (this.rootA == this.dragNDropElement){
                     code = 'into';
@@ -1092,7 +1094,7 @@ ka.ObjectTree = new Class({
             where: pCode
         };
 
-        new Request.JSON({url: _path + 'admin/backend/object-move/'+pSourceId, onComplete: function (res) {
+        new Request.JSON({url: _path + 'admin/backend/object-move/'+ka.urlEncode(pSourceId), onComplete: function (res) {
 
             //target item this.dragNDropElement
 

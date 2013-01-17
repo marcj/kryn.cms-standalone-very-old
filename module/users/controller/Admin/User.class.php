@@ -271,8 +271,11 @@ class User extends \Admin\ObjectWindow {
         }
 
         $settings = array();
-        if ($this->cachedUser['settings'])
+        if ($this->cachedUser['settings']){
+            if (is_string($this->cachedUser['settings']))
+                $this->cachedUser['settings'] = unserialize($this->cachedUser['settings']);
             $settings = $this->cachedUser['settings']->toArray();
+        }
 
         return $settings;
     }

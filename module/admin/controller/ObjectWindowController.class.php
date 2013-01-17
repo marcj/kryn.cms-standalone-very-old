@@ -159,7 +159,9 @@ class ObjectWindowController extends Server {
     public function getInfo(){
 
         $obj = $this->getObj();
-        return $obj->getInfo();
+        $info = $obj->getInfo();
+        $info['_isClassDefinition'] = true;
+        return $info;
     }
 
 

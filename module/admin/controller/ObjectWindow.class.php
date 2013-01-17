@@ -3,6 +3,7 @@
 namespace Admin;
 
 use \Core\Kryn;
+use \Core\Object;
 
 abstract class ObjectWindow {
 
@@ -176,6 +177,7 @@ abstract class ObjectWindow {
      * Default is <current>/add.
      * 
      * Relative or absolute paths are allowed.
+     * Empty means current entrypoint.
       *
      * @var string
      */
@@ -186,6 +188,7 @@ abstract class ObjectWindow {
      * Default is <current>/edit.
      *
      * Relative or absolute paths are allowed.
+     * Empty means current entrypoint.
      *
      * @var string
      */
@@ -265,6 +268,14 @@ abstract class ObjectWindow {
      * @var boolean
      */
     public $permissionCheck = true;
+
+
+    /**
+     * If the object is a nested set, then you should switch this proeprty to true.
+     *
+     * @var bool
+     */
+    public $asNested = false;
 
     /**
      * Constructor
@@ -441,11 +452,15 @@ abstract class ObjectWindow {
                 switch ($pFields['type']) {
                     case 'predefined':
 
-                        $def = \Core\Kryn::$objects[$pFields['object']]['fields'][$pFields['field']];
+                        $def = Object::getDefinition($pFields['object']);
+                        $def = $def['fields'][$pFields['field']];
                         if ($def){
+                            unset($pFields['object']);
+                            unset($pFields['field']);
                             foreach ($def as $k => $v){
                                 $pFields[$k] = $v;
                             }
+                            unset($pFields['primaryKey']);
 
                         }
 
@@ -1203,6 +1218,24 @@ abstract class ObjectWindow {
     {
         return $this->entryPoint;
     }
+
+    /**
+     * @param boolean $asNested
+     */
+    public function setAsNested($asNested)
+    {
+        $this->asNested = $asNested;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getAsNested()
+    {
+        return $this->asNested;
+    }
+
+
 
 
 }

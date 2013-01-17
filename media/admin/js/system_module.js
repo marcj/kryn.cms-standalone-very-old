@@ -372,7 +372,7 @@ var admin_system_module = new Class({
 
         new ka.Button(_('Choose')).addEvent('click',
             function () {
-                chooserWin = ka.wm.openWindow('admin', 'backend/chooser', null, -1, {onChoose: function (pValue) {
+                chooserWin = ka.wm.openWindow('admin/backend/chooser', null, -1, {onChoose: function (pValue) {
                     _this.directInput.value = pValue;
                     chooserWin.close();
                 }.bind(this),

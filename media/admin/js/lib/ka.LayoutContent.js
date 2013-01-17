@@ -1040,7 +1040,7 @@ ka.LayoutContent = new Class({
             this.content.content = tiny.getContent();
         }
 
-        ka.wm.openWindow('admin', 'pages/bigEditor', null, this.w.win.id, {content: this.content.content, onSave: function (pContent) {
+        ka.wm.openWindow('admin/pages/bigEditor', null, this.w.win.id, {content: this.content.content, onSave: function (pContent) {
             this.content.content = pContent;
             if (this.editMode == 1) {
                 var tiny = this.w.tinyMCE.get(this.lastId);

@@ -313,6 +313,15 @@ var admin_system_module_editWindow = new Class({
 
             },
 
+            asNested: {
+
+                label: t('As nested set'),
+                type: 'checkbox',
+                'default': false,
+                desc: t('Only available if the object is a nested set.')
+
+            },
+
             order: {
 
                 label: t('Default order'),

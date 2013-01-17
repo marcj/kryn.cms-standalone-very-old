@@ -4,38 +4,49 @@ ka.Window = new Class({
     Binds: ['saveDimension'],
 
     id     : 0,
+    /*
     module : '',
     code   : '',
+    */
+
+    entryPoint: '',
+    module: '',
+
     inline : false,
     link   : {},
     params : {},
 
     children: null,
 
-    initialize: function (pModule, pWindowCode, pLink, pInstanceId, pParams, pInline, pParentId) {
-        this.params = pParams;
+    initialize: function (pEntryPoint, pLink, pInstanceId, pParameter, pInline, pParentId) {
+        this.params = pParameter;
         this.id = pInstanceId;
-        this.module = pModule;
-        this.code = pWindowCode;
+
+        this.entryPoint = pEntryPoint;
+
         this.inline = pInline;
         this.link = pLink;
         this.parentId = pParentId;
 
         if (!pLink)
-            this.link = {module: pModule, code: pWindowCode };
+            this.link = {};
 
         this.active = true;
         this.isOpen = true;
 
         this.createWin();
 
-        if (pModule && pWindowCode) {
+        if (pEntryPoint) {
 
             this.loadContent();
 
             this.closeBind = this.close.bind(this, true);
             this.addHotkey('esc', false, false, this.closeBind);
         }
+    },
+
+    getParameter: function(){
+        return this.params;
     },
 
     getParentId: function(){
@@ -82,8 +93,7 @@ ka.Window = new Class({
         var icon = {
             title: title,
             params: this.params,
-            module: this.module,
-            code: this.code
+            entryPoint: this.win.getEntryPoint()
         };
         ka.desktop.addIcon(icon);
         ka.desktop.save();
@@ -670,7 +680,7 @@ ka.Window = new Class({
         pos.width = pos.width - 2;
         pos.height = pos.height - 2;
 
-        ka.settings['user']['windows'][this.module + '::' + this.code] = pos;
+        ka.settings['user']['windows'][this.getEntryPoint()] = pos;
 
         ka.saveUserSettings();
     },
@@ -697,7 +707,7 @@ ka.Window = new Class({
         if (!windows)
             windows = {};
 
-        var pos = windows[this.module + '::' + this.code];
+        var pos = windows[this.getEntryPoint()];
 
         if (pos && pos.width > 50) {
 
@@ -706,22 +716,22 @@ ka.Window = new Class({
                 this.maximize(true);
             }
 
-        } else if (this.entryPoint) {
-            if (this.entryPoint.defaultWidth > 0) {
-                this.border.setStyle('width', this.entryPoint.defaultWidth);
+        } else if (this.entryPointDefinition) {
+            if (this.entryPointDefinition.defaultWidth > 0) {
+                this.border.setStyle('width', this.entryPointDefinition.defaultWidth);
             }
-            if (this.entryPoint.defaultHeight > 0) {
-                this.border.setStyle('height', this.entryPoint.defaultHeight);
+            if (this.entryPointDefinition.defaultHeight > 0) {
+                this.border.setStyle('height', this.entryPointDefinition.defaultHeight);
             }
         }
 
-        if (this.entryPoint){
-            if (this.entryPoint.fixedWidth > 0 || this.entryPoint.fixedHeight > 0) {
-                if (this.entryPoint.fixedWidth > 0) {
-                    this.border.setStyle('width', this.entryPoint.fixedWidth);
+        if (this.entryPointDefinition){
+            if (this.entryPointDefinition.fixedWidth > 0 || this.entryPointDefinition.fixedHeight > 0) {
+                if (this.entryPointDefinition.fixedWidth > 0) {
+                    this.border.setStyle('width', this.entryPointDefinition.fixedWidth);
                 }
-                if (this.entryPoint.fixedHeight > 0) {
-                    this.border.setStyle('height', this.entryPoint.fixedHeight);
+                if (this.entryPointDefinition.fixedHeight > 0) {
+                    this.border.setStyle('height', this.entryPointDefinition.fixedHeight);
                 }
 
                 Object.each(this.sizer, function(sizer){
@@ -731,7 +741,7 @@ ka.Window = new Class({
             }
         }
 
-        if (this.entryPoint) {
+        if (this.entryPointDefinition) {
             //check dimensions if to big/small
             this.checkDimensions();
         }
@@ -752,13 +762,13 @@ ka.Window = new Class({
         var newY = false;
         var newHeight = false;
 
-        if (this.entryPoint.minWidth && borderSize.x < this.entryPoint.minWidth) {
-            this.border.setStyle('width', this.entryPoint.minWidth);
-            borderSize.x = this.entryPoint.minWidth;
+        if (this.entryPointDefinition.minWidth && borderSize.x < this.entryPointDefinition.minWidth) {
+            this.border.setStyle('width', this.entryPointDefinition.minWidth);
+            borderSize.x = this.entryPointDefinition.minWidth;
         }
-        if (this.entryPoint.minWidth && borderSize.y < this.entryPoint.minHeight) {
-            this.border.setStyle('height', this.entryPoint.minHeight);
-            borderSize.y = this.entryPoint.minHeight;
+        if (this.entryPointDefinition.minWidth && borderSize.y < this.entryPointDefinition.minHeight) {
+            this.border.setStyle('height', this.entryPointDefinition.minHeight);
+            borderSize.y = this.entryPointDefinition.minHeight;
         }
 
 
@@ -845,7 +855,7 @@ ka.Window = new Class({
         //save dimension
         if (this.border) {
 
-            if (this.module == 'users' && this.code == 'users/edit/') {
+            if (this.getEntryPoint() == 'users/users/edit/') {
                 ka.loadSettings();
             }
             this.saveDimension();
@@ -902,19 +912,29 @@ ka.Window = new Class({
 
     },
 
-    loadContent: function () {
+    getEntryPoint: function(){
+        return this.entryPoint;
+    },
 
-        var module = this.module + '/';
-        if (this.module == 'admin') {
-            module = '';
+    getModule: function(){
+        if (!this.module){
+            if (this.getEntryPoint().indexOf('/') > 0){
+                this.module = this.getEntryPoint().substr(0, this.getEntryPoint().indexOf('/'));
+            } else {
+                this.module = this.getEntryPoint();
+            }
         }
+        return this.module;
+    },
+
+    loadContent: function () {
 
         this.content.empty();
 
-        this.entryPoint = ka.entrypoint.get( module + this.code);
+        this.entryPointDefinition = ka.entrypoint.get(this.getEntryPoint());
 
-        if (this.entryPoint.multi === false || this.entryPoint.multi === 0) {
-            var win = ka.wm.checkOpen(this.module, this.code, this.id);
+        if (this.entryPointDefinition.multi === false || this.entryPointDefinition.multi === 0) {
+            var win = ka.wm.checkOpen(this.getEntryPoint(), this.id);
             if (win) {
                 this.close(true);
                 if (win.softOpen) win.softOpen(this.params);
@@ -923,7 +943,7 @@ ka.Window = new Class({
             }
         }
 
-        var title = ka.settings.configs[ this.module ]['title'];
+        var title = ka.settings.configs[ this.getModule() ]['title'];
 
         if (title != 'Kryn.cms') {
             new Element('span', {
@@ -935,7 +955,7 @@ ka.Window = new Class({
             }).inject(this.titleText, 'before');
         }
 
-        var path = Array.clone(this.entryPoint._path);
+        var path = Array.clone(this.entryPointDefinition._path);
         path.pop();
         Array.each(path, function (label) {
 
@@ -954,7 +974,7 @@ ka.Window = new Class({
             this.createResizer();
         }
 
-        this.titleText.set('text', t(this.entryPoint.title));
+        this.titleText.set('text', t(this.entryPointDefinition.title));
 
         this.content.empty();
         new Element('div', {
@@ -963,7 +983,7 @@ ka.Window = new Class({
         }).inject(this.content);
 
 
-        if (this.entryPoint.type == 'iframe') {
+        if (this.entryPointDefinition.type == 'iframe') {
             this.content.empty();
             this.iframe = new IFrame('iframe_kwindow_' + this.id, {
                 'class': 'kwindow-iframe',
@@ -974,26 +994,26 @@ ka.Window = new Class({
                 this.iframe.contentWindow.wm = ka.wm;
                 this.iframe.contentWindow.fireEvent('kload');
             }.bind(this)).inject(this.content);
-            this.iframe.set('src', _path + this.entryPoint.src);
-        } else if (this.entryPoint.type == 'custom') {
+            this.iframe.set('src', _path + this.entryPointDefinition.src);
+        } else if (this.entryPointDefinition.type == 'custom') {
             this.renderCustom();
-        } else if (this.entryPoint.type == 'combine') {
+        } else if (this.entryPointDefinition.type == 'combine') {
             this.renderCombine();
-        } else if (this.entryPoint.type == 'list') {
+        } else if (this.entryPointDefinition.type == 'list') {
             this.renderList();
-        } else if (this.entryPoint.type == 'add') {
+        } else if (this.entryPointDefinition.type == 'add') {
             this.renderAdd();
-        } else if (this.entryPoint.type == 'edit') {
+        } else if (this.entryPointDefinition.type == 'edit') {
             this.renderEdit();
         }
 
         ka.wm.updateWindowBar();
 
-        if (this.entryPoint.noMaximize === true) {
+        if (this.entryPointDefinition.noMaximize === true) {
             this.maximizer.destroy();
         }
 
-        if (this.entryPoint.print === true) {
+        if (this.entryPointDefinition.print === true) {
             this.printer = new Element('img', {
                 'class': 'kwindow-win-printer',
                 src: _path + PATH_MEDIA + '/admin/images/icons/printer.png'
@@ -1049,18 +1069,16 @@ ka.Window = new Class({
     renderCustom: function () {
         var id = 'text';
 
-        if (this.code.substr(this.code.length - 1, 1) == '/') {
-            this.code = this.code.substr(0, this.code.length - 1);
-        }
+        var code = this.getEntryPoint().substr(this.getModule().length+1);
 
-        var javascript = this.code.replace(/\//g, '_');
+        var javascript = code.replace(/\//g, '_');
 
         var noCache = (new Date()).getTime();
 
-        if (this.module == 'admin') {
+        if (this.getModule() == 'admin') {
             this.customCssAsset = new Asset.css(_path + PATH_MEDIA + '/admin/css/' + javascript + '.css?noCache=' + noCache);
         } else {
-            this.customJsAsset = new Asset.css(_path + PATH_MEDIA + this.module + '/admin/css/' + javascript + '.css?noCache=' + noCache);
+            this.customJsAsset = new Asset.css(_path + PATH_MEDIA + this.getModule() + '/admin/css/' + javascript + '.css?noCache=' + noCache);
         }
 
         this.customId = parseInt(Math.random() * 100) + parseInt(Math.random() * 100);
@@ -1074,11 +1092,11 @@ ka.Window = new Class({
 
         window['contentLoaded_' + this.customId] = function () {
             this.content.empty();
-            this.custom = new window[ this.module + '_' + javascript ](this);
+            this.custom = new window[ this.getEntryPoint().replace(/\//g, '_') ](this);
         }.bind(this);
 
         this.customJsClassAsset =
-            new Asset.javascript(_path + 'admin/backend/custom-js?module=' + this.module + '&code=' + javascript +
+            new Asset.javascript(_path + 'admin/backend/custom-js?module=' + this.getModule() + '&code=' + javascript +
                 '&onLoad=' + this.customId);
     },
 
@@ -1143,7 +1161,7 @@ ka.Window = new Class({
         }).addEvent('dblclick', function () {
             if (document.body.hasClass('ka-no-desktop')) return;
 
-            if (this.entryPoint && this.entryPoint.noMaximize !== true) {
+            if (this.entryPointDefinition && this.entryPointDefinition.noMaximize !== true) {
                 this.maximize();
             }
         }.bind(this)).inject(this.win);
@@ -1365,8 +1383,8 @@ ka.Window = new Class({
         this.border.dragX = 0;
         this.border.dragY = 0;
 
-        var minWidth = ( this.entryPoint.minWidth > 0 ) ? this.entryPoint.minWidth : 400;
-        var minHeight = ( this.entryPoint.minHeight > 0 ) ? this.entryPoint.minHeight : 300;
+        var minWidth = ( this.entryPointDefinition.minWidth > 0 ) ? this.entryPointDefinition.minWidth : 400;
+        var minHeight = ( this.entryPointDefinition.minHeight > 0 ) ? this.entryPointDefinition.minHeight : 300;
 
         Object.each(this.sizer, function(item, key){
             item.setStyle('opacity', 0.01);

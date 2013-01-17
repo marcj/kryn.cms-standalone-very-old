@@ -14,13 +14,12 @@ ka.wm = {
     events: {},
     zIndex: 1000,
 
-    openWindow: function (pModule, pWindowCode, pLink, pParentWindowId, pParams, pInline) {
+    openWindow: function (pEntryPoint, pLink, pParentWindowId, pParams, pInline) {
 
-        var id = pModule + '::' + pWindowCode;
-        if (pLink && pLink.onlyOnce && this.checkOpen(id)) {
-            return this.toFront(id);
+        if (pLink && pLink.onlyOnce && this.checkOpen(pEntryPoint)) {
+            return this.toFront(pEntryPoint);
         }
-        return ka.wm.loadWindow(pModule, pWindowCode, pLink, pParentWindowId, pParams, pInline);
+        return ka.wm.loadWindow(pEntryPoint, pLink, pParentWindowId, pParams, pInline);
     },
 
     checkDimensionsAndSendResize: function () {
@@ -60,12 +59,8 @@ ka.wm = {
         }
     },
 
-    open: function (pTarget, pParams, pParentWindowId, pInline) {
-        var firstSlash = pTarget.indexOf('/');
-        if (firstSlash == -1) return logger('Invalid entrypoint: '+pTarget);
-        var module = pTarget.substr(0, firstSlash);
-        var path = pTarget.substr(firstSlash + 1, pTarget.length);
-        return ka.wm.openWindow(module, path, null, pParentWindowId, pParams, pInline);
+    open: function (pEntryPoint, pParams, pParentWindowId, pInline) {
+        return ka.wm.openWindow(pEntryPoint, null, pParentWindowId, pParams, pInline);
     },
 
     getWindow: function (pId) {
@@ -75,16 +70,13 @@ ka.wm = {
         return ka.wm.windows[ pId ];
     },
 
-    sendSoftReload: function (pTarget) {
-        var firstSlash = pTarget.indexOf('/');
-        var module = pTarget.substr(0, firstSlash);
-        var path = pTarget.substr(firstSlash + 1, pTarget.length);
-        ka.wm.softReloadWindows(module, path);
+    sendSoftReload: function (pEntryPoint) {
+        ka.wm.softReloadWindows(pEntryPoint);
     },
 
-    softReloadWindows: function (pModule, pCode) {
+    softReloadWindows: function (pEntryPoint) {
         Object.each(ka.wm.windows, function (win) {
-            if (win && win.module == pModule && win.code == pCode) {
+            if (win && win.getEntryPoint() == pEntryPoint) {
                 win.softReload();
             }
         });
@@ -104,7 +96,7 @@ ka.wm = {
         ka.wm.lastWindow = pWindow;
     },
 
-    loadWindow: function (pModule, pWindowCode, pLink, pParentWindowId, pParams, pInline) {
+    loadWindow: function (pEntryPoint, pLink, pParentWindowId, pParams, pInline) {
         var instance = Object.getLength(ka.wm.windows) + 1;
 
         if (pParentWindowId == -1)
@@ -116,7 +108,7 @@ ka.wm = {
             ka.wm.getWindow(pParentWindowId).prepareInlineContainer();
         }
 
-        ka.wm.windows[instance] = new ka.Window(pModule, pWindowCode, pLink, instance, pParams, pInline, pParentWindowId);
+        ka.wm.windows[instance] = new ka.Window(pEntryPoint, pLink, instance, pParams, pInline, pParentWindowId);
         ka.wm.windows[instance].toFront();
         if (pParentWindowId){
             ka.wm.getWindow(pParentWindowId).setChildren(ka.wm.windows[instance]);
@@ -247,11 +239,10 @@ ka.wm = {
 
     },
 
-    checkOpen: function (pModule, pCode, pInstanceId, pParams) {
+    checkOpen: function (pEntryPoint, pInstanceId, pParams) {
         opened = false;
         Object.each(ka.wm.windows, function (win) {
-            //if( win && win.module == pModule && win.code == pCode && win.params == pParams ){
-            if (win && win.module == pModule && win.code == pCode) {
+            if (win && win.getEntryPoint() == pEntryPoint) {
                 if (pInstanceId > 0 && pInstanceId == win.id) {
                     return;
                 }

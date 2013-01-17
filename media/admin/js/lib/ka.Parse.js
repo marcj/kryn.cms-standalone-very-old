@@ -520,7 +520,7 @@ ka.Parse = new Class({
 
                         if (pos == items.length - 1) {
                             val = obj.getValue();
-                            if (typeOf(val) !== 'null' && val !== '' &&
+                            if (typeOf(val) !== 'null' &&
                                 (obj.options.returnDefault == true || this.options.returnDefault == true || val !== obj.options['default']))
                                 last[key] = val;
                         } else {
@@ -531,7 +531,7 @@ ka.Parse = new Class({
                     res = Object.merge(res, newRes);
                 } else {
                     val = obj.getValue();
-                    if (typeOf(val) !== 'null' && val !== '' &&
+                    if (typeOf(val) !== 'null' &&
                         (obj.options.returnDefault == true || this.options.returnDefault == true || val !== obj.options['default']))
                         res[id] = val;
                 }

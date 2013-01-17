@@ -2,6 +2,8 @@ ka.FieldTypes.Tree = new Class({
     
     Extends: ka.FieldAbstract,
 
+    Binds: ['selected'],
+
     options: {
         object: '',
         scope: null,
@@ -74,6 +76,7 @@ ka.FieldTypes.Tree = new Class({
         this.options.scope = pScope;
         this.tree = new clazz(this.treeContainer, this.options.object, this.options);
         this.tree.addEvent('change', this.fieldInstance.fireChange);
+        this.tree.addEvent('select', this.selected);
 
 
         var proxyMethods = ['deselect', 'getItem', 'select'];
@@ -88,6 +91,10 @@ ka.FieldTypes.Tree = new Class({
             }.bind(this));
 
         }.bind(this));
+    },
+
+    selected: function(pItem, pDom){
+        this.fireEvent('select', [pItem, pDom]);
     },
 
     setValue: function(pValue){
