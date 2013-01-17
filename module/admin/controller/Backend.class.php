@@ -50,8 +50,10 @@ class Backend {
 
         $properties = new \Core\Properties($pSettings);
 
-        Kryn::$adminClient->getUser()->setSettings($properties);
-        Kryn::$adminClient->getUser()->save();
+        if (Kryn::getAdminClient()->getUser()->getId() > 0){
+            Kryn::getAdminClient()->getUser()->setSettings($properties);
+            Kryn::getAdminClient()->getUser()->save();
+        }
 
         return true;
     }

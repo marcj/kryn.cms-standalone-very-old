@@ -324,15 +324,16 @@ class PropelHelper {
 
         $GLOBALS['sql'] = $sql;
 
-        dbBegin();
+        $sql = explode(";\n", $sql);
 
+        dbBegin();
         try {
-            dbExec($sql);
+            foreach ($sql as $query)
+                dbExec($query);
         } catch (\PDOException $e){
             dbRollback();
-            throw new \PDOException($e->getMessage().' in SQL: '.$query);
+            throw new \PDOException($e->getMessage().' in SQL: '.$sql);
         }
-
         dbCommit();
 
         return 'ok';
@@ -389,7 +390,8 @@ class PropelHelper {
         }
 
         if (!\Propel::isInit()){
-            \Propel::init(self::getConfig());
+            \Propel::setConfiguration(self::getConfig());
+            \Propel::initialize();
         }
 
         $tmp = self::getTempFolder();
@@ -484,7 +486,7 @@ class PropelHelper {
 
             // Invoke any shutdown routines.
             \Phing::shutdown();
-        } catch (Exception $x) {
+        } catch (\Exception $x) {
             chdir($chdir);
             set_include_path($oldIncludePath);
             throw $x;
@@ -532,7 +534,7 @@ propel.project = kryn
 
 propel.namespace.autoPackage = true
 propel.packageObjectModel = true
-propel.behavior.workspace.class = behavior.WorkspaceBehavior
+propel.behavior.workspace.class = lib.WorkspaceBehavior
 
 ';
 

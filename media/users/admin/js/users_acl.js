@@ -721,7 +721,7 @@ var users_users_acl = new Class({
             var div = new Element('div', {
                 'class': 'ka-list-combine-item'
             })
-            .addEvent('click', function(){this.loadObjectRules(objectKey)}.bind(this))
+            .addEvent('click', function(){this.loadObjectRules(pExtKey+'\\'+objectKey)}.bind(this))
             .inject(this.objectList);
 
             var h2 = new Element('h2', {
@@ -739,7 +739,7 @@ var users_users_acl = new Class({
                 }).inject(div);
             }
 
-            this.objectDivs[objectKey] = div;
+            this.objectDivs[pExtKey+'\\'+objectKey] = div;
 
         }.bind(this));
 

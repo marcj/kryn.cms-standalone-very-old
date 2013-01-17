@@ -11,8 +11,17 @@ class AdminController extends Server {
         $this->addGetRoute('acl/search', 'getSearch');
         $this->addGetRoute('acl', 'loadAcl');
         $this->addPostRoute('acl', 'saveAcl');
+        $this->addGetRoute('test', 'test');
 
         return parent::run();
+
+    }
+
+    public function test(){
+
+        var_dump(\Core\Kryn::getAdminClient()->getSession());
+
+        exit;
 
     }
 

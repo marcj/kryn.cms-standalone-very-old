@@ -347,6 +347,7 @@ function checkConfig(){
           'fileGroupPermission'      => $_REQUEST['fileGroupPermission'],
           'fileGroupName'      => $_REQUEST['fileGroupName'],
           'fileEveryonePermission'   => $_REQUEST['fileEveryonePermission'],
+          'fileNoChangeMode'   => $_REQUEST['fileNoChangeMode']+0,
           'fileTemp'   => $_REQUEST['fileTemp'] ? $_REQUEST['fileTemp'] : null,
 
           'cache' => array(
@@ -663,6 +664,8 @@ function step5Done($pMsg){
             header("Content-Type: text/plain");
 
             echo $diff;
+            if (is_array($diff))
+                print_r($diff);
 
 
             \Core\PropelHelper::cleanup();
@@ -711,7 +714,8 @@ function step5Done($pMsg){
 
         if ($subStep >= 1){
 
-            \Propel::init(\Core\PropelHelper::getConfig());
+            \Propel::setConfiguration(\Core\PropelHelper::getConfig());
+            \Propel::initialize();
         }
 
         if ($subStep > 0){
@@ -1147,6 +1151,12 @@ function step3(){
                 <option value="r">Read</option>
                 <option value="rw">Read and Write</option>
             </select>
+        </td>
+    </tr>
+    <tr>
+        <td>Do not change file's mode</td>
+        <td>
+            <input type="checkbox" value="1" name="fileNoChangeMode" />
         </td>
     </tr>
     <tr>

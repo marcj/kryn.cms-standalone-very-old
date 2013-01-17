@@ -603,7 +603,8 @@ class Kryn {
 
         //check if we need to load all config objects and do the extendConfig part
         if (/*!Kryn::$tables || $md5 != Kryn::$tables['__md5'] ||*/
-            !Kryn::$themes || $md5 != Kryn::$themes['__md5'] //||
+            !Kryn::$themes || $md5 != Kryn::$themes['__md5'] ||
+            !Kryn::$configs
             //!Kryn::$objects || $md5 != Kryn::$objects['__md5'] ||
             //count(Kryn::$objects) < 2
             ) {
@@ -954,11 +955,11 @@ class Kryn {
 
         $defaultClientClass = Kryn::$config['client']['class'];
         $defaultClientConfig = Kryn::$config['client']['config'];
-        $defaultClientStore = Kryn::$config['client']['store'];
+        $defaultClientStore = Kryn::$config['client']['config']['store'];
         $defaultAutoStart = Kryn::$config['client']['autoStart'];
 
         if (Kryn::$admin) {
-            
+
             Kryn::$adminClient = new $defaultClientClass($defaultClientConfig, $defaultClientStore);
 
             Kryn::$adminClient->start();
@@ -983,7 +984,7 @@ class Kryn {
                 $frontendAutoStart = $sessionProperties['autoStart'];
 
             if ($sessionProperties['store'])
-                $frontendClientStore = $sessionProperties['store'];
+                $frontendClientStore = $frontClientConfig['store'];
 
 
             Kryn::$client = new $frontClientClass($frontClientConfig, $frontendClientStore);
@@ -1552,7 +1553,7 @@ class Kryn {
 
         if (!$domain) {
             klog("system", "Domain <i>$domainName</i> not found. Language: $possibleLanguage");
-            Kryn::internalError('Domain not found', tf('Domain %s not found', $domainName));
+            Kryn::internalError('Domain not found', tf('Domain %s not found.', $domainName));
         }
 
 

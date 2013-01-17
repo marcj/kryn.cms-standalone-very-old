@@ -2,9 +2,9 @@
 
 namespace Tests\Object;
 
-use Tests\TestCaseWithInstallation;
+use Tests\TestCaseWithCore;
 
-class GeneralTest extends TestCaseWithInstallation {
+class GeneralTest extends TestCaseWithCore {
 
     public function testObject(){
 

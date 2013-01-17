@@ -32,7 +32,7 @@ class Utils {
 
         ob_end_clean();
 
-        if ($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'){
+        if ($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest' || php_sapi_name() == 'cli'){
             $response = array(
                 'status' => 500,
                 'error' => $pErrorCode,

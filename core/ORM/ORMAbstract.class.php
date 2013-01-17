@@ -111,38 +111,44 @@ abstract class ORMAbstract {
         if (!is_array($pPrimaryKey)){
             $result = array();
             $result[$this->primaryKeys[0]] = $pPrimaryKey;
-            return $result;
         } else if (is_numeric(key($pPrimaryKey))){
             $result = array();
             $length = count($this->primaryKeys);
             for($i=0; $i<$length; $i++){
                 $result[$this->primaryKeys[$i]] = $pPrimaryKey[$i];
             }
-            return $result;
         } else{
-            return $pPrimaryKey;
+            $result = $pPrimaryKey;
         }
+
+        if (count($this->primaryKeys) > count($result)){
+            foreach ($this->primaryKeys as $pk){
+                if (!$result[$pk]) $result[$pk] = null;
+            }
+        }
+
+        return $result;
     }
 
     /**
      * Converts given primary values from type string into proper normalized array definition.
      * This builds the array for the $pPrimaryKey for all of these methods inside this class.
      *
-     * The primaryKey comes primaraly from the REST API.
+     * The primaryKey comes primarily from the REST API.
      *
      *    admin/backend/object/news/1
-     *    admin/backend/objects?uri=news/1,2
+     *    admin/backend/objects?uri=news/1/2
      * where
      *    admin/backend/object/news/<id>
      *    admin/backend/objects?uri=news/<id>
      *
      * is this ID.
      *
-     * 1,2,3 => array( array(id =>1),array(id =>2),array(id =>3) )
+     * 1/2/3 => array( array(id =>1),array(id =>2),array(id =>3) )
      * 1 => array(array(id => 1))
      * idFooBar => array( id => "idFooBar")
-     * idFoo-Bar => array(array(id => idFoo, id2 => "Bar"))
-     * 1-45, 2-45 => array(array(id => 1, pid = 45), array(id => 2, pid=>45))
+     * idFoo/Bar => array(array(id => idFoo), array(id2 => "Bar"))
+     * 1,45/2,45 => array(array(id => 1, pid = 45), array(id => 2, pid=>45))
      *
      *
      *
@@ -153,7 +159,7 @@ abstract class ORMAbstract {
     public function primaryStringToArray($pPrimaryKey){
 
         if ($pPrimaryKey === '') return false;
-        $groups = explode(';', $pPrimaryKey);
+        $groups = explode('/', $pPrimaryKey);
 
         $result = array();
 
@@ -173,6 +179,12 @@ abstract class ORMAbstract {
                 $key = $this->primaryKeys[$pos];
 
                 $item[$key] = rawurldecode($value);
+            }
+
+            if (count($this->primaryKeys) > count($item)){
+                foreach ($this->primaryKeys as $pk){
+                    if (!$item[$pk]) $item[$pk] = null;
+                }
             }
 
             if (count($item) > 0)

@@ -553,7 +553,7 @@ abstract class ClientAbstract {
      */
     protected function loadSessionDatabase($pToken) {
 
-        $session = Kryn::getPropelCacheObject('\Users\Session', $pToken);
+        $session = \Users\SessionQuery::create()->findOneById($pToken);
 
         if (!$session) return false;
 

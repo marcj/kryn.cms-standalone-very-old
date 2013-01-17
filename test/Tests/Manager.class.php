@@ -138,10 +138,11 @@ class Manager {
 
         \Core\TempFile::remove('propel');
 
-        if (!\Propel::isInit())
-            \Propel::init(\Core\PropelHelper::getConfig());
-        else
-            \Propel::configure(\Core\PropelHelper::getConfig());
+        if (!\Propel::isInit()){
+            \Propel::initialize();
+        }
+
+        \Propel::setConfiguration(\Core\PropelHelper::getConfig());
 
         try {
 
@@ -162,6 +163,7 @@ class Manager {
             foreach ($pConfig['activeModules'] as $module)
                 $manager->installDatabase($module);
 
+
             include('core/bootstrap.startup.php');
         } catch (\Exception $ex){
             die($ex);
@@ -180,7 +182,7 @@ class Manager {
 
         if (file_exists('config.php')){
             $cfg = include('config.php');
-        } else throw new \Exception('Kryn.cms not installed.');
+        } else throw new \Exception('Kryn.cms not installed. (config.php not found)');
 
         $cfg = include('config.php');
         $cfg['displayErrors'] = false;

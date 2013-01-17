@@ -16,6 +16,7 @@
     },
     "fileGroupPermission": "rw",
     "fileGroupName": "",
+    "fileNoChangeMode": 1,
     "fileEveryonePermission": "r",
     "cache": {
         "class": "\\Core\\Cache\\Files"

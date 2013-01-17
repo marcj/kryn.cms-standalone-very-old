@@ -42,11 +42,6 @@ class Propel extends ORMAbstract {
 
     }
 
-    public function primaryStringToArray($pPk){
-        $this->init(); //load pks
-        return parent::primaryStringToArray($pPk);
-    }
-
 
     /**
      * Filters $pFields by allowed fields.
@@ -405,7 +400,7 @@ class Propel extends ORMAbstract {
     public function populateRow($pClazz, $pRow, $pSelects, $pRelations, $pRelationFields, $pPermissionCheck = false){
 
         $item = new $pClazz();
-        $item->hydrateFromNames($pRow, \BasePeer::TYPE_FIELDNAME);
+        $item->fromArray($pRow, \BasePeer::TYPE_FIELDNAME);
 
         foreach ($pSelects as $select){
             $newRow[lcfirst($select)] = $item->{'get'.$select}();
@@ -432,7 +427,7 @@ class Propel extends ORMAbstract {
                         if ($allNull){
                             $newRow[lcfirst($name)] = null;
                         } else {
-                            $foreignObj->hydrateFromNames($foreignRow, \BasePeer::TYPE_FIELDNAME);
+                            $foreignObj->fromArray($foreignRow, \BasePeer::TYPE_FIELDNAME);
 
                             $foreignRow = array();
                             foreach ($pRelationFields[$name] as $col){
@@ -467,7 +462,7 @@ class Propel extends ORMAbstract {
                         while ($subRow = dbFetch($sStmt)){
 
                             $sItem = new $sClazz();
-                            $sItem->hydrateFromNames($subRow, \BasePeer::TYPE_FIELDNAME);
+                            $sItem->fromArray($subRow, \BasePeer::TYPE_FIELDNAME);
 
                             $temp = array();
                             foreach ($pRelationFields[$name] as $select){

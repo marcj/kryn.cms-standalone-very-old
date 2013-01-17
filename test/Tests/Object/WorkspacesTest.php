@@ -2,12 +2,12 @@
 
 namespace Tests\Object;
 
-use Tests\TestCaseWithInstallation;
+use Tests\TestCaseWithCore;
 use \Core\Object;
 use \Core\WorkspaceManager;
 
 
-class WorkspacesTest extends TestCaseWithInstallation {
+class WorkspacesTest extends TestCaseWithCore {
 
     public function testDifferentWorkspaces(){
 
@@ -60,45 +60,49 @@ class WorkspacesTest extends TestCaseWithInstallation {
 
     public function testThroughCoreObjectWrapper(){
 
+        Object::clear('Publication\\News');
         $count = Object::getCount('Publication\\News');
-        $this->assertEquals(5, $count);
+        $this->assertEquals(0, $count);
 
-        for ($i=6; $i<=50;$i++){ //start at 6 since the publication/package/installDatabase script created already 5 news.
-            Object::add('Publication\\News', array(
+        $id11 = 0;
+
+        for ($i=1; $i<=50;$i++){
+            $pk = Object::add('Publication\\News', array(
                 'title' => 'News '.$i,
                 'intro' => str_repeat('L', $i)
             ));
+            if ($i == 11) $id11 = $pk['id'];
         }
 
         $count = Object::getCount('Publication\\News');
         $this->assertEquals(50, $count);
 
-        $item = Object::get('Publication\\News', 11);
+        $item = Object::get('Publication\\News', $id11);
         $this->assertEquals('News 11', $item['title']);
 
-        Object::update('Publication\\News', 11, array(
+        Object::update('Publication\\News', $id11, array(
             'title' => 'New News 11'
         ));
 
-        $item = Object::get('Publication\\News', 11);
+        $item = Object::get('Publication\\News', $id11);
         $this->assertEquals('New News 11', $item['title']);
 
-        Object::update('Publication\\News', 11, array(
+        Object::update('Publication\\News', $id11, array(
             'title' => 'New News 11 - 2'
         ));
 
         //check version counter - we have 2 updates, so we have 2 versions.
-        $count = \Publication\NewsVersionQuery::create()->filterById(11)->count();
+        $count = \Publication\NewsVersionQuery::create()->filterById($id11)->count();
         $this->assertEquals(2, $count);
 
-        Object::remove('Publication\\News', 11);
+        Object::remove('Publication\\News', $id11);
 
         //check version counter - we have 2 updates and 1 deletion (one deletion creates 2 new versions,
         //first regular version and second placeholder for deletion, so we have 4 versions now.
-        $count = \Publication\NewsVersionQuery::create()->filterById(11)->count();
+        $count = \Publication\NewsVersionQuery::create()->filterById($id11)->count();
         $this->assertEquals(4, $count);
 
-        $item = Object::get('Publication\\News', 11);
+        $item = Object::get('Publication\\News', $id11);
         $this->assertFalse($item); //should be gone
 
         Object::clear('Publication\\News');

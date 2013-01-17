@@ -288,10 +288,10 @@ class Manager {
      * If $pName points to a zip-file, we extract it in temp, fires the extract script and move it to our install root.
      *
      * @param string $pName
-     * @param bool   $pWithoutPropelUpdate
+     * @param bool   $pWithoutDBSchemaUpdate
      * @return bool
      */
-    public function install($pName, $pWithoutPropelUpdate = false){
+    public function install($pName, $pWithoutDBSchemaUpdate = false){
 
         Manager::prepareName($pName);
 
@@ -312,7 +312,7 @@ class Manager {
         $this->fireScript($pName, 'install');
 
         //fire update propel orm
-        if (!$pWithoutPropelUpdate && $hasPropelModels){
+        if (!$pWithoutDBSchemaUpdate && $hasPropelModels){
             //update propel
             \Core\PropelHelper::updateSchema();
             \Core\PropelHelper::cleanup();

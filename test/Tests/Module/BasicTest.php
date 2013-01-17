@@ -2,9 +2,9 @@
 
 namespace Tests\Module;
 
-use Tests\TestCaseWithInstallation;
+use Tests\TestCaseWithCore;
 
-class BasicTest extends TestCaseWithInstallation {
+class BasicTest extends TestCaseWithCore {
 
     public function testGeneral(){
 

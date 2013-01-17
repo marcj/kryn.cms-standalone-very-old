@@ -22,10 +22,10 @@ if (!is_dir(\Core\Kryn::getTempFolder().'propel-classes')){
     \Core\PropelHelper::init();
 }
 
+\Propel::setConfiguration(Core\PropelHelper::getConfig());
+
 if (!\Propel::isInit())
-    \Propel::init(Core\PropelHelper::getConfig());
-else
-    \Propel::setConfiguration(Core\PropelHelper::getConfig());
+    \Propel::initialize();
 
 
 //read out the url so that we can use getArgv()

@@ -76,17 +76,58 @@
                 "name": {
                     "type": "text"
                 },
+                "desc": {
+                    "type": "text"
+                },
                 "lang": {
                     "type": "lang"
                 }
             },
-            "label": "Test"
+            "label": "name"
+        },
+        "Item2": {
+            "table": "test_item2",
+            "labelField": "title",
+            "limitDataSets": [
+
+            ],
+            "nested": false,
+            "dataModel": "propel",
+            "multiLanguage": false,
+            "domainDepended": false,
+            "treeIconMapping": [
+
+            ],
+            "treeFixedIcon": false,
+            "browserColumns": [
+
+            ],
+            "fields": {
+                "id": {
+                    "type": "number",
+                    "primaryKey": true,
+                    "autoIncrement": true
+                },
+                "id2": {
+                    "type": "number",
+                    "primaryKey": true
+                },
+                "title": {
+                    "type": "text"
+                },
+                "category": {
+                    "object": "Test\\ItemCategory",
+                    "objectRelation": "nToM",
+                    "type": "object"
+                }
+            },
+            "label": "title"
         },
         "Item": {
             "table": "test_item",
             "labelField": "title",
             "limitDataSets": [
-                
+
             ],
             "nested": false,
             "dataModel": "propel",
@@ -94,11 +135,11 @@
             "workspace": true,
             "domainDepended": false,
             "treeIconMapping": [
-                
+
             ],
             "treeFixedIcon": false,
             "browserColumns": [
-                
+
             ],
             "fields": {
                 "id": {
@@ -115,7 +156,7 @@
                     "type": "object"
                 }
             },
-            "label": "",
+            "label": "title",
             "__dataModel__": "table"
         },
         "ItemCategory": {

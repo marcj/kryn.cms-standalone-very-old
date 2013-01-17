@@ -1,3 +1,6 @@
 [submodule "inc/lib/mooeditable"]
 	path = inc/lib/mooeditable
 	url = git://github.com/MArcJ/mooeditable.git
+[submodule "lib/propel"]
+	path = lib/propel
+	url = https://github.com/propelorm/Propel.git

@@ -2,7 +2,7 @@
 
 namespace Tests\Object;
 
-use Tests\TestCaseWithInstallation;
+use Tests\TestCaseWithCore;
 use \Core\Object;
 use \Core\WorkspaceManager;
 
@@ -12,7 +12,7 @@ use Test\ItemCategory;
 use Test\ItemCategoryQuery;
 
 
-class WorkspaceObjectRelationTest extends TestCaseWithInstallation {
+class WorkspaceObjectRelationTest extends TestCaseWithCore {
 
     public function testThroughPropel(){
 

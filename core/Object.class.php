@@ -34,10 +34,10 @@ class Object {
         //TODO, not done here
 
         $pos = strpos($pInternalUri,'://');
-        $object_id = substr($pInternalUri, 0, $pos);
+        $objectIds = substr($pInternalUri, 0, $pos);
         $params = explode('/', substr($pInternalUri, $pos+2));
 
-        $objectDefinition = self::getDefinition($object_id);
+        $objectDefinition = self::getDefinition($objectIds);
         if (!$objectDefinition) return false;
 
         if (method_exists($objectDefinition['_extension'], $objectDefinition['urlGetter'])){
@@ -130,12 +130,12 @@ class Object {
             );
         }
         if ($pos === false && $questionPos != false)
-            $object_key = substr($pInternalUri, 0, $questionPos);
+            $objectKey = substr($pInternalUri, 0, $questionPos);
         else
-            $object_key = substr($pInternalUri, 0, $pos);
+            $objectKey = substr($pInternalUri, 0, $pos);
 
-        if (strpos($object_key, '%'))
-            $object_key = rawurldecode($object_key);
+        if (strpos($objectKey, '%'))
+            $objectKey = rawurldecode($objectKey);
 
         $params = array();
 
@@ -143,20 +143,20 @@ class Object {
             parse_str(substr($pInternalUri, $questionPos+1), $params);
 
             if ($pos !== false)
-                $object_id = substr($pInternalUri, $pos+1, $questionPos-($pos+1));
+                $objectIds = substr($pInternalUri, $pos+1, $questionPos-($pos+1));
 
         } else if ($pos !== false)
-            $object_id = substr($pInternalUri, $pos+1);
+            $objectIds = substr($pInternalUri, $pos+1);
 
-        $object_id = self::parsePk($object_key, $object_id);
+        $objectIds = self::parsePk($objectKey, $objectIds);
 
         if ($params && $params['condition']){
             $params['condition'] = json_decode($params['condition'], true);
         }
 
         return array(
-            $object_key,
-            (!$object_id) ? false : $object_id,
+            $objectKey,
+            (!$objectIds) ? false : $objectIds,
             $params,
             $list
         );
@@ -201,9 +201,9 @@ class Object {
 
         $obj = self::getClass($pObjectKey);
 
-        $object_id = $obj->primaryStringToArray($pPrimaryKey);
+        $objectIds = $obj->primaryStringToArray($pPrimaryKey);
 
-        return $object_id;
+        return $objectIds;
     }
 
     /**
@@ -243,11 +243,13 @@ class Object {
      * Returns the id of an object item for the usage in urls (internal uri's) - urlencoded.
      *
      * @param string $pObjectKey
-     * @param array $pItem
+     * @param array $pPk
      * @return string
      * @throws \InvalidArgumentException
      */
-    public static function getObjectUrlId($pObjectKey, $pItem){
+    public static function getObjectUrlId($pObjectKey, $pPk){
+
+        $pPk = self::normalizePk($pObjectKey, $pPk);
         $pks = self::getPrimaryList($pObjectKey);
 
         if (count($pks) == 0 ) throw new \InvalidArgumentException($pObjectKey.' does not have primary keys.');
@@ -256,14 +258,15 @@ class Object {
         $withoutFieldNames = is_numeric(key($pItem));
 
         if (count($pks) == 1 && is_array($pItem)){
-            return rawurlencode($pItem[ $withoutFieldNames ? 0 : $pks[0] ])+'';
+            return rawurlencode($pPk[ $withoutFieldNames ? 0 : $pks[0] ])+'';
         } else {
             $c = 0;
+            $urlId = array();
             foreach ($pks as $pk){
-                $urlId .= rawurlencode($pItem[ $withoutFieldNames ? $c:$pk ]);
+                $urlId[] = rawurlencode($pPk[ $withoutFieldNames ? $c:$pk ]);
                 $c++;
             }
-            return $urlId;
+            return implode(',', $urlId);
         }
 
     }
@@ -307,9 +310,9 @@ class Object {
      */
     public static function getFromUri($pInternalUri){
 
-        list($object_key, $object_id, $params, $asList) = self::parseUri($pInternalUri);
+        list($objectKey, $objectIds, $params, $asList) = self::parseUri($pInternalUri);
 
-        return $asList?self::getList($object_key, $object_id, $params):self::get($object_key, $object_id, $params);
+        return $asList?self::getList($objectKey, $objectIds, $params):self::get($objectKey, $objectIds, $params);
     }
 
 
@@ -491,9 +494,9 @@ class Object {
      * @return array
      */
     public static function getCountFromUri($pInternalUri){
-        list($object_key, $object_id, $params) = self::parseUri($pInternalUri);
+        list($objectKey, $objectIds, $params) = self::parseUri($pInternalUri);
 
-        return self::getCount($object_key, $params['condition']);
+        return self::getCount($objectKey, $params['condition']);
     }
 
 
@@ -537,10 +540,6 @@ class Object {
 
     }
 
-    public static function test(){
-
-    }
-
     public static function add($pObjectKey, $pValues, $pBranchPk = false, $pPosition = 'into', $pScopeId = false,
                                $pOptions = array()){
 
@@ -560,8 +559,8 @@ class Object {
 
 
     public static function updateFromUri($pObjectUri, $pValues){
-        list($object_key, $object_id, $params) = self::parseUri($pObjectUri);
-        return self::update($object_key, $object_id[0], $pValues, $params);
+        list($objectKey, $objectIds, $params) = self::parseUri($pObjectUri);
+        return self::update($objectKey, $objectIds[0], $pValues, $params);
     }
 
     /**
@@ -589,9 +588,9 @@ class Object {
     }
 
     public static function removeFromUri($pObjectUri){
-        list($object_key, $object_id, $params) = self::parseUri($pObjectUri);
-        $obj = self::getClass($object_key);
-        return $obj->remove($object_id[0]);
+        list($objectKey, $objectIds, $params) = self::parseUri($pObjectUri);
+        $obj = self::getClass($objectKey);
+        return $obj->remove($objectIds[0]);
     }
 
     public static function remove($pObjectKey, $pPk){
@@ -624,10 +623,10 @@ class Object {
      */
     public static function getTreeFromUri($pParentObjectUri, $pDepth = 1, $pExtraFields = ''){
 
-        list($object_key, $object_id, $params) = self::parseUri($pParentObjectUri);
-        $obj = self::getClass($object_key);
+        list($objectKey, $objectIds, $params) = self::parseUri($pParentObjectUri);
+        $obj = self::getClass($objectKey);
 
-        return $obj->getTree($object_id[0], false, $pDepth, $params['scopeId'], $pExtraFields);
+        return $obj->getTree($objectIds[0], false, $pDepth, $params['scopeId'], $pExtraFields);
 
     }
 
@@ -742,9 +741,9 @@ class Object {
 
     public static function getParentIdFromUri($pObjectUri){
 
-        list($object_key, $object_id, $params) = self::parseUri($pObjectUri);
+        list($objectKey, $objectIds, $params) = self::parseUri($pObjectUri);
 
-        return self::getParentId($object_key, $object_id[0]);
+        return self::getParentId($objectKey, $objectIds[0]);
     }
 
 
@@ -754,8 +753,8 @@ class Object {
     }
 
     public static function getParentFromUri($pObjectUri){
-        list($object_key, $object_id, $params) = self::parseUri($pObjectUri);
-        return self::getParent($object_key, $object_id[0]);
+        list($objectKey, $objectIds, $params) = self::parseUri($pObjectUri);
+        return self::getParent($objectKey, $objectIds[0]);
     }
 
 
@@ -773,6 +772,51 @@ class Object {
 
     }
 
+    /**
+     * Returns always a array with primary key and value pairs.
+     *
+     * $pPk can be
+     *  - 24
+     *  - array(24)
+     *  - array('id' => 24)
+     *
+     * result:
+     *  array(
+     *    'id' => 24
+     * );
+     *
+     * @param string $pObjectKey
+     * @param mixed $pPk
+     * @return array
+     */
+    public static function normalizePk($pObjectKey, $pPk){
+        $obj = self::getClass($pObjectKey);
+        return $obj->normalizePrimaryKey($pPk);
+    }
+
+    /**
+     * Parses a primary key that is a represented as string.
+     *
+     * Example:
+     *
+     *  1/2/3 => array( array(id =>1),array(id =>2),array(id =>3) )
+     *  1 => array(array(id => 1))
+     *  idFooBar => array( id => "idFooBar")
+     *  idFoo/Bar => array(array(id => idFoo), array(id2 => "Bar"))
+     *  1,45/2,45 => array(array(id => 1, pid = 45), array(id => 2, pid=>45))
+     *
+     * @param $pObjectKey
+     * @param $pPkString
+     * @return array
+     */
+    public static function normalizePkString($pObjectKey, $pPkString){
+
+        $obj = self::getClass($pObjectKey);
+        $objectIds = $obj->primaryStringToArray($pPkString);
+
+        return $objectIds[0];
+    }
+
 
     public static function getParents($pObjectKey, $pObjectId){
         $obj = self::getClass($pObjectKey);
@@ -780,8 +824,8 @@ class Object {
     }
 
     public static function getParentsFromUri($pObjectUri){
-        list($object_key, $object_id, $params) = self::parseUri($pObjectUri);
-        return self::getParents($object_key, $object_id[0]);
+        list($objectKey, $objectIds, $params) = self::parseUri($pObjectUri);
+        return self::getParents($objectKey, $objectIds[0]);
     }
 
     public static function move($pObjectKey, $pObjectId, $pTargetId, $pWhere = 'into', $pTargetObjectKey = null, $pOptions = null){
@@ -869,7 +913,7 @@ class Object {
 
         }
 
-        return $complied === null ? true : $complied;
+        return $complied === null ? true : ($complied ? true : false);
     }
 
     public static function checkRule(&$pObjectItem, $pCondition){
@@ -895,7 +939,7 @@ class Object {
                 $value = preg_quote($value, '/');
                 $value = str_replace('%', '.*', $value);
                 $value = str_replace('_', '.', $value);
-                return preg_match('/'.$value.'/', $ovalue);
+                return preg_match('/^'.$value.'$/', $ovalue);
 
             case 'REGEXP':
                 return preg_match('/'.preg_quote($value, '/').'/', $ovalue);
