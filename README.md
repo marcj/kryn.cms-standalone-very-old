@@ -40,7 +40,7 @@ PHPUnit
 --------
 
 
- You have several environment variable, to adjust the config in the test suite.
+ You have several environment variable to adjust the config in the test suite.
 
     DOMAIN     The domain the installation (should) have. Should be available through your network. Default is `127.0.0.1`
     PORT       The port the installation (should) have. Default is `8000`.
