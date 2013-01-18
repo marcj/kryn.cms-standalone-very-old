@@ -36,7 +36,7 @@ Features
  - Very secure password storage (salted, double sha512 in 500 rounds, incl. non-db hash key injection)
 
 
- PHPUnit
+PHPUnit
 --------
 
 
