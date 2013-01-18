@@ -641,7 +641,7 @@ var users_users_acl = new Class({
         var definition = ka.getObjectDefinition(objectKey);
         var fields = definition.labelField;
 
-        new Request.JSON({url: _path+'admin/backend/object/'+objectKey+'/'+objectId, onComplete: function(pResult){
+        new Request.JSON({url: _path+'admin/object/'+objectKey+'/'+objectId, onComplete: function(pResult){
 
             if (!pResult || pResult.error || !pResult.data){
                 pDomObject.set('text', 'Object not found. '+uri);
@@ -658,7 +658,7 @@ var users_users_acl = new Class({
 
         }}).get({fields: fields});
 
-        //http://ilee/admin/backend/objectGetLabel?url=object://news/3
+        //http://ilee/admin/objectGetLabel?url=object://news/3
     },
 
     humanReadableCondition: function(pCondition, pDomObject){

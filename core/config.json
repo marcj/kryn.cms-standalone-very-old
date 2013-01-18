@@ -252,27 +252,43 @@
             "desc": "[[Pages, Links, Deposits and Navigation folder]]",
             "table": "system_node",
             "labelField": "title",
+            "labelTemplate": "",
+            "defaultSelection": "type, title, alternativeTitle, url, layout, visible, target",
+            "blacklistSelection": "",
             "limitDataSets": [
                 
             ],
+            "propelClass": "",
+            "propelClassName": "",
             "nestedLabel": "title",
-            "nestedRootObject": "Core\\Domain",
+            "nestedRootObject": "core\\Domain",
             "nestedRootObjectField": "domainId",
             "nestedRootObjectLabelField": "domain",
+            "nestedRootObjectExtraFields": "",
             "nestedRootAsObject": true,
             "nested": true,
             "dataModel": "propel",
             "multiLanguage": false,
+            "workspace": false,
             "domainDepended": false,
+            "plugins": "",
+            "fieldLabel": "",
+            "fieldTemplate": "",
+            "fieldFields": "",
             "treeInterfaceClass": "ka.NodeTree",
             "treeInterface": "custom",
+            "treeLabel": "",
+            "treeTemplate": "",
+            "treeFields": "",
             "treeIcon": "type",
             "treeIconMapping": [
                 
             ],
+            "treeDefaultIcon": "",
             "treeFixedIcon": false,
-            "treeRootObjectIconPath": "\/admin\/images\/icons\/world.png",
+            "treeRootObjectIconPath": "not found: object:\/\/Core\\File\/not%20found%3A%20object%3A%2F%2FCore%5CFile%2F%252Fadmin%252Fimages%252Ficons%252Fworld.png",
             "treeRootObjectFixedIcon": true,
+            "browserInterfaceClass": "",
             "browserInterfaceOptions": [
                 
             ],
@@ -299,7 +315,7 @@
                     "autoIncrement": 0,
                     "empty": 1
                 },
-                "domain_id": {
+                "domainId": {
                     "label": "[[Domain ID]]",
                     "type": "number",
                     "primaryKey": 0,
@@ -319,7 +335,7 @@
                     "primaryKey": 0,
                     "empty": 1
                 },
-                "page_title": {
+                "alternativeTitle": {
                     "label": "[[Page title]]",
                     "type": "text",
                     "primaryKey": 0,
@@ -361,7 +377,7 @@
                     "primaryKey": 0,
                     "empty": 1
                 },
-                "access_denied": {
+                "accessDenied": {
                     "label": "[[Access denied]]",
                     "type": "text",
                     "primaryKey": 0,
@@ -374,44 +390,44 @@
                     "primaryKey": 0,
                     "empty": 1
                 },
-                "force_https": {
+                "forceHttps": {
                     "label": "[[Force HTTPS]]",
                     "type": "checkbox",
                     "primaryKey": 0,
                     "empty": 1
                 },
-                "access_from": {
+                "accessFrom": {
                     "type": "datetime",
                     "primaryKey": 0,
                     "empty": 1
                 },
-                "access_to": {
+                "accessTo": {
                     "type": "datetime",
                     "primaryKey": 0,
                     "empty": 1
                 },
-                "access_redirectto": {
+                "accessRedirectto": {
                     "type": "page",
                     "primaryKey": 0,
                     "empty": 1
                 },
-                "access_nohidenavi": {
+                "accessNohidenavi": {
                     "type": "checkbox",
                     "primaryKey": 0,
                     "empty": 1
                 },
-                "access_need_via": {
+                "accessNeedVia": {
                     "type": "number",
                     "primaryKey": 0,
                     "autoIncrement": 0,
                     "empty": 1
                 },
-                "access_from_groups": {
+                "accessFromGroups": {
                     "type": "text",
                     "primaryKey": 0,
                     "empty": 1
                 },
-                "search_words": {
+                "searchWords": {
                     "type": "text",
                     "primaryKey": 0,
                     "empty": 1
@@ -551,5 +567,8 @@
             },
             "label": "Workspace"
         }
-    }
+    },
+    "__path": "core",
+    "installed": true,
+    "extensionCode": "core"
 }

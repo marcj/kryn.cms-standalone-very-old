@@ -34,3 +34,26 @@ Features
  - Several authenication layers (seperated in backend and several frontend)
  - MVC architecture
  - Very secure password storage (salted, double sha512 in 500 rounds, incl. non-db hash key injection)
+
+
+ PHPUnit
+--------
+
+
+ You have several environment variable, to adjust the config in the test suite.
+
+    DOMAIN      The domain the installation (should) have. Should be available through your network. Default is `127.0.0.1`.
+    PORT        The port the installation (should) have. Default is `8000`.
+    DB_NAME     The database name. Default is `test`
+    DB_USER     The database username. Default is `root`
+    DB_PW       The database password. Default is empty.
+    DB_TYPE     The database type. `mysql`, `pgsql`, `sqlite`, `sqlsrv`. Default is `mysql`.
+    DB_SERVER   The database server address. Default is `127.0.0.1`
+
+Examples:
+
+    DOMAIN=ilee PORT=80 ./phpunit.phar test/Tests/REST/BasicTest.php
+    DOMAIN=localhost PORT=80 ./phpunit.phar test/
+    DOMAIN=localhost PORT=80 DB_PW='@#$TKKAFS' ./phpunit.phar test/
+
+The test suite installs automatically Kryn.cms with the credentials above if `./config.php` does not exist.

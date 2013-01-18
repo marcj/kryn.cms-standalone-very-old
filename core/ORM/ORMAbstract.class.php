@@ -136,11 +136,11 @@ abstract class ORMAbstract {
      *
      * The primaryKey comes primarily from the REST API.
      *
-     *    admin/backend/object/news/1
-     *    admin/backend/objects?uri=news/1/2
+     *    admin/object/news/1
+     *    admin/objects?uri=news/1/2
      * where
-     *    admin/backend/object/news/<id>
-     *    admin/backend/objects?uri=news/<id>
+     *    admin/object/news/<id>
+     *    admin/objects?uri=news/<id>
      *
      * is this ID.
      *
@@ -320,15 +320,17 @@ abstract class ORMAbstract {
      *
      *  )
      *
-     * @param array $pParentPrimaryKey
+     * @param array $pPk
      * @param array $pCondition
      * @param int   $pDepth Started with one. One means, only the first level, no children at all.
      * @param mixed $pScope
      * @param array $pOptions
+     * @throws \NotImplementedException
+     * @throws \Exception
      *
      * @return array
      */
-    public function getTree($pParentPrimaryKey = null, $pCondition = null, $pDepth = 1, $pScope = null, $pOptions = null){
+    public function getTree($pPk = null, $pCondition = null, $pDepth = 1, $pScope = null, $pOptions = null){
         if (!$this->definition['nested']) throw new \Exception(t('Object %s it not a nested set.', $this->objectKey));
         throw new \NotImplementedException(t('getTree is not implemented.'));
     }
@@ -338,11 +340,22 @@ abstract class ORMAbstract {
     /**
      * Returns the parent if exists otherwise false.
      *
-     * @param array $pPrimaryKey
+     * @param array $pPk
+     * @throws \NotImplementedException
      * @return mixed
      */
-    public function getParent($pPrimaryKey){
+    public function getParent($pPk){
         throw new \NotImplementedException(t('getParent is not implemented.'));
+    }
+
+    /**
+     * Returns all parents.
+     *
+     * @param array $pPk
+     * @throws \NotImplementedException
+     */
+    public function getParents($pPk){
+        throw new \NotImplementedException(t('getParents is not implemented.'));
     }
 
 

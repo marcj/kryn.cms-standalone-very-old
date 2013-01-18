@@ -107,6 +107,7 @@ class AdminController {
 
                 ->addGetRoute('css/style.css', 'loadCss')
                 ->addGetRoute('login', 'loginUser')
+                ->addGetRoute('logged-in', 'loggedIn')
                 ->addGetRoute('logout', 'logoutUser')
 
                 ->addSubController('ui', '\Admin\UIAssets')
@@ -133,41 +134,56 @@ class AdminController {
 
                     ->addDeleteRoute('cache', 'clearCache')
 
+                ->done()
 
-                    //admin/backend/object
-                    ->addSubController('object', '\Admin\Object\Controller')
-                        ->addGetRoute('([a-zA-Z-_\.\\\\]+)/([^/]+)', 'getItem')
-                        ->addPostRoute('([a-zA-Z-_\.\\\\]+)/([^/]+)', 'postItem')
-                        ->addDeleteRoute('([a-zA-Z-_\.\\\\]+)/([^/]+)', 'deleteItem')
-                        ->addPutRoute('([a-zA-Z-_\.\\\\]+)', 'putItem')
-                        ->addGetRoute('([a-zA-Z-_\.\\\\]+)', 'getItems')
-                    ->done()
 
-                    //admin/backend/object-branch
-                    ->addSubController('object-tree', '\Admin\Object\Controller')
-                        ->addGetRoute('([a-zA-Z-_\.\\\\]+)', 'getTree')
-                        ->addGetRoute('([a-zA-Z-_\.\\\\]+)/([^/]+)', 'getTreeBranch')
-                    ->done()
 
-                //admin/backend/object-count
+                //admin/object
+                ->addSubController('object', '\Admin\Object\Controller')
+                    ->addGetRoute('([a-zA-Z-_\.\\\\]+)/([^/]+)', 'getItem')
+                    ->addPostRoute('([a-zA-Z-_\.\\\\]+)/([^/]+)', 'postItem')
+                    ->addDeleteRoute('([a-zA-Z-_\.\\\\]+)/([^/]+)', 'deleteItem')
+                    ->addPutRoute('([a-zA-Z-_\.\\\\]+)', 'putItem')
+                    ->addGetRoute('([a-zA-Z-_\.\\\\]+)', 'getItems')
+                ->done()
+
+                //admin/object-branch
+                ->addSubController('object-tree', '\Admin\Object\Controller')
+                  ->addGetRoute('([a-zA-Z-_\.\\\\]+)', 'getTree')
+                  ->addGetRoute('([a-zA-Z-_\.\\\\]+)/([^/]+)', 'getTreeBranch')
+                ->done()
+
+                //admin/object-count
                 ->addSubController('object-count', '\Admin\Object\Controller')
-                    ->addGetRoute('([a-zA-Z-_\.\\\\]+)', 'getCount')
+                  ->addGetRoute('([a-zA-Z-_\.\\\\]+)', 'getCount')
                 ->done()
 
-                //admin/backend/object-tree-root
-                ->addSubController('object-tree-root', '\Admin\Object\Controller')
-                ->addGetRoute('([a-zA-Z-_\.\\\\]+)', 'getTreeRoot')
+                //admin/object-root
+                ->addSubController('object-root', '\Admin\Object\Controller')
+                    ->addGetRoute('([a-zA-Z-_\.\\\\]+)', 'getTreeRoot')
                 ->done()
 
-                //admin/backend/object-move
+                //admin/object-roots
+                ->addSubController('object-roots', '\Admin\Object\Controller')
+                    ->addGetRoute('([a-zA-Z-_\.\\\\]+)', 'getTreeRoots')
+                ->done()
+
+                //admin/object-parents
+                ->addSubController('object-parents', '\Admin\Object\Controller')
+                    ->addGetRoute('([a-zA-Z-_\.\\\\]+)/([^/]+)', 'getParents')
+                ->done()
+
+                //admin/object-parent
+                ->addSubController('object-parent', '\Admin\Object\Controller')
+                    ->addGetRoute('([a-zA-Z-_\.\\\\]+)/([^/]+)', 'getParent')
+                ->done()
+
+                //admin/object-move
                 ->addSubController('object-move', '\Admin\Object\Controller')
-                ->addGetRoute('([a-zA-Z-_\.\\\\]+)/([^/]+)', 'moveItem')
+                 ->addPostRoute('([a-zA-Z-_\.\\\\]+)/([^/]+)', 'moveItem')
                 ->done()
 
-
-                ->done()
-
-                ->addSubController('backend', '\Admin\Object\Controller')
+                ->addSubController('', '\Admin\Object\Controller')
 
                     ->addGetRoute('objects', 'getItemsByUri')
                     ->addGetRoute('object', 'getItemPerUri')
@@ -265,6 +281,10 @@ class AdminController {
                 'userId' => Kryn::getAdminClient()->getUserId(),
                 'lastLogin' => Kryn::getAdminClient()->getUser()->getLastLogin()
             );
+    }
+
+    public function loggedIn(){
+        return Kryn::getAdminClient()->getUserId() > 0;
     }
 
     public function logoutUser(){

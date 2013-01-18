@@ -79,8 +79,8 @@ header("Content-Type: text/html; charset=utf-8");
   <head>
     <title>Kryn.cms installation</title>
       <link rel="stylesheet" type="text/css" href="media/core/css/normalize.css"  />
-      <link rel="stylesheet" type="text/css" href="media/admin/css/ui/ka.Button.css"  />
-      <link rel="stylesheet" type="text/css" href="media/admin/css/ui/ka.Input.css"  />
+      <link rel="stylesheet" type="text/css" href="media/admin/css/ka/ka.Button.css"  />
+      <link rel="stylesheet" type="text/css" href="media/admin/css/ka/ka.Input.css"  />
 
       <style type="text/css">
       body {

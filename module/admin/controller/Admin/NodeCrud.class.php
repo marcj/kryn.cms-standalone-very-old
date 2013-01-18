@@ -31,7 +31,11 @@ class NodeCrud extends \Admin\ObjectWindow {
   'a' => 'a',
 );
 
-    public $add = false;
+    public $addIcon = '#icon-plus-5';
+
+    public $addEntrypoint = '';
+
+    public $add = true;
 
     public $editIcon = '#icon-pencil-8';
 
@@ -39,7 +43,9 @@ class NodeCrud extends \Admin\ObjectWindow {
 
     public $edit = true;
 
-    public $remove = false;
+    public $removeIcon = '#icon-minus-5';
+
+    public $remove = true;
 
     public $export = false;
 

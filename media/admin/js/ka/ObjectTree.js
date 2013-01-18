@@ -5,21 +5,89 @@ ka.ObjectTree = new Class({
     ready: false,
 
     options: {
-        openFirstLevel: false,
-        rootObject: false,
-        scope: false,
-        selectObject: false,
-        withContext: true,
-        selectable: true,
-        iconMap: false, //if false we'll get it from the object definition 'treeIconMapping'
-        withObjectAdd: false, //displays a plus icon and fires 'objectAdd' event on click with the objectId and objectKey as param
+
+        /**
+         * The pk value of the scope.
+         * @var {String}
+         */
+        scope: null,
+
+        /**
+         * if the object behind the scope (RootAsObject) is multiLanguage, we can filter by it.
+         *
+         * @var {Boolean}
+         */
+        scopeLanguage: null,
+
+        /**
+         * TODO, can be useful
+         * @var [Boolean}
+         */
+        scopeCondition: false,
+
+        /**
+         * Enables the drag'n'drop moving.
+         *
+         * @var {Boolean}
+         */
+        move: true,
+
+        /**
+         * Enables the 'add'-icon.
+         * @var {Boolean}
+         */
+        withObjectAdd: false,
+
+        /**
+         * The icon of the add-icon
+         * @var {String}
+         */
         iconAdd: 'admin/images/icons/add.png',
 
-        labelTemplate: false,
-        objectFields: '',
+        icon: null,
 
-        move: true, //can we move the objects around
-        icon: 'admin/images/icons/folder.png' //If iconMap is not defined, we use this
+        /**
+         * Enables the opening of the first level during the first load.
+         *
+         * @var {Boolean}
+         */
+        openFirstLevel: null,
+
+        /**
+         * If you want to change the root object. Thats not very often the case.
+         * @var {String}
+         */
+        rootObject: null,
+
+        /**
+         * Enables the context menu (edit, delete etc.)
+         * @var {Boolean}
+         */
+        withContext: true,
+
+        /**
+         * Initial selects the object of the given pk.
+         *
+         * @var {Mixed}
+         */
+        selectObject: null,
+
+        /**
+         * @var {Object}
+         */
+        iconMap: null,
+
+
+        /**
+         * Enabled the selection.
+         * @var {Boolean}
+         */
+        selectable: true,
+
+
+        labelTemplate: false,
+        objectFields: ''
+
     },
 
 
@@ -168,7 +236,7 @@ ka.ObjectTree = new Class({
 
     startupWithObjectInfo: function (pId, pCallback) {
 
-        new Request.JSON({url: _path + 'admin/backend/objectParents', noCache: 1, onComplete: function (parents) {
+        new Request.JSON({url: _path + 'admin/objectParents', noCache: 1, onComplete: function (parents) {
 
             this.load_object_children = [];
             Object.each(parents, function (item, id) {
@@ -230,10 +298,16 @@ ka.ObjectTree = new Class({
         }
         var objectUrl = ka.urlEncode(this.objectKey);
 
-        if (this.options.rootObject)
-            objectUrl += '?'+Object.toQueryString({scope: this.options.scope});
+        if (this.options.rootObject){
+            var scope = this.options.scope;
+            if (typeOf(scope) == 'object'){
+                scope = ka.getObjectUrlId(this.options.rootObject, scope);
+            }
+            logger(scope);
+            objectUrl += '?'+Object.toQueryString({scope: scope});
+        }
 
-        this.lastFirstLevelRq = new Request.JSON({url: _path + 'admin/backend/object-tree/'+objectUrl,
+        this.lastFirstLevelRq = new Request.JSON({url: _path + 'admin/object-tree/'+objectUrl,
             noCache: 1, onComplete: this.renderFirstLevel.bind(this)
         }).get();
 
@@ -251,7 +325,7 @@ ka.ObjectTree = new Class({
 
         this.rootLoaded = false;
 
-        this.lastFirstLevelRq = new Request.JSON({url: _path + 'admin/backend/object-tree-root/'+ka.urlEncode(this.objectKey), noCache: 1,
+        this.lastFirstLevelRq = new Request.JSON({url: _path + 'admin/object-root/'+ka.urlEncode(this.objectKey), noCache: 1,
             onComplete: this.renderRoot.bind(this)
         }).get({
             scope: this.options.scope
@@ -812,7 +886,7 @@ ka.ObjectTree = new Class({
         }).inject(pA.span);
 
         this.loadChildrenRequests[ pA.id ] = true;
-        new Request.JSON({url: _path + 'admin/backend/object-tree/'+ka.urlEncode(this.objectKey)+'/'+ka.urlEncode(pA.id),
+        new Request.JSON({url: _path + 'admin/object-tree/'+ka.urlEncode(this.objectKey)+'/'+ka.urlEncode(pA.id),
             noCache: 1, onComplete: function(pResponse){
 
             this.removeChildren(pA);
@@ -1094,7 +1168,7 @@ ka.ObjectTree = new Class({
             where: pCode
         };
 
-        new Request.JSON({url: _path + 'admin/backend/object-move/'+ka.urlEncode(pSourceId), onComplete: function (res) {
+        new Request.JSON({url: _path + 'admin/object-move/'+ka.urlEncode(pSourceId), onComplete: function (res) {
 
             //target item this.dragNDropElement
 
@@ -1131,6 +1205,11 @@ ka.ObjectTree = new Class({
             return true;
         }
         return false;
+    },
+
+    hasSelected: function(){
+        var selected = this.container.getElement('.ka-objectTree-item-selected');
+        return selected != null;
     },
 
     getSelected: function () {
@@ -1179,7 +1258,7 @@ ka.ObjectTree = new Class({
 
         //this.need2SelectAObject = true;
 
-        this.startupWithObjectInfo(pId, function (parents) {
+        this.startupWithObjectInfo(pId, function () {
 
             this.options.selectObject = pId;
 

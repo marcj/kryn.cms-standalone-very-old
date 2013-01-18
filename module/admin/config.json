@@ -459,21 +459,19 @@
         }
     },
     "adminJavascript": [
-        "admin\/js\/ui\/ka.ObjectTree.js",
-        "admin\/js\/ui\/ka.TabGroup.js",
-        "admin\/js\/lib\/ka.WindowEdit.js",
-        "admin\/js\/lib\/ka.WindowList.js",
-        "admin\/js\/lib\/ka.CustomField.js",
-        "admin\/js\/lib\/*.js",
-        "admin\/js\/ui\/*.js",
-        "admin\/js\/ui\/FieldTypes\/Input.js",
-        "admin\/js\/ui\/FieldTypes\/Object.js",
-        "admin\/js\/ui\/FieldTypes\/*.js",
+        "admin\/js\/ka\/ObjectTree.js",
+        "admin\/js\/ka\/TabGroup.js",
+        "admin\/js\/ka\/WindowEdit.js",
+        "admin\/js\/ka\/WindowList.js",
+        "admin\/js\/ka\/CustomField.js",
+        "admin\/js\/ka\/*.js",
+        "admin\/js\/ka\/FieldTypes\/Input.js",
+        "admin\/js\/ka\/FieldTypes\/Object.js",
+        "admin\/js\/ka\/FieldTypes\/*.js",
         "admin\/js\/mootools-extras\/*.js"
     ],
     "adminCss": [
-        "admin\/css\/lib\/*.css",
-        "admin\/css\/ui\/*.css"
+        "admin\/css\/ka\/*.css"
     ],
     "community": "false",
     "writableFiles": "",

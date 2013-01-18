@@ -186,11 +186,12 @@ ka.WindowCombine = new Class({
     },
 
     renderActionbar: function () {
-        var _this = this;
 
-        if (this.classProperties.multiLanguage) {
+        if (this.classProperties.multiLanguage || this.classProperties.add || this.classProperties.remove || this.classProperties.custom) {
             this.win.extendHead();
         }
+
+        //this.windowClassHeader = new Element('div').inject();
 
         if (this.classProperties.add || this.classProperties.remove || this.classProperties.custom) {
             this.actionsNavi = this.win.addButtonGroup();
@@ -200,9 +201,7 @@ ka.WindowCombine = new Class({
         if (this.actionsNavi) {
             if (this.classProperties.remove) {
 
-                var icon = this.classProperties.removeIcon?this.classProperties.removeIcon:'admin/images/icons/'+this.classProperties.iconDelete;
-
-                this.toggleRemoveBtn = this.actionsNavi.addButton(t('Remove'), ka.mediaPath(icon), function () {
+                this.toggleRemoveBtn = this.actionsNavi.addButton(t('Remove'), ka.mediaPath(this.classProperties.removeIcon), function () {
                     this.toggleRemove();
                 }.bind(this));
             }
@@ -398,21 +397,30 @@ ka.WindowCombine = new Class({
 
     clear: function () {
 
-        this._lastItems = null;
-        this.clearItemList();
-        this.from = 0;
-        this.max = 0; //(this.classProperties.itemsPerPage)?this.classProperties.itemsPerPage:5;
+        if (this.classProperties.asNested){
+
+            this.mainLeft.empty();
+
+        } else {
+            this._lastItems = null;
+            this.clearItemList();
+            this.from = 0;
+            this.max = 0; //(this.classProperties.itemsPerPage)?this.classProperties.itemsPerPage:5;
+        }
 
     },
 
     reload: function () {
         this.clear();
-        this.loadItems(this.from, this.max);
+
+        if (this.classProperties.asNested){
+            return this.renderLayoutNested(this.mainLeft);
+        } else {
+            return this.loadItems(this.from, this.max);
+        }
     },
 
     loadItems: function (pFrom, pMax, pAndScrollToSelect) {
-
-        if (this.classProperties.asNested) return this.nestedField.getFieldObject().reload();
 
         var _this = this;
 
@@ -519,7 +527,7 @@ ka.WindowCombine = new Class({
             limit: pMax,
             order: this.order,
             filter: this.searchEnable,
-            language: (this.languageSelect) ? this.languageSelect.value : false,
+            language: (this.languageSelect) ? this.languageSelect.getValue() : false,
             filterVals: (this.searchEnable) ? this.getSearchVals() : '',
             params: JSON.encode(this.win.params)
         });
@@ -537,6 +545,7 @@ ka.WindowCombine = new Class({
         this._lastItems = null;
 
         this.mainLeftItems.empty();
+
         this.createItemLoader();
     },
 
@@ -599,8 +608,8 @@ ka.WindowCombine = new Class({
 
         if (this.classProperties.multiLanguage) {
 
-            this.languageSelect = new ka.Select();
-            this.languageSelect.inject(this.win.titleGroups);
+            this.languageSelect = new ka.Select(this.win.titleGroups);
+
             document.id(this.languageSelect).setStyles({
                 'width': 106,
                 left: 80,
@@ -610,13 +619,17 @@ ka.WindowCombine = new Class({
 
             this.languageSelect.addEvent('change', this.changeLanguage.bind(this));
 
+            var hasSessionLang = false;
             Object.each(ka.settings.langs, function (lang, id) {
 
                 this.languageSelect.add(id, lang.langtitle + ' (' + lang.title + ', ' + id + ')');
+                if (id == window._session.lang)
+                    hasSessionLang = true;
 
             }.bind(this));
 
-            this.languageSelect.setValue(window._session.lang);
+            if (hasSessionLang)
+                this.languageSelect.setValue(window._session.lang);
         }
 
     },
@@ -816,19 +829,21 @@ ka.WindowCombine = new Class({
 
     },
 
-    add: function () {
+    add: function(){
 
         if (this.addBtn)
             this.addBtn.setPressed(true);
 
-        this.win.setTitle(_('Add'));
+        this.win.setTitle(t('Add'));
 
         this.lastItemPosition = null;
         this.currentItem = null;
 
-        var active = this.mainLeftItems.getElement('.active');
-        if (active) {
-            active.removeClass('active');
+        if (this.mainLeftItems){
+            var active = this.mainLeftItems.getElement('.active');
+            if (active) {
+                active.removeClass('active');
+            }
         }
 
         if (this.currentEdit) {
@@ -845,7 +860,7 @@ ka.WindowCombine = new Class({
             win[i] = this.win[i];
         }
 
-        win.entryPoint = ka.entrypoint.getRelative(this.win.entryPoint, _this.classProperties.editEntrypoint);
+        win.entryPoint = ka.entrypoint.getRelative(this.win.getEntryPoint(), this.classProperties.editEntrypoint);
 
         this.currentAdd = new ka.WindowAdd(win, this.mainRight);
         this.currentAdd.addEvent('save', this.addSaved.bind(this));
@@ -1040,7 +1055,7 @@ ka.WindowCombine = new Class({
             list: {
                 orderBy: this.sortField,
                 filter: this.searchEnable,
-                language: (this.languageSelect) ? this.languageSelect.value : false,
+                language: (this.languageSelect) ? this.languageSelect.getValue(): false,
                 filterVals: (this.searchEnable) ? this.getSearchVals() : '',
                 orderByDirection: this.sortDirection
             }
@@ -1117,7 +1132,7 @@ ka.WindowCombine = new Class({
             getPosition: pPrimaries,
             order: this.order,
             filter: this.searchEnable,
-            language: (this.languageSelect) ? this.languageSelect.value : false,
+            language: (this.languageSelect) ? this.languageSelect.getValue() : false,
             filterVals: (this.searchEnable) ? this.getSearchVals() : ''
         });
 

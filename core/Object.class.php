@@ -163,6 +163,7 @@ class Object {
     }
 
     public static function getDefinition($pObjectKey){
+        $pObjectKey = str_replace('.', '\\', $pObjectKey);
         $temp   = explode('\\', $pObjectKey);
         $module = strtolower($temp[0]);
         $name   = $temp[1];
@@ -175,6 +176,7 @@ class Object {
 
 
     public static function getName($pObjectKey){
+        $pObjectKey = str_replace('.', '\\', $pObjectKey);
         if (strpos($pObjectKey, '\\') === false) return $pObjectKey;
         $temp   = explode('\\', $pObjectKey);
         $name   = $temp[1];
@@ -337,9 +339,9 @@ class Object {
      *
      * @static
      * @param string $pObjectKey
-     * @param mixed  $pPrimaryKey
+     * @param mixed  $pPk
      * @param array  $pOptions
-     * @return array|bool
+     * @return array|null
      */
     public static function get($pObjectKey, $pPk, $pOptions = array()){
 
@@ -372,6 +374,7 @@ class Object {
         }
 
         $item = $obj->getItem($primaryKey, $pOptions);
+        if (!$item) return null;
 
         if ($pOptions['permissionCheck'] && $aclCondition = Permission::getListingCondition($pObjectKey)){
             if (!self::satisfy($item, $aclCondition)) return false;
@@ -458,6 +461,7 @@ class Object {
      */
     public static function &getClass($pObjectKey){
 
+        $pObjectKey = str_replace('.', '\\', $pObjectKey);
         $definition = self::getDefinition($pObjectKey);
         if (!$definition) throw new \ObjectNotFoundException(tf('Object not found %s', $pObjectKey));
 
@@ -576,9 +580,9 @@ class Object {
 
         if ($pOptions['permissionCheck']){
             foreach ($pValues as $fieldName => $value){
-                if (!Permission::checkUpdate($pObjectKey, $pPk, $fieldName)){
-                    throw new \NoFieldWritePermission(tf("No update permission to field '%s' in item '%s' from object '%s'", $fieldName, $pPk, $pObjectKey));
-                }
+                //if (!Permission::checkUpdate($pObjectKey, $pPk, $fieldName)){
+                //    throw new \NoFieldWritePermission(tf("No update permission to field '%s' in item '%s' from object '%s'", $fieldName, $pPk, $pObjectKey));
+                //}
             }
         }
 
@@ -639,6 +643,17 @@ class Object {
         $pOptions['fields'] = $definition['nestedRootObjectLabelField'];
 
         return self::get($definition['nestedRootObject'], $pScope, $pOptions);
+    }
+
+
+    public static function getTreeRoots($pObjectKey, $pOptions = false){
+
+        $definition = self::getDefinition($pObjectKey);
+        if (!$definition['nestedRootAsObject']) throw new \Exception('Object has no scope.');
+
+        $pOptions['fields'] = $definition['nestedRootObjectLabelField'];
+
+        return self::getList($definition['nestedRootObject'], null, $pOptions);
     }
 
     /**
@@ -746,10 +761,9 @@ class Object {
         return self::getParentId($objectKey, $objectIds[0]);
     }
 
-
-    public static function getParent($pObjectKey, $pObjectId){
+    public static function getParent($pObjectKey, $pObjectId, $pOptions = null){
         $obj = self::getClass($pObjectKey);
-        return $obj->getParent($pObjectId);
+        return $obj->getParent($pObjectId, $pOptions);
     }
 
     public static function getParentFromUri($pObjectUri){
@@ -817,10 +831,9 @@ class Object {
         return $objectIds[0];
     }
 
-
-    public static function getParents($pObjectKey, $pObjectId){
+    public static function getParents($pObjectKey, $pObjectId, $pOptions = null){
         $obj = self::getClass($pObjectKey);
-        return $obj->getParents($pObjectId);
+        return $obj->getParents($pObjectId, $pOptions);
     }
 
     public static function getParentsFromUri($pObjectUri){

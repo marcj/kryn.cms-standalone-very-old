@@ -19,20 +19,18 @@ class Utils {
     }
 
     public static function shutdownHandler(){
-        if (\Core\Kryn::$config['displayBeautyErrors']){
-            chdir(PATH);
-            $error = error_get_last();
-            if($error['type'] == 1){
-                $backtrace = array($error);
-                self::errorHandler($error['type'], $error['message'], $error['file'], $error['line'], $backtrace);
-            }
+        chdir(PATH);
+        $error = error_get_last();
+        if($error['type'] == 1){
+            $backtrace = array($error);
+            self::errorHandler($error['type'], $error['message'], $error['file'], $error['line'], $backtrace);
         }
     }
     public static function errorHandler($pErrorCode, $pErrorStr, $pFile, $pLine, $pBacktrace = null){
 
         ob_end_clean();
 
-        if ($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest' || php_sapi_name() == 'cli'){
+        if (!Kryn::$config['displayBeautyErrors'] || $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest' || php_sapi_name() == 'cli'){
             $response = array(
                 'status' => 500,
                 'error' => $pErrorCode,

@@ -310,6 +310,11 @@ class Permission {
         return self::check($pObjectKey, $pObjectId, null, self::LISTING, $pTargetType, $pTargetId, $pRootHasAccess);
     }
 
+    public static function checkUpdate($pObjectKey, $pObjectId, $pFields = null, $pTargetType = null, $pTargetId = null,
+                                     $pRootHasAccess = false){
+        return self::check($pObjectKey, $pObjectId, $pFields, self::UPDATE, $pTargetType, $pTargetId, $pRootHasAccess);
+    }
+
     /*
     public static function checkRead($pObjectKey, $pObjectId, $pField = false){
         return self::check($pObjectKey, $pObjectId, $pField, 2);

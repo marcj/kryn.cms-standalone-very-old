@@ -283,7 +283,7 @@ class Backend {
             print $content;
         }
 
-        print "\n" . 'ka.ai.loaderDone(' . getArgv('id') . ');' . "\n";
+        print "\n" . 'ka.adminInterface.loaderDone(' . getArgv('id') . ');' . "\n";
         exit;
     }
 

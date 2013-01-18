@@ -176,12 +176,12 @@ ka.WindowList = new Class({
 
         this.container.empty();
 
+        /*multilang*/
+        this.renderMultilanguage();
+
         this.renderLayout();
 
         this.renderActionbar();
-
-        /*multilang*/
-        this.renderMultilanguage();
 
         this.renderLoader();
 
@@ -212,20 +212,23 @@ ka.WindowList = new Class({
     renderMultilanguage: function () {
         if (this.classProperties.multiLanguage) {
 
-            this.languageSelect = new Element('select', {
-                style: 'position: absolute; right: 5px; top: 27px; width: 160px;'
-            }).inject(this.win.border);
+            this.languageSelect = new ka.Select(this.win.titleGroups);
+
+            document.id(this.languageSelect).set('style', 'position: absolute; right: 5px; top: 27px; width: 160px;');
 
             this.languageSelect.addEvent('change', this.changeLanguage.bind(this));
 
-            Object.each(ka.settings.langs, function(lang, id){
-                new Element('option', {
-                    text: lang.langtitle + ' (' + lang.title + ', ' + id + ')',
-                    value: id
-                }).inject(this.languageSelect);
+            var hasSessionLang = false;
+            Object.each(ka.settings.langs, function (lang, id) {
+
+                this.languageSelect.add(id, lang.langtitle + ' (' + lang.title + ', ' + id + ')');
+                if (id == window._session.lang)
+                    hasSessionLang = true;
+
             }.bind(this));
 
-            this.languageSelect.value = window._session.lang;
+            if (hasSessionLang)
+                this.languageSelect.setValue(window._session.lang);
         }
     },
 
@@ -246,7 +249,11 @@ ka.WindowList = new Class({
 
         objectOptions.type = 'tree';
         objectOptions.object = this.classProperties.object;
-        objectOptions.scopeChooser = true;
+        objectOptions.scopeChooser = false;
+        objectOptions.noWrapper = true;
+
+        if (this.languageSelect)
+            objectOptions.scopeLanguage = this.languageSelect.getValue();
 
         this.nestedField = new ka.Field(objectOptions, pContainer);
 
@@ -261,8 +268,6 @@ ka.WindowList = new Class({
         //pDom.objectKey
         //pDom.id
 
-        logger(pDom);
-        logger(pItem);
         if (pDom.objectKey == this.classProperties.object){
 
             if (_this.classProperties.edit){
@@ -360,7 +365,16 @@ ka.WindowList = new Class({
     },
 
     changeLanguage: function () {
-        this.loadPage(1);
+
+        if (this.classProperties.asNested){
+
+
+
+        } else {
+            this.loadPage(1);
+        }
+
+
     },
 
     renderSearchPane: function () {
@@ -513,7 +527,13 @@ ka.WindowList = new Class({
                 _this.loadPage(_this.lastResult.pages);
             }).inject(this.navi);
 
-        if (this.classProperties.multiLanguage) {
+
+        this.renderTopActionBar();
+    },
+
+    renderTopActionBar: function(){
+
+        if (this.classProperties.multiLanguage || this.classProperties.add || this.classProperties.remove || this.classProperties.custom) {
             this.win.extendHead();
         }
 
@@ -533,7 +553,7 @@ ka.WindowList = new Class({
                 this.actionsNavi.addButton(t('Add'), ka.mediaPath(this.classProperties.addIcon), function () {
 
                     ka.entrypoint.open(ka.entrypoint.getRelative(_this.win.getEntryPoint(), _this.classProperties.addEntrypoint), {
-                        lang: (_this.languageSelect) ? _this.languageSelect.value : false
+                        lang: (_this.languageSelect) ? _this.languageSelect.getValue() : false
                     }, this);
 
                 });
@@ -565,7 +585,7 @@ ka.WindowList = new Class({
 
                 this.actionsNavi.addButton(this.classProperties.custom.name, ka.mediaPath(iconCustom), function () {
                     ka.wm.openWindow(winModule + '/' + customWinCode, null, null, {
-                        language: (_this.languageSelect) ? _this.languageSelect.value : false
+                        language: (_this.languageSelect) ? _this.languageSelect.getValue() : false
                     });
 
                 });
@@ -646,7 +666,7 @@ ka.WindowList = new Class({
             orderBy: this.sortField,
             filter: this.searchEnable,
             filterVals: (this.searchEnable) ? this.getSearchVals() : '',
-            language: (this.languageSelect) ? this.languageSelect.value : false,
+            language: (this.languageSelect) ? this.languageSelect.getValue(): false,
             orderByDirection: this.sortDirection,
             params: JSON.encode(this.win.params)
         });
@@ -746,7 +766,7 @@ ka.WindowList = new Class({
         this.ctrlPage.value = pPage;
 
         req.offset = (this.classProperties.itemsPerPage * pPage) - this.classProperties.itemsPerPage;
-        req.lang = (this.languageSelect) ? this.languageSelect.value : false;
+        req.lang = (this.languageSelect) ? this.languageSelect.getValue() : false;
 
         req.orderBy = {};
         req.orderBy[this.sortField] = this.sortDirection;

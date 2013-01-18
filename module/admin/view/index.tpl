@@ -23,11 +23,11 @@
     <script type="text/javascript" src="lib/codemirror/lib/codemirror.js"></script>
     <script type="text/javascript" src="lib/codemirror/lib/util/loadmode.js"></script>
 
-    <script type="text/javascript" src="media/admin/js/core/ka.ai.js?nc=1.0" ></script>
-    <script type="text/javascript" src="media/admin/js/core/ka.js?nc=1.0" ></script>
-    <script type="text/javascript" src="media/admin/js/ui/ka.Button.js" ></script>
-    <script type="text/javascript" src="media/admin/js/ui/ka.Select.js" ></script>
-    <script type="text/javascript" src="media/admin/js/ui/ka.Checkbox.js" ></script>
+    <script type="text/javascript" src="media/admin/js/ka.js?nc=1.0" ></script>
+    <script type="text/javascript" src="media/admin/js/ka/AdminInterface.js?nc=1.0" ></script>
+    <script type="text/javascript" src="media/admin/js/ka/Button.js" ></script>
+    <script type="text/javascript" src="media/admin/js/ka/Select.js" ></script>
+    <script type="text/javascript" src="media/admin/js/ka/Checkbox.js" ></script>
 
 
     <script type="text/javascript" >
@@ -48,14 +48,14 @@
 
 
     <link rel="stylesheet" type="text/css" href="lib/codemirror/lib/codemirror.css">
-    <link rel="stylesheet" type="text/css" href="media/admin/css/core/ka.ai.css" />
-    <link rel="stylesheet" type="text/css" href="media/admin/css/core/ka.wm.css" />
+    <link rel="stylesheet" type="text/css" href="media/admin/css/ka/ai.css" />
+    <link rel="stylesheet" type="text/css" href="media/admin/css/ka/wm.css" />
     <link rel="stylesheet" type="text/css" href="media/admin/icons/style.css" />
 
-    <link rel="stylesheet" type="text/css" href="media/admin/css/core/ka.login.css" />
-    <link rel="stylesheet" type="text/css" href="media/admin/css/ui/ka.Button.css" />
-    <link rel="stylesheet" type="text/css" href="media/admin/css/ui/ka.Select.css" />
-    <link rel="stylesheet" type="text/css" href="media/admin/css/ui/ka.Checkbox.css" />
+    <link rel="stylesheet" type="text/css" href="media/admin/css/ka/login.css" />
+    <link rel="stylesheet" type="text/css" href="media/admin/css/ka/Button.css" />
+    <link rel="stylesheet" type="text/css" href="media/admin/css/ka/Select.css" />
+    <link rel="stylesheet" type="text/css" href="media/admin/css/ka/Checkbox.css" />
 
     <link rel="SHORTCUT ICON" href="media/admin/images/favicon.ico" />
 

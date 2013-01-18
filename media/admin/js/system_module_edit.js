@@ -2238,7 +2238,7 @@ var admin_system_module_edit = new Class({
                                             nestedRootObjectExtraFields: {
                                                 needValue: 1,
                                                 label: t('Extra fields (Optional)'),
-                                                desc: t('Comma separated. The backend (admin/backend/objectTreeRoot) returns primary key, label and these extra fields. You may use this to get more fields in the user interface classes.')
+                                                desc: t('Comma separated. The backend (admin/objectTreeRoot) returns primary key, label and these extra fields. You may use this to get more fields in the user interface classes.')
                                             }
                                         }
                                     }
@@ -2368,7 +2368,7 @@ var admin_system_module_edit = new Class({
                                     treeDataModelClass: {
                                         label: t('PHP Class'),
                                         needValue: 'custom',
-                                        desc: t('A class that extends from \\Admin\\FieldModel\\Tree. Entry point admin/backend/object-tree?uri=...')
+                                        desc: t('A class that extends from \\Admin\\FieldModel\\Tree. Entry point admin/object-tree?uri=...')
                                     }
                                 }
                             },
@@ -2523,7 +2523,7 @@ var admin_system_module_edit = new Class({
                                     browserDataModelClass: {
                                         label: t('PHP Class'),
                                         needValue: 'custom',
-                                        desc: t('A class that extends from \\Admin\\FieldModel\\Browse. Entry point admin/backend/objects?uri=...')
+                                        desc: t('A class that extends from \\Admin\\FieldModel\\Browse. Entry point admin/objects?uri=...')
                                     }
                                 }
                             }

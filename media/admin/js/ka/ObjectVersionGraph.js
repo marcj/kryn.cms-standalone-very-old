@@ -19,7 +19,7 @@ ka.ObjectVersionGraph = new Class({
 
         var objectKey = ka.getObjectKey(this.options.object);
 
-        this.lr = new Request.JSON({url: _path+'admin/backend/object-version',
+        this.lr = new Request.JSON({url: _path+'admin/object-version',
             noCache: true,
             onComplete: function(pResponse){
 

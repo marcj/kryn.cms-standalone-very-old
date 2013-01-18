@@ -12,7 +12,7 @@ class Manager {
     /**
      * @param null $pConfigFile Default is config/default.mysql.json
      */
-    public static function freshInstallation($pConfigFile = null){
+    public static function setupConfig($pConfigFile = null){
 
         $configFile = $pConfigFile ?: 'test/config/'.(getenv('CONFIG_FILE')?getenv('CONFIG_FILE'):self::$configFile);
 
@@ -42,6 +42,14 @@ class Manager {
         if (getenv('DB_TYPE'))
             self::$config['config']['database']['type'] = getenv('DB_TYPE');
 
+    }
+
+    /**
+     * @param null $pConfigFile Default is config/default.mysql.json
+     */
+    public static function freshInstallation($pConfigFile = null){
+
+        self::setupConfig($pConfigFile);
         $cfg = self::$config['config'];
         $cfg['displayErrors'] = false;
 
@@ -52,15 +60,56 @@ class Manager {
 
     }
 
-    public static function get($pPath = '/', $pPostData = null){
+    public static function getJson($pPath = '/', $pMethod = 'GET', $pPostData = null){
+        $info = self::get($pPath, $pMethod, $pPostData);
+        $data = json_decode($info['content'], true);
+        return !json_last_error() ? $data : false;
+    }
+
+    public static function get($pPath = '/', $pMethod = 'GET', $pPostData = null){
+
+        if (!self::$config){
+            self::setupConfig();
+        }
 
         $domain = self::$config['domain'];
         if (self::$config['port'] && self::$config['port'] != 80)
             $domain .= ':'.self::$config['port'];
 
-        $content = wget('http://'.$domain.$pPath, null, $pPostData);
+        $ch = curl_init();
 
-        return $content;
+        if (strtoupper($pMethod) != 'GET'){
+            $pPath .= (strpos($pPath, '?') === false ? '?' : '&') . '_method='.strtolower($pMethod);
+        }
+
+        $url = $domain.$pPath;
+
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_COOKIEJAR, \Core\Kryn::getTempFolder().'/cookies.txt');
+        curl_setopt($ch, CURLOPT_COOKIEFILE, \Core\Kryn::getTempFolder().'/cookies.txt');
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array("X-Requested-With: XMLHttpRequest"));
+
+        if (strtoupper($pMethod) == 'POST' || strtoupper($pMethod) == 'PUT'){
+            curl_setopt($ch, CURLOPT_POST, true);
+        }
+
+
+        if ($pPostData && count($pPostData) > 0){
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $pPostData);
+        }
+
+        $response = curl_exec($ch);
+        $info = curl_getinfo($ch);
+        curl_close($ch);
+
+        $info['content'] = $response;
+
+        return $info;
+    }
+
+    public static function clearCookies(){
+        file_put_contents(\Core\Kryn::getTempFolder().'/cookies.txt', '');
     }
 
     public static function uninstall(){

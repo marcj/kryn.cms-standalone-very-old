@@ -11,7 +11,7 @@ class BasicTest extends TestCaseWithFreshInstallation {
 
         $response = Manager::get('/README.md');
 
-        if (!strpos($response['content'], 'Kryn.cms')){
+        if (strpos($response['content'], 'Kryn.cms') === false){
             $this->markTestSkipped('Is looks like the DOMAIN or http server is not correctly configured. Skipped.');
         }
 
@@ -20,7 +20,7 @@ class BasicTest extends TestCaseWithFreshInstallation {
     public function testGeneral(){
 
         $response = Manager::get('/');
-        $this->assertTrue($response['status'] == 200);
+        $this->assertTrue($response['http_code'] == 200);
 
 
     }

@@ -254,7 +254,7 @@ ka.Desktop = new Class({
 
 
         m.addEvent('dblclick', function () {
-            ka.wm.openWindow(pIcon.module + '/' + pIcon.code, null, null, pIcon.params);
+            ka.wm.openWindow(pIcon.entryPoint, null, null, pIcon.params);
         });
 
         pIcon.icon = m;

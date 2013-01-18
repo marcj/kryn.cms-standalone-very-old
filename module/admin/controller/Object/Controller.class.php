@@ -11,26 +11,9 @@ use Core\Object;
  */
 class Controller {
 
-    public function postItem($pObject, $pPk, $pSetFields){
-
-        if (!count($pSetFields))
-            throw new \ArgumentMissingException(tf('At least one argument with starting _ is missing.'));
+    public function postItem($pObject, $pPk){
 
         $primaryKeys = \Core\Object::parsePk($pObject, $pPk);
-
-        $options = array(
-            'permissionCheck' => true
-        );
-
-        return \Core\Object::update($pObject, $primaryKeys[0], $pSetFields, $options);
-    }
-
-
-    public function deleteItem($pObject, $pPk){
-        //TODO
-    }
-
-    public function putItem($pObject, $pSetFields){
 
         if (!count($_POST))
             throw new \ArgumentMissingException(tf('At least one argument in POST is missing.'));
@@ -39,11 +22,35 @@ class Controller {
             'permissionCheck' => true
         );
 
-        return \Core\Object::add($pObject, $pSetFields, $options);
+        return \Core\Object::update($pObject, $primaryKeys[0], $_POST, $options);
+    }
+
+
+    public function deleteItem($pObject, $pPk){
+        $primaryKeys = \Core\Object::parsePk($pObject, $pPk);
+
+        $options = array(
+            'permissionCheck' => true
+        );
+
+        return \Core\Object::remove($pObject, $primaryKeys[0], $_POST, $options);
+    }
+
+    public function putItem($pObject){
+
+        if (!count($_POST)){
+            throw new \ArgumentMissingException(tf('At least one argument in POST is missing.'));
+        }
+
+        $options = array(
+            'permissionCheck' => true
+        );
+
+        return \Core\Object::add($pObject, $_POST, $options);
     }
 
     /**
-     * General output of one object item. /admin/backend/object/<objectKey>/<primaryKey>
+     * General output of one object item. /admin/object/<objectKey>/<primaryKey>
      *
      * @param $pObject
      * @param $pPk
@@ -108,6 +115,30 @@ class Controller {
         return \Core\Object::getTreeRoot($pObject, $pScope, $options);
     }
 
+
+    public function getTreeRoots($pObjectKey){
+
+        $options = array('permissionCheck' => true);
+
+        return \Core\Object::getTreeRoots($pObjectKey, $options);
+    }
+
+    public function getParents($pObjectKey, $pPk){
+
+        $options = array('permissionCheck' => true);
+        $primaryKey = Object::normalizePkString($pObjectKey, $pPk);
+
+        return \Core\Object::getParents($pObjectKey, $primaryKey, $options);
+    }
+
+    public function getParent($pObjectKey, $pPk){
+
+        $options = array('permissionCheck' => true);
+        $primaryKey = Object::normalizePkString($pObjectKey, $pPk);
+
+        return \Core\Object::getParent($pObjectKey, $primaryKey, $options);
+    }
+
     public function getTree($pObject, $pDepth = 1, $pScope = null, $pFields = null){
 
         $options['fields'] = $pFields;
@@ -134,7 +165,7 @@ class Controller {
     }
 
     /**
-     * General output of object items. /admin/backend/objects/<objectKey>
+     * General output of object items. /admin/objects/<objectKey>
      *
      * @param string $pObject
      * @param string $pFields
@@ -194,7 +225,7 @@ class Controller {
     }
 
     /**
-     * General object items output. /admin/backend/object?uri=...
+     * General object items output. /admin/object?uri=...
      *
      * @param string $pUri
      * @param string $pFields
@@ -253,7 +284,7 @@ class Controller {
     }
 
     /**
-     * General object items output. /admin/backend/objects?uri=...
+     * General object items output. /admin/objects?uri=...
      *
      * @param string $pUri
      * @param string $pFields

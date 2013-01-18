@@ -93,10 +93,10 @@ ka.Window = new Class({
         var icon = {
             title: title,
             params: this.params,
-            entryPoint: this.win.getEntryPoint()
+            entryPoint: this.getEntryPoint()
         };
-        ka.desktop.addIcon(icon);
-        ka.desktop.save();
+        ka.adminInterface.getDesktop().addIcon(icon);
+        ka.adminInterface.getDesktop().save();
     },
 
     onResizeComplete: function () {
@@ -112,7 +112,7 @@ ka.Window = new Class({
             //opener.inlineContainer.empty();
             //this.content.inject( opener.inlineContainer );
 
-            this.content.setStyles({'top': 5, 'bottom': 5, left: 5, right: 5});
+            this.getContentContainer().setStyles({'top': 5, 'bottom': 5, left: 5, right: 5});
             var borderSize = opener.border.getSize();
 
             opener.inlineContainer.setStyle('width', 530);
@@ -929,7 +929,7 @@ ka.Window = new Class({
 
     loadContent: function () {
 
-        this.content.empty();
+        this.getContentContainer().empty();
 
         this.entryPointDefinition = ka.entrypoint.get(this.getEntryPoint());
 
@@ -1274,17 +1274,25 @@ ka.Window = new Class({
 
     addTabGroup: function () {
         this.extendHead();
-        return new ka.TabGroup(this.titleGroups);
+        return new ka.TabGroup(this.getTitleGroupContainer());
     },
 
     addSmallTabGroup: function () {
         this.extendHead();
-        return new ka.SmallTabGroup(this.titleGroups);
+        return new ka.SmallTabGroup(this.getTitleGroupContainer());
+    },
+
+    getTitleGroupContainer: function(){
+        return this.titleGroups;
+    },
+
+    getContentContainer: function(){
+        return this.content;
     },
 
     addButtonGroup: function () {
         this.extendHead();
-        return new ka.ButtonGroup(this.titleGroups);
+        return new ka.ButtonGroup(this.getTitleGroupContainer());
     },
 
     addBottomBar: function () {
@@ -1364,7 +1372,7 @@ ka.Window = new Class({
 
         if (ka.performance) {
             this.content.setStyle('display', 'block');
-            this.titleGroups.setStyle('display', 'block');
+            this.getTitleGroupContainer().setStyle('display', 'block');
         }
 
         this.inOverlayMode = false;

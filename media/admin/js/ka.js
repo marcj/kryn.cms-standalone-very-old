@@ -9,8 +9,8 @@ ka.streamParams = {};
 ka.uploads = {};
 ka._links = {};
 
-window.PATH_MODULE = 'module/';
-window.PATH_MEDIA = 'media/';
+PATH_MODULE = 'module/';
+PATH_MEDIA = 'media/';
 
 
 /**
@@ -22,6 +22,34 @@ window._ = function (p) {
     //return _kml2html(p);
 };
 
+window.addEvent('domready', function(){
+    ka.adminInterface = new ka.AdminInterface();
+});
+
+
+if (typeOf(ka.langs) != 'object') this.langs = {};
+
+window.logger = function(){
+    if (typeOf(console) != "undefined") {
+        var args = arguments;
+        if (args.length == 1) args = args[0];
+        console.log(args);
+    }
+};
+
+document.addEvent('touchmove', function (event) {
+    event.preventDefault();
+});
+
+
+/**
+ * Opens the frontend in a new tab.
+ */
+ka.openFrontend = function () {
+    if (top) {
+        top.open(_path, '_blank');
+    }
+};
 
 /**
  * Return a translated message pMsg with plural and context ability
@@ -194,6 +222,12 @@ window.ka.entrypoint = {
     }
 
 };
+
+
+
+ka.newBubble = function(pTitle, pText, pDuration){
+    return ka.helpsystem.newBubble(pTitle, pText, pDuration);
+}
 
 /**
  * Adds a prefix to the keys of pFields.
@@ -509,7 +543,7 @@ ka.getObjectLabel = function(pUri, pCb){
         if (uri.substr(uri.length-1, 1)==';')
             uri = uri.substr(0, uri.length-1);
 
-        new Request.JSON({url: _path + 'admin/backend/objects',
+        new Request.JSON({url: _path + 'admin/objects',
             noCache: 1, noErrorReporting: true,
             onComplete: function(pResponse){
 

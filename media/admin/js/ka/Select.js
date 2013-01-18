@@ -23,6 +23,7 @@ ka.Select = new Class({
      * @type {Object}
      */
     currentItems: [],
+    duringFirstSelectLoading: false,
 
     a: {},
     enabled: true,
@@ -49,9 +50,12 @@ ka.Select = new Class({
 
         items: false, //array or object
         store: false, //string
+
         object: false, //for object chooser
         objectLabel: false, //string
         objectFields: false, //or a array
+        objectLanguage: null,
+
         labelTemplate: false,
         maxItemsPerLoad: 20, //number
         selectFirst: true,
@@ -196,7 +200,7 @@ ka.Select = new Class({
 
         if (this.lastRq) this.lastRq.cancel();
 
-        this.lastRq = new Request.JSON({url: _path+'admin/backend/object/'+ka.urlEncode(this.options.object),
+        this.lastRq = new Request.JSON({url: _path+'admin/object/'+ka.urlEncode(this.options.object),
             noErrorReporting: ['NoAccessException'],
             onCancel: function(){
                 pCallback(false);
@@ -232,6 +236,7 @@ ka.Select = new Class({
             //object: this.options.object,
             offset: pOffset,
             limit: pCount,
+            _lang: this.options.objectLanguage,
             fields: this.objectFields ? this.objectFields.join(',') : null
         });
 
@@ -535,12 +540,17 @@ ka.Select = new Class({
 
     selectFirst: function(){
 
+        this.duringFirstSelectLoading = true;
+
         this.dataProxy(0, function(items){
+            this.duringFirstSelectLoading = false;
+
             if (items){
                 var item = items[0];
                 if (item)
                     this.chooseItem(item.key, true);
             }
+
         }.bind(this), 1);
 
     },
@@ -564,6 +574,7 @@ ka.Select = new Class({
 
                 if (i >= this.items.length) break;
                 if (items.length == pCount) break;
+                if (this.options.objectLanguage && this.items[i].lang != this.options.objectLanguage) continue;
 
                 if (this.hideOptions && this.hideOptions.contains(this.items[i].key)) continue;
 
@@ -574,6 +585,8 @@ ka.Select = new Class({
         } else if (this.options.object){
             //we have object items
             this.loadObjectItems(pOffset, pCallback, pCount);
+        } else {
+            pCallback(false);
         }
 
     },
@@ -708,8 +721,9 @@ ka.Select = new Class({
                 //we need a request
                 if (this.lastLabelRequest) this.lastLabelRequest.cancel();
 
+                logger(this.options.object);
                 this.lastLabelRequest = new Request.JSON({
-                    url: _path+'admin/backend/object/'+this.options.object+'/'+pId,
+                    url: _path+'admin/object/'+ka.urlEncode(this.options.object)+'/'+pId,
                     onComplete: function(response){
 
                         if (!response.error){
@@ -778,6 +792,12 @@ ka.Select = new Class({
     },
 
     getValue: function () {
+        var i=0;
+
+        while(this.duringFirstSelectLoading){
+            i++;
+        };
+
         return this.value;
     },
 
