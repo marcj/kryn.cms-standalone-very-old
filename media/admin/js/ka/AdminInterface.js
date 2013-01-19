@@ -474,11 +474,11 @@ ka.AdminInterface = new Class({
             if (possibleLanguage.indexOf('-'))
                 possibleLanguage = possibleLanguage.substr(0, possibleLanguage.indexOf('-'));
 
-            if (this.possibleLangs.contains(possibleLanguage)){
+            if (ka.possibleLangs.contains(possibleLanguage)){
 
-                this.loginLangSelection.setValue(possibleLanguage);
-                if (this.loginLangSelection.getValue() != window._session.lang) {
-                    ka.loadLanguage(this.loginLangSelection.getValue());
+                ka.loginLangSelection.setValue(possibleLanguage);
+                if (ka.loginLangSelection.getValue() != window._session.lang) {
+                    ka.loadLanguage(ka.loginLangSelection.getValue());
                     this.reloadLogin();
                     return;
                 }

@@ -43,9 +43,7 @@ class NodeCrud extends \Admin\ObjectWindow {
 
     public $edit = true;
 
-    public $removeIcon = '#icon-minus-5';
-
-    public $remove = true;
+    public $remove = false;
 
     public $export = false;
 

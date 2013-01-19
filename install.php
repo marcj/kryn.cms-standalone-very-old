@@ -79,8 +79,8 @@ header("Content-Type: text/html; charset=utf-8");
   <head>
     <title>Kryn.cms installation</title>
       <link rel="stylesheet" type="text/css" href="media/core/css/normalize.css"  />
-      <link rel="stylesheet" type="text/css" href="media/admin/css/ka/ka.Button.css"  />
-      <link rel="stylesheet" type="text/css" href="media/admin/css/ka/ka.Input.css"  />
+      <link rel="stylesheet" type="text/css" href="media/admin/css/ka/Button.css"  />
+      <link rel="stylesheet" type="text/css" href="media/admin/css/ka/Input.css"  />
 
       <style type="text/css">
       body {
@@ -1215,7 +1215,7 @@ function step3(){
         <td><input required type="text" class="ka-Input" name="username" id="db_username" /></td>
     </tr>
     <tr id="ui_password">
-        <td>Password *</td>
+        <td>Password</td>
         <td><input type="password" name="password" id="db_password" class="ka-Input" /></td>
     </tr>
     <tr id="ui_db">

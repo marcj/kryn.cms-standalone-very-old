@@ -9,10 +9,22 @@ ka.WindowCombine = new Class({
 
     renderLayout: function () {
 
-        this.main = new Element('div', {
-            'class': 'ka-list-main',
-            style: 'bottom: 0px; top: 0px; overflow: hidden;'
-        }).inject(this.win.content);
+        this.mainLayout = new ka.Layout(this.win.content, {
+            layout: [{
+                columns: [260, null]
+            }],
+            splitter: [
+                [1, 1, 'right']
+            ],
+            map: [
+                [1, 1, this.headerLayout.getColumn(1)]
+            ]
+        });
+
+        this.mainLeft = this.mainLayout.getCell(1,1);
+        this.mainLeft.set('class', 'ka-list-combine-left');
+        this.mainRight = this.mainLayout.getCell(1,2);
+        this.mainRight.set('class', 'ka-list-combine-right');
 
         this.inputTrigger = new Element('input').inject(document.hidden);
 
@@ -22,13 +34,6 @@ ka.WindowCombine = new Class({
         this.inputTrigger.addEvent('blur', function () {
             this.ready2ChangeThroughKeyboard = false;
         }.bind(this));
-
-        this.mainLeft = new Element('div', {
-            style: 'position: absolute; left: 0px; top: 0px; bottom: 0px; width: 265px; border-right: 1px solid silver;'
-        }).inject(this.main);
-
-        logger('hi');
-        logger(this.classProperties);
 
         if (this.classProperties.asNested){
 
@@ -100,10 +105,6 @@ ka.WindowCombine = new Class({
             this.renderSearchPane();
             this.createItemLoader();
         }
-
-        this.mainRight = new Element('div', {
-            'class': 'ka-list-combine-right'
-        }).inject(this.main);
 
 
     },
@@ -194,8 +195,10 @@ ka.WindowCombine = new Class({
         //this.windowClassHeader = new Element('div').inject();
 
         if (this.classProperties.add || this.classProperties.remove || this.classProperties.custom) {
-            this.actionsNavi = this.win.addButtonGroup();
-            this.actionsNavi.setStyle('margin-right', 190);
+
+            if (this.classProperties.add || this.classProperties.remove || this.classProperties.custom) {
+                this.actionsNavi = new ka.ButtonGroup(this.headerLayoutLeft.getColumn(1));
+            }
         }
 
         if (this.actionsNavi) {
@@ -604,18 +607,33 @@ ka.WindowCombine = new Class({
         this.prevItemLoader.setStyle('display', 'none');
     },
 
+
+    renderHeader: function(){
+
+        this.headerLayout = new ka.LayoutHorizontal(this.win.getTitleGroupContainer(), {
+            columns: [260, null, 250],
+            fixed: false
+        });
+
+        this.headerLayoutLeft = new ka.LayoutHorizontal(this.headerLayout.getColumn(1), {
+            columns: [null, 140],
+            fixed: false
+        });
+
+        this.headerLayoutLeft.getColumn(2).setStyle('padding-right', 5);
+
+        this.renderMultilanguage();
+
+
+    },
+
     renderMultilanguage: function () {
 
         if (this.classProperties.multiLanguage) {
 
-            this.languageSelect = new ka.Select(this.win.titleGroups);
+            this.languageSelect = new ka.Select(this.headerLayoutLeft.getColumn(2));
 
-            document.id(this.languageSelect).setStyles({
-                'width': 106,
-                left: 80,
-                'position': 'absolute',
-                'top': 0
-            });
+            document.id(this.languageSelect).setStyle('width', 140);
 
             this.languageSelect.addEvent('change', this.changeLanguage.bind(this));
 
@@ -862,6 +880,10 @@ ka.WindowCombine = new Class({
 
         win.entryPoint = ka.entrypoint.getRelative(this.win.getEntryPoint(), this.classProperties.editEntrypoint);
 
+        win.getTitleGroupContainer = function(){
+            return this.headerLayout.getColumn(2);
+        }.bind(this);
+
         this.currentAdd = new ka.WindowAdd(win, this.mainRight);
         this.currentAdd.addEvent('save', this.addSaved.bind(this));
 
@@ -943,6 +965,9 @@ ka.WindowCombine = new Class({
 
             win.entryPoint = ka.entrypoint.getRelative(this.win.entryPoint, _this.classProperties.editEntrypoint);
             win.params = {item: pItem.values};
+            win.getTitleGroupContainer = function(){
+                return this.headerLayout.getColumn(2);
+            }.bind(this);
 
             this.currentEdit = new ka.WindowEdit(win, this.mainRight);
 
@@ -955,7 +980,7 @@ ka.WindowCombine = new Class({
 
             if (hasUnsaved) {
                 this.win.interruptClose = true;
-                this.win._confirm(_('There are unsaved data. Want to continue?'), function (pAccepted) {
+                this.win._confirm(t('There are unsaved data. Want to continue?'), function (pAccepted) {
                     if (pAccepted) {
                         this.currentEdit.winParams = {item: pItem.values};
                         this.currentEdit.loadItem();

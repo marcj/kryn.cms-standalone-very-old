@@ -99,12 +99,8 @@ div.ka-windowCombine-list-actions {
 }
 
 .ka-list-combine-right {
-    position: absolute;
-    left: 266px;
     background-color: #eee;
-    top: 0px;
-    bottom: 0px;
-    right: 0px;
+    position: relative;
 }
 
 .ka-list-combine-left-itemcount {
@@ -188,6 +184,13 @@ div.ka-windowCombine-list-actions {
     background-color: gray;
     color: white;
 }
+
+
+.ka-list-combine-left {
+    background-color: #f9f9f9;
+    position: relative;
+}
+
 
 .ka-list-bottom {
     position: absolute;

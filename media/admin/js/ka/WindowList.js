@@ -176,8 +176,7 @@ ka.WindowList = new Class({
 
         this.container.empty();
 
-        /*multilang*/
-        this.renderMultilanguage();
+        this.renderHeader();
 
         this.renderLayout();
 
@@ -186,6 +185,16 @@ ka.WindowList = new Class({
         this.renderLoader();
 
         this.renderFinished();
+    },
+
+    renderHeader: function(){
+
+        this.headerLayout = new ka.LayoutHorizontal(this.win.getTitleGroupContainer(), {
+            columns: [150, null, 250]
+        });
+
+        this.renderMultilanguage();
+
     },
 
     renderFinished: function () {
@@ -210,11 +219,10 @@ ka.WindowList = new Class({
     },
 
     renderMultilanguage: function () {
+
         if (this.classProperties.multiLanguage) {
 
-            this.languageSelect = new ka.Select(this.win.titleGroups);
-
-            document.id(this.languageSelect).set('style', 'position: absolute; right: 5px; top: 27px; width: 160px;');
+            this.languageSelect = new ka.Select(this.headerLayout.getColumn(3));
 
             this.languageSelect.addEvent('change', this.changeLanguage.bind(this));
 
@@ -255,7 +263,9 @@ ka.WindowList = new Class({
         if (this.languageSelect)
             objectOptions.scopeLanguage = this.languageSelect.getValue();
 
-        this.nestedField = new ka.Field(objectOptions, pContainer);
+        this.nestedField = new ka.Field(objectOptions);
+
+        this.nestedField.inject(pContainer, 'top');
 
         logger(this.classProperties);
         if (this.classProperties.edit){
@@ -538,7 +548,7 @@ ka.WindowList = new Class({
         }
 
         if (this.classProperties.add || this.classProperties.remove || this.classProperties.custom) {
-            this.actionsNavi = this.win.addButtonGroup();
+            this.actionsNavi = new ka.ButtonGroup(this.headerLayout.getColumn(1));
         }
 
         if (this.actionsNavi) {

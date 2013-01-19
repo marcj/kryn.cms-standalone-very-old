@@ -174,7 +174,7 @@ ka.WindowEdit = new Class({
         if (this.getTitleValue())
             this.win.setTitle(this.getTitleValue());
 
-        if (this.classProperties.multiLanguage && this.languageSelect.getValue() != pValue.lang) {
+        if (this.languageSelect && this.languageSelect.getValue() != pValue.lang) {
             this.languageSelect.setValue(pValue.lang);
             this.changeLanguage();
         }
@@ -402,7 +402,6 @@ ka.WindowEdit = new Class({
         
         this.renderFields();
 
-
         this.fireEvent('render');
 
         if (this.winParams){
@@ -462,18 +461,12 @@ ka.WindowEdit = new Class({
 
         if (this.classProperties.versioning == true) {
 
-            /*this.versioningSelect = new Element('select', {
-             style: 'position: absolute; right: '+versioningSelectRight+'px; top: 27px; width: 160px;'
-             }).inject( this.win.border );*/
-
-
             var versioningSelectRight = 5;
-            if (this.classProperties.multiLanguage) {
+            if (this.languageSelect) {
                 versioningSelectRight = 150;
             }
 
-            this.versioningSelect = new ka.Select();
-            this.versioningSelect.inject(this.win.titleGroups);
+            this.versioningSelect = new ka.Select(this.win.titleGroups);
             this.versioningSelect.setStyle('width', 120);
             this.versioningSelect.setStyle('top', 0);
             this.versioningSelect.setStyle('right', versioningSelectRight);
@@ -488,6 +481,9 @@ ka.WindowEdit = new Class({
     renderMultilanguage: function () {
 
         if (this.classProperties.multiLanguage) {
+
+            if (this.classProperties.asNested) return false;
+
             this.win.extendHead();
 
             this.languageSelect = new ka.Select();
@@ -500,7 +496,7 @@ ka.WindowEdit = new Class({
 
             this.languageSelect.addEvent('change', this.changeLanguage.bind(this));
 
-            this.languageSelect.add('', _('-- Please Select --'));
+            this.languageSelect.add('', t('-- Please Select --'));
 
             Object.each(ka.settings.langs, function (lang, id) {
 
@@ -778,7 +774,7 @@ ka.WindowEdit = new Class({
 
         var req = this.parserObject.getValue();
 
-        if (this.classProperties.multiLanguage) {
+        if (this.languageSelect) {
             if (!pWithoutEmptyCheck && this.languageSelect.getValue() == ''){
 
                 if (!this.languageTip){

@@ -1,37 +1,141 @@
 ka.Layout = new Class({
 
+    Implements: [Events, Options],
 
     options: {
 
         /**
          * Defines how the layout should look like.
          *
-         * [x, y]
+         * Structure:
+         *  [
+         *     { //row 1
+         *       height: 30%,
+         *       columns: [150, null],
+         *     },
+         *     { //row 2
+         *       height: 70%,
+         *       columns: [null],
+         *     }
+         *  ]
+         * TODO
          *
-         * @var {ArraY}
+         * @var {Array}
          */
-        layout: [1,1],
-
+        layout: [],
 
         /**
-         * `horizontal` or `vertical`.
-         * @var {String}
+         * Enabled the cell rendering as it would be if all rows were in only one table.
+         * (Means: each column are horizontal arranged under above)
+         *
+         * What is possible with deactivated grid layout?
+         *
+         *  Each row gets his own table element, that means:
+         *
+         * +--+----------+
+         * |C |  Cell 2  |
+         * |1 |          |
+         * +--+--+-------+
+         * |     |  Ce   |
+         * |  C3 |  ll   |
+         * |     |   4   |
+         * +-------------+
+         * @var {Boolean}
          */
-        mode: 'horizontal'
+        gridLayout: true,
+
+        /**
+         *
+         *
+         * @var {Boolean}
+         */
+        fixed: true,
+
+        splitter: [],
+
+        map: []
     },
 
+    main: null,
+    body: null,
+
+    container: null,
+
+    cells: [],
 
     initialize: function(pContainer, pOptions){
 
         this.setOptions(pOptions);
+        this.container = pContainer;
 
+        this.main = new Element('div', {
+            'class': 'ka-Layout-main'
+        }).inject(pContainer);
+
+        if (this.options.fixed){
+            this.main.setStyles({
+                position: 'absolute',
+                left: 0, right: 0,
+                'top': 0, bottom: 0
+            });
+        }
+
+        this.renderLayout();
+
+        this.createResizer();
+
+    },
+
+    createResizer: function(){
+
+        Array.each(this.options.splitter, function(resize){
+
+            new ka.LayoutSplitter(this.getCell(resize[0], resize[1]), resize[2]);
+
+        }.bind(this));
+
+    },
+
+    getCell: function(pRow, pColumn){
+        return this.getVertical().getHorizontal(pRow).getColumn(pColumn);
+    },
+
+    toElement: function(){
+        return this.main;
+    },
+
+    setVertical: function(pVertical){
+        this.vertical = pVertical;
+    },
+
+    getVertical: function(){
+        return this.vertical;
+    },
+
+    getMain: function(){
+        return this.main;
+    },
+
+    renderLayout: function(){
+
+        if (!this.options.layout || !this.options.layout.length) return;
+
+        if (!this.getVertical()){
+            this.setVertical(new ka.LayoutVertical(this, {rows: [], gridLayout: this.options.gridLayout}));
+        }
+
+        var horizontal;
+
+        Array.each(this.options.layout, function(row){
+
+            if (row.columns && row.columns.length > 0){
+
+                horizontal = new ka.LayoutHorizontal(this.getVertical(), {columns: row.columns, height: row.height});
+
+                //this.vertical.addHorizontal(horizontal);
+            }
+        }.bind(this));
 
     }
-
-
-
-
-
-
 
 });

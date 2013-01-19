@@ -1266,10 +1266,14 @@ ka.Window = new Class({
         this.bottom.set('html', pVal);
     },
 
+    getTitleContaner: function(){
+        return this.title;
+    },
+
     extendHead: function () {
-        this.title.setStyle('height', 52);
-        this.title.addClass('kwindow-win-title-extended');
-        this.content.setStyle('top', 53);
+        this.getTitleContaner().setStyle('height', 52);
+        this.getTitleContaner().addClass('kwindow-win-title-extended');
+        this.getContentContainer().setStyle('top', 53);
     },
 
     addTabGroup: function () {
@@ -1397,11 +1401,7 @@ ka.Window = new Class({
         Object.each(this.sizer, function(item, key){
             item.setStyle('opacity', 0.01);
 
-            var onDragger, height, width, x, y, newHeight, newWidth, newY, newX, max;
-
-            onDragger = function(pElement, pEvent){
-
-            };
+            var height, width, x, y, newHeight, newWidth, newY, newX, max;
 
             var options = {
                 handle: item,
