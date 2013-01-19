@@ -2439,7 +2439,7 @@ var admin_system_module_edit = new Class({
                                     treeRootObjectIconPath: {
                                         needValue: 1,
                                         type: 'file',
-                                        label: t('Icon field')
+                                        label: t('Icon')
                                     },
                                     treeRootObjectIcon: {
                                         needValue: 0,

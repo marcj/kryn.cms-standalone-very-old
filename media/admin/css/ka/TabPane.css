@@ -36,7 +36,7 @@
 
 .ka-tabPane-full > .ka-tabGroup-small {
     position: relative;
-    top: 1px;
+    top: 0px;
 }
 
 
@@ -49,7 +49,7 @@
     left: 0px;
     right: 0px;
     bottom: 0px;
-    top: 30px;
+    top: 31px;
 }
 
 .ka-tabPane-tabsInWindowHeader > .kwindow-win-tabPane-pane {

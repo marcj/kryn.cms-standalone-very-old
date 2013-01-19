@@ -21,8 +21,10 @@ ka.WindowCombine = new Class({
             ]
         });
 
-        this.mainLeft = this.mainLayout.getCell(1,1);
+        this.mainLayout.getCell(1,1).setStyle('position', 'relative');
+        this.mainLeft = new Element('div').inject(this.mainLayout.getCell(1,1));
         this.mainLeft.set('class', 'ka-list-combine-left');
+
         this.mainRight = this.mainLayout.getCell(1,2);
         this.mainRight.set('class', 'ka-list-combine-right');
 
@@ -47,7 +49,6 @@ ka.WindowCombine = new Class({
                 style: 'position: absolute; left: 0px; padding: 5px 6px; top: 0px; height: 20px; right: 0px; border-bottom: 1px solid gray;',
                 'class': 'ka-list-combine-left-top'
             }).inject(this.mainLeft);
-
 
             this.sortSpan = new Element('span', {
                 style: 'margin-left: 30px; line-height: 17px;'
@@ -698,8 +699,6 @@ ka.WindowCombine = new Class({
 
         //pDom.objectKey
         //pDom.id
-        logger(pItem);
-        logger(pDom.objectKey);
 
         if (pDom.objectKey == this.classProperties.object){
             this.loadItem({values: pItem});
@@ -942,7 +941,6 @@ ka.WindowCombine = new Class({
     loadItem: function (pItem) {
         var _this = this;
 
-        logger(pItem);
         if (this.currentAdd) {
 
             //TODO check unsaved
@@ -971,7 +969,8 @@ ka.WindowCombine = new Class({
 
             this.currentEdit = new ka.WindowEdit(win, this.mainRight);
 
-            this.currentEdit.addEvent('save', this.saved.bind(this));
+            logger('hi');
+            //this.currentEdit.addEvent('save', this.saved.bind(this));
             this.currentEdit.addEvent('load', this.itemLoaded.bind(this));
 
         } else {
@@ -1167,10 +1166,25 @@ ka.WindowCombine = new Class({
 
         if (pPublished) {
 
-            this.lastLoadedItem = pItem;
-            this._lastItems = null;
+            if (this.classProperties.asNested){
 
-            this.loadAround(this.win.params.selected);
+                this.reloadTreeItem();
+
+            } else {
+                this.lastLoadedItem = pItem;
+                this._lastItems = null;
+
+                this.loadAround(this.win.params.selected);
+            }
+        }
+
+    },
+
+    reloadTreeItem: function(){
+
+        var selected = this.nestedField.getFieldObject().getSelectedTree();
+        if (selected){
+            //selected.reloadSelected();
         }
 
     },
@@ -1244,8 +1258,6 @@ ka.WindowCombine = new Class({
             true
         );
 
-        logger(item);
-        logger(data);
         mowla.render(item, data);
 
         if (this.classProperties.remove == true) {

@@ -140,7 +140,7 @@ ka.FieldTypes.Condition = new Class({
                 div.inject(div.getPrevious(), 'before');
                 this.reRender(pTarget);
             }
-        }).inject(actions);
+        }.bind(this)).inject(actions);
 
 
 
@@ -154,7 +154,7 @@ ka.FieldTypes.Condition = new Class({
                 div.inject(div.getNext(), 'after');
                 this.reRender(pTarget);
             }
-        }).inject(actions);
+        }.bind(this)).inject(actions);
 
 
 
@@ -166,7 +166,7 @@ ka.FieldTypes.Condition = new Class({
         }).addEvent('click', function () {
             div.destroy();
             this.reRender(pTarget);
-        }).inject(actions);
+        }.bind(this)).inject(actions);
 
         new Element('td', {
             'class': 'ka-field-condition-leftBracket',
@@ -287,7 +287,7 @@ ka.FieldTypes.Condition = new Class({
         var actions = new Element('span', {style: 'position: relative; top: 3px; width: '+parseInt((16*4)+3)+'px'}).inject(con, 'before');
 
         new Element('img', {src: _path+ PATH_MEDIA + '/admin/images/icons/arrow_up.png'})
-            .addEvent('click', function(){
+        .addEvent('click', function(){
             if (div.getPrevious()){
                 div.inject(div.getPrevious(), 'before');
                 this.reRender(pTarget);
@@ -296,7 +296,7 @@ ka.FieldTypes.Condition = new Class({
         .inject(actions);
 
         new Element('img', {src: _path+ PATH_MEDIA + '/admin/images/icons/arrow_down.png'})
-            .addEvent('click', function(){
+        .addEvent('click', function(){
             if (div.getNext()){
                 div.inject(div.getNext(), 'after');
                 this.reRender(pTarget);
@@ -310,7 +310,7 @@ ka.FieldTypes.Condition = new Class({
                 if (!a) return;
                 div.destroy();
                 this.reRender(pTarget);
-            });
+            }.bind(this));
         }.bind(this))
         .inject(actions);
 

@@ -14,7 +14,6 @@ ka.WindowEdit = new Class({
         this.win = pWin;
 
         this.winParams = Object.clone(this.win.getParameter()); //copy
-        logger(this.winParams);
 
         if (!this.winParams.item && this.winParams.values)
             this.winParams.item = this.winParams.values; //compatibility

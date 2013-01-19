@@ -84,16 +84,16 @@ class Controller {
         if (!$options['fields']){
             //use default fields from object definition
             $definition = \Core\Object::getDefinition($pObject);
+
+            $options['fields'] = array();
+
+            if ($definition['treeFields'])
+                $options['fields'] = explode(',', trim(preg_replace('/[^a-zA-Z0-9_,]/', '', $definition['treeFields'])));
+
             $options['fields'][] = $definition['label'];
 
-            if ($definition['chooserBrowserTreeIcon'])
-                $options['fields'][] = $definition['chooserBrowserTreeIcon'];
-
-            if ($definition['chooserFieldDataModelFieldExtraFields']){
-                $extraFields = explode(',', trim(preg_replace('/[^a-zA-Z0-9_,]/', '', $definition['chooserFieldDataModelFieldExtraFields'])));
-                foreach($extraFields as $field)
-                    $options['fields'][] = $field;
-            }
+            if ($definition['treeIcon'])
+                $options['fields'][] = $definition['treeIcon'];
 
         }
         return \Core\Object::getTree($pObject, $primaryKeys[0], $condition = false, $pDepth, $pScope, $options);
@@ -145,20 +145,18 @@ class Controller {
         $options['permissionCheck'] = true;
 
         if (!$options['fields']){
-            $options['fields'] = array();
 
             //use default fields from object definition
             $definition = \Core\Object::getDefinition($pObject);
+
+            $options['fields'] = array();
+            if ($definition['treeFields'])
+                $options['fields'] = explode(',', trim(preg_replace('/[^a-zA-Z0-9_,]/', '', $definition['treeFields'])));
+
             $options['fields'][] = $definition['nestedLabel'];
 
-            if ($definition['chooserBrowserTreeIcon'])
-                $options['fields'][] = $definition['chooserBrowserTreeIcon'];
-
-            if ($definition['chooserFieldDataModelFieldExtraFields']){
-                $extraFields = explode(',', trim(preg_replace('/[^a-zA-Z0-9_,]/', '', $definition['chooserFieldDataModelFieldExtraFields'])));
-                foreach($extraFields as $field)
-                    $options['fields'][] = $field;
-            }
+            if ($definition['treeIcon'])
+                $options['fields'][] = $definition['treeIcon'];
         }
 
         return \Core\Object::getTree($pObject, null, $condition = false, $pDepth, $pScope, $options);
@@ -234,12 +232,12 @@ class Controller {
      */
     public function getItemPerUri($pUri, $pFields = null){
 
-        list($object_key, $object_id) = \Core\Object::parseUri($pUri);
+        list($objectKey, $object_id) = \Core\Object::parseUri($pUri);
 
-        $definition = \Core\Object::getDefinition($object_key);
-        if (!$definition) throw new \ObjectNotFoundException(tf('Object %s does not exists.', $object_key));
+        $definition = \Core\Object::getDefinition($objectKey);
+        if (!$definition) throw new \ObjectNotFoundException(tf('Object %s does not exists.', $objectKey));
 
-        return \Core\Object::get($object_key, $object_id[0], array('fields' => $pFields, 'permissionCheck' => true));
+        return \Core\Object::get($objectKey, $object_id[0], array('fields' => $pFields, 'permissionCheck' => true));
     }
 
 
@@ -297,19 +295,28 @@ class Controller {
      */
     public function getItemsByUri($pUri, $pFields = null, $pReturnKey = true, $pReturnKeyAsRequested = false){
 
-        list($object_key, $object_ids, $params) = \Core\Object::parseUri($pUri);
+        list($objectKey, $objectIds, $params) = \Core\Object::parseUri($pUri);
         //check if we got an id
-        if (!current($object_ids[0])){
+        if ($objectIds[0] === ''){
             throw new \Exception(tf('No id given in uri %s.', $pUri));
         }
 
-        $definition = \Core\Object::getDefinition($object_key);
-        if (!$definition) throw new \ObjectNotFoundException(tf('Object %s can not be found.', $object_key));
+        $definition = \Core\Object::getDefinition($objectKey);
+        if (!$definition) throw new \ObjectNotFoundException(tf('Object %s can not be found.', $objectKey));
 
-        $items = \Core\Object::getList($object_key, $object_ids, array(
-            'fields' => $pFields,
-            'permissionCheck' => true
-        ));
+
+        $options['fields'] = $pFields;
+        $options['permissionCheck'] = true;
+
+        $items = array();
+        if (count($objectIds) == 1)
+            $items[] = \Core\Object::get($objectKey, $objectIds[0], $options);
+        else {
+            foreach ($objectIds as $primaryKey){
+                if ($item = \Core\Object::get($objectKey, $primaryKey, $options))
+                    $items[] = $item;
+            }
+        }
 
         if ($pReturnKey || $pReturnKeyAsRequested) {
 
@@ -321,19 +328,19 @@ class Controller {
                 $requestedIds = explode(',', \Core\Object::getCroppedObjectId($pUri));
                 $map = array();
                 foreach ($requestedIds as $id){
-                    $pk = \Core\Object::parsePk($object_key, $id);
-                    $map[\Core\Object::getObjectUrlId($object_key, $pk[0])+''] = $id;
+                    $pk = \Core\Object::parsePk($objectKey, $id);
+                    $map[\Core\Object::getObjectUrlId($objectKey, $pk[0])+''] = $id;
                 }
 
                 if (is_array($items)){
                     foreach ($items as &$item){
-                        $pk = \Core\Object::getObjectUrlId($object_key, $item);
+                        $pk = \Core\Object::getObjectUrlId($objectKey, $item);
                         $res[$map[$pk+'']] = $item;
                     }
                 }
 
             } else {
-                $primaryKeys = \Core\Object::getPrimaries($object_key);
+                $primaryKeys = \Core\Object::getPrimaries($objectKey);
 
                 $c = count($primaryKeys);
                 $firstPK = key($primaryKeys);

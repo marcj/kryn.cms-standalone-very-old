@@ -279,14 +279,14 @@
             "treeInterface": "custom",
             "treeLabel": "",
             "treeTemplate": "",
-            "treeFields": "",
+            "treeFields": "type, title, accessDenied, accessFromGroups, visible",
             "treeIcon": "type",
             "treeIconMapping": [
                 
             ],
             "treeDefaultIcon": "",
             "treeFixedIcon": false,
-            "treeRootObjectIconPath": "not found: object:\/\/Core\\File\/not%20found%3A%20object%3A%2F%2FCore%5CFile%2F%252Fadmin%252Fimages%252Ficons%252Fworld.png",
+            "treeRootObjectIconPath": "#world",
             "treeRootObjectFixedIcon": true,
             "browserInterfaceClass": "",
             "browserInterfaceOptions": [

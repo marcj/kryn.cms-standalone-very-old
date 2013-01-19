@@ -303,7 +303,6 @@ ka.ObjectTree = new Class({
             if (typeOf(scope) == 'object'){
                 scope = ka.getObjectUrlId(this.options.rootObject, scope);
             }
-            logger(scope);
             objectUrl += '?'+Object.toQueryString({scope: scope});
         }
 
@@ -1193,6 +1192,17 @@ ka.ObjectTree = new Class({
     reload: function () {
         this.lastScrollPos = this.container.getScroll();
         this.loadFirstLevel();
+    },
+
+    reloadSelected: function(){
+
+        var item = this.getItem();
+        if (item){
+
+            this.reloadChildren(item);
+
+        }
+
     },
 
 

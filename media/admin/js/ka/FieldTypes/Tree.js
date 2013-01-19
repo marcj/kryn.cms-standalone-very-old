@@ -203,6 +203,18 @@ ka.FieldTypes.Tree = new Class({
         return tree;
     },
 
+    getSelectedTree: function(){
+
+        var selected = null;
+        Array.each(this.trees, function(tree){
+            if (selected) return;
+            if (tree.hasSelected()) selected = tree;
+        });
+
+        return tree;
+
+    },
+
     selected: function(pItem, pDom){
         this.fireEvent('select', [pItem, pDom]);
     },

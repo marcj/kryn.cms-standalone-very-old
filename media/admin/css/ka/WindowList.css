@@ -188,7 +188,12 @@ div.ka-windowCombine-list-actions {
 
 .ka-list-combine-left {
     background-color: #f9f9f9;
-    position: relative;
+    position: absolute;
+    left: 0;
+    right: 6px;
+    top: 0;
+    bottom: 0;
+    overflow: auto;
 }
 
 

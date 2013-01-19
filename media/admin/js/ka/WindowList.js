@@ -267,7 +267,6 @@ ka.WindowList = new Class({
 
         this.nestedField.inject(pContainer, 'top');
 
-        logger(this.classProperties);
         if (this.classProperties.edit){
             this.nestedField.getFieldObject().addEvent('select', this.nestedItemSelected);
         }

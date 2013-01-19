@@ -116,7 +116,9 @@ class ObjectFile extends \Core\ORM\Propel {
     }
 
     public function getItems($pCondition = null, $pOptions = null){
+
         $items = parent::getItems($pCondition, $pOptions);
+
         $result = array();
         foreach ($items as $item){
             $file = MediaFile::getFile($item['path']);

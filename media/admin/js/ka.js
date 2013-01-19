@@ -551,6 +551,8 @@ ka.getObjectLabel = function(pUri, pCb){
 
                 Object.each(pResponse.data, function(item, pk){
 
+                    if (item === null) return;
+
                     id = 'object://'+objectKey+'/'+pk;
                     result = ka.getObjectLabelByItem(objectKey, item);
 

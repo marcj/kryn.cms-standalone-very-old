@@ -5,6 +5,7 @@ ka.FieldTypes.File = new Class({
     initialize: function(pFieldInstance, pOptions){
 
         pOptions.withoutObjectWrapper = 1;
+        pOptions.combobox = true;
         pOptions.browserOptions = {
             returnPath: 1,
             onlyLocal: 1
