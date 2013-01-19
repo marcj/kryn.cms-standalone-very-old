@@ -51,9 +51,41 @@ ka.Layout = new Class({
          */
         fixed: true,
 
+        /**
+         *
+         * Structure:
+         *
+         * [
+         *    [row, column, direction],
+         *    ...
+         * ]
+         *
+         * Example:
+         *
+         * [
+         *    [1,1, 'right'] //mean a splitter between cell(1,1) and the right one.
+         * ]
+         *
+         * @var {Array}
+         */
         splitter: [],
 
-        map: []
+        /**
+         * Connects the width of two cells together, so that when the left ones gets resized
+         * it adjust the width to the equal width of the other cell as well.
+         *
+         * Structure
+         * [
+         *    [ [row, column], [row, column] ],
+         *    or
+         *    [ [row, column], DOMElement ]
+         *    or
+         *    [ DOMElement, [row, column] ]
+         * ]
+         *
+         * @var {Array}
+         */
+        connections: []
     },
 
     main: null,
@@ -83,6 +115,29 @@ ka.Layout = new Class({
         this.renderLayout();
 
         this.createResizer();
+        this.mapConnections();
+
+    },
+
+    mapConnections: function(){
+
+        Array.each(this.options.connections, function(connection){
+            this.connectCells(connection[0], connection[1]);
+        }.bind(this));
+
+    },
+
+    connectCells: function(pCell1, pCell2){
+
+        if (typeOf(pCell1) == 'array') pCell1 = this.getCell(pCell1[0], pCell1[1]);
+        if (typeOf(pCell2) == 'array') pCell2 = this.getCell(pCell2[0], pCell2[1]);
+
+        pCell1.addEvent('resize', function(){
+            pCell2.setStyle('width', pCell1.getStyle('width'));
+        }.bind(this));
+
+        pCell1.fireEvent('resize');
+
 
     },
 

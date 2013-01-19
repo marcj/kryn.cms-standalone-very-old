@@ -16,8 +16,8 @@ ka.WindowCombine = new Class({
             splitter: [
                 [1, 1, 'right']
             ],
-            map: [
-                [1, 1, this.headerLayout.getColumn(1)]
+            connections: [
+                [[1, 1], this.headerLayout.getColumn(1)]
             ]
         });
 
