@@ -189,6 +189,10 @@ ka.WindowCombine = new Class({
 
     renderActionbar: function () {
 
+
+        this.renderTopActionBar(this.headerLayoutLeft.getColumn(1));
+        /*
+
         if (this.classProperties.multiLanguage || this.classProperties.add || this.classProperties.remove || this.classProperties.custom) {
             this.win.extendHead();
         }
@@ -217,6 +221,7 @@ ka.WindowCombine = new Class({
                 this.addBtn = this.actionsNavi.addButton(t('Add'), ka.mediaPath(icon), this.add.bind(this));
             }
         }
+        */
 
     },
 

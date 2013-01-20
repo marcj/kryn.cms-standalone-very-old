@@ -199,6 +199,9 @@ abstract class ObjectWindow {
 
     public $nestedRootEdit = false;
     public $nestedRootAdd = false;
+    public $nestedRootAddWithPositionSelection = true;
+    public $nestedRootAddIcon = '#icon-plus-2';
+    public $nestedRootAddLabel = 'Add root';
     public $nestedRootRemove = false;
 
     public $nestedRootEditEntrypoint = 'root/';
@@ -227,7 +230,7 @@ abstract class ObjectWindow {
     public $edit = false;
 
 
-    public $nestedMove = true;
+    public $nestedMoveable = true;
 
     /**
      * Defines whether the list windows should display the language select box.
@@ -1220,36 +1223,115 @@ abstract class ObjectWindow {
     /**
      * @param array|null $entryPoint
      */
-    public function setEntryPoint($entryPoint)
-    {
+    public function setEntryPoint($entryPoint){
         $this->entryPoint = $entryPoint;
     }
 
     /**
      * @return array|null
      */
-    public function getEntryPoint()
-    {
+    public function getEntryPoint(){
         return $this->entryPoint;
     }
 
     /**
      * @param boolean $asNested
      */
-    public function setAsNested($asNested)
-    {
+    public function setAsNested($asNested){
         $this->asNested = $asNested;
     }
 
     /**
      * @return boolean
      */
-    public function getAsNested()
-    {
+    public function getAsNested(){
         return $this->asNested;
+    }
+
+    public function setNestedMove($nestedMove){
+        $this->nestedMove = $nestedMove;
+    }
+
+    public function getNestedMove(){
+        return $this->nestedMove;
+    }
+
+    public function setNestedRootAdd($nestedRootAdd){
+        $this->nestedRootAdd = $nestedRootAdd;
+    }
+
+    public function getNestedRootAdd(){
+        return $this->nestedRootAdd;
+    }
+
+    public function setNestedRootAddEntrypoint($nestedRootAddEntrypoint){
+        $this->nestedRootAddEntrypoint = $nestedRootAddEntrypoint;
+    }
+
+    public function getNestedRootAddEntrypoint(){
+        return $this->nestedRootAddEntrypoint;
+    }
+
+    public function setNestedRootAddIcon($nestedRootAddIcon){
+        $this->nestedRootAddIcon = $nestedRootAddIcon;
+    }
+
+    public function getNestedRootAddIcon(){
+        return $this->nestedRootAddIcon;
+    }
+
+    public function setNestedRootAddLabel($nestedRootAddLabel){
+        $this->nestedRootAddLabel = $nestedRootAddLabel;
+    }
+
+    public function getNestedRootAddLabel(){
+        return $this->nestedRootAddLabel;
+    }
+
+    public function setNestedRootEdit($nestedRootEdit){
+        $this->nestedRootEdit = $nestedRootEdit;
+    }
+
+    public function getNestedRootEdit(){
+        return $this->nestedRootEdit;
+    }
+
+    public function setNestedRootEditEntrypoint($nestedRootEditEntrypoint){
+        $this->nestedRootEditEntrypoint = $nestedRootEditEntrypoint;
+    }
+
+    public function getNestedRootEditEntrypoint(){
+        return $this->nestedRootEditEntrypoint;
+    }
+
+    public function setNestedRootRemove($nestedRootRemove){
+        $this->nestedRootRemove = $nestedRootRemove;
+    }
+
+    public function getNestedRootRemove(){
+        return $this->nestedRootRemove;
+    }
+
+    public function setNestedRootRemoveEntrypoint($nestedRootRemoveEntrypoint){
+        $this->nestedRootRemoveEntrypoint = $nestedRootRemoveEntrypoint;
+    }
+
+    public function getNestedRootRemoveEntrypoint(){
+        return $this->nestedRootRemoveEntrypoint;
+    }
+
+    public function setNestedRootAddWithPositionSelection($nestedRootAddWithPositionSelection){
+        $this->nestedRootAddWithPositionSelection = $nestedRootAddWithPositionSelection;
+    }
+
+    public function getNestedRootAddWithPositionSelection(){
+        return $this->nestedRootAddWithPositionSelection;
     }
 
 
 
+    
+    
+    
 
 }

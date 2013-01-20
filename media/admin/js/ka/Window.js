@@ -376,10 +376,10 @@ ka.Window = new Class({
      *
      * @param  {mixed} pText A string (non html) or an element, that will be injected in the content area.
      *
-     * @param  {Boolean} pAbsoluteContent If we position this absolute or normal.
+     * @param  {Boolean} pAbsoluteContent If we position this absolute or inline.
      * @return {Element}                  An element with .close(), .center() method, .content and .bottom element.
      */
-    newDialog: function (   pText, pAbsoluteContent) {
+    newDialog: function (pText, pAbsoluteContent) {
 
         var main = new Element('div', {
             'class': 'ka-kwindow-prompt'
@@ -390,6 +390,10 @@ ka.Window = new Class({
         main.content = new Element('div', {
             'class': 'ka-kwindow-prompt-text selectable'
         }).inject(main);
+
+        main.getContentContainer = function(){
+           return main.content;
+        };
 
         if (typeOf(pText) == 'string'){
             main.content.set('text', pText);
@@ -440,6 +444,11 @@ ka.Window = new Class({
         main.bottom = new Element('div', {
             'class': 'ka-kwindow-prompt-bottom'
         }).inject(main);
+
+
+        main.getBottomContainer = function(){
+            return main.bottom;
+        };
 
         main.center();
 

@@ -285,7 +285,7 @@ ka.ObjectTree = new Class({
         } else {
 
             this.rootA = new Element('a');
-            this.rootA.childContainer = this.paneObjects;
+            this.rootA.childrenContainer = this.paneObjects;
 
         }
         var objectUrl = ka.urlEncode(this.objectKey);
@@ -351,7 +351,11 @@ ka.ObjectTree = new Class({
             title: 'ID=' + id
         });
 
+        if (this.options.selectable)
+            a.addClass('ka-objectTree-item-selectable');
+
         a.id = id;
+        a.isRoot = true;
         a.objectKey = this.objectDefinition.nestedRootObject;
 
         if (id == this.options.selectObject && this.options.selectable == true){
@@ -378,12 +382,12 @@ ka.ObjectTree = new Class({
 
         this.items[ this.objectDefinition.nestedRootObject+'_'+id ] = a;
 
-        a.store('item', item);
+        a.objectEntry = item;
 
         a.childrenLoaded = true;
 
         this.rootA = a;
-        a.childContainer = this.paneObjects;
+        a.childrenContainer = this.paneObjects;
 
         this.addRootIcon(item, a);
 
@@ -400,7 +404,6 @@ ka.ObjectTree = new Class({
         }.bind(this));
 
         this.rootLoaded = true;
-
 
         this.loadFirstLevel();
 
@@ -446,6 +449,9 @@ ka.ObjectTree = new Class({
 
         this.firstLevelLoaded = true;
         this.checkDoneState();
+
+        this.fireEvent('childrenLoaded', [this.rootObject, this.rootA]);
+
 
     },
 
@@ -493,7 +499,7 @@ ka.ObjectTree = new Class({
 
         if (!a) return;
 
-        var item = a.retrieve('item');
+        var item = a.objectEntry;
 
         if (e.rightClick) {
             this.openContext(e, a, item);
@@ -539,6 +545,7 @@ ka.ObjectTree = new Class({
 
         }.bind(this));
 
+
     },
 
     addItem: function (pItem, pParent) {
@@ -551,13 +558,16 @@ ka.ObjectTree = new Class({
             title: 'ID=' + id
         });
 
+        if (this.options.selectable)
+            a.addClass('ka-objectTree-item-selectable');
+
         a.id = id;
         a.parent = pParent;
         a.objectKey = this.objectKey;
 
         var container = pParent;
-        if (pParent.childContainer) {
-            container = pParent.childContainer;
+        if (pParent.childrenContainer) {
+            container = pParent.childrenContainer;
             a.parent = pParent;
         }
 
@@ -578,7 +588,7 @@ ka.ObjectTree = new Class({
 
         this.items[ '_'+id ] = a;
 
-        a.store('item', pItem);
+        a.objectEntry = pItem;
 
 
         if (a.parent) {
@@ -624,7 +634,7 @@ ka.ObjectTree = new Class({
             }.bind(this));
         }
 
-        a.childContainer = new Element('div', {
+        a.childrenContainer = new Element('div', {
             'class': 'ka-objectTree-item-children'
         }).inject(container);
 
@@ -783,7 +793,7 @@ ka.ObjectTree = new Class({
 
     toggleChildren: function (pA) {
 
-        if (pA.childContainer.getStyle('display') != 'block') {
+        if (pA.childrenContainer.getStyle('display') != 'block') {
             this.openChildren(pA);
         } else {
             this.closeChildren(pA);
@@ -791,9 +801,9 @@ ka.ObjectTree = new Class({
     },
 
     closeChildren: function (pA) {
-        var item = pA.retrieve('item');
+        var item = pA.objectEntry;
 
-        pA.childContainer.setStyle('display', '');
+        pA.childrenContainer.setStyle('display', '');
         pA.toggler.set('html', '&#xe0c3;');
         this.opens[ pA.id ] = false;
         this.setRootPosition();
@@ -807,7 +817,7 @@ ka.ObjectTree = new Class({
 
         pA.toggler.set('html', '&#xe0c4;');
         if (pA.childrenLoaded == true) {
-            pA.childContainer.setStyle('display', 'block');
+            pA.childrenContainer.setStyle('display', 'block');
             this.opens[ pA.id ] = true;
             this.saveOpens();
         } else {
@@ -828,20 +838,20 @@ ka.ObjectTree = new Class({
 
     removeChildren: function(pA){
 
-        if (!pA.childContainer) return;
+        if (!pA.childrenContainer) return;
 
-        pA.childContainer.getElements('ka-objectTree-item').each(function(a){
+        pA.childrenContainer.getElements('ka-objectTree-item').each(function(a){
             delete this.items['_'+a.id];
         }.bind(this));
 
 
-        pA.childContainer.empty();
+        pA.childrenContainer.empty();
 
     },
 
     loadChildren: function (pA, pAndOpen) {
 
-        var item = pA.retrieve('item');
+        var item = pA.objectEntry;
 
         var loader = new Element('img', {
             src: _path + PATH_MEDIA + '/admin/images/loading.gif',
@@ -857,7 +867,7 @@ ka.ObjectTree = new Class({
 
             if (pAndOpen) {
                 pA.toggler.set('html', '&#xe0c4;');
-                pA.childContainer.setStyle('display', 'block');
+                pA.childrenContainer.setStyle('display', 'block');
                 this.opens[ pA.id ] = true;
                 this.saveOpens();
             }
@@ -898,7 +908,7 @@ ka.ObjectTree = new Class({
         this.currentObjectToDrag = pA;
 
         var canMoveObject = true;
-        var object = pA.retrieve('item');
+        var object = pA.objectEntry;
         /*
         if (object.domain) {
             if (!ka.checkObjectAccess(object.id, 'moveObjects', 'd')) {
@@ -995,7 +1005,7 @@ ka.ObjectTree = new Class({
             this.dropLastItem.setStyle('padding-top', 1);
         }
 
-        var item = pTarget.retrieve('item');
+        var item = pTarget.objectEntry;
 
 
         pTarget.setStyle('padding-bottom', 1);
@@ -1031,7 +1041,7 @@ ka.ObjectTree = new Class({
 
         var canMoveAround = true;
         if (pTarget.parent) {
-            var parentObject = pTarget.parent.retrieve('item');
+            var parentObject = pTarget.parent.objectEntry;
             /*
             if (parentObject.domain) {
                 if (!ka.checkObjectAccess(parentObject.id, 'addObjects', 'd')) {
@@ -1188,7 +1198,7 @@ ka.ObjectTree = new Class({
 
     getSelected: function () {
         var selected = this.container.getElement('.ka-objectTree-item-selected');
-        return selected?selected.retrieve('item'):false;
+        return selected?selected.objectEntry:false;
     },
 
     getItem: function(pId){
@@ -1214,7 +1224,7 @@ ka.ObjectTree = new Class({
             this.items[ '_'+pId ].addClass('ka-objectTree-item-selected');
 
             this.lastSelectedItem = this.items[ '_'+pId ];
-            this.lastSelectedObject = this.items[ '_'+pId ].retrieve('item');
+            this.lastSelectedObject = this.items[ '_'+pId ].objectEntry;
 
             //open parents too
             var parent = this.items[ '_'+pId ];
@@ -1277,7 +1287,7 @@ ka.ObjectTree = new Class({
 
     createContextItems: function(pA){
 
-        var pObject = pA.retrieve('item');
+        var pObject = pA.objectEntry;
 
         var objectCopy = {
             objectKey: this.objectKey,
@@ -1328,7 +1338,7 @@ ka.ObjectTree = new Class({
          }
 
          if (pA.parent) {
-            var parentPage = pA.parent.retrieve('item');
+            var parentPage = pA.parent.objectEntry;
             if (parentPage.domain) {
                 if (!ka.checkPageAccess(parentPage.id, 'addPages', 'd')) {
                     canPasteAround = false;

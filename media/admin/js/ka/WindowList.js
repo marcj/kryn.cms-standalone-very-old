@@ -1,13 +1,19 @@
 ka.WindowList = new Class({
-    Implements: Events,
+    Implements: [Events, Options],
 
     Binds: ['nestedItemSelected'],
+
+    options: {
+
+        nestedRootAddLabel: null
+
+    },
 
     loadAlreadyTriggeredBySearch: false,
 
     initialize: function (pWindow, pOptions, pContainer) {
 
-        this.options = pOptions || {};
+        this.options = this.setOptions(pOptions);
         this.win = pWindow;
 
         if (pContainer)
@@ -251,7 +257,6 @@ ka.WindowList = new Class({
     },
 
     renderLayoutNested: function(pContainer){
-        //todo
 
         var objectOptions = {};
 
@@ -268,7 +273,124 @@ ka.WindowList = new Class({
         this.nestedField.inject(pContainer, 'top');
 
         if (this.classProperties.edit){
-            this.nestedField.getFieldObject().addEvent('select', this.nestedItemSelected);
+            this.nestedField.addEvent('select', this.nestedItemSelected);
+        }
+
+    },
+
+    addNestedRoot: function(){
+
+        if (this.classProperties.nestedRootAddWithPositionSelection){
+            //show dialog with
+
+            this.addNestedRootDialog = this.win.newDialog('', true);
+
+            this.addNestedRootDialog.setStyles({
+                width: '80%',
+                height: '80%'
+            });
+
+            var dialogLayout = new ka.LayoutVertical(this.addNestedRootDialog.getContentContainer(), {
+                rows: [50, null],
+                gridLayout: true
+            });
+
+            new Element('h2', {
+                html: this.options.nestedRootAddLabel || this.classProperties.nestedRootAddLabel,
+                style: 'padding: 0px 5px'
+            }).inject(dialogLayout.getContentRow(1));
+
+
+            new ka.Button(t('Cancel')).inject(this.addNestedRootDialog.getBottomContainer());
+            var addBtn = new ka.Button(t('Add')).inject(this.addNestedRootDialog.getBottomContainer());
+
+            addBtn.setButtonStyle('blue');
+            addBtn.setEnabled(false);
+
+            var objectOptions = {};
+
+            objectOptions.type = 'tree';
+            objectOptions.object = this.classProperties.object;
+            objectOptions.scopeChooser = false;
+            objectOptions.noWrapper = true;
+            objectOptions.selectable = false;
+            objectOptions.moveable = this.classProperties.nestedMoveable;
+
+            var lastSelected;
+
+            var choosePosition = function(pChooser, pDom, pDirection, pItem){
+
+                if (lastSelected)
+                    lastSelected.removeClass('ka-objectTree-positionChooser-item-active');
+
+                lastSelected = pChooser;
+                lastSelected.addClass('ka-objectTree-positionChooser-item-active');
+
+                addBtn.setEnabled(true);
+
+            }
+
+            var addChooser = function(pDom, pDirection, pItem){
+                var div = new Element('div', {
+                    'class': 'ka-objectTree-positionChooser-item',
+                    styles: {
+                        paddingLeft: pDom.getStyle('padding-left').toInt()+18
+                    }
+                }).inject(pDom, pDirection);
+
+                var a = new Element('a',{
+                    html: '<------ &nbsp;&nbsp;',
+                    href: 'javascript:;',
+                    style: 'text-decoration: none;'
+                })
+                .addEvent('click', function(){
+                    choosePosition(this, pDom, pDirection, pItem);
+                })
+                .inject(div);
+
+                new Element('span', {
+                    'class': 'ka-objectTree-positionChooser-item-text',
+                    text: t('Add here!')
+                }).inject(a);
+
+                return div;
+            }
+
+            objectOptions.onChildrenLoaded = function(pItem, pDom){
+
+                if (pDom.childrenContainer){
+                    var children = pDom.childrenContainer.getChildren('.ka-objectTree-item');
+                    if (children.length > 0){
+                        var lastItem;
+                        pDom.childrenContainer.getChildren('.ka-objectTree-item').each(function(item){
+                            addChooser(item, 'before', item.objectEntry);
+                            lastItem = item;
+                        });
+                        addChooser(lastItem, 'after', lastItem.objectEntry);
+                    } else if (pDom.isRoot){
+
+                        addChooser(pDom, 'intro', pDom.objectEntry);
+                    }
+                }
+
+                this.addNestedRootDialog.center();
+
+            }.bind(this);
+
+            if (this.languageSelect)
+                objectOptions.scopeLanguage = this.languageSelect.getValue();
+
+            dialogLayout.getContentRow(2).setStyle('position', 'relative');
+            var treeContainer = new Element('div', {
+                style: 'position: absolute; left: 0; right: 0; top: 0; bottom: 0; overflow: auto;'
+            }).inject(dialogLayout.getContentRow(2));
+
+            this.addNestedRootField = new ka.Field(objectOptions, treeContainer);
+
+            this.addNestedRootDialog.center();
+
+        } else {
+            //just open the form
         }
 
     },
@@ -540,17 +662,18 @@ ka.WindowList = new Class({
             }).inject(this.navi);
 
 
-        this.renderTopActionBar();
+        this.renderTopActionBar(this.headerLayout.getColumn(1));
     },
 
-    renderTopActionBar: function(){
+    renderTopActionBar: function(pGroupContainer){
 
         if (this.classProperties.multiLanguage || this.classProperties.add || this.classProperties.remove || this.classProperties.custom) {
             this.win.extendHead();
         }
 
-        if (this.classProperties.add || this.classProperties.remove || this.classProperties.custom) {
-            this.actionsNavi = new ka.ButtonGroup(this.headerLayout.getColumn(1));
+        if (this.classProperties.add || this.classProperties.remove || this.classProperties.custom ||
+            (this.classProperties.asNested && (this.classProperties.nestedRootAdd))) {
+            this.actionsNavi = new ka.ButtonGroup(pGroupContainer);
         }
 
         if (this.actionsNavi) {
@@ -559,6 +682,14 @@ ka.WindowList = new Class({
                     this.removeSelected();
                 }.bind(this));
             }
+
+            if (this.classProperties.asNested && (this.classProperties.nestedRootAdd)){
+
+                this.actionsNavi.addButton(this.options.nestedRootAddLabel || this.classProperties.nestedRootAddLabel, ka.mediaPath(this.classProperties.nestedRootAddIcon), function () {
+                    this.addNestedRoot();
+                }.bind(this));
+            }
+
 
             if (this.classProperties.add) {
 
@@ -572,38 +703,8 @@ ka.WindowList = new Class({
             }
         }
 
-
-        //custom window / function field
-        //TODO, replace this with a more elegant solution.
-        try {
-            if (this.classProperties.custom) {
-                iconCustom = PATH_MEDIA+'admin/images/icons/brick_go.png';
-                if (this.classProperties.iconCustom) {
-                    iconCustom = this.classProperties.iconCustom;
-                }
-
-                /*
-                winModule = _this.win.module;
-                if (this.classProperties.custom.module) {
-                    winModule = this.classProperties.custom.module;
-                }
-
-
-                customWinCode = _this.win.code + '/custom';
-                if (this.classProperties.custom.code) {
-                    customWinCode = this.classProperties.custom.code;
-                }
-                */
-
-                this.actionsNavi.addButton(this.classProperties.custom.name, ka.mediaPath(iconCustom), function () {
-                    ka.wm.openWindow(winModule + '/' + customWinCode, null, null, {
-                        language: (_this.languageSelect) ? _this.languageSelect.getValue() : false
-                    });
-
-                });
-            }
-        } catch (e) {
-        }
+        /*
+        TODO
 
         if (this.classProperties['export'] || this.classProperties['import']) {
             this.exportNavi = this.win.addButtonGroup();
@@ -614,10 +715,10 @@ ka.WindowList = new Class({
                 this.exportType = new Element('select', {
                     style: 'position: relative; top: -2px;'
                 })
-                $H(this.classProperties['export']).each(function (fields, type) {
+                bject.each(this.classProperties['export'], function (fields, type) {
                     new Element('option', {
                         value: type,
-                        html: _(type)
+                        html: t(type)
                     }).inject(this.exportType);
                 }.bind(this));
                 _
@@ -628,7 +729,9 @@ ka.WindowList = new Class({
             if (this.classProperties['import']) {
                 this.exportNavi.addButton(_('Import'), _path + PATH_MEDIA + '/admin/images/icons/table_row_insert.png');
             }
-        }
+
+
+        }*/
     },
 
     removeSelected: function () {

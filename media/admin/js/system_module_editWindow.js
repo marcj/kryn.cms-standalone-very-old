@@ -506,7 +506,7 @@ var admin_system_module_editWindow = new Class({
                         label: t('Nested object management'),
                         children: {
 
-                            nestedMove: {
+                            nestedMoveable: {
 
                                 label: t('Moveable'),
                                 desc: t('Defines whether the items in the object tree are moveable or not.'),
@@ -551,6 +551,17 @@ var admin_system_module_editWindow = new Class({
                                                 combobox: true,
                                                 withoutObjectWrapper: 1
                                             },
+
+                                            nestedRootAddLabel: {
+
+                                                label: t('Add root label text'),
+                                                desc: t('For add button and position choose dialog.'),
+                                                'default': 'Add root',
+                                                type: 'text',
+                                                needValue: 1
+
+                                            },
+
                                             nestedRootAddEntrypoint: {
                                                 label: t('Entry point'),
                                                 type: 'text',

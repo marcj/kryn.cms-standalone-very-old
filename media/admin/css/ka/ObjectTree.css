@@ -39,8 +39,8 @@
     line-height: 20px;
     height: 19px;
     padding: 1px;
-    cursor: pointer;
     color: #444;
+    cursor: default;
     white-space: nowrap;
 }
 
@@ -54,7 +54,7 @@
 
 .ka-objectTree-item-hover,
 .ka-objectTree-item-hover:link,
-.ka-objectTree-item:hover {
+.ka-objectTree-item-selectable:hover {
     background-color: #e5e5e5;
     color: #444;
 }
@@ -181,36 +181,27 @@
     padding-left: 20px;
 }
 
-.ka-objectTree-context-move {
-    position: absolute;
-    width: 120px;
-    background-color: white;
-    border: 1px solid silver;
-    border-bottom: 0px;
+
+.ka-objectTree-positionChooser-item a,
+.ka-objectTree-positionChooser-item a:link {
+    color: silver;
 }
 
-.ka-objectTree-context-move a.into {
-    background-image: url(../images/icons/arrow_right.png);
+.ka-objectTree-positionChooser-item a:hover {
+    color: #333;
 }
 
-.ka-objectTree-context-move a.up {
-    background-image: url(../images/icons/arrow_turn_up.png);
+a.ka-objectTree-positionChooser-item-active,
+a.ka-objectTree-positionChooser-item-active:link {
+    color: black;
 }
 
-.ka-objectTree-context-move a.down {
-    background-image: url(../images/icons/arrow_turn_bottom.png);
+.ka-objectTree-positionChooser-item .ka-objectTree-positionChooser-item-text {
+    display: none;
 }
 
-.ka-objectTree-context-move a,
-.ka-objectTree-context-move a:link {
-    background-repeat: no-repeat;
-    border-bottom: 1px solid silver;
-    display: block;
-    padding: 2px 5px 2px 25px;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-.ka-objectTree-context-move a:hover {
-    background-color: #f7f7f7;
+.ka-objectTree-positionChooser-item a:hover .ka-objectTree-positionChooser-item-text,
+a.ka-objectTree-positionChooser-item-active .ka-objectTree-positionChooser-item-text,
+a.ka-objectTree-positionChooser-item-active:link .ka-objectTree-positionChooser-item-text {
+    display: inline;
 }

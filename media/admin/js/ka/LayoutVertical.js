@@ -79,7 +79,9 @@ ka.LayoutVertical = new Class({
             }
             this.table.setStyles({
                 width: '100%',
-                height: this.options.fixed ? '100%' : null
+                height: this.options.fixed ? '100%' : null,
+                overflow: 'hidden',
+                whiteSpace: 'nowrap'
             });
 
             this.container = (this.container.get('tag') == 'tbody') ? pContainer : new Element('tbody').inject(this.table);
@@ -122,7 +124,22 @@ ka.LayoutVertical = new Class({
     },
 
     getRow: function(pId){
-        this.rows[pId-1];
+        return this.rows[pId-1];
+    },
+
+    /**
+     * Makes sure that you get a DIV or TD. If the row is a 'tr' in a table, then we'll create a TD.
+     * @param pId
+     */
+    getContentRow: function(pId){
+        if (this.rows[pId-1].get('tag') == 'tr'){
+            var children = this.rows[pId-1].getChildren();
+            if (children.length > 0)
+                return children[0];
+            else return new Element('td', {valign: 'top'}).inject(this.rows[pId-1]);
+        } else {
+            return this.rows[pId-1];
+        }
     },
 
     getHorizontal: function(pId){

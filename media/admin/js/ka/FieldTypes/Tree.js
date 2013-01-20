@@ -1,5 +1,5 @@
 ka.FieldTypes.Tree = new Class({
-    
+
     Extends: ka.FieldAbstract,
 
     Binds: ['selected'],
@@ -188,8 +188,6 @@ ka.FieldTypes.Tree = new Class({
             this.options.moveable = typeOf(this.definition.treeMoveable) !== 'null' ? this.definition.treeMoveable : true;
 
 
-        logger(this.options);
-
         var tree= new clazz(this.treesContainer, this.options.object, this.options);
         tree.addEvent('change', this.fieldInstance.fireChange);
         tree.addEvent('select', this.selected);
@@ -199,10 +197,10 @@ ka.FieldTypes.Tree = new Class({
             this.fieldInstance[method] = tree[method];
         }.bind(this));
 
-        var proxyEvents = ['ready', 'childrenLoaded'];
+        var proxyEvents = ['ready', 'childrenLoaded', 'select'];
         proxyEvents.each(function(event){
-            tree.addEvent(event, function(p){
-                this.fieldInstance.fireEvent(event, p);
+            tree.addEvent(event, function(){
+                this.fieldInstance.fireEvent(event, Array.from(arguments));
             }.bind(this));
 
         }.bind(this));

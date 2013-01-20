@@ -51,7 +51,11 @@ class NodeCrud extends \Admin\ObjectWindow {
 
     public $nestedRootFieldFields = '';
 
-    public $nestedRootAdd = false;
+    public $nestedRootAddIcon = '#icon-plus-2';
+
+    public $nestedRootAddEntrypoint = 'root/';
+
+    public $nestedRootAdd = true;
 
     public $nestedRootEdit = false;
 
