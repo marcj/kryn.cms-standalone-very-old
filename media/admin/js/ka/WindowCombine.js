@@ -612,7 +612,7 @@ ka.WindowCombine = new Class({
     renderHeader: function(){
 
         this.headerLayout = new ka.LayoutHorizontal(this.win.getTitleGroupContainer(), {
-            columns: [260, null, 250],
+            columns: [260, null],
             fixed: false
         });
 

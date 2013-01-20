@@ -14,7 +14,7 @@
             "default": "0"
         }
     },
-    "admin": {
+    "entryPoints": {
         "news": {
             "title": "[[Articles]]",
             "class": "Publication\\Admin\\NewsCrud",

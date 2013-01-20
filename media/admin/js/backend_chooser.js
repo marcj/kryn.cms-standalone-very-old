@@ -73,22 +73,20 @@ var admin_backend_chooser = new Class({
         var needLanguageSelection = false;
 
 
-        Object.each(ka.settings.configs, function(config, extKey){
+        if (this.options.objects){
+            Array.each(this.options.objects, function(objectKey){
 
-            if (config.objects){
-                Object.each(config.objects, function(object, objectKey){
+                var object = ka.getObjectDefinition(objectKey);
 
-                    if (this.options.objects && !this.options.objects.contains(objectKey)) return;
+                this.createObjectChooser(objectKey);
 
-                    this.createObjectChooser(objectKey);
-                    if (object.multiLanguage)
-                        needLanguageSelection = true;
-                    if (object.domainDepended)
-                        needDomainSelection = true;
-                }.bind(this));
-            }
+                if (object.multiLanguage)
+                    needLanguageSelection = true;
+                if (object.domainDepended)
+                    needDomainSelection = true;
 
-        }.bind(this));
+            }.bind(this));
+        }
 
 
         var domainRight = 1;
@@ -169,7 +167,7 @@ var admin_backend_chooser = new Class({
 
         var objectDefinition = ka.getObjectDefinition(pObjectKey);
 
-        var bundle = this.tapPane.addPane(objectDefinition.label, objectDefinition.icon);
+        var bundle = this.tapPane.addPane(objectDefinition.label || objectDefinition._key, objectDefinition.icon);
         this.pane2ObjectId[bundle.id] = pObjectKey;
 
         var objectOptions = this.options.browserOptions[pObjectKey];
@@ -206,6 +204,7 @@ var admin_backend_chooser = new Class({
             objectOptions.type = 'tree';
             objectOptions.object = pObjectKey;
             objectOptions.scopeChooser = true;
+            objectOptions.noWrapper = true;
 
             this.objectChooserInstance[pObjectKey] = new ka.Field(objectOptions, bundle.pane);
 

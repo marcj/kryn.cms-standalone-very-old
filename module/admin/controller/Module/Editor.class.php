@@ -587,7 +587,7 @@ class Editor {
         Manager::prepareName($pName);
 
         $config = $this->getConfig($pName);
-        $config['admin'] = json_decode($pEntryPoints, true);
+        $config['entryPoints'] = json_decode($pEntryPoints, true);
 
         return $this->setConfig($pName, $config);
     }

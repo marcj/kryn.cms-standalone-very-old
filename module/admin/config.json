@@ -110,7 +110,7 @@
             "sql": "SELECT word, searchcount FROM  %pfx%system_search_stats WHERE found = 0 ORDER BY searchcount DESC, word"
         }
     },
-    "admin": {
+    "entryPoints": {
         "system": {
             "title": "[[System]]",
             "type": "custom",
@@ -194,10 +194,7 @@
                             "title": "[[Publish]]",
                             "type": "custom",
                             "isLink": false,
-                            "multi": true,
-                            "children": [
-                                
-                            ]
+                            "multi": true
                         },
                         "edit": {
                             "title": "[[Edit extension]]",

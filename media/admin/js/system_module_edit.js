@@ -2324,7 +2324,7 @@ var admin_system_module_edit = new Class({
                             'fieldFields': {
                                 type: 'text',
                                 label: t('Select fields (optional)'),
-                                desc: t('Define here other fields than in the default selection. (e.g. if you need more fields in your chooser label template.)')
+                                desc: t('Define here other fields than in the default selection. (e.g. if you need more fields in your template above.)')
                             }
                         }
                     },
@@ -2375,17 +2375,17 @@ var admin_system_module_edit = new Class({
 
                             'treeLabel': {
                                 type: 'text',
-                                label: t('Label field (optional)'),
+                                label: t('Tree label field (optional)'),
                                 desc: t('If you want to show a other label than the default label field.')
                             },
                             'treeTemplate': {
                                 type: 'codemirror',
-                                label: t('Label template (optional)'),
+                                label: t('Tree label template (optional)'),
                                 desc: t('If you want to show a other template than the default label template.')
                             },
                             'treeFields': {
                                 type: 'text',
-                                label: t('Select fields (optional)'),
+                                label: t('Tree select fields (optional)'),
                                 desc: t('Define here other fields than in the default selection. (e.g. if you need more fields in your chooser label template.)')
                             },
 
@@ -2464,6 +2464,28 @@ var admin_system_module_edit = new Class({
                                         }
                                     }
                                 }
+                            },
+
+                            'treeRootFieldLabel': {
+                                type: 'text',
+                                needValue: 1,
+                                againstField: 'nestedRootAsObject',
+                                label: t('Tree root label field (optional)'),
+                                desc: t('If you want to show a other label than the default label field and other than default tree label field of the root object.')
+                            },
+                            'treeRootFieldTemplate': {
+                                type: 'codemirror',
+                                needValue: 1,
+                                againstField: 'nestedRootAsObject',
+                                label: t('Tree root abel template (optional)'),
+                                desc: t('If you want to show a other template than the default label field and other than default tree template of the root object')
+                            },
+                            'treeRootFieldFields': {
+                                type: 'text',
+                                needValue: 1,
+                                againstField: 'nestedRootAsObject',
+                                label: t('Tree root select fields (optional)'),
+                                desc: t('Define here other fields than in the default selection. (e.g. if you need more fields in your template above.)')
                             }
                         }
                     },

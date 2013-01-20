@@ -192,7 +192,7 @@ ka.ObjectTable = new Class({
 
     getCount: function(pPage){
 
-        this.lr = new Request.JSON({url: _path+'admin/object-count/'+this.objectKey, noCache: 1, onComplete: function(pRes){
+        this.lr = new Request.JSON({url: _path+'admin/object-count/'+ka.urlEncode(this.objectKey), noCache: 1, onComplete: function(pRes){
 
             this.itemsCount = pRes.data;
             this._loadPage(pPage);
@@ -223,7 +223,7 @@ ka.ObjectTable = new Class({
             fields: fields.join(',')
         }
 
-        this.lr = new Request.JSON({url: _path+'admin/backend/browser-object/'+this.objectKey, noCache: 1, onComplete: function(pRes){
+        this.lr = new Request.JSON({url: _path+'admin/browser-object/'+ka.urlEncode(this.objectKey), noCache: 1, onComplete: function(pRes){
 
             this.renderResult(pRes.data);
             this.renderActions(pPage, Math.ceil(this.itemsCount/this.options.itemsPerPage), this.itemsCount);

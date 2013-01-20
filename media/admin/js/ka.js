@@ -190,7 +190,7 @@ window.ka.entrypoint = {
 
         var path = [], config, notFound = false;
 
-        if (ka.settings.configs.admin.admin[extension]){
+        if (ka.settings.configs.admin.entryPoints[extension]){
             config = ka.settings.configs.admin;
             splitted.unshift(extension);
         } else
@@ -199,7 +199,7 @@ window.ka.entrypoint = {
             throw 'Config not found for module '+extension;
         }
 
-        tempEntry = config.admin[splitted.shift()];
+        tempEntry = config.entryPoints[splitted.shift()];
         path.push(tempEntry['title']);
 
         while(item = splitted.shift()){
@@ -595,16 +595,22 @@ ka.getObjectLabelQTimer = {};
  * @param {String} pObjectKey
  * @param {Object} pItem
  * @param {String} pMode 'default', 'field' or 'tree'. Default is 'default'
+ * @param {Object} pDefinition overwrite definitions stored in the pObjectKey
  * @return {String}
  */
-ka.getObjectLabelByItem = function(pObjectKey, pItem, pMode){
+ka.getObjectLabelByItem = function(pObjectKey, pItem, pMode, pDefinition){
 
     var definition = ka.getObjectDefinition(pObjectKey);
-    if (!definition) throw 'Object not found '+pObjectKey;
+    if (!definition) throw 'Definition not found '+pObjectKey;
 
-    var template = definition.labelTemplate;
-    var label = definition.labelField;
+    var template = (pDefinition && pDefinition.labelTemplate) ? pDefinition.labelTemplate : definition.labelTemplate;
+    var label = (pDefinition && pDefinition.labelField) ? pDefinition.labelField : definition.labelField;
 
+    if (pDefinition){
+        ['fieldTemplate', 'fieldLabel', 'treeTemplate', 'treeLabel'].each(function(map){
+            if (typeOf(pDefinition[map]) !== 'null') definition[map] = pDefinition[map];
+        });
+    }
 
     /* field ui */
     if (pMode == 'field' && definition.fieldTemplate)
@@ -1114,12 +1120,15 @@ ka.getPrimaryListForObject = function(pObjectKey){
 
 ka.getObjectDefinition = function(pObjectKey){
 
+    if (typeOf(pObjectKey) != 'string') throw 'pObjectKey is not a string: '+pObjectKey;
     var module = (""+pObjectKey.split('\\')[0]).toLowerCase();
     var name = pObjectKey.split('\\')[1];
 
     if (ka.settings.configs[module] && ka.settings.configs[module]['objects'][name]){
-        return ka.settings.configs[module]['objects'][name];
-    } else throw 'Object not found '+pObjectKey;
+        var config = ka.settings.configs[module]['objects'][name];
+        config._key = pObjectKey;
+        return config;
+    }
 
 }
 

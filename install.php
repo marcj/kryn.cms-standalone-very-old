@@ -1225,11 +1225,11 @@ function step3(){
         <td><input required type="text" class="ka-Input" name="db" id="db_name" /></td>
     </tr>
     <tr>
-        <td>Table Prefix *
+        <td>Table Prefix
             <div style="color: #aaa">
                 Please use only a lowercase string.
             </div></td>
-        <td><input required style="width: 80px" type="text" class="ka-Input" name="prefix" id="db_prefix" value="kryn_" /></td>
+        <td><input style="width: 80px" type="text" class="ka-Input" name="prefix" id="db_prefix" value="kryn_" /></td>
     </tr>
     <tr>
         <td>Protect tables

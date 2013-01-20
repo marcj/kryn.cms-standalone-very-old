@@ -295,21 +295,21 @@ class Backend {
 
         foreach (Kryn::$configs as $extCode => $config) {
 
-            if ($config['admin']) {
-                foreach ($config['admin'] as $key => $value) {
+            if ($config['entryPoints']) {
+                foreach ($config['entryPoints'] as $key => $value) {
 
-                    if ($value['childs']) {
+                    if ($value['children']) {
 
                         $childs = $this->getChildMenus("$extCode/$key", $value);
 
                         if (count($childs) == 0) {
                             //todo, check against Permission::
                             //if (Kryn::checkUrlAccess("$extCode/$key")) {
-                                unset($value['childs']);
+                                unset($value['children']);
                                 $links[$extCode][$key] = $value;
                             //}
                         } else {
-                            $value['childs'] = $childs;
+                            $value['children'] = $childs;
                             $links[$extCode][$key] = $value;
                         }
 
@@ -337,27 +337,27 @@ class Backend {
     public function getChildMenus($pCode, $pValue) {
 
         $links = array();
-        foreach ($pValue['childs'] as $key => $value) {
+        foreach ($pValue['children'] as $key => $value) {
 
-            if ($value['childs']) {
+            if ($value['children']) {
 
                 $childs = $this->getChildMenus($pCode . "/$key", $value);
                 if (count($childs) == 0) {
-                    if (Kryn::checkUrlAccess($pCode . "/$key")) {
-                        unset($value['childs']);
+                    //if (Kryn::checkUrlAccess($pCode . "/$key")) {
+                        unset($value['children']);
                         $links[$key] = $value;
-                    }
+                    //}
                 } else {
-                    $value['childs'] = $childs;
+                    $value['children'] = $childs;
                     $links[$key] = $value;
                 }
 
             } else {
-                if (Kryn::checkUrlAccess($pCode . "/$key")) {
+                //if (Kryn::checkUrlAccess($pCode . "/$key")) {
                     $links[$key] = $value;
-                }
+                //}
             }
-            if ((!$links[$key]['type'] && !$links[$key]['childs']) || $links[$key]['isLink'] === false) {
+            if ((!$links[$key]['type'] && !$links[$key]['children']) || $links[$key]['isLink'] === false) {
                 unset($links[$key][$key]);
             }
 

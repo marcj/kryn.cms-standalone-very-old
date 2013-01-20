@@ -347,6 +347,7 @@ class Object {
 
         $obj = self::getClass($pObjectKey);
         $primaryKey = $obj->normalizePrimaryKey($pPk);
+        $pks = $obj->getPrimaryKeys();
 
         if (!$pOptions['fields']){
             if ($obj->definition['defaultSelection'])
@@ -365,7 +366,7 @@ class Object {
 
             foreach ($extraFields as $field){
                 if ($obj->definition['fields'][$field]){
-                    if (array_search($field, $pOptions['fields']) === false){
+                    if (array_search($field, $pOptions['fields']) === false && array_search($field, $pks) === false){
                         $pOptions['fields'][] = $field;
                         $deleteFieldValues[] = $field;
                     }
@@ -374,6 +375,7 @@ class Object {
         }
 
         $item = $obj->getItem($primaryKey, $pOptions);
+
         if (!$item) return null;
 
         if ($pOptions['permissionCheck'] && $aclCondition = Permission::getListingCondition($pObjectKey)){

@@ -191,11 +191,15 @@ ka.Parse = new Class({
             if( field.type == 'tab'){
                 var tab;
 
-                if (!pDependField && !this.firstLevelTabBar){
-                    if (this.options.tabsInWindowHeader){
-                        this.firstLevelTabBar = new ka.TabPane(target, true, this.refs.win);
+                if (!pDependField && !this.firstLevelTabPane){
+                    if (this.options.firstLevelTabPane){
+                        this.firstLevelTabPane = this.options.firstLevelTabPane;
                     } else {
-                        this.firstLevelTabBar = new ka.TabPane(target, field.tabFullPage?true:false);
+                        if (this.options.tabsInWindowHeader){
+                            this.firstLevelTabPane = new ka.TabPane(target, true, this.refs.win);
+                        } else {
+                            this.firstLevelTabPane = new ka.TabPane(target, field.tabFullPage?true:false);
+                        }
                     }
                 } else if(pDependField){
                     //this tabPane is not on first level
@@ -206,7 +210,7 @@ ka.Parse = new Class({
                 if (pDependField){
                     pDependField.tabPane.addPane(field.label, field.icon);
                 } else {
-                    tab = this.firstLevelTabBar.addPane(field.label, field.icon);
+                    tab = this.firstLevelTabPane.addPane(field.label, field.icon);
                 }
 
                 if (field.layout){
@@ -318,6 +322,19 @@ ka.Parse = new Class({
             pField.show();
         else
             pField.hide();
+    },
+
+    setVisibility: function(pTarget, pVisible){
+
+        var field = pTarget;
+        if (typeOf(pTarget) == 'string')
+            field = this.getField(pTarget);
+
+        if (pVisible)
+            field.show();
+        else
+            field.hide();
+
     },
 
     /**
@@ -488,7 +505,7 @@ ka.Parse = new Class({
     /**
      * Returns the value of a field.
      *
-     * @param {String} pField
+     * @param {String} [pField]
      * @return {Mixed}
      */
     getValue: function (pField) {
@@ -496,9 +513,13 @@ ka.Parse = new Class({
         var val;
 
         var res = {};
-        if (pField && this.fields[pField]) {
 
-            res = this.fields[pField].getValue();
+        if (pField) {
+
+            if (this.fields[pField])
+                res = this.fields[pField].getValue();
+            else
+                return null;
 
         } else {
             Object.each(this.fields, function (obj, id) {

@@ -45,7 +45,10 @@ var admin_system_module_editWindow = new Class({
             },
             object: {
                 needValue: 'object',
-                label: t('Object key')
+                label: t('Object key'),
+                onChange: function(){
+                   this.objectKeyChanged();
+                }.bind(this)
             },
             preview: {
                 label: t('Preview possibility'),
@@ -404,9 +407,10 @@ var admin_system_module_editWindow = new Class({
                             },
                             addEntrypoint: {
                                 label: t('Entry point'),
+                                desc: t('You can define here another entry point, so that this action goes through another controller class.'),
                                 type: 'text',
                                 needValue: 1,
-                                desc: t('Default is &lt;current&gt;/add')
+                                desc: t('Default is &lt;current&gt;. Relative values are possible.')
                             }
                         }
 
@@ -425,11 +429,13 @@ var admin_system_module_editWindow = new Class({
                                 combobox: true,
                                 withoutObjectWrapper: 1
                             },
+
                             editEntrypoint: {
                                 label: t('Entry point'),
                                 type: 'text',
+                                desc: t('You can define here another entry point, so that this action goes through another controller class.'),
                                 needValue: 1,
-                                desc: t('Default is &lt;current&gt;/edit')
+                                desc: t('Default is &lt;current&gt;. Relative values are possible.')
                             }
                         }
 
@@ -448,6 +454,13 @@ var admin_system_module_editWindow = new Class({
                                 needValue: 1,
                                 combobox: true,
                                 withoutObjectWrapper: 1
+                            },
+                            removeEntrypoint: {
+                                label: t('Entry point'),
+                                type: 'text',
+                                desc: t('You can define here another entry point, so that this action goes through another controller class.'),
+                                needValue: 1,
+                                desc: t('Default is &lt;current&gt;. Relative values are possible.')
                             }
 
                         }
@@ -455,7 +468,7 @@ var admin_system_module_editWindow = new Class({
                     },
 
                     itemActions: {
-                        label: t('Item actions'),
+                        label: t('Custom item actions'),
                         desc: t('This generates on each record a extra icon which opens the defined entry point.'),
                         type: 'array',
                         withOrder: true,
@@ -483,6 +496,108 @@ var admin_system_module_editWindow = new Class({
                                     onlyLocal: 1,
                                     returnPath: 1
                                 }
+                            }
+                        }
+                    },
+
+                    __nestedManagement__: {
+
+                        type: 'childrenSwitcher',
+                        label: t('Nested object management'),
+                        children: {
+
+                            nestedMove: {
+
+                                label: t('Moveable'),
+                                desc: t('Defines whether the items in the object tree are moveable or not.'),
+                                type: 'checkbox',
+                                'default': true
+
+                            },
+
+                            __nestedRootManaged__: {
+
+                                type: 'childrenSwitcher',
+                                label: t('Root entry management'),
+
+                                children: {
+
+                                    'nestedRootFieldLabel': {
+                                        type: 'text',
+                                        label: t('Label field (optional)'),
+                                        desc: t('Priority: default label > tree label > this label > window class tree root label')
+                                    },
+                                    'nestedRootFieldTemplate': {
+                                        type: 'codemirror',
+                                        label: t('Label template (optional)'),
+                                        desc: t('Priority: default template > tree template > this template > window class tree root template')
+                                    },
+                                    'nestedRootFieldFields': {
+                                        type: 'text',
+                                        label: t('Select fields (optional)'),
+                                        desc: t('Define here other fields than in the default selection. (e.g. if you need more fields in your template above.)')
+                                    },
+
+                                    nestedRootAdd: {
+
+                                        label: t('Addable'),
+                                        type: 'checkbox',
+                                        children: {
+                                            nestedRootAddIcon: {
+                                                label: t('Icon file'),
+                                                desc: t('Vector images with #&lt;id&gt; are possible.'),
+                                                type: 'file',
+                                                needValue: 1,
+                                                combobox: true,
+                                                withoutObjectWrapper: 1
+                                            },
+                                            nestedRootAddEntrypoint: {
+                                                label: t('Entry point'),
+                                                type: 'text',
+                                                desc: t('You can define here another entry point, so that this action goes through another controller class.'),
+                                                needValue: 1,
+                                                desc: t('Default is &lt;current&gt;/root.Relative values are possible.')
+                                            }
+                                        }
+
+                                    },
+
+                                    nestedRootEdit: {
+
+                                        label: t('Editable'),
+                                        type: 'checkbox',
+                                        children: {
+                                            nestedRootEditEntrypoint: {
+                                                label: t('Entry point'),
+                                                type: 'text',
+                                                desc: t('You can define here another entry point, so that this action goes through another controller class.'),
+                                                needValue: 1,
+                                                desc: t('Default is &lt;current&gt;/root. Relative values are possible.')
+                                            }
+                                        }
+
+                                    },
+
+                                    nestedRootRemove: {
+
+                                        label: t('Removeable'),
+                                        type: 'checkbox',
+                                        children: {
+
+                                            nestedRootRemoveEntrypoint: {
+                                                label: t('Entry point'),
+                                                type: 'text',
+                                                desc: t('You can define here another entry point, so that this action goes through another controller class.'),
+                                                needValue: 1,
+                                                desc: t('Default is &lt;current&gt;/root. Relative values are possible.')
+                                            }
+
+                                        }
+
+                                    }
+
+                                }
+
                             }
                         }
                     }
@@ -545,6 +660,20 @@ var admin_system_module_editWindow = new Class({
         this.windowListObj = new ka.Parse(this.windowListTbody, listFields, {allTableItems:1}, {win: this.win});
 
         this.loadInfo();
+    },
+
+    objectKeyChanged: function(){
+
+        var objectKey = this.generalObj.getValue('object');
+        var showNestedStuff = false;
+
+        if (objectKey){
+            var definition = ka.getObjectDefinition(objectKey);
+            if (definition && definition.nested)
+                showNestedStuff = true;
+        }
+
+        this.windowListObj.setVisibility('__nestedManagement__', showNestedStuff);
     },
 
     save: function(){

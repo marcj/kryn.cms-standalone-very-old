@@ -68,7 +68,7 @@ class Controller {
         else {
             foreach ($primaryKeys as $primaryKey){
                 if ($item = \Core\Object::get($pObject, $primaryKey, $options))
-                $items[] = $item;
+                    $items[] = $item;
             }
             return $items;
         }

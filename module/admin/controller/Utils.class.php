@@ -142,52 +142,57 @@ class Utils {
     
     /**
      *
-     * Gets the item from the 'admin' entry points defined in the config.json, by the given code
+     * Gets the item from the administration entry points defined in the config.json, by the given code.
+     *
      *
      * @static
      * @param $pCode <extKey>/news/foo/bar/edit
      * @return array|bool
      */
-    public static function getEntryPoint($pCode) {
+    public static function getEntryPoint($pCode, $pWithChildren = false) {
 
         $codes = explode('/', $pCode);
 
-        if (Kryn::$configs['admin']['admin'][$codes[1]]) {
+        if (Kryn::$configs['admin']['entryPoints'][$codes[0]]) {
             //inside admin extension
-            $adminInfo = Kryn::$configs['admin']['admin'];
-            $start = 1;
+            $entryPoint = Kryn::$configs['admin']['entryPoints'][$codes[0]];
             $module = 'admin';
-            $code = substr($pCode, 6);
-        } else if (Kryn::$configs[$codes[1]]['admin']) {
+
+        } else if (Kryn::$configs[$codes[0]]) {
+
             //inside other extension
-            $adminInfo = Kryn::$configs[$codes[1]]['admin'];
-            $start = 2;
-            $module = $codes[1];
-            $code = substr($pCode, 6 + strlen($codes[1]) + 1);
+            $adminInfo = Kryn::$configs[$codes[0]]['entryPoints'];
+            $module = array_shift($codes);
+            $code = substr($pCode, strlen($codes[0]) + 1);
+
+            $entryPoint = array('type' => -1, 'title' => Kryn::$configs[$module]['title'],
+                                'children' => Kryn::$configs[$module]['entryPoints']);
         }
 
-        $_info = $adminInfo[$codes[$start]];
         $path = array();
-        $path[] = $_info['title'];
+        $path[] = $entryPoint['title'];
 
-        $count = count($codes);
-        for ($i = $start + 1; $i <= $count; $i++) {
-            if ($codes[$i] != "") {
-                $_info = $_info['children'][$codes[$i]];
-                $path[] = $_info['title'];
+        if ($entryPoint && $entryPoint['children']){
+
+            foreach ($codes as $c){
+                if ($entryPoint['children'][$c]){
+                    $entryPoint = $entryPoint['children'][$c];
+                    $path[] = $entryPoint['title'];
+                }
             }
         }
 
         unset($path[count($path) - 1]);
-        unset($_info['children']);
+        if (!$pWithChildren)
+            unset($entryPoint['children']);
 
-        if (!$_info) {
+        if (!$entryPoint) {
             return false;
         }
 
-        $_info['_path'] = $path;
-        $_info['_module'] = $module;
-        $_info['_code'] = $code;
+        $entryPoint['_path'] = $path;
+        $entryPoint['_module'] = $module;
+        $entryPoint['_code'] = $code;
 
         if ($code) {
             $css = PATH . PATH_MEDIA . $module . '/' . (($module != 'admin') ? 'admin/' : '') . 'css/' .
@@ -197,6 +202,6 @@ class Utils {
             }
         }
 
-        return $_info;
+        return $entryPoint;
     }
 }

@@ -61,10 +61,7 @@ class AdminController {
         $this->checkAccess($url);
 
         
-        $entryPoint = Utils::getEntryPoint($url); //admin entry point
-
-        if (!$entryPoint)
-            $entryPoint = Utils::getEntryPoint(substr($url, strlen('admin/'))); //extensions
+        $entryPoint = Utils::getEntryPoint(substr($url, strlen('admin/')));
         
         if ($entryPoint) {
 
@@ -189,12 +186,13 @@ class AdminController {
                     ->addGetRoute('object', 'getItemPerUri')
                     ->addGetRoute('object-version', 'getVersionsPerUri')
 
-
+                    /*
                     ->addGetRoute('field-object/([a-zA-Z-_]+)/([^/]+)', 'getFieldItem')
                     ->addGetRoute('field-object-count/([a-zA-Z-_]+)', 'getFieldItemsCount')
                     ->addGetRoute('field-object/([a-zA-Z-_]+)', 'getFieldItems')
+                    */
 
-                    ->addGetRoute('browser-object/([a-zA-Z-_]+)', 'getBrowserItems')
+                    ->addGetRoute('browser-object/([a-zA-Z-_\.\\\\]+)', 'getBrowserItems')
                 ->done()
 
                 //admin/system

@@ -22,6 +22,14 @@ var test_test = new Class({
             }
         });
 
+
+        new ka.Field({
+            label: t('EntryPoint'),
+            type: 'object',
+            combobox: true,
+            object: 'Core\\EntryPoint'
+        }, this.win.content);
+
         return;
 
         new ka.Select(this.win.content, {

@@ -174,26 +174,37 @@ abstract class ObjectWindow {
 
     /**
      * The system opens this entrypoint when clicking on the add newt_button(left, top, text)n.
-     * Default is <current>/add.
+     * Default is <current>/.
      * 
      * Relative or absolute paths are allowed.
      * Empty means current entrypoint.
       *
      * @var string
      */
-    public $addEntrypoint = 'add';
+    public $addEntrypoint = '';
 
     /**
      * The system opens this entrypoint when clicking on the edit button.
-     * Default is <current>/edit.
+     * Default is <current>/.
      *
      * Relative or absolute paths are allowed.
      * Empty means current entrypoint.
      *
      * @var string
      */
-    public $editEntrypoint = 'edit';
+    public $editEntrypoint = '';
 
+    public $removeEntrypoint = '';
+
+
+    public $nestedRootEdit = false;
+    public $nestedRootAdd = false;
+    public $nestedRootRemove = false;
+
+    public $nestedRootEditEntrypoint = 'root/';
+    public $nestedRootAddEntrypoint = 'root/';
+
+    public $nestedRootRemoveEntrypoint = 'root/';
 
     /**
      * Defines whether the add button should be displayed
@@ -214,6 +225,9 @@ abstract class ObjectWindow {
      * @var boolean
      */
     public $edit = false;
+
+
+    public $nestedMove = true;
 
     /**
      * Defines whether the list windows should display the language select box.

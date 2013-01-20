@@ -45,6 +45,18 @@ class NodeCrud extends \Admin\ObjectWindow {
 
     public $remove = false;
 
+    public $nestedRootFieldLabel = '';
+
+    public $nestedRootFieldTemplate = '{label}';
+
+    public $nestedRootFieldFields = '';
+
+    public $nestedRootAdd = false;
+
+    public $nestedRootEdit = false;
+
+    public $nestedRootRemove = false;
+
     public $export = false;
 
     public $object = 'Core\\Node';

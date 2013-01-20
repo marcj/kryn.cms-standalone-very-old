@@ -170,7 +170,7 @@ ka.FieldTypes.Tree = new Class({
     addTree: function(pScope){
 
         var clazz = ka.ObjectTree;
-        if (this.definition.treeInterface != 'default'){
+        if (this.definition.treeInterface && this.definition.treeInterface != 'default'){
             if (!this.definition.treeInterfaceClass){
                 throw 'TreeInterface class in "treeInterfaceClass" is not defined.'
             } else {
@@ -184,7 +184,6 @@ ka.FieldTypes.Tree = new Class({
         var tree= new clazz(this.treesContainer, this.options.object, this.options);
         tree.addEvent('change', this.fieldInstance.fireChange);
         tree.addEvent('select', this.selected);
-
 
         var proxyMethods = ['deselect', 'getItem', 'select'];
         proxyMethods.each(function(method){

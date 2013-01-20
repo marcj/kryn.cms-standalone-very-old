@@ -46,6 +46,10 @@ ka.WindowEdit = new Class({
             this.load();
     },
 
+    getContentContainer: function(){
+        return this.container;
+    },
+
     destroy: function () {
 
         this.win.removeEvent('close', this.bCheckClose);
@@ -55,6 +59,11 @@ ka.WindowEdit = new Class({
             this.languageTip.stop();
             delete this.languageTip;
         }
+
+        this.headerLayout.getLayout().destroy();
+
+        delete this.headerLayout;
+        delete this.tabPane;
 
         Object.each(this._buttons, function (button, id) {
             button.stopTip();
@@ -229,8 +238,7 @@ ka.WindowEdit = new Class({
             e.stop();
         });
 
-        var target = this.container.getParent('.kwindow-border');
-        this.previewBox.inject(target);
+        this.previewBox.inject(this.headerLayout.getColumn(2));
 
         this.previewBox.setStyle('display', 'none');
 
@@ -391,6 +399,11 @@ ka.WindowEdit = new Class({
 
         this.fields = {};
 
+        this.headerLayout = new ka.LayoutHorizontal(this.win.getTitleGroupContainer(), {
+            columns: [null, 250],
+            fixed: false
+        });
+
         this.renderMultilanguage();
 
         this.renderVersions();
@@ -404,7 +417,6 @@ ka.WindowEdit = new Class({
         this.fireEvent('render');
 
         if (this.winParams){
-            logger(this.winParams);
             this.loadItem();
         }
     },
@@ -421,7 +433,11 @@ ka.WindowEdit = new Class({
                 this.form.set('html', this.classProperties.layout);
             }
 
-            this.parserObject = new ka.Parse(this.form, this.classProperties.fields, {tabsInWindowHeader: 1}, {win: this.win});
+            this.tabPane = new ka.TabPane(this.getContentContainer(), true, {addSmallTabGroup: function(){
+                return new ka.SmallTabGroup(this.headerLayout.getColumn(1));
+            }.bind(this)});
+
+            this.parserObject = new ka.Parse(this.form, this.classProperties.fields, {firstLevelTabPane: this.tabPane}, {win: this.win});
             this.fields = this.parserObject.getFields();
 
             this._buttons = this.parserObject.getTabButtons();
@@ -465,11 +481,8 @@ ka.WindowEdit = new Class({
                 versioningSelectRight = 150;
             }
 
-            this.versioningSelect = new ka.Select(this.win.titleGroups);
+            this.versioningSelect = new ka.Select(this.headerLayout.getColumn(2));
             this.versioningSelect.setStyle('width', 120);
-            this.versioningSelect.setStyle('top', 0);
-            this.versioningSelect.setStyle('right', versioningSelectRight);
-            this.versioningSelect.setStyle('position', 'absolute');
 
             this.versioningSelect.addEvent('change', this.changeVersion.bind(this));
 
@@ -486,11 +499,8 @@ ka.WindowEdit = new Class({
             this.win.extendHead();
 
             this.languageSelect = new ka.Select();
-            this.languageSelect.inject(this.win.titleGroups);
+            this.languageSelect.inject(this.headerLayout.getColumn(2));
             this.languageSelect.setStyle('width', 120);
-            this.languageSelect.setStyle('top', 0);
-            this.languageSelect.setStyle('right', 5);
-            this.languageSelect.setStyle('position', 'absolute');
 
 
             this.languageSelect.addEvent('change', this.changeLanguage.bind(this));
@@ -618,8 +628,8 @@ ka.WindowEdit = new Class({
         if (true) {
 
             this.previewBtn = new ka.Button([t('Preview'), '#icon-eye'])
-                //.addEvent('click', this._save.bind(this))
-                .inject(this.win.titleGroups);
+            //.addEvent('click', this._save.bind(this))
+            .inject(this.headerLayout.getColumn(2));
             document.id(this.previewBtn).setStyle('float', 'right')
 
             //this.previewBtn = this.actionsNavi.addButton(t('Preview'), '#icon-eye-3', this.preview.bind(this));
@@ -629,8 +639,8 @@ ka.WindowEdit = new Class({
 
 
             this.showVersionsBtn = new ka.Button([t('Versions'), '#icon-history'])
-                .addEvent('click', this.showVersions)
-                .inject(this.win.titleGroups);
+            .addEvent('click', this.showVersions)
+            .inject(this.headerLayout.getColumn(2));
             document.id(this.showVersionsBtn).setStyle('float', 'right')
         }
 

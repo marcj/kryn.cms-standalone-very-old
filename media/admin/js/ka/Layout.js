@@ -119,6 +119,10 @@ ka.Layout = new Class({
 
     },
 
+    destroy: function(){
+        this.main.destroy();
+    },
+
     mapConnections: function(){
 
         Array.each(this.options.connections, function(connection){

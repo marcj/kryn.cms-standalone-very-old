@@ -85,20 +85,10 @@ ka.ObjectTree = new Class({
         selectable: true,
 
 
-        labelTemplate: false,
+        labelTemplate: null,
         objectFields: ''
 
     },
-
-
-    labelTemplate:
-        '{if kaSelectImage}'+
-            '{var isVectorIcon = kaSelectImage.substr(0,1) == "#"} '+
-            '{if kaSelectImage && isVectorIcon}<span class="{kaSelectImage.substr(1)}">{/if}'+
-            '{if kaSelectImage && !isVectorIcon}<img src="{kaSelectImage}" />{/if}'+
-            '{/if}'+
-            '{label}'+
-            '{if kaSelectImage && isVectorIcon}</span>{/if}',
 
     loadChildrenRequests: {},
 
@@ -187,9 +177,11 @@ ka.ObjectTree = new Class({
             'class': 'ka-objectTree'
         }).inject(this.container);
 
-        this.topDummy = new Element('div', {
-            'class': 'ka-objectTree-top-dummy'
-        }).inject(this.main);
+        if (this.objectDefinition.nestedRootAsObject){
+            this.topDummy = new Element('div', {
+                'class': 'ka-objectTree-top-dummy'
+            }).inject(this.main);
+        }
 
         this.paneObjectsTable = new Element('table', {
             style: 'width: 100%',
@@ -334,54 +326,18 @@ ka.ObjectTree = new Class({
 
     renderLabel: function(pContainer, pData, pObjectKey){
 
-        var data = pData;
+        if (pObjectKey == this.options.object && this.options.labelTemplate)
+            return mowla.fetch(this.options.labelTemplate, pData);
+        else if (pObjectKey == this.options.object && this.options.labelField)
+            return pData[this.options.labelField];
+        else
+            return pContainer.set('html', ka.getObjectLabelByItem(pObjectKey, pData, 'tree', {labelTemplate: this.options.labelTemplate}));
 
-        if (typeOf(data) == 'string')
-            data = {label: data};
-        else if (typeOf(data) == 'array'){
-            //image
-            data = {label: data[0], kaSelectImage: data[1]};
-        }
-
-        if (typeOf(data.kaSelectImage) !== 'string') data.kaSelectImage = '';
-
-        var template = this.labelTemplate;
-
-        if (typeOf(this.options.labelTemplate) == 'string' && this.options.labelTemplate){
-            template = this.options.labelTemplate;
-        }
-
-        if (template == this.labelTemplate && this.objectFields.length > 0){
-            //we have no custom layout, but objectFields
-            var label = [];
-            Array.each(this.objectFields, function(field){
-                label.push(pData[field]);
-            });
-            data.label = label.join(', ');
-        }
-
-        if (template == this.labelTemplate && !data.label){
-            var definition = ka.getObjectDefinition(pObjectKey);
-            var label = '';
-            Object.each(definition.fields, function(field, key){
-                if (!label && !field.primaryKey && data[key]) label = key;
-            });
-            data.label = data[label];
-        }
-
-        if (typeOf(data) != 'object') data = {label: data};
-
-        if (!data.kaSelectImage) data.kaSelectImage = '';
-
-        pContainer.set('html', mowla.fetch(template, data));
     },
 
     renderRoot: function(pResponse){
 
         var item = pResponse.data;
-
-        var rootDefinition = ka.getObjectDefinition(this.objectDefinition.nestedRootObject);
-        //var primaryKeys = ka.getPrimaryListForObject(this.objectDefinition.nestedRootObject);
 
         var id = ka.getObjectUrlId(this.objectDefinition.nestedRootObject, item);
 
@@ -410,7 +366,15 @@ ka.ObjectTree = new Class({
             'class': 'ka-objectTree-item-title'
         }).inject(a);
 
-        this.renderLabel(a.span, item, this.objectDefinition.nestedRootObject);
+
+
+        var overwriteDefinition = {
+            treeTemplate: this.objectDefinition.treeRootFieldTemplate,
+            treeLabel: this.objectDefinition.treeRootFieldLabel
+        }
+
+        a.span.set('html', ka.getObjectLabelByItem(this.objectDefinition.nestedRootObject, item, 'tree', overwriteDefinition));
+        //this.renderLabel(a.span, item, this.objectDefinition.nestedRootObject, definition);
 
         this.items[ this.objectDefinition.nestedRootObject+'_'+id ] = a;
 
@@ -581,7 +545,6 @@ ka.ObjectTree = new Class({
 
 
         var id = ka.getObjectUrlId(this.options.object, pItem);
-        var label = pItem[this.objectDefinition.nestedLabel];
 
         var a = new Element('div', {
             'class': 'ka-objectTree-item',
@@ -591,7 +554,6 @@ ka.ObjectTree = new Class({
         a.id = id;
         a.parent = pParent;
         a.objectKey = this.objectKey;
-        a.label = label;
 
         var container = pParent;
         if (pParent.childContainer) {
@@ -608,9 +570,11 @@ ka.ObjectTree = new Class({
         a.objectTreeObj = this;
 
         a.span = new Element('span', {
-            'class': 'ka-objectTree-item-title',
-            text: label
+            'class': 'ka-objectTree-item-title'
         }).inject(a);
+
+
+        this.renderLabel(a.span, pItem, this.objectKey);
 
         this.items[ '_'+id ] = a;
 

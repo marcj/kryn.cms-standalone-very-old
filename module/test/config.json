@@ -10,7 +10,7 @@
     "__path": "module\/test",
     "installed": true,
     "extensionCode": "test",
-    "admin": {
+    "entryPoints": {
         "test": {
             "title": "Test",
             "type": "custom",

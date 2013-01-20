@@ -287,6 +287,9 @@ ka.WindowList = new Class({
 
             }
 
+        } else if (this.classProperties.nestedRootEdit){
+            var entryPoint = ka.entrypoint.getRelative(this.win.getEntryPoint(), this.classProperties.nestedRootEditEntrypoint);
+            ka.entrypoint.open(entryPoint);
         }
 
     },
