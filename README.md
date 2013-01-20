@@ -3,7 +3,7 @@ Kryn.cms
 
 A AJAX PHP enterprise open-source Content-Management-System and Content-Management-Framework with full RESTful API.
 
-We're in development.
+We're in development. This means, there are still a _lot_ of issues in this product (not even an Alpha).
 
 More information and screenshots:
 https://www.facebook.com/kryncms
@@ -35,6 +35,21 @@ Features
  - MVC architecture
  - Very secure password storage (salted, double sha512 in 500 rounds, incl. non-db hash key injection)
 
+
+Contribution
+------------
+
+Kryn.cms is a free open-source project for almost everyone. For web agencies, freelancers or hobbyists.
+
+Do you like Kryn.cms? Do you see potential in it? Then we'd love to see you contributing!
+Because the product still in heavy development, we really can need everyone's help to create a awesome product.
+
+No matter if you have just ideas or have feedback, please just drop your thoughts in the issue tracker above.
+Or if you're a developer and want to contribute then please contact me. We really do love to meet any new
+web freak. :-) (marc@kryn.org)
+
+
+Since we're in highly development
 
 PHPUnit
 --------
