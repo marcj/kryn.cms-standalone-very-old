@@ -39,7 +39,8 @@ Features
 Contribution
 ------------
 
-Kryn.cms is a free open-source project for almost everyone. For web agencies, freelancers or hobbyists.
+Kryn.cms is a free open-source project for almost everyone. For web agencies, freelancers or hobbyists and has
+a lot of features, therefore we need guys like you to keep up the quality.
 
 Do you like Kryn.cms? Do you see potential in it? Then we'd love to see you contributing!
 Because the product still in heavy development, we really can need everyone's help to create a awesome product.
