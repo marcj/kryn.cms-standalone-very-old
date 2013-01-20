@@ -2388,6 +2388,11 @@ var admin_system_module_edit = new Class({
                                 label: t('Tree select fields (optional)'),
                                 desc: t('Define here other fields than in the default selection. (e.g. if you need more fields in your chooser label template.)')
                             },
+                            'treeMoveable': {
+                                type: 'checkbox',
+                                'default': true,
+                                label: t('Entrie moveable')
+                            },
 
 
                             treeFixedIcon: {

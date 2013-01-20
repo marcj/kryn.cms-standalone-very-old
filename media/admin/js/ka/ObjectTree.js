@@ -30,7 +30,7 @@ ka.ObjectTree = new Class({
          *
          * @var {Boolean}
          */
-        move: true,
+        moveable: true,
 
         /**
          * Enables the 'add'-icon.
@@ -452,7 +452,7 @@ ka.ObjectTree = new Class({
     onMousedown: function (e) {
 
 
-        if (this.options.move && e.target){
+        if (this.options.moveable && e.target){
 
             var el = e.target;
 
@@ -1103,7 +1103,7 @@ ka.ObjectTree = new Class({
             if (target && source){
                 var code = pos[this.dragNDropPos];
                 var targetId = target.objectKey+'/'+ka.urlEncode(target.id);
-                var sourceId = source.objectKey+'/'+ka.urlEncode(source.id);
+                var sourceId = ka.urlEncode(source.objectKey)+'/'+ka.urlEncode(source.id);
 
                 if (this.rootA == this.dragNDropElement){
                     code = 'into';
@@ -1131,7 +1131,7 @@ ka.ObjectTree = new Class({
             where: pCode
         };
 
-        new Request.JSON({url: _path + 'admin/object-move/'+ka.urlEncode(pSourceId), onComplete: function (res) {
+        new Request.JSON({url: _path + 'admin/object-move/'+pSourceId, onComplete: function (res) {
 
             //target item this.dragNDropElement
 
@@ -1150,7 +1150,7 @@ ka.ObjectTree = new Class({
 
             ka.loadSettings(['r2d']);
 
-        }.bind(this)}).get(req);
+        }.bind(this)}).post(req);
     },
 
     reload: function () {

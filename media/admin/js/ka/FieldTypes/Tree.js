@@ -38,10 +38,11 @@ ka.FieldTypes.Tree = new Class({
 
         /**
          * Enables the drag'n'drop moving.
+         * Default is the `treeMoveable` property at the object.
          *
          * @var {Boolean}
          */
-        move: true,
+        moveable: null,
 
         /**
          * Enables the 'add'-icon.
@@ -170,6 +171,7 @@ ka.FieldTypes.Tree = new Class({
     addTree: function(pScope){
 
         var clazz = ka.ObjectTree;
+
         if (this.definition.treeInterface && this.definition.treeInterface != 'default'){
             if (!this.definition.treeInterfaceClass){
                 throw 'TreeInterface class in "treeInterfaceClass" is not defined.'
@@ -181,6 +183,13 @@ ka.FieldTypes.Tree = new Class({
         }
 
         this.options.scope = pScope;
+
+        if (typeOf(this.options.moveable) === 'null')
+            this.options.moveable = typeOf(this.definition.treeMoveable) !== 'null' ? this.definition.treeMoveable : true;
+
+
+        logger(this.options);
+
         var tree= new clazz(this.treesContainer, this.options.object, this.options);
         tree.addEvent('change', this.fieldInstance.fireChange);
         tree.addEvent('select', this.selected);
