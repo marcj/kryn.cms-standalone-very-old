@@ -50,8 +50,6 @@ Or if you're a developer and want to contribute then please contact me. We reall
 web freak. :-) (marc@kryn.org)
 
 
-Since we're in highly development
-
 PHPUnit
 --------
 
