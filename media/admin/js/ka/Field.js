@@ -28,7 +28,7 @@ ka.Field = new Class({
 
         invisible: false,
 
-        returnDefault: false, //If this field has a default value, the field value won't be returned in the ka.Parse object per default if the value is the default value.
+        returnDefault: false, //If this field has a default value, the field value won't be returned in the ka.FieldForm object per default if the value is the default value.
 
         cookieStorage: false, //stores the value in a cookie, and set it after a second load
 
@@ -90,7 +90,7 @@ ka.Field = new Class({
                     colspan: 2
                 }).inject(this.tr);
 
-                this.tr.inject(pContainer || document.hidden);
+                this.tr.inject(pContainer || document.hiddenElement);
             } else {
 
                 this.main = new Element('div', {'class': 'ka-Field'});
@@ -549,7 +549,7 @@ ka.Field = new Class({
 
     /**
      * Returns true if this item has a visibility-condition parent or
-     * a parent of a structured ka.Parse object, not a DOM parent.
+     * a parent of a structured ka.FieldForm object, not a DOM parent.
      * @return {Boolean} [description]
      */
     hasParent: function(){
@@ -558,7 +558,7 @@ ka.Field = new Class({
 
     /**
      * Returns the visibility-condition parent or the parent of a
-     * structured ka.Parse object, not the DOM parent.
+     * structured ka.FieldForm object, not the DOM parent.
      *
      * @return {ka.Field}
      */

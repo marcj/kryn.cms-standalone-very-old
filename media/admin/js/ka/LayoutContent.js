@@ -225,7 +225,7 @@ ka.LayoutContent = new Class({
 
         };
 
-        this.accessFields = new ka.Parse(dialog, fields);
+        this.accessFields = new ka.FieldForm(dialog, fields);
 
         var groups = this.content.access_from_groups;
         if (typeOf(groups) == 'string') {
@@ -844,7 +844,7 @@ ka.LayoutContent = new Class({
             text: this.content.content
         }).inject(p);
 
-        this.dummy = new Element('div', {style: 'white-space: pre;font-family: "Verdana, sans"; word-wrap: break-word; border: 1px solid silver; background-color: white; line-height: 14px; font-size: 13px; position: absolute; left: 0px; top: 0px;'}).inject(document.hidden);
+        this.dummy = new Element('div', {style: 'white-space: pre;font-family: "Verdana, sans"; word-wrap: break-word; border: 1px solid silver; background-color: white; line-height: 14px; font-size: 13px; position: absolute; left: 0px; top: 0px;'}).inject(document.hiddenElement);
 
         this.dummy.setStyle('width', this.body.getSize().x - 3);
 

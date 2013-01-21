@@ -127,7 +127,7 @@ ka.LayoutSplitter = new Class({
 
         };
 
-        new Drag(this.cell, options);
+        new Drag(this.cell.get('tag') == 'td' ? this.cell : this.cell.getParent('td'), options);
 
 
     }

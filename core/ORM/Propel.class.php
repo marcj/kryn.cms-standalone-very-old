@@ -292,11 +292,24 @@ class Propel extends ORMAbstract {
         }
     }
 
-    public function getStm($pQuery, $pCondition = null){
 
-        //we have a condition, so extract the SQL and append our custom condition object
+    public function getSelectSql($pQuery){
         $params = array();
-        //var_dump('getStm --------------------------------------------------------------------------------------------');
+
+        $peer = $pQuery->getModelPeerName();
+
+        if (!$pQuery->hasSelectClause()) {
+            $peer::addSelectColumns($pQuery);
+        }
+
+        // Set the correct dbName
+        $pQuery->setDbName($peer::DATABASE_NAME);
+
+        $sql = \BasePeer::createSelectSql($pQuery, $params);
+        return array($sql, $params);
+    }
+
+    public function getStm($pQuery, $pCondition = null){
 
         $id = (hexdec(uniqid())/mt_rand())+mt_rand();
 
@@ -306,13 +319,18 @@ class Propel extends ORMAbstract {
 
         $con = \Propel::getConnection($pQuery->getDbName(), \Propel::CONNECTION_READ);
         $db = \Propel::getDB($pQuery->getDbName());
+
         $peer = $pQuery->getModelPeerName();
         $dbMap = \Propel::getDatabaseMap($pQuery->getDbName());
 
         $pQuery->setPrimaryTableName(constant($peer . '::TABLE_NAME'));
-        $peer::setReturnSqlInNextSelect(true);
 
-        list($sql, $params) = $peer::doSelectStmt($pQuery); //triggers all behaviors that attached code to preSelect();
+        //only triggers all behaviors that has attached code to preSelect();
+        \Core\PropelBasePeer::setIgnoreNextDoSelect(true);
+        $peer::doSelectStmt($pQuery);
+
+        //build the sql
+        list($sql, $params) = $this->getSelectSql($pQuery);
 
         if ($pCondition){
             $data = $params;

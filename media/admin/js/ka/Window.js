@@ -1121,7 +1121,7 @@ ka.Window = new Class({
             if (this.mouseOnShadow != true) {
                 this.toFront();
             }
-        }.bind(this)).inject(document.hidden).store('win', this);
+        }.bind(this)).inject(document.hiddenElement).store('win', this);
 
 
         if (ka.settings.user.css3Shadow && ka.settings.user.css3Shadow == 1) {

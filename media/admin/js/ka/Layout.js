@@ -136,6 +136,8 @@ ka.Layout = new Class({
         if (typeOf(pCell1) == 'array') pCell1 = this.getCell(pCell1[0], pCell1[1]);
         if (typeOf(pCell2) == 'array') pCell2 = this.getCell(pCell2[0], pCell2[1]);
 
+        if (pCell2.get('tag') != 'td') pCell2 = pCell2.getParent('td');
+
         pCell1.addEvent('resize', function(){
             pCell2.setStyle('width', pCell1.getStyle('width'));
         }.bind(this));

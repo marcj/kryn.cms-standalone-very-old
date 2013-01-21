@@ -216,6 +216,16 @@ abstract class ObjectWindow {
      */
     public $add = false;
     public $addLabel = '[[Add]]';
+    public $addMultiple = true;
+    public $addMultipleFieldContainerWidth = '50%';
+
+    public $addMultipleFields = array();
+
+    public $addMultipleFixedFields = array();
+
+
+
+
     /**
      * Defines whether the remove/delete button should be displayed
      * Also on each row the Delete-Button and the checkboxes.
@@ -1363,8 +1373,39 @@ abstract class ObjectWindow {
         return $this->removeEntrypoint;
     }
 
+    public function setAddMultiple($addMultiple){
+        $this->addMultiple = $addMultiple;
+    }
 
+    public function getAddMultiple(){
+        return $this->addMultiple;
+    }
 
+    public function setAddMultipleFieldContainerWidth($addMultipleFieldContainerWidth){
+        $this->addMultipleFieldContainerWidth = $addMultipleFieldContainerWidth;
+    }
+
+    public function getAddMultipleFieldContainerWidth(){
+        return $this->addMultipleFieldContainerWidth;
+    }
+
+    public function setAddMultipleFields($addMultipleFields)
+    {
+        $this->addMultipleFields = $addMultipleFields;
+    }
+
+    public function getAddMultipleFields()
+    {
+        return $this->addMultipleFields;
+    }
+
+    public function setAddMultipleFixedFields($addMultipleFixedFields){
+        $this->addMultipleFixedFields = $addMultipleFixedFields;
+    }
+
+    public function getAddMultipleFixedFields(){
+        return $this->addMultipleFixedFields;
+    }
     
     
     

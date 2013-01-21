@@ -1,6 +1,6 @@
 /**
  *
- * ka.Parse - builds forms from ka.Field definitions.
+ * ka.FieldForm - builds forms from ka.Field definitions.
  *
  * This class handles also the visibility of the children container and
  * the 'needValue' and 'againstField' property.
@@ -8,7 +8,7 @@
  * @type {Class}
  */
 
-ka.Parse = new Class({
+ka.FieldForm = new Class({
 
     Implements: [Events, Options],
 
@@ -28,11 +28,11 @@ ka.Parse = new Class({
     /**
      * Constructor
      * @param {Element} pContainer
-     * @param {Object} pDefinition
+     * @param {Object} pFieldDefinition
      * @param {Object} pOptions
      * @param {Object} pRefs
      */
-    initialize: function (pContainer, pDefinition, pOptions, pRefs) {
+    initialize: function (pContainer, pFieldDefinition, pOptions, pRefs) {
         var self = this;
 
         this.mainContainer = pContainer;
@@ -40,9 +40,11 @@ ka.Parse = new Class({
         this.setOptions(pOptions);
         this.refs = pRefs;
         this.main = pContainer;
-        this.definition = pDefinition;
+        this.definition = pFieldDefinition;
 
-        this.parseLevel(pDefinition, this.main);
+        if (Object.getLength(pFieldDefinition) == 0) return false;
+
+        this.parseLevel(pFieldDefinition, this.main);
 
         //parse all fields which have 'againstField'
         Object.each(this.fields, function(obj, id){

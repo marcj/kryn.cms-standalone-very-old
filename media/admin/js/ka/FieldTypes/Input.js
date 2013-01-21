@@ -46,13 +46,18 @@ ka.FieldTypes.Input = ka.FieldTypes.Text = new Class({
             }
         }).inject(this.fieldInstance.fieldPanel);
 
+
+        this.innerWrapper = new Element('div', {
+            'class': 'ka-Input-inner-wrapper'
+        }).inject(this.wrapper);
+
         this.input = new Element('input', {
             'class': 'ka-Input',
             styles: {
                 'height': this.options.inputHeight
             },
             maxLength: this.options.maxLength
-        }).inject(this.wrapper);
+        }).inject(this.innerWrapper);
 
         this.input.addEvent('change', this.checkChange);
         this.input.addEvent('keyup', this.checkChange);

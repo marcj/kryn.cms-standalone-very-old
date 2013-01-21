@@ -1114,7 +1114,7 @@ var users_users_acl = new Class({
         if (!this.currentDefinition.nested)
             delete fields.sub;
 
-        this.editRuleKaObj = new ka.Parse(this.editRuleDialog.content, fields, {
+        this.editRuleKaObj = new ka.FieldForm(this.editRuleDialog.content, fields, {
             allTableItems:1,
             tableitem_title_width: 180,
             returnDefault: true
@@ -1585,7 +1585,7 @@ var users_users_acl = new Class({
             }
         };
 
-        var kaFields = new ka.Parse(fieldContainer, fields, {allTableItems:1, tableitem_title_width: 180}, {win: this.win});
+        var kaFields = new ka.FieldForm(fieldContainer, fields, {allTableItems:1, tableitem_title_width: 180}, {win: this.win});
 
         var deleteRule = new ka.Button([t('Delete rule'), '#icon-minus-5']).inject(fieldContainer);
 

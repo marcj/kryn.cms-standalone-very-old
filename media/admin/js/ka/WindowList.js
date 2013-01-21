@@ -230,6 +230,7 @@ ka.WindowList = new Class({
         if (this.classProperties.multiLanguage) {
 
             this.languageSelect = new ka.Select(this.headerLayout.getColumn(3));
+            document.id(this.languageSelect).setStyle('width', 140);
 
             this.languageSelect.addEvent('change', this.changeLanguage.bind(this));
 
@@ -286,166 +287,9 @@ ka.WindowList = new Class({
 
     openAddItem: function(){
 
-        if (!this.classProperties.nestedAddWithPositionSelection){
-            //open entry point
-
-            ka.entrypoint.open(ka.entrypoint.getRelative(this.win.getEntryPoint(), this.classProperties.addEntrypoint), {
-                lang: (this.languageSelect) ? this.languageSelect.getValue() : false
-            }, this);
-
-        } else {
-            //show dialog with
-
-            this.addNestedRootDialog = this.win.newDialog('', true);
-
-            this.addNestedRootDialog.setStyles({
-                width: '80%',
-                height: '80%'
-            });
-
-            var dialogLayout = new ka.LayoutVertical(this.addNestedRootDialog.getContentContainer(), {
-                rows: [50, null],
-                gridLayout: true
-            });
-
-            new Element('h2', {
-                html: this.options.addLabel || this.classProperties.addLabel,
-                style: 'padding: 0px 5px'
-            }).inject(dialogLayout.getContentRow(1));
-
-            this.openAddItemCancelButton = new ka.Button(t('Cancel')).inject(this.addNestedRootDialog.getBottomContainer());
-
-            this.openAddItemCancelButton.addEvent('click', function(){
-                this.addNestedRootDialog.close();
-            }.bind(this));
-
-            this.openAddItemNextButton = new ka.Button(tc('nestedObjectChoosePositionDialog', 'Next')).inject(this.addNestedRootDialog.getBottomContainer());
-
-            this.openAddItemNextButton.setButtonStyle('blue');
-            this.openAddItemNextButton.setEnabled(false);
-
-            var objectPositionChooser = this.addNestedObjectPositionChooser(dialogLayout.getContentRow(2));
-
-            objectPositionChooser.addEvent('positionChoose', function(){
-
-                this.openAddItemNextButton.setEnabled(true);
-
-            }.bind(this));
-
-            this.addNestedRootDialog.center();
-        }
-    },
-
-    addNestedObjectPositionChooser: function(pContainer){
-        var objectOptions = {};
-        var fieldObject;
-
-        objectOptions.type = 'tree';
-        objectOptions.object = this.classProperties.object;
-        objectOptions.scopeChooser = false;
-        objectOptions.noWrapper = true;
-        objectOptions.selectable = false;
-        objectOptions.moveable = this.classProperties.nestedMoveable;
-
-        var lastSelected;
-
-        var choosePosition = function(pChooser, pDom, pDirection, pItem){
-
-            if (lastSelected)
-                lastSelected.removeClass('ka-objectTree-positionChooser-item-active');
-
-            lastSelected = pChooser;
-            lastSelected.addClass('ka-objectTree-positionChooser-item-active');
-
-            fieldObject.fireEvent('positionChoose', [pDom, pDirection, pItem, pChooser]);
-
-        }
-
-        var addChooser = function(pDom, pDirection, pItem){
-
-            var div;
-
-            if (pDirection != 'into'){
-                div = new Element('div', {
-                    styles: {
-                        paddingLeft: pDom.getStyle('padding-left').toInt()+18
-                    }
-                }).inject(pDom.childrenContainer, pDirection);
-            } else {
-
-                div = pDom.span;
-                pDom.insertedAddChooser = true;
-            }
-
-            var a = new Element('a',{
-                html: ' <------ &nbsp;&nbsp;',
-                'class': 'ka-objectTree-positionChooser-item',
-                href: 'javascript:;',
-                style: 'text-decoration: none;'
-            })
-            .addEvent('click', function(){
-                choosePosition(this, pDom, pDirection, pItem);
-            })
-            .inject(div);
-
-            new Element('span', {
-                'class': 'ka-objectTree-positionChooser-item-text',
-                text: pDirection == 'into' ? tc('nestedObjectChoosePositionDialog', 'Into this!') : tc('nestedObjectChoosePositionDialog', 'Add here!')
-            }).inject(a);
-
-            return div;
-        }
-
-        objectOptions.onChildrenLoaded = function(pItem, pDom){
-
-            if (pDom.childrenContainer){
-                var children = pDom.childrenContainer.getChildren('.ka-objectTree-item');
-                if (children.length > 0){
-                    pDom.childrenContainer.getChildren('.ka-objectTree-item').each(function(item){
-                        addChooser(item, 'after', item.objectEntry);
-                        addChooser(item, 'into', item.objectEntry);
-                    });
-                }
-            }
-
-            if (!pDom.insertedAddChooser)
-                addChooser(pDom, 'into', pDom.objectEntry);
-
-            this.addNestedRootDialog.center();
-
-        }.bind(this);
-
-        if (this.languageSelect)
-            objectOptions.scopeLanguage = this.languageSelect.getValue();
-
-        pContainer.setStyle('position', 'relative');
-        var treeContainer = new Element('div', {
-            style: 'position: absolute; left: 0; right: 0; top: 0; bottom: 0; overflow: auto;'
-        }).inject(pContainer);
-
-        fieldObject = new ka.Field(objectOptions, treeContainer);
-        return fieldObject;
-
-    },
-
-    nestedItemSelected: function(pItem, pDom){
-        //pDom.objectKey
-        //pDom.id
-
-        if (pDom.objectKey == this.classProperties.object){
-
-            if (_this.classProperties.edit){
-
-                ka.entrypoint.open(ka.entrypoint.getRelative(_this.win.getEntryPoint(), _this.classProperties.editEntrypoint), {
-                    item: pItem.values
-                }, this);
-
-            }
-
-        } else if (this.classProperties.nestedRootEdit){
-            var entryPoint = ka.entrypoint.getRelative(this.win.getEntryPoint(), this.classProperties.nestedRootEditEntrypoint);
-            ka.entrypoint.open(entryPoint);
-        }
+        ka.entrypoint.open(ka.entrypoint.getRelative(this.win.getEntryPoint(), this.classProperties.addEntrypoint), {
+            lang: (this.languageSelect) ? this.languageSelect.getValue() : false
+        }, this);
 
     },
 
@@ -824,10 +668,10 @@ ka.WindowList = new Class({
             action: _path + 'admin/' + this.win.getEntryPoint() + '?cmd=exportItems&' + params.toQueryString(),
             method: 'post',
             target: 'myExportFrame' + this.win.id
-        }).inject(document.hidden);
+        }).inject(document.hiddenElement);
         this.lastExportFrame = new IFrame(null, {
             name: 'myExportFrame' + this.win.id
-        }).inject(document.hidden);
+        }).inject(document.hiddenElement);
         this.lastExportForm.submit();
     },
 

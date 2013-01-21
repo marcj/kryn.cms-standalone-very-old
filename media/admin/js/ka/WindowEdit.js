@@ -1,10 +1,17 @@
 ka.WindowEdit = new Class({
 
-    Implements: Events,
+    Implements: [Events, Options],
 
     Binds: ['showVersions'],
 
     inline: false,
+
+    options: {
+
+        addLabel: '',
+
+
+    },
 
     fieldToTabOIndex: {}, //index fieldkey to main-tabid
 
@@ -24,7 +31,6 @@ ka.WindowEdit = new Class({
             }.bind(this));
             return;
         }
-
 
         if (!pContainer) {
             this.container = this.win.content;
@@ -112,12 +118,10 @@ ka.WindowEdit = new Class({
     },
 
     load: function () {
-        var _this = this;
 
         this.container.set('html', '<div style="text-align: center; padding: 50px; color: silver">'+t('Loading definition ...')+'</div>');
 
         new Request.JSON({url: _path + 'admin/' + this.getEntryPoint(), noCache: true, onComplete: function(pResponse){
-
 
             if (!pResponse.error && pResponse.data && pResponse.data._isClassDefinition)
                 this.render(pResponse.data);
@@ -177,7 +181,7 @@ ka.WindowEdit = new Class({
 
     setValue: function(pValue){
 
-        this.parserObject.setValue(pValue);
+        this.fieldForm.setValue(pValue);
 
         if (this.getTitleValue())
             this.win.setTitle(this.getTitleValue());
@@ -194,7 +198,7 @@ ka.WindowEdit = new Class({
      */
     getTitleValue: function(){
 
-        var value = this.parserObject.getValue();
+        var value = this.fieldForm.getValue();
 
         var titleField = this.classProperties.titleField;
         if (!this.classProperties.titleField){
@@ -437,13 +441,13 @@ ka.WindowEdit = new Class({
                 return new ka.SmallTabGroup(this.headerLayout.getColumn(1));
             }.bind(this)});
 
-            this.parserObject = new ka.Parse(this.form, this.classProperties.fields, {firstLevelTabPane: this.tabPane}, {win: this.win});
-            this.fields = this.parserObject.getFields();
+            this.fieldForm = new ka.FieldForm(this.form, this.classProperties.fields, {firstLevelTabPane: this.tabPane}, {win: this.win});
+            this.fields = this.fieldForm.getFields();
 
-            this._buttons = this.parserObject.getTabButtons();
+            this._buttons = this.fieldForm.getTabButtons();
 
-            if (this.parserObject.firstLevelTabBar)
-                this.topTabGroup = this.parserObject.firstLevelTabBar.buttonGroup;
+            if (this.fieldForm.firstLevelTabBar)
+                this.topTabGroup = this.fieldForm.firstLevelTabBar.buttonGroup;
 
         }
 
@@ -685,7 +689,7 @@ ka.WindowEdit = new Class({
             this.tooMuchTabFieldsButton.destroy();
 
         this.cachedTabItems.removeClass('ka-tabGroup-item-last');
-        this.cachedTabItems.inject(document.hidden);
+        this.cachedTabItems.inject(document.hiddenElement);
         this.cachedTabItems[0].inject(document.id(this.topTabGroup));
         var curWidth = this.cachedTabItems[0].getSize().x;
 
@@ -753,8 +757,8 @@ ka.WindowEdit = new Class({
 
     retrieveData: function (pWithoutEmptyCheck) {
 
-        if (!pWithoutEmptyCheck && !this.parserObject.checkValid()){
-            var invalidFields = this.parserObject.getInvalidFields();
+        if (!pWithoutEmptyCheck && !this.fieldForm.checkValid()){
+            var invalidFields = this.fieldForm.getInvalidFields();
 
             Object.each(invalidFields, function (item, fieldId) {
 
@@ -781,7 +785,7 @@ ka.WindowEdit = new Class({
             return false;
         }
 
-        var req = this.parserObject.getValue();
+        var req = this.fieldForm.getValue();
 
         if (this.languageSelect) {
             if (!pWithoutEmptyCheck && this.languageSelect.getValue() == ''){

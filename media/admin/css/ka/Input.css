@@ -1,5 +1,4 @@
 .ka-Input,
-.ka-Input:-webkit-autofill,
 input.text {
 
     border: 1px solid #bbb;
@@ -36,10 +35,8 @@ input.text {
     min-height: 22px;
 }
 
-.ka-Input-wrapper > .ka-Input {
-    position: absolute;
-    left: 0;
-    right: 0;
+.ka-Input-inner-wrapper > .ka-Input {
+    width: 100%;
 }
 
 .ka-Input:focus,

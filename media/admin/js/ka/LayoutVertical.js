@@ -130,6 +130,8 @@ ka.LayoutVertical = new Class({
      * @param pId
      */
     getContentRow: function(pId){
+        if (typeOf(this.rows[pId-1]) == 'null') throw 'Row not found %s'.replace('%s', pId);
+
         if (this.rows[pId-1].get('tag') == 'tr'){
             var children = this.rows[pId-1].getChildren();
             if (children.length > 0)

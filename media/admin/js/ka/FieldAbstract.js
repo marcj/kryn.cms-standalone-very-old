@@ -10,6 +10,15 @@ ka.FieldAbstract = new Class({
      */
     options: {
 
+        /**
+         * Can be a number, a number+'px' etc or number+'%'.
+         *
+         * @var {Mixed}
+         */
+        inputWidth: null
+
+
+
     },
 
 

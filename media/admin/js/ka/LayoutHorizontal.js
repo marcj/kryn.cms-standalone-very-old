@@ -108,10 +108,15 @@ ka.LayoutHorizontal = new Class({
 
         var td = new Element('td', {
             width: pWidth,
-            valign: 'top'
+            valign: 'top',
+            height: '100%'
         }).inject(this.getContainer());
 
-        this.columns.push(td);
+        var div = new Element('div', {
+            style: 'position: relative; height: 100%;'
+        }).inject(td);
+
+        this.columns.push(div);
 
     }
 

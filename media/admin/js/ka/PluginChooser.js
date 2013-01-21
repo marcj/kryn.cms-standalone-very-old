@@ -176,7 +176,7 @@ ka.PluginChooser = new Class({
         this.lastGetRequest = new Request.JSON({url: _path + 'admin/backend/plugins/get/', onComplete: function (res) {
 
             if (res) {
-                this.fieldObj = new ka.Parse(this.propertyTBody, res[1], {allTableItems: true});
+                this.fieldObj = new ka.FieldForm(this.propertyTBody, res[1], {allTableItems: true});
                 this.setValue(this.choosen.options);
 
                 if (res[2]) {

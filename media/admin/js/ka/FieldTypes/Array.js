@@ -3,7 +3,62 @@ ka.FieldTypes.Array = new Class({
     Extends: ka.FieldAbstract,
 
     options: {
-        asHash: false
+        asHash: false,
+
+
+        /**
+         *
+         * Structure
+         *
+         * [
+         *    {label: 'Column 1', width: 50},
+         *    {label: 'Column 2', width: '25%'},
+         *    {label: 'Column 3'} //flexible width
+         * ]
+         *
+         * @var {Array}
+         */
+        columns: [],
+
+
+        /**
+         * All ka.Field definitions in one big hash.
+         *
+         * Example:
+         *
+         * {
+         *
+         *    field1: {
+         *        label: 'Field 1',
+         *        type: 'text'
+         *    },
+         *
+         *    field2: {
+         *        label: 'Really ?',
+         *        type: 'checkbox'
+         *    },
+         *
+         *    field3: {
+         *        label: 'With stuff?',
+         *        type: 'checkbox',
+         *        children: {
+         *            field4: {
+         *                label: t('A text'),
+         *                type: 'text'
+         *            },
+         *            field5: {
+         *                label: t('B text'),
+         *                type: 'text'
+         *            }
+         *        }
+         *    }
+         *
+         *
+         * }
+         *
+         * @var {Object}
+         */
+        fields: {}
     },
 
     createLayout: function(){
@@ -218,7 +273,7 @@ ka.FieldTypes.Array = new Class({
             if (copy.children){
                 var parseFields = {};
                 parseFields[field_key] = copy;
-                var nField = new ka.Parse(td, parseFields, {allTableItems: true}, {win: this.win});
+                var nField = new ka.FieldForm(td, parseFields, {allTableItems: true}, {win: this.win});
             } else {
                 var nField = new ka.Field(copy, td, {win: this.win});
             }

@@ -1,10 +1,16 @@
-.ka-windowEdit-form {
+.ka-windowEdit-form,
+.ka-windowEdit-form-addDialog {
     position: absolute;
     top: 0px;
     left: 0px;
     right: 0px;
     bottom: 30px;
     overflow: auto;
+    background-color: #eee;
+}
+
+.ka-windowEdit-form-addDialog {
+    bottom: 0px;
 }
 
 .ka-windowEdit-form > .kwindow-win-tabPane .ka-tabPane-pane {

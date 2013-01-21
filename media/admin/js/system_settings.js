@@ -321,7 +321,7 @@ var admin_system_settings = new Class({
 
         this.saveBtn = this.bottomBar.addButton(t('Save')).setButtonStyle('blue').addEvent('click', this.save);
 
-        this.fieldObject = new ka.Parse(this.win.content, fields, {
+        this.fieldObject = new ka.FieldForm(this.win.content, fields, {
             tabsInWindowHeader: true,
             saveButton: this.saveBtn
         }, {

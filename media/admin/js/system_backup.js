@@ -338,7 +338,7 @@ var admin_system_backup = new Class({
         this.mainTable = new Element('table').inject(this.main);
         this.mainTableBody = new Element('tbody').inject(this.mainTable);
 
-        this.fields = new ka.Parse(this.mainTableBody, this.fieldDefs, {allTableItems: 1});
+        this.fields = new ka.FieldForm(this.mainTableBody, this.fieldDefs, {allTableItems: 1});
         var values = this.items[ pId ].retrieve('item');
 
         this.fields.setValue(values);
@@ -806,7 +806,7 @@ var admin_system_backup = new Class({
         this.btnNewBackup.setPressed(true);
         this.btnImport.setPressed(false);
 
-        this.fields = new ka.Parse(this.mainTableBody, this.fieldDefs, {allTableItems: 1});
+        this.fields = new ka.FieldForm(this.mainTableBody, this.fieldDefs, {allTableItems: 1});
 
         delete this.lastSelect;
         this.setAddButtons();

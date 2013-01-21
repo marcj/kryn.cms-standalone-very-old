@@ -338,7 +338,7 @@ ka.FieldProperty = new Class({
         asTableItem: true,
 
         noActAsTableField: false, //Remove the field 'Acts as a table item'
-        asFrameworkFieldDefinition: false, //means for usage in ka.Parse (and therefore in adminWindowEdit/Add), delete some relation stuff
+        asFrameworkFieldDefinition: false, //means for usage in ka.FieldForm (and therefore in adminWindowEdit/Add), delete some relation stuff
         arrayKey: false //allows key like foo[bar], foo[barsen], foo[bar][sen]
     },
 
@@ -550,7 +550,7 @@ ka.FieldProperty = new Class({
 
             this.main.store('ka.FieldProperty', this);
 
-            this.fieldObject = new ka.Parse(this.main, this.kaFields, {
+            this.fieldObject = new ka.FieldForm(this.main, this.kaFields, {
                 allTableItems: this.options.allTableItems,
                 tableitem_title_width: this.options.tableitem_title_width
             }, {win:this.win});
@@ -660,7 +660,7 @@ ka.FieldProperty = new Class({
 
         this.saveBtn = new ka.Button(t('Apply'));
 
-        this.fieldObject = new ka.Parse(fieldContainer, this.kaFields, {
+        this.fieldObject = new ka.FieldForm(fieldContainer, this.kaFields, {
             allTableItems: this.options.allTableItems,
             tableitem_title_width: this.options.tableitem_title_width,
             saveButton: this.saveBtn

@@ -21,14 +21,12 @@ ka.WindowCombine = new Class({
             ]
         });
 
-        this.mainLayout.getCell(1,1).setStyle('position', 'relative');
-        this.mainLeft = new Element('div').inject(this.mainLayout.getCell(1,1));
-        this.mainLeft.set('class', 'ka-list-combine-left');
+        this.mainLeft = this.mainLayout.getCell(1,1);
 
         this.mainRight = this.mainLayout.getCell(1,2);
         this.mainRight.set('class', 'ka-list-combine-right');
 
-        this.inputTrigger = new Element('input').inject(document.hidden);
+        this.inputTrigger = new Element('input').inject(document.hiddenElement);
 
         this.inputTrigger.addEvent('focus', function () {
             this.ready2ChangeThroughKeyboard = true;
@@ -230,11 +228,7 @@ ka.WindowCombine = new Class({
 
     openAddItem: function(){
 
-        if (!this.classProperties.nestedAddWithPositionSelection){
-            this.add();
-        } else {
-            this.parent();
-        }
+        this.add();
 
     },
 
@@ -635,11 +629,9 @@ ka.WindowCombine = new Class({
         });
 
         this.headerLayoutLeft = new ka.LayoutHorizontal(this.headerLayout.getColumn(1), {
-            columns: [null, 140],
+            columns: [null, 147],
             fixed: false
         });
-
-        this.headerLayoutLeft.getColumn(2).setStyle('padding-right', 5);
 
         this.renderMultilanguage();
 

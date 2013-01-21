@@ -14,7 +14,7 @@ var test_test = new Class({
         });
 
 
-        new ka.Parse(this.win.content,{
+        new ka.FieldForm(this.win.content,{
             'defaultIcon': {
                 label: t('Default icon'),
                 type: 'file',
@@ -76,7 +76,7 @@ var test_test = new Class({
             }
         };
 
-        var fieldObj = new ka.Parse(div, field);
+        var fieldObj = new ka.FieldForm(div, field);
 
         fieldObj.setValue({
             bla: {peter: "10"}

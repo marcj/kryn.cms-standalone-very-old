@@ -17,7 +17,7 @@ ka.AdminInterface = new Class({
 
         if (this.isInit) return; else this.isInit = true;
 
-        document.hidden = new Element('div', {
+        document.hiddenElement = new Element('div', {
             styles: {
                 position: 'absolute',
                 left: -154,

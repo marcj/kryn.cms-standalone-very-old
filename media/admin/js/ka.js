@@ -231,7 +231,7 @@ ka.newBubble = function(pTitle, pText, pDuration){
 
 /**
  * Adds a prefix to the keys of pFields.
- * Good to group some values of fields of ka.Parse.
+ * Good to group some values of fields of ka.FieldForm.
  *
  * Example:
  *

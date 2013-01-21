@@ -20,7 +20,7 @@ ka.FieldTable = new Class({
         keyModifier: '',
 
         noActAsTableField: false, //Remove the field 'Acts as a table item'
-        asFrameworkFieldDefinition: false, //means for usage in ka.Parse (and therefore in adminWindowEdit/Add), delete some relation stuff
+        asFrameworkFieldDefinition: false, //means for usage in ka.FieldForm (and therefore in adminWindowEdit/Add), delete some relation stuff
         arrayKey: false //allows key like foo[bar], foo[barsen], foo[bar][sen]
     },
 

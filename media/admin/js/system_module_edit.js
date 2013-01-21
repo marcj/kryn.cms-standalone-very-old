@@ -909,7 +909,7 @@ var admin_system_module_edit = new Class({
 
             var applyBtn = new ka.Button(t('Apply'));
 
-            var fieldObject = new ka.Parse(dialog.content, this.entryPointSettingsFields, {
+            var fieldObject = new ka.FieldForm(dialog.content, this.entryPointSettingsFields, {
                 allTableItems: true,
                 tableitem_title_width: 300,
                 saveButton: applyBtn
@@ -1234,7 +1234,7 @@ var admin_system_module_edit = new Class({
             }
         }
 
-        var kaParser = new ka.Parse(tbody, kaFields, {allTableItems:1}, {win: this.win});
+        var kaParser = new ka.FieldForm(tbody, kaFields, {allTableItems:1}, {win: this.win});
         pSub.getParent().store('kaparser', kaParser);
         kaParser.setValue(pLink);
     },
@@ -1434,7 +1434,7 @@ var admin_system_module_edit = new Class({
         var saveBtn = buttonBar.addButton(t('Save'), this.saveGeneral.bind(this));
         saveBtn.setButtonStyle('blue');
 
-        this.generalFieldsObj = new ka.Parse(p, fields, {allTableItems: 1, saveButton: saveBtn});
+        this.generalFieldsObj = new ka.FieldForm(p, fields, {allTableItems: 1, saveButton: saveBtn});
 
         var value = pConfig;
 
@@ -2490,7 +2490,7 @@ var admin_system_module_edit = new Class({
             width: '100%'
         }).inject(this.dialog.content);
 
-        var kaParseObj = new ka.Parse(tbody, kaFields, {allTableItems: true, tableitem_title_width: 220}, {win: this.win});
+        var kaParseObj = new ka.FieldForm(tbody, kaFields, {allTableItems: true, tableitem_title_width: 220}, {win: this.win});
 
         new ka.Button(t('Cancel')).addEvent('click', this.cancelObjectSettings.bind(this)).inject(this.dialog.bottom);
 
@@ -2793,7 +2793,7 @@ var admin_system_module_edit = new Class({
 
         };
 
-        var kaParseObj = new ka.Parse(tbody, kaFields, {allTableItems: true}, {win: this.win});
+        var kaParseObj = new ka.FieldForm(tbody, kaFields, {allTableItems: true}, {win: this.win});
 
         this.objectWizardCloseBtn = new ka.Button(t('Cancel')).addEvent('click', function(){
             this.dialog.close();
@@ -3005,7 +3005,7 @@ var admin_system_module_edit = new Class({
             style: 'bottom: 31px;'
         }).inject(this.panes['extras']);
 
-        this.extraFieldsObj = new ka.Parse(this.extrasPane, extrasFields, {allTableItems:1, tableitem_title_width: 270});
+        this.extraFieldsObj = new ka.FieldForm(this.extrasPane, extrasFields, {allTableItems:1, tableitem_title_width: 270});
 
         var buttonBar = new ka.ButtonBar(this.panes['extras']);
         var saveBtn = buttonBar.addButton(t('Save'), this.saveExtras.bind(this));

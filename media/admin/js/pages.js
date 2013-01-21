@@ -1681,7 +1681,7 @@ var admin_pages = new Class({
             }
         }.bind(this));
 
-        this.domainSessionFields = new ka.Parse(p, fields);
+        this.domainSessionFields = new ka.FieldForm(p, fields);
 
         this.auth_params_objects = {};
         Object.each(ka.settings.configs, function (config, id) {
@@ -1692,7 +1692,7 @@ var admin_pages = new Class({
                         'style': 'display: none;'
                     }).inject(this.domainSessionFields.fields['auth_class'].childContainer);
 
-                    this.auth_params_objects[ id + '/' + auth_class ] = new ka.Parse(this.auth_params_panes[id + '/' + auth_class], auth_fields);
+                    this.auth_params_objects[ id + '/' + auth_class ] = new ka.FieldForm(this.auth_params_panes[id + '/' + auth_class], auth_fields);
                 }.bind(this));
             }
         }.bind(this));
