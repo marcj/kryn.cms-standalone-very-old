@@ -325,7 +325,7 @@ class Propel extends ORMAbstract {
 
         $pQuery->setPrimaryTableName(constant($peer . '::TABLE_NAME'));
 
-        //only triggers all behaviors that has attached code to preSelect();
+        //only triggers all behaviors that has attached code via preSelect.
         \Core\PropelBasePeer::setIgnoreNextDoSelect(true);
         $peer::doSelectStmt($pQuery);
 
