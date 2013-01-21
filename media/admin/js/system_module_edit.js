@@ -83,7 +83,8 @@ var admin_system_module_edit = new Class({
 
         var buttonBar = new ka.ButtonBar(this.panes['plugins']);
         buttonBar.addButton(t('Add plugin'), this.addPlugin.bind(this));
-        buttonBar.addButton(t('Save'), this.savePlugins.bind(this));
+        var saveBtn = buttonBar.addButton(t('Save'), this.savePlugins.bind(this));
+        saveBtn.setButtonStyle('blue');
 
         this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/plugins', noCache: 1, onComplete: function (res) {
 
@@ -652,6 +653,7 @@ var admin_system_module_edit = new Class({
         this.entryPointSettingsFields = {
             title: {
                 label: t('Title'),
+                required: true,
                 desc: t('Surround the value with [[ and ]] to make it multilingual.')
             },
             type: {
@@ -669,21 +671,17 @@ var admin_system_module_edit = new Class({
                     combine: t('[Window] Framework Combine')
                 },
                 children: {
-                    __info_store__: {
-                        needValue: 'store',
-                        label: t('Use a own class or a table name'),
-                        type: 'label'
-                    },
-                    __info_form__: {
-                        needValue: ['list', 'edit', 'add', 'combine'],
-                        label: t('Use a own class or select a form'),
-                        type: 'label'
-                    },
                     'class': {
                         label: t('PHP Class'),
                         desc: t('Example: \Module\Admin\ObjectList'),
                         modifier: 'phpclass',
+                        required: true,
                         needValue: ['list', 'edit', 'add', 'combine', 'store']
+                    },
+                    'javascriptClass': {
+                        label: t('Custom javascript user interface class (Optional)'),
+                        desc: t('Should be extended from ka.WindowList, ka.WindowEdit, ka.WindowAdd or ka.WindowCombine.'),
+                        needValue: ['list', 'edit', 'add', 'combine']
                     },
                     functionType: {
                         needValue: 'function',
@@ -754,7 +752,7 @@ var admin_system_module_edit = new Class({
                 }
             },
             __optional__: {
-                label: t('Optional'),
+                label: t('More optional'),
                 type: 'childrenSwitcher',
                 needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
                 againstField: 'type',
@@ -807,8 +805,8 @@ var admin_system_module_edit = new Class({
         };
 
 
-        if (pConfig.admin) {
-            Object.each(pConfig.admin, function (link, key) {
+        if (pConfig.entryPoints) {
+            Object.each(pConfig.entryPoints, function (link, key) {
                 this.entryPointsAdd(key, link, this.entryPointsTable);
             }.bind(this));
         }
@@ -909,9 +907,12 @@ var admin_system_module_edit = new Class({
             dialog.setStyle('width', '90%');
             dialog.setStyle('height', '90%');
 
+            var applyBtn = new ka.Button(t('Apply'));
+
             var fieldObject = new ka.Parse(dialog.content, this.entryPointSettingsFields, {
                 allTableItems: true,
-                tableitem_title_width: 300
+                tableitem_title_width: 300,
+                saveButton: applyBtn
             });
 
             fieldObject.setValue(tr.definition);
@@ -923,8 +924,7 @@ var admin_system_module_edit = new Class({
             .addEvent('click', dialog.close)
             .inject(dialog.bottom);
 
-            new ka.Button(t('Apply'))
-            .addEvent('click', function(){
+            applyBtn.addEvent('click', function(){
 
                 if (!fieldObject.isValid()){
                     return;
@@ -1079,7 +1079,7 @@ var admin_system_module_edit = new Class({
 
         return res;
     },
-
+/*
     _createLayoutLinkSettings: function (pSub, pLink) {
 
         var table = new Element('table', {width: '100%'}).inject(pSub);
@@ -1105,20 +1105,15 @@ var admin_system_module_edit = new Class({
                     combine: t('[Window] Framework Combine')
                 },
                 depends: {
-                    __info_store__: {
-                        needValue: 'store',
-                        label: t('Use a own class or a table name'),
-                        type: 'label'
-                    },
-                    __info_form__: {
-                        needValue: ['list', 'edit', 'add', 'combine'],
-                        label: t('Use a own class or select a form'),
-                        type: 'label'
-                    },
                     'class': {
                         label: t('PHP Class'),
                         desc: t('Scheme: module/&lt;extKey&gt;/&lt;class&gt;.class.php'),
                         needValue: ['list', 'edit', 'add', 'combine', 'store']
+                    },
+                    'javascriptClass': {
+                        label: t('Custom javascript user interface class (Optional)'),
+                        desc: t('Should be extended from ka.WindowList, ka.WindowEdit, ka.WindowAdd or ka.WindowCombine.'),
+                        needValue: ['list', 'edit', 'add', 'combine']
                     },
                     functionType: {
                         needValue: 'function',
@@ -1323,15 +1318,15 @@ var admin_system_module_edit = new Class({
 
         this._createLayoutLinkSettings(sub, pLink);
 
-        /*
-        var subAddBtn = new Element('img', {
-            'src': _path + PATH_MEDIA + '/admin/images/icons/add.png',
-            title: t('Add Link'),
-            style: 'cursor: pointer; position: relative; top: 3px; left: 2px;'
-        }).addEvent('click', function () {
-            this._linksAddNewLevel('mykey', {}, childs);
-        }.bind(this)).inject(sub);
-        */
+//
+//        var subAddBtn = new Element('img', {
+//            'src': _path + PATH_MEDIA + '/admin/images/icons/add.png',
+//            title: t('Add Link'),
+//            style: 'cursor: pointer; position: relative; top: 3px; left: 2px;'
+//        }).addEvent('click', function () {
+//            this._linksAddNewLevel('mykey', {}, childs);
+//        }.bind(this)).inject(sub);
+
 
         document.id(new ka.Button('Add children'))
         .addEvent('click', function(){
@@ -1348,6 +1343,7 @@ var admin_system_module_edit = new Class({
         }
 
     },
+    */
 
     _loadGeneral: function (pConfig) {
         this.panes['general'].empty();
@@ -1362,10 +1358,12 @@ var admin_system_module_edit = new Class({
         var fields = {
             title: {
                 label: t('Title'),
-                type: 'text'
+                type: 'text',
+                required: true
             },
             desc: {
                 label: t('Description'),
+                required: true,
                 type: 'textarea'
             },
             tags: {
@@ -1380,10 +1378,12 @@ var admin_system_module_edit = new Class({
             },
             owner: {
                 label: t('Owner'),
+                required: true,
                 type: 'text'
             },
             version: {
                 label: t('Version'),
+                required: true,
                 type: 'text'
             },
             depends: {
@@ -1428,90 +1428,13 @@ var admin_system_module_edit = new Class({
 
         }
 
-        /*
-        var title = ( pConfig.title ) ? pConfig.title : '';
-        this.generellFields['title'] = new ka.Field({
-            label: t('Title'), value: title
-        }).inject(p);
 
-        var desc = pConfig.desc ? pConfig.desc : '';
-        this.generellFields['desc'] = new ka.Field({
-            label: t('Description'), value: desc, type: 'textarea'
-        }).inject(p);
 
-        var tags = ( pConfig.tags ) ? pConfig.tags : '';
-        this.generellFields['tags'] = new ka.Field({
-            label: t('Tags'), value: tags, desc: t('Comma separated values')
-        }).inject(p);
+        var buttonBar = new ka.ButtonBar(this.panes['general']);
+        var saveBtn = buttonBar.addButton(t('Save'), this.saveGeneral.bind(this));
+        saveBtn.setButtonStyle('blue');
 
-        var screenshotsCount = 'No Screenshots found';
-        if (pConfig.screenshots) {
-            screenshotsCount = pConfig.screenshots.length;
-        }
-
-        new ka.Field({
-            label: t('Screenshots'), value: screenshotsCount, desc: t('Screenshots in %s').replace('%s', 'media/'+this.mod + '/_screenshots/'),
-            disabled: true
-        }).inject(p);
-
-        var owner = ka.settings.system.communityEmail;
-        if (pConfig.owner == "" || !pConfig.owner) {
-            owner = t('No owner - local version');
-        }
-
-        var owner = new ka.Field({
-            label: t('Owner'), value: owner, disabled: true
-        }).inject(p);
-
-        var _this = this;
-        if (ka.settings.system.communityId > 0 && !pConfig.owner > 0) {
-            new ka.Button(t('Set to my extension: ' + ka.settings.system.communityEmail))
-            .setStyle('position', 'relative').setStyle('left', '25px').addEvent('click', function () {
-                this.setToMyExtension = ka.settings.system.communityId;
-                owner.setValue(ka.settings.system.communityEmail);
-            }.bind(this)).inject(p);
-        }
-
-        this.generellFields['version'] = new ka.Field({
-            label: t('Version'), value: pConfig.version
-        }).inject(p);
-
-        this.generellFields['depends'] = new ka.Field({
-            label: t('Dependency'), desc: t('Comma seperated list of extension. Example kryn=>0.5.073,admin>0.4.'), help: 'extensions-dependency', value: pConfig.depends
-        }).inject(p);
-
-        this.generellFields['community'] = new ka.Field({
-            label: t('Visible in community'), desc: t('Is this extension searchable and accessible for others?'), value: pConfig.community, type: 'checkbox'
-        }).inject(p);
-
-        this.generellFields['category'] = new ka.Field({
-            label: t('Category'), desc: t('What kind of extension is this?'), value: pConfig.category, type: 'select',
-            tableItems: [
-                {v: t('Information/Editorial office'), i: 1},
-                {v: t('Multimedia'), i: 2},
-                {v: t('SEO'), i: 3},
-                {v: t('Widget'), i: 4},
-                {v: t('Statistic'), i: 5},
-                {v: t('Community'), i: 6},
-                {v: t('Interface'), i: 7},
-                {v: t('System'), i: 8},
-                {v: t('Advertisement'), i: 9},
-                {v: t('Security'), i: 10},
-                {v: t('ECommerce'), i: 11},
-                {v: t('Download & Documents'), i: 12},
-                {v: t('Theme / Layouts'), i: 13},
-                {v: t('Language package'), i: 14},
-                {v: t('Data acquisition'), i: 19},
-                {v: t('Collaboration'), i: 18},
-                {v: t('Other'), i: 16}
-            }
-        }).inject(p);
-
-        this.generellFields['writableFiles'] = new ka.Field({
-            label: t('Writable files'), desc: t('Specify these files which are not automaticly overwritten during an update (if a modification exist). One file per line. Use * as wildcard. Read docs for more information'), value: pConfig.writableFiles, type: 'textarea'
-        }).inject(p);*/
-
-        this.generalFieldsObj = new ka.Parse(p, fields, {allTableItems: 1});
+        this.generalFieldsObj = new ka.Parse(p, fields, {allTableItems: 1, saveButton: saveBtn});
 
         var value = pConfig;
 
@@ -1531,9 +1454,6 @@ var admin_system_module_edit = new Class({
         }
 
         this.generalFieldsObj.setValue(value);
-
-        var buttonBar = new ka.ButtonBar(this.panes['general']);
-        buttonBar.addButton(t('Save'), this.saveGeneral.bind(this));
 
     },
 
@@ -1591,7 +1511,8 @@ var admin_system_module_edit = new Class({
         buttonBar.addButton(t('Add theme'), function () {
             this._layoutsAddTheme('Theme title', {});
         }.bind(this));
-        buttonBar.addButton(t('Save'), this.saveLayouts.bind(this));
+        var saveBtn = buttonBar.addButton(t('Save'), this.saveLayouts.bind(this));
+        saveBtn.setButtonStyle('blue');
     },
 
     saveLayouts: function () {
@@ -1981,6 +1902,7 @@ var admin_system_module_edit = new Class({
         }.bind(this));
 
         this.saveButton = buttonBar.addButton(t('Save'), this.saveObjects.bind(this, false));
+        this.saveButton.setButtonStyle('blue');
         this.saveButtonORM = buttonBar.addButton(t('Save and ORM Update'), this.saveObjects.bind(this, true));
 
         document.id(this.saveButton).addClass('ka-Button-blue');
@@ -3086,7 +3008,8 @@ var admin_system_module_edit = new Class({
         this.extraFieldsObj = new ka.Parse(this.extrasPane, extrasFields, {allTableItems:1, tableitem_title_width: 270});
 
         var buttonBar = new ka.ButtonBar(this.panes['extras']);
-        buttonBar.addButton(t('Save'), this.saveExtras.bind(this));
+        var saveBtn = buttonBar.addButton(t('Save'), this.saveExtras.bind(this));
+        saveBtn.setButtonStyle('blue');
 
         this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/config', noCache: 1,
         onComplete: function (pResult) {

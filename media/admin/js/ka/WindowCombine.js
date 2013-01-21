@@ -191,6 +191,9 @@ ka.WindowCombine = new Class({
 
 
         this.renderTopActionBar(this.headerLayoutLeft.getColumn(1));
+
+
+
         /*
 
         if (this.classProperties.multiLanguage || this.classProperties.add || this.classProperties.remove || this.classProperties.custom) {
@@ -222,6 +225,16 @@ ka.WindowCombine = new Class({
             }
         }
         */
+
+    },
+
+    openAddItem: function(){
+
+        if (!this.classProperties.nestedAddWithPositionSelection){
+            this.add();
+        } else {
+            this.parent();
+        }
 
     },
 

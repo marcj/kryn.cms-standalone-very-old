@@ -182,12 +182,12 @@
 }
 
 
-.ka-objectTree-positionChooser-item a,
-.ka-objectTree-positionChooser-item a:link {
+a.ka-objectTree-positionChooser-item,
+a.ka-objectTree-positionChooser-item:link {
     color: silver;
 }
 
-.ka-objectTree-positionChooser-item a:hover {
+a.ka-objectTree-positionChooser-item:hover {
     color: #333;
 }
 
@@ -198,9 +198,11 @@ a.ka-objectTree-positionChooser-item-active:link {
 
 .ka-objectTree-positionChooser-item .ka-objectTree-positionChooser-item-text {
     display: none;
+    float: none;
+    color: green;
 }
 
-.ka-objectTree-positionChooser-item a:hover .ka-objectTree-positionChooser-item-text,
+a.ka-objectTree-positionChooser-item:hover .ka-objectTree-positionChooser-item-text,
 a.ka-objectTree-positionChooser-item-active .ka-objectTree-positionChooser-item-text,
 a.ka-objectTree-positionChooser-item-active:link .ka-objectTree-positionChooser-item-text {
     display: inline;

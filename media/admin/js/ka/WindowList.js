@@ -5,7 +5,8 @@ ka.WindowList = new Class({
 
     options: {
 
-        nestedRootAddLabel: null
+        nestedRootAddLabel: null,
+        addLabel: null
 
     },
 
@@ -280,7 +281,19 @@ ka.WindowList = new Class({
 
     addNestedRoot: function(){
 
-        if (this.classProperties.nestedRootAddWithPositionSelection){
+
+    },
+
+    openAddItem: function(){
+
+        if (!this.classProperties.nestedAddWithPositionSelection){
+            //open entry point
+
+            ka.entrypoint.open(ka.entrypoint.getRelative(this.win.getEntryPoint(), this.classProperties.addEntrypoint), {
+                lang: (this.languageSelect) ? this.languageSelect.getValue() : false
+            }, this);
+
+        } else {
             //show dialog with
 
             this.addNestedRootDialog = this.win.newDialog('', true);
@@ -296,102 +309,122 @@ ka.WindowList = new Class({
             });
 
             new Element('h2', {
-                html: this.options.nestedRootAddLabel || this.classProperties.nestedRootAddLabel,
+                html: this.options.addLabel || this.classProperties.addLabel,
                 style: 'padding: 0px 5px'
             }).inject(dialogLayout.getContentRow(1));
 
+            this.openAddItemCancelButton = new ka.Button(t('Cancel')).inject(this.addNestedRootDialog.getBottomContainer());
 
-            new ka.Button(t('Cancel')).inject(this.addNestedRootDialog.getBottomContainer());
-            var addBtn = new ka.Button(t('Add')).inject(this.addNestedRootDialog.getBottomContainer());
+            this.openAddItemCancelButton.addEvent('click', function(){
+                this.addNestedRootDialog.close();
+            }.bind(this));
 
-            addBtn.setButtonStyle('blue');
-            addBtn.setEnabled(false);
+            this.openAddItemNextButton = new ka.Button(tc('nestedObjectChoosePositionDialog', 'Next')).inject(this.addNestedRootDialog.getBottomContainer());
 
-            var objectOptions = {};
+            this.openAddItemNextButton.setButtonStyle('blue');
+            this.openAddItemNextButton.setEnabled(false);
 
-            objectOptions.type = 'tree';
-            objectOptions.object = this.classProperties.object;
-            objectOptions.scopeChooser = false;
-            objectOptions.noWrapper = true;
-            objectOptions.selectable = false;
-            objectOptions.moveable = this.classProperties.nestedMoveable;
+            var objectPositionChooser = this.addNestedObjectPositionChooser(dialogLayout.getContentRow(2));
 
-            var lastSelected;
+            objectPositionChooser.addEvent('positionChoose', function(){
 
-            var choosePosition = function(pChooser, pDom, pDirection, pItem){
+                this.openAddItemNextButton.setEnabled(true);
 
-                if (lastSelected)
-                    lastSelected.removeClass('ka-objectTree-positionChooser-item-active');
+            }.bind(this));
 
-                lastSelected = pChooser;
-                lastSelected.addClass('ka-objectTree-positionChooser-item-active');
+            this.addNestedRootDialog.center();
+        }
+    },
 
-                addBtn.setEnabled(true);
+    addNestedObjectPositionChooser: function(pContainer){
+        var objectOptions = {};
+        var fieldObject;
 
-            }
+        objectOptions.type = 'tree';
+        objectOptions.object = this.classProperties.object;
+        objectOptions.scopeChooser = false;
+        objectOptions.noWrapper = true;
+        objectOptions.selectable = false;
+        objectOptions.moveable = this.classProperties.nestedMoveable;
 
-            var addChooser = function(pDom, pDirection, pItem){
-                var div = new Element('div', {
-                    'class': 'ka-objectTree-positionChooser-item',
+        var lastSelected;
+
+        var choosePosition = function(pChooser, pDom, pDirection, pItem){
+
+            if (lastSelected)
+                lastSelected.removeClass('ka-objectTree-positionChooser-item-active');
+
+            lastSelected = pChooser;
+            lastSelected.addClass('ka-objectTree-positionChooser-item-active');
+
+            fieldObject.fireEvent('positionChoose', [pDom, pDirection, pItem, pChooser]);
+
+        }
+
+        var addChooser = function(pDom, pDirection, pItem){
+
+            var div;
+
+            if (pDirection != 'into'){
+                div = new Element('div', {
                     styles: {
                         paddingLeft: pDom.getStyle('padding-left').toInt()+18
                     }
-                }).inject(pDom, pDirection);
+                }).inject(pDom.childrenContainer, pDirection);
+            } else {
 
-                var a = new Element('a',{
-                    html: '<------ &nbsp;&nbsp;',
-                    href: 'javascript:;',
-                    style: 'text-decoration: none;'
-                })
-                .addEvent('click', function(){
-                    choosePosition(this, pDom, pDirection, pItem);
-                })
-                .inject(div);
-
-                new Element('span', {
-                    'class': 'ka-objectTree-positionChooser-item-text',
-                    text: t('Add here!')
-                }).inject(a);
-
-                return div;
+                div = pDom.span;
+                pDom.insertedAddChooser = true;
             }
 
-            objectOptions.onChildrenLoaded = function(pItem, pDom){
+            var a = new Element('a',{
+                html: ' <------ &nbsp;&nbsp;',
+                'class': 'ka-objectTree-positionChooser-item',
+                href: 'javascript:;',
+                style: 'text-decoration: none;'
+            })
+            .addEvent('click', function(){
+                choosePosition(this, pDom, pDirection, pItem);
+            })
+            .inject(div);
 
-                if (pDom.childrenContainer){
-                    var children = pDom.childrenContainer.getChildren('.ka-objectTree-item');
-                    if (children.length > 0){
-                        var lastItem;
-                        pDom.childrenContainer.getChildren('.ka-objectTree-item').each(function(item){
-                            addChooser(item, 'before', item.objectEntry);
-                            lastItem = item;
-                        });
-                        addChooser(lastItem, 'after', lastItem.objectEntry);
-                    } else if (pDom.isRoot){
+            new Element('span', {
+                'class': 'ka-objectTree-positionChooser-item-text',
+                text: pDirection == 'into' ? tc('nestedObjectChoosePositionDialog', 'Into this!') : tc('nestedObjectChoosePositionDialog', 'Add here!')
+            }).inject(a);
 
-                        addChooser(pDom, 'intro', pDom.objectEntry);
-                    }
+            return div;
+        }
+
+        objectOptions.onChildrenLoaded = function(pItem, pDom){
+
+            if (pDom.childrenContainer){
+                var children = pDom.childrenContainer.getChildren('.ka-objectTree-item');
+                if (children.length > 0){
+                    pDom.childrenContainer.getChildren('.ka-objectTree-item').each(function(item){
+                        addChooser(item, 'after', item.objectEntry);
+                        addChooser(item, 'into', item.objectEntry);
+                    });
                 }
+            }
 
-                this.addNestedRootDialog.center();
-
-            }.bind(this);
-
-            if (this.languageSelect)
-                objectOptions.scopeLanguage = this.languageSelect.getValue();
-
-            dialogLayout.getContentRow(2).setStyle('position', 'relative');
-            var treeContainer = new Element('div', {
-                style: 'position: absolute; left: 0; right: 0; top: 0; bottom: 0; overflow: auto;'
-            }).inject(dialogLayout.getContentRow(2));
-
-            this.addNestedRootField = new ka.Field(objectOptions, treeContainer);
+            if (!pDom.insertedAddChooser)
+                addChooser(pDom, 'into', pDom.objectEntry);
 
             this.addNestedRootDialog.center();
 
-        } else {
-            //just open the form
-        }
+        }.bind(this);
+
+        if (this.languageSelect)
+            objectOptions.scopeLanguage = this.languageSelect.getValue();
+
+        pContainer.setStyle('position', 'relative');
+        var treeContainer = new Element('div', {
+            style: 'position: absolute; left: 0; right: 0; top: 0; bottom: 0; overflow: auto;'
+        }).inject(pContainer);
+
+        fieldObject = new ka.Field(objectOptions, treeContainer);
+        return fieldObject;
 
     },
 
@@ -693,13 +726,11 @@ ka.WindowList = new Class({
 
             if (this.classProperties.add) {
 
-                this.actionsNavi.addButton(t('Add'), ka.mediaPath(this.classProperties.addIcon), function () {
+                this.actionsNavi.addButton(this.options.addLabel || this.classProperties.addLabel, ka.mediaPath(this.classProperties.addIcon), function () {
 
-                    ka.entrypoint.open(ka.entrypoint.getRelative(_this.win.getEntryPoint(), _this.classProperties.addEntrypoint), {
-                        lang: (_this.languageSelect) ? _this.languageSelect.getValue() : false
-                    }, this);
+                    this.openAddItem();
 
-                });
+                }.bind(this));
             }
         }
 

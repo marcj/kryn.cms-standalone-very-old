@@ -199,9 +199,9 @@ abstract class ObjectWindow {
 
     public $nestedRootEdit = false;
     public $nestedRootAdd = false;
-    public $nestedRootAddWithPositionSelection = true;
+    public $nestedAddWithPositionSelection = true;
     public $nestedRootAddIcon = '#icon-plus-2';
-    public $nestedRootAddLabel = 'Add root';
+    public $nestedRootAddLabel = '[[Add root]]';
     public $nestedRootRemove = false;
 
     public $nestedRootEditEntrypoint = 'root/';
@@ -215,6 +215,7 @@ abstract class ObjectWindow {
      * @var boolean
      */
     public $add = false;
+    public $addLabel = '[[Add]]';
     /**
      * Defines whether the remove/delete button should be displayed
      * Also on each row the Delete-Button and the checkboxes.
@@ -377,6 +378,16 @@ abstract class ObjectWindow {
                 $this->filterFields[$fieldKey] = $field;
             }
         }
+
+        $this->translate($this->nestedRootAddLabel);
+        $this->translate($this->addLabel);
+
+    }
+
+    public function translate(&$pField){
+
+        if (is_string($pField) && substr($pField, 0, 2) == '[[' && substr($pField, -2) == ']]')
+            $pField = t(substr($pField, 2, -2));
 
     }
 
@@ -1320,12 +1331,36 @@ abstract class ObjectWindow {
         return $this->nestedRootRemoveEntrypoint;
     }
 
-    public function setNestedRootAddWithPositionSelection($nestedRootAddWithPositionSelection){
-        $this->nestedRootAddWithPositionSelection = $nestedRootAddWithPositionSelection;
+    public function setNestedMoveable($nestedMoveable){
+        $this->nestedMoveable = $nestedMoveable;
     }
 
-    public function getNestedRootAddWithPositionSelection(){
-        return $this->nestedRootAddWithPositionSelection;
+    public function getNestedMoveable(){
+        return $this->nestedMoveable;
+    }
+
+    public function setNestedAddWithPositionSelection($nestedAddWithPositionSelection){
+        $this->nestedAddWithPositionSelection = $nestedAddWithPositionSelection;
+    }
+
+    public function getNestedAddWithPositionSelection(){
+        return $this->nestedAddWithPositionSelection;
+    }
+
+    public function setAddLabel($addLabel){
+        $this->addLabel = $addLabel;
+    }
+
+    public function getAddLabel(){
+        return $this->addLabel;
+    }
+
+    public function setRemoveEntrypoint($removeEntrypoint){
+        $this->removeEntrypoint = $removeEntrypoint;
+    }
+
+    public function getRemoveEntrypoint(){
+        return $this->removeEntrypoint;
     }
 
 

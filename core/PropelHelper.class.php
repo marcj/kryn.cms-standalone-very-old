@@ -214,7 +214,6 @@ class PropelHelper {
         $adapter = Kryn::$config['database']['type'];
         if ($adapter == 'postgresql') $adapter = 'pgsql';
 
-
         $dsn = $adapter.':host='.Kryn::$config['database']['server'].';dbname='.Kryn::$config['database']['name'];
 
         $persistent = Kryn::$config['database']['persistent'] ? true:false;

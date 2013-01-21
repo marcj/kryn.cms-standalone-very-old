@@ -13,9 +13,18 @@ class NodeCrud extends \Admin\ObjectWindow {
     array (
       'title' => 
       array (
-        'type' => 'text',
+        'key' => 'title',
         'label' => 'Title',
-        'empty' => '1',
+        'type' => 'text',
+        'desc' => '',
+        'required' => 'true',
+        'inputWidth' => '',
+        'maxlength' => '',
+        'target' => '',
+        'needValue' => '',
+        'againstField' => '',
+        'default' => '',
+        'requiredRegex' => '',
       ),
     ),
   ),
@@ -34,6 +43,8 @@ class NodeCrud extends \Admin\ObjectWindow {
     public $addIcon = '#icon-plus-5';
 
     public $addEntrypoint = '';
+
+    public $addLabel = 'Add node';
 
     public $add = true;
 
@@ -57,9 +68,13 @@ class NodeCrud extends \Admin\ObjectWindow {
 
     public $nestedRootAdd = true;
 
-    public $nestedRootEdit = false;
+    public $nestedRootEditEntrypoint = 'root/';
 
-    public $nestedRootRemove = false;
+    public $nestedRootEdit = true;
+
+    public $nestedRootRemoveEntrypoint = 'root/';
+
+    public $nestedRootRemove = true;
 
     public $export = false;
 

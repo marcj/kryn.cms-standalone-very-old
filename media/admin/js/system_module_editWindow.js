@@ -411,6 +411,16 @@ var admin_system_module_editWindow = new Class({
                                 type: 'text',
                                 needValue: 1,
                                 desc: t('Default is &lt;current&gt;. Relative values are possible.')
+                            },
+
+                            addLabel: {
+
+                                label: t('Add label text'),
+                                desc: t('The tooltip for the add button and the title of the position chooser dialog.'),
+                                type: 'text',
+                                'default': 'Add',
+                                needValue: 1
+
                             }
                         }
 
@@ -555,7 +565,7 @@ var admin_system_module_editWindow = new Class({
                                             nestedRootAddLabel: {
 
                                                 label: t('Add root label text'),
-                                                desc: t('For add button and position choose dialog.'),
+                                                desc: t('For add button.'),
                                                 'default': 'Add root',
                                                 type: 'text',
                                                 needValue: 1

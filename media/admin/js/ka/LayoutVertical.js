@@ -79,9 +79,7 @@ ka.LayoutVertical = new Class({
             }
             this.table.setStyles({
                 width: '100%',
-                height: this.options.fixed ? '100%' : null,
-                overflow: 'hidden',
-                whiteSpace: 'nowrap'
+                height: this.options.fixed ? '100%' : null
             });
 
             this.container = (this.container.get('tag') == 'tbody') ? pContainer : new Element('tbody').inject(this.table);

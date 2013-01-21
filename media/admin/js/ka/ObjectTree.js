@@ -273,7 +273,7 @@ ka.ObjectTree = new Class({
 
     },
 
-    loadFirstLevel: function (pRootId) {
+    loadFirstLevel: function () {
 
         if (this.lastFirstLevelRq) {
             this.lastFirstLevelRq.cancel();
@@ -284,7 +284,6 @@ ka.ObjectTree = new Class({
             return;
         } else {
 
-            this.rootA = new Element('a');
             this.rootA.childrenContainer = this.paneObjects;
 
         }
@@ -371,7 +370,6 @@ ka.ObjectTree = new Class({
         }).inject(a);
 
 
-
         var overwriteDefinition = {
             treeTemplate: this.objectDefinition.treeRootFieldTemplate,
             treeLabel: this.objectDefinition.treeRootFieldLabel
@@ -393,7 +391,7 @@ ka.ObjectTree = new Class({
 
         a.toggler = new Element('span', {
             'class': 'ka-objectTree-item-toggler',
-            title: _('Open/Close sub-items'),
+            title: t('Open/Close sub-items'),
             html: '&#xe0c3;'
         }).inject(a, 'top');
 

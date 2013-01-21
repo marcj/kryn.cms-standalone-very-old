@@ -5,6 +5,9 @@ A AJAX PHP enterprise open-source Content-Management-System and Content-Manageme
 
 We're in development. This means, there are still a _lot_ of issues in this product (not even an Alpha).
 
+[![Build Status](https://travis-ci.org/KrynLabs/Kryn.cms.png?branch=propel1.6)](https://travis-ci.org/KrynLabs/Kryn.cms)
+
+
 More information and screenshots:
 https://www.facebook.com/kryncms
 
@@ -40,7 +43,7 @@ Contribution
 ------------
 
 Kryn.cms is a free open-source project for almost everyone. For web agencies, freelancers or hobbyists and has
-a lot of features, therefore we need guys like you to keep up the quality.
+a lot of features, where we need guys like you to keep up the quality.
 
 Do you like Kryn.cms? Do you see potential in it? Then we'd love to see you contributing!
 Because the product still in heavy development, we really can need everyone's help to create a awesome product.
@@ -54,7 +57,7 @@ PHPUnit
 --------
 
 
- You have several environment variable to adjust the config in the test suite.
+ You have several environment variables to adjust the config in the test suite.
 
     DOMAIN     The domain the installation (should) have. Should be available through your network. Default is `127.0.0.1`
     PORT       The port the installation (should) have. Default is `8000`.

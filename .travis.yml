@@ -1,0 +1,27 @@
+language: php
+
+php:
+  - 5.3
+  - 5.4
+
+env:
+  - TEMP=/var/tmp/ DB_TYPE=mysql DB_USER=root
+  - TEMP=/var/tmp/ DB_TYPE=mysql DB_USER=postgres
+
+before_script:
+  - ./test/script/setup-apache-fcgi.sh
+  - sh -c "if [ '$DB_TYPE' = 'mysql' ]; then mysql -e 'DROP DATABASE IF EXISTS test; CREATE DATABASE test;'; fi"
+  - sh -c "if [ '$DB_TYPE' = 'pgsql' ]; then psql -c 'DROP DATABASE IF EXISTS test; CREATE DATABASE test;' -U postgres; fi"
+  - sudo chown -R www-data .;
+  - sudo chmod -R g-w .;
+
+script:
+  - ls -al;
+  - cd test;
+  - sudo -u www-data phpunit test;
+
+after_failure:
+  - tail -n 50 /var/log/syslog;
+  - cat /var/log/apache2/*;
+  - cat /etc/apache2/sites-available/*;
+  - cat /etc/apache2/sites-enabled/*;
