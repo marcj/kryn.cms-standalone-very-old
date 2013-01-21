@@ -31,6 +31,12 @@ class RestTestCase extends TestCaseWithCore {
             $this->markTestSkipped('PHP module curl is not installed.');
         }
 
+        $response = Manager::get('/README.md');
+
+        if (strpos($response['content'], 'Kryn.cms') === false){
+            $this->markTestSkipped('Is looks like the DOMAIN or http server is not correctly configured. Skipped.');
+        }
+
     }
     public function run(\PHPUnit_Framework_TestResult $result = NULL){
 
@@ -52,13 +58,7 @@ class RestTestCase extends TestCaseWithCore {
             }
         }
 
-        $response = Manager::get('/README.md');
-
-        if (strpos($response['content'], 'Kryn.cms') === false){
-            $this->markTestSkipped('Is looks like the DOMAIN or http server is not correctly configured. Skipped.');
-        } else {
-            $result = parent::run($result);
-        }
+        $result = parent::run($result);
 
         return $result;
 

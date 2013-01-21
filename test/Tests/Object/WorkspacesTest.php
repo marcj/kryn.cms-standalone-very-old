@@ -103,7 +103,7 @@ class WorkspacesTest extends TestCaseWithCore {
         $this->assertEquals(4, $count);
 
         $item = Object::get('Publication\\News', $id11);
-        $this->assertFalse($item); //should be gone
+        $this->assertNull($item); //should be gone
 
         Object::clear('Publication\\News');
 
