@@ -17,8 +17,7 @@ before_script:
 
 script:
   - ls -al;
-  - cd test;
-  - sudo -u www-data phpunit test/;
+  - sudo -u www-data phpunit test/Tests;
 
 after_failure:
   - tail -n 50 /var/log/syslog;
