@@ -6,7 +6,7 @@ php:
 
 env:
   - TEMP=/var/tmp/ DB_TYPE=mysql DB_USER=root
-  - TEMP=/var/tmp/ DB_TYPE=mysql DB_USER=postgres
+  - TEMP=/var/tmp/ DB_TYPE=pgsql DB_USER=postgres
 
 before_script:
   - ./test/script/travis-setup-apache-fcgi.sh
