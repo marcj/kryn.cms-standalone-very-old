@@ -632,58 +632,6 @@
         return $return;
     }
 
-    public function searchAdmin($pQuery) {
-
-        $res = array();
-
-        $lang = getArgv('lang');
-
-        //pages
-        $pages = dbExfetch("SELECT p.id, p.title, d.lang
-            FROM %pfx%system_page p, %pfx%system_domains d
-            WHERE d.id = p.domain_id AND p.title LIKE '%$pQuery%' LIMIT 10 OFFSET 0", -1);
-
-        if (count($pages) > 0) {
-            foreach ($pages as $page)
-                $respages[] =
-                    array($page['title'], 'admin/pages/', array('id' => $page['id'], 'lang' => $page['lang']));
-            $res[_l('Pages')] = $respages;
-        }
-
-        //help
-        $helps = array();
-        foreach (Kryn::$configs as $key => $mod) {
-            $helpFile = PATH_MODULE . "$key/lang/help_$lang.json";
-            if (!file_exists($helpFile)) continue;
-            if (count($helps) > 10) continue;
-
-            $json = json_decode(Kryn::fileRead($helpFile), 1);
-            if (is_array($json) && count($json) > 0) {
-                foreach ($json as $help) {
-
-                    if (count($helps) > 10) continue;
-                    $found = false;
-
-                    if (preg_match("/$pQuery/i", $help['title']))
-                        $found = true;
-
-                    if (preg_match("/$pQuery/i", $help['tags']))
-                        $found = true;
-
-                    if (preg_match("/$pQuery/i", $help['help']))
-                        $found = true;
-
-                    if ($found)
-                        $helps[] = array($help['title'], 'admin/help', array('id' => $key . '/' . $help['id']));
-                }
-            }
-        }
-        if (count($helps) > 0) {
-            $res[_l('Help')] = $helps;
-        }
-
-        return $res;
-    }
 
     public static function loadHelp() {
         $id = getArgv('id');

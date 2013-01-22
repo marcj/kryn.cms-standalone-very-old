@@ -43,7 +43,6 @@ class ObjectWindowController extends Server {
 
             if (in_array($pEntryPoint['type'], $adminWindows)) {
 
-
                 //add routes
                 $trigger = $pEntryPoint['_module'].'/'.$pEntryPoint['_code'];
 

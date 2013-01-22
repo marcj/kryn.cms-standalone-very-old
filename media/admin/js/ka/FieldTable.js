@@ -14,6 +14,8 @@ ka.FieldTable = new Class({
         allTableItems: true,
         withActions: true,
 
+        withWidth: false, //is enabled if asFrameworkColumn is active. otherwise you can enable it here manually.
+
         fieldTypes: false, //if as array defined, we only have types which are in this list
         fieldTypesBlacklist: false, //if as array defined, we only have types which are not in this list
 
@@ -48,7 +50,7 @@ ka.FieldTable = new Class({
 
         this.headerTr = new Element('tr').inject(this.header);
         new Element('th', {text: 'Key'}).inject(this.headerTr);
-        if (this.options.asFrameworkColumn){
+        if (this.options.asFrameworkColumn || this.options.withWidth){
             this.widthTd = new Element('th', {width: 80, text: 'Width'}).inject(this.headerTr);
         }
         new Element('th', {width: 150, text: 'Type'}).inject(this.headerTr);

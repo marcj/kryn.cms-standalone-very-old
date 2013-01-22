@@ -22,6 +22,8 @@
             "icon": "#icon-newspaper",
             "isLink": true,
             "multi": true,
+            "minWidth": 650,
+            "minHeight": 350,
             "children": {
                 "add": {
                     "title": "[[Add]]",

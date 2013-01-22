@@ -217,7 +217,7 @@ abstract class ObjectWindow {
     public $add = false;
     public $addLabel = '[[Add]]';
     public $addMultiple = false;
-    public $addMultipleFieldContainerWidth = '50%';
+    public $addMultipleFieldContainerWidth = '70%';
 
     public $addMultipleFields = array();
 
@@ -329,10 +329,27 @@ abstract class ObjectWindow {
             $this->titleField = $this->objectDefinition['label'];
 
         //resolve shortcuts
-        if ($this->fields)
+        if ($this->fields){
             $this->prepareFieldDefinition($this->fields);
-        if ($this->columns)
+            ObjectWindowController::translateFields($this->fields);
+        }
+
+        if ($this->columns){
             $this->prepareFieldDefinition($this->columns);
+            ObjectWindowController::translateFields($this->columns);
+        }
+
+        if ($this->addMultipleFields){
+            $this->prepareFieldDefinition($this->addMultipleFields);
+            ObjectWindowController::translateFields($this->addMultipleFields);
+        }
+
+        if ($this->addMultipleFixedFields){
+            $this->prepareFieldDefinition($this->addMultipleFixedFields);
+            ObjectWindowController::translateFields($this->addMultipleFixedFields);
+        }
+
+
 
 
         //do magic with type select and add all fields to _fields.
@@ -368,8 +385,6 @@ abstract class ObjectWindow {
         }
 
         $this->filterFields = array();
-
-        ObjectWindowController::translateFields($this->fields);
 
         if ($this->filter) {
             foreach ($this->filter as $key => $val) {

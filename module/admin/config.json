@@ -241,11 +241,11 @@
                 "settings": {
                     "title": "[[Settings]]",
                     "type": "custom",
+                    "icon": "",
                     "isLink": true,
                     "multi": true,
-                    "children": [
-                        
-                    ]
+                    "minWidth": 500,
+                    "minHeight": 500
                 },
                 "development": {
                     "title": "[[Development]]",

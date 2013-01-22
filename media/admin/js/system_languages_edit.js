@@ -69,31 +69,27 @@ var admin_system_languages_edit = new Class({
 
         this.saveBtn.startTip(_('Saving ...'));
         translations = JSON.encode(translations);
-        this.lr = new Request.JSON({url: _path + 'admin/system/module/saveLanguage', noCache: 1, onComplete: function (res) {
-            if (!res) {
-                this.win._alert(_('Permission denied to the language file. Please check your permissions.'));
+        this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/language', noCache: 1, onComplete: function (res) {
+            if (!res.data) {
+                this.win._alert(t('Permission denied to the language file. Please check your permissions.'));
             }
-            this.saveBtn.stopTip(_('Saved'));
+            this.saveBtn.stopTip(t('Saved'));
         }.bind(this)}).post({name: this.mod, lang: this.languageSelect.getValue(), langs: translations});
     },
 
     _extractLanguage: function () {
-        this.lr = new Request.JSON({url: _path + 'admin/system/module/extractLanguage', noCache: 1, onComplete: function (res) {
-            if( res.error == 'access_denied' ){
-                this.win._alert(_('Access denied to administration extension manager'), function(res){
-                    this.win.close();
-                }.bind(this));
-                return;
+        this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/language/extract', noCache: 1, onComplete: function (pResponse) {
+            if (pResponse.data){
+                this.extractedLanguages = pResponse.data;
+                this.loadLanguage(true);
             }
-            this.extractedLanguages = res;
-            this.loadLanguage(true);
-        }.bind(this)}).post({name: this.mod});
+        }.bind(this)}).get({name: this.mod});
     },
 
     loadLanguage: function (pRenderExtractedLangs) {
-        this.lr = new Request.JSON({url: _path + 'admin/system/module/getLanguage', noCache: 1, onComplete: function (res) {
-            this._renderLangs(res, pRenderExtractedLangs);
-        }.bind(this)}).post({name: this.mod, lang: this.languageSelect.getValue()});
+        this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/language', noCache: 1, onComplete: function (pResponse) {
+            this._renderLangs(pResponse.data, pRenderExtractedLangs);
+        }.bind(this)}).get({name: this.mod, lang: this.languageSelect.getValue()});
     },
 
     _renderLangs: function (pLangs, pRenderExtractedLangs) {

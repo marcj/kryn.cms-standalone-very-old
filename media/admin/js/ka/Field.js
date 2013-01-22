@@ -69,7 +69,7 @@ ka.Field = new Class({
             this.field = Object.clone(pDefinition);
         }
 
-        this.calledDefinition = pDefinition;
+        this.calledDefinition = Object.clone(pDefinition);
 
         this.setOptions(this.field);
         this.container = pContainer;
@@ -452,10 +452,7 @@ ka.Field = new Class({
      */
     checkValid: function(){
 
-        var status = this.isValid();
-        if (status) this.fieldObject.showValid();
-        else this.fieldObject.showNotValid();
-        return status;
+        return this.fieldObject.checkValid();
     },
 
     /**

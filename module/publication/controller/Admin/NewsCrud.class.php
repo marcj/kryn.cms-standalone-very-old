@@ -23,7 +23,7 @@ class NewsCrud extends \Admin\ObjectWindow {
 );
 
     public $columns = array (
-  'title' => 
+  'title' =>
   array (
     'type' => 'text',
   )

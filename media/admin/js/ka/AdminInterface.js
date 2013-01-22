@@ -34,7 +34,7 @@ ka.AdminInterface = new Class({
             } else {
                 this.hideMiniSearch();
             }
-        });
+        }.bind(this));
     },
 
     /*
@@ -183,6 +183,7 @@ ka.AdminInterface = new Class({
 
         if (!this._miniSearchPane) {
             document.id('ka-search-query').set('class', 'text mini-search-active');
+
             this._miniSearchPane = new Element('div', {
                 'class': 'ka-mini-search'
             }).inject(document.id('border'));
@@ -205,16 +206,16 @@ ka.AdminInterface = new Class({
 
 
         if (this._lastTimer) clearTimeout(this._lastTimer);
-        this._lastTimer = this._miniSearch.delay(500);
+        this._lastTimer = this._miniSearch.delay(500, this);
 
     },
 
     _miniSearch: function () {
 
-        new Request.JSON({url: _path + 'admin/mini-search', noCache: 1, onComplete: function (res) {
+        new Request.JSON({url: _path + 'admin/backend/search', noCache: 1, onComplete: function (pResponse) {
             this._miniSearchLoader.setStyle('display', 'none');
-            this._renderMiniSearchResults(res);
-        }.bind(this)}).post({q: document.id('ka-search-query').value, lang: window._session.lang});
+            this._renderMiniSearchResults(pResponse.data);
+        }.bind(this)}).get({q: document.id('ka-search-query').value, lang: window._session.lang});
 
     },
 
@@ -224,7 +225,7 @@ ka.AdminInterface = new Class({
 
         if (typeOf(pRes) == 'object') {
 
-            $H(pRes).each(function (subresults, subtitle) {
+            Object.each(pRes, function (subresults, subtitle) {
                 var subBox = new Element('div').inject(this._miniSearchResults);
 
                 new Element('h3', {
@@ -232,20 +233,19 @@ ka.AdminInterface = new Class({
                 }).inject(subBox);
 
                 var ol = new Element('ul').inject(subBox);
-                subresults.each(function (subsubresults, index) {
+                Array.each(subresults, function (subsubresults, index) {
                     var li = new Element('li').inject(ol);
                     new Element('a', {
                         html: ' ' + subsubresults[0],
                         href: 'javascript: ;'
-                    }).addEvent('click',
-                        function () {
-                            ka.wm.open(subsubresults[1], subsubresults[2]);//todo, does it work?
-                            this.hideMiniSearch();
-                        }).inject(li);
-                });
-            });
+                    }).addEvent('click', function () {
+                        ka.wm.open(subsubresults[1], subsubresults[2]);
+                        this.hideMiniSearch();
+                    }.bind(this)).inject(li);
+                }.bind(this));
+            }.bind(this));
         } else {
-            new Element('span', {html: _('No results') }).inject(this._miniSearchResults);
+            new Element('span', {html: t('No results') }).inject(this._miniSearchResults);
         }
 
     },
@@ -762,7 +762,10 @@ ka.AdminInterface = new Class({
         this._moduleMenu = new Element('div', {
             'class': 'ka-module-menu',
             style: 'left: -250px;'
-        }).addEvent('mouseover', this.toggleModuleMenuIn.bind(this, true)).addEvent('mouseout', this.toggleModuleMenuOut).inject(document.body);
+        })
+        .addEvent('mouseover', this.toggleModuleMenuIn.bind(this, true))
+        .addEvent('mouseout', this.toggleModuleMenuOut).inject(document.body);
+
         this._moduleMenu.set('tween', {transition: Fx.Transitions.Quart.easeOut});
 
         this.moduleToggler = new Element('div', {

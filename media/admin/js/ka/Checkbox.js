@@ -24,7 +24,7 @@ ka.Checkbox = new Class({
 
         this.value = false;
 
-        knob.addEvent('click', function () {
+        this.box.addEvent('click', function () {
             this.setValue(this.value == false ? true : false);
             this.fireEvent('change');
         }.bind(this));
@@ -48,8 +48,8 @@ ka.Checkbox = new Class({
 
         this.value = p;
         if (this.value) {
-            this.box.addClass('ka-Checkbox-on');
             this.box.removeClass('ka-Checkbox-off');
+            this.box.addClass('ka-Checkbox-on');
         } else {
             this.box.addClass('ka-Checkbox-off');
             this.box.removeClass('ka-Checkbox-on');

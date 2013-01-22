@@ -162,8 +162,8 @@ class Utils {
 
             //inside other extension
             $adminInfo = Kryn::$configs[$codes[0]]['entryPoints'];
-            $module = array_shift($codes);
             $code = substr($pCode, strlen($codes[0]) + 1);
+            $module = array_shift($codes);
 
             $entryPoint = array('type' => -1, 'title' => Kryn::$configs[$module]['title'],
                                 'children' => Kryn::$configs[$module]['entryPoints']);

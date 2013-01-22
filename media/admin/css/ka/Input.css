@@ -1,12 +1,11 @@
+.ka-Input-wrapper,
 .ka-Input,
 input.text {
 
     border: 1px solid #bbb;
     color: #444;
     font-size: 12px;
-    line-height: 18px;
-    -moz-border-radius: 3px;
-    background-color: white;
+    line-height: 20px;
     margin: 0 auto;
 
     text-indent: 4px;
@@ -31,13 +30,33 @@ input.text {
 }
 
 .ka-Input-wrapper {
+    text-indent: 0;
+    height: 22px;
+}
+
+.ka-Input-inner-wrapper {
     position: relative;
-    min-height: 22px;
+    height: 20px;
+    margin: 1px;
+    margin-left: 4px;
 }
 
 .ka-Input-inner-wrapper > .ka-Input {
     width: 100%;
+    padding: 0px;
+    height: 20px;
+    line-height: 20px;
+    border: 0px;
+    background-color: transparent;
+
+    -moz-border-radius: 0px;
+    -webkit-border-radius: 0px;
+    border-radius: 0px;
+    box-shadow: 0px;
+
+    text-indent: 0px;
 }
+
 
 .ka-Input:focus,
 input.text:focus {
@@ -58,4 +77,20 @@ input.text-inactive:focus {
 .ka-Input-invalid,
 .ka-Input-invalid:focus {
     border: 1px solid red;
+}
+
+
+.ka-Input-inner-wrapper > .ka-Input:focus,
+
+.ka-Input-inner-wrapper > .ka-Input-disabled,
+.ka-Input-inner-wrapper > .ka-Input-inactive,
+.ka-Input-inner-wrapper > input.text-inactive,
+.ka-Input-inner-wrapper > .ka-Input-disabled:focus,
+.ka-Input-inner-wrapper > .ka-Input-inactive:focus,
+.ka-Input-inner-wrapper > input.text-inactive:focus,
+
+.ka-Input-inner-wrapper > .ka-Input-invalid,
+.ka-Input-inner-wrapper > .ka-Input-invalid:focus {
+    border: 0px;
+    background-color: transparent;
 }

@@ -28,6 +28,18 @@ class Backend {
         return true;
     }
 
+    public function getSearch($pQ, $pLang = null) {
+
+        $res = array();
+        foreach (Kryn::$modules as &$mod) {
+            if (method_exists($mod, 'searchAdmin')) {
+                $res = array_merge($res, $mod->searchAdmin($pQ));
+            }
+        }
+        return $res;
+    }
+
+
     public function getWidgets() {
 
         if ($widgets = Kryn::$adminClient->getUser()->getWidgets())

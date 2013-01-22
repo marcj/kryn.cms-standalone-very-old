@@ -307,7 +307,32 @@ var admin_system_module_editWindow = new Class({
             addMultiple: {
                 type: 'checkbox',
                 label: t('Activates mass insertion in the add form'),
-                'default': false
+                'default': false,
+                'children': {
+
+                    addMultipleFieldContainerWidth: {
+                        label: t('Field container width'),
+                        type: 'text',
+                        'default': '70%'
+                    },
+                    addMultipleFixedFields: {
+                        label: t('Fields for all items'),
+                        type: 'fieldTable',
+                        tableItem: false,
+                        asFrameworkFieldDefinition: true,
+                        arrayKey: true
+                    },
+
+                    addMultipleFields: {
+                        label: t('Fields per item'),
+                        type: 'fieldTable',
+                        tableItem: false,
+                        asFrameworkFieldDefinition: true,
+                        arrayKey: true,
+                        withWidth: true
+                    }
+
+                }
             }
 
 
@@ -782,7 +807,7 @@ var admin_system_module_editWindow = new Class({
 
         var extractFields = function(pField, pChildren){
 
-            var children = pChildren || {};
+            var children = {};
             if (typeOf(pField) == 'element' && pField.instance)
                 pField = pField.instance;
 
@@ -802,10 +827,9 @@ var admin_system_module_editWindow = new Class({
 
                     children[field.instance.getKey()] = field.instance.getDefinition();
                     delete children[field.instance.getKey()].designMode;
+                    delete children[field.instance.getKey()].key;
 
-                    children[field.instance.getKey()].children = {};
-
-                    extractFields(field.instance, children[field.instance.getKey()].children);
+                    children[field.instance.getKey()].children = extractFields(field.instance);
 
                     if (Object.getLength(children[field.instance.getKey()].children) == 0)
                         delete children[field.instance.getKey()].children;
@@ -1625,6 +1649,8 @@ var admin_system_module_editWindow = new Class({
             }
 
             this.windowListObj.setValue(this.definition.properties);
+            this.windowListObj.setValue(this.definition.properties);
+            this.windowAddObj.setValue(this.definition.properties);
         //}
 
         //if (pClass == 'adminWindowEdit' || pClass == 'adminWindowAdd'){
@@ -1913,7 +1939,7 @@ var admin_system_module_editWindow = new Class({
         }
 
 
-        var definition = field.editWindowDefinition || {};
+        var definition = Object.clone(field.editWindowDefinition) || {};
 
         definition.key = field.key;
 

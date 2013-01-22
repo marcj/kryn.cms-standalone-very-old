@@ -730,6 +730,7 @@ a.ka-subnavi-main:link {
     padding-right: 150px;
     
     z-index: 111000;
+    overflow: hidden;
 }
 
 .ka-no-desktop div.windowList {
@@ -792,7 +793,7 @@ a.ka-subnavi-main:link {
 .ka-search {
     float: right;
     margin-right: 6px;
-    padding-top: 8px;
+    padding-top: 10px;
     position: relative;
 }
 

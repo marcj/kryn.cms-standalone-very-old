@@ -5,36 +5,26 @@ namespace Admin\Admin;
 class NodeCrud extends \Admin\ObjectWindow {
 
     public $fields = array (
-  '__General__' => 
-  array (
+  '__General__' => array (
     'label' => 'General',
     'type' => 'tab',
-    'children' => 
-    array (
-      'title' => 
-      array (
-        'key' => 'title',
+    'children' => array (
+      'title' => array (
         'label' => 'Title',
         'type' => 'text',
         'required' => 'true',
       ),
-      'type' => 
-      array (
-        'key' => 'type',
+      'type' => array (
         'label' => 'Type',
         'type' => 'number',
         'required' => 'true',
       ),
-      'url' => 
-      array (
-        'key' => 'url',
+      'url' => array (
         'label' => 'URL',
         'type' => 'text',
         'required' => 'true',
       ),
-      'link' => 
-      array (
-        'key' => 'link',
+      'link' => array (
         'label' => 'Link',
         'combobox' => 'true',
         'type' => 'object',
@@ -44,42 +34,31 @@ class NodeCrud extends \Admin\ObjectWindow {
       ),
     ),
   ),
-  '__Access__' => 
-  array (
+  '__Access__' => array (
     'label' => 'Access',
     'type' => 'tab',
-    'children' => 
-    array (
-      'visible' => 
-      array (
-        'type' => 'checkbox',
+    'children' => array (
+      'visible' => array (
         'label' => 'Visible in navigation',
-        'empty' => '1',
-      ),
-      'accessDenied' => 
-      array (
         'type' => 'checkbox',
+      ),
+      'accessDenied' => array (
         'label' => 'Access denied',
-        'desc' => 'For everyone. This remove the page from the navigation.',
-        'empty' => '1',
-      ),
-      'forceHttps' => 
-      array (
         'type' => 'checkbox',
+        'desc' => 'For everyone. This remove the page from the navigation.',
+      ),
+      'forceHttps' => array (
         'label' => 'Force HTTPS',
-        'empty' => '1',
+        'type' => 'checkbox',
       ),
     ),
+    'key' => '__Access__',
   ),
-  '__Content__' => 
-  array (
+  '__Content__' => array (
     'label' => 'Content',
     'type' => 'tab',
-    'children' => 
-    array (
-      'field_1' => 
-      array (
-        'key' => 'field_1',
+    'children' => array (
+      'field_1' => array (
         'label' => '#Todo',
         'type' => 'label',
       ),
@@ -124,6 +103,21 @@ class NodeCrud extends \Admin\ObjectWindow {
     public $nestedRootRemove = true;
 
     public $export = false;
+
+    public $addMultipleFields = array (
+  'title' => array (
+    'label' => 'Title',
+    'type' => 'text',
+    'required' => 'true',
+  ),
+  'visible' => array (
+    'label' => 'Visible',
+    'type' => 'checkbox',
+    'width' => '100',
+  ),
+);
+
+    public $addMultiple = true;
 
     public $object = 'Core\\Node';
 

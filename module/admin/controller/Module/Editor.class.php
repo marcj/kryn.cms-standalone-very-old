@@ -34,6 +34,30 @@ class Editor {
         return Kryn::fileWrite($path, $json);
     }
 
+    public function getLanguage($pName, $pLang = null){
+
+        Manager::prepareName($pName);
+
+        return \Core\Lang::getLanguage($pName, $pLang);
+
+    }
+
+    public function saveLanguage($pName, $pLangs, $pLang = null){
+
+        Manager::prepareName($pName);
+
+        return \Core\Lang::saveLanguage($pName, $pLang, $pLangs);
+
+    }
+
+    public function getExtractedLanguage($pName){
+
+        Manager::prepareName($pName);
+
+        return \Core\Lang::extractLanguage($pName);
+
+    }
+
     public static function getWindows($pName) {
         Manager::prepareName($pName);
 
@@ -662,9 +686,14 @@ class Editor {
 
     public function addVar(&$pSourceCode, $pName, $pVar, $pVisibility = 'public', $pStatic = false){
 
+        $val = var_export(self::toVar($pVar), true);
+
+        if (is_array($pVar))
+            $val = preg_replace("/' => \n\s+array \(/", "' => array (", $val);
+
         $pSourceCode .=
             "    "
-            .$pVisibility.($pStatic?' static':'').' $'.$pName.' = '.var_export(self::toVar($pVar), true)
+            .$pVisibility.($pStatic?' static':'').' $'.$pName.' = '.$val
             .";\n\n";
 
     }

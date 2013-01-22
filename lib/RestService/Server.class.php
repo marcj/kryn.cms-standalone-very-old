@@ -596,7 +596,7 @@ class Server {
     private function createControllerClass($pClassName){
         if ($pClassName != ''){
             try {
-                $this->controller = new $pClassName();
+                $this->controller = new $pClassName($this);
                 if (get_parent_class($this->controller) == 'RestService\Server'){
                     $this->controller->setClient($this->getClient());
                 }

@@ -150,6 +150,23 @@ ka.FieldAbstract = new Class({
     },
 
     /**
+     * Detects if the entered data is valid and shows a visual
+     * symbol if not.
+     *
+     * This means:
+     *  - if options.required==true and the user entered a value
+     *  - if options.requiredRegex and the value passes the regex
+     *
+     * @return {Boolean} true if everything is ok
+     */
+    checkValid: function(){
+        var status = this.isValid();
+        if (status) this.showValid();
+        else this.showNotValid();
+        return status;
+    },
+
+    /**
      * If the entered data is no valid, this will be fired. (possible with each 'change' event)
      *
      * @param  {String} pText text to display

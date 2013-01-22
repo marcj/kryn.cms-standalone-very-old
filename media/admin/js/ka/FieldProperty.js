@@ -339,6 +339,8 @@ ka.FieldProperty = new Class({
         allTableItems: true,
         withActions: true,
 
+        withWidth: false, //is enabled if asFrameworkColumn is active. otherwise you can enable it here manually.
+
         fieldTypes: false, //if as array defined, we only have types which are in this list
         fieldTypesBlacklist: false, //if as array defined, we only have types which are not in this list
 
@@ -428,9 +430,7 @@ ka.FieldProperty = new Class({
 
         }
 
-        if (!this.options.asFrameworkColumn){
-            delete this.kaFields.width;
-        } else {
+        if (this.options.asFrameworkColumn){
             delete this.kaFields.__optional__;
             this.kaFields.type.label = t('Display type');
             this.kaFields.type.items = {
@@ -462,7 +462,10 @@ ka.FieldProperty = new Class({
                 }
 
             };
+        } else if (!this.options.withWidth){
+            delete this.kaFields.width;
         }
+
 
 
         if (typeOf(this.options.fieldTypes) == 'array'){
@@ -519,7 +522,7 @@ ka.FieldProperty = new Class({
 
             this.iKey.setValue(this.key?this.key:'property_'+count);
 
-            if (this.options.asFrameworkColumn){
+            if (this.options.asFrameworkColumn || this.options.withWidth){
                 this.tdWidth = new Element('td', {width: 80}).inject(this.main);
 
                 var width = Object.clone(this.kaFields.width);
@@ -681,7 +684,7 @@ ka.FieldProperty = new Class({
 
         this.fieldObject.getField('type').setValue(this.typeField.getValue(), true);
 
-        if (this.options.asFrameworkColumn){
+        if (this.options.asFrameworkColumn || this.options.withWidth){
             this.fieldObject.getField('width').setValue(this.widthField.getValue(), true);
         }
 
@@ -699,7 +702,7 @@ ka.FieldProperty = new Class({
 
             this.definition = this.fieldObject.getValue();
             this.typeField.setValue(this.definition.type);
-            if (this.options.asFrameworkColumn)
+            if (this.options.asFrameworkColumn || this.options.withWidth)
                 this.widthField.setValue(this.definition.width);
 
             this.dialog.close();
@@ -832,7 +835,7 @@ ka.FieldProperty = new Class({
             this.typeField.setValue(pDefinition.type);
             this.definition = pDefinition;
 
-            if (this.options.asFrameworkColumn)
+            if (this.options.asFrameworkColumn || this.options.withWidth)
                 this.widthField.setValue(pDefinition.width);
 
         } else {

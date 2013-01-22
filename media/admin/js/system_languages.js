@@ -50,10 +50,7 @@ var admin_system_languages = new Class({
 
         Object.each(ka.settings.configs, function(config,id){
 
-            var title = config.title['en'];
-            if( config.title[window._session.lang] ){
-                title = config.title[window._session.lang];
-            }
+            var title = config.title;
 
             new Element('h3', {
                 text: title,
@@ -73,11 +70,11 @@ var admin_system_languages = new Class({
         div.empty();
 
         var left = new Element('div', {style: 'position: absolute; left: 5px; top: 10px; right: 90px;'}).inject( div );
-        this.progressBars[pExtensionId] = new ka.Progress(_('Extracting ...'), true);
+        this.progressBars[pExtensionId] = new ka.Progress(t('Extracting ...'), true);
         this.progressBars[pExtensionId].inject( left );
 
-        var right = new Element('div', {style: 'position: absolute; right: 10px; top: 5px;'}).inject( div )
-        this.translateBtn[pExtensionId] = new ka.Button(_('Translate')).inject( right );
+        var right = new Element('div', {style: 'position: absolute; right: 10px; top: 12px;'}).inject( div )
+        this.translateBtn[pExtensionId] = new ka.Button(t('Translate')).inject( right );
         this.translateBtn[pExtensionId].addEvent('click', function(){
             ka.wm.open('admin/system/languages/edit', {lang: this.languageSelect.getValue(), module: pExtensionId});
         }.bind(this));
@@ -89,20 +86,27 @@ var admin_system_languages = new Class({
 
     loadExtensionOverview: function(pExtensionId){
 
-        this.lastRequests = new Request.JSON({url: _path+'admin/system/languages/overviewExtract', noCache:1,
-        onComplete: function( pRes ){
+        this.lastRequests = new Request.JSON({url: _path+'admin/system/languages/overview', noCache:1,
+        onComplete: function(pResponse){
 
-            this.progressBars[pExtensionId].setUnlimited( false );
-            this.progressBars[pExtensionId].setValue( (pRes.countTranslated/pRes.count)*100 );
+            if (!pResponse.data){
 
-            this.progressBars[pExtensionId].setText(
-                _('%1 of %2 translated')
-                    .replace('%1', pRes.countTranslated)
-                    .replace('%2', pRes['count'])
-            );
+                this.progressBars[pExtensionId].setText(
+                    'Error.'
+                );
+            } else {
+                this.progressBars[pExtensionId].setUnlimited( false );
+                this.progressBars[pExtensionId].setValue( (pResponse.data.countTranslated/pResponse.data.count)*100 );
+
+                this.progressBars[pExtensionId].setText(
+                    _('%1 of %2 translated')
+                        .replace('%1', pResponse.data.countTranslated)
+                        .replace('%2', pResponse.data['count'])
+                );
+            }
 
             this.translateBtn[pExtensionId].activate();
-        }.bind(this)}).post({module: pExtensionId, lang: this.languageSelect.getValue()});
+        }.bind(this)}).get({module: pExtensionId, lang: this.languageSelect.getValue()});
 
     }
 });

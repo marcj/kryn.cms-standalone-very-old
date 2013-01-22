@@ -58,7 +58,14 @@ ka.FieldTypes.Array = new Class({
          *
          * @var {Object}
          */
-        fields: {}
+        fields: {},
+
+
+        /**
+         * With how many items should we start?
+         * @var {Number}
+         */
+        startWith: 0
     },
 
     createLayout: function(){
@@ -133,6 +140,39 @@ ka.FieldTypes.Array = new Class({
     },
 
 
+    isValid: function(){
+
+        var valid = true;
+
+        this.tbody.getChildren('tr').each(function (tr) {
+
+            if (!valid) return;
+
+            Object.each(tr.fields, function (field) {
+                if (!valid) return;
+                if (!field.isValid()) valid = false;
+            });
+        });
+
+        return valid;
+    },
+
+    checkValid: function(){
+
+        var valid = true;
+
+        this.tbody.getChildren('tr').each(function (tr) {
+
+            if (!valid) return;
+
+            Object.each(tr.fields, function (field) {
+                if (!valid) return;
+                if (!field.checkValid()) valid = false;
+            });
+        });
+
+        return valid;
+    },
 
     getValue: function(){
 

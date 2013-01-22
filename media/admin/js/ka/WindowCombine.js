@@ -1044,7 +1044,7 @@ ka.WindowCombine = new Class({
 
     renderFinished: function () {
 
-        if (this.win.params && this.win.params.list.language && this.languageSelect) {
+        if (this.win.params && this.win.params.list && this.win.params.list.language && this.languageSelect) {
             this.languageSelect.setValue(this.win.params.list.language);
         }
 

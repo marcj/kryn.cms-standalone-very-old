@@ -61,7 +61,10 @@ ka.WindowAdd = new Class({
 
                     this.addDialogLayoutPositionChooser = this.addNestedObjectPositionChooser(this.addItemMultiAddLayout.getColumn(1));
 
-                    this.populateAddMultipleForm(this.addItemMultiAddLayout.getColumn(2));
+                    this.addDialogFieldContainerNested = new Element('div', {
+                        'style': 'position: absolute; left: 6px; top: 0; right: 0; bottom: 0; overflow: auto;'
+                    }).inject(this.addItemMultiAddLayout.getColumn(2));
+                    this.populateAddMultipleForm(this.addDialogFieldContainerNested);
                 } else {
                     this.populateAddMultipleForm(this.addDialogFieldContainer);
                 }
@@ -111,6 +114,8 @@ ka.WindowAdd = new Class({
         if (!this.addItemToAdd) valid = false;
 
         if (this.classProperties.addMultiple){
+
+            logger(this.addMultipleFieldForm.checkValid());
             if (this.addMultipleFieldForm && !this.addMultipleFieldForm.checkValid()) valid = false;
 
             if (this.openAddItemSaveButton)
@@ -126,28 +131,27 @@ ka.WindowAdd = new Class({
 
         var fields = {};
 
-        if (typeOf(this.classProperties.addMultipleFixedFields) == 'array' &&
-            this.classProperties.addMultipleFixedFields.length > 0){
+        if (typeOf(this.classProperties.addMultipleFixedFields) == 'object' &&
+            Object.getLength(this.classProperties.addMultipleFixedFields) > 0){
 
-            Array.each(this.classProperties.addMultipleFixedFields, function(item, key){
+            Object.each(this.classProperties.addMultipleFixedFields, function(item, key){
                 fields[key] = item;
             });
 
         }
 
-        if (typeOf(this.classProperties.addMultipleFields) == 'array' &&
-            this.classProperties.addMultipleFields.length > 0){
-
-
+        if (typeOf(this.classProperties.addMultipleFields) == 'object' &&
+            Object.getLength(this.classProperties.addMultipleFields) > 0){
 
             fields.__perItemFields = {
                 title: t('Values per entry'),
                 type: 'array',
+                startWidth: 1,
                 columns: [],
                 fields: {}
             };
 
-            Array.each(this.classProperties.addMultipleFields, function(item, key){
+            Object.each(this.classProperties.addMultipleFields, function(item, key){
 
                 var column = {};
                 column.label = item.label;
@@ -161,7 +165,9 @@ ka.WindowAdd = new Class({
 
         }
 
-        this.addMultipleFieldForm = new ka.FieldForm(pContainer, fields);
+        this.addMultipleFieldForm = new ka.FieldForm(pContainer, fields, {
+            onChange: this.checkAddItemForm.bind(this)
+        });
 
     },
 

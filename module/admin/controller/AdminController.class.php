@@ -67,6 +67,7 @@ class AdminController {
 
             //is window entry point?
             $objectWindowTypes = array('list', 'edit', 'add', 'combine');
+
             if (in_array($entryPoint['type'], $objectWindowTypes)){
                 $epc = new ObjectWindowController('admin');
                 $epc->setExceptionHandler($exceptionHandler);
@@ -130,6 +131,8 @@ class AdminController {
                     ->addPostRoute('user-settings', 'saveUserSettings')
 
                     ->addDeleteRoute('cache', 'clearCache')
+
+                    ->addGetRoute('search', 'getSearch')
 
                 ->done()
 
@@ -220,6 +223,11 @@ class AdminController {
                     ->done()
 
 
+
+                    ->addSubController('languages', '\Admin\Languages')
+                    ->done()
+
+
                     //admin/system/orm
                     ->addSubController('orm', '\Admin\ORM')
                         ->addGetRoute('environment', 'buildEnvironment')
@@ -249,6 +257,10 @@ class AdminController {
 
                         ->addPostRoute('model', 'saveModel')
                         ->addGetRoute('model', 'getModel')
+
+                        ->addPostRoute('language', 'saveLanguage')
+                        ->addGetRoute('language', 'getLanguage')
+                        ->addGetRoute('language/extract', 'getExtractedLanguage')
 
                         ->addPostRoute('general', 'saveGeneral')
                         ->addPostRoute('entryPoints', 'saveEntryPoints')
@@ -288,6 +300,58 @@ class AdminController {
     public function logoutUser(){
         Kryn::getClient()->logout();
         return true;
+    }
+
+
+    public function searchAdmin($pQuery) {
+
+        $res = array();
+
+        $lang = getArgv('lang');
+
+        //pages
+        $nodes = \Core\NodeQuery::create()->filterByTitle('%'.$pQuery.'%', \Criteria::LIKE)->find();
+
+        if (count($nodes) > 0) {
+            foreach ($nodes as $node)
+                $respages[] =
+                    array($node->getTitle(), 'admin/pages', array('id' => $node->getId(), 'lang' => $node->getDomain()->getLang()));
+            $res[t('Pages')] = $respages;
+        }
+
+        //help
+        $helps = array();
+        foreach (Kryn::$configs as $key => $mod) {
+            $helpFile = PATH_MODULE . "$key/lang/help_$lang.json";
+            if (!file_exists($helpFile)) continue;
+            if (count($helps) > 10) continue;
+
+            $json = json_decode(Kryn::fileRead($helpFile), 1);
+            if (is_array($json) && count($json) > 0) {
+                foreach ($json as $help) {
+
+                    if (count($helps) > 10) continue;
+                    $found = false;
+
+                    if (preg_match("/$pQuery/i", $help['title']))
+                        $found = true;
+
+                    if (preg_match("/$pQuery/i", $help['tags']))
+                        $found = true;
+
+                    if (preg_match("/$pQuery/i", $help['help']))
+                        $found = true;
+
+                    if ($found)
+                        $helps[] = array($help['title'], 'admin/help', array('id' => $key . '/' . $help['id']));
+                }
+            }
+        }
+        if (count($helps) > 0) {
+            $res[t('Help')] = $helps;
+        }
+
+        return $res;
     }
 
 
