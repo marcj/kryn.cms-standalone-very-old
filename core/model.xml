@@ -299,7 +299,6 @@
     <column name="created" type="BIGINT"/>
     <foreign-key phpName="owner" foreignTable="system_user">
       <reference local="owner_id" foreign="id"/>
-      <reference local="owner_id" foreign="id"/>
     </foreign-key>
     <vendor type="mysql">
       <parameter name="Charset" value="utf8"/>

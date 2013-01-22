@@ -331,7 +331,7 @@ class PropelHelper {
                 dbExec($query);
         } catch (\PDOException $e){
             dbRollback();
-            throw new \PDOException($e->getMessage().' in SQL: '.$sql);
+            throw new \PDOException($e->getMessage().' in SQL: '.$query);
         }
         dbCommit();
 
