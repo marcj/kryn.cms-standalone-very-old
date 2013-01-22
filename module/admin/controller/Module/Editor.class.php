@@ -627,6 +627,11 @@ class Editor {
             $this->addVar($sourcecode, $listVarName, $listVar);
         }
 
+        $add = getArgv('add');
+        foreach ($add as $varName => $var){
+            $this->addVar($sourcecode, $varName, $var);
+        }
+
         $general = getArgv('general');
         $blacklist = array('class', 'file');
         foreach ($general as $varName => $var){

@@ -16,21 +16,76 @@ class NodeCrud extends \Admin\ObjectWindow {
         'key' => 'title',
         'label' => 'Title',
         'type' => 'text',
-        'desc' => '',
         'required' => 'true',
-        'inputWidth' => '',
-        'maxlength' => '',
-        'target' => '',
-        'needValue' => '',
-        'againstField' => '',
-        'default' => '',
-        'requiredRegex' => '',
+      ),
+      'type' => 
+      array (
+        'key' => 'type',
+        'label' => 'Type',
+        'type' => 'number',
+        'required' => 'true',
+      ),
+      'url' => 
+      array (
+        'key' => 'url',
+        'label' => 'URL',
+        'type' => 'text',
+        'required' => 'true',
+      ),
+      'link' => 
+      array (
+        'key' => 'link',
+        'label' => 'Link',
+        'combobox' => 'true',
+        'type' => 'object',
+        'required' => 'true',
+        'needValue' => '1',
+        'againstField' => 'type',
+      ),
+    ),
+  ),
+  '__Access__' => 
+  array (
+    'label' => 'Access',
+    'type' => 'tab',
+    'children' => 
+    array (
+      'visible' => 
+      array (
+        'type' => 'checkbox',
+        'label' => 'Visible in navigation',
+        'empty' => '1',
+      ),
+      'accessDenied' => 
+      array (
+        'type' => 'checkbox',
+        'label' => 'Access denied',
+        'desc' => 'For everyone. This remove the page from the navigation.',
+        'empty' => '1',
+      ),
+      'forceHttps' => 
+      array (
+        'type' => 'checkbox',
+        'label' => 'Force HTTPS',
+        'empty' => '1',
+      ),
+    ),
+  ),
+  '__Content__' => 
+  array (
+    'label' => 'Content',
+    'type' => 'tab',
+    'children' => 
+    array (
+      'field_1' => 
+      array (
+        'key' => 'field_1',
+        'label' => '#Todo',
+        'type' => 'label',
       ),
     ),
   ),
 );
-
-    public $itemLayout = '';
 
     public $itemsPerPage = 10;
 
@@ -42,25 +97,17 @@ class NodeCrud extends \Admin\ObjectWindow {
 
     public $addIcon = '#icon-plus-5';
 
-    public $addEntrypoint = '';
-
     public $addLabel = 'Add node';
 
     public $add = true;
 
     public $editIcon = '#icon-pencil-8';
 
-    public $editEntrypoint = '';
-
     public $edit = true;
 
     public $remove = false;
 
-    public $nestedRootFieldLabel = '';
-
     public $nestedRootFieldTemplate = '{label}';
-
-    public $nestedRootFieldFields = '';
 
     public $nestedRootAddIcon = '#icon-plus-2';
 

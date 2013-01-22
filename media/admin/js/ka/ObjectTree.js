@@ -183,10 +183,8 @@ ka.ObjectTree = new Class({
             }).inject(this.main);
         }
 
-        this.paneObjectsTable = new Element('table', {
-            style: 'width: 100%',
-            cellpadding: 0,
-            cellspacing: 0
+        this.paneObjects = new Element('div', {
+            'class': 'ka-objectTree-objects'
         }).inject(this.main);
 
         this.container.addEvent('scroll', this.setRootPosition.bind(this));
@@ -194,13 +192,6 @@ ka.ObjectTree = new Class({
         if (this.options.win)
             this.options.win.addEvent('resize', this.setRootPosition.bind(this));
 
-        this.paneObjectsTBody = new Element('tbody').inject(this.paneObjectsTable);
-        this.paneObjectsTr = new Element('tr').inject(this.paneObjectsTBody);
-        this.paneObjectsTd = new Element('td').inject(this.paneObjectsTr);
-
-        this.paneObjects = new Element('div', {
-            'class': 'ka-objectTree-objects'
-        }).inject(this.paneObjectsTd);
 
         this.paneObjects.setStyle('display', 'block');
 
@@ -258,7 +249,7 @@ ka.ObjectTree = new Class({
         var nLeft = this.container.scrollLeft;
         var nTop = 0;
 
-        var panePos = this.paneObjectsTable.getPosition(this.container).y;
+        var panePos = this.paneObjects.getPosition(this.container).y;
         if (panePos - 20 < 0) {
             nTop = (panePos - 20) * -1;
             var maxTop = this.paneObjects.getSize().y - 20;
@@ -315,10 +306,16 @@ ka.ObjectTree = new Class({
 
         this.rootLoaded = false;
 
+
+        var scope = this.options.scope;
+        if (typeOf(scope) == 'object'){
+            scope = ka.getObjectUrlId(this.options.rootObject, scope);
+        }
+
         this.lastFirstLevelRq = new Request.JSON({url: _path + 'admin/object-root/'+ka.urlEncode(this.objectKey), noCache: 1,
             onComplete: this.renderRoot.bind(this)
         }).get({
-            scope: this.options.scope
+            scope: scope
         });
 
     },

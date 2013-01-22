@@ -562,7 +562,8 @@ ka.WindowList = new Class({
 
             if (this.classProperties.asNested && (this.classProperties.nestedRootAdd)){
 
-                this.actionsNavi.addButton(this.options.nestedRootAddLabel || this.classProperties.nestedRootAddLabel, ka.mediaPath(this.classProperties.nestedRootAddIcon), function () {
+                this.addRootBtn = this.actionsNavi.addButton(this.options.nestedRootAddLabel || this.classProperties.nestedRootAddLabel,
+                    ka.mediaPath(this.classProperties.nestedRootAddIcon), function () {
                     this.addNestedRoot();
                 }.bind(this));
             }
@@ -570,7 +571,7 @@ ka.WindowList = new Class({
 
             if (this.classProperties.add) {
 
-                this.actionsNavi.addButton(this.options.addLabel || this.classProperties.addLabel, ka.mediaPath(this.classProperties.addIcon), function () {
+                this.addBtn = this.actionsNavi.addButton(this.options.addLabel || this.classProperties.addLabel, ka.mediaPath(this.classProperties.addIcon), function () {
 
                     this.openAddItem();
 
@@ -688,7 +689,7 @@ ka.WindowList = new Class({
         if (this.classProperties.add) {
             this.actionAdd = new Element('a', {
                 'class': 'ka-button',
-                html: _('Add')
+                html: t('Add')
             }).inject(this.actionBar);
         }
 

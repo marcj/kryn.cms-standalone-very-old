@@ -431,13 +431,13 @@ ka.WindowEdit = new Class({
 
             this.form = new Element('div', {
                 'class': 'ka-windowEdit-form'
-            }).inject(this.container);
+            }).inject(this.getContentContainer());
 
             if (this.classProperties.layout) {
                 this.form.set('html', this.classProperties.layout);
             }
 
-            this.tabPane = new ka.TabPane(this.getContentContainer(), true, {addSmallTabGroup: function(){
+            this.tabPane = new ka.TabPane(this.form, true, {addSmallTabGroup: function(){
                 return new ka.SmallTabGroup(this.headerLayout.getColumn(1));
             }.bind(this)});
 

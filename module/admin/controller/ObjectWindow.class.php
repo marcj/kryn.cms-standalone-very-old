@@ -216,7 +216,7 @@ abstract class ObjectWindow {
      */
     public $add = false;
     public $addLabel = '[[Add]]';
-    public $addMultiple = true;
+    public $addMultiple = false;
     public $addMultipleFieldContainerWidth = '50%';
 
     public $addMultipleFields = array();
@@ -299,7 +299,7 @@ abstract class ObjectWindow {
 
 
     /**
-     * If the object is a nested set, then you should switch this proeprty to true.
+     * If the object is a nested set, then you should switch this property to true.
      *
      * @var bool
      */
@@ -447,6 +447,8 @@ abstract class ObjectWindow {
 
         foreach ($pFields as $key => &$field){
 
+            if (!is_array($field)) continue;
+
             if (!isset($field['label']) && $this->objectDefinition['fields'][$key]['label'])
                 $field['label'] = $this->objectDefinition['fields'][$key]['label'];
 
@@ -455,13 +457,10 @@ abstract class ObjectWindow {
 
             if (!isset($field['label']))
                 $field['label'] = '!!No title defined (either object or in objectWindow class!!';
-        }
 
-        foreach ($pFields as $key => &$field)
             if ($field['depends']) $this->prepareFieldDefinition($field['depends']);
-
-        foreach ($pFields as $key => &$field)
             if ($field['children']) $this->prepareFieldDefinition($field['children']);
+        }
 
     }
 
@@ -478,10 +477,13 @@ abstract class ObjectWindow {
                 $this->prepareFieldItem($field, $key);
             }
         } else {
+
+            /*TODO
+
             if ($pFields['needAccess'] && !Kryn::checkUrlAccess($pFields['needAccess'])) {
                 $pFields = null;
                 return;
-            }
+            }*/
 
             if(substr($pKey,0,2) != '__' && substr($pKey, -2) != '__'){
 

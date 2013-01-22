@@ -382,7 +382,7 @@
                 },
                 "accessDenied": {
                     "label": "[[Access denied]]",
-                    "type": "text",
+                    "type": "checkbox",
                     "primaryKey": 0,
                     "desc": "For everyone. This remove the page from the navigation.",
                     "empty": 1

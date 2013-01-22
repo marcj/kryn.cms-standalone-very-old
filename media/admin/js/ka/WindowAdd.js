@@ -42,41 +42,86 @@ ka.WindowAdd = new Class({
      */
     openAddItem: function(){
 
-        if (this.classProperties.nestedAddWithPositionSelection || this.classProperties.addMultiple){
+        if ((this.classProperties.asNested && this.classProperties.nestedAddWithPositionSelection) || this.classProperties.addMultiple){
 
             //show dialog with
             this.createNewFirstDialog();
 
-            //todo, this.classProperties.nestedAddWithPositionSelection is optional
+            if (this.tabPane)
+                this.tabPane.hide();
 
             if (this.classProperties.addMultiple){
 
-                this.addItemMultiAddLayout = new ka.LayoutHorizontal(this.addDialogFieldContainer, {
-                    columns: [null, this.classProperties.addMultipleFieldContainerWidth]
-                });
+                if (this.classProperties.nestedAddWithPositionSelection){
+                    this.addItemMultiAddLayout = new ka.LayoutHorizontal(this.addDialogFieldContainer, {
+                        columns: [null, this.classProperties.addMultipleFieldContainerWidth]
+                    });
 
-                this.addDialogLayout.getContentRow(2).setStyle('position', 'relative');
+                    new ka.LayoutSplitter(this.addItemMultiAddLayout.getColumn(2), 'left');
 
-                this.addDialogLayoutPositionChooser = this.addNestedObjectPositionChooser(this.addItemMultiAddLayout.getColumn(1));
+                    this.addDialogLayoutPositionChooser = this.addNestedObjectPositionChooser(this.addItemMultiAddLayout.getColumn(1));
 
-                this.populateAddMultipleFields(this.addItemMultiAddLayout.getColumn(2));
+                    this.populateAddMultipleForm(this.addItemMultiAddLayout.getColumn(2));
+                } else {
+                    this.populateAddMultipleForm(this.addDialogFieldContainer);
+                }
 
             } else {
 
-                this.addDialogLayout.addRow();
+                this.addDialogFieldContainer.setStyle('position', 'relative');
+                this.addDialogLayoutPositionChooser = this.addNestedObjectPositionChooser(this.addDialogFieldContainer);
 
-                this.addDialogLayout.getContentRow(2).setStyle('position', 'relative');
+            }
 
-                this.addDialogLayoutPositionChooser = this.addNestedObjectPositionChooser(this.addDialogLayout.getContentRow(2));
+            if (this.addDialogLayoutPositionChooser){
 
                 this.addDialogLayoutPositionChooser.addEvent('positionChoose', function(pDom, pDirection, pItem, pChooser){
-                    this.openAddItemNextButton.setEnabled(true);
+
+                    this.addItemToAdd = {direction: pDirection, id: pDom.id, objectKey: pDom.objectKey};
+
+                    this.checkAddItemForm();
                 }.bind(this));
+
             }
+
+
+            if (!this.classProperties.addMultiple && this.classProperties.nestedAddWithPositionSelection){
+
+                this.openAddItemNextButton = new ka.Button(tc('addNestedObjectChoosePositionDialog', 'Next'))
+                    .inject(this.openAddItemPageBottom);
+
+                this.openAddItemNextButton.setButtonStyle('blue');
+                this.openAddItemNextButton.setEnabled(false);
+            } else if (this.classProperties.addMultiple){
+
+                this.openAddItemSaveButton = new ka.Button(tc('addNestedObjectChoosePositionDialog', 'Save'))
+                    .inject(this.openAddItemPageBottom);
+
+                this.openAddItemSaveButton.setButtonStyle('blue');
+                this.openAddItemSaveButton.setEnabled(false);
+            }
+
         }
     },
 
-    populateAddMultipleFields: function(pContainer){
+    checkAddItemForm: function(){
+
+        var valid = true;
+
+        if (!this.addItemToAdd) valid = false;
+
+        if (this.classProperties.addMultiple){
+            if (this.addMultipleFieldForm && !this.addMultipleFieldForm.checkValid()) valid = false;
+
+            if (this.openAddItemSaveButton)
+                this.openAddItemSaveButton.setEnabled(valid);
+        }
+        if (this.openAddItemNextButton)
+            this.openAddItemNextButton.setEnabled(valid);
+
+    },
+
+    populateAddMultipleForm: function(pContainer){
 
 
         var fields = {};
@@ -132,7 +177,6 @@ ka.WindowAdd = new Class({
         });
 
         this.addDialogFieldContainer = this.addDialogLayout.getContentRow(1);
-        this.addDialogFieldContainer.setStyle('position', 'relative');
 
         this.openAddItemPageBottom = new Element('div', {
             'class': 'kwindow-win-buttonBar'
@@ -143,12 +187,6 @@ ka.WindowAdd = new Class({
         this.openAddItemCancelButton.addEvent('click', function(){
             alert('todo')
         }.bind(this));
-
-        this.openAddItemNextButton = new ka.Button(tc('addNestedObjectChoosePositionDialog', 'Next'))
-            .inject(this.openAddItemPageBottom);
-
-        this.openAddItemNextButton.setButtonStyle('blue');
-        this.openAddItemNextButton.setEnabled(false);
 
 
     },

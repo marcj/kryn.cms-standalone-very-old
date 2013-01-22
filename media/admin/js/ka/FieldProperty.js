@@ -9,14 +9,16 @@ ka.FieldProperty = new Class({
 
             label: t('Key'),
             desc: t('Surround the value with __ and __ to let it only act as UI.'),
-            modifier: 'trim'
+            modifier: 'trim',
+            required: true
 
         },
 
         label: {
             label: t('Label (Optional)'),
             desc: t('Surround the value with [[ and ]] to make it multilingual.'),
-            type: 'text'
+            type: 'text',
+            required: true
         },
         'type': {
             label: t('Type'),
@@ -146,6 +148,13 @@ ka.FieldProperty = new Class({
                     needValue: ['select', 'file', 'folder'],
                     label: t('Multiple selection'),
                     desc: t('This field returns then an array.'),
+                    type: 'checkbox'
+                },
+
+                //select, file and folder
+                'combobox': {
+                    needValue: ['select', 'file', 'folder', 'object'],
+                    desc: t('if you want to allow the user to enter own text.'),
                     type: 'checkbox'
                 },
 
@@ -552,7 +561,8 @@ ka.FieldProperty = new Class({
 
             this.fieldObject = new ka.FieldForm(this.main, this.kaFields, {
                 allTableItems: this.options.allTableItems,
-                tableitem_title_width: this.options.tableitem_title_width
+                tableitem_title_width: this.options.tableitem_title_width,
+                withEmptyFields: false
             }, {win:this.win});
 
             this.fieldObject.setValue(this.definition);
@@ -663,7 +673,8 @@ ka.FieldProperty = new Class({
         this.fieldObject = new ka.FieldForm(fieldContainer, this.kaFields, {
             allTableItems: this.options.allTableItems,
             tableitem_title_width: this.options.tableitem_title_width,
-            saveButton: this.saveBtn
+            saveButton: this.saveBtn,
+            withEmptyFields: false
         }, {win:this.win});
 
         this.fieldObject.setValue(this.definition);

@@ -22,6 +22,14 @@ ka.FieldForm = new Class({
         tableitem_title_width: false,
         returnDefault: false,
         saveButton: false,
+
+        /**
+         * If true it returns field values which are empty ('').
+         * Otherwise, it is not included in the result object (getValue())
+         *
+         * @var {Boolean}
+         */
+        withEmptyFields: true,
         tabsInWindowHeader: false
     },
 
@@ -171,10 +179,10 @@ ka.FieldForm = new Class({
 
             });
 
-            if (this.options.allTableItems && field.type != 'tab')
+            if (typeOf(field.tableItem) == 'null' && this.options.allTableItems && field.type != 'tab')
                 field.tableItem = 1;
 
-            if (this.options.allSmall && field.type != 'tab')
+            if (typeOf(field.small) == 'null' && this.options.allSmall && field.type != 'tab')
                 field.small = 1;
 
             if (this.options.tableitem_title_width)
@@ -232,7 +240,7 @@ ka.FieldForm = new Class({
 
             } else {
 
-                if (field.tableItem && target.get('tag') != 'table'){
+                if (field.tableItem && target.get('tag') != 'table' && target.get('tag') != 'tbody'){
 
                     if (!pContainer.kaFieldTable){
                         pContainer.kaFieldTable = new Element('table', {width: '100%', 'class': 'ka-parse-table'}).inject(target);
@@ -543,9 +551,13 @@ ka.FieldForm = new Class({
 
                         if (pos == items.length - 1) {
                             val = obj.getValue();
-                            if (typeOf(val) !== 'null' &&
-                                (obj.options.returnDefault == true || this.options.returnDefault == true || val !== obj.options['default']))
+
+                            if (typeOf(val) !== 'null'
+                                && (val !== '' || this.options.withEmptyFields)
+                                && (val !== obj.options['default'] || obj.options.returnDefault)
+                                )
                                 last[key] = val;
+
                         } else {
                             last[key] = {};
                             last = last[key];
@@ -554,9 +566,13 @@ ka.FieldForm = new Class({
                     res = Object.merge(res, newRes);
                 } else {
                     val = obj.getValue();
-                    if (typeOf(val) !== 'null' &&
-                        (obj.options.returnDefault == true || this.options.returnDefault == true || val !== obj.options['default']))
+
+                    if (typeOf(val) !== 'null'
+                        && (val !== '' || this.options.withEmptyFields)
+                        && (val !== obj.options['default'] || obj.options.returnDefault)
+                        ){
                         res[id] = val;
+                    }
                 }
             }.bind(this));
         }

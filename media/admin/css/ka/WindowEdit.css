@@ -79,14 +79,12 @@
     position: absolute;
     left: 0px;
     right: 0px;
-    height: 27px;
-    padding-top: 3px;
+    height: 30px;
     bottom: 0px;
     border-top: 1px solid gray;
-    line-height: 28px;
+    line-height: 30px;
     background-color: #aaa;
-    
-    
+
     border-top: 1px solid #999;
 
     background-image: -webkit-gradient(linear, left top, left bottom, #bdbcbc, to(#9c9b9b)); 
@@ -96,6 +94,13 @@
     background-image:      -o-linear-gradient(top, #bdbcbc, #9c9b9b); 
     background-image:         linear-gradient(top, #bdbcbc, #9c9b9b);
 }
+
+
+/* make line-height working even if there are only block-inline events. */
+.ka-windowEdit-actions::before {
+    content: "";
+}
+
 
 .ka-windowEdit-actions a {
     margin-left: 5px;
@@ -118,4 +123,14 @@
 
 .kwindow-border .ka-windowEdit-previewButton:hover {
     border: 1px solid #777;
+}
+
+
+.ka-windowEdit-add-choosePosition-treeContainer {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    bottom: 0px;
+    right: 0px;
+    overflow: auto;
 }

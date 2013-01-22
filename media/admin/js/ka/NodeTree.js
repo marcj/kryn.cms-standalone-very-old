@@ -23,7 +23,7 @@ ka.NodeTree = new Class({
 
         pA.icon = new Element('span', {
             'class': 'ka-objectTree-item-masks',
-            style: 'font-family: Icomoon; font-size: 16px;position: relative; top: -1px;',
+            style: 'font-family: Icomoon; font-size: 16px;',
             html: icon
         }).inject(pA, 'top');
 

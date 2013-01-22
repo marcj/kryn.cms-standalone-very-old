@@ -136,7 +136,15 @@ ka.LayoutVertical = new Class({
             var children = this.rows[pId-1].getChildren();
             if (children.length > 0)
                 return children[0];
-            else return new Element('td', {valign: 'top'}).inject(this.rows[pId-1]);
+            else {
+                var td = new Element('td', {valign: 'top', height: '100%'}).inject(this.rows[pId-1]);
+
+                var div = new Element('div', {
+                    style: 'position: relative; height: 100%;'
+                }).inject(td);
+
+                return div;
+            }
         } else {
             return this.rows[pId-1];
         }

@@ -31,14 +31,20 @@
     border-top: 1px solid silver;
 
 }
+
 .ka-system-module-editWindow-actionbar {
     position: absolute;
     left: 0px;
     padding-left: 5px;
     right: 400px;
-    height: 27px;
-    padding-top: 3px;
+    height: 30px;
+    line-height: 30px;
     bottom: 0px;
+}
+
+/* make line-height working even if there are only block-inline events. */
+.ka-system-module-editWindow-actionbar::before {
+    content: "";
 }
 
 

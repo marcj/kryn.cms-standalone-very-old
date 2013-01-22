@@ -20,8 +20,9 @@ var admin_system_module_editWindow = new Class({
         this.tabPane = new ka.TabPane(this.win.content, true, this.win);
 
         this.generalTab = this.tabPane.addPane(t('General'));
-        
+
         this.windowTabEdit  = this.tabPane.addPane(t('Edit/Add'));
+        this.windowTabAdd  = this.tabPane.addPane(tc('systemModuleEditWindowTab', 'Add extras'));
         this.windowTabList  = this.tabPane.addPane(t('List/Combine'));
 
         this.methodTab  = this.tabPane.addPane(t('Class methods'));
@@ -99,7 +100,9 @@ var admin_system_module_editWindow = new Class({
         var table = new Element('table', {width: '100%'}).inject(this.generalTab.pane);
         this.generalTbody = new Element('tbody').inject(table);
 
-        this.generalObj = new ka.FieldForm(this.generalTbody, generalFields, {allTableItems:true, tableitem_title_width: 250}, {win:this.win});
+        this.generalObj = new ka.FieldForm(this.generalTbody, generalFields,
+            {allTableItems:true, tableitem_title_width: 250, withEmptyFields: false},
+            {win:this.win});
 
 
         //window
@@ -199,6 +202,9 @@ var admin_system_module_editWindow = new Class({
         this.windowEditAddPredefinedFieldBtn = new ka.Button(t('Add predefined object field'))
         .addEvent('click', function(){
 
+            var currentTab = this.winTabPane.getSelected();
+            if (!currentTab) return;
+
             var dialog = this.win.newDialog(new Element('b', {text: t('Add predefined object field')}));
             dialog.setStyle('width', 400);
 
@@ -282,30 +288,73 @@ var admin_system_module_editWindow = new Class({
             'class': 'ka-system-module-editWindow-windowInspector-content'
         }).inject(this.windowInspector);
 
-        //this.cancelFieldProperties();
+
+        /*************************
+         *
+         * Add extras
+         */
+
+        var addFields = {
+
+
+            nestedAddWithPositionSelection: {
+                type: 'checkbox',
+                label: t('With position selection'),
+                'default': true,
+                desc: t('This allows the user to choose a position where the item gets inserted.')
+            },
+
+            addMultiple: {
+                type: 'checkbox',
+                label: t('Activates mass insertion in the add form'),
+                'default': false
+            }
+
+
+        };
+
+        table = new Element('table', {width: '100%', style: 'table-layout: fixed;'}).inject(this.windowTabAdd.pane);
+        this.windowAddTbody = new Element('tbody').inject(table);
+
+        this.windowAddObj = new ka.FieldForm(this.windowAddTbody, addFields, {allTableItems:1, withEmptyFields: false}, {win: this.win});
+
         
-        //list/combine
+        /*************************
+         *
+         * list/combine
+         *
+         **************************/
         
         var listFields = {
 
             columns: {
 
-                label: t('Columns'),
+                label: t('Classic grid columns'),
                 type: 'fieldTable',
                 asFrameworkColumn: true,
                 withoutChildren: true,
-                addLabel: t('Add column')
+                tableItem: false,
+                addLabel: t('Add column'),
+                desc: t('Only needed if a entry point from type listing uses this class.')
 
             },
 
-            itemLayout: {
-                label: t('Item layout (Optional)'),
-                desc: t('Default behaviour is that the system extracts the first three columns and build it on its own. You can define here your own item HTML.')+
-                '<br/>'+t('Example:')+'<br/>'+
-                '&lt;h2&gt;{item.title}&lt;/h2&gt;<br/>'+
-                '&lt;div style="font-size: 10px;"&gt;{item.anotherFieldName}&lt;/div&gt;',
-                type: 'codemirror',
-                inputHeight: 80
+            __combine__: {
+                type: 'label',
+                label: t('Combine view'),
+                children: {
+
+                    itemLayout: {
+                        label: t('Item layout (Optional)'),
+                        desc: t('Default behaviour is that the system extracts the first three columns and build it on its own. You can define here your own item HTML.')+
+                            '<br/>'+t('Example:')+'<br/>'+
+                            '&lt;h2&gt;{item.title}&lt;/h2&gt;<br/>'+
+                            '&lt;div style="font-size: 10px;"&gt;{item.anotherFieldName}&lt;/div&gt;',
+                        type: 'codemirror',
+                        inputHeight: 80
+                    }
+
+                }
             },
 
             itemsPerPage: {
@@ -321,7 +370,7 @@ var admin_system_module_editWindow = new Class({
                 label: t('As nested set'),
                 type: 'checkbox',
                 'default': false,
-                desc: t('Only available if the object is a nested set.')
+                desc: t('Shows then the tree instead of a list.')
 
             },
 
@@ -372,6 +421,7 @@ var admin_system_module_editWindow = new Class({
                             filterCustom: {
                                 label: t('Search fields'),
                                 needValue: 'custom',
+                                tableItem: false,
                                 type: 'fieldTable',
                                 options: {
                                     asFrameworkSearch: true,
@@ -678,7 +728,7 @@ var admin_system_module_editWindow = new Class({
         table = new Element('table', {width: '100%', style: 'table-layout: fixed;'}).inject(this.windowTabList.pane);
         this.windowListTbody = new Element('tbody').inject(table);
 
-        this.windowListObj = new ka.FieldForm(this.windowListTbody, listFields, {allTableItems:1}, {win: this.win});
+        this.windowListObj = new ka.FieldForm(this.windowListTbody, listFields, {allTableItems:1, withEmptyFields: false}, {win: this.win});
 
         this.loadInfo();
     },
@@ -695,6 +745,9 @@ var admin_system_module_editWindow = new Class({
         }
 
         this.windowListObj.setVisibility('__nestedManagement__', showNestedStuff);
+        this.windowListObj.setVisibility('asNested', showNestedStuff);
+
+        this.windowAddObj.setVisibility('nestedAddWithPositionSelection', showNestedStuff);
     },
 
     save: function(){
@@ -705,6 +758,7 @@ var admin_system_module_editWindow = new Class({
 
         req.general = this.generalObj.getValue();
         req.list = this.windowListObj.getValue();
+        req.add = this.windowAddObj.getValue();
 
         var methods = {};
 
@@ -726,9 +780,9 @@ var admin_system_module_editWindow = new Class({
 
         req.methods = methods;
 
-        var extractFields = function(pField){
+        var extractFields = function(pField, pChildren){
 
-            var children = {};
+            var children = pChildren || {};
             if (typeOf(pField) == 'element' && pField.instance)
                 pField = pField.instance;
 
@@ -741,13 +795,20 @@ var admin_system_module_editWindow = new Class({
             }
 
             if (parentContainer){
-                parentContainer.getElements('.ka-Field').each(function(field){
+                parentContainer.getChildren('.ka-Field').each(function(field){
 
                     if (isTab && instanceOf(field.instance.getParent(), ka.Field))
                         return;
 
                     children[field.instance.getKey()] = field.instance.getDefinition();
                     delete children[field.instance.getKey()].designMode;
+
+                    children[field.instance.getKey()].children = {};
+
+                    extractFields(field.instance, children[field.instance.getKey()].children);
+
+                    if (Object.getLength(children[field.instance.getKey()].children) == 0)
+                        delete children[field.instance.getKey()].children;
 
                 });
             }
@@ -1057,7 +1118,7 @@ var admin_system_module_editWindow = new Class({
                 }
             };
 
-            var fnDefinitionObj = new ka.FieldForm(tbody, fnDefinition, {allTableItems: true}, {win: this.win});
+            var fnDefinitionObj = new ka.FieldForm(tbody, fnDefinition, {allTableItems: true, withEmptyFields: false}, {win: this.win});
 
             new ka.Button(t('Cancel'))
             .addEvent('click', function(){
@@ -1247,7 +1308,7 @@ var admin_system_module_editWindow = new Class({
             }
         };
 
-        var fnDefinitionObj = new ka.FieldForm(tbody, fnDefinition, {allTableItems: true}, {win: this.win});
+        var fnDefinitionObj = new ka.FieldForm(tbody, fnDefinition, {allTableItems: true, withEmptyFields: false}, {win: this.win});
 
         new ka.Button(t('Cancel'))
             .addEvent('click', function(){
@@ -1835,7 +1896,7 @@ var admin_system_module_editWindow = new Class({
                     }
                 };
 
-                this.toolbarTabItemObj = new ka.FieldForm(this.windowInspectorContainer, this.toolbarTabItemDef);
+                this.toolbarTabItemObj = new ka.FieldForm(this.windowInspectorContainer, this.toolbarTabItemDef, {withEmptyFields: false});
 
                 this.toolbarTabItemObj.addEvent('change', this.applyFieldProperties);
             }
@@ -1921,7 +1982,7 @@ var admin_system_module_editWindow = new Class({
         } catch(e){
             var oldType = field.type;
             field.type = 'text';
-            field.value = tf('ka.Field type %s not found', oldType);
+            field.value = tf('ka.Field type `%s` is misconfigured: %s', oldType, e);
             field = new ka.Field(
                 field,
                 target,

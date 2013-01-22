@@ -218,6 +218,7 @@
 }
 
 
+/* make line-height working even if there are only block-inline events. */
 .kwindow-win-buttonBar::before {
     content: "";
 }

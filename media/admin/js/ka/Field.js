@@ -76,21 +76,27 @@ ka.Field = new Class({
 
         if (this.options.noWrapper){
 
-            if (this.options.tableItem) {
+
+            if (this.options.tableItem || (pContainer && (pContainer.get('tag') == 'table' || pContainer.get('tag') == 'tbody'))) {
+
+                //we should be appear as a non-table element but got a table element as contain.
+                //so create a tr>td[colspan=2] and set this.options.tableItem to true, that
+                //this.inject works correct.
+
+                this.options.tableItem = true;
 
                 this.tr = new Element('tr', {
-                    'class': 'ka-Field'
+                    'class': 'ka-Field ka-field-main'
                 });
                 
                 this.tr.instance = this;
-
                 this.tr.store('ka.Field', this);
 
                 this.main = new Element('td', {
+                    'class': 'ka-Field-inputTd',
                     colspan: 2
                 }).inject(this.tr);
 
-                this.tr.inject(pContainer || document.hiddenElement);
             } else {
 
                 this.main = new Element('div', {'class': 'ka-Field'});
@@ -102,7 +108,32 @@ ka.Field = new Class({
 
         } else {
 
-            if (this.options.tableItem) {
+            if (!this.options.tableItem && pContainer && (pContainer.get('tag') == 'table' || pContainer.get('tag') == 'tbody')) {
+
+                //we should be appear as a non-table element but got a table element as contain.
+                //so create a tr>td[colspan=2] and set this.options.tableItem to true, that
+                //this.inject works correct.
+
+                this.options.tableItem = true;
+
+                this.tr = new Element('tr', {
+                    'class': 'ka-Field ka-field-main'
+                });
+
+                this.tr.instance = this;
+
+                this.tr.store('ka.Field', this);
+
+                this.main = new Element('td', {
+                    colspan: 2
+                }).inject(this.tr);
+
+                this.title = new Element('div', {
+                    'class': 'ka-field-title selectable'
+                }).inject(this.main);
+
+
+            } else if (this.options.tableItem) {
                 this.tr = new Element('tr', {
                     'class': 'ka-Field ka-field-main'
                 });
@@ -219,7 +250,7 @@ ka.Field = new Class({
         if (clazz){
             this.fieldObject = new clazz(this, this.options);
         } else {
-            throw 'The ka.Field type '+this.options.type+' is not available.';
+            throw 'The ka.Field type `'+this.options.type+'` is not available.';
         }
 
         return;
@@ -734,6 +765,9 @@ ka.Field = new Class({
 
             if (pTo.get('tag') != 'tbody' && pTo.get('tag') != 'table'){
                 //target is not a table/tbody, we need to create one or find one
+
+                logger(this.options.label);
+                logger(pTo);
                 
                 if (pTo.get('tag') == 'tr'){
                     this.containerAutoTable = pTo.getParent('table');

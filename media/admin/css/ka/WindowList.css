@@ -57,13 +57,23 @@
 }
 */
 
+
+div.ka-windowCombine-treeContainer {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    bottom: 0px;
+    right: 6px;
+    overflow: auto;
+}
+
 div.ka-windowCombine-list-actions {
     text-align: left;
     position: absolute;
     left: 0;
     height: 0;
     bottom: 0;
-    right: 0;
+    right: 6px;
     overflow: hidden;
 }
 
@@ -374,7 +384,7 @@ a.ka-list-search-button-active:link {
     left: 0px;
     top: 31px; 
     height: 0px; 
-    right: 0px;
+    right: 6px;
     overflow: auto;
     background-image: url(../../images/ka-list-combine-searchpane-bg.png);
     background-repeat: repeat-x;

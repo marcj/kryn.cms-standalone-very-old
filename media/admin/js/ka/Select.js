@@ -110,7 +110,7 @@ ka.Select = new Class({
     mapEvents: function(){
         if (!ka.mobile){
             this.input = new Element('input', {
-                style: 'height: 1px; position: absolute; top: -10px;'
+                style: 'height: 1px; position: absolute; top: -40px;'
             }).inject(this.box);
             this.input.addEvent('keydown', this.actions);
             this.input.addEvent('keyup', this.search);

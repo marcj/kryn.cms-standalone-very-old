@@ -24,6 +24,6 @@ ka.FieldTypes.Label = new Class({
     },
 
     getValue: function(){
-        return this.getContainer().get('text');
+        return this.fieldInstance.titleText.get('text');
     }
 });

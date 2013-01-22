@@ -681,6 +681,7 @@ var admin_system_module_edit = new Class({
                     'javascriptClass': {
                         label: t('Custom javascript user interface class (Optional)'),
                         desc: t('Should be extended from ka.WindowList, ka.WindowEdit, ka.WindowAdd or ka.WindowCombine.'),
+                        'default': '',
                         needValue: ['list', 'edit', 'add', 'combine']
                     },
                     functionType: {
@@ -761,30 +762,35 @@ var admin_system_module_edit = new Class({
                         label: t('Allow multiple instances?'),
                         needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
                         againstField: 'type',
+                        'default': '',
                         type: 'checkbox'
                     },
                     minWidth: {
                         label: t('Min width'),
                         needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
                         againstField: 'type',
+                        'default': '',
                         type: 'number'
                     },
                     minHeight: {
                         label: t('Min height'),
                         needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
                         againstField: 'type',
+                        'default': '',
                         type: 'number'
                     },
                     defaultWidth: {
                         label: t('Default width'),
                         needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
                         againstField: 'type',
+                        'default': '',
                         type: 'number'
                     },
                     defaultHeight: {
                         label: t('Default height'),
                         needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
                         againstField: 'type',
+                        'default': '',
                         type: 'number'
                     },
 
@@ -792,12 +798,14 @@ var admin_system_module_edit = new Class({
                         label: t('Fixed width'),
                         needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
                         againstField: 'type',
+                        'default': '',
                         type: 'number'
                     },
                     fixedHeight: {
                         label: t('Fixed height'),
                         needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
                         againstField: 'type',
+                        'default': '',
                         type: 'number'
                     }
                 }
@@ -1054,7 +1062,7 @@ var admin_system_module_edit = new Class({
         this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/entryPoints', noCache: 1, onComplete: function () {
             this.win.setLoading(false);
             ka.loadSettings();
-            ka.loadMenu();
+            ka.adminInterface.loadMenu();
         }.bind(this)}).post(req);
 
     },

@@ -12,7 +12,18 @@ ka.FieldTypes.Object = new Class({
 
         if (typeOf(this.options.object) == 'string') this.options.objects = [this.options.object];
 
-        if (!this.options.objects) throw 'No objects given for object chooser.';
+        if (!this.options.objects || (typeOf(this.options.objects) == 'array' && this.options.objects.length == 0)) {
+            //add all objects
+            this.options.objects = [];
+
+            Object.each(ka.settings.configs, function(config, key){
+                if (config.objects){
+                    Object.each(config.objects, function(object, objectKey){
+                        this.options.objects.push(key+'\\'+objectKey);
+                    }.bind(this));
+                }
+            }.bind(this));
+        };
 
         var definition = ka.getObjectDefinition(this.options.objects[0]);
 

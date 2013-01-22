@@ -30,6 +30,7 @@
     font-family: Icomoon;
     font-size: 10px;
     color: gray;
+    vertical-align: middle;
 }
 
 .ka-objectTree-item,
@@ -42,14 +43,6 @@
     color: #444;
     cursor: default;
     white-space: nowrap;
-}
-
-.ka-objectTree-drag-box span,
-.ka-objectTree-drag-box img,
-.ka-objectTree-item span,
-.ka-objectTree-item img {
-    display: block;
-    float: left;
 }
 
 .ka-objectTree-item-hover,
@@ -80,6 +73,7 @@
     position: relative;
     height: 18px;
     width: 15px;
+    vertical-align: middle;
 }
 
 .ka-objectTree-item-masks img {
@@ -111,6 +105,10 @@
 
 .ka-objectTree-dropElement {
     border-bottom: 1px dashed gray;
+}
+
+.ka-objectTree-item-title {
+    vertical-align: middle;
 }
 
 .ka-objectTree-item-dragOver .ka-objectTree-item-title {
@@ -197,7 +195,8 @@ a.ka-objectTree-positionChooser-item-active:link {
 }
 
 .ka-objectTree-positionChooser-item .ka-objectTree-positionChooser-item-text {
-    display: none;
+    visibility: hidden;
+    display: inline;
     float: none;
     color: green;
 }
@@ -205,5 +204,5 @@ a.ka-objectTree-positionChooser-item-active:link {
 a.ka-objectTree-positionChooser-item:hover .ka-objectTree-positionChooser-item-text,
 a.ka-objectTree-positionChooser-item-active .ka-objectTree-positionChooser-item-text,
 a.ka-objectTree-positionChooser-item-active:link .ka-objectTree-positionChooser-item-text {
-    display: inline;
+    visibility: visible;
 }

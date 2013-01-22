@@ -354,6 +354,8 @@
             "icon": "#icon-screen-2",
             "isLink": true,
             "multi": true,
+            "minWidth": 850,
+            "minHeight": 450,
             "children": {
                 "addDialog": {
                     "title": "[[Add pages]]",
@@ -390,6 +392,8 @@
             "icon": "#icon-folder",
             "isLink": true,
             "multi": true,
+            "minWidth": 700,
+            "minHeight": 350,
             "children": {
                 "edit": {
                     "title": "[[File edit]]",

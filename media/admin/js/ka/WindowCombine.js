@@ -23,6 +23,10 @@ ka.WindowCombine = new Class({
 
         this.mainLeft = this.mainLayout.getCell(1,1);
 
+        this.treeContainer = new Element('div', {
+            'class': 'ka-windowCombine-treeContainer'
+        }).inject(this.mainLeft);
+
         this.mainRight = this.mainLayout.getCell(1,2);
         this.mainRight.set('class', 'ka-list-combine-right');
 
@@ -38,13 +42,13 @@ ka.WindowCombine = new Class({
         if (this.classProperties.asNested){
 
             //load ka.objectTree
-            this.renderLayoutNested(this.mainLeft);
+            this.renderLayoutNested(this.treeContainer);
 
         } else {
             //classic list
 
             this.mainLeftTop = new Element('div', {
-                style: 'position: absolute; left: 0px; padding: 5px 6px; top: 0px; height: 20px; right: 0px; border-bottom: 1px solid gray;',
+                style: 'position: absolute; left: 0px; padding: 5px 6px; top: 0px; height: 20px; right: 6px; border-bottom: 1px solid gray;',
                 'class': 'ka-list-combine-left-top'
             }).inject(this.mainLeft);
 
@@ -67,7 +71,7 @@ ka.WindowCombine = new Class({
             }).inject(this.mainLeft);
 
             this.mainLeftItems = new Element('div', {
-                style: 'position: absolute; left: 0px; top: 31px; bottom: 0px; right: 0px; overflow: auto;'
+                style: 'position: absolute; left: 0px; top: 31px; bottom: 0px; right: 6px; overflow: auto;'
             }).addEvent('scroll', this.checkScrollPosition.bind(this, true)).inject(this.mainLeft);
 
             this.mainLeftDeleter = new Element('div', {
@@ -430,7 +434,7 @@ ka.WindowCombine = new Class({
         this.clear();
 
         if (this.classProperties.asNested){
-            return this.renderLayoutNested(this.mainLeft);
+            return this.renderLayoutNested(this.treeContainer);
         } else {
             return this.loadItems(this.from, this.max);
         }
