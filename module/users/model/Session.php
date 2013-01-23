@@ -47,12 +47,13 @@ class Session extends BaseSession {
         }
     }
 
+
     /**
      *
      *
      * @return User
      */
-    public function getUser(){
+    public function getUser(PropelPDO $con = null, $doQuery = true){
         $user = parent::getUser();
         if (!$user){
 

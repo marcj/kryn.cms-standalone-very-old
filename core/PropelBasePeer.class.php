@@ -23,6 +23,4 @@ class PropelBasePeer extends \BasePeer {
 
         return \BasePeer::doSelect($criteria, $con);
     }
-
-
 }
