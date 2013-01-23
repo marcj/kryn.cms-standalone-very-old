@@ -98,7 +98,7 @@
 
 /* make line-height working even if there are only block-inline events. */
 .ka-windowEdit-actions::before {
-    content: "";
+    content: "\a0";
 }
 
 

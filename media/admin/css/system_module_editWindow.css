@@ -44,7 +44,7 @@
 
 /* make line-height working even if there are only block-inline events. */
 .ka-system-module-editWindow-actionbar::before {
-    content: "";
+    content: "\a0";
 }
 
 
