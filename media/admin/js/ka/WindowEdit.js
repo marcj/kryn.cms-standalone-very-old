@@ -623,7 +623,7 @@ ka.WindowEdit = new Class({
 
 
         this.saveBtn = new ka.Button([t('Save'), '#icon-checkmark-6'])
-        .addEvent('click', function(){ this._save();}.bind(this))
+        .addEvent('click', function(){ this.save();}.bind(this))
         .inject(this.actionBar);
 
         document.id(this.saveBtn).addClass('ka-Button-blue');
@@ -835,12 +835,9 @@ ka.WindowEdit = new Class({
 
     },
 
-    _save: function (pClose, pPublish) {
-        var go = true;
-        var _this = this;
-        var req = {};
+    buildRequest: function(){
 
-        if (this.lastSaveRq) this.lastSaveRq.cancel();
+        var req = {};
 
         var data = this.retrieveData();
 
@@ -854,22 +851,21 @@ ka.WindowEdit = new Class({
             req = data;
         }
 
-        if (go) {
+        return req;
+    },
+
+    save: function (pClose, pPublish) {
+
+        if (this.lastSaveRq) this.lastSaveRq.cancel();
+
+        var request = this.buildRequest();
+
+        if (typeOf(request) != 'null') {
 
             if (pPublish) {
                 this.saveAndPublishBtn.startTip(_('Save ...'));
             } else {
-                this.saveBtn.startTip(_('Save ...'));
-            }
-
-            if (this.winParams && this.winParams.item) {
-
-                if (!this.windowAdd) {
-                    this.classProperties.primary.each(function (prim) {
-                        req[ prim ] = this.winParams.item[prim];
-                    }.bind(this));
-                }
-
+                this.saveBtn.startTip(t('Save ...'));
             }
 
             var objectId = '';
@@ -890,7 +886,7 @@ ka.WindowEdit = new Class({
 
                     Array.each(res.fields, function(field){
                         if (this.fields[field])
-                            this.fields[field].showNotValid();
+                            this.fields[field].showInvalid();
                     }.bind(this));
 
                     if (pPublish) {
@@ -904,7 +900,7 @@ ka.WindowEdit = new Class({
                 if (typeOf(res.data) == 'object'){
                     this.winParams.item = res.data; //our new primary keys
                 } else {
-                    this.winParams.item = ka.getObjectPk(this.classProperties['object'], req); //may we changed some pk
+                    this.winParams.item = ka.getObjectPk(this.classProperties['object'], request); //maybe we changed some pk
                 }
 
                 window.fireEvent('softReload', this.win.getEntryPoint());
@@ -930,7 +926,7 @@ ka.WindowEdit = new Class({
                     this.win.close();
                 }
 
-            }.bind(this)}).post(req);
+            }.bind(this)}).post(request);
         }
     }
 });

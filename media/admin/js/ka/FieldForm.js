@@ -133,6 +133,7 @@ ka.FieldForm = new Class({
      * Fires a change event and handles some internal stuff.
      */
     fireChange: function(){
+
         this.fireEvent('change');
 
         if (this.options.saveButton !== false)

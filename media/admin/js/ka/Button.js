@@ -101,8 +101,29 @@ ka.Button = new Class({
         this.toolTip.show();
     },
 
+    /**
+     *
+     * @param {String} pText
+     * @param {Integer} pDelay Default is 300
+     */
+    startLaggedTip: function(pText, pDelay){
+
+        if (!this.toolTip)
+            this.toolTip = new ka.Tooltip(this.main, pText);
+
+        this.toolTip.setText(pText);
+        this.laggedTip = (function(){
+
+            this.toolTip.show();
+
+        }).delay(pDelay ? pDelay : 300, this);
+    },
+
     stopTip: function (pText) {
-        this.toolTip.stop(pText);
+        if (this.laggedTip) clearTimeout(this.laggedTip);
+
+        if (this.toolTip)
+            this.toolTip.stop(pText);
     },
 
     show: function () {

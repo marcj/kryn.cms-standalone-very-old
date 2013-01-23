@@ -163,10 +163,7 @@ ka.FieldTypes.Array = new Class({
 
         this.tbody.getChildren('tr').each(function (tr) {
 
-            if (!valid) return;
-
             Object.each(tr.fields, function (field) {
-                if (!valid) return;
                 if (!field.checkValid()) valid = false;
             });
         });
@@ -365,8 +362,10 @@ ka.FieldTypes.Array = new Class({
                 html: '&#xe26b;',
                 href: 'javascript: ;'
             }).addEvent('click', function () {
+
+                this.fieldInstance.fireChange();
                 tr.destroy();
-            }).inject(td);
+            }.bind(this)).inject(td);
         }
 
 

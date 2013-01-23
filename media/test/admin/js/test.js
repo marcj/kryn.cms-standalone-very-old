@@ -30,6 +30,27 @@ var test_test = new Class({
             object: 'Core\\EntryPoint'
         }, this.win.content);
 
+        new ka.Field({
+            label: t('Array'),
+            type: 'array',
+            columns: [null, '30%'],
+            startWith: 1,
+            fields: {
+                title: {
+                    label: 'Title',
+                    type: 'text',
+                    required: true
+                },
+                'visible': {
+                    'label': 'Visible',
+                    'type': 'checkbox',
+                    'width': '100'
+                }
+            }
+        }, this.win.content);
+        
+        
+
         return;
 
         new ka.Select(this.win.content, {

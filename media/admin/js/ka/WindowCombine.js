@@ -899,6 +899,7 @@ ka.WindowCombine = new Class({
 
         this.currentAdd = new ka.WindowAdd(win, this.mainRight);
         this.currentAdd.addEvent('save', this.addSaved.bind(this));
+        this.currentAdd.addEvent('addMultiple', this.addSaved.bind(this));
 
     },
 

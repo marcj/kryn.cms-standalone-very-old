@@ -10,6 +10,7 @@ ka.Field = new Class({
     options: {
 
         value: null,
+        withAsteriskIfRequired: true,
 
         small: 0,
 
@@ -203,6 +204,10 @@ ka.Field = new Class({
             }).inject(this.main);
         }
 
+        if (this.options.required && this.options.withAsteriskIfRequired && this.titleText){
+            this.titleText.appendText('*');
+        }
+
         if (pContainer)
             this.inject(pContainer);
 
@@ -233,8 +238,6 @@ ka.Field = new Class({
                 this.setValue(JSON.decode(cookieValue), true);
             }
         }
-
-        this.addEvent('change', this.checkValid);
 
         if (this.options.disabled){
             this.fieldObject.setDisabled(true);
@@ -432,8 +435,8 @@ ka.Field = new Class({
         return ok;
     },
 
-    showNotValid: function(pText){
-        this.fieldObject.showNowValid(pText);
+    showInvalid: function(pText){
+        this.fieldObject.showInvalid(pText);
     },
 
     showValid: function(){
@@ -451,7 +454,6 @@ ka.Field = new Class({
      * @return {Boolean} true if everything is ok
      */
     checkValid: function(){
-
         return this.fieldObject.checkValid();
     },
 
@@ -513,6 +515,7 @@ ka.Field = new Class({
      */
     fireChange: function(){
         var value = this.getValue();
+
         this.fireEvent('change', [value, this, this.key]);
         this.fireEvent('check-depends');
 

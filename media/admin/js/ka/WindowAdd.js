@@ -11,25 +11,17 @@ ka.WindowAdd = new Class({
         //ist in render() am ende also lösche unnötigen balast
         this.win.setLoading(false);
 
-        if (this.winParams.item){
-            this.saveBtn.setText([t('Save'), '#icon-checkmark-6']);
-            this.removeBtn.show();
-            if (this.previewBtn) this.previewBtn.show();
-        } else {
-            this.saveBtn.setText([t('Add'), '#icon-checkmark-6']);
-            this.removeBtn.hide();
-            if (this.previewBtn) this.previewBtn.hide();
-        }
-
-        
-        var first = this.container.getElement('input[type=text]');
-        if (first) {
-            first.focus();
-        }
+        this.saveBtn.setText([t('Add'), '#icon-checkmark-6']);
+        this.removeBtn.hide();
+        if (this.previewBtn) this.previewBtn.hide();
 
         this.ritem = this.retrieveData(true);
 
         this.openAddItem();
+
+        var first = this.getContentContainer().getElement('input[type=text]');
+        if (first && first.focus)
+            first.focus();
     },
 
 
@@ -90,21 +82,93 @@ ka.WindowAdd = new Class({
 
             if (!this.classProperties.addMultiple && this.classProperties.nestedAddWithPositionSelection){
 
-                this.openAddItemNextButton = new ka.Button(tc('addNestedObjectChoosePositionDialog', 'Next'))
+                this.openAddItemNextButton = new ka.Button(tc('addNestedObjectChoosePositionDialog', t('Next')))
                     .inject(this.openAddItemPageBottom);
 
                 this.openAddItemNextButton.setButtonStyle('blue');
                 this.openAddItemNextButton.setEnabled(false);
             } else if (this.classProperties.addMultiple){
 
-                this.openAddItemSaveButton = new ka.Button(tc('addNestedObjectChoosePositionDialog', 'Save'))
-                    .inject(this.openAddItemPageBottom);
+                this.openAddItemSaveButton = new ka.Button(tc('addMultipleItems', t('Add')))
+                .addEvent('click', this.multipleAdd.bind(this))
+                .inject(this.openAddItemPageBottom);
 
                 this.openAddItemSaveButton.setButtonStyle('blue');
                 this.openAddItemSaveButton.setEnabled(false);
             }
 
+
+            this.renderSelectPositionText();
+
         }
+    },
+
+    multipleAdd: function(){
+
+
+        var request = this.buildRequest();
+
+        this.openAddItemSaveButton.startLaggedTip(t('Still adding ...'));
+        if (this.lastAddRq) this.lastAddRq.cancel();
+
+        request._multiple = true;
+
+        this.lastAddRq = new Request.JSON({url: _path + 'admin/' + this.getEntryPoint()+'/'+objectId,
+            noErrorReporting: ['DuplicateKeysException', 'ObjectItemNotModified'],
+            noCache: true, onComplete: function (pResponse) {
+
+                if(pResponse.error == 'DuplicateKeysException'){
+                    this.win._alert(t('Duplicate keys. Please change the values of marked fields.'));
+
+                    Array.each(pResponse.fields, function(field){
+                        if (this.fields[field])
+                            this.fields[field].showInvalid();
+                    }.bind(this));
+
+                    this.openAddItemSaveButton.stopTip(t('Failed'));
+                    return;
+                }
+
+                this.winParams.item = pResponse.data[0]; //our new primary keys for the first item
+
+                window.fireEvent('softReload', this.win.getEntryPoint());
+
+                this.openAddItemSaveButton.stopTip(t('Saved'));
+
+                if (!pClose && this.saveNoClose) {
+                    this.saveNoClose.stopTip(t('Done'));
+                }
+
+                if (this.classProperties.loadSettingsAfterSave == true) ka.loadSettings();
+
+                this.fireEvent('addMultiple', [request, pResponse.data, pPublish]);
+
+                if (pClose) {
+                    this.win.close();
+                }
+
+            }.bind(this)}).put(request);
+
+
+    },
+
+    renderSelectPositionText: function(){
+
+        if (this.classProperties.nestedAddWithPositionSelection){
+            this.selectPositionText = new Element('div', {
+                text: t('Select the position of your new entries!'),
+                style: 'position: absolute; top: 0px; left: 5px; color: gray;'
+            }).inject(this.openAddItemPageBottom);
+
+            this.addDialogLayoutPositionChooser.addEvent('positionChoose', function(){
+                this.selectPositionText.setStyle('display', 'none');
+            }.bind(this));
+
+            this.addDialogLayoutPositionChooser.addEvent('positionChoose', function(){
+                this.selectPositionText.setStyle('display', 'none');
+            }.bind(this));
+        }
+
     },
 
     checkAddItemForm: function(){
@@ -115,8 +179,7 @@ ka.WindowAdd = new Class({
 
         if (this.classProperties.addMultiple){
 
-            logger(this.addMultipleFieldForm.checkValid());
-            if (this.addMultipleFieldForm && !this.addMultipleFieldForm.checkValid()) valid = false;
+            if (this.addMultipleFieldForm && !this.addMultipleFieldForm.isValid()) valid = false;
 
             if (this.openAddItemSaveButton)
                 this.openAddItemSaveButton.setEnabled(valid);
@@ -144,9 +207,9 @@ ka.WindowAdd = new Class({
             Object.getLength(this.classProperties.addMultipleFields) > 0){
 
             fields.__perItemFields = {
-                title: t('Values per entry'),
+                label: t('Values per entry'),
                 type: 'array',
-                startWidth: 1,
+                startWith: 1,
                 columns: [],
                 fields: {}
             };
@@ -157,6 +220,12 @@ ka.WindowAdd = new Class({
                 column.label = item.label;
                 column.desc = item.desc;
                 column.width = item.width;
+
+
+                if (item.required && (typeOf(item.withAsteriskIfRequired) == 'null' || item.withAsteriskIfRequired)){
+                    column.label += '*';
+                }
+
 
                 fields.__perItemFields.columns.push(column);
 
@@ -244,10 +313,10 @@ ka.WindowAdd = new Class({
                 href: 'javascript:;',
                 style: 'text-decoration: none;'
             })
-                .addEvent('click', function(){
-                    choosePosition(this, pDom, pDirection, pItem);
-                })
-                .inject(div);
+            .addEvent('click', function(){
+                choosePosition(this, pDom, pDirection, pItem);
+            })
+            .inject(div);
 
             new Element('span', {
                 'class': 'ka-objectTree-positionChooser-item-text',

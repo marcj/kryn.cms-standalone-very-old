@@ -117,11 +117,15 @@ class ObjectWindowController extends Server {
      *
      * @return mixed
      */
-    public function addItem(){
+    public function addItem($p_Multiple = null){
 
         $obj = $this->getObj();
 
-        return $obj->add();
+        if ($p_Multiple){
+            return $obj->addMultiple();
+        } else {
+            return $obj->add();
+        }
     }
 
     /**

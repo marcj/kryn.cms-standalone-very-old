@@ -1,5 +1,5 @@
 ka.FieldAbstract = new Class({
-    
+
     Implements: [Options, Events],
 
 
@@ -130,7 +130,7 @@ ka.FieldAbstract = new Class({
      * Checks if the value the user entered(or not entered)
      * is a valid one. If it's not valid, then for example the
      * window framesworks won't continue the saving and fire this.highlight()
-     * and this.showNotValid(true).
+     * and this.showInvalid(true).
      *
      * @return {Boolean}
      */
@@ -171,7 +171,7 @@ ka.FieldAbstract = new Class({
      *
      * @param  {String} pText text to display
      */
-    showNotValid: function(pText){
+    showInvalid: function(pText){
 
         if (this.invalidIcon) return; //we're already displaying invalid stuff
 
