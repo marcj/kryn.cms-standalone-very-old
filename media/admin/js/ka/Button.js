@@ -1,6 +1,6 @@
 ka.Button = new Class({
 
-    $eventsBackuper: false,
+    $eventsBackuper: null,
 
     initialize: function (pTitle, pOnClick, pTooltip) {
         this.main = new Element('a', {
@@ -62,6 +62,8 @@ ka.Button = new Class({
                 this.main.cloneEvents(this.$eventsBackuper);
             
             this.main.removeClass('ka-Button-deactivate');
+            delete this.$eventsBackuper;
+
         } else {
 
             this.$eventsBackuper = new Element('span');
@@ -84,7 +86,7 @@ ka.Button = new Class({
     },
 
     addEvent: function(pType, pFn){
-        this.main.addEvent(pType, pFn);
+        (this.$eventsBackuper || this.main).addEvent(pType, pFn);
         return this;
     },
 

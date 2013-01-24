@@ -546,7 +546,18 @@ class Object {
 
     }
 
-    public static function add($pObjectKey, $pValues, $pBranchPk = false, $pPosition = 'into', $pScopeId = false,
+    /**
+     * @param string $pObjectKey
+     * @param array  $pValues
+     * @param bool   $pBranchPk
+     * @param string $pPosition  If nested set. `first` (child), `last` (last child), `prev` (sibling), `next` (sibling)
+     * @param bool   $pScopeId
+     * @param array  $pOptions
+     * @return mixed
+     *
+     * @throws \NoFieldWritePermission
+     */
+    public static function add($pObjectKey, $pValues, $pBranchPk = false, $pPosition = 'first', $pScopeId = false,
                                $pOptions = array()){
 
         $obj = self::getClass($pObjectKey);

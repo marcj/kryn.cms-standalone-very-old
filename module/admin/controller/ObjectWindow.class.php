@@ -756,28 +756,91 @@ abstract class ObjectWindow {
         );
     }
 
+
+    /**
+     *
+     * Adds multiple entries.
+     *
+     * We need as POST following data:
+     *
+     * {
+     *
+     *    _items: [
+     *         {field1: 'foo', field2: 'bar'},
+     *         {field1: 'foo2', field2: 'bar2'},
+     *          ....
+     *     ],
+     *
+     *     fixedField1: 'asd',
+     *     fixedField2: 'fgh',
+     *
+     *     _target: {
+     *         position: 'first', //take a look at `\Core\Object::add()` at parameter `$pPosition`
+     *         pk: {
+     *            id: 123132
+     *         },
+     *         objectKey: 'node' //can differ between the actual object and the target (if we have a different object as root,
+     *                           //then only position `first` and 'last` are available.)
+     *     }
+     *
+     * }
+     *
+     * @return array|mixed
+     */
+    public function addMultiple(){
+
+        $inserted = array();
+
+        $fixedFields = $this->getAddMultipleFixedFields();
+        $fixedData = $this->collectData($fixedFields);
+
+        $fields = $this->getAddMultipleFields();
+
+        $position = $_POST['_position'];
+
+        foreach ($_POST['_items'] as $item){
+
+            $data = $this->collectData($fields, $item, $position['']);
+
+            $data = array_merge($fixedData, $data);
+
+            try {
+                $inserted = $this->add($data);
+            } catch(\Exception $e){
+                $inserted[] = array('_error' => $e);
+            }
+
+        }
+
+        return $inserted;
+
+    }
+
     /**
      * Adds a new item.
      *
+     * Data is passed as POST.
      *
-     *
+     * @param array      $pData
+     * @param int|string $pBranchPk
+     * @param string     $pPosition  If nested set. `first` (child), `last` (child), `prev` (sibling), `next` (sibling)
+     * @param int|string $pScopeId
      * @return mixed False if some went wrong or a array with the new primary keys.
      */
-    public function add(){
+    public function add($pData = null, $pBranchPk = null, $pPosition = null, $pScopeId = null){
+
 
         //collect values
-        $data = $this->collectData();
-
-        //todo
-        $branchId = null;
-        $treePos  = null;
-        $scopeId  = null;
+        if ($pData)
+            $data = $pData;
+        else
+            $data = $this->collectData();
 
         //do normal add through Core\Object
         $this->primaryKey = \Core\Object::add($this->getObject(), $data,
-            $branchId,
-            $treePos,
-            $scopeId,
+            $pBranchPk,
+            $pPosition,
+            $pScopeId,
             array('permissionCheck' => $this->getPermissionCheck())
         );
 
@@ -815,7 +878,7 @@ abstract class ObjectWindow {
         if (!$item) throw new \ObjectItemNotFoundException(tf('Can not find the object item with primaryKey %s', print_r($pPk, true)));
 
         //collect values
-        $data = $this->collectData($pPk);
+        $data = $this->collectData();
 
         //do normal update through Core\Object
         $result = \Core\Object::update($this->getObject(), $pPk, $data, array('permissionCheck' => $this->getPermissionCheck()));
@@ -835,18 +898,24 @@ abstract class ObjectWindow {
      * Collects all data from GET/POST that has to be saved.
      * Iterates only through all defined fields in $fields.
      *
-     * @param mixed $pPk primary key if this has been called for updating, and empty for creating a new record.
+     * @param mixed $pFields The fields definition. If empty we use $this->fields.
+     * @param mixed $pData
      * @return array
      * @throws \FieldCanNotBeEmptyException
      */
-    public function collectData($pPk = null){
+    public function collectData($pFields = null, $pData = null){
 
         $data = array();
 
-        foreach ($this->_fields as $key => $field){
+        if ($pFields)
+            $fields =& $pFields;
+        else
+            $fields =& $this->_fields;
+
+        foreach ($fields as $key => $field){
             if ($field['noSave']) continue;
 
-            $data[$key] = $_POST[$key]?:$_GET[$key];
+            $data[$key] = $pData ? $pData[$key] :($_POST[$key]?:$_GET[$key]);
 
             if ($field['customValue'] && method_exists($this, $method = $field['customValue'])){
                 $data[$key] = $this->$method($field, $key);
@@ -857,7 +926,7 @@ abstract class ObjectWindow {
                 continue;
             }
 
-            if (($field['saveOnlyFilled'] || $field['saveOnlyIsFilled']) && ($data[$key] === '' || $data[$key] === null))
+            if (($field['saveOnlyFilled'] || $field['saveOnlyIfFilled']) && ($data[$key] === '' || $data[$key] === null))
                 unset($data[$key]);
 
             if ($field['required'] && ($data[$key] === '' || $data[$key] === null) )

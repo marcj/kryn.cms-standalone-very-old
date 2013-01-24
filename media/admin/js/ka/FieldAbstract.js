@@ -162,7 +162,7 @@ ka.FieldAbstract = new Class({
     checkValid: function(){
         var status = this.isValid();
         if (status) this.showValid();
-        else this.showNotValid();
+        else this.showInvalid();
         return status;
     },
 

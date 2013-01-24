@@ -376,7 +376,7 @@ ka.getObjectPrimaryList = function(pObjectKey){
  * Return only the primary keys of pItem as object.
  *
  * @param {String} pObjectKey
- * @param {Object} pItem
+ * @param {Object} pItem Always a object with the primary key => value pairs.
  */
 ka.getObjectPk = function(pObjectKey, pItem){
     var pks = ka.getObjectPrimaryList(pObjectKey);

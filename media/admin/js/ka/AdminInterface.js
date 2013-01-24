@@ -67,7 +67,7 @@ ka.AdminInterface = new Class({
         this._iconSessionCounter = new Element('span', {text: 0}).inject(this._iconSessionCounterDiv);
 
 
-        window.addEvent('resize', this.checkMainBarWidth);
+        window.addEvent('resize', this.checkMainBarWidth.bind(this));
         this.buildUserMenu();
 
         window.fireEvent('init');
@@ -1096,6 +1096,7 @@ ka.AdminInterface = new Class({
                 menuitem.inject(this.additionalMainMenuContainer);
                 menuitem.store('inAdditionalMenuBar', true);
             }.bind(this));
+
             this.additionalMainMenu.inject(menubar);
         } else {
 

@@ -72,7 +72,7 @@ ka.WindowAdd = new Class({
 
                 this.addDialogLayoutPositionChooser.addEvent('positionChoose', function(pDom, pDirection, pItem, pChooser){
 
-                    this.addItemToAdd = {direction: pDirection, id: pDom.id, objectKey: pDom.objectKey};
+                    this.addItemToAdd = {position: pDirection, pk: ka.getObjectPk(pDom.objectKey, pItem), objectKey: pDom.objectKey};
 
                     this.checkAddItemForm();
                 }.bind(this));
@@ -83,12 +83,13 @@ ka.WindowAdd = new Class({
             if (!this.classProperties.addMultiple && this.classProperties.nestedAddWithPositionSelection){
 
                 this.openAddItemNextButton = new ka.Button(tc('addNestedObjectChoosePositionDialog', t('Next')))
-                    .inject(this.openAddItemPageBottom);
+                .inject(this.openAddItemPageBottom);
 
                 this.openAddItemNextButton.setButtonStyle('blue');
                 this.openAddItemNextButton.setEnabled(false);
             } else if (this.classProperties.addMultiple){
 
+                logger('asd');
                 this.openAddItemSaveButton = new ka.Button(tc('addMultipleItems', t('Add')))
                 .addEvent('click', this.multipleAdd.bind(this))
                 .inject(this.openAddItemPageBottom);
@@ -105,49 +106,55 @@ ka.WindowAdd = new Class({
 
     multipleAdd: function(){
 
+        logger(this.addMultipleFieldForm.checkValid());
+        if (!this.addMultipleFieldForm.checkValid()) return false;
 
-        var request = this.buildRequest();
+        var request = this.addMultipleFieldForm.getValue();
 
         this.openAddItemSaveButton.startLaggedTip(t('Still adding ...'));
         if (this.lastAddRq) this.lastAddRq.cancel();
 
         request._multiple = true;
 
-        this.lastAddRq = new Request.JSON({url: _path + 'admin/' + this.getEntryPoint()+'/'+objectId,
+        request._position = this.addItemToAdd;
+
+        logger(request);
+
+        this.lastAddRq = new Request.JSON({url: _path + 'admin/' + this.getEntryPoint(),
             noErrorReporting: ['DuplicateKeysException', 'ObjectItemNotModified'],
             noCache: true, onComplete: function (pResponse) {
 
-                if(pResponse.error == 'DuplicateKeysException'){
-                    this.win._alert(t('Duplicate keys. Please change the values of marked fields.'));
+            if(pResponse.error == 'DuplicateKeysException'){
+                this.win._alert(t('Duplicate keys. Please change the values of marked fields.'));
 
-                    Array.each(pResponse.fields, function(field){
-                        if (this.fields[field])
-                            this.fields[field].showInvalid();
-                    }.bind(this));
+                Array.each(pResponse.fields, function(field){
+                    if (this.fields[field])
+                        this.fields[field].showInvalid();
+                }.bind(this));
 
-                    this.openAddItemSaveButton.stopTip(t('Failed'));
-                    return;
-                }
+                this.openAddItemSaveButton.stopTip(t('Failed'));
+                return;
+            }
 
-                this.winParams.item = pResponse.data[0]; //our new primary keys for the first item
+            this.winParams.item = pResponse.data[0]; //our new primary keys for the first item
 
-                window.fireEvent('softReload', this.win.getEntryPoint());
+            window.fireEvent('softReload', this.win.getEntryPoint());
 
-                this.openAddItemSaveButton.stopTip(t('Saved'));
+            this.openAddItemSaveButton.stopTip(t('Saved'));
 
-                if (!pClose && this.saveNoClose) {
-                    this.saveNoClose.stopTip(t('Done'));
-                }
+            if (!pClose && this.saveNoClose) {
+                this.saveNoClose.stopTip(t('Done'));
+            }
 
-                if (this.classProperties.loadSettingsAfterSave == true) ka.loadSettings();
+            if (this.classProperties.loadSettingsAfterSave == true) ka.loadSettings();
 
-                this.fireEvent('addMultiple', [request, pResponse.data, pPublish]);
+            this.fireEvent('addMultiple', [request, pResponse.data, pPublish]);
 
-                if (pClose) {
-                    this.win.close();
-                }
+            if (pClose) {
+                this.win.close();
+            }
 
-            }.bind(this)}).put(request);
+        }.bind(this)}).put(request);
 
 
     },
@@ -206,7 +213,7 @@ ka.WindowAdd = new Class({
         if (typeOf(this.classProperties.addMultipleFields) == 'object' &&
             Object.getLength(this.classProperties.addMultipleFields) > 0){
 
-            fields.__perItemFields = {
+            fields._items = {
                 label: t('Values per entry'),
                 type: 'array',
                 startWith: 1,
@@ -227,9 +234,9 @@ ka.WindowAdd = new Class({
                 }
 
 
-                fields.__perItemFields.columns.push(column);
+                fields._items.columns.push(column);
 
-                fields.__perItemFields.fields[key] = item;
+                fields._items.fields[key] = item;
             });
 
         }

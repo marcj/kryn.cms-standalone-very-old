@@ -248,12 +248,12 @@ abstract class ORMAbstract {
      * @abstract
      * @param array  $pValues
      * @param array  $pBranchPk If nested set
-     * @param string $pMode  If nested set. 'first' (child), 'last' (child), 'prev' (sibling), 'next' (sibling)
+     * @param string $pPosition  If nested set. `first` (child), `last` (last child), `prev` (sibling), `next` (sibling)
      * @param int    $pScope If nested set with scope
      *
      * @return array inserted/new primary key/s always as a array.
      */
-    abstract public function add($pValues, $pBranchPk = null, $pMode = 'into', $pScope = null);
+    abstract public function add($pValues, $pBranchPk = null, $pPosition = 'first', $pScope = null);
 
     /**
      * Updates an object
