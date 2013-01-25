@@ -53,6 +53,8 @@ ka.Button = new Class({
 
     setEnabled: function(pEnabled){
 
+        if (this.enabled === pEnabled) return;
+
         this.enabled = pEnabled;
 
         if (this.enabled){
