@@ -1185,6 +1185,9 @@ class Kryn {
         if (substr(Kryn::$url, 0, 1) == '/')
             Kryn::$url = substr(Kryn::$url, 1);
 
+        if (substr(Kryn::$url, -1) == '/')
+            Kryn::$url = substr(Kryn::$url, 0, -1);
+
         Kryn::$urlWithGet = Kryn::$url;
         $f = false;
 

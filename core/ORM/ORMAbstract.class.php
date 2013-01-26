@@ -9,7 +9,7 @@ namespace Core\ORM;
  * You will get in getList()  a complex $pCondition object instead (if there are any ACL items)
  *
  * 
- * $pPrimaryKey is an array with following format
+ * $pPk is an array with following format
  *
  *  array(
  *      '<keyName>'  => <value>
@@ -59,8 +59,8 @@ abstract class ORMAbstract {
         }
     }
 
-    public function setPrimaryKeys($pPrimaryKeys){
-        $this->primaryKeys = $pPrimaryKeys;
+    public function setPrimaryKeys($pPks){
+        $this->primaryKeys = $pPks;
     }
 
     /**
@@ -104,21 +104,21 @@ abstract class ORMAbstract {
      *  array('id' => 'bla'), array('id' => 'peter'), array('id' => 123)
      *  if the only primary key is named `id`.
      *
-     * @param mixed $pPrimaryKey
+     * @param mixed $pPk
      * @return array
      */
-    public function normalizePrimaryKey($pPrimaryKey){
-        if (!is_array($pPrimaryKey)){
+    public function normalizePrimaryKey($pPk){
+        if (!is_array($pPk)){
             $result = array();
-            $result[$this->primaryKeys[0]] = $pPrimaryKey;
-        } else if (is_numeric(key($pPrimaryKey))){
+            $result[$this->primaryKeys[0]] = $pPk;
+        } else if (is_numeric(key($pPk))){
             $result = array();
             $length = count($this->primaryKeys);
             for($i=0; $i<$length; $i++){
-                $result[$this->primaryKeys[$i]] = $pPrimaryKey[$i];
+                $result[$this->primaryKeys[$i]] = $pPk[$i];
             }
         } else{
-            $result = $pPrimaryKey;
+            $result = $pPk;
         }
 
         if (count($this->primaryKeys) > count($result)){
@@ -132,7 +132,7 @@ abstract class ORMAbstract {
 
     /**
      * Converts given primary values from type string into proper normalized array definition.
-     * This builds the array for the $pPrimaryKey for all of these methods inside this class.
+     * This builds the array for the $pPk for all of these methods inside this class.
      *
      * The primaryKey comes primarily from the REST API.
      *
@@ -153,13 +153,13 @@ abstract class ORMAbstract {
      *
      *
      *
-     * @param string $pPrimaryKey
+     * @param string $pPk
      * @return array
      */
-    public function primaryStringToArray($pPrimaryKey){
+    public function primaryStringToArray($pPk){
 
-        if ($pPrimaryKey === '') return false;
-        $groups = explode('/', $pPrimaryKey);
+        if ($pPk === '') return false;
+        $groups = explode('/', $pPk);
 
         $result = array();
 
@@ -206,12 +206,12 @@ abstract class ORMAbstract {
      *
      *
      * @abstract
-     * @param array  $pPrimaryKey
+     * @param array  $pPk
      * @param array  $pOptions
      *
      * @return array
      */
-    abstract public function getItem($pPrimaryKey, $pOptions = null);
+    abstract public function getItem($pPk, $pOptions = null);
 
     /**
      *
@@ -239,10 +239,10 @@ abstract class ORMAbstract {
     /**
      * 
      * @abstract
-     * @param array $pPrimaryKey
+     * @param array $pPk
      *
      */
-    abstract public function remove($pPrimaryKey);
+    abstract public function remove($pPk);
 
     /**
      * @abstract
@@ -259,11 +259,11 @@ abstract class ORMAbstract {
      * Updates an object
      *
      * @abstract
-     * @param array $pPrimaryKey
+     * @param array $pPk
      * @param array $pValues
      * @throws \ObjectItemNotModified
      */
-    abstract public function update($pPrimaryKey, $pValues);
+    abstract public function update($pPk, $pValues);
 
     /**
      * @abstract
@@ -330,7 +330,7 @@ abstract class ORMAbstract {
      *
      * @return array
      */
-    public function getTree($pPk = null, $pCondition = null, $pDepth = 1, $pScope = null, $pOptions = null){
+    public function getBranch($pPk = null, $pCondition = null, $pDepth = 1, $pScope = null, $pOptions = null){
         if (!$this->definition['nested']) throw new \Exception(t('Object %s it not a nested set.', $this->objectKey));
         throw new \NotImplementedException(t('getTree is not implemented.'));
     }
@@ -362,11 +362,11 @@ abstract class ORMAbstract {
     /**
      * Returns parent's id, if exists
      *
-     * @param array $pPrimaryKey
+     * @param array $pPk
      * @return array
      */
-    public function getParentId($pPrimaryKey){
-        $object = $this->getParent($pPrimaryKey);
+    public function getParentId($pPk){
+        $object = $this->getParent($pPk);
 
         if (!$object) return false;
 

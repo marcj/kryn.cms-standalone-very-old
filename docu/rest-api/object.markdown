@@ -61,7 +61,7 @@ Return the parent of a object entry.
 
 Move a entry of a nested set object.
 
-    POST admin/object-move
+    PUT admin/object-move
 
         object           (string, required) source object url.
         to               (string, required) target object url.

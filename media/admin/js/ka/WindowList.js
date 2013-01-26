@@ -81,7 +81,7 @@ ka.WindowList = new Class({
             this._deleteSuccess();
             this.reload();
         }.bind(this)}).post({
-            item: pItem.values
+            item: pItem
         });
     },
 
@@ -263,7 +263,8 @@ ka.WindowList = new Class({
         var objectOptions = {};
 
         objectOptions.type = 'tree';
-        objectOptions.object = this.classProperties.object;
+        objectOptions.objectKey = this.classProperties.object;
+        objectOptions.entryPoint = this.win.getEntryPoint();
         objectOptions.scopeChooser = false;
         objectOptions.noWrapper = true;
 
@@ -427,7 +428,7 @@ ka.WindowList = new Class({
                 if (this.win.params && this.win.params.filter) {
                     Object.each(this.win.params.filter, function (item, key) {
                         if (item == mkey) {
-                            fieldObj.setValue(this.win.params.item.values[key]);
+                            fieldObj.setValue(this.win.params.item[key]);
                             doSearchNow = true;
                         }
                     }.bind(this));
@@ -865,7 +866,7 @@ ka.WindowList = new Class({
             if (pItem['remove']) {
                 var mykey = {};
                 this.classProperties.primary.each(function (primary) {
-                    mykey[primary] = pItem.values[primary];
+                    mykey[primary] = pItem[primary];
                 });
                 this.checkboxes.include(new Element('input', {
                     value: JSON.encode(mykey),
@@ -876,7 +877,7 @@ ka.WindowList = new Class({
 
         Object.each(this.classProperties.columns, function (column, columnId) {
 
-            var value = ka.getObjectFieldLabel(pItem.values, column, columnId, this.options.object);
+            var value = ka.getObjectFieldLabel(pItem, column, columnId, this.options.object);
 
             var td = new Element('td', {
                 html: value
@@ -889,7 +890,7 @@ ka.WindowList = new Class({
                 if (_this.classProperties.edit){
 
                     ka.entrypoint.open(ka.entrypoint.getRelative(_this.win.getEntryPoint(), _this.classProperties.editEntrypoint), {
-                        item: pItem.values
+                        item: pItem
                     }, this);
 
                 }
@@ -931,7 +932,7 @@ ka.WindowList = new Class({
 
                         //compatibility
                         action.addEvent('click',function () {
-                            ka.wm.open(action[2], {item: pItem.values, filter: action[3]});
+                            ka.wm.open(action[2], {item: pItem, filter: action[3]});
                         }).inject(icon);
                     }
 
@@ -954,7 +955,7 @@ ka.WindowList = new Class({
 
                         //compatibility
                         action.addEvent('click',function () {
-                            ka.entrypoint.open(action.entrypoint, {item: pItem.values}, this);
+                            ka.entrypoint.open(action.entrypoint, {item: pItem}, this);
                         }).inject(icon);
                     }
 
@@ -982,7 +983,7 @@ ka.WindowList = new Class({
 
                 editIcon.addEvent('click', function () {
 
-                    ka.entrypoint.open(ka.entrypoint.getRelative(_this.win.getEntryPoint(), _this.classProperties.editEntrypoint), {item: pItem.values}, this);
+                    ka.entrypoint.open(ka.entrypoint.getRelative(_this.win.getEntryPoint(), _this.classProperties.editEntrypoint), {item: pItem}, this);
 
                 }).inject(icon);
             }

@@ -60,23 +60,27 @@ class AdminController {
         //checkAccess
         $this->checkAccess($url);
 
-        
-        $entryPoint = Utils::getEntryPoint(substr($url, strlen('admin/')));
-        
-        if ($entryPoint) {
+        $blackListForEntryPoints = array('backend', 'login', 'logged-in', 'logout', 'ui', 'system', 'file', 'object',
+                                         'object-by-url');
 
-            //is window entry point?
-            $objectWindowTypes = array('list', 'edit', 'add', 'combine');
+        if (array_search(getArgv(1), $blackListForEntryPoints) === false){
 
-            if (in_array($entryPoint['type'], $objectWindowTypes)){
-                $epc = new ObjectWindowController('admin');
-                $epc->setExceptionHandler($exceptionHandler);
-                $epc->setDebugMode($debugMode);
-                $epc->run($entryPoint);
+            $url =  substr($url, strlen('admin/'));
+            $entryPoint = Utils::getEntryPoint($url);
+
+            if ($entryPoint) {
+
+                //is window entry point?
+                $objectWindowTypes = array('list', 'edit', 'add', 'combine');
+
+                if (in_array($entryPoint['type'], $objectWindowTypes)){
+                    $epc = new ObjectWindowController(($entryPoint['_module'] == 'admin' && getArgv(2) != 'admin' ? '': 'admin/') . $entryPoint['_url']);
+                    $epc->setExceptionHandler($exceptionHandler);
+                    $epc->setDebugMode($debugMode);
+                    die($epc->run($entryPoint));
+                }
+
             }
-
-            //is store?
-            //todo
         }
 
         if (Kryn::isActiveModule(getArgv(2)) && getArgv(2) != 'admin'){
@@ -94,6 +98,25 @@ class AdminController {
             die($obj->run());
 
         } else {
+
+            if (getArgv(1) == 'admin' && getArgv(2) == 'object'){
+
+                $entryPoint = array(
+                    '_url' => 'object/'.getArgv(3).'/',
+                    'type' => 'combine'
+                );
+
+                $object = new ObjectWindow();
+                $object->setObject(getArgv(3));
+                $object->setAllowCustomSelectFields(true);
+
+                $epc = new ObjectWindowController(($entryPoint['_module'] == 'admin' ? '': 'admin/') . $entryPoint['_url']);
+                $epc->setObj($object);
+                $epc->setExceptionHandler($exceptionHandler);
+                $epc->setDebugMode($debugMode);
+                die($epc->run($entryPoint));
+
+            }
 
             \RestService\Server::create('admin', $this)
 
@@ -136,52 +159,6 @@ class AdminController {
 
                 ->done()
 
-
-
-                //admin/object
-                ->addSubController('object', '\Admin\Object\Controller')
-                    ->addGetRoute('([a-zA-Z-_\.\\\\]+)/([^/]+)', 'getItem')
-                    ->addPostRoute('([a-zA-Z-_\.\\\\]+)/([^/]+)', 'postItem')
-                    ->addDeleteRoute('([a-zA-Z-_\.\\\\]+)/([^/]+)', 'deleteItem')
-                    ->addPutRoute('([a-zA-Z-_\.\\\\]+)', 'putItem')
-                    ->addGetRoute('([a-zA-Z-_\.\\\\]+)', 'getItems')
-                ->done()
-
-                //admin/object-branch
-                ->addSubController('object-tree', '\Admin\Object\Controller')
-                  ->addGetRoute('([a-zA-Z-_\.\\\\]+)', 'getTree')
-                  ->addGetRoute('([a-zA-Z-_\.\\\\]+)/([^/]+)', 'getTreeBranch')
-                ->done()
-
-                //admin/object-count
-                ->addSubController('object-count', '\Admin\Object\Controller')
-                  ->addGetRoute('([a-zA-Z-_\.\\\\]+)', 'getCount')
-                ->done()
-
-                //admin/object-root
-                ->addSubController('object-root', '\Admin\Object\Controller')
-                    ->addGetRoute('([a-zA-Z-_\.\\\\]+)', 'getTreeRoot')
-                ->done()
-
-                //admin/object-roots
-                ->addSubController('object-roots', '\Admin\Object\Controller')
-                    ->addGetRoute('([a-zA-Z-_\.\\\\]+)', 'getTreeRoots')
-                ->done()
-
-                //admin/object-parents
-                ->addSubController('object-parents', '\Admin\Object\Controller')
-                    ->addGetRoute('([a-zA-Z-_\.\\\\]+)/([^/]+)', 'getParents')
-                ->done()
-
-                //admin/object-parent
-                ->addSubController('object-parent', '\Admin\Object\Controller')
-                    ->addGetRoute('([a-zA-Z-_\.\\\\]+)/([^/]+)', 'getParent')
-                ->done()
-
-                //admin/object-move
-                ->addSubController('object-move', '\Admin\Object\Controller')
-                 ->addPostRoute('([a-zA-Z-_\.\\\\]+)/([^/]+)', 'moveItem')
-                ->done()
 
                 ->addSubController('', '\Admin\Object\Controller')
 
@@ -272,8 +249,8 @@ class AdminController {
 
                 ->addSubController('file', '\Admin\File')
                     ->addGetRoute('', 'getFiles')
-                ->addGetRoute('single', 'getFile')
-                ->addGetRoute('thumbnail', 'getThumbnail')
+                    ->addGetRoute('single', 'getFile')
+                    ->addGetRoute('thumbnail', 'getThumbnail')
                 ->done()
 
             ->run();

@@ -547,30 +547,77 @@ class Object {
     }
 
     /**
+     * Counts the items of $pObjectKey filtered by $pCondition
+     *
+     * @param string $pObjectKey
+     * @param array $pCondition
+     * @param array $pOptions
+     * @return array
+     */
+    public static function getBranchChildrenCount($pObjectKey, $pPk = null, $pCondition = null, $pScope = false, $pOptions = false){
+
+        $obj = self::getClass($pObjectKey);
+
+        if ($pCondition)
+            $pCondition = dbPrimaryKeyToCondition($pCondition, $pObjectKey);
+
+        if ($obj->definition['limitDataSets'])
+            $pCondition = $pCondition ? array($pCondition, 'AND', $obj->definition['limitDataSets']) : $obj->definition['limitDataSets'];
+
+        if ($pOptions['permissionCheck'] && $aclCondition = Permission::getListingCondition($pObjectKey)){
+            if ($pCondition)
+                $pCondition = array($aclCondition, 'AND', $pCondition);
+            else
+                $pCondition = $aclCondition;
+        }
+
+        return $obj->getBranchChildrenCount($pPk, $pCondition, $pScope, $pOptions);
+
+    }
+
+    /**
      * @param string $pObjectKey
      * @param array  $pValues
-     * @param bool   $pBranchPk
-     * @param string $pPosition  If nested set. `first` (child), `last` (last child), `prev` (sibling), `next` (sibling)
-     * @param bool   $pScopeId
+     * @param mixed  $pPk              Full PK as array or as primary key string (url).
+     * @param string $pPosition        If nested set. `first` (child), `last` (last child), `prev` (sibling), `next` (sibling)
+     * @param bool   $pTargetObjectKey If this object key differs from $pObjectKey then we'll use $pPk as `scope`. Also
+     *                                 it is then only possible to have position `first` and `last`.
      * @param array  $pOptions
      * @return mixed
      *
      * @throws \NoFieldWritePermission
      */
-    public static function add($pObjectKey, $pValues, $pBranchPk = false, $pPosition = 'first', $pScopeId = false,
+    public static function add($pObjectKey, $pValues, $pPk = null, $pPosition = 'first', $pTargetObjectKey = null,
                                $pOptions = array()){
+
+        $pPk = self::normalizePk($pObjectKey, $pPk);
 
         $obj = self::getClass($pObjectKey);
     
         if ($pOptions['permissionCheck']){
+
             foreach ($pValues as $fieldName => $value){
-                if (!Permission::checkAdd($pObjectKey, $pBranchPk, $fieldName)){
-                    throw new \NoFieldWritePermission(tf("No update permission to field '%s' in item '%s' from object '%s'", $fieldName, $pBranchPk, $pObjectKey));
+
+                //todo, what if $pTargetObjectKey differs from $pObjectKey
+
+                if (!Permission::checkAdd($pObjectKey, $pPk, $fieldName)){
+                    throw new \NoFieldWritePermission(tf("No update permission to field '%s' in item '%s' from object '%s'", $fieldName, $pPk, $pObjectKey));
                 }
             }
         }
 
-        return $obj->add($pValues, $pBranchPk, $pPosition, $pScopeId);
+        if ($pTargetObjectKey && $pTargetObjectKey != $pObjectKey){
+            if ($pPosition == 'prev' || $pPosition == 'next'){
+                throw \InvalidArgumentException('Its not possible to use `prev` or `next` to add a new entry with a different object key.');
+            }
+
+            $pPk = self::normalizePk($pTargetObjectKey, $pPk);
+            //since propel's nested set behaviour only allows a single value as scope, we can't
+            $scope = current($pPk[0]);
+            return $obj->add($pValues, null, $pPosition, $scope);
+        }
+
+        return $obj->add($pValues, $pPk, $pPosition);
 
     }
 
@@ -648,10 +695,11 @@ class Object {
     }
 
 
-    public static function getTreeRoot($pObjectKey, $pScope, $pOptions = false){
+    public static function getRoot($pObjectKey, $pScope, $pOptions = false){
 
         $definition = self::getDefinition($pObjectKey);
-        if (!$definition['nestedRootAsObject'] && $pScope === null) throw new \Exception('No scope defined.');
+
+        if ($definition['nestedRootAsObject'] && $pScope === null) throw new \Exception('No `scope` defined.');
 
         $pOptions['fields'] = $definition['nestedRootObjectLabelField'];
 
@@ -659,20 +707,37 @@ class Object {
     }
 
 
-    public static function getTreeRoots($pObjectKey, $pOptions = false){
+    public static function getRoots($pObjectKey, $pCondition = null, $pOptions = false){
 
         $definition = self::getDefinition($pObjectKey);
-        if (!$definition['nestedRootAsObject']) throw new \Exception('Object has no scope.');
 
-        $pOptions['fields'] = $definition['nestedRootObjectLabelField'];
+        if (!$definition['nested']) throw new \Exception('Object is not a nested set.');
 
-        return self::getList($definition['nestedRootObject'], null, $pOptions);
+        if ($definition['nestedRootObjectLabelField'] && !$pOptions['fields'])
+            $pOptions['fields'] = $definition['nestedRootObjectLabelField'];
+
+        if ($definition['nestedRootAsObject']){
+
+            return self::getList($definition['nestedRootObject'], null, $pOptions);
+        } else {
+            $obj = self::getClass($pObjectKey);
+
+            if ($pOptions['permissionCheck'] && $aclCondition = Permission::getListingCondition($pObjectKey)){
+                if ($pCondition)
+                    $pCondition = array($aclCondition, 'AND', $pCondition);
+                else
+                    $pCondition = $aclCondition;
+            }
+
+            return $obj->getRoots($pCondition, $pOptions);
+
+        }
     }
 
     /**
      * @static
      * @param $pObjectKey
-     * @param null $pParentPrimaryKey
+     * @param null $pPk
      * @param null $pCondition
      * @param int $pDepth
      * @param bool $pScope
@@ -680,13 +745,13 @@ class Object {
      * @return mixed
      * @throws \Exception
      */
-    public static function getTree($pObjectKey, $pParentPrimaryKey = null, $pCondition = null, $pDepth = 0, $pScope = false, $pOptions = false){
+    public static function getBranch($pObjectKey, $pPk = null, $pCondition = null, $pDepth = 0, $pScope = false, $pOptions = false){
 
         $obj = self::getClass($pObjectKey);
         $definition = self::getDefinition($pObjectKey);
 
-        if ($pParentPrimaryKey)
-            $parentPrimaryKey = $obj->normalizePrimaryKey($pParentPrimaryKey);
+        if ($pPk)
+            $pPk = $obj->normalizePrimaryKey($pPk);
 
         if (!$definition['nestedRootAsObject'] && $pScope === false) throw new \Exception('No scope defined.');
 
@@ -711,7 +776,7 @@ class Object {
                 $pCondition = $aclCondition;
         }
 
-        return $obj->getTree($parentPrimaryKey, $pCondition, $pDepth, $pScope, $pOptions);
+        return $obj->getBranch($pPk, $pCondition, $pDepth, $pScope, $pOptions);
 
     }
 

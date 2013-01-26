@@ -95,9 +95,8 @@ ka.WindowAdd = new Class({
                 .inject(this.openAddItemPageBottom);
 
                 this.openAddItemSaveButton.setButtonStyle('blue');
-                this.openAddItemSaveButton.setEnabled(false);
+                //this.openAddItemSaveButton.setEnabled(false);
             }
-
 
             this.renderSelectPositionText();
 
@@ -116,7 +115,9 @@ ka.WindowAdd = new Class({
 
         request._multiple = true;
 
-        request._position = this.addItemToAdd;
+        request._position = this.addItemToAdd.position;
+        request._pk = this.addItemToAdd.pk;
+        request._targetObjectKey = this.addItemToAdd.objectKey;
 
         logger(request);
 
@@ -132,6 +133,11 @@ ka.WindowAdd = new Class({
                         this.fields[field].showInvalid();
                 }.bind(this));
 
+                this.openAddItemSaveButton.stopTip(t('Failed'));
+                return;
+            }
+
+            if (pResponse.error == 'FieldCanNotBeEmptyException'){
                 this.openAddItemSaveButton.stopTip(t('Failed'));
                 return;
             }

@@ -5,7 +5,20 @@ ka.FieldTypes.Tree = new Class({
     Binds: ['selected'],
 
     options: {
-        object: '',
+
+        /**
+         * Use a object key or a entry point.
+         *
+         * @var {String}
+         */
+        objectKey: '',
+
+        /**
+         * Use a object key or a entry point.
+         *
+         * @var {String}
+         */
+        entryPoint: '',
 
         /**
          * The pk value of the scope.
@@ -29,6 +42,8 @@ ka.FieldTypes.Tree = new Class({
          * @var {Boolean}
          */
         scopeLanguage: null,
+
+        rootObject: '',
 
         /**
          * TODO, can be useful
@@ -66,7 +81,7 @@ ka.FieldTypes.Tree = new Class({
         openFirstLevel: null,
 
         /**
-         * If you want to change the root object. Thats not very often the case.
+         * If you want to change the root object. That's not very often the case.
          * @var {String}
          */
         rootObject: null,
@@ -97,6 +112,10 @@ ka.FieldTypes.Tree = new Class({
         selectable: true,
 
 
+        treeInterface: '',
+
+        treeInterfaceClass: '',
+
 
         labelTemplate: false,
         objectFields: ''
@@ -108,7 +127,11 @@ ka.FieldTypes.Tree = new Class({
 
     createLayout: function(){
 
-        this.definition = ka.getObjectDefinition(this.options.object);
+
+        if (!this.options.objectKey)
+            throw '`objectKey` option in ka.Field `tree` required.';
+
+        this.definition = ka.getObjectDefinition(this.options.objectKey);
 
         if (!this.definition) throw 'Object not found '+this.options.object;
         if (!this.definition.nested) throw 'Object is not a nested set '+this.options.object;
@@ -118,11 +141,23 @@ ka.FieldTypes.Tree = new Class({
             this.options.labelTemplate = this.definition.labelTemplate;
         }
 
-        if (this.definition.nestedRootAsObject && !this.options.scope){
+        if (!this.options.rootObject)
+            this.options.rootObject = this.definition.nestedRootObject;
+
+        if (!this.options.treeInterface)
+            this.options.treeInterface = this.definition.treeInterface;
+
+        if (!this.options.treeInterfaceClass)
+            this.options.treeInterfaceClass = this.definition.treeInterfaceClass;
+
+        if (!this.options.moveable)
+            this.options.moveable = typeOf(this.definition.treeMoveable) !== 'null' ? this.definition.treeMoveable : true;
+
+        if (!this.options.scope){
 
             if (this.options.scopeChooser){
                 var options = {
-                    object: this.definition.nestedRootObject,
+                    object: this.options.rootObject,
                     objectLanguage: this.options.scopeLanguage
                 };
 
@@ -134,7 +169,7 @@ ka.FieldTypes.Tree = new Class({
             } else {
 
                 //load all scope entries
-                new Request.JSON({url: _path+'admin/object-roots/'+ka.urlEncode(this.options.object),
+                new Request.JSON({url: this.getUrl()+':roots',
                 onComplete: function(pResponse){
 
                     this.treesContainer.empty();
@@ -159,6 +194,14 @@ ka.FieldTypes.Tree = new Class({
         }
     },
 
+
+    getUrl: function(){
+
+        return _path + 'admin/' + (this.options.entryPoint ? this.options.entryPoint : 'object/' + ka.urlEncode(this.options.objectKey) )+'/';
+
+    },
+
+
     loadTree: function(pScope){
 
         this.treesContainer.empty();
@@ -172,23 +215,20 @@ ka.FieldTypes.Tree = new Class({
 
         var clazz = ka.ObjectTree;
 
-        if (this.definition.treeInterface && this.definition.treeInterface != 'default'){
-            if (!this.definition.treeInterfaceClass){
+        if (this.options.treeInterface && this.options.treeInterface != 'default'){
+            if (!this.options.treeInterfaceClass){
                 throw 'TreeInterface class in "treeInterfaceClass" is not defined.'
             } else {
-                if (!(clazz = ka.getClass(this.definition.treeInterfaceClass))){
-                    throw 'Class does not exist '+this.definition.treeInterfaceClass;
+                if (!(clazz = ka.getClass(this.options.treeInterfaceClass))){
+                    throw 'Class does not exist '+this.options.treeInterfaceClass;
                 }
             }
         }
 
         this.options.scope = pScope;
 
-        if (typeOf(this.options.moveable) === 'null')
-            this.options.moveable = typeOf(this.definition.treeMoveable) !== 'null' ? this.definition.treeMoveable : true;
 
-
-        var tree= new clazz(this.treesContainer, this.options.object, this.options);
+        var tree= new clazz(this.treesContainer, this.options);
         tree.addEvent('change', this.fieldInstance.fireChange);
         tree.addEvent('select', this.selected);
 

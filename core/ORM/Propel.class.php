@@ -256,20 +256,6 @@ class Propel extends ORMAbstract {
         return $pPk;
     }
 
-    /**
-     * Sets the filterBy<pk> by &$pQuery from $pPk.
-     *
-     * @param mixed $pQuery
-     * @param array $pPk
-     */
-    public function mapPk(&$pQuery, $pPk){
-        foreach ($pPk as $key => $val){
-            $filter = 'filterBy'.ucfirst($key);
-            if (method_exists($pQuery, $filter))
-                $pQuery->$filter($val);
-        }
-    }
-
 
     public function mapOptions($pQuery, $pOptions = array()){
 
@@ -557,7 +543,7 @@ class Propel extends ORMAbstract {
     /**
      * {@inheritDoc}
      */
-    public function getItem($pPrimaryKey, $pOptions = array()){
+    public function getItem($pPk, $pOptions = array()){
 
         $this->init();
         $query = $this->getQueryClass();
@@ -573,7 +559,7 @@ class Propel extends ORMAbstract {
 
         $this->mapToOneRelationFields($query, $relations, $relationFields);
 
-        $this->mapPk($query, $pPrimaryKey);
+        $query->filterByPrimaryKeys($pPk);
 
         $item = $query->findOne();
         if (!$item) return false;
@@ -597,7 +583,7 @@ class Propel extends ORMAbstract {
 
         $query = $this->getQueryClass();
 
-        $this->mapPk($query, $pPk);
+        $query->filterByPrimaryKeys($pPk);
         $item = $query->findOne();
         if (!$item) return false;
 
@@ -632,7 +618,7 @@ class Propel extends ORMAbstract {
 
         $query->filterByWorkspaceId(\Core\WorkspaceManager::getCurrent());
 
-        $this->mapPk($query, $pPk);
+        $query->filterByPrimaryKeys($pPk);
 
         return $query->find()->toArray();
 
@@ -655,7 +641,7 @@ class Propel extends ORMAbstract {
 
         $query = $this->getQueryClass();
 
-        $this->mapPk($query, $pPk);
+        $query->filterByPrimaryKeys($pPk);
         $item = $query->findOne();
 
         $this->mapValues($item, $pValues);
@@ -711,10 +697,16 @@ class Propel extends ORMAbstract {
     }
 
 
+    public function getRoots($pCondition, $pOptions){
+
+
+    }
+
+
     /**
      * {@inheritdoc}
      */
-    public function add($pValues, $pBranchPk = false, $pMode = 'first', $pScope = 0){
+    public function add($pValues, $pBranchPk = false, $pMode = 'first', $pScope = null){
 
         $this->init();
 
@@ -730,6 +722,9 @@ class Propel extends ORMAbstract {
                 $branch = $query->findRoot($pScope);
                 $root = true;
             }
+
+            if ($branch->getLeft() == 1)
+                $root = true;
 
             switch (strtolower($pMode)){
                 case 'first': $obj->insertAsFirstChildOf($branch); break;
@@ -821,6 +816,35 @@ class Propel extends ORMAbstract {
         dbFree($stmt);
 
         return current($row)+0;
+    }
+
+    public function getBranchChildrenCount($pPk = null, $pCondition = null, $pScope = null){
+
+
+        $query = $this->getQueryClass();
+
+        $query->clearSelectColumns()->addSelectColumn('COUNT(*)');
+
+
+        if ($pPk){
+            $pkQuery = $this->getQueryClass();
+            $pkItem = $pkQuery->filterByPrimaryKeys($pPk)->findOne();
+            if (!$pkItem) return null;
+            $query->childrenOf($pkItem);
+        } else if ($pScope){
+            $pkQuery = $this->getQueryClass();
+            $root = $pkQuery->findRoot($pScope);
+            if (!$root) return null;
+            $query->childrenOf($root);
+        }
+
+        $stmt = $this->getStm($query, $pCondition);
+
+        $row = dbFetch($stmt);
+
+        dbFree($stmt);
+
+        return current($row)+0;
 
     }
 
@@ -835,12 +859,12 @@ class Propel extends ORMAbstract {
     /**
      * {@inheritdoc}
      */
-    public function getTree($pPk = null, $pCondition = null, $pDepth = 1, $pScope = null, $pOptions = null){
+    public function getBranch($pPk = null, $pCondition = null, $pDepth = 1, $pScope = null, $pOptions = null){
 
         $query = $this->getQueryClass();
         if (!$pPk){
             if ($pScope === null && $this->definition['nestedRootAsObject'])
-                throw new \InvalidArgumentException('Argument scope is missing.');
+                throw new \InvalidArgumentException('Argument `scope` is missing. Since this object is a nested set with different roots, we need a `scope` to get the first level.');
             $parent = $query->findRoot($pScope);
         } else {
             $parent = $query->findPK($this->getPropelPk($pPk));
@@ -872,7 +896,7 @@ class Propel extends ORMAbstract {
             $item = $this->populateRow($clazz, $row, $selects, $relations, $relationFields, $pOptions['permissionCheck']);
             $item['_childrenCount'] = ($item['rgt'] - $item['lft'] - 1)/2;
             if ($pDepth > 1 && $item['_childrenCount'] > 0){
-                $item['_children'] = self::getTree($this->pkFromRow($item), $pCondition, $pDepth-1, $pScope, $pOptions);
+                $item['_children'] = $this->getBranch($this->pkFromRow($item), $pCondition, $pDepth-1, $pScope, $pOptions);
             }
             $result[] = $item;
         }

@@ -5,7 +5,7 @@ namespace Admin;
 use \Core\Kryn;
 use \Core\Object;
 
-abstract class ObjectWindow {
+class ObjectWindow {
 
 
     /**
@@ -74,7 +74,7 @@ abstract class ObjectWindow {
      * @abstract
      * @var array
      */
-    public $fields = array();
+    public $fields = null;
 
     /**
      * Defines the fields of your table which should be displayed.
@@ -84,7 +84,7 @@ abstract class ObjectWindow {
      * @abstract
      * @var array
      */
-    public $columns = array();
+    public $columns = null;
 
     /**
      * Defines how many rows should be displayed per page.
@@ -195,6 +195,14 @@ abstract class ObjectWindow {
     public $editEntrypoint = '';
 
     public $removeEntrypoint = '';
+
+    /**
+     * Allow a client to select own fields through the REST api.
+     * (?fields=...)
+     *
+     * @var bool
+     */
+    public $allowCustomSelectFields = false;
 
 
     public $nestedRootEdit = false;
@@ -319,6 +327,7 @@ abstract class ObjectWindow {
 
         $this->table = $this->objectDefinition['table'];
         $this->primary = array();
+
         foreach ($this->objectDefinition['fields'] as $key => &$field){
             if($field['primaryKey']){
                 $this->primary[] = $key;
@@ -371,7 +380,7 @@ abstract class ObjectWindow {
 
         }
 
-        if (!$this->order || count($this->order) == 0){
+        if ((!$this->order || count($this->order) == 0) && $this->columns){
             $this->order[key($this->columns)] = 'asc';
         }
 
@@ -623,14 +632,12 @@ abstract class ObjectWindow {
      * @param int $pOffset
      * @return array
      */
-    public function getItems($pLimit = null, $pOffset = null) {
+    public function getItems($pFilter = null, $pLimit = null, $pOffset = null) {
 
         $options   = array();
         $options['permissionCheck'] = $this->getPermissionCheck();
         $options['offset'] = $pOffset;
         $options['limit'] = $pLimit ? $pLimit : $this->itemsPerPage;
-
-        $obj = \Core\Object::getClass($this->object);
 
         $condition = $this->getCondition();
 
@@ -641,38 +648,225 @@ abstract class ObjectWindow {
 
         $options['fields'] = array_keys($this->getColumns());
 
-        $maxItems = \Core\Object::getCount($this->object, $condition, $options);
 
-        if ($maxItems > 0)
-            $maxPages = ceil($maxItems / $this->itemsPerPage);
-        else
-            $maxPages = 0;
+        if ($pFilter)
+            $condition = $this->buildFilter($pFilter);
 
         if ($this->getMultiLanguage()){
-            //add language condition
-            $langCondition = array(
-                array('lang', '=', getArgv('lang')+""),
-                'OR',
-                array('lang', 'IS NULL'),
-            );
-            if ($condition)
-                $condition = array($condition, 'AND', $langCondition);
-            else
-                $condition = $langCondition;
+
+            //does the object have a lang field?
+            if ($this->objectDefinition['fields']['lang']){
+
+                //add language condition
+                $langCondition = array(
+                    array('lang', '=', getArgv('lang')+""),
+                    'OR',
+                    array('lang', 'IS NULL'),
+                );
+                if ($condition)
+                    $condition = array($condition, 'AND', $langCondition);
+                else
+                    $condition = $langCondition;
+            }
         }
 
         $items = \Core\Object::getList($this->object, $condition, $options);
 
         foreach ($items as &$item){
-            $item = $this->prepareRow($item);
+            $this->prepareRow($item);
         }
 
-        return array(
-            'items' => $items,
-            'count' => $maxItems,
-            'pages' => $maxPages
-        );
+        return $items;
     }
+
+
+
+    /**
+     * @param $pFilter
+     * @return array|null
+     */
+    public function buildFilter($pFilter){
+        $condition = null;
+
+        if (is_array($pFilter)){
+            //build condition query
+            $condition = array();
+            foreach ($pFilter as $k => $v){
+                if ($condition) $condition[] = 'and';
+
+                if (strpos($v, '*') !== false){
+                    $condition[] = array(substr($k, 1), 'LIKE', str_replace('*', '%', $v));
+                } else {
+                    $condition[] = array(substr($k, 1), '=', $v);
+                }
+            }
+        }
+        return $condition;
+    }
+
+    public function getTreeFields($pFields = null){
+
+        //use default fields from object definition
+        $definition = $this->objectDefinition;
+        $fields = array();
+
+        if ($pFields && $this->getAllowCustomSelectFields()){
+            if (is_array($pFields)){
+                $fields = $pFields;
+            } else {
+                $fields = explode(',', trim(preg_replace('/[^a-zA-Z0-9_,]/', '', $pFields)));
+            }
+        }
+
+        if ($definition && !$fields){
+
+            if ($definition['treeFields'])
+                $fields = explode(',', trim(preg_replace('/[^a-zA-Z0-9_,]/', '', $definition['treeFields'])));
+            else
+                $fields = ($definition['defaultSelection']) ? explode(',', trim(preg_replace('/[^a-zA-Z0-9_,]/', '', $definition['defaultSelection']))) : array();
+
+            $fields[] = $definition['label'];
+
+            if ($definition['treeIcon'])
+                $fields[] = $definition['treeIcon'];
+        }
+
+        return $fields;
+
+    }
+
+    /**
+     * Returns items per branch.
+     *
+     * @param null $pPk
+     * @param null $pScope
+     * @param int $pDepth
+     * @param null $pLimit
+     * @param null $pOffset
+     * @return mixed
+     */
+    public function getBranchItems($pPk = null, $pFields = null, $pScope = null, $pDepth = 1, $pLimit = null, $pOffset = null) {
+
+        $options = array();
+        $options['permissionCheck'] = $this->getPermissionCheck();
+        $options['offset'] = $pOffset;
+        $options['limit'] = $pLimit ? $pLimit : $this->itemsPerPage;
+
+        $condition = $this->getCondition();
+
+        if ($extraCondition = $this->getCustomListingCondition())
+            $condition = !$condition ? $extraCondition : array($condition, 'AND', $extraCondition);
+
+        $options['order'] = $this->getOrder();
+
+        $options['fields'] = array_keys($this->getColumns());
+        if (!$options['fields']) $options['fields'] = array();
+
+        $options['fields'] += $this->getTreeFields();
+
+
+        if ($this->getMultiLanguage()){
+
+            //does the object have a lang field?
+            if ($this->objectDefinition['fields']['lang']){
+
+                //add language condition
+                $langCondition = array(
+                    array('lang', '=', getArgv('lang')+""),
+                    'OR',
+                    array('lang', 'IS NULL'),
+                );
+                if ($condition)
+                    $condition = array($condition, 'AND', $langCondition);
+                else
+                    $condition = $langCondition;
+            }
+        }
+
+        $items = \Core\Object::getBranch($this->object, $pPk, $condition, $pDepth, $pScope, $options);
+
+        foreach ($items as &$item){
+            $this->prepareRow($item);
+        }
+
+        return $items;
+    }
+
+
+
+    /**
+     * Returns items count per branch.
+     *
+     * @param null $pPk
+     * @param null $pScope
+     * @return array
+     */
+    public function getBranchChildrenCount($pPk = null, $pScope = null) {
+
+        $condition = $this->getCondition();
+
+        if ($extraCondition = $this->getCustomListingCondition())
+            $condition = !$condition ? $extraCondition : array($condition, 'AND', $extraCondition);
+
+        $options['order'] = $this->getOrder();
+        $options['permissionCheck'] = $this->getPermissionCheck();
+
+        $options['fields'] = array_keys($this->getColumns());
+
+        return \Core\Object::getBranchChildrenCount($this->object, $pPk, $condition, $pScope, $options);
+
+    }
+
+    public function getCount(){
+
+        $options['permissionCheck'] = $this->getPermissionCheck();
+        return \Core\Object::getCount($this->object);
+
+    }
+
+    public function getParent($pPk){
+
+        $options = array('permissionCheck' => $this->getPermissionCheck());
+        $primaryKey = Object::normalizePkString($this->object, $pPk);
+
+        return \Core\Object::getParent($this->object, $primaryKey, $options);
+
+    }
+
+    public function getParents($pPk){
+
+        $options = array('permissionCheck' => $this->getPermissionCheck());
+        $primaryKey = Object::normalizePkString($this->object, $pPk);
+
+        return \Core\Object::getParents($this->object, $primaryKey, $options);
+
+    }
+
+    public function moveItem($pPk, $pTargetPk, $pPosition = 'first', $pTargetObjectKey = ''){
+
+        $options = array('permissionCheck' => $this->getPermissionCheck());
+
+        $pTargetPk = \Core\Object::normalizePkString($pTargetObjectKey ? $pTargetObjectKey : $this->getObject(), $pTargetPk);
+
+        return \Core\Object::move($this->getObject(), $pPk, $pTargetPk, $pPosition, $pTargetObjectKey, $options);
+    }
+
+
+    public function getRoots(){
+
+        $options['permissionCheck'] = $this->getPermissionCheck();
+        return \Core\Object::getRoots($this->object, $options);
+
+    }
+
+    public function getRoot($pScope = null){
+
+        $options['permissionCheck'] = $this->getPermissionCheck();
+
+        return \Core\Object::getRoot($this->object, $pScope, $options);
+
+    }
+
 
     /**
      * Here you can define additional conditions for all operations (edit/listing).
@@ -729,11 +923,14 @@ abstract class ObjectWindow {
      * @param  array $pPk
      * @return array
      */
-    public function getItem($pPk) {
+    public function getItem($pPk, $pFields = null) {
 
         $this->primaryKey = $pPk;
 
-        $options['fields'] = $this->getFieldList();
+        $options['fields'] = $pFields;
+        if ($options['fields'] === null)
+            $options['fields'] = $this->getFieldList();
+
         $options['permissionCheck'] = $this->getPermissionCheck();
 
         $item = \Core\Object::get($this->object, $pPk, $options);
@@ -751,9 +948,11 @@ abstract class ObjectWindow {
         if ($item && $condition = $this->getCondition())
             if (!\Core\Object::satisfy($item, $condition)) $item = null;
 
-        return array(
-            'values' => $item
-        );
+        if (!$item){
+            throw new \ObjectItemNotFoundException(tf('The object item with primary key `%s` does not exist or you have no access.', json_encode($pPk)));
+        }
+
+        return $item;
     }
 
 
@@ -792,20 +991,24 @@ abstract class ObjectWindow {
         $inserted = array();
 
         $fixedFields = $this->getAddMultipleFixedFields();
-        $fixedData = $this->collectData($fixedFields);
+
+        $fixedData = array();
+
+        if ($fixedFields)
+            $fixedData = $this->collectData($fixedFields);
 
         $fields = $this->getAddMultipleFields();
 
-        $position = $_POST['_position'];
+        $position = $_POST['_target'];
+        var_dump($_POST);
 
         foreach ($_POST['_items'] as $item){
 
-            $data = $this->collectData($fields, $item, $position['']);
-
-            $data = array_merge($fixedData, $data);
+            $data = $fixedData;
+            $data += $this->collectData($fields, $item);
 
             try {
-                $inserted = $this->add($data);
+                $inserted = $this->add($data, $position['pk'], $position['position'], $position['objectKey']);
             } catch(\Exception $e){
                 $inserted[] = array('_error' => $e);
             }
@@ -822,13 +1025,12 @@ abstract class ObjectWindow {
      * Data is passed as POST.
      *
      * @param array      $pData
-     * @param int|string $pBranchPk
+     * @param array      $pPk
      * @param string     $pPosition  If nested set. `first` (child), `last` (child), `prev` (sibling), `next` (sibling)
-     * @param int|string $pScopeId
+     * @param int|string $pTargetObjectKey
      * @return mixed False if some went wrong or a array with the new primary keys.
      */
-    public function add($pData = null, $pBranchPk = null, $pPosition = null, $pScopeId = null){
-
+    public function add($pData = null, $pPk = null, $pPosition = null, $pTargetObjectKey = null){
 
         //collect values
         if ($pData)
@@ -838,9 +1040,9 @@ abstract class ObjectWindow {
 
         //do normal add through Core\Object
         $this->primaryKey = \Core\Object::add($this->getObject(), $data,
-            $pBranchPk,
+            $pPk,
             $pPosition,
-            $pScopeId,
+            $pTargetObjectKey,
             array('permissionCheck' => $this->getPermissionCheck())
         );
 
@@ -957,20 +1159,15 @@ abstract class ObjectWindow {
      *
      * @return array
      */
-    function prepareRow($pItem) {
+    function prepareRow(&$pItem) {
 
         $visible = true;
-        $editable = $this->edit; //todo get from ACL
-        $deleteable = $this->remove; //todo, get from acl
+        $editable = $this->edit;
+        $deleteable = $this->remove;
 
-        $res = null;
-        if ($visible) {
-            $res = array();
-            $res['values'] = $pItem;
-            $res['edit'] = $editable;
-            $res['remove'] = $deleteable;
-        }
-        return $res;
+        $pItem['_editable'] = $editable;
+        $pItem['_deleteable'] = $deleteable;
+
     }
 
     /**
@@ -1491,6 +1688,20 @@ abstract class ObjectWindow {
 
     public function getAddMultipleFixedFields(){
         return $this->addMultipleFixedFields;
+    }
+
+    /**
+     * @param boolean $allowCustomSelectFields
+     */
+    public function setAllowCustomSelectFields($allowCustomSelectFields){
+        $this->allowCustomSelectFields = $allowCustomSelectFields;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getAllowCustomSelectFields(){
+        return $this->allowCustomSelectFields;
     }
     
     

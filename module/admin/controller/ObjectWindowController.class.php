@@ -13,13 +13,11 @@ class ObjectWindowController extends Server {
     public $entryPoint;
 
     public function exceptionHandler($pException){
-        die('asd');
         if (get_class($pException) != 'AccessDeniedException')
             \Core\Utils::exceptionHandler($pException);
     }
 
     public function run($pEntryPoint){
-
 
         $this->entryPoint = $pEntryPoint;
 
@@ -36,27 +34,95 @@ class ObjectWindowController extends Server {
             try {
                 $this->send($obj->handle($pEntryPoint));
             } catch (Exception $e){
-                $this->sendError('admin_store', array('exception' => $e->getMessage(), 'entrypoint' => $pEntryPoint));
+                $this->sendError('AdminStoreException', array('exception' => $e->getMessage(), 'entryPoint' => $pEntryPoint));
             }
         } else {
-            $adminWindows = array('edit', 'list', 'add', 'combine');
 
-            if (in_array($pEntryPoint['type'], $adminWindows)) {
 
-                //add routes
-                $trigger = $pEntryPoint['_module'].'/'.$pEntryPoint['_code'];
+            $this
 
-                $this
-                    ->addGetRoute($trigger, 'getItems')
-                    ->addPostRoute($trigger, 'updateItem')
-                    ->addPutRoute($trigger, 'addItem')
-                    ->addDeleteRoute($trigger, 'removeItem')
-                    ->addOptionsRoute($trigger, 'getInfo');
+                ->addGetRoute(':branch', 'getRootBranchItems')
+                ->addGetRoute(':count', 'getCount')
+                ->addGetRoute(':roots', 'getRoots')
+                ->addGetRoute(':root', 'getRoot')
 
-                //run parent
-                parent::run();
-            }
+                ->addGetRoute('', 'getItems')
+                ->addGetRoute('([^/]+)', 'getItem')
+
+                ->addGetRoute('([^/]+)/branch', 'getBranchItems')
+                ->addGetRoute('([^/]+)/parent', 'getParent')
+                ->addGetRoute('([^/]+)/version/([0-9]*)', 'getVersion')
+                ->addGetRoute('([^/]+)/versions', 'getVersions')
+                ->addGetRoute('([^/]+)/move/([^/]+)', 'moveItem')
+
+                ->addGetRoute('([^/]+)/parents', 'getParents')
+                ->addGetRoute('([^/]+)/children-count', 'getBranchChildrenCount')
+                ->addGetRoute(':children-count', 'getBranchChildrenCount')
+
+                ->addPostRoute('', 'addItem')
+                ->addPutRoute('([^/]+)', 'updateItem')
+                ->addDeleteRoute('([^/]+)', 'removeItem')
+                ->addOptionsRoute('', 'getInfo');
+
+            //run parent
+            parent::run();
         }
+    }
+
+
+    public function getVersion($pPk, $pId){
+        //todo
+    }
+
+    public function getVersions($pPk){
+        //todo
+    }
+
+    /**
+     * Count
+     *
+     * @return integer
+     */
+    public function getCount(){
+        $obj = $this->getObj();
+
+        return $obj->getCount();
+    }
+
+
+    public function moveItem($pPk, $pTargetPk, $pPosition = 'first', $pTargetObjectKey = ''){
+
+        $obj = $this->getObj();
+        return $obj->moveItem($pPk, $pTargetPk, $pPosition, $pTargetObjectKey);
+
+    }
+
+
+
+    public function getRoots(){
+
+        $obj = $this->getObj();
+        return $obj->getRoots();
+    }
+
+
+    public function getRoot($pScope = null){
+
+        $obj = $this->getObj();
+        return $obj->getRoot($pScope);
+    }
+
+
+    public function getParent($pPk){
+
+        $obj = $this->getObj();
+        return $obj->getParent($pPk);
+    }
+
+    public function getParents($pPk){
+
+        $obj = $this->getObj();
+        return $obj->getParents($pPk);
     }
 
 
@@ -93,12 +159,11 @@ class ObjectWindowController extends Server {
 
         $obj = $this->getObj();
         $pk = \Core\Object::parsePk($obj->getObject(), $pObject);
-
         return $obj->remove($pk[0]);
     }
 
     /**
-     * Proxy method for REST POST to update().
+     * Proxy method for REST PUT to update().
      *
      * @param null $pObject
      * @return mixed
@@ -113,15 +178,16 @@ class ObjectWindowController extends Server {
     }
 
     /**
-     * Proxy method for REST PUT to add().
+     * Proxy method for REST POST to add().
      *
+     * @param bool $_multiple
      * @return mixed
      */
-    public function addItem($p_Multiple = null){
+    public function addItem($_multiple = null){
 
         $obj = $this->getObj();
 
-        if ($p_Multiple){
+        if ($_multiple){
             return $obj->addMultiple();
         } else {
             return $obj->add();
@@ -137,7 +203,7 @@ class ObjectWindowController extends Server {
      * @param int $pGetPosition
      * @return mixed
      */
-    public function getItems($pObject = null, $pLimit = null, $pOffset = null, $pGetPosition = null){
+    public function getItems($pUrl = null, $_ = null, $pLimit = null, $pOffset = null, $pGetPosition = null){
 
         $obj = $this->getObj();
 
@@ -145,13 +211,55 @@ class ObjectWindowController extends Server {
             return $obj->getPosition($pGetPosition);
         }
 
-        if ($pObject !== null){
-            $pk = \Core\Object::parsePk($obj->getObject(), $pObject);
+        if ($pUrl !== null){
+            $pk = \Core\Object::parsePk($obj->getObject(), $pUrl);
             return $obj->getItem($pk[0]);
         } else {
-            return $obj->getItems($pLimit, $pOffset);
+            return $obj->getItems($_, $pLimit, $pOffset);
         }
 
+    }
+
+    public function getRootBranchItems($pScope = null, $pFields = null, $pDepth = 1, $pLimit = null, $pOffset = null){
+        $obj = $this->getObj();
+
+        return $obj->getBranchItems(null, $pFields, $pScope, $pDepth, $pLimit, $pOffset);
+    }
+
+    public function getBranchItems($pPk = null, $pFields = null, $pScope = null, $pDepth = 1, $pLimit = null, $pOffset = null){
+        $obj = $this->getObj();
+
+        $pk = \Core\Object::normalizePkString($obj->getObject(), $pPk);
+        return $obj->getBranchItems($pk, $pFields, $pScope, $pDepth, $pLimit, $pOffset);
+    }
+
+    public function getBranchChildrenCount($pPk = null, $pScope = null){
+
+        $obj = $this->getObj();
+
+        if ($pPk)
+            $pPk = \Core\Object::normalizePkString($obj->getObject(), $pPk);
+
+        return $obj->getBranchChildrenCount($pPk, $pScope);
+
+    }
+
+
+    public function getItem($pPk, $pFields = null){
+
+        $obj = $this->getObj();
+
+        $primaryKeys = \Core\Object::parsePk($obj->getObject(), $pPk);
+
+        if (count($primaryKeys) == 1)
+            return $obj->getItem($primaryKeys[0], $pFields);
+        else {
+            foreach ($primaryKeys as $primaryKey){
+                if ($item = $obj->getItem($primaryKey, $pFields))
+                    $items[] = $item;
+            }
+            return $items;
+        }
     }
 
     /**
@@ -171,10 +279,12 @@ class ObjectWindowController extends Server {
     /**
      * Returns the class object, depended on the current entryPoint.
      *
-     * @return mixed
+     * @return \Admin\ObjectWindow
      * @throws \Exception
      */
     public function getObj() {
+
+        if ($this->obj) return $this->obj;
 
         $class = $this->entryPoint['class'];
 
@@ -185,6 +295,13 @@ class ObjectWindowController extends Server {
         }
         return $obj;
 
+    }
+
+    /**
+     * @param \Admin\ObjectWindow $pObj
+     */
+    public function setObj($pObj){
+        $this->obj = $pObj;
     }
 
 

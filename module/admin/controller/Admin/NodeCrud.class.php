@@ -70,10 +70,6 @@ class NodeCrud extends \Admin\ObjectWindow {
 
     public $asNested = true;
 
-    public $order = array (
-  'a' => 'a',
-);
-
     public $addIcon = '#icon-plus-5';
 
     public $addLabel = 'Add node';

@@ -3,7 +3,7 @@
 namespace RestService;
 
 /**
- * RestService\Server - A REST server class for RESTful APIs.
+ * \RestService\Server - A REST server class for RESTful APIs.
  */
 
 class Server {
@@ -76,7 +76,7 @@ class Server {
     /**
      * Parent controller.
      *
-     * @var RestService\Server
+     * @var \RestService\Server
      */
     private $parentController;
 
@@ -84,7 +84,7 @@ class Server {
     /**
      * The client
      *
-     * @var RestService\Server
+     * @var \RestService\Server
      */
     private $client;
 
@@ -101,7 +101,7 @@ class Server {
      * List of possible methods.
      * @var array
      */
-    public $methods = array('get', 'post', 'put', 'delete', 'head', 'options');
+    public $methods = array('get', 'post', 'put', 'delete', 'head', 'options', 'patch');
 
 
     /**
@@ -160,7 +160,7 @@ class Server {
      *
      * @param string        $pTriggerUrl
      * @param string|object $pControllerClass
-     * @param RestService\Server $pParentController
+     * @param \RestService\Server $pParentController
      */
     public function __construct($pTriggerUrl, $pControllerClass = null, $pParentController = null){
 
@@ -283,7 +283,7 @@ class Server {
      * 
      * @return boolean
      */
-    public function getDescribeRoutes($pFn){
+    public function getDescribeRoutes(){
         return $this->describeRoutes;
     }
 
@@ -329,12 +329,12 @@ class Server {
 
 
     /**
-     * Alias for getParent()
+     * Alias for getParentController()
      *
      * @return Server
      */
     public function done(){
-        return $this->getParent();
+        return $this->getParentController();
     }
 
 
@@ -343,7 +343,7 @@ class Server {
      *
      * @return Server $this
      */
-    public function getParent(){
+    public function getParentController(){
         return $this->parentController;
     }
 
@@ -465,11 +465,11 @@ class Server {
     }
 
     /**
-     * Adds a new route for all http methods (get, post, put, delete, options, head).
+     * Adds a new route for all http methods (get, post, put, delete, options, head, patch).
      * 
      * @param string $pUri
      * @param string $pMethod
-     * @param string $pHttpMethod
+     * @param string $pHttpMethod If you want to limit to a HTTP method.
      * @return Server
      */
     public function addRoute($pUri, $pMethod, $pHttpMethod = '_all_'){
@@ -513,6 +513,18 @@ class Server {
      */
     public function addPutRoute($pUri, $pMethod){
         $this->addRoute($pUri, $pMethod, 'put');
+        return $this;
+    }
+
+    /**
+     * Same as addRoute, but limits to PATCH.
+     *
+     * @param string $pUri
+     * @param string $pMethod
+     * @return Server
+     */
+    public function addPatchRoute($pUri, $pMethod){
+        $this->addRoute($pUri, $pMethod, 'patch');
         return $this;
     }
 
@@ -597,7 +609,7 @@ class Server {
         if ($pClassName != ''){
             try {
                 $this->controller = new $pClassName($this);
-                if (get_parent_class($this->controller) == 'RestService\Server'){
+                if (get_parent_class($this->controller) == '\RestService\Server'){
                     $this->controller->setClient($this->getClient());
                 }
             } catch (Exception $e) {
@@ -720,7 +732,7 @@ class Server {
         }
 
         if (!$methodName){
-            if (!$this->getParent()){
+            if (!$this->getParentController()){
                 if ($this->fallbackMethod){
                     $m = $this->fallbackMethod;
                     $this->send($this->controller->$m());
@@ -798,7 +810,7 @@ class Server {
     public function fireMethod($pObject, $pMethod, $pArguments){
 
         if (!method_exists($pObject, $pMethod)){
-            $this->sendError('rest_method_not_found', tf('Method %s in class %s not found.', $methodName, get_class($object)));
+            $this->sendError('MethodNotFoundException', tf('Method %s in class %s not found.', $pMethod, get_class($pObject)));
         }
 
         try {
@@ -821,7 +833,7 @@ class Server {
         if (!$pOnlyRoutes){
             $definition['parameters'] = array(
                 '_method' => array('description' => 'Can be used as HTTP METHOD if the client does not support HTTP methods.', 'type' => 'string',
-                            'values' => 'GET, POST, PUT, DELETE, HEAD, OPTIONS'),
+                            'values' => 'GET, POST, PUT, DELETE, HEAD, OPTIONS, PATCH'),
                 '_suppress_status_code' => array('description' => 'Suppress the HTTP status code.', 'type' => 'boolean', 'values' => '1, 0')
             );
         }
@@ -1071,7 +1083,7 @@ class Server {
     public function findRoute($pUri, $pMethod = '_all_'){
 
         if ($method = $this->routes[$pUri][$pMethod]){
-            return array($method, null, $pMethod, $oUri);
+            return array($method, null, $pMethod, $pUri);
         } else if ($pMethod != '_all_' && $method = $this->routes[$pUri]['_all_']){
             return array($method, null, $pMethod, $pUri);
         } else {

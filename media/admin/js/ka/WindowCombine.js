@@ -325,7 +325,7 @@ ka.WindowCombine = new Class({
                 if (this.win.params && this.win.params.filter) {
                     Object.each(this.win.params.filter, function (item, key) {
                         if (item == mkey) {
-                            fieldObj.setValue(this.win.params.item.values[key]);
+                            fieldObj.setValue(this.win.params.item[key]);
                             doSearchNow = true;
                         }
                     }.bind(this));
@@ -715,7 +715,7 @@ ka.WindowCombine = new Class({
         //pDom.id
 
         if (pDom.objectKey == this.classProperties.object){
-            this.loadItem({values: pItem});
+            this.loadItem(pItem);
         }
 
     },
@@ -820,7 +820,7 @@ ka.WindowCombine = new Class({
     getSplitTitle: function (pItem) {
 
         var value = ka.getObjectFieldLabel(
-            pItem['values'],
+            pItem,
             this.classProperties.columns[this.sortField],
             this.sortField,
             this.classProperties['object']
@@ -838,9 +838,9 @@ ka.WindowCombine = new Class({
 
             if (["datetime", "date"].contains(this.classProperties.columns[this.sortField]['type'])) {
 
-                if (pItem['values'][this.sortField] > 0) {
+                if (pItem[this.sortField] > 0) {
 
-                    var time = new Date(pItem['values'][this.sortField] * 1000);
+                    var time = new Date(pItem[this.sortField] * 1000);
                     value = time.timeDiffInWords();
 
                 } else {
@@ -977,14 +977,13 @@ ka.WindowCombine = new Class({
                 win[i] = this.win[i];
 
             win.entryPoint = ka.entrypoint.getRelative(this.win.entryPoint, _this.classProperties.editEntrypoint);
-            win.params = {item: pItem.values};
+            win.params = {item: pItem};
             win.getTitleGroupContainer = function(){
                 return this.headerLayout.getColumn(2);
             }.bind(this);
 
             this.currentEdit = new ka.WindowEdit(win, this.mainRight);
 
-            logger('hi');
             //this.currentEdit.addEvent('save', this.saved.bind(this));
             this.currentEdit.addEvent('load', this.itemLoaded.bind(this));
 
@@ -996,7 +995,7 @@ ka.WindowCombine = new Class({
                 this.win.interruptClose = true;
                 this.win._confirm(t('There are unsaved data. Want to continue?'), function (pAccepted) {
                     if (pAccepted) {
-                        this.currentEdit.winParams = {item: pItem.values};
+                        this.currentEdit.winParams = {item: pItem};
                         this.currentEdit.loadItem();
 
                         if (this.addBtn)
@@ -1007,7 +1006,7 @@ ka.WindowCombine = new Class({
                 }.bind(this));
                 return;
             } else {
-                this.currentEdit.winParams = {item: pItem.values};
+                this.currentEdit.winParams = {item: pItem};
                 this.currentEdit.loadItem();
 
                 if (this.addBtn)
@@ -1039,7 +1038,7 @@ ka.WindowCombine = new Class({
     },
 
     itemLoaded: function (pItem) {
-        this.lastLoadedItem = pItem.values;
+        this.lastLoadedItem = pItem;
         this.setWinParams();
     },
 
@@ -1079,7 +1078,7 @@ ka.WindowCombine = new Class({
             var primaries = {};
 
             this.currentEdit.classProperties.primary.each(function (primary) {
-                primaries[primary] = this.currentItem.values[primary];
+                primaries[primary] = this.currentItem[primary];
             }.bind(this));
 
             selected = primaries;
@@ -1109,20 +1108,20 @@ ka.WindowCombine = new Class({
 
             var item = this.currentEdit.item;
 
-            var title = item.values.title;
+            var title = item.title;
             if (!title) {
-                title = item.values.name;
+                title = item.name;
             }
             if (!title) {
-                title = item.values.name;
+                title = item.name;
             }
 
             if (this.currentEdit.classProperties.editTitleField) {
-                title = item.values[ this.currentEdit.classProperties.editTitleField ];
+                title = item[ this.currentEdit.classProperties.editTitleField ];
             } else if (this.currentEdit.classProperties.titleField) {
-                title = item.values[ this.currentEdit.classProperties.titleField ];
+                title = item[ this.currentEdit.classProperties.titleField ];
             } else if (!title) {
-                Object.each(item.values, function (item) {
+                Object.each(item, function (item) {
                     if (!title && item != '' && typeOf(item) == 'string') {
                         title = item;
                     }
@@ -1268,7 +1267,7 @@ ka.WindowCombine = new Class({
         //parse template
         var data = ka.getObjectLabels(
             this.classProperties.columns,
-            pItem['values'],
+            pItem,
             this.classProperties['object'],
             true
         );
@@ -1291,7 +1290,7 @@ ka.WindowCombine = new Class({
 
                 var mykey = {};
                 this.classProperties.primary.each(function (primary) {
-                    mykey[primary] = pItem.values[primary];
+                    mykey[primary] = pItem[primary];
                 });
                 //if( this.classProperties.edit ){
                 this.checkboxes.include(new Element('input', {
@@ -1311,7 +1310,7 @@ ka.WindowCombine = new Class({
             var oneIsFalse = false;
 
             this.currentEdit.classProperties.primary.each(function (prim) {
-                if (this.currentItem['values'][prim] != pItem.values[prim]) {
+                if (this.currentItem[prim] != pItem[prim]) {
                     oneIsFalse = true;
                 }
             }.bind(this))
@@ -1327,7 +1326,7 @@ ka.WindowCombine = new Class({
             var oneIsFalse = false;
 
             Object.each(this.win.params.selected, function (value, prim) {
-                if (value != pItem.values[prim]) {
+                if (value != pItem[prim]) {
                     oneIsFalse = true;
                 }
             }.bind(this))

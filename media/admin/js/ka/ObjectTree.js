@@ -6,6 +6,22 @@ ka.ObjectTree = new Class({
 
     options: {
 
+
+        /**
+         *
+         *
+         * @var {String}
+         */
+        objectKey: '',
+
+        /**
+         * Changes the rest interface url to the given entryPoint.
+         * It's then `admin/<entryPoint>` otherwise the default is used `admin/object/<objectKey>/`.
+         *
+         * @var {String}
+         */
+        entryPoint: '',
+
         /**
          * The pk value of the scope.
          * @var {String}
@@ -84,6 +100,13 @@ ka.ObjectTree = new Class({
          */
         selectable: true,
 
+        rootObject: '',
+
+
+        treeInterface: '',
+
+        treeInterfaceClass: '',
+
 
         labelTemplate: null,
         objectFields: ''
@@ -107,28 +130,46 @@ ka.ObjectTree = new Class({
     //contains the open state of the objects
     opens: {},
 
-    objectKey: '',
-    objectDefinition: {},
+    objectDefinition: null,
 
-    initialize: function (pContainer, pObjectKey, pOptions, pRefs) {
+    initialize: function (pContainer, pOptions, pRefs) {
 
         this.items = {};
 
-        this.objectKey = pObjectKey;
+        this.setOptions(pOptions);
         this.container = pContainer;
-        this.objectDefinition = ka.getObjectDefinition(this.objectKey);
-        if (!this.objectDefinition){
-            throw 'Object not found: '+pObjectKey;
+
+        if (this.options.objectKey)
+            this.objectDefinition = ka.getObjectDefinition(this.options.objectKey);
+        else
+            throw '`objectKey` in ka.ObjectTree is required.';
+
+        this.definition = this.objectDefinition;
+
+        if (this.options.objectKey && !this.objectDefinition){
+            throw 'Object not found: '+this.options.objectKey;
         }
+
+        if (!this.options.rootObject)
+            this.options.rootObject = this.definition.nestedRootObject;
+
+        if (!this.options.treeInterface)
+            this.options.treeInterface = this.definition.treeInterface;
+
+        if (!this.options.treeInterfaceClass)
+            this.options.treeInterfaceClass = this.definition.treeInterfaceClass;
+
+
+        if (!this.options.moveable)
+            this.options.moveable = typeOf(this.definition.treeMoveable) !== 'null' ? this.definition.treeMoveable : true;
 
         var fields = [];
         if (this.options.objectFields)
             fields = this.options.objectFields;
         else if (this.options.objectLabel)
             fields.push(this.options.objectLabel);
-        else {
-            var definition = ka.getObjectDefinition(pObjectKey);
-            fields.push(definition.objectLabel);
+        else if (this.objectDefinition){
+            fields.push(this.objectDefinition.objectLabel);
         }
 
         if (typeOf(fields) == 'string'){
@@ -137,31 +178,29 @@ ka.ObjectTree = new Class({
         this.objectFields = fields;
 
         if (!this.objectDefinition.nested){
-            throw 'Object is not a nested set '+pObjectKey;
+            throw 'Object is not a nested set '+this.options.objectKey;
         }
 
-        this.primaryKeys = ka.getPrimariesForObject(pObjectKey);
+        this.primaryKeys = ka.getPrimariesForObject(this.options.objectKey);
         Object.each(this.primaryKeys, function(def, id){
             if (!this.primaryKey) this.primaryKey = id;
         }.bind(this));
 
         if (!this.primaryKey){
-            throw 'Object has no primary key: '+pObjectKey;
+            throw 'Object has no primary key: '+this.options.objectKey;
         }
-
-        this.setOptions(pOptions);
 
         if (!this.options.iconMap){
             this.options.iconMap = this.objectDefinition.treeIconMapping;
         }
 
-        if (this.objectDefinition.nestedRootAsObject){
+        if (this.objectDefinition && this.objectDefinition.nestedRootAsObject){
             if (!this.options.rootObject)
-                this.options.rootObject = this.objectDefinition.nestedRootObject;
+                this.options.rootObject = this.options.rootObject;
         }
 
-        if (Cookie.read('krynObjectTree_' + pObjectKey)) {
-            var opens = Cookie.read('krynObjectTree_' + pObjectKey);
+        if (Cookie.read('krynObjectTree_' + this.options.objectKey)) {
+            var opens = Cookie.read('krynObjectTree_' + this.options.objectKey);
             opens = opens.split('.');
             Array.each(opens, function (open) {
                 this.opens[ open ] = true;
@@ -217,9 +256,15 @@ ka.ObjectTree = new Class({
         this.main.addEvent('mousedown', this.onMousedown.bind(this));
     },
 
+    getUrl: function(){
+
+        return _path + 'admin/' + (this.options.entryPoint ? this.options.entryPoint : 'object/' + ka.urlEncode(this.options.objectKey) )+'/';
+
+    },
+
     startupWithObjectInfo: function (pId, pCallback) {
 
-        new Request.JSON({url: _path + 'admin/objectParents', noCache: 1, onComplete: function (parents) {
+        new Request.JSON({url: this.getUrl()+ka.urlEncode(pId)+'/parents', noCache: 1, onComplete: function (parents) {
 
             this.load_object_children = [];
             Object.each(parents, function (item, id) {
@@ -232,7 +277,7 @@ ka.ObjectTree = new Class({
                 this.loadFirstLevel();
             }
 
-        }.bind(this)}).get({object: this.objectKey+'/'+pId});
+        }.bind(this)}).get();
 
     },
 
@@ -278,19 +323,20 @@ ka.ObjectTree = new Class({
             this.rootA.childrenContainer = this.paneObjects;
 
         }
-        var objectUrl = ka.urlEncode(this.objectKey);
+        var objectUrl = '';
+
+        var scope = null;
 
         if (this.options.rootObject){
             var scope = this.options.scope;
             if (typeOf(scope) == 'object'){
                 scope = ka.getObjectUrlId(this.options.rootObject, scope);
             }
-            objectUrl += '?'+Object.toQueryString({scope: scope});
         }
 
-        this.lastFirstLevelRq = new Request.JSON({url: _path + 'admin/object-tree/'+objectUrl,
+        this.lastFirstLevelRq = new Request.JSON({url: this.getUrl()+objectUrl+'/:branch',
             noCache: 1, onComplete: this.renderFirstLevel.bind(this)
-        }).get();
+        }).get({scope: scope});
 
     },
 
@@ -301,7 +347,7 @@ ka.ObjectTree = new Class({
         }
 
         if (typeOf(this.options.scope) == 'null' || this.options.scope === false){
-            throw t('Missing option scope in ka.ObjectTree. Unable to load root ob the object:'+' '+this.objectKey);
+            throw t('Missing option scope in ka.ObjectTree. Unable to load root ob the object:'+' '+this.options.objectKey);
         }
 
         this.rootLoaded = false;
@@ -312,7 +358,7 @@ ka.ObjectTree = new Class({
             scope = ka.getObjectUrlId(this.options.rootObject, scope);
         }
 
-        this.lastFirstLevelRq = new Request.JSON({url: _path + 'admin/object-root/'+ka.urlEncode(this.objectKey), noCache: 1,
+        this.lastFirstLevelRq = new Request.JSON({url: this.getUrl()+':root', noCache: 1,
             onComplete: this.renderRoot.bind(this)
         }).get({
             scope: scope
@@ -322,9 +368,9 @@ ka.ObjectTree = new Class({
 
     renderLabel: function(pContainer, pData, pObjectKey){
 
-        if (pObjectKey == this.options.object && this.options.labelTemplate)
+        if (pObjectKey == this.options.objectKey && this.options.labelTemplate)
             return mowla.fetch(this.options.labelTemplate, pData);
-        else if (pObjectKey == this.options.object && this.options.labelField)
+        else if (pObjectKey == this.options.objectKey && this.options.labelField)
             return pData[this.options.labelField];
         else
             return pContainer.set('html', ka.getObjectLabelByItem(pObjectKey, pData, 'tree', {labelTemplate: this.options.labelTemplate}));
@@ -335,7 +381,7 @@ ka.ObjectTree = new Class({
 
         var item = pResponse.data;
 
-        var id = ka.getObjectUrlId(this.objectDefinition.nestedRootObject, item);
+        var id = ka.getObjectUrlId(this.options.rootObject, item);
 
         this.rootObject = item;
 
@@ -352,7 +398,7 @@ ka.ObjectTree = new Class({
 
         a.id = id;
         a.isRoot = true;
-        a.objectKey = this.objectDefinition.nestedRootObject;
+        a.objectKey = this.options.rootObject;
 
         if (id == this.options.selectObject && this.options.selectable == true){
             a.addClass('ka-objectTree-item-selected');
@@ -372,10 +418,10 @@ ka.ObjectTree = new Class({
             treeLabel: this.objectDefinition.treeRootFieldLabel
         }
 
-        a.span.set('html', ka.getObjectLabelByItem(this.objectDefinition.nestedRootObject, item, 'tree', overwriteDefinition));
-        //this.renderLabel(a.span, item, this.objectDefinition.nestedRootObject, definition);
+        a.span.set('html', ka.getObjectLabelByItem(this.options.rootObject, item, 'tree', overwriteDefinition));
+        //this.renderLabel(a.span, item, this.options.rootObject, definition);
 
-        this.items[ this.objectDefinition.nestedRootObject+'_'+id ] = a;
+        this.items[ this.options.rootObject+'_'+id ] = a;
 
         a.objectEntry = item;
 
@@ -546,7 +592,7 @@ ka.ObjectTree = new Class({
     addItem: function (pItem, pParent) {
 
 
-        var id = ka.getObjectUrlId(this.options.object, pItem);
+        var id = ka.getObjectUrlId(this.options.objectKey, pItem);
 
         var a = new Element('div', {
             'class': 'ka-objectTree-item',
@@ -558,7 +604,7 @@ ka.ObjectTree = new Class({
 
         a.id = id;
         a.parent = pParent;
-        a.objectKey = this.objectKey;
+        a.objectKey = this.options.objectKey;
 
         var container = pParent;
         if (pParent.childrenContainer) {
@@ -579,7 +625,7 @@ ka.ObjectTree = new Class({
         }).inject(a);
 
 
-        this.renderLabel(a.span, pItem, this.objectKey);
+        this.renderLabel(a.span, pItem, this.options.objectKey);
 
         this.items[ '_'+id ] = a;
 
@@ -696,7 +742,7 @@ ka.ObjectTree = new Class({
 
             pA.icon = new Element('span', {
                 'class': 'ka-objectTree-item-masks'
-            }).inject(a, 'top');
+            }).inject(pA, 'top');
 
             if (icon.substr(0,1) != '#'){
                 new Element('img', {
@@ -782,7 +828,7 @@ ka.ObjectTree = new Class({
                 opens += key + '.';
             }
         });
-        Cookie.write('krynObjectTree_' + this.objectKey, opens);
+        Cookie.write('krynObjectTree_' + this.options.objectKey, opens);
 
     },
 
@@ -854,7 +900,7 @@ ka.ObjectTree = new Class({
         }).inject(pA.span);
 
         this.loadChildrenRequests[ pA.id ] = true;
-        new Request.JSON({url: _path + 'admin/object-tree/'+ka.urlEncode(this.objectKey)+'/'+ka.urlEncode(pA.id),
+        new Request.JSON({url: this.getUrl()+ka.urlEncode(pA.id)+'/branch',
             noCache: 1, onComplete: function(pResponse){
 
             this.removeChildren(pA);
@@ -1006,7 +1052,7 @@ ka.ObjectTree = new Class({
         pTarget.setStyle('padding-bottom', 1);
         pTarget.setStyle('padding-top', 1);
 
-        if (pTarget.objectKey == this.objectKey) {
+        if (pTarget.objectKey == this.options.objectKey) {
             if (pPos == 'after' || pPos == 'before') {
                 this.dropElement = new Element('div', {
                     'class': 'ka-objectTree-dropElement',
@@ -1049,13 +1095,13 @@ ka.ObjectTree = new Class({
             }*/
         }
 
-        if (pTarget.objectKey == this.objectKey && pPos == 'after') {
+        if (pTarget.objectKey == this.options.objectKey && pPos == 'after') {
             if (canMoveAround) {
                 this.dropElement.inject(pTarget.getNext(), 'after');
                 pTarget.setStyle('padding-bottom', 0);
             }
 
-        } else if (pTarget.objectKey == this.objectKey && pPos == 'before') {
+        } else if (pTarget.objectKey == this.options.objectKey && pPos == 'before') {
             if (canMoveAround) {
                 this.dropElement.inject(pTarget, 'before');
                 pTarget.setStyle('padding-top', 0);
@@ -1114,7 +1160,7 @@ ka.ObjectTree = new Class({
                     code = 'into';
                 }
 
-                this.moveObject(sourceId, targetId, code);
+                this.moveObject(sourceId, target.id, target.objectKey, code);
             }
         }
         document.removeEvent('mouseup', this.cancelDragNDrop.bind(this));
@@ -1129,14 +1175,9 @@ ka.ObjectTree = new Class({
         }
     },
 
-    moveObject: function (pSourceId, pTargetId, pCode, pToDomain) {
-        var _this = this;
-        var req = {
-            to: pTargetId,
-            where: pCode
-        };
+    moveObject: function (pSourceId, pTargetId, pTargetObjectKey, pPosition) {
 
-        new Request.JSON({url: _path + 'admin/object-move/'+pSourceId, onComplete: function (res) {
+        new Request.JSON({url: this.getUrl()+ka.urlEncode(pSourceId)+'/move/'+ka.urlEncode(pTargetId), onComplete: function (res) {
 
             //target item this.dragNDropElement
 
@@ -1155,7 +1196,10 @@ ka.ObjectTree = new Class({
 
             ka.loadSettings(['r2d']);
 
-        }.bind(this)}).post(req);
+        }.bind(this)}).pust({
+            position: pPosition,
+            targetObjectKey: pTargetObjectKey
+        });
     },
 
     reload: function () {
@@ -1197,7 +1241,7 @@ ka.ObjectTree = new Class({
     },
 
     getItem: function(pId){
-        var id = ka.getObjectUrlId(this.options.object, pId);
+        var id = ka.getObjectUrlId(this.options.objectKey, pId);
         return this.items[ '_'+id ];
     },
 
@@ -1212,7 +1256,7 @@ ka.ObjectTree = new Class({
     select: function (pId) {
 
         this.deselect();
-        pId = ka.getObjectUrlId(this.options.object, pId);
+        pId = ka.getObjectUrlId(this.options.objectKey, pId);
 
         if (this.items[ '_'+pId ]) {
             //has been loaded already
@@ -1285,7 +1329,7 @@ ka.ObjectTree = new Class({
         var pObject = pA.objectEntry;
 
         var objectCopy = {
-            objectKey: this.objectKey,
+            objectKey: this.options.objectKey,
             object: pObject
         };
 

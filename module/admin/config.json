@@ -347,7 +347,7 @@
                 
             ]
         },
-        "pages": {
+        "nodes": {
             "title": "[[Pages]]",
             "class": "Admin\\Admin\\NodeCrud",
             "type": "combine",

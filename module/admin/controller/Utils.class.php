@@ -152,11 +152,14 @@ class Utils {
     public static function getEntryPoint($pCode, $pWithChildren = false) {
 
         $codes = explode('/', $pCode);
+        $actualCode = array();
 
         if (Kryn::$configs['admin']['entryPoints'][$codes[0]]) {
             //inside admin extension
             $entryPoint = Kryn::$configs['admin']['entryPoints'][$codes[0]];
             $module = 'admin';
+            $actualCode[] = $module;
+            $actualCode[] = $codes[0];
 
         } else if (Kryn::$configs[$codes[0]]) {
 
@@ -164,6 +167,7 @@ class Utils {
             $adminInfo = Kryn::$configs[$codes[0]]['entryPoints'];
             $code = substr($pCode, strlen($codes[0]) + 1);
             $module = array_shift($codes);
+            $actualCode[] = $module;
 
             $entryPoint = array('type' => -1, 'title' => Kryn::$configs[$module]['title'],
                                 'children' => Kryn::$configs[$module]['entryPoints']);
@@ -176,6 +180,7 @@ class Utils {
 
             foreach ($codes as $c){
                 if ($entryPoint['children'][$c]){
+                    $actualCode[] = $c;
                     $entryPoint = $entryPoint['children'][$c];
                     $path[] = $entryPoint['title'];
                 }
@@ -183,6 +188,7 @@ class Utils {
         }
 
         unset($path[count($path) - 1]);
+
         if (!$pWithChildren)
             unset($entryPoint['children']);
 
@@ -193,6 +199,7 @@ class Utils {
         $entryPoint['_path'] = $path;
         $entryPoint['_module'] = $module;
         $entryPoint['_code'] = $code;
+        $entryPoint['_url'] = implode('/', $actualCode);
 
         if ($code) {
             $css = PATH . PATH_MEDIA . $module . '/' . (($module != 'admin') ? 'admin/' : '') . 'css/' .

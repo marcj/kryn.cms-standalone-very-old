@@ -150,25 +150,24 @@ ka.WindowEdit = new Class({
     loadItem: function () {
         var _this = this;
 
-        var req = {
-            object: ka.getObjectUrlId(this.classProperties['object'], this.winParams.item)
-        };
+
+        var id = ka.getObjectUrlId(this.classProperties['object'], this.winParams.item);
 
         if (this.lastRq)
             this.lastRq.cancel();
 
         this.win.setLoading(true, null, this.container.getCoordinates(this.win));
 
-        this.lastRq = new Request.JSON({url: _path + 'admin/' + this.getEntryPoint(),
+        this.lastRq = new Request.JSON({url: _path + 'admin/' + this.getEntryPoint()+'/'+id,
         noCache: true, onComplete: function (res) {
             this._loadItem(res.data);
-        }.bind(this)}).get(req);
+        }.bind(this)}).get();
     },
 
     _loadItem: function (pItem) {
         this.item = pItem;
 
-        this.setValue(pItem.values);
+        this.setValue(pItem);
 
         this.renderVersionItems();
 
@@ -564,7 +563,7 @@ ka.WindowEdit = new Class({
 
     reset: function(){
 
-        this.setValue(this.item.values);
+        this.setValue(this.item);
     },
 
     remove: function(){
