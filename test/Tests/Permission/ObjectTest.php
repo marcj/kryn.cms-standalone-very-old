@@ -51,7 +51,6 @@ class ObjectTest extends TestCaseWithCore {
         $fields = array('oneCategory' => array(array('access' => false, 'condition' => array(array('catid', '>', $cat1->getCatid())))));
         Permission::setObjectUpdate('Test\\Item', Permission::USER, $user->getId(), true, $fields);
 
-        var_dump($cat2->getCatid());
         $this->assertFalse(Permission::checkUpdate('Test\\Item', array('oneCategory' => $cat2->getCatid()), Permission::USER, $user->getId()));
         $this->assertTrue(Permission::checkUpdate('Test\\Item', array('oneCategory' => $cat1->getCatid()), Permission::USER, $user->getId()));
 
