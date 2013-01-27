@@ -5,6 +5,8 @@ ka.WindowCombine = new Class({
     itemsLoadedCount: 0,
     combine: true,
 
+    maxItems: null,
+
     searchPaneHeight: 110,
 
     renderLayout: function () {
@@ -351,7 +353,7 @@ ka.WindowCombine = new Class({
         var mySearch = function () {
 
             this.from = 0;
-            this.max = 0;
+            this.loadedCount = 0;
             this._lastItems = null;
 
             this.reload();
@@ -391,8 +393,8 @@ ka.WindowCombine = new Class({
     },
 
     loadMore: function (pAndScrollToSelect) {
-        if (this.max < this.count) {
-            this.loadItems(this.max, (this.classProperties.itemsPerPage) ? this.classProperties.itemsPerPage : 5, pAndScrollToSelect);
+        if (this.loadedCount < this.count) {
+            this.loadItems(this.loadedCount, (this.classProperties.itemsPerPage) ? this.classProperties.itemsPerPage : 5, pAndScrollToSelect);
         }
     },
 
@@ -425,7 +427,7 @@ ka.WindowCombine = new Class({
             this._lastItems = null;
             this.clearItemList();
             this.from = 0;
-            this.max = 0; //(this.classProperties.itemsPerPage)?this.classProperties.itemsPerPage:5;
+            this.loadedCount = 0; //(this.classProperties.itemsPerPage)?this.classProperties.itemsPerPage:5;
         }
 
     },
@@ -436,11 +438,23 @@ ka.WindowCombine = new Class({
         if (this.classProperties.asNested){
             return this.renderLayoutNested(this.treeContainer);
         } else {
-            return this.loadItems(this.from, this.max);
+            return this.loadItems(this.from, this.loadedCount);
         }
     },
 
     loadItems: function (pFrom, pMax, pAndScrollToSelect) {
+
+
+        if (this.maxItems === null){
+            return this.loadCount(function(count){
+                if (count == 0){
+                    this.itemLoaderNoItems();
+                } else {
+                    this.loadItems(pFrom, pMax, pAndScrollToSelect);
+                }
+
+            }.bind(this));
+        }
 
         var _this = this;
 
@@ -469,24 +483,32 @@ ka.WindowCombine = new Class({
         this.order = {};
         this.order[this.sortField] = this.sortDirection;
 
-        this.lastRequest = new Request.JSON({url: _path + 'admin/' + this.win.getEntryPoint(),
+        //todo
+        //filterVals: (this.searchEnable) ? this.getSearchVals() : '',
 
-            noCache: true, onComplete: function (response) {
+        this.lastRequest = new Request.JSON({url: _path + 'admin/' + this.getEntryPoint(),
+        noCache: true, onComplete: function (response) {
 
             if (response.error){ 
                 this.itemLoader.set('html', t('Something went wrong :-('));
                 return;
             }
 
-            var res = response.data;
+            if (typeOf(response.data) != 'array') response.data = [];
 
-            if (!res.count && (this.from == 0 || !this.from)) {
+            var count = response.data.length;
+
+            logger(this.maxItems);
+            logger(count);
+            logger(response.data);
+
+            if (!count && (this.from == 0 || !this.from)) {
                 this.itemLoaderNoItems();
             }
 
-            if (!res.items) return;
+            if (!Object.getLength(response.data)) return;
 
-            this.renderItems(res, pFrom);
+            this.renderItems(response.data, pFrom);
 
             if (this.from == null || pFrom < this.from) {
                 this.from = pFrom;
@@ -494,14 +516,12 @@ ka.WindowCombine = new Class({
                 this.from = 0;
             }
 
-            var nMax = Object.getLength(res.items);
-
-            if (!this.max || this.max < pFrom + nMax) {
-                this.max = pFrom + nMax;
+            if (!this.loadedCount || this.loadedCount < pFrom + count) {
+                this.loadedCount = pFrom + count;
             }
 
-            if (res.count > 0) {
-                if (this.max == res.count) {
+            if (count > 0) {
+                if (this.loadedCount == count) {
                     this.itemLoaderEnd();
                 } else {
                     this.itemLoaderStop();
@@ -517,8 +537,7 @@ ka.WindowCombine = new Class({
             }
 
             this.itemsFrom.set('html', this.from + 1);
-            this.itemsLoaded.set('html', this.max);
-            this.itemsMax.set('html', res.count);
+            this.itemsLoaded.set('html', this.loadedCount);
 
             if (pAndScrollToSelect) {
                 var target = this.mainLeftItems.getElement('.active');
@@ -538,7 +557,7 @@ ka.WindowCombine = new Class({
 
             if (this.from > 0 && this.mainLeftItems.getScroll().y == 0) {
                 this.loadPrevious(true);
-            } else if (res.count > 0 && (this.mainLeftItems.getScrollSize().y - this.mainLeftItems.getSize().y) == 0) {
+            } else if (count > 0 && (this.mainLeftItems.getScrollSize().y - this.mainLeftItems.getSize().y) == 0) {
                 this.loadMore(true);
             }
 
@@ -546,11 +565,25 @@ ka.WindowCombine = new Class({
             offset: pFrom,
             limit: pMax,
             order: this.order,
-            filter: this.searchEnable,
-            language: (this.languageSelect) ? this.languageSelect.getValue() : false,
-            filterVals: (this.searchEnable) ? this.getSearchVals() : '',
-            params: JSON.encode(this.win.params)
+            language: (this.languageSelect) ? this.languageSelect.getValue() : false
         });
+    },
+
+    loadCount: function(pCallback){
+
+        if (this.lastCountRequest) this.lastCountRequest.cancel();
+
+        this.lastCountRequest = new Request.JSON({url: _path + 'admin/' + this.getEntryPoint()+'/:count',
+        onComplete: function(response){
+
+            this.maxItems = response.data+0;
+            this.itemsMax.set('html', this.maxItems);
+
+            if (pCallback)
+                pCallback(response.data);
+
+        }.bind(this)}).get();
+
     },
 
     clearItemList: function () {
@@ -558,7 +591,7 @@ ka.WindowCombine = new Class({
         this.itemsLoadedCount = 0;
 
         this.from = null;
-        this.max = 0;
+        this.loadedCount = 0;
 
         this.checkboxes = [];
 
@@ -724,20 +757,17 @@ ka.WindowCombine = new Class({
 
         this._lastItems = pItems;
 
-        this.pages = pItems.pages;
-        this.count = pItems.count;
-
         //this.ctrlMax.set('text', '/ '+pItems.pages);
 
         this.tempcount = 0;
 
         var lastSplitTitleForThisRound = false;
 
-        if (pItems.items) {
+        if (pItems) {
 
             var position = pFrom + 0;
 
-            Object.each(pItems.items, function (item) {
+            Array.each(pItems, function (item) {
 
                 this.itemsLoadedCount++;
                 position++;
@@ -891,7 +921,7 @@ ka.WindowCombine = new Class({
             win[i] = this.win[i];
         }
 
-        win.entryPoint = ka.entrypoint.getRelative(this.win.getEntryPoint(), this.classProperties.editEntrypoint);
+        win.entryPoint = ka.entrypoint.getRelative(this.getEntryPoint(), this.classProperties.editEntrypoint);
 
         win.getTitleGroupContainer = function(){
             return this.headerLayout.getColumn(2);
@@ -1133,7 +1163,11 @@ ka.WindowCombine = new Class({
     },
 
     reloadAll: function () {
-        this.loadItems(this.from, this.max);
+        this.loadItems(this.from, this.loadedCount);
+    },
+
+    getEntryPoint: function(){
+        return this.win.getEntryPoint();
     },
 
     loadAround: function (pPrimaries) {

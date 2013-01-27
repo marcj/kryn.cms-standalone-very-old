@@ -91,7 +91,7 @@ class ObjectWindow {
      *
      * @var integer number of rows per page
      */
-    public $itemsPerPage = 10;
+    public $defaultLimit = 15;
 
     /**
      * Order field
@@ -358,11 +358,9 @@ class ObjectWindow {
             ObjectWindowController::translateFields($this->addMultipleFixedFields);
         }
 
-
-
-
         //do magic with type select and add all fields to _fields.
-        $this->prepareFieldItem($this->fields);
+        if (count($this->fields) > 0 )
+            $this->prepareFieldItem($this->fields);
 
         if (is_string($this->primary)){
             $this->primary = explode(',', str_replace(' ', '', $this->primary));
@@ -564,12 +562,12 @@ class ObjectWindow {
     }
 
 
-    public function getFieldList(){
+    public function getDefaultFieldList(){
 
         $fields = array();
 
         foreach ($this->_fields as $key => $field){
-            if (!$field['customValue'] && !$field['startEmpty']){
+            if (!$field['customValue'] && !$field['startEmpty'] && !$field['object']){
                 $fields[] = $key;
             }
         }
@@ -637,7 +635,7 @@ class ObjectWindow {
         $options   = array();
         $options['permissionCheck'] = $this->getPermissionCheck();
         $options['offset'] = $pOffset;
-        $options['limit'] = $pLimit ? $pLimit : $this->itemsPerPage;
+        $options['limit'] = $pLimit ? $pLimit : $this->defaultLimit;
 
         $condition = $this->getCondition();
 
@@ -750,7 +748,7 @@ class ObjectWindow {
         $options = array();
         $options['permissionCheck'] = $this->getPermissionCheck();
         $options['offset'] = $pOffset;
-        $options['limit'] = $pLimit ? $pLimit : $this->itemsPerPage;
+        $options['limit'] = $pLimit ? $pLimit : $this->defaultLimit;
 
         $condition = $this->getCondition();
 
@@ -927,9 +925,20 @@ class ObjectWindow {
 
         $this->primaryKey = $pPk;
 
+
+        if ($pFields && $this->getAllowCustomSelectFields()){
+            if (is_array($pFields)){
+                $fields = $pFields;
+            } else {
+                $fields = explode(',', trim(preg_replace('/[^a-zA-Z0-9_,]/', '', $pFields)));
+            }
+        }
+
         $options['fields'] = $pFields;
-        if ($options['fields'] === null)
-            $options['fields'] = $this->getFieldList();
+
+        if ($options['fields'] === null){
+            $options['fields'] = $this->getDefaultFieldList();
+        }
 
         $options['permissionCheck'] = $this->getPermissionCheck();
 
@@ -947,10 +956,6 @@ class ObjectWindow {
         //check against additionaly our own custom condition
         if ($item && $condition = $this->getCondition())
             if (!\Core\Object::satisfy($item, $condition)) $item = null;
-
-        if (!$item){
-            throw new \ObjectItemNotFoundException(tf('The object item with primary key `%s` does not exist or you have no access.', json_encode($pPk)));
-        }
 
         return $item;
     }
@@ -1000,7 +1005,6 @@ class ObjectWindow {
         $fields = $this->getAddMultipleFields();
 
         $position = $_POST['_target'];
-        var_dump($_POST);
 
         foreach ($_POST['_items'] as $item){
 
@@ -1068,16 +1072,16 @@ class ObjectWindow {
 
         $this->primaryKey = $pPk;
 
-        $options['fields'] = $this->getFieldList();
+        $options['fields'] = '';
         $options['permissionCheck'] = $this->getPermissionCheck();
 
         $item = \Core\Object::get($this->object, $pPk, $options);
 
-        //check against additionaly our own custom condition
+        //check against additionally our own custom condition
         if ($item && $condition = $this->getCondition())
             if (!\Core\Object::satisfy($item, $condition)) $item = false;
 
-        if (!$item) throw new \ObjectItemNotFoundException(tf('Can not find the object item with primaryKey %s', print_r($pPk, true)));
+        if (!$item) throw new \ObjectItemNotFoundException(tf('Can not find the object item with primaryKey %s', json_encode($pPk)));
 
         //collect values
         $data = $this->collectData();
@@ -1316,6 +1320,8 @@ class ObjectWindow {
      */
     public function setFields($fields){
         $this->fields = $fields;
+        $this->_fields = array();
+        $this->prepareFieldItem($this->fields);
     }
 
     /**
@@ -1355,17 +1361,17 @@ class ObjectWindow {
     }
 
     /**
-     * @param int $itemsPerPage
+     * @param int $defaultLimit
      */
-    public function setItemsPerPage($itemsPerPage){
-        $this->itemsPerPage = $itemsPerPage;
+    public function setDefaultLimit($defaultLimit){
+        $this->defaultLimit = $defaultLimit;
     }
 
     /**
      * @return int
      */
-    public function getItemsPerPage(){
-        return $this->itemsPerPage;
+    public function getDefaultLimit(){
+        return $this->defaultLimit;
     }
 
     /**

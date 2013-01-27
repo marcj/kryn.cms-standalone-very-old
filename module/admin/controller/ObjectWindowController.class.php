@@ -38,7 +38,6 @@ class ObjectWindowController extends Server {
             }
         } else {
 
-
             $this
 
                 ->addGetRoute(':branch', 'getRootBranchItems')
@@ -60,6 +59,7 @@ class ObjectWindowController extends Server {
                 ->addGetRoute(':children-count', 'getBranchChildrenCount')
 
                 ->addPostRoute('', 'addItem')
+                ->addPostRoute(':multiple', 'addMultipleItem')
                 ->addPutRoute('([^/]+)', 'updateItem')
                 ->addDeleteRoute('([^/]+)', 'removeItem')
                 ->addOptionsRoute('', 'getInfo');
@@ -180,18 +180,23 @@ class ObjectWindowController extends Server {
     /**
      * Proxy method for REST POST to add().
      *
-     * @param bool $_multiple
      * @return mixed
      */
-    public function addItem($_multiple = null){
+    public function addItem(){
 
         $obj = $this->getObj();
+        return $obj->add();
+    }
 
-        if ($_multiple){
-            return $obj->addMultiple();
-        } else {
-            return $obj->add();
-        }
+    /**
+     * Proxy method for REST POST to add().
+     *
+     * @return mixed
+     */
+    public function addMultipleItem(){
+
+        $obj = $this->getObj();
+        return $obj->addMultiple();
     }
 
     /**

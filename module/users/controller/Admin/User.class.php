@@ -59,14 +59,9 @@ class User extends \Admin\ObjectWindow {
 
     public $addIcon = '#icon-plus-5';
 
-    public $addEntrypoint = 'add';
-
     public $add = true;
 
     public $editIcon = '#icon-pencil-8';
-
-    public $editEntrypoint = 'edit';
-
     public $edit = true;
 
     public $removeIcon = '#icon-minus-5';
@@ -263,7 +258,6 @@ class User extends \Admin\ObjectWindow {
 
         if( !$this->cachedUser ){
 
-            $options['fields'] = $this->getFieldList();
             $options['fields'][] = 'settings';
             $options['permissionCheck'] = $this->getPermissionCheck();
 

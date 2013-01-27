@@ -162,6 +162,12 @@ class Object {
         );
     }
 
+    /**
+     * Get object's definition.
+     *
+     * @param string $pObjectKey `Core\Language` or `Core.Language`.
+     * @return mixed
+     */
     public static function getDefinition($pObjectKey){
         $pObjectKey = str_replace('.', '\\', $pObjectKey);
         $temp   = explode('\\', $pObjectKey);
@@ -465,6 +471,12 @@ class Object {
 
         $pObjectKey = str_replace('.', '\\', $pObjectKey);
         $definition = self::getDefinition($pObjectKey);
+
+        if (!$definition && $pObjectKey == 'Users\\User'){
+            var_dump(Kryn::$configs['users']['objects']);
+            exit;
+        }
+
         if (!$definition) throw new \ObjectNotFoundException(tf('Object not found %s', $pObjectKey));
 
         if (!self::$instances[$pObjectKey]){

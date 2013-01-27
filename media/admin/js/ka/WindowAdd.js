@@ -103,7 +103,7 @@ ka.WindowAdd = new Class({
         }
     },
 
-    multipleAdd: function(){
+    multipleAdd: function(pClose){
 
         logger(this.addMultipleFieldForm.checkValid());
         if (!this.addMultipleFieldForm.checkValid()) return false;
@@ -121,7 +121,7 @@ ka.WindowAdd = new Class({
 
         logger(request);
 
-        this.lastAddRq = new Request.JSON({url: _path + 'admin/' + this.getEntryPoint(),
+        this.lastAddRq = new Request.JSON({url: _path + 'admin/' + this.getEntryPoint()+'/:multiple',
             noErrorReporting: ['DuplicateKeysException', 'ObjectItemNotModified'],
             noCache: true, onComplete: function (pResponse) {
 
@@ -154,13 +154,13 @@ ka.WindowAdd = new Class({
 
             if (this.classProperties.loadSettingsAfterSave == true) ka.loadSettings();
 
-            this.fireEvent('addMultiple', [request, pResponse.data, pPublish]);
+            this.fireEvent('addMultiple', [request, pResponse.data]);
 
             if (pClose) {
                 this.win.close();
             }
 
-        }.bind(this)}).put(request);
+        }.bind(this)}).post(request);
 
 
     },
@@ -387,5 +387,65 @@ ka.WindowAdd = new Class({
             ka.entrypoint.open(entryPoint);
         }
 
+    },
+
+
+    save: function (pClose) {
+
+        if (this.lastSaveRq) this.lastSaveRq.cancel();
+
+        var request = this.buildRequest();
+
+        if (typeOf(request) != 'null') {
+
+            this.saveBtn.startTip(t('Adding ...'));
+
+            this.lastSaveRq = new Request.JSON({url: _path + 'admin/' + this.getEntryPoint(),
+            noErrorReporting: ['DuplicateKeysException', 'ObjectItemNotModified'],
+            noCache: true, onComplete: function (res) {
+
+                if (res.error == 'RouteNotFoundException'){
+                    return this.win.alert(t('RouteNotFoundException. You setup probably the wrong `editEntrypoint`'));
+                }
+
+                if(res.error == 'DuplicateKeysException'){
+                    this.win._alert(t('Duplicate keys. Please change the values of marked fields.'));
+
+                    Array.each(res.fields, function(field){
+                        if (this.fields[field])
+                            this.fields[field].showInvalid();
+                    }.bind(this));
+
+                    this.saveBtn.stopTip(t('Failed'));
+                    return;
+                }
+
+                if (typeOf(res.data) == 'object'){
+                    this.winParams.item = res.data; //our new primary keys
+                } else {
+                    this.winParams.item = ka.getObjectPk(this.classProperties['object'], request); //maybe we changed some pk
+                }
+
+                window.fireEvent('softReload', this.getEntryPoint());
+
+                this.saveBtn.stopTip(t('Added'));
+
+                if (!pClose && this.saveNoClose) {
+                    this.saveNoClose.stopTip(t('Done'));
+                }
+
+                if (this.classProperties.loadSettingsAfterSave == true) ka.loadSettings();
+
+                this.fireEvent('add', [request, res]);
+
+                if ((!pClose || this.inline ) && this.classProperties.versioning == true) this.loadVersions();
+
+                if (pClose) {
+                    this.win.close();
+                }
+
+            }.bind(this)}).post(request);
+        }
     }
+
 });

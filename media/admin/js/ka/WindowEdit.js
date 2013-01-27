@@ -8,8 +8,7 @@ ka.WindowEdit = new Class({
 
     options: {
 
-        addLabel: '',
-
+        saveLabel: ''
 
     },
 
@@ -176,7 +175,6 @@ ka.WindowEdit = new Class({
 
         this.ritem = this.retrieveData(true);
     },
-
 
     setValue: function(pValue){
 
@@ -605,7 +603,7 @@ ka.WindowEdit = new Class({
         document.id(this.removeBtn).addClass('ka-Button-red');
         document.id(this.removeBtn).addClass('ka-windowEdit-removeButton');
 
-        this.saveAndPublishBtn = new ka.Button([t('Reset'), '#icon-escape'])
+        this.resetBtn = new ka.Button([t('Reset'), '#icon-escape'])
         .addEvent('click', this.reset.bind(this))
         .inject(this.actionBar);
 
@@ -853,7 +851,7 @@ ka.WindowEdit = new Class({
         return req;
     },
 
-    save: function (pClose, pPublish) {
+    save: function (pClose) {
 
         if (this.lastSaveRq) this.lastSaveRq.cancel();
 
@@ -861,12 +859,7 @@ ka.WindowEdit = new Class({
 
         if (typeOf(request) != 'null') {
 
-            if (pPublish) {
-                this.saveAndPublishBtn.startTip(_('Save ...'));
-            } else {
-                this.saveBtn.startTip(t('Save ...'));
-            }
-
+            this.saveBtn.startTip(t('Saving ...'));
             var objectId = '';
 
             if (this.winParams.item){
@@ -877,8 +870,12 @@ ka.WindowEdit = new Class({
             }
 
             this.lastSaveRq = new Request.JSON({url: _path + 'admin/' + this.getEntryPoint()+'/'+objectId,
-                noErrorReporting: ['DuplicateKeysException', 'ObjectItemNotModified'],
-                noCache: true, onComplete: function (res) {
+            noErrorReporting: ['DuplicateKeysException', 'ObjectItemNotModified'],
+            noCache: true, onComplete: function (res) {
+
+                if (res.error == 'RouteNotFoundException'){
+                    return this.win.alert(t('RouteNotFoundException. You setup probably the wrong `editEntrypoint`'));
+                }
 
                 if(res.error == 'DuplicateKeysException'){
                     this.win._alert(t('Duplicate keys. Please change the values of marked fields.'));
@@ -888,11 +885,7 @@ ka.WindowEdit = new Class({
                             this.fields[field].showInvalid();
                     }.bind(this));
 
-                    if (pPublish) {
-                        this.saveAndPublishBtn.stopTip(t('Failed'));
-                    } else {
-                        this.saveBtn.stopTip(t('Failed'));
-                    }
+                    this.saveBtn.stopTip(t('Failed'));
                     return;
                 }
 
@@ -902,14 +895,9 @@ ka.WindowEdit = new Class({
                     this.winParams.item = ka.getObjectPk(this.classProperties['object'], request); //maybe we changed some pk
                 }
 
-                window.fireEvent('softReload', this.win.getEntryPoint());
+                window.fireEvent('softReload', this.getEntryPoint());
 
-                if (pPublish) {
-                    this.saveAndPublishBtn.stopTip(t('Saved'));
-                } else {
-                    this.saveBtn.stopTip(t('Saved'));
-                }
-
+                this.saveBtn.stopTip(t('Saved'));
 
                 if (!pClose && this.saveNoClose) {
                     this.saveNoClose.stopTip(t('Done'));
@@ -917,7 +905,7 @@ ka.WindowEdit = new Class({
 
                 if (this.classProperties.loadSettingsAfterSave == true) ka.loadSettings();
 
-                this.fireEvent('save', [req, res, pPublish]);
+                this.fireEvent('save', [request, res]);
 
                 if ((!pClose || this.inline ) && this.classProperties.versioning == true) this.loadVersions();
 
@@ -925,7 +913,7 @@ ka.WindowEdit = new Class({
                     this.win.close();
                 }
 
-            }.bind(this)}).post(request);
+            }.bind(this)}).put(request);
         }
     }
 });

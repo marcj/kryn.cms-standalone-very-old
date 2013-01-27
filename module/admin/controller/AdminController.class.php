@@ -106,14 +106,23 @@ class AdminController {
                     'type' => 'combine'
                 );
 
+                $definition = \Core\Object::getDefinition(getArgv(3));
+
+                if (!$definition)
+                    throw \ObjectNotFoundException(sprintf('Object `%s` not found.', getArgv(3)));
+
                 $object = new ObjectWindow();
                 $object->setObject(getArgv(3));
                 $object->setAllowCustomSelectFields(true);
+                $object->setFields($definition['fields']);
+
+
 
                 $epc = new ObjectWindowController(($entryPoint['_module'] == 'admin' ? '': 'admin/') . $entryPoint['_url']);
                 $epc->setObj($object);
                 $epc->setExceptionHandler($exceptionHandler);
                 $epc->setDebugMode($debugMode);
+
                 die($epc->run($entryPoint));
 
             }

@@ -154,6 +154,11 @@
                     "object": "Test\\ItemCategory",
                     "objectRelation": "nToM",
                     "type": "object"
+                },
+                "oneCategory": {
+                    "object": "Test\\ItemCategory",
+                    "objectRelation": "nTo1",
+                    "type": "object"
                 }
             },
             "label": "title",
@@ -178,7 +183,7 @@
                 
             ],
             "fields": {
-                "id": {
+                "catid": {
                     "type": "number",
                     "primaryKey": true,
                     "autoIncrement": true

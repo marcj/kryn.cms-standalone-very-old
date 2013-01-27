@@ -311,8 +311,13 @@ class Permission {
     }
 
     public static function checkUpdate($pObjectKey, $pObjectId, $pFields = null, $pTargetType = null, $pTargetId = null,
-                                     $pRootHasAccess = false){
+                                       $pRootHasAccess = false){
         return self::check($pObjectKey, $pObjectId, $pFields, self::UPDATE, $pTargetType, $pTargetId, $pRootHasAccess);
+    }
+
+    public static function checkAdd($pObjectKey, $pObjectId, $pFields = null, $pTargetType = null, $pTargetId = null,
+                                       $pRootHasAccess = false){
+        return self::check($pObjectKey, $pObjectId, $pFields, self::ADD, $pTargetType, $pTargetId, $pRootHasAccess);
     }
 
     /*

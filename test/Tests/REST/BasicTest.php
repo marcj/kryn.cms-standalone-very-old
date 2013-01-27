@@ -83,11 +83,10 @@ class BasicTest extends RestTestCase {
         $item1->save();
         $id = $item1->getId();
 
-
-        $response = $this->restCall('/admin/object/Test.Item/'.$id);
+        $response = $this->restCall('/admin/object/Test.Item/'.$id.'?fields=title');
         $this->assertEquals('Item 1', $response['data']['title']);
 
-        $response = $this->restCall('/admin/object/Test.Item/'.$id, 'POST', array(
+        $response = $this->restCall('/admin/object/Test.Item/'.$id, 'PUT', array(
             'title' => 'Item 1 modified'
         ));
 
@@ -125,7 +124,7 @@ class BasicTest extends RestTestCase {
     }
 
 
-    public function testPut(){
+    public function testAdd(){
 
         ItemQuery::create()->deleteAll();
 
@@ -138,7 +137,7 @@ class BasicTest extends RestTestCase {
         $this->assertEquals('Item 1', $response['data']['title']);
 
 
-        $response = $this->restCall('/admin/object/Test.Item', 'PUT',
+        $response = $this->restCall('/admin/object/Test.Item', 'POST',
         array(
              'title' => 'Item 2'
         ));

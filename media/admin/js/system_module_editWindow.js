@@ -382,9 +382,9 @@ var admin_system_module_editWindow = new Class({
                 }
             },
 
-            itemsPerPage: {
+            defaultLimit: {
 
-                label: t('Items per page'),
+                label: t('Default limit (Items per page)'),
                 type: 'number',
                 inputWidth: 120
 
