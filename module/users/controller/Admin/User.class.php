@@ -2,7 +2,7 @@
 
 namespace Users\Admin;
  
-class User extends \Admin\ObjectWindow {
+class User extends \Admin\ObjectCrud {
 
     public $columns = array (
   'lastName' => 

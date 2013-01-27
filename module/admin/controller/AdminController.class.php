@@ -74,7 +74,7 @@ class AdminController {
                 $objectWindowTypes = array('list', 'edit', 'add', 'combine');
 
                 if (in_array($entryPoint['type'], $objectWindowTypes)){
-                    $epc = new ObjectWindowController(($entryPoint['_module'] == 'admin' && getArgv(2) != 'admin' ? '': 'admin/') . $entryPoint['_url']);
+                    $epc = new ObjectCrudController(($entryPoint['_module'] == 'admin' && getArgv(2) != 'admin' ? '': 'admin/') . $entryPoint['_url']);
                     $epc->setExceptionHandler($exceptionHandler);
                     $epc->setDebugMode($debugMode);
                     die($epc->run($entryPoint));
@@ -111,7 +111,7 @@ class AdminController {
                 if (!$definition)
                     throw \ObjectNotFoundException(sprintf('Object `%s` not found.', getArgv(3)));
 
-                $object = new ObjectWindow();
+                $object = new ObjectCrud();
                 $object->setObject(getArgv(3));
                 $object->setAllowCustomSelectFields(true);
 
@@ -121,7 +121,7 @@ class AdminController {
 
                 $object->setFields($autoFields);
 
-                $epc = new ObjectWindowController(($entryPoint['_module'] == 'admin' ? '': 'admin/') . $entryPoint['_url']);
+                $epc = new ObjectCrudController(($entryPoint['_module'] == 'admin' ? '': 'admin/') . $entryPoint['_url']);
                 $epc->setObj($object);
                 $epc->setExceptionHandler($exceptionHandler);
                 $epc->setDebugMode($debugMode);

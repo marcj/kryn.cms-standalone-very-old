@@ -2,7 +2,7 @@
 
 namespace Publication\Admin;
  
-class NewsCrud extends \Admin\ObjectWindow {
+class NewsCrud extends \Admin\ObjectCrud {
 
     public $fields = array (
   '__General__' => array (

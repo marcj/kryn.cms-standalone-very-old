@@ -2,7 +2,7 @@
 
 namespace Admin\Admin;
  
-class NodeCrud extends \Admin\ObjectWindow {
+class NodeCrud extends \Admin\ObjectCrud {
 
     public $fields = array (
   '__General__' => array (

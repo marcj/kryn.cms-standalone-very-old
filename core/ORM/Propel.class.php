@@ -665,12 +665,12 @@ class Propel extends ORMAbstract {
     /**
      * {@inheritDoc}
      */
-    public function move($pPk, $pTargetPk, $pMode = 'into', $pTargetObjectKey = null){
+    public function move($pPk, $pTargetPk, $pMode = 'first', $pTargetObjectKey = null){
 
         $query = $this->getQueryClass();
-        $item = $query->findPK($pPk);
+        $item = $query->findPK($this->getPropelPk($pPk));
 
-        $method = 'moveToLastChildOf';
+        $method = 'moveToFirstChildOf';
         if ($pMode == 'up' || $pMode == 'before')
             $method = 'moveToPrevSiblingOf';
         if ($pMode == 'down' || $pMode == 'below')
@@ -679,7 +679,7 @@ class Propel extends ORMAbstract {
         if (!$pTargetPk){
             //search root
             $target = $query->findRoot();
-            $method = 'moveToLastChildOf';
+            $method = 'moveToFirstChildOf';
         } else {
 
             if ($this->objectKey != $pTargetObjectKey){
@@ -688,7 +688,7 @@ class Propel extends ORMAbstract {
 
                 $scopeField = 'get'.ucfirst($this->definition['nestedRootObjectField']);
                 $scopeId = $item->$scopeField();
-                $method = 'moveToLastChildOf';
+                $method = 'moveToFirstChildOf';
 
                 $target = $query->findRoot($scopeId);
             } else {

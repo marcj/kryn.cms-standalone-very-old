@@ -180,7 +180,7 @@ class Controller {
             'order'  => $pOrder
         );
 
-        $condition = \Admin\ObjectWindow::buildFilter($_);
+        $condition = \Admin\ObjectCrud::buildFilter($_);
 
         if ($definition['fieldDataModel'] == 'custom'){
 
@@ -266,7 +266,7 @@ class Controller {
             'order'  => $pOrder
         );
 
-        $condition = \Admin\ObjectWindow::buildFilter($_);
+        $condition = \Admin\ObjectCrud::buildFilter($_);
 
         if ($definition['browserDataModel'] == 'custom'){
 

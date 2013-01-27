@@ -8,7 +8,7 @@ use RestService\Server;
  * RestController for the entry points which are from type store or framework window.
  *
  */
-class ObjectWindowController extends Server {
+class ObjectCrudController extends Server {
 
     public $entryPoint;
 
@@ -52,7 +52,7 @@ class ObjectWindowController extends Server {
                 ->addGetRoute('([^/]+)/parent', 'getParent')
                 ->addGetRoute('([^/]+)/version/([0-9]*)', 'getVersion')
                 ->addGetRoute('([^/]+)/versions', 'getVersions')
-                ->addGetRoute('([^/]+)/move/([^/]+)', 'moveItem')
+                ->addPutRoute('([^/]+)/move/([^/]+)', 'moveItem')
 
                 ->addGetRoute('([^/]+)/parents', 'getParents')
                 ->addGetRoute('([^/]+)/children-count', 'getBranchChildrenCount')
@@ -284,7 +284,7 @@ class ObjectWindowController extends Server {
     /**
      * Returns the class object, depended on the current entryPoint.
      *
-     * @return \Admin\ObjectWindow
+     * @return \Admin\ObjectCrud
      * @throws \Exception
      */
     public function getObj() {
@@ -303,7 +303,7 @@ class ObjectWindowController extends Server {
     }
 
     /**
-     * @param \Admin\ObjectWindow $pObj
+     * @param \Admin\ObjectCrud $pObj
      */
     public function setObj($pObj){
         $this->obj = $pObj;

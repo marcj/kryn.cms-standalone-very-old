@@ -2,7 +2,7 @@
 
 namespace Users\Admin;
  
-class Groups extends \Admin\ObjectWindow {
+class Groups extends \Admin\ObjectCrud {
 
     public $fields = array (
   '__General__' => 

@@ -2,7 +2,7 @@
 
 namespace Publication\Admin;
 
-class NewsList extends \Admin\ObjectWindow {
+class NewsList extends \Admin\ObjectCrud {
 
     public $object = 'news';
 

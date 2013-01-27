@@ -5,7 +5,7 @@ namespace Admin;
 use \Core\Kryn;
 use \Core\Object;
 
-class ObjectWindow {
+class ObjectCrud {
 
 
     /**
@@ -340,22 +340,22 @@ class ObjectWindow {
         //resolve shortcuts
         if ($this->fields){
             $this->prepareFieldDefinition($this->fields);
-            ObjectWindowController::translateFields($this->fields);
+            ObjectCrudController::translateFields($this->fields);
         }
 
         if ($this->columns){
             $this->prepareFieldDefinition($this->columns);
-            ObjectWindowController::translateFields($this->columns);
+            ObjectCrudController::translateFields($this->columns);
         }
 
         if ($this->addMultipleFields){
             $this->prepareFieldDefinition($this->addMultipleFields);
-            ObjectWindowController::translateFields($this->addMultipleFields);
+            ObjectCrudController::translateFields($this->addMultipleFields);
         }
 
         if ($this->addMultipleFixedFields){
             $this->prepareFieldDefinition($this->addMultipleFixedFields);
-            ObjectWindowController::translateFields($this->addMultipleFixedFields);
+            ObjectCrudController::translateFields($this->addMultipleFixedFields);
         }
 
         //do magic with type select and add all fields to _fields.

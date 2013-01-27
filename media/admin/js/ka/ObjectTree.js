@@ -1145,7 +1145,7 @@ ka.ObjectTree = new Class({
             var pos = {
                 'before': 'before',
                 'after': 'below',
-                'inside': 'into'
+                'inside': 'first'
             };
 
             var target = this.dragNDropElement;
@@ -1153,14 +1153,12 @@ ka.ObjectTree = new Class({
 
             if (target && source){
                 var code = pos[this.dragNDropPos];
-                var targetId = target.objectKey+'/'+ka.urlEncode(target.id);
-                var sourceId = ka.urlEncode(source.objectKey)+'/'+ka.urlEncode(source.id);
 
                 if (this.rootA == this.dragNDropElement){
                     code = 'into';
                 }
 
-                this.moveObject(sourceId, target.id, target.objectKey, code);
+                this.moveObject(source.id, target.id, target.objectKey, code);
             }
         }
         document.removeEvent('mouseup', this.cancelDragNDrop.bind(this));
@@ -1196,7 +1194,7 @@ ka.ObjectTree = new Class({
 
             ka.loadSettings(['r2d']);
 
-        }.bind(this)}).pust({
+        }.bind(this)}).put({
             position: pPosition,
             targetObjectKey: pTargetObjectKey
         });

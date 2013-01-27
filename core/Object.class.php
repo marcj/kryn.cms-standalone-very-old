@@ -930,32 +930,44 @@ class Object {
         return self::getParents($objectKey, $objectIds[0]);
     }
 
-    public static function move($pObjectKey, $pObjectId, $pTargetId, $pWhere = 'into', $pTargetObjectKey = null, $pOptions = null){
+    /**
+     * Moves a item.
+     *
+     * @param string $pObjectKey
+     * @param string $pObjectId
+     * @param string $pTargetId
+     * @param string $pWhere
+     * @param string $pTargetObjectKey
+     * @param array $pOptions
+     * @return mixed
+     */
+    public static function move($pObjectKey, $pPk, $pTargetPk, $pPosition = 'first', $pTargetObjectKey = null, $pOptions = null){
 
         $obj = self::getClass($pObjectKey);
 
-        //todo, check access
+        $pPk = self::normalizePk($pObjectKey, $pPk);
+        $pTargetPk = self::normalizePk($pTargetObjectKey ? $pTargetObjectKey : $pObjectKey, $pTargetPk);
 
-        return $obj->move($pObjectId, $pTargetId, $pWhere, $pTargetObjectKey);
+        //todo check access
+        return $obj->move($pPk, $pTargetPk, $pPosition, $pTargetObjectKey);
     }
 
-    public static function moveFromUri($pSourceObjectUri, $pTargetObjectUri, $pWhere = 'into', $pOptions = null){
+    public static function moveFromUri($pSourceObjectUri, $pTargetObjectUri, $pPosition = 'first', $pOptions = null){
 
-        list($objectKey, $objectId, $params) = self::parseUri($pSourceObjectUri);
-        list($targetObjectKey, $targetObjectId, $targetParams) = self::parseUri($pTargetObjectUri);
+        list($objectKey, $objectIds, $params) = self::parseUri($pSourceObjectUri);
+        list($targetObjectKey, $targetObjectIds, $targetParams) = self::parseUri($pTargetObjectUri);
 
         $obj = self::getClass($objectKey);
 
-        $targetId = $targetObjectId[0];
-        $pTargetObjectKey = false;
+        $targetId = $targetObjectIds[0];
 
         if ($targetObjectKey != $objectKey){
-            $pWhere = 'into';
+            $pPosition = 'first';
         }
 
         //todo, check access
 
-        return $obj->move($objectId, $targetId, $pWhere, $targetObjectKey);
+        return $obj->move($objectIds[0], $targetId, $pPosition, $targetObjectKey);
     }
 
 

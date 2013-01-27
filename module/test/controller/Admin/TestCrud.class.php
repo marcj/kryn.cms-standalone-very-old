@@ -2,7 +2,7 @@
 
 namespace Test\Admin;
  
-class TestCrud extends \Admin\ObjectWindow {
+class TestCrud extends \Admin\ObjectCrud {
 
     public $fields = array (
   '__Gazzo__' => 

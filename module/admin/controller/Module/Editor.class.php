@@ -64,7 +64,7 @@ class Editor {
 
         $classes   = find(\Core\Kryn::getModuleDir($pName) . '/*', true);
         $windows   = array();
-        $whiteList = array('\Admin\ObjectWindow');
+        $whiteList = array('\Admin\ObjectCrud');
 
         foreach ($classes as $class){
 
@@ -633,7 +633,7 @@ class Editor {
         $lSlash = strrpos($pClass, '\\');
         $className = $lSlash !== -1 ? substr($pClass, $lSlash+1) : $pClass;
 
-        $parentClass = '\Admin\ObjectWindow';
+        $parentClass = '\Admin\ObjectCrud';
 
         $namespace = substr(substr($pClass, 1), 0, $lSlash);
         if (substr($namespace, -1) == '\\')
@@ -848,7 +848,7 @@ class Editor {
         $lSlash = strrpos($pClass, '\\');
         $className = $lSlash !== -1 ? substr($pClass, $lSlash+1) : $pClass;
 
-        $parentClass = '\Admin\ObjectWindow';
+        $parentClass = '\Admin\ObjectCrud';
 
         $namespace = ucfirst($pModule).substr($pClass, 0, $lSlash);
         if (substr($namespace, -1) == '\\')
