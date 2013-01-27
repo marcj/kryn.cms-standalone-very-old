@@ -114,9 +114,12 @@ class AdminController {
                 $object = new ObjectWindow();
                 $object->setObject(getArgv(3));
                 $object->setAllowCustomSelectFields(true);
-                $object->setFields($definition['fields']);
 
+                $autoFields = array();
+                foreach ($definition['fields'] as $key => $field)
+                    if ($field['type'] != 'object') $autoFields[$key] = $field;
 
+                $object->setFields($autoFields);
 
                 $epc = new ObjectWindowController(($entryPoint['_module'] == 'admin' ? '': 'admin/') . $entryPoint['_url']);
                 $epc->setObj($object);
@@ -181,7 +184,7 @@ class AdminController {
                     ->addGetRoute('field-object/([a-zA-Z-_]+)', 'getFieldItems')
                     */
 
-                    ->addGetRoute('browser-object/([a-zA-Z-_\.\\\\]+)', 'getBrowserItems')
+                    ->addGetRoute('object-browser/([a-zA-Z-_\.\\\\]+)', 'getBrowserItems')
                 ->done()
 
                 //admin/system

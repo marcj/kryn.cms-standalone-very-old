@@ -5,31 +5,84 @@ namespace Publication\Admin;
 class NewsCrud extends \Admin\ObjectWindow {
 
     public $fields = array (
-  '__General__' => 
-  array (
+  '__General__' => array (
     'label' => 'General',
     'type' => 'tab',
-    'children' => 
-    array (
-      'title' => 
-      array (
-        'key' => 'title',
-        'label' => '[[Title]]',
+    'children' => array (
+      'title' => array (
+        'label' => 'Title',
         'type' => 'text',
         'required' => 'true',
+      ),
+      'categoryId' => array (
+        'type' => 'object',
+        'label' => 'Category',
+        'object' => 'Publication\\NewsCategory',
+        'objectLabel' => 'title',
+        'objectRelation' => 'nTo1',
+      ),
+      'tags' => array (
+        'type' => 'text',
+        'label' => 'Tags',
+      ),
+      'releasedate' => array (
+        'type' => 'datetime',
+        'label' => 'News date',
+      ),
+      'releaseat' => array (
+        'type' => 'datetime',
+        'label' => 'Release at',
+      ),
+      'deactivate' => array (
+        'type' => 'checkbox',
+        'label' => 'Hide',
+        'empty' => '1',
+      ),
+      'deactivatecomments' => array (
+        'type' => 'checkbox',
+        'label' => 'Deactivate comments',
+        'empty' => '1',
+      ),
+    ),
+  ),
+  '__Intro__' => array (
+    'label' => 'Intro',
+    'type' => 'tab',
+    'children' => array (
+      '[object Object' => '[object Object]',
+      'intro' => array (
+        'label' => 'Intro',
+        'type' => 'wysiwyg',
+      ),
+    ),
+  ),
+  '__Content__' => array (
+    'label' => 'Content',
+    'type' => 'tab',
+    'children' => array (
+      'content' => array (
+        'label' => 'Content',
+        'type' => 'wysiwyg',
       ),
     ),
   ),
 );
 
     public $columns = array (
-  'title' =>
-  array (
+  'title' => array (
     'type' => 'text',
-  )
+    'label' => 'Title',
+  ),
+  'releasedate' => array (
+    'type' => 'datetime',
+    'label' => 'Date',
+  ),
 );
 
-    public $itemsPerPage = 10;
+    public $itemLayout = '<h2>{title}</h2>
+{if releasedate}<div class="sub">{releasedate}</div>{/if}';
+
+    public $defaultLimit = 15;
 
     public $order = array (
   'title' => 'asc',
@@ -47,11 +100,19 @@ class NewsCrud extends \Admin\ObjectWindow {
 
     public $remove = true;
 
+    public $nestedRootAdd = false;
+
+    public $nestedRootEdit = false;
+
+    public $nestedRootRemove = false;
+
     public $export = false;
 
     public $object = 'Publication\\News';
 
     public $preview = false;
+
+    public $titleField = 'Article';
 
     public $workspace = true;
 

@@ -47,7 +47,7 @@ ka.FieldTypes.Input = ka.FieldTypes.Text = new Class({
         }).inject(this.fieldInstance.fieldPanel);
 
 
-        this.innerWrapper = new Element('div', {
+        this.main = this.innerWrapper = new Element('div', {
             'class': 'ka-Input-inner-wrapper'
         }).inject(this.wrapper);
 

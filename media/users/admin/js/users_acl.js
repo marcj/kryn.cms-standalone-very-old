@@ -87,7 +87,7 @@ var users_users_acl = new Class({
 
             var options = {
                 type: 'tree',
-                object: pObjectKey,
+                objectKey: pObjectKey,
                 openFirstLevel: true,
                 move: false,
                 withContext: false,
@@ -258,6 +258,7 @@ var users_users_acl = new Class({
 
     renderObjectRules: function(){
 
+        logger(this.currentAcls);
         this.currentAcls.sortOn('prio', Array.DESCENDING);
 
         this.objectRulesContainer.empty();
@@ -906,12 +907,12 @@ var users_users_acl = new Class({
         })
         .inject(this.objectRules);
 
-        this.addObjectsToList(ka.settings.configs.admin, 'admin');
+        this.addObjectsToList(ka.settings.configs.core, 'core');
         this.addObjectsToList(ka.settings.configs.users, 'users');
 
         Object.each(ka.settings.configs, function(config, extKey){
 
-            if (!config.objects || extKey == 'admin' || extKey == 'users' || typeOf(config.objects) != 'object') return;
+            if (!config.objects ||  extKey == 'users' || extKey == 'core' || typeOf(config.objects) != 'object') return;
             this.addObjectsToList(config, extKey);
 
         }.bind(this));
@@ -1176,7 +1177,7 @@ var users_users_acl = new Class({
         this.adminEntryPointDom = this.addEntryPointTree(ka.settings.configs['admin'], 'admin');
 
         Object.each(ka.settings.configs, function(ext, extCode){
-            if( extCode != 'admin' && ext.admin ){
+            if( extCode != 'admin' && ext.entryPoints ){
                 this.addEntryPointTree( ext, 'admin/'+extCode );
             }
         }.bind(this));
@@ -1274,7 +1275,7 @@ var users_users_acl = new Class({
         a.entryPath = path;
         a.childContainer = childContainer;
         this.currentEntrypointDoms[path] = a;
-        this.loadEntryPointChildren(pExtensionConfig.admin, path, childContainer);
+        this.loadEntryPointChildren(pExtensionConfig.entryPoints, path, childContainer);
 
         return a;
 

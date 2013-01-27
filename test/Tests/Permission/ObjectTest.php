@@ -14,7 +14,85 @@ use Users\User;
 
 class ObjectTest extends TestCaseWithCore {
 
-    public function testObject(){
+
+    public function testRulesWithFields(){
+
+        ItemQuery::create()->deleteAll();
+        TestQuery::create()->deleteAll();
+        Permission::removeObjectRules('Test\\Item');
+
+        $user = new User();
+        $user->setUsername('TestUser');
+        $user->save();
+
+        $group = new Group();
+        $group->setName('ACL Test group');
+        $group->addGroupMembershipUser($user);
+        $group->save();
+
+        $cat1 = new \Test\ItemCategory();
+        $cat1->setname('Nein');
+
+        $item1 = new Item();
+        $item1->setTitle('Item 1');
+        $item1->addItemCategory($cat1);
+        $item1->save();
+
+        $cat2 = new \Test\ItemCategory();
+        $cat2->setname('Hiiiii');
+
+
+        $item2 = new Item();
+        $item2->setTitle('Item 2');
+        $item2->addItemCategory($cat2);
+        $item2->save();
+
+        Permission::removeObjectRules('Test\\Item');
+        $fields = array('oneCategory' => array(array('access' => false, 'condition' => array(array('catid', '>', $cat1->getCatid())))));
+        Permission::setObjectUpdate('Test\\Item', Permission::USER, $user->getId(), true, $fields);
+
+        var_dump($cat2->getCatid());
+        $this->assertFalse(Permission::checkUpdate('Test\\Item', array('oneCategory' => $cat2->getCatid()), Permission::USER, $user->getId()));
+        $this->assertTrue(Permission::checkUpdate('Test\\Item', array('oneCategory' => $cat1->getCatid()), Permission::USER, $user->getId()));
+
+
+
+        Permission::removeObjectRules('Test\\Item');
+        $fields = array('oneCategory' => array(array('access' => false, 'condition' => array(array('name', '=', 'Nein')))));
+        Permission::setObjectUpdate('Test\\Item', Permission::USER, $user->getId(), true, $fields);
+
+        $this->assertTrue(Permission::checkUpdate('Test\\Item', array('oneCategory' => $cat2->getCatid()), Permission::USER, $user->getId()));
+        $this->assertFalse(Permission::checkUpdate('Test\\Item', array('oneCategory' => $cat1->getCatid()), Permission::USER, $user->getId()));
+
+
+
+        Permission::removeObjectRules('Test\\Item');
+
+        $fields = array('title' => array(array('access' => false, 'condition' => array(array('title', 'LIKE', 'peter %')))));
+        Permission::setObjectUpdate('Test\\Item', Permission::USER, $user->getId(), true, $fields);
+
+        $this->assertTrue(Permission::checkUpdate('Test\\Item', array('title' => 'Heidenau'), Permission::USER, $user->getId()));
+        $this->assertTrue(Permission::checkUpdate('Test\\Item', array('title' => 'peter'), Permission::USER, $user->getId()));
+        $this->assertFalse(Permission::checkUpdate('Test\\Item', array('title' => 'peter 2'), Permission::USER, $user->getId()));
+        $this->assertFalse(Permission::checkUpdate('Test\\Item', array('title' => 'peter asdad'), Permission::USER, $user->getId()));
+
+
+
+
+        Permission::removeObjectRules('Test\\Item');
+
+        $fields = array('title' => array(array('access' => false, 'condition' => array(array('title', '=', 'peter')))));
+        Permission::setObjectUpdate('Test\\Item', Permission::USER, $user->getId(), true, $fields);
+
+        $this->assertTrue(Permission::checkUpdate('Test\\Item', array('title' => 'Heidenau'), Permission::USER, $user->getId()));
+        $this->assertFalse(Permission::checkUpdate('Test\\Item', array('title' => 'peter'), Permission::USER, $user->getId()));
+        $this->assertTrue(Permission::checkUpdate('Test\\Item', array('title' => 'peter2'), Permission::USER, $user->getId()));
+
+
+    }
+
+
+    public function testObjectGeneral(){
 
         ItemQuery::create()->deleteAll();
         TestQuery::create()->deleteAll();
@@ -54,7 +132,6 @@ class ObjectTest extends TestCaseWithCore {
         $this->assertTrue(Permission::checkList('Test\\Item', $item1->getId(), Permission::GROUP, $group->getId()),
             'testGroup got list access to all test\\item objects.');
 
-
         Permission::setObjectListExact('Test\\Item', $item1->getId(), Permission::GROUP, $group->getId(), false);
         $this->assertFalse(Permission::checkList('Test\\Item', $item1->getId(), Permission::GROUP, $group->getId()),
             'testGroup got list access-denied to item 1.');
@@ -68,7 +145,7 @@ class ObjectTest extends TestCaseWithCore {
 
 
         $acl = Permission::setObjectListExact('Test\\Item', $item2->getId(), Permission::USER, $user->getId(), true);
-        $this->assertFalse(Permission::checkList('Test\\Item', $item2->getId(), Permission::USER, $user->getId()),
+        $this->assertTrue(Permission::checkList('Test\\Item', $item2->getId(), Permission::USER, $user->getId()),
             'testUser got access through a rule for only him.');
 
 
@@ -121,32 +198,6 @@ class ObjectTest extends TestCaseWithCore {
         Permission::setObjectList('Test\\Test', Permission::GROUP, $group->getId(), false);
         $this->assertFalse(Permission::checkList('Test\\Test', $test1->getId(), Permission::GROUP, $group->getId()),
             'testGroup has no access test1.');
-
-
-
-        //Permission::setObjectListExact('Test\\Item', $item1->getId(), Permission::GROUP, $user->getId(), true);
-        //Permission::setObjectList('Test\\Item', $item2->getId(), Permission::GROUP, $user->getId(), false);
-
-        /*
-        Permission::setObjectUpdate('Test\\Item', $item1->getId(), Permission::GROUP, $user->getId(), true);
-        Permission::setObjectUpdate('Test\\Item', $item2->getId(), Permission::GROUP, $user->getId(), false);
-
-        Permission::setObjectAdd('Test\\Item', $item1->getId(), Permission::GROUP, $user->getId(), true,
-            array(
-                 'desc' => false
-            )
-        );
-
-
-        Permission::setObjectDelete('Test\\Item', $item1->getId(), Permission::GROUP, $user->getId(), false);
-        Permission::setObjectView('Test\\Item', $item1->getId(), Permission::GROUP, $user->getId(), false);
-*/
-
-        //check permissions
-
-        //$this->assertTrue(Permission::checkList('Test\\Item', $item1->getId(), Permission::GROUP, $user->getId()));
-        //$this->assertFalse(Permission::checkList('Test\\Item', $item2->getId(), Permission::GROUP, $user->getId()));
-
     }
 
 }

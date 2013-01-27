@@ -311,7 +311,15 @@ a.ka-list-search-button-active:link {
     padding: 0px;
     margin: 1px 0px 4px 0px;
     color: #555;
-    font-size: 14px;
+    font-size: 12px;
+}
+
+.ka-list-combine-item .sub {
+    color: #aaa;
+}
+
+.ka-list-combine-item.active .sub {
+    color: silver;
 }
 
 .ka-list-combine-item.active h2 {

@@ -9,6 +9,7 @@
     width: 215px;
     border-right: 1px solid silver;
     background-color: white;
+    overflow: auto;
 }
 
 

@@ -143,7 +143,7 @@ class Permission {
         $data[] = $inGroups;
 
         if ($pTargetType === null || $pTargetType == self::USER){
-            $targets[] = "( target_type = 2 AND target_id = ?)";
+            $targets[] = "( target_type = 0 AND target_id = ?)";
             $data[] = $userId;
         }
 
@@ -240,6 +240,7 @@ class Permission {
 
             if ($rule['constraint_type'] == '2'){
                 $condition = $rule['constraint_code'];
+
                 //$condition = dbConditionToSql($rule['constraint_code'], $pTable);
                 /*var_dump($condition);
                 if ($isNested && $rule['sub']){
@@ -310,7 +311,12 @@ class Permission {
         return self::check($pObjectKey, $pObjectId, null, self::LISTING, $pTargetType, $pTargetId, $pRootHasAccess);
     }
 
-    public static function checkUpdate($pObjectKey, $pObjectId, $pFields = null, $pTargetType = null, $pTargetId = null,
+    public static function checkUpdate($pObjectKey, $pFields = null, $pTargetType = null, $pTargetId = null,
+                                       $pRootHasAccess = false){
+        return self::check($pObjectKey, null, $pFields, self::UPDATE, $pTargetType, $pTargetId, $pRootHasAccess);
+    }
+
+    public static function checkUpdateExact($pObjectKey, $pObjectId, $pFields = null, $pTargetType = null, $pTargetId = null,
                                        $pRootHasAccess = false){
         return self::check($pObjectKey, $pObjectId, $pFields, self::UPDATE, $pTargetType, $pTargetId, $pRootHasAccess);
     }
@@ -345,6 +351,14 @@ class Permission {
     public static function setObjectListCondition($pObjectKey, $pCondition, $pTargetType, $pTargetId, $pAccess, $pFields = null, $pWithSub = false){
         return self::setObject(self::LISTING, $pObjectKey, self::CONSTRAINT_CONDITION, $pCondition, $pWithSub, $pTargetType, $pTargetId, $pAccess, $pFields);
     }
+
+
+    public static function setObjectUpdate($pObjectKey, $pTargetType, $pTargetId, $pAccess, $pFields = null, $pWithSub = false){
+        return self::setObject(self::UPDATE, $pObjectKey, self::CONSTRAINT_ALL, null, $pWithSub, $pTargetType, $pTargetId, $pAccess, $pFields);
+    }
+
+
+
 
     public static function setObject($pMode, $pObjectKey, $pConstraintType, $pConstraintCode, $pWithSub = false,
                                      $pTargetType, $pTargetId, $pAccess, $pFields = null){
@@ -403,18 +417,21 @@ class Permission {
 
         if ($pTargetId == 1) return true;
 
+        //var_dump('type: '.(($pTargetType == self::GROUP)?'group':'user').', id: '.$pTargetId.', mode: '.$pMode);
         $rules =& self::getRules($pObjectKey, $pMode, $pTargetType, $pTargetId);
 
         if (count($rules) == 0) return false;
 
-        $pPk = Object::getObjectUrlId($pObjectKey, $pPk);
+        if ($pPk){
+            $pPk = Object::getObjectUrlId($pObjectKey, $pPk);
 
-        if (self::$cache['checkAckl_' . $pObjectKey . '_' . $pPk . '__' . $pField])
-            return self::$cache['checkAckl_' . $pObjectKey . '_' . $pPk . '__' . $pField];
+            if (self::$cache['checkAckl_' . $pObjectKey . '_' . $pPk . '__' . $pField])
+                return self::$cache['checkAckl_' . $pObjectKey . '_' . $pPk . '__' . $pField];
+        }
 
         $access = false;
 
-        $currentObjectPk = $pPk;
+        $currentObjectPk = Object::getObjectUrlId($pObjectKey, $pPk);
 
         $definition = Object::getDefinition($pObjectKey);
         $fields =& $definition['fields'];
@@ -431,6 +448,7 @@ class Permission {
             $fValue = current($pField);
         }
 
+
         $depth = 0;
         while ($not_found) {
             $depth++;
@@ -445,14 +463,14 @@ class Permission {
                 if ($parent_acl && $acl['sub'] == 0) continue;
 
                 //print $acl['id'].', '.$acl['code'] .' == '. $currentObjectPk.'<br/>';
-                if ($acl['constraint_type'] == 2 &&
+                if ($acl['constraint_type'] == 2 && $pPk &&
                     ($objectItem = Object::get($pObjectKey, $currentObjectPk))){
                     if (!Object::satisfy($objectItem, $acl['constraint_code'])) continue;
                 }
 
                 if (
                     $acl['constraint_type'] != 1 ||
-                    ($acl['constraint_type'] == 1 && $acl['constraint_code'] == $currentObjectPk)
+                    ($currentObjectPk && $acl['constraint_type'] == 1 && $acl['constraint_code'] == $currentObjectPk)
                 ){
 
                     $fieldKey = $pField;
@@ -468,20 +486,29 @@ class Permission {
 
                                     if (is_array($fieldAcl[0])){
 
+                                        //complex field rule, $fieldAcl = ([{access: no, condition: [['id', '>', 2], ..]}, {}, ..])
+
                                         foreach ($fieldAcl as $fRule){
 
-                                            $uri = $fields[$fKey]['object'].'/'.$fValue;
-                                            $satisfy = Object::satisfyFromUri($uri, $fRule['condition']);
+                                            if ($fields[$fKey]['type'] == 'object'){
+                                                $uri = $fields[$fKey]['object'].'/'.$fValue;
+                                                $satisfy = Object::satisfyFromUri($uri, $fRule['condition']);
+                                            } else {
+                                                $satisfy = Object::satisfy($pField, $fRule['condition']);
+                                            }
                                             if ($satisfy){
                                                 return ($fRule['access'] == 1) ? true : false;
                                             }
-                                            if ($acl['access'] != 2)
-                                                return ($acl['access'] == 1) ? true : false;
-                                            //var_dump(array($uri => $satisfy));
 
                                         }
 
+                                        //if no field rules fits, we consider the whole rule
+                                        if ($acl['access'] != 2)
+                                            return ($acl['access'] == 1) ? true : false;
+
                                     } else {
+
+                                        //simple field rule $fieldAcl = ({"value1": yes, "value2": no}
 
                                         if ($fieldAcl[$fValue] !== null){
                                             return ($fieldAcl[$fValue] == 1) ? true : false;
@@ -518,7 +545,7 @@ class Permission {
                 }
             }
 
-            if ($definition['nested'] ){
+            if ($definition['nested'] && $pPk){
                 if (!$currentObjectPk = krynObjects::getParentId($pObjectKey, $currentObjectPk)){
                     return $pRootHasAccess?true:$access;
                 }
@@ -529,7 +556,8 @@ class Permission {
             }
         }
 
-        self::$cache['checkAckl_' . $pObjectId . '__' . $pField] = $access;
+        if ($pPk)
+            self::$cache['checkAckl_' . $pObjectKey . '_' . $pPk . '__' . $pField] = $access;
 
         return $access;
     }

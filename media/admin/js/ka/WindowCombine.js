@@ -371,7 +371,7 @@ ka.WindowCombine = new Class({
 
         if (this.mainLeftItems.getScroll().y - (this.mainLeftItems.getScrollSize().y - this.mainLeftItems.getSize().y) == 0) {
             this.loadMore(pAndScrollToSelect);
-        } else if (this.count > 0 && (this.mainLeftItems.getScrollSize().y - this.mainLeftItems.getSize().y) == 0) {
+        } else if (this.maxItems > 0 && (this.mainLeftItems.getScrollSize().y - this.mainLeftItems.getSize().y) == 0) {
             this.loadMore(pAndScrollToSelect);
 
             /*
@@ -393,7 +393,7 @@ ka.WindowCombine = new Class({
     },
 
     loadMore: function (pAndScrollToSelect) {
-        if (this.loadedCount < this.count) {
+        if (this.loadedCount < this.maxItems) {
             this.loadItems(this.loadedCount, (this.classProperties.itemsPerPage) ? this.classProperties.itemsPerPage : 5, pAndScrollToSelect);
         }
     },
@@ -433,7 +433,15 @@ ka.WindowCombine = new Class({
     },
 
     reload: function () {
+
+        if (this.ignoreNextSoftLoad) {
+            delete this.ignoreNextSoftLoad;
+            return;
+        }
+
         this.clear();
+
+        this.maxItems = null;
 
         if (this.classProperties.asNested){
             return this.renderLayoutNested(this.treeContainer);
@@ -455,8 +463,6 @@ ka.WindowCombine = new Class({
 
             }.bind(this));
         }
-
-        var _this = this;
 
         if (this._lastItems) {
             if (pFrom > this._lastItems.count) {
@@ -483,9 +489,6 @@ ka.WindowCombine = new Class({
         this.order = {};
         this.order[this.sortField] = this.sortDirection;
 
-        //todo
-        //filterVals: (this.searchEnable) ? this.getSearchVals() : '',
-
         this.lastRequest = new Request.JSON({url: _path + 'admin/' + this.getEntryPoint(),
         noCache: true, onComplete: function (response) {
 
@@ -497,10 +500,6 @@ ka.WindowCombine = new Class({
             if (typeOf(response.data) != 'array') response.data = [];
 
             var count = response.data.length;
-
-            logger(this.maxItems);
-            logger(count);
-            logger(response.data);
 
             if (!count && (this.from == 0 || !this.from)) {
                 this.itemLoaderNoItems();
@@ -521,7 +520,7 @@ ka.WindowCombine = new Class({
             }
 
             if (count > 0) {
-                if (this.loadedCount == count) {
+                if (this.loadedCount == this.maxItems) {
                     this.itemLoaderEnd();
                 } else {
                     this.itemLoaderStop();
@@ -555,9 +554,12 @@ ka.WindowCombine = new Class({
                 }
             }
 
+                logger(this.maxItems-this.loadedCount);
+
             if (this.from > 0 && this.mainLeftItems.getScroll().y == 0) {
                 this.loadPrevious(true);
-            } else if (count > 0 && (this.mainLeftItems.getScrollSize().y - this.mainLeftItems.getSize().y) == 0) {
+            } else if (this.maxItems-this.loadedCount > 0 && (this.mainLeftItems.getScrollSize().y - this.mainLeftItems.getSize().y) == 0) {
+                logger('loadMore');
                 this.loadMore(true);
             }
 
@@ -928,12 +930,14 @@ ka.WindowCombine = new Class({
         }.bind(this);
 
         this.currentAdd = new ka.WindowAdd(win, this.mainRight);
-        this.currentAdd.addEvent('save', this.addSaved.bind(this));
+        this.currentAdd.addEvent('add', this.addSaved.bind(this));
         this.currentAdd.addEvent('addMultiple', this.addSaved.bind(this));
 
     },
 
     addSaved: function (pValues, pResponse) {
+
+        this.ignoreNextSoftLoad = true;
 
         if (this.currentAdd.classProperties.primary.length > 1) return;
 
@@ -947,7 +951,9 @@ ka.WindowCombine = new Class({
 
         this.win.params.selected = pResponse.data;
 
-        this.loadAround(this.win.params.selected);
+        return this.loadCount(function(count){
+            this.loadAround(this.win.params.selected);
+        }.bind(this));
 
     },
 

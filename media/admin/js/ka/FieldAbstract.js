@@ -184,10 +184,10 @@ ka.FieldAbstract = new Class({
         this.invalidText = new Element('div', {
             'class': 'ka-Field-invalid-text',
             text: text
-        }).inject(this.wrapper || this.input, 'after');
+        }).inject(this.main || this.input, 'after');
 
-        if (this.input && this.input.get('tag') == 'input')
-            this.input.addClass('ka-Input-invalid');
+        if (this.main)
+            this.main.addClass('ka-Field-invalid');
 
     },
 
@@ -201,8 +201,8 @@ ka.FieldAbstract = new Class({
             //we was invalid before, highlight a smooth green
             this.input.highlight('green');
 
-            if (this.input && this.input.get('tag') == 'input')
-                this.input.removeClass('ka-Input-invalid');
+            if (this.main)
+                this.main.removeClass('ka-Field-invalid');
 
             //remove the invalid icon and text
             this.invalidIcon.destroy();

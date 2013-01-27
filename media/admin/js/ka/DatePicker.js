@@ -37,10 +37,10 @@ ka.DatePicker = new Class({
             }.bind(this));
         }
 
-        this._attach();
+        this.attach();
     },
 
-    _attach: function () {
+    attach: function () {
         this._renderChooser();
         this.input.addEvent('keydown', function (e) {
             e.stop();
@@ -121,6 +121,7 @@ ka.DatePicker = new Class({
         this.choosenDate = pDate;
         this.renderInput();
         this.fireEvent('change', this.getTime());
+        this.close();
     },
 
     renderInput: function () {
@@ -225,10 +226,19 @@ ka.DatePicker = new Class({
 
         this.renderMonth();
 
-        ka.openDialog({
+        this.lastAutoPositionLastOverlay = ka.openDialog({
             element: this.chooser,
             target: this.input
         });
+    },
+
+    close: function(){
+
+        if (this.chooser)
+            this.chooser.dispose();
+        if (this.lastAutoPositionLastOverlay)
+            this.lastAutoPositionLastOverlay.destroy();
+
     },
 
     _renderChooser: function () {

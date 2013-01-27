@@ -860,25 +860,20 @@ ka.WindowEdit = new Class({
         if (typeOf(request) != 'null') {
 
             this.saveBtn.startTip(t('Saving ...'));
-            var objectId = '';
 
-            if (this.winParams.item){
-                var object = ka.getObjectUrlId(this.classProperties['object'], this.winParams.item);
-                objectId = '?object='+object;
-            } else {
-                objectId = '?_method=put';
-            }
+            var objectId = ka.getObjectUrlId(this.classProperties['object'], this.winParams.item);
 
             this.lastSaveRq = new Request.JSON({url: _path + 'admin/' + this.getEntryPoint()+'/'+objectId,
             noErrorReporting: ['DuplicateKeysException', 'ObjectItemNotModified'],
             noCache: true, onComplete: function (res) {
 
                 if (res.error == 'RouteNotFoundException'){
+                    this.saveBtn.stopTip(t('Failed'));
                     return this.win.alert(t('RouteNotFoundException. You setup probably the wrong `editEntrypoint`'));
                 }
 
                 if(res.error == 'DuplicateKeysException'){
-                    this.win._alert(t('Duplicate keys. Please change the values of marked fields.'));
+                    this.win.alert(t('Duplicate keys. Please change the values of marked fields.'));
 
                     Array.each(res.fields, function(field){
                         if (this.fields[field])

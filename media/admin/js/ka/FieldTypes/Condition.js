@@ -89,7 +89,7 @@ ka.FieldTypes.Condition = new Class({
 
             } else {
                 Object.each(objectDefinition.fields, function(def, key){
-                    div.iLeft.add(key, def.label||key);
+                    div.iLeft.add(key, def.label || key);
                 }.bind(this));
             }
 
@@ -219,18 +219,18 @@ ka.FieldTypes.Condition = new Class({
 
         if (fieldDefinition.type == 'object' && fieldDefinition.object == 'user'){
             ['= CURRENT_USER', '!= CURRENT_USER'].each(function(item){
-                div.iMiddle.showOption(item);
+                div.iMiddle.getFieldObject().getObject().showOption(item);
             });
         } else {
             ['= CURRENT_USER', '!= CURRENT_USER'].each(function(item){
-                div.iMiddle.hideOption(item);
+                div.iMiddle.getFieldObject().getObject().hideOption(item);
             });
         }
 
         if (fieldDefinition.type == 'date'|| fieldDefinition.type == 'datetime'){
-            this.dateConditions.each(function(item){div.iMiddle.add(item);});
+            this.dateConditions.each(function(item){div.iMiddle.getFieldObject().getObject().add(item);});
         } else {
-            this.dateConditions.each(function(item){div.iMiddle.remove(item);});
+            this.dateConditions.each(function(item){div.iMiddle.getFieldObject().getObject().remove(item);});
         }
 
         fieldDefinition.noWrapper = true;

@@ -38,6 +38,10 @@ ka.FieldTypes.Select = new Class({
 
     },
 
+    getObject: function(){
+        return this.select;
+    },
+
     setValue: function(pValue){
         this.select.setValue(pValue);
     },

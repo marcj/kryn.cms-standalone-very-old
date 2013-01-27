@@ -262,7 +262,6 @@ class Object {
 
         if (count($pks) == 0 ) throw new \InvalidArgumentException($pObjectKey.' does not have primary keys.');
 
-        $urlId = '';
         $withoutFieldNames = is_numeric(key($pItem));
 
         if (count($pks) == 1 && is_array($pItem)){
@@ -962,7 +961,7 @@ class Object {
 
     public static function satisfyFromUri($pObjectUri, $pCondition){
 
-        $object = krynObjects::getFromUri($pObjectUri);
+        $object = self::getFromUri($pObjectUri);
         return self::satisfy($object, $pCondition);
 
     }

@@ -4,11 +4,27 @@ ka.FieldTypes.Datetime = new Class({
 
     createLayout: function(){
 
-        this.input = new Element('input', {
-            'class': 'text ka-field-dateTime',
-            type: 'text',
-            style: 'width: 100%'
+        this.wrapper = new Element('div', {
+            'class': 'ka-Input-wrapper',
+            style: this.options.style,
+            styles: {
+                'width': this.options.inputWidth=='100%'?null:this.options.inputWidth,
+                'height': this.options.inputHeight
+            }
         }).inject(this.fieldInstance.fieldPanel);
+
+
+        this.innerWrapper = new Element('div', {
+            'class': 'ka-Input-inner-wrapper'
+        }).inject(this.wrapper);
+
+        this.input = new Element('input', {
+            'class': 'ka-Input',
+            styles: {
+                'height': this.options.inputHeight
+            },
+            maxLength: this.options.maxLength
+        }).inject(this.innerWrapper);
 
         this.options.time = true;
         this.datePicker = new ka.DatePicker(this.input, this.options);
@@ -30,7 +46,7 @@ ka.FieldTypes.Datetime = new Class({
     },
 
     setValue: function(pValue){
-        this.datePicker.setTime((pVal != 0) ? pVal : false);
+        this.datePicker.setTime((pValue != 0) ? pValue : false);
     },
 
     getValue: function(){

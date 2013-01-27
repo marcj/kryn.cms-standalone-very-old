@@ -567,7 +567,7 @@ class ObjectWindow {
         $fields = array();
 
         foreach ($this->_fields as $key => $field){
-            if (!$field['customValue'] && !$field['startEmpty'] && !$field['object']){
+            if (!$field['customValue'] && !$field['startEmpty']){
                 $fields[] = $key;
             }
         }
@@ -648,7 +648,7 @@ class ObjectWindow {
 
 
         if ($pFilter)
-            $condition = $this->buildFilter($pFilter);
+            $condition = self::buildFilter($pFilter);
 
         if ($this->getMultiLanguage()){
 
@@ -683,7 +683,7 @@ class ObjectWindow {
      * @param $pFilter
      * @return array|null
      */
-    public function buildFilter($pFilter){
+    public static function buildFilter($pFilter){
         $condition = null;
 
         if (is_array($pFilter)){
@@ -934,7 +934,7 @@ class ObjectWindow {
             }
         }
 
-        $options['fields'] = $pFields;
+        $options['fields'] = $fields;
 
         if ($options['fields'] === null){
             $options['fields'] = $this->getDefaultFieldList();

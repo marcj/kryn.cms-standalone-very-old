@@ -119,8 +119,6 @@ ka.WindowAdd = new Class({
         request._pk = this.addItemToAdd.pk;
         request._targetObjectKey = this.addItemToAdd.objectKey;
 
-        logger(request);
-
         this.lastAddRq = new Request.JSON({url: _path + 'admin/' + this.getEntryPoint()+'/:multiple',
             noErrorReporting: ['DuplicateKeysException', 'ObjectItemNotModified'],
             noCache: true, onComplete: function (pResponse) {
@@ -144,8 +142,6 @@ ka.WindowAdd = new Class({
 
             this.winParams.item = pResponse.data[0]; //our new primary keys for the first item
 
-            window.fireEvent('softReload', this.win.getEntryPoint());
-
             this.openAddItemSaveButton.stopTip(t('Saved'));
 
             if (!pClose && this.saveNoClose) {
@@ -155,6 +151,8 @@ ka.WindowAdd = new Class({
             if (this.classProperties.loadSettingsAfterSave == true) ka.loadSettings();
 
             this.fireEvent('addMultiple', [request, pResponse.data]);
+
+            window.fireEvent('softReload', this.win.getEntryPoint());
 
             if (pClose) {
                 this.win.close();
@@ -426,8 +424,6 @@ ka.WindowAdd = new Class({
                     this.winParams.item = ka.getObjectPk(this.classProperties['object'], request); //maybe we changed some pk
                 }
 
-                window.fireEvent('softReload', this.getEntryPoint());
-
                 this.saveBtn.stopTip(t('Added'));
 
                 if (!pClose && this.saveNoClose) {
@@ -437,6 +433,8 @@ ka.WindowAdd = new Class({
                 if (this.classProperties.loadSettingsAfterSave == true) ka.loadSettings();
 
                 this.fireEvent('add', [request, res]);
+
+                window.fireEvent('softReload', this.getEntryPoint());
 
                 if ((!pClose || this.inline ) && this.classProperties.versioning == true) this.loadVersions();
 

@@ -51,8 +51,8 @@ class User extends \Admin\ObjectWindow {
         {if firstName || lastName}
             (<span>{firstName}</span>{if lastName} <span>{lastName}</span>{/if})
         {/if}
-        {if email}<div style="color: silver;">{email}</div>{/if}
-        <div style="color: silver;">{if groupMembership}{groupMembership.name}{/if}</div>
+        {if email}<div class="sub">{email}</div>{/if}
+        <div class="sub">{if groupMembership}{groupMembership.name}{/if}</div>
     </div>';
 
     public $itemsPerPage = 20;

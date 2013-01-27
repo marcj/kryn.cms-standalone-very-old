@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<database>
+<database namespace="Publication">
   <table name="publication_news" phpName="News" allowPkInsert="true">
     <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true"/>
     <column name="title" type="VARCHAR"/>
@@ -19,7 +19,7 @@
     <vendor type="mysql">
       <parameter name="Charset" value="utf8"/>
     </vendor>
-    <behavior name="workspace" />
+    <behavior name="workspace"/>
     <column name="created"/>
     <column name="modified"/>
   </table>

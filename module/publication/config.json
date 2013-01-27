@@ -22,8 +22,8 @@
             "icon": "#icon-newspaper",
             "isLink": true,
             "multi": true,
-            "minWidth": 650,
-            "minHeight": 350,
+            "minWidth": 800,
+            "minHeight": 460,
             "children": {
                 "add": {
                     "title": "[[Add]]",
@@ -346,8 +346,7 @@
                 "title": {
                     "label": "[[Title]]",
                     "type": "text",
-                    "primaryKey": 0,
-                    "empty": 1
+                    "required": true
                 },
                 "categoryId": {
                     "label": "[[Category]]",
@@ -391,13 +390,12 @@
                 "releaseat": {
                     "label": "[[Release at]]",
                     "type": "datetime",
-                    "primaryKey": 0,
-                    "empty": 1
+                    "desc": "[[Let it empty to release it now]]"
                 },
                 "releasedate": {
+                    "label": "[[News date]]",
                     "type": "datetime",
-                    "primaryKey": 0,
-                    "empty": 1
+                    "required": true
                 },
                 "deactivate": {
                     "label": "[[Hide]]",
@@ -419,9 +417,8 @@
                     "empty": 1
                 },
                 "tags": {
-                    "type": "text",
-                    "primaryKey": 0,
-                    "empty": 1
+                    "label": "[[Tags]]",
+                    "type": "text"
                 },
                 "introimage": {
                     "type": "text",
