@@ -79,7 +79,7 @@ var users_users_acl = new Class({
         this.objectsExactContainer.empty();
 
         this.objectList.getElements('.ka-list-combine-item').removeClass('active');
-        this.objectDivs[pObjectKey].addClass('active');
+        this.objectDivs[pObjectKey.toLowerCase()].addClass('active');
 
         this.currentDefinition = ka.getObjectDefinition(pObjectKey);
 
@@ -93,7 +93,6 @@ var users_users_acl = new Class({
                 withContext: false,
                 noWrapper: true,
                 onReady: function(){
-                    logger('hi');
                     this.renderTreeRules();
                 }.bind(this),
                 onChildrenLoaded: function(){
@@ -146,7 +145,7 @@ var users_users_acl = new Class({
 
     mapObjectTreeEvent: function(){
 
-        this.lastObjectTree.fieldObject.tree.main.addEvent('mouseover', function(pEvent){
+        document.id(this.lastObjectTree.getFieldObject().getTree()).addEvent('mouseover', function(pEvent){
 
             var target = pEvent.target;
             if (!target) return false;
@@ -174,7 +173,7 @@ var users_users_acl = new Class({
 
         }.bind(this));
 
-        this.lastObjectTree.fieldObject.tree.main.addEvent('mouseout', function(pEvent){
+        document.id(this.lastObjectTree.getFieldObject().getTree()).addEvent('mouseout', function(pEvent){
 
             var target = pEvent.target;
             if (!target) return false;
@@ -192,10 +191,10 @@ var users_users_acl = new Class({
 
         });
 
-        this.lastObjectTree.fieldObject.tree.addEvent('selection', function(item, dom){
+        this.lastObjectTree.addEvent('select', function(item, dom){
 
             if (!dom.rules) {
-                this.lastObjectTree.deselect();
+                this.lastObjectTree.getFieldObject().getTree().deselect();
                 this.filterRules();
             } else {
                 this.filterRules(1, dom.id, dom);
@@ -207,17 +206,14 @@ var users_users_acl = new Class({
 
     renderTreeRules: function(){
 
-        logger(this.currentAcls);
 
         Array.each(this.currentAcls, function(rule){
-            if (rule.object != this.currentObject) return;
+            if (rule.object.toLowerCase() != this.currentObject.toLowerCase()) return;
 
-            logger(rule);
             if (rule.constraint_type == 1){
 
-                var item = this.lastObjectTree.fieldObject.tree.getItem(rule.constraint_code);
+                var item = this.lastObjectTree.getFieldObject().getTree().getItem(rule.constraint_code);
 
-                logger(item);
                 if (!item) return false;
 
                 if (!item.rules) item.rules = [];
@@ -243,11 +239,11 @@ var users_users_acl = new Class({
                 if (!item.usersAclCounter){
                     item.usersAclCounter = new Element('span', {
                         text: '(1)',
-                        style: 'color: gray;'
+                        style: 'color: green;'
                     }).inject(item.span);
                     item.usersAclCounter.ruleCount = 1;
                 } else {
-                    item.usersAclCounter.set('text', '('+(item.usersAclCounter.ruleCount++)+')');
+                    item.usersAclCounter.set('text', ' ('+(item.usersAclCounter.ruleCount++)+')');
                 }
 
             }
@@ -275,10 +271,13 @@ var users_users_acl = new Class({
 
         var ruleGrouped = [true, {}, {}];
 
-        Array.each(this.currentAcls, function(rule){
-            if (rule.object != this.currentObject) return;
+        var all = 0;
 
-            modeCounter[rule.mode]++;
+        Array.each(this.currentAcls, function(rule){
+            if (rule.object.toLowerCase() != this.currentObject.toLowerCase()) return;
+
+            all++;
+            modeCounter[parseInt(rule.mode)]++;
 
             if (rule.constraint_type == 2){
                 ruleCounter.custom++;
@@ -297,7 +296,8 @@ var users_users_acl = new Class({
 
         }.bind(this));
 
-        this.selectModes.setLabel(-1,  tc('usersAclModes', 'All rules')+' ('+this.currentAcls.length+')');
+
+        this.selectModes.setLabel(-1,  tc('usersAclModes', 'All rules')+' ('+all+')');
         this.selectModes.setLabel(0,  tc('usersAclModes', 'Combined')+' ('+modeCounter[0]+')');
         this.selectModes.setLabel(1,  tc('usersAclModes', 'List')+' ('+modeCounter[1]+')');
         this.selectModes.setLabel(2,  tc('usersAclModes', 'View')+' ('+modeCounter[2]+')');
@@ -348,7 +348,7 @@ var users_users_acl = new Class({
         this.objectsExactSplitCount.set('text', '('+ruleCounter.exact+')');
 
         Array.each(this.currentAcls, function(rule){
-            if (rule.object != this.currentObject) return;
+            if (rule.object.toLowerCase() != this.currentObject.toLowerCase()) return;
 
             if (this.currentConstraint == -1){
                 this.renderObjectRulesAdd(rule);
@@ -372,7 +372,6 @@ var users_users_acl = new Class({
 
     filterRules: function(pConstraintType, pConstraintCode, pDomObject){
 
-        logger(pConstraintType+' - '+pConstraintCode+' - '+pDomObject);
         if (pDomObject){
             this.objectConstraintsContainer.getElements('.active').removeClass('active');
 
@@ -380,11 +379,11 @@ var users_users_acl = new Class({
                 if (pDomObject.hasClass('ka-list-combine-item')){
                     pDomObject.addClass('active');
                     if (this.lastObjectTree)
-                        this.lastObjectTree.deselect();
+                        this.lastObjectTree.getFieldObject().getTree().deselect();
                 }
             } else {
                 if (this.lastObjectTree)
-                    this.lastObjectTree.deselect();
+                    this.lastObjectTree.getFieldObject().getTree().deselect();
             }
 
             if (typeOf(pConstraintType) != 'null'){
@@ -397,6 +396,8 @@ var users_users_acl = new Class({
         } else {
             delete this.lastConstraintType;
             this.objectConstraintsContainer.getElements('.active').removeClass('active');
+            if (this.lastObjectTree)
+                this.lastObjectTree.getFieldObject().getTree().deselect();
         }
 
         this.objectRulesContainer.getChildren().each(function(child){
@@ -642,7 +643,7 @@ var users_users_acl = new Class({
         var definition = ka.getObjectDefinition(objectKey);
         var fields = definition.labelField;
 
-        new Request.JSON({url: _path+'admin/object/'+objectKey+'/'+objectId, onComplete: function(pResult){
+        new Request.JSON({url: _path+'admin/object/'+ka.urlEncode(objectKey)+'/'+objectId, onComplete: function(pResult){
 
             if (!pResult || pResult.error || !pResult.data){
                 pDomObject.set('text', 'Object not found. '+uri);
@@ -740,7 +741,7 @@ var users_users_acl = new Class({
                 }).inject(div);
             }
 
-            this.objectDivs[pExtKey+'\\'+objectKey] = div;
+            this.objectDivs[pExtKey.toLowerCase()+'\\'+objectKey.toLowerCase()] = div;
 
         }.bind(this));
 
@@ -1367,18 +1368,29 @@ var users_users_acl = new Class({
                         'class': 'subline'
                     }).inject(div);
 
-                    new Element('span', {
-                        text: item.first_name+' '+item.last_name
-                    }).inject(subline);
+                    var name = [];
+                    if (item.firstName) name.push(item.firstName);
+                    if (item.lastName) name.push(item.lastName);
 
                     new Element('span', {
-                        text: ' ('+item.email+')'
+                        text: name.join(' ')
                     }).inject(subline);
+
+                    if (item.email){
+                        new Element('span', {
+                            text: ' ('+item.email+')'
+                        }).inject(subline);
+                    }
+
+                    var groups = [];
+                    Array.each(item.groupMembership, function(group){
+                        groups.push(group.name);
+                    });
 
                     var subline = new Element('div', {
                         'class': 'subline',
                         style: 'color: silver',
-                        text: item.groups_name
+                        text: groups.join(', ')
                     }).inject(div);
 
                 }.bind(this));
@@ -1422,9 +1434,8 @@ var users_users_acl = new Class({
     loadRules: function(pType, pItem, pForce){
 
         if (!pForce && typeOf(this.currentTargetType) != 'null' && this.unsavedContent){
-            this.win._confirm(t('There is unsaved content. Continue?'), function(a){
-                if (a)
-                    this.loadRules(pType, pItem, true);
+            this.win.confirm(t('There is unsaved content. Continue?'), function(a){
+                if (a) this.loadRules(pType, pItem, true);
             }.bind(this));
             return;
         }
@@ -1664,10 +1675,10 @@ var users_users_acl = new Class({
 
         Array.each(this.currentAcls, function(acl){
 
-            if (counter[acl.object])
-                counter[acl.object]++;
+            if (counter[acl.object.toLowerCase()])
+                counter[acl.object.toLowerCase()]++;
             else
-                counter[acl.object] = 1;
+                counter[acl.object.toLowerCase()] = 1;
 
         }.bind(this));
 

@@ -141,8 +141,8 @@ ka.Select = new Class({
 
         if (this.options.items){
             if (typeOf(this.options.items) == 'object'){
-                Object.each(this.options.items, function(label, key){
-                    this.items.push({key: key, label: label});
+                Object.each(this.options.items, function(label, id){
+                    this.items.push({id: id, label: label});
                 }.bind(this));
             }
 
@@ -151,17 +151,17 @@ ka.Select = new Class({
 
                     if (this.options.itemsLabel){
                         Array.each(this.options.items, function(item){
-                            this.items.push({key: item[this.options.itemsKey], label: item[this.options.itemsLabel]});
+                            this.items.push({id: item[this.options.itemsKey], label: item[this.options.itemsLabel]});
                         }.bind(this));
                     } else {
                         Array.each(this.options.items, function(item){
-                            this.items.push({key: item[this.options.itemsKey], label: item});
+                            this.items.push({id: item[this.options.itemsKey], label: item});
                         }.bind(this));
                     }
 
                 } else {
                     Array.each(this.options.items, function(label){
-                        this.items.push({key: label, label: label});
+                        this.items.push({id: label, label: label});
                     }.bind(this));
                 }
             }
@@ -221,7 +221,7 @@ ka.Select = new Class({
                         if (this.hideOptions && this.hideOptions.contains(id)) return;
 
                         items.push({
-                            key: id,
+                            id: id,
                             label: item
                         });
 
@@ -481,16 +481,16 @@ ka.Select = new Class({
 
             this.checkIfCurrentValue(pItem, a);
 
-            a.kaSelectId = pItem.key;
+            a.kaSelectId = pItem.id;
             a.kaSelectItem = pItem;
-            this.currentItems[pItem.key] = a;
+            this.currentItems[pItem.id] = a;
         }
 
     },
 
     checkIfCurrentValue: function(pItem, pA){
 
-        if (pItem.key == this.value){
+        if (pItem.id == this.value){
             pA.addClass('icon-checkmark-6');
             pA.addClass('ka-select-chooser-item-selected');
         }
@@ -548,7 +548,7 @@ ka.Select = new Class({
             if (items){
                 var item = items[0];
                 if (item)
-                    this.chooseItem(item.key, true);
+                    this.chooseItem(item.id, true);
             }
 
         }.bind(this), 1);
@@ -576,7 +576,7 @@ ka.Select = new Class({
                 if (items.length == pCount) break;
                 if (this.options.objectLanguage && this.items[i].lang != this.options.objectLanguage) continue;
 
-                if (this.hideOptions && this.hideOptions.contains(this.items[i].key)) continue;
+                if (this.hideOptions && this.hideOptions.contains(this.items[i].id)) continue;
 
                 items.push(this.items[i]);
             }
@@ -667,11 +667,11 @@ ka.Select = new Class({
         }
 
         if (pPos == 'top'){
-            this.items.splice(0, 1, {key: pId, label: pLabel});
+            this.items.splice(0, 1, {id: pId, label: pLabel});
         } else if(pPos > 0){
-            this.items.splice(pPos, 1, {key: pId, label: pLabel});
+            this.items.splice(pPos, 1, {id: pId, label: pLabel});
         } else {
-            this.items.push({key: pId, label: pLabel});
+            this.items.push({id: pId, label: pLabel});
         }
 
         if (typeOf(this.value) == 'null' && this.options.selectFirst){
@@ -702,7 +702,7 @@ ka.Select = new Class({
 
             //search for i
             for (var i = this.items.length-1; i >= 0; i--){
-                if (pId == this.items[i].key){
+                if (pId == this.items[i].id){
                     data = this.items[i];
                     break;
                 }
@@ -714,7 +714,7 @@ ka.Select = new Class({
                 item = this.cachedObjectItems[pId];
                 var id = ka.getObjectUrlId(this.options.object, item);
                 pCallback({
-                    key: id,
+                    id: id,
                     label: item
                 });
             } else {
@@ -732,7 +732,7 @@ ka.Select = new Class({
 
                             var id = ka.getObjectUrlId(this.options.object, response.data);
                             pCallback({
-                                key: id,
+                                id: id,
                                 label: response.data
                             });
                         }
@@ -774,11 +774,11 @@ ka.Select = new Class({
 
         var i = 0, max = this.items.length;
         do {
-            if (this.items[i].key == pId){
+            if (this.items[i].id == pId){
                 this.items[i].label = pLabel;
                 break;
             }
-        } while (i++ && i < max);
+        } while (++i && i < max);
 
         if (this.value == pId){
             this.title.set('html', pLabel);

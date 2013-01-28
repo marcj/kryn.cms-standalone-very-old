@@ -185,6 +185,7 @@ class AdminController {
                     */
 
                     ->addGetRoute('object-browser/([a-zA-Z-_\.\\\\]+)', 'getBrowserItems')
+                    ->addGetRoute('object-browser-count/([a-zA-Z-_\.\\\\]+)', 'getBrowserItemsCount')
                 ->done()
 
                 //admin/system

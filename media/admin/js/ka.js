@@ -682,6 +682,7 @@ ka.getObjectFieldLabel = function(pValue, pField, pFieldId, pObjectKey, pRelatio
     var field = fields[fieldId];
 
     var showAsField = pField || field;
+    logger(showAsField);
     if (!showAsField.type){
         Object.each(field, function(v, i){
             if (!showAsField[i])
@@ -696,7 +697,8 @@ ka.getObjectFieldLabel = function(pValue, pField, pFieldId, pObjectKey, pRelatio
     var value = pValue[fieldId] || '';
 
     if (showAsField.type == 'predefined'){
-        showAsField = ka.getObjectDefinition(field.object).fields[field.field];
+        if (ka.getObjectDefinition(showAsField.object))
+            showAsField = ka.getObjectDefinition(showAsField.object).fields[showAsField.field];
     }
 
     if (showAsField.format == 'timestamp') {

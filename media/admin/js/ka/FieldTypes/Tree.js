@@ -177,6 +177,7 @@ ka.FieldTypes.Tree = new Class({
 
                     if (pResponse.data){
 
+                        this.trees = [];
                         Array.each(pResponse.data, function(item){
                             this.addTree(item);
                         }.bind(this));
@@ -245,7 +246,7 @@ ka.FieldTypes.Tree = new Class({
 
         }.bind(this));
 
-        this.trees.include(tree);
+        this.trees.push(tree);
         return tree;
     },
 
@@ -259,6 +260,14 @@ ka.FieldTypes.Tree = new Class({
 
         return selected;
 
+    },
+
+    getTrees: function(){
+        return this.trees;
+    },
+
+    getTree: function(){
+        return this.trees[0];
     },
 
     selected: function(pItem, pDom){

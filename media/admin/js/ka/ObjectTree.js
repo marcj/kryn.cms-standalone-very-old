@@ -562,6 +562,10 @@ ka.ObjectTree = new Class({
 
     },
 
+    toElement: function(){
+        return this.main;
+    },
+
     reloadParentOfActive: function () {
 
         if (!this.lastSelectedItem) return;

@@ -327,10 +327,9 @@
                     "empty": true
                 },
                 "categoryId": {
-                    "object": "news",
+                    "object": "Publication\\News",
                     "field": "categoryId",
-                    "type": "predefined",
-                    "empty": true
+                    "type": "predefined"
                 }
             },
             "browserDataModel": "default",

@@ -227,7 +227,7 @@ class Controller {
 
 
     /**
-     * Object items output for user interface chooser window/browser. /admin/backend/browser-objects?uri=...
+     * Object items output for user interface chooser window/browser. /admin/backend/browser-objects/<objectKey>
      *
      * This method does check against object property 'browserDataModel'. If custom, we use
      * this class to get the items.
@@ -242,13 +242,12 @@ class Controller {
      * @param mixed  $_
      *
      * @return array
-     * @throws \Exception
-     * @throws \ClassNotFoundException
      * @throws \ObjectNotFoundException
+     * @throws \ClassNotFoundException
+     * @throws \ObjectMisconfiguration
      */
     public function getBrowserItems($pObjectKey, $pFields = null, $pReturnHash = true, $pLimit = null, $pOffset = null,
                                     $pOrder = null, $_ = null){
-
 
         $definition = \Core\Object::getDefinition($pObjectKey);
         if (!$definition) throw new \ObjectNotFoundException(tf('Object %s can not be found.', $pObjectKey));
@@ -309,5 +308,39 @@ class Controller {
         } else {
             return $items;
         }
+    }
+
+    public function getBrowserItemsCount($pObjectKey,$_ = null){
+
+        $definition = \Core\Object::getDefinition($pObjectKey);
+        if (!$definition) throw new \ObjectNotFoundException(tf('Object %s can not be found.', $pObjectKey));
+
+        if (!$definition['browserColumns'])
+            throw new \ObjectMisconfiguration(tf('Object %s does not have browser columns.', $pObjectKey));
+
+        $fields = array_keys($definition['browserColumns']);
+
+        $options = array(
+            'permissionCheck' => true
+        );
+
+        $condition = \Admin\ObjectCrud::buildFilter($_);
+
+        if ($definition['browserDataModel'] == 'custom'){
+
+            $class = $definition['browserDataModelClass'];
+            if (!class_exists($class)) throw new \ClassNotFoundException(tf('The class %s can not be found.', $class));
+
+            $dataModel = new $class($pObjectKey);
+
+            $count = $dataModel->getCount($condition, $options);
+
+        } else {
+
+            $count = \Core\Object::getCount($pObjectKey, $condition, $options);
+
+        }
+
+        return $count;
     }
 }
