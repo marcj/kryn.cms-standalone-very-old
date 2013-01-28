@@ -890,8 +890,6 @@ ka.WindowEdit = new Class({
                     this.winParams.item = ka.getObjectPk(this.classProperties['object'], request); //maybe we changed some pk
                 }
 
-                window.fireEvent('softReload', this.getEntryPoint());
-
                 this.saveBtn.stopTip(t('Saved'));
 
                 if (!pClose && this.saveNoClose) {
@@ -901,6 +899,8 @@ ka.WindowEdit = new Class({
                 if (this.classProperties.loadSettingsAfterSave == true) ka.loadSettings();
 
                 this.fireEvent('save', [request, res]);
+
+                window.fireEvent('softReload', this.getEntryPoint());
 
                 if ((!pClose || this.inline ) && this.classProperties.versioning == true) this.loadVersions();
 

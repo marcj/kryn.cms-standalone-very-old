@@ -100,6 +100,8 @@ class Permission {
      */
     public static function &getRules($pObjectKey, $pMode = 1, $pTargetType = null, $pTargetId = null, $pForce = false) {
 
+        $pObjectKey = str_replace('.', '\\', $pObjectKey);
+
         if (static::getCaching()){
             if (self::$cache[$pObjectKey.'_'.$pMode] && $pForce == false)
                 return self::$cache[$pObjectKey.'_'.$pMode];
@@ -209,11 +211,12 @@ class Permission {
         $condition = '';
         $result = '';
 
-        $primaryList = Object::getPrimaryList($pObjectKey);
-        $primaryKey = current($primaryList);
+        if (!$pTable)
+            $pTable = Object::getTable($pObjectKey);
 
-        $isNested = Kryn::$objects[$pObjectKey]['nested'];
-        $table = dbQuote(dbTableName(Kryn::$objects[$pObjectKey]['table']));
+        $primaryList = Object::getPrimaryList($pObjectKey);
+        $isNested = Object::isNested($pObjectKey);
+        $primaryKey = current($primaryList);
 
         $lastBracket = '';
 
@@ -225,46 +228,36 @@ class Permission {
         foreach($rules as $rule){
 
             if ($rule['constraint_type'] == '1' ){
-                //todo, check for multiple primarykey
                 $condition = array(dbQuote($primaryKey, $pTable), '=', $rule['constraint_code']);
-
-                //$condition = dbQuote($primaryKey, $pTable) . ' = ' . $rule['constraint_code'];
-                /*
-                if ($isNested && $rule['sub']){
-                    $sCondition = dbQuote($primaryKey) . ' = ' . $rule['constraint_code'];
-                    $sub  = "(lft > (SELECT lft FROM $table WHERE $sCondition) AND ";
-                    $sub .= "rgt < (SELECT rgt FROM $table WHERE $sCondition))";
-                    $condition = "($condition OR $sub)";
-                }*/
             }
 
             if ($rule['constraint_type'] == '2'){
                 $condition = $rule['constraint_code'];
 
-                //$condition = dbConditionToSql($rule['constraint_code'], $pTable);
-                /*var_dump($condition);
-                if ($isNested && $rule['sub']){
-                    $sCondition = dbConditionToSql($rule['constraint_code']);
-                    $sub  = "(lft > (SELECT lft FROM $table WHERE $sCondition ORDER BY lft ) AND ";
-                    $sub .= "rgt < (SELECT rgt FROM $table WHERE $sCondition ORDER BY rgt DESC))";
-                    $condition = "($condition OR $sub)";
-                }*/
             }
 
-            if ($rule['constraint_type'] == '0')
+            if ($rule['constraint_type'] == '0'){
                 $condition = array('1', '=', '1');
+            } else if ($rule['sub']){
+
+                if ($rule['constraint_type'] == '2')
+                    $pkCondition = dbConditionToSql($rule['constraint_code'], $pTable);
+                else
+                    $pkCondition = dbQuote($primaryKey, $pTable) . ' = ' . $rule['constraint_code'];
+
+                $childrenCondition  = "($pTable.lft > (SELECT lft FROM $pTable WHERE $pkCondition ORDER BY lft ) AND ";
+                $childrenCondition .= "$pTable.rgt < (SELECT rgt FROM $pTable WHERE $pkCondition ORDER BY rgt DESC))";
+                $condition = array($condition, 'OR', $childrenCondition);
+
+            }
 
 
             if ($rule['access'] == 1){
-
-                if ($result) $result .= ")\n\nOR\n";
 
                 if ($conditionObject)
                     $conditionObject[] = 'OR';
                 
                 $conditionObject[] = $condition;
-
-                //$result .= $condition;
 
                 if ($denyList){
                     $conditionObject[] = 'AND NOT';
@@ -295,7 +288,6 @@ class Permission {
             }
 
         }
-
         //$result .= ')';
         //
         return $conditionObject;

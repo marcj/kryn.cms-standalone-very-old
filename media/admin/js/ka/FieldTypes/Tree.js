@@ -257,7 +257,7 @@ ka.FieldTypes.Tree = new Class({
             if (tree.hasSelected()) selected = tree;
         });
 
-        return tree;
+        return selected;
 
     },
 

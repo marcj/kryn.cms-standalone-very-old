@@ -1020,7 +1020,7 @@ ka.WindowCombine = new Class({
 
             this.currentEdit = new ka.WindowEdit(win, this.mainRight);
 
-            //this.currentEdit.addEvent('save', this.saved.bind(this));
+            this.currentEdit.addEvent('save', this.saved.bind(this));
             this.currentEdit.addEvent('load', this.itemLoaded.bind(this));
 
         } else {
@@ -1216,20 +1216,19 @@ ka.WindowCombine = new Class({
 
     },
 
-    saved: function (pItem, pRes, pPublished) {
+    saved: function (pItem, pRes) {
 
-        if (pPublished) {
+        this.ignoreNextSoftLoad = true;
 
-            if (this.classProperties.asNested){
+        if (this.classProperties.asNested){
 
-                this.reloadTreeItem();
+            this.reloadTreeItem();
 
-            } else {
-                this.lastLoadedItem = pItem;
-                this._lastItems = null;
+        } else {
+            this.lastLoadedItem = pItem;
+            this._lastItems = null;
 
-                this.loadAround(this.win.params.selected);
-            }
+            this.loadAround(this.win.params.selected);
         }
 
     },
@@ -1238,7 +1237,7 @@ ka.WindowCombine = new Class({
 
         var selected = this.nestedField.getFieldObject().getSelectedTree();
         if (selected){
-            //selected.reloadSelected();
+            selected.reloadParentOfActive();
         }
 
     },

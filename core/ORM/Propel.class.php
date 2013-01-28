@@ -323,7 +323,7 @@ class Propel extends ORMAbstract {
         if ($pCondition){
             $data = $params;
             $condition = dbConditionToSql($pCondition, $data, $pQuery->getPrimaryTableName());
-            $sql = str_replace($id.' != '.$id, $condition, $sql);
+            $sql = str_replace($id.' != '.$id, '('.$condition.')', $sql);
         }
 
         $stmt = $con->prepare($sql);
@@ -886,6 +886,8 @@ class Propel extends ORMAbstract {
             $parent = $query->findPK($this->getPropelPk($pPk));
         }
 
+        if ($pDepth === null) $pDepth = 1;
+
         $query = $this->getQueryClass();
 
         $query->childrenOf($parent);
@@ -910,9 +912,25 @@ class Propel extends ORMAbstract {
 
         while ($row = dbFetch($stmt)){
             $item = $this->populateRow($clazz, $row, $selects, $relations, $relationFields, $pOptions['permissionCheck']);
-            $item['_childrenCount'] = ($item['rgt'] - $item['lft'] - 1)/2;
-            if ($pDepth > 1 && $item['_childrenCount'] > 0){
-                $item['_children'] = $this->getBranch($this->pkFromRow($item), $pCondition, $pDepth-1, $pScope, $pOptions);
+
+            if ($pDepth > 0){
+                if (!$pCondition){
+                    $item['_childrenCount'] = ($item['rgt'] - $item['lft'] - 1)/2;
+                    if ($pDepth > 1 && ($item['rgt'] - $item['lft']) > 0){
+                        $item['_children'] = $this->getBranch($this->pkFromRow($item), $pCondition, $pDepth-1, $pScope, $pOptions);
+                    }
+                } else {
+
+                    //since we have a custom (probably a permission listing condition) we have
+                    //firstly to select all children and then count
+                    if ($pDepth > 1){
+                        $item['_children'] = $this->getBranch($this->pkFromRow($item), $pCondition, $pDepth-1, $pScope, $pOptions);
+                        $item['_childrenCount'] = count($item['_children']);
+                    } else {
+                        $children = $this->getBranch($this->pkFromRow($item), $pCondition, $pDepth-1, $pScope, $pOptions);
+                        $item['_childrenCount'] = count($children);
+                    }
+                }
             }
             $result[] = $item;
         }

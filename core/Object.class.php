@@ -189,6 +189,22 @@ class Object {
         return $name;
     }
 
+    public static function isNested($pObjectKey){
+        static $nested;
+        if ($nested && $nested[$pObjectKey]) return $nested[$pObjectKey];
+        $def = self::getDefinition($pObjectKey);
+        $nested[$pObjectKey] = ($def['nested']) ? true : false;
+        return $nested[$pObjectKey];
+    }
+
+    public static function getTable($pObjectKey){
+        static $tableName;
+        if ($tableName && $tableName[$pObjectKey]) return pfx.$tableName[$pObjectKey];
+        $def = self::getDefinition($pObjectKey);
+        $tableName[$pObjectKey] = $def['table'];
+        return pfx.$tableName[$pObjectKey];
+    }
+
     /**
      * Converts the primary key statement of a uri to normalized structure.
      * Generates a array for the usage of Core\Object:get()
@@ -756,7 +772,7 @@ class Object {
      * @return mixed
      * @throws \Exception
      */
-    public static function getBranch($pObjectKey, $pPk = null, $pCondition = null, $pDepth = 0, $pScope = false, $pOptions = false){
+    public static function getBranch($pObjectKey, $pPk = null, $pCondition = null, $pDepth = 1, $pScope = false, $pOptions = false){
 
         $obj = self::getClass($pObjectKey);
         $definition = self::getDefinition($pObjectKey);

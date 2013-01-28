@@ -566,7 +566,8 @@ ka.ObjectTree = new Class({
 
         if (!this.lastSelectedItem) return;
 
-        if (this.lastSelectedObject.domain || this.lastSelectedObject.pid == 0) {
+        if (this.lastSelectedObject.objectKey != this.options.objectKey) {
+            //if root object
             this.reload();
             return;
         }
@@ -586,11 +587,9 @@ ka.ObjectTree = new Class({
 
         }.bind(this));
 
-
     },
 
     addItem: function (pItem, pParent) {
-
 
         var id = ka.getObjectUrlId(this.options.objectKey, pItem);
 
@@ -1207,15 +1206,12 @@ ka.ObjectTree = new Class({
 
     reloadSelected: function(){
 
-        var item = this.getItem();
+        var item = this.getSelectedElement();
         if (item){
-
             this.reloadChildren(item);
-
         }
 
     },
-
 
     isReady: function () {
         return this.firstLoadDone;
@@ -1236,6 +1232,11 @@ ka.ObjectTree = new Class({
     getSelected: function () {
         var selected = this.container.getElement('.ka-objectTree-item-selected');
         return selected?selected.objectEntry:false;
+    },
+
+    getSelectedElement: function () {
+        var selected = this.container.getElement('.ka-objectTree-item-selected');
+        return selected?selected:false;
     },
 
     getItem: function(pId){
