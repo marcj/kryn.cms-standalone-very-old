@@ -78,6 +78,15 @@ class AdminController {
                     $epc->setExceptionHandler($exceptionHandler);
                     $epc->setDebugMode($debugMode);
                     die($epc->run($entryPoint));
+                } else if ($entryPoint['type'] == 'store'){
+
+                    $clazz = $entryPoint['class'];
+                    if (!$clazz) throw new \ClassNotFoundException(sprintf('The property `class` is not defined in entry point `%s`', $entryPoint['_url']));
+                    if (!class_exists($clazz)) throw new \ClassNotFoundException(sprintf('The class `%s` does not exist in entry point `%s`', $clazz, $entryPoint['_url']));
+
+                    $obj = new $clazz($entryPoint['_url']);
+                    die($obj->run($entryPoint));
+
                 }
 
             }
@@ -120,6 +129,7 @@ class AdminController {
                     if ($field['type'] != 'object') $autoFields[$key] = $field;
 
                 $object->setFields($autoFields);
+                $object->initialize();
 
                 $epc = new ObjectCrudController(($entryPoint['_module'] == 'admin' ? '': 'admin/') . $entryPoint['_url']);
                 $epc->setObj($object);

@@ -200,45 +200,90 @@ ka.Select = new Class({
 
         if (this.lastRq) this.lastRq.cancel();
 
-        this.lastRq = new Request.JSON({url: _path+'admin/object/'+ka.urlEncode(this.options.object),
-            noErrorReporting: ['NoAccessException'],
-            onCancel: function(){
-                pCallback(false);
-            },
-            onComplete: function(response){
+        if (this.options.store){
+            var storePath = this.options.store;
+            if (storePath.substr(0, 'admin/'.length) == 'admin/'){
+                storePath = storePath.substr('admin/'.length);
+            }
 
-                if (response.error){
-                    //todo, handle error
-                    return false;
-                } else {
-                    
-                    var items = [];
+            this.lastRq = new Request.JSON({url: _path+'admin/'+storePath,
+                noErrorReporting: ['NoAccessException'],
+                onCancel: function(){
+                    pCallback(false);
+                },
+                onComplete: function(response){
 
-                    Array.each(response.data, function(item){
+                    if (response.error){
+                        //todo, handle error
+                        return false;
+                    } else {
 
-                        var id = ka.getObjectUrlId(this.options.object, item);
+                        var items = [];
 
-                        if (this.hideOptions && this.hideOptions.contains(id)) return;
+                        Object.each(response.data, function(item, id){
 
-                        items.push({
-                            id: id,
-                            label: item
-                        });
+                            items.push({
+                                id: id,
+                                label: item
+                            });
 
-                        this.cachedObjectItems[id] = item;
+                            this.cachedObjectItems[id] = item;
 
-                    }.bind(this));
+                        }.bind(this));
 
-                    pCallback(items);
-                }
-            }.bind(this)
-        }).get({
-            //object: this.options.object,
-            offset: pOffset,
-            limit: pCount,
-            _lang: this.options.objectLanguage,
-            fields: this.objectFields ? this.objectFields.join(',') : null
-        });
+                        pCallback(items);
+                    }
+                }.bind(this)
+            }).get({
+                //object: this.options.object,
+                offset: pOffset,
+                limit: pCount,
+                _lang: this.options.objectLanguage,
+                fields: this.objectFields ? this.objectFields.join(',') : null
+            });
+
+        } if (this.options.object){
+
+            this.lastRq = new Request.JSON({url: _path+'admin/object/'+ka.urlEncode(this.options.object),
+                noErrorReporting: ['NoAccessException'],
+                onCancel: function(){
+                    pCallback(false);
+                },
+                onComplete: function(response){
+
+                    if (response.error){
+                        //todo, handle error
+                        return false;
+                    } else {
+
+                        var items = [];
+
+                        Array.each(response.data, function(item){
+
+                            var id = ka.getObjectUrlId(this.options.object, item);
+
+                            if (this.hideOptions && this.hideOptions.contains(id)) return;
+
+                            items.push({
+                                id: id,
+                                label: item
+                            });
+
+                            this.cachedObjectItems[id] = item;
+
+                        }.bind(this));
+
+                        pCallback(items);
+                    }
+                }.bind(this)
+            }).get({
+                //object: this.options.object,
+                offset: pOffset,
+                limit: pCount,
+                _lang: this.options.objectLanguage,
+                fields: this.objectFields ? this.objectFields.join(',') : null
+            });
+        }
 
     },
 
@@ -390,7 +435,6 @@ ka.Select = new Class({
         this.whileFetching = true;
 
         //show small loader
-        //
         if (this.input && this.input.value.trim()){
             
             if (!this.title.inSearchMode)
@@ -425,7 +469,7 @@ ka.Select = new Class({
             }
         }).delay(1000, this);
 
-        var items = this.dataProxy(this.loaded, function(pItems){
+        this.dataProxy(this.loaded, function(pItems){
 
             if (typeOf(pItems) == 'array'){
 
@@ -538,20 +582,28 @@ ka.Select = new Class({
         return mowla.fetch(template, data);
     },
 
-    selectFirst: function(){
+    selectFirst: function(pOffset){
 
         this.duringFirstSelectLoading = true;
 
-        this.dataProxy(0, function(items){
+        if (!pOffset) pOffset = 0;
+
+        this.dataProxy(pOffset, function(items){
             this.duringFirstSelectLoading = false;
 
-            if (items){
-                var item = items[0];
-                if (item)
-                    this.chooseItem(item.id, true);
+            if (items && items.length > 0){
+                var i = 0;
+                for (i=0; i < items.length; i++){
+                    var item = items[i];
+                    if (item && (!item.label || !item.label.isSplit)){
+                        this.chooseItem(item.id, true);
+                        return;
+                    }
+                }
+                this.selectFirst(pOffset+5);
             }
 
-        }.bind(this), 1);
+        }.bind(this), pOffset+5);
 
     },
 
@@ -582,7 +634,7 @@ ka.Select = new Class({
             }
 
             pCallback(items);
-        } else if (this.options.object){
+        } else if (this.options.object || this.options.store){
             //we have object items
             this.loadObjectItems(pOffset, pCallback, pCount);
         } else {
@@ -708,38 +760,58 @@ ka.Select = new Class({
                 }
             }
             pCallback(data);
-        } else if (this.options.object){
+        } else if (this.options.object || this.options.store){
             //maybe in objectcache?
             if (this.cachedObjectItems[pId]){
                 item = this.cachedObjectItems[pId];
-                var id = ka.getObjectUrlId(this.options.object, item);
                 pCallback({
-                    id: id,
+                    id: pId,
                     label: item
                 });
             } else {
                 //we need a request
                 if (this.lastLabelRequest) this.lastLabelRequest.cancel();
 
-                logger(this.options.object);
-                this.lastLabelRequest = new Request.JSON({
-                    url: _path+'admin/object/'+ka.urlEncode(this.options.object)+'/'+pId,
-                    onComplete: function(response){
+                if (this.options.store){
 
-                        if (!response.error){
+                    this.lastLabelRequest = new Request.JSON({
+                        url: _path+'admin/'+this.options.store+'/'+ka.urlEncode(pId),
+                        onComplete: function(response){
 
-                            if (response.data === false) return pCallback(false);
+                            if (!response.error){
 
-                            var id = ka.getObjectUrlId(this.options.object, response.data);
-                            pCallback({
-                                id: id,
-                                label: response.data
-                            });
-                        }
-                    }.bind(this)
-                }).get({
-                    fields: this.objectFields.join(',')
-                });
+                                if (response.data === false) return pCallback(false);
+
+                                pCallback({
+                                    id: pId,
+                                    label: response.data
+                                });
+                            }
+                        }.bind(this)
+                    }).get({
+                            fields: this.objectFields.join(',')
+                        });
+
+                } else if (this.options.object){
+                    this.lastLabelRequest = new Request.JSON({
+                        url: _path+'admin/object/'+ka.urlEncode(this.options.object)+'/'+pId,
+                        onComplete: function(response){
+
+                            if (!response.error){
+
+                                if (response.data === false) return pCallback(false);
+
+                                var id = ka.getObjectUrlId(this.options.object, response.data);
+                                pCallback({
+                                    id: id,
+                                    label: response.data
+                                });
+                            }
+                        }.bind(this)
+                    }).get({
+                        fields: this.objectFields.join(',')
+                    });
+                }
             }
         }
 

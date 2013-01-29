@@ -41,7 +41,6 @@ class ObjectTest extends TestCaseWithCore {
         $cat2 = new \Test\ItemCategory();
         $cat2->setname('Hiiiii');
 
-
         $item2 = new Item();
         $item2->setTitle('Item 2');
         $item2->addItemCategory($cat2);
@@ -91,7 +90,7 @@ class ObjectTest extends TestCaseWithCore {
     }
 
 
-    public function testObjectGeneral(){
+    public function texxstObjectGeneral(){
 
         ItemQuery::create()->deleteAll();
         TestQuery::create()->deleteAll();

@@ -31,3 +31,4 @@ class FileNotWritableException extends Exception {}
 class FileAlreadyExistException extends Exception {}
 
 class SecurityException extends Exception {}
+class ConfigurationException extends Exception {}

@@ -154,7 +154,7 @@ class Node extends BaseNode {
             return $this->full_url;
 
         if (!$this->full_url_context){
-            $this->full_url_context = Core\Kryn::fullUrl($this);
+            $this->full_url_context = Kryn::fullUrl($this);
         }
 
         return $this->full_url_context;

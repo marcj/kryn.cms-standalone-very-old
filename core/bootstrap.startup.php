@@ -47,7 +47,7 @@ Core\Kryn::initCache();
 Core\Kryn::loadLanguage();
 
 /*
- * Load themes, db scheme and object definitions from configs
+ * Load themes
  */
 Core\Kryn::loadModuleConfigs();
 

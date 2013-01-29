@@ -135,16 +135,10 @@ class ObjectCrudController extends Server {
 
         if (is_array($pFields)){
             foreach ($pFields as &$field){
-                if ($field['label'] && substr($field['label'],0,2) == '[[' && substr($field['label'],-2) == ']]'){
-                    $field['label'] = t(substr($field['label'], 2, -2));
-                } else if ($field['title'] && substr($field['title'],0,2) == '[[' && substr($field['title'],-2) == ']]')
-                    $field['title'] = t(substr($field['title'], 2, -2));
-                else if(is_array($field['depends'])){
-                    self::translateFields($field['depends']);
-                } else if(is_array($field['children'])){
-                    self::translateFields($field['children']);
-                }
+                self::translateFields($field);
             }
+        } else if (is_string($pFields) && substr($pFields,0,2) == '[[' && substr($pFields,-2) == ']]'){
+                $pFields  = t(substr($pFields, 2, -2));
         }
 
     }

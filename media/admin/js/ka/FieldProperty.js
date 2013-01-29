@@ -15,7 +15,7 @@ ka.FieldProperty = new Class({
         },
 
         label: {
-            label: t('Label (Optional)'),
+            label: t('Label'),
             desc: t('Surround the value with [[ and ]] to make it multilingual.'),
             type: 'text',
             required: true
@@ -143,18 +143,28 @@ ka.FieldProperty = new Class({
                     desc: t('Use JSON notation. Array(key==label) or Object(key => label). Example: {"item1": "[[Item 1]]"} or ["Foo", "Bar", "Three"].')
                 },
 
+                //select,textlist
+                'store': {
+                    needValue: ['select', 'textlist'],
+                    label: t('Store path'),
+                    desc: t('&lt;extKey&gt;/&lt;EntryPath&gt;, Example: publication/stores/news.')
+                },
+
                 //select, file and folder
                 'multi': {
                     needValue: ['select', 'file', 'folder'],
                     label: t('Multiple selection'),
                     desc: t('This field returns then an array.'),
+                    'default': 'false',
                     type: 'checkbox'
                 },
 
                 //select, file and folder
                 'combobox': {
                     needValue: ['select', 'file', 'folder', 'object'],
-                    desc: t('if you want to allow the user to enter own text.'),
+                    label: t('Combobox'),
+                    'default': 'false',
+                    desc: t('if you want to allow the user to enter a own value.'),
                     type: 'checkbox'
                 },
 
@@ -212,13 +222,6 @@ ka.FieldProperty = new Class({
                     needValue: 'textlist',
                     label: t('Allow double entries'),
                     type: 'checkbox'
-                },
-
-                //select,textlist
-                'store': {
-                    needValue: ['select', 'textlist'],
-                    label: t('Store path'),
-                    desc: t('&lt;extKey&gt;/&lt;EntryPath&gt;, Example: publication/stores/news.')
                 },
 
                 //files

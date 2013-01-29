@@ -315,3 +315,10 @@ input.ka-field-dateTime {
     right: 2px;
     top: 2px;
 }
+
+.ka-Field-wysiwyg {
+    border: 1px solid silver;
+    background-color: white;
+    padding: 5px;
+    min-height: 50px;
+}

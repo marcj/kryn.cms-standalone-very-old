@@ -241,7 +241,9 @@ ka.FieldTypes.Tree = new Class({
         var proxyEvents = ['ready', 'childrenLoaded', 'select'];
         proxyEvents.each(function(event){
             tree.addEvent(event, function(){
-                this.fieldInstance.fireEvent(event, Array.from(arguments));
+                var args = Array.from(arguments);
+                args.push(tree);
+                this.fieldInstance.fireEvent(event, args);
             }.bind(this));
 
         }.bind(this));
@@ -260,6 +262,24 @@ ka.FieldTypes.Tree = new Class({
 
         return selected;
 
+    },
+
+    deselect: function(){
+        Array.each(this.trees, function(tree){
+            tree.deselect();
+        });
+    },
+
+    reloadParentBranch: function(pPk, pObjectKey){
+        Array.each(this.trees, function(tree){
+            tree.reloadParentBranch(pPk, pObjectKey);
+        });
+    },
+
+    reloadBranch: function(pPk, pObjectKey){
+        Array.each(this.trees, function(tree){
+            tree.reloadBranch(pPk, pObjectKey);
+        });
     },
 
     getTrees: function(){

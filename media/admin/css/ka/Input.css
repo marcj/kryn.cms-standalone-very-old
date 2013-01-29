@@ -31,7 +31,8 @@ input.text {
 
 .ka-Input-wrapper {
     text-indent: 0;
-    height: 22px;
+    height: 20px;
+    overflow: hidden;
 }
 
 .ka-Input-inner-wrapper {

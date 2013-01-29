@@ -586,6 +586,7 @@ class Kryn {
     public static function loadModuleConfigs() {
 
         $md5 = '';
+
         foreach (Kryn::$extensions as $extension) {
             $path = ($extension == 'core') ? 'core/config.json' : PATH_MODULE . $extension . '/config.json';
             if (file_exists($path)) {
@@ -594,20 +595,11 @@ class Kryn {
         }
 
         $md5 = md5($md5);
-
-        //Kryn::$tables =& Kryn::getCache('systemTablesv2');
         Kryn::$themes =& Kryn::getFastCache('systemThemes');
-        //Kryn::$objects =& Kryn::getFastCache('systemObjects');
 
         Kryn::$configs = array();
 
-        //check if we need to load all config objects and do the extendConfig part
-        if (/*!Kryn::$tables || $md5 != Kryn::$tables['__md5'] ||*/
-            !Kryn::$themes || $md5 != Kryn::$themes['__md5'] ||
-            !Kryn::$configs
-            //!Kryn::$objects || $md5 != Kryn::$objects['__md5'] ||
-            //count(Kryn::$objects) < 2
-            ) {
+        if (!Kryn::$themes || $md5 != Kryn::$themes['__md5']) {
 
             foreach (Kryn::$extensions as $extension) {
                 Kryn::$configs[$extension] = Kryn::getModuleConfig($extension, false, true);
@@ -626,34 +618,6 @@ class Kryn {
             }
         }
 
-
-        /*
-        * load object definitions
-        */
-/*
-        if (!Kryn::$objects || $md5 != Kryn::$objects['__md5'] || count(Kryn::$objects) < 2){
-
-            Kryn::$objects = array();
-            Kryn::$objects['__md5'] = $md5;
-
-            foreach (Kryn::$extensions as &$extension) {
-
-                $config = Kryn::$configs[$extension];
-
-                if ($config['objects'] && is_array($config['objects'])){
-
-                    foreach ($config['objects'] as $objectId => $objectDefinition){
-                        $objectDefinition['_module'] = $extension; //caching
-                        Kryn::$objects[$objectId] = $objectDefinition;
-                    }
-                }
-
-            }
-            Kryn::setFastCache('systemObjects', Kryn::$objects);
-        }
-        unset(Kryn::$objects['__md5']);
-*/
-
         /*
          * load themes
          */
@@ -671,7 +635,6 @@ class Kryn {
             Kryn::setFastCache('systemThemes', Kryn::$themes);
         }
         unset(Kryn::$themes['__md5']);
-
 
     }
 

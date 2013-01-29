@@ -1280,7 +1280,7 @@ ka.Window = new Class({
     },
 
     extendHead: function () {
-        this.getTitleContaner().setStyle('height', 52);
+        this.getTitleContaner().setStyle('height', 51);
         this.getTitleContaner().addClass('kwindow-win-title-extended');
         this.getContentContainer().setStyle('top', 53);
     },

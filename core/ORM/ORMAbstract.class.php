@@ -178,7 +178,7 @@ abstract class ORMAbstract {
 
                 $key = $this->primaryKeys[$pos];
 
-                $item[$key] = rawurldecode($value);
+                $item[$key] = rawurldecode(str_replace('%2F', '/', $value));
             }
 
             if (count($this->primaryKeys) > count($item)){

@@ -25,7 +25,7 @@
 
 .ka-objectTree-item-toggler {
     position: relative;
-    top: -1px;
+    top: 0px;
     margin: 0px 3px;
     font-family: Icomoon;
     font-size: 10px;
@@ -88,8 +88,13 @@
 
 .ka-objectTree-item-selected,
 .ka-objectTree-item-selected:hover {
-    background-color: #bbb;
-    color: #222;
+    background-color: #2F8CBD;
+    color: white;
+}
+
+.ka-objectTree-item-selected .ka-objectTree-item-toggler,
+.ka-objectTree-item-selected:hover .ka-objectTree-item-toggler {
+    color: white;
 }
 
 .ka-objectTree-drag-box {

@@ -65,7 +65,8 @@ ka.WindowEdit = new Class({
             delete this.languageTip;
         }
 
-        this.headerLayout.getLayout().destroy();
+        if (this.headerLayout)
+            this.headerLayout.getLayout().destroy();
 
         delete this.headerLayout;
         delete this.tabPane;
@@ -620,7 +621,7 @@ ka.WindowEdit = new Class({
 
 
         this.saveBtn = new ka.Button([t('Save'), '#icon-checkmark-6'])
-        .addEvent('click', function(){ this.save();}.bind(this))
+        .addEvent('click', function(){ this.save(); }.bind(this))
         .inject(this.actionBar);
 
         document.id(this.saveBtn).addClass('ka-Button-blue');

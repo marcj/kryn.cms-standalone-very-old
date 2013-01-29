@@ -254,13 +254,10 @@ msgstr ""
 
         $classes = glob(PATH_MODULE . $mod . '/*.class.php');
         if (count($classes) > 0) {
-            require_once(PATH_MODULE . 'admin/adminWindowEdit.class.php');
-            require_once(PATH_MODULE . 'admin/adminWindowAdd.class.php');
-            require_once(PATH_MODULE . 'admin/adminWindowList.class.php');
             foreach ($classes as $class) {
 
                 $classPlain = Kryn::fileRead($class);
-                if (preg_match('/ extends window(Add|List|Edit)/', $classPlain)) {
+                if (preg_match('/ extends ObjectCrud/', $classPlain)) {
                     require_once($class);
                     $className = str_replace(PATH_MODULE . '' . $mod . '/', '', $class);
                     $className = str_replace('.class.php', '', $className);

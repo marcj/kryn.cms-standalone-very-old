@@ -251,6 +251,9 @@ ka.WindowList = new Class({
     renderLayout: function () {
 
         if (this.classProperties.asNested){
+
+            this.container.addClass('ka-objectTree-container');
+
             this.renderLayoutNested(this.container);
         } else {
             this.renderLayoutTable();
@@ -261,6 +264,8 @@ ka.WindowList = new Class({
     renderLayoutNested: function(pContainer){
 
         var objectOptions = {};
+
+        pContainer.empty();
 
         objectOptions.type = 'tree';
         objectOptions.objectKey = this.classProperties.object;
@@ -276,13 +281,21 @@ ka.WindowList = new Class({
         this.nestedField.inject(pContainer, 'top');
 
         if (this.classProperties.edit){
-            this.nestedField.addEvent('select', this.nestedItemSelected);
+            this.nestedField.addEvent('select', this.nestedItemSelected.bind(this));
         }
+
+    },
+
+    nestedItemSelected: function(){
 
     },
 
     addNestedRoot: function(){
 
+        //open
+        ka.entrypoint.open(ka.entrypoint.getRelative(this.win.getEntryPoint(), this.classProperties.nestedRootAddEntrypoint), {
+            lang: (this.languageSelect) ? this.languageSelect.getValue() : false
+        }, this);
 
     },
 
@@ -568,7 +581,6 @@ ka.WindowList = new Class({
                     this.addNestedRoot();
                 }.bind(this));
             }
-
 
             if (this.classProperties.add) {
 

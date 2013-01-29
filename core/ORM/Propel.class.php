@@ -728,21 +728,27 @@ class Propel extends ORMAbstract {
         if ($this->definition['nested']){
 
             $query = $this->getQueryClass();
-            if ($pBranchPk)
+            if ($pBranchPk){
                 $branch = $query->findPk($this->getPropelPk($pBranchPk));
-            else {
+            } else {
                 $branch = $query->findRoot($pScope);
                 $root = true;
             }
 
-            if ($branch->getLeft() == 1)
+            if ($branch->getLeftValue() == 1)
                 $root = true;
 
+            if (!$pScope)
+                $pScope = $branch->getScopeValue();
+
             switch (strtolower($pMode)){
-                case 'first': $obj->insertAsFirstChildOf($branch); break;
                 case 'last':  $obj->insertAsLastChildOf($branch); break;
                 case 'prev':  if (!$root) $obj->insertAsPrevSiblingOf($branch); break;
                 case 'next':  if (!$root) $obj->insertAsNextSiblingOf($branch); break;
+
+                case 'first':
+                     default:
+                              $obj->insertAsFirstChildOf($branch); break;
             }
 
             if ($pScope){
@@ -754,7 +760,13 @@ class Propel extends ORMAbstract {
 
         if (!$obj->save()) return false;
 
-        return $this->pkFromRow($obj->toArray(\BasePeer::TYPE_STUDLYPHPNAME));
+        //return new pk
+
+        $newPk = array();
+        foreach ($this->primaryKeys as $pk){
+            $newPk[$pk] = $obj->{'get'.ucfirst($pk)}();
+        }
+        return $newPk;
     }
 
     public function mapValues(&$pItem, &$pValues){

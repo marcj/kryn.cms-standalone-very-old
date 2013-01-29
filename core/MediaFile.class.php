@@ -180,7 +180,6 @@ class MediaFile {
     public static function exists($pPath){
 
         $fs = static::getLayer($pPath);
-        if (!$fs) debug_print_backtrace();
         return $fs->fileExists(static::normalizePath($pPath));
 
     }

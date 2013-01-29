@@ -109,7 +109,9 @@ ka.ObjectTree = new Class({
 
 
         labelTemplate: null,
-        objectFields: ''
+        objectFields: '',
+
+        treeContainerSelector: '.ka-objectTree-container'
 
     },
 
@@ -122,7 +124,7 @@ ka.ObjectTree = new Class({
     load_object_children: false,
     need2SelectAObject: false,
     domainA: false,
-    inItemsGeneration: false,
+    activeLoadings: 0,
 
     rootObject: {}, //copy of current root object
     rootLoaded: false,
@@ -226,11 +228,17 @@ ka.ObjectTree = new Class({
             'class': 'ka-objectTree-objects'
         }).inject(this.main);
 
-        this.container.addEvent('scroll', this.setRootPosition.bind(this));
 
         if (this.options.win)
             this.options.win.addEvent('resize', this.setRootPosition.bind(this));
 
+        if (this.container.getParent(this.options.treeContainerSelector)){
+            this.rootContainer = this.container.getParent(this.options.treeContainerSelector);
+            this.rootContainer.addEvent('scroll', this.setRootPosition.bind(this));
+        } else {
+            this.rootContainer = this.container;
+            this.container.addEvent('scroll', this.setRootPosition.bind(this));
+        }
 
         this.paneObjects.setStyle('display', 'block');
 
@@ -252,7 +260,8 @@ ka.ObjectTree = new Class({
 
         window.addEvent('mouseup', this.destroyContext.bind(this));
 
-        this.main.addEvent('mouseup', this.onClick.bind(this));
+        this.main.addEvent('click:relay(.ka-objectTree-item)', this.onClick.bind(this));
+        this.main.addEvent('click:relay(.ka-objectTree-item-toggler)', this.onTogglerClick.bind(this));
         this.main.addEvent('mousedown', this.onMousedown.bind(this));
     },
 
@@ -264,15 +273,20 @@ ka.ObjectTree = new Class({
 
     startupWithObjectInfo: function (pId, pCallback) {
 
-        new Request.JSON({url: this.getUrl()+ka.urlEncode(pId)+'/parents', noCache: 1, onComplete: function (parents) {
+        if (typeOf(pId) != 'string')
+            pId = ka.getObjectUrlId(this.options.objectKey, pId);
+
+        new Request.JSON({url: this.getUrl()+ka.urlEncode(pId)+'/parents', noCache: 1, onComplete: function (response) {
 
             this.load_object_children = [];
-            Object.each(parents, function (item, id) {
+            Array.each(response.data, function (item) {
+                if (item._object && item._object && this.options.objectKey) return;
+                var id = ka.getObjectUrlId(this.options.objectKey, item);
                 this.load_object_children.include(id);
             }.bind(this));
 
             if (pCallback) {
-                pCallback(parents);
+                pCallback(response.data);
             } else {
                 this.loadFirstLevel();
             }
@@ -289,12 +303,13 @@ ka.ObjectTree = new Class({
 
     setRootPosition: function () {
 
+        logger('root ppsition');
         if (!this.options.rootObject) return;
 
         var nLeft = this.container.scrollLeft;
         var nTop = 0;
 
-        var panePos = this.paneObjects.getPosition(this.container).y;
+        var panePos = this.paneObjects.getPosition(this.rootContainer).y;
         if (panePos - 20 < 0) {
             nTop = (panePos - 20) * -1;
             var maxTop = this.paneObjects.getSize().y - 20;
@@ -315,6 +330,9 @@ ka.ObjectTree = new Class({
             this.lastFirstLevelRq.cancel();
         }
 
+        //save height
+        this.main.setStyle('height', this.main.getSize().y);
+
         if (this.options.rootObject && !this.rootLoaded){
             this.loadRoot();
             return;
@@ -328,12 +346,12 @@ ka.ObjectTree = new Class({
         var scope = null;
 
         if (this.options.rootObject){
-            var scope = this.options.scope;
+            scope = this.options.scope;
             if (typeOf(scope) == 'object'){
                 scope = ka.getObjectUrlId(this.options.rootObject, scope);
             }
         }
-
+        this.activeLoadings++;
         this.lastFirstLevelRq = new Request.JSON({url: this.getUrl()+objectUrl+'/:branch',
             noCache: 1, onComplete: this.renderFirstLevel.bind(this)
         }).get({scope: scope});
@@ -342,6 +360,7 @@ ka.ObjectTree = new Class({
 
     loadRoot: function(){
 
+        this.activeLoadings++;
         if (this.lastFirstLevelRq) {
             this.lastFirstLevelRq.cancel();
         }
@@ -438,12 +457,6 @@ ka.ObjectTree = new Class({
             html: '&#xe0c3;'
         }).inject(a, 'top');
 
-        a.toggler.addEvent('click', function (e) {
-            e.stopPropagation();
-            window.fireEvent('click');
-            this.toggleChildren(a);
-        }.bind(this));
-
         this.rootLoaded = true;
 
         this.loadFirstLevel();
@@ -451,6 +464,7 @@ ka.ObjectTree = new Class({
         if (this.options.openFirstLevel){
             this.openChildren(this.rootA);
         }
+        this.activeLoadings--;
 
     },
 
@@ -489,6 +503,7 @@ ka.ObjectTree = new Class({
         }
 
         this.firstLevelLoaded = true;
+        this.activeLoadings--;
         this.checkDoneState();
 
         this.fireEvent('childrenLoaded', [this.rootObject, this.rootA]);
@@ -511,7 +526,7 @@ ka.ObjectTree = new Class({
                 (function(){
                     if (this.activePress)
                         this.createDrag(el, e);
-                }).delay(200, this);
+                }).delay(300, this);
 
             }
         }
@@ -519,46 +534,38 @@ ka.ObjectTree = new Class({
         e.preventDefault();
     },
 
-    onClick: function (e) {
+    onTogglerClick: function(e, clicked){
+
+        this.toggleChildren(clicked.getParent());
+
+    },
+
+    onClick: function (e, clicked) {
 
         if (this.inDragMode) return;
         this.activePress = false;
 
-        var target = e.target;
-        if (!target) return;
-        var a = null;
 
-        if (target.hasClass('ka-objectTree-item-toggler')) return;
+        var item = clicked.objectEntry;
 
-        if (target.hasClass('ka-objectTree-item')) {
-            a = target;
-        }
-
-        if (!a && target.getParent('.ka-objectTree-item')) {
-            a = target.getParent('.ka-objectTree-item');
-        }
-
-        if (!a) return;
-
-        var item = a.objectEntry;
-
-        if (e.rightClick) {
-            this.openContext(e, a, item);
+        if (clicked.rightClick) {
+            this.openContext(e, clicked, item);
             return;
         }
 
         this.deselect();
 
         if (this.options.selectable == true) {
-            a.addClass('ka-objectTree-item-selected');
+            clicked.addClass('ka-objectTree-item-selected');
         }
 
-        this.fireEvent('selection', [item, a])
-        this.fireEvent('select', [item, a])
-        this.fireEvent('click', [item, a]);
+        this.fireEvent('selection', [item, clicked])
+        this.fireEvent('select', [item, clicked])
+        this.fireEvent('click', [item, clicked]);
 
-        this.lastSelectedItem = a;
+        this.lastSelectedItem = clicked;
         this.lastSelectedObject = item;
+        this.lastSelected = clicked.id;
 
     },
 
@@ -583,6 +590,49 @@ ka.ObjectTree = new Class({
         }
     },
 
+    reloadBranch: function(pPk, pTargetObjectKey){
+
+        if (pTargetObjectKey && pTargetObjectKey != this.options.objectKey){
+            return this.reload();
+        } else {
+            var targetId = ka.getObjectUrlId(this.options.objectKey, pPk);
+            this.startupWithObjectInfo(pPk, function(parents){
+
+                Array.each(this.load_object_children, function (id) {
+                    if (this.items['_'+id]) {
+                        this.openChildren(this.items['_'+id]);
+                    }
+                }.bind(this));
+
+                if (this.items['_'+targetId])
+                    this.reloadChildren(this.items['_'+targetId]);
+
+            }.bind(this));
+        }
+
+    },
+
+    reloadParentBranch: function(pPk, pTargetObjectKey){
+
+        if (pTargetObjectKey && pTargetObjectKey != this.options.objectKey){
+            return this.reload();
+        } else {
+
+            this.startupWithObjectInfo(pPk, function(parents){
+
+                if (parents.length == 1){
+                    return this.reload();
+                } else {
+
+                    var targetId = ka.getObjectUrlId(this.options.objectKey, parents[parents.length-1]);
+                    if (this.items['_'+targetId])
+                        this.reloadChildren(this.items['_'+targetId]);
+                }
+
+            }.bind(this));
+        }
+    },
+
     addRootItems: function(pItems, pContainer){
 
         Array.each(pItems, function(item){
@@ -595,6 +645,7 @@ ka.ObjectTree = new Class({
 
     addItem: function (pItem, pParent) {
 
+        this.activeLoadings++;
         var id = ka.getObjectUrlId(this.options.objectKey, pItem);
 
         var a = new Element('div', {
@@ -634,7 +685,6 @@ ka.ObjectTree = new Class({
 
         a.objectEntry = pItem;
 
-
         if (a.parent) {
             var paddingLeft = 15;
             if (a.parent.getStyle('padding-left').toInt())
@@ -645,37 +695,15 @@ ka.ObjectTree = new Class({
 
         this.addItemIcon(pItem, a);
 
-
-        /*
-         if (this.lastSelectedObject && (
-         (this.lastSelectedObject.domain && pItem.domain && this.lastSelectedObject.id == pItem.id) || (!pItem.domain && !this.lastSelectedObject.domain && this.lastSelectedObject.id == pItem.id)
-         )) {
-
-         if (this.options.noActive != true) {
-         a.addClass('ka-objectTree-item-selected');
-         }
-
-         this.lastSelectedItem = a;
-         this.lastSelectedObject = pItem;
-         }*/
-
-        /* masks */
-
         /* toggler */
         a.toggler = new Element('span', {
             'class': 'ka-objectTree-item-toggler',
-            title: _('Open/Close subitems'),
+            title: t('Open/Close subitems'),
             html: '&#xe0c3;'
         }).inject(a, 'top');
 
         if (pItem._childrenCount == 0) {
             a.toggler.setStyle('visibility', 'hidden');
-        } else {
-            a.toggler.addEvent('click', function (e) {
-                e.stopPropagation();
-                window.fireEvent('click');
-                this.toggleChildren(a);
-            }.bind(this));
         }
 
         a.childrenContainer = new Element('div', {
@@ -687,46 +715,41 @@ ka.ObjectTree = new Class({
         var openId = id;
 
         if ((!this.firstLoadDone || this.need2SelectAObject)) {
-            if ((this.options.selectDomain && pItem.domain ) || (this.options.selectObject && !pItem.domain && pItem.id == this.options.selectObject)) {
+            if ((this.options.selectDomain && pItem.domain ) || (this.options.selectObject && pItem.id == this.options.selectObject)) {
                 if (this.options.selectable == true) {
                     a.addClass('ka-objectTree-item-selected');
                 }
                 this.lastSelectedItem = a;
                 this.lastSelectedObject = pItem;
+                this.lastSelected = a.id;
                 this.need2SelectAObject = false;
             }
+        }
+
+        if (this.lastSelected == a.id){
+            a.addClass('ka-objectTree-item-selected');
         }
 
         if (this.opens[openId]) {
             this.openChildren(a);
         }
 
-        if (/*(!this.firstLoadDone || this.need2SelectAObject) && */this.load_object_children !== false) {
+        if (this.load_object_children !== false) {
 
             if (this.load_object_children.contains(id)) {
                 this.openChildren(a);
             }
         }
-        /*else if ((!this.firstLoadDone || this.need2SelectAObject) && this.options.openFirstLevel && !this.opens[openId]) {
-            this.openChildren(a);
-        }*/
 
         if (pItem._children) {
-            var canChangeItemsGeneration = this.inItemsGeneration == true ? false : true;
-
-            if (canChangeItemsGeneration) {
-                this.inItemsGeneration = true;
-            }
 
             Array.each(pItem._children, function (item) {
                 this.addItem(item, a);
             }.bind(this));
 
-            if (canChangeItemsGeneration) {
-                this.inItemsGeneration = false;
-            }
         }
 
+        this.activeLoadings--;
         this.checkDoneState();
 
         return a;
@@ -791,35 +814,20 @@ ka.ObjectTree = new Class({
 
     checkDoneState: function () {
 
-        var loadingDone = true;
-        if (this.inItemsGeneration == false && this.firstLevelLoaded) {
-            Object.each(this.loadChildrenRequests, function (request) {
-                if (request == true) {
-                    loadingDone = false;
-                }
-            }.bind(this));
-        } else {
-            loadingDone = false;
-        }
+        if (this.activeLoadings == 0) {
 
-        //logger('checkDoneState: '+loadingDone+' => '+Object.getLength(this.loadChildrenRequests));
-
-        if (loadingDone == true) {
-
-            this.loadChildrenRequests = {};
             if (this.firstLoadDone == false) {
                 this.firstLoadDone = true;
 
                 this.fireEvent('ready');
             }
 
-            if (this.lastScrollPos) {
-                this.container.scrollTo(this.lastScrollPos.x, this.lastScrollPos.y);
-            }
+            logger('ready: '+this.main.getStyle('height'));
+            this.main.setStyle('height');
+
             this.setRootPosition();
         }
 
-        this.loadingDone = loadingDone;
 
     },
 
@@ -895,6 +903,7 @@ ka.ObjectTree = new Class({
 
     loadChildren: function (pA, pAndOpen) {
 
+        this.activeLoadings++;
         var item = pA.objectEntry;
 
         var loader = new Element('img', {
@@ -902,9 +911,12 @@ ka.ObjectTree = new Class({
             style: 'position: relative; top: 3px;'
         }).inject(pA.span);
 
-        this.loadChildrenRequests[ pA.id ] = true;
         new Request.JSON({url: this.getUrl()+ka.urlEncode(pA.id)+'/branch',
             noCache: 1, onComplete: function(pResponse){
+
+            //save height
+            if (pA.childrenContainer)
+                pA.childrenContainer.setStyle('height', pA.childrenContainer.getSize().y);
 
             this.removeChildren(pA);
             loader.destroy();
@@ -923,17 +935,16 @@ ka.ObjectTree = new Class({
                 return;
             }
 
-            this.inItemsGeneration = true;
             Array.each(pResponse.data, function (childitem) {
                 this.addItem(childitem, pA);
             }.bind(this));
-            this.inItemsGeneration = false;
-
-            this.loadChildrenRequests[ pA.id ] = false;
-            this.checkDoneState();
 
             this.fireEvent('childrenLoaded', [item, pA]);
-            this.setRootPosition();
+
+            this.activeLoadings--;
+            this.checkDoneState();
+
+            pA.childrenContainer.setStyle('height');
 
         }.bind(this)}).get();
 
@@ -945,6 +956,7 @@ ka.ObjectTree = new Class({
 
         this.lastSelectedItem = false;
         this.lastSelectedObject = false;
+        this.lastSelected = false;
     },
 
     createDrag: function (pA, pEvent) {
@@ -953,6 +965,7 @@ ka.ObjectTree = new Class({
 
         var canMoveObject = true;
         var object = pA.objectEntry;
+
         /*
         if (object.domain) {
             if (!ka.checkObjectAccess(object.id, 'moveObjects', 'd')) {
@@ -982,7 +995,7 @@ ka.ObjectTree = new Class({
             pA.icon.clone().inject(this.lastClone, 'top');
 
         var drag = this.lastClone.makeDraggable({
-            snap: 0,
+            snap: 3,
             onDrag: function (pDrag, pEvent) {
                 if (!pEvent.target) return;
                 var element = pEvent.target;
@@ -1204,7 +1217,6 @@ ka.ObjectTree = new Class({
     },
 
     reload: function () {
-        this.lastScrollPos = this.container.getScroll();
         this.loadFirstLevel();
     },
 
@@ -1262,11 +1274,13 @@ ka.ObjectTree = new Class({
         pId = ka.getObjectUrlId(this.options.objectKey, pId);
 
         if (this.items[ '_'+pId ]) {
+
             //has been loaded already
             this.items[ '_'+pId ].addClass('ka-objectTree-item-selected');
 
             this.lastSelectedItem = this.items[ '_'+pId ];
             this.lastSelectedObject = this.items[ '_'+pId ].objectEntry;
+            this.lastSelected = pId;
 
             //open parents too
             var parent = this.items[ '_'+pId ];

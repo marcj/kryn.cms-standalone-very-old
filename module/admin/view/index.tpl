@@ -28,9 +28,11 @@
     <script type="text/javascript" src="media/admin/js/ka/Button.js" ></script>
     <script type="text/javascript" src="media/admin/js/ka/Select.js" ></script>
     <script type="text/javascript" src="media/admin/js/ka/Checkbox.js" ></script>
+    <script type="text/javascript" src="lib/ckeditor/ckeditor.js" ></script>
 
 
     <script type="text/javascript" >
+        CKEDITOR.disableAutoInline = true;
         window._session = {};
         window._session.user_id = {Kryn::getAdminClient()->getUserId()+0};
         window._session.username = '{Kryn::getAdminClient()->getUser()->getUsername()}';

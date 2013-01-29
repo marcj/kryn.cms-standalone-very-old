@@ -354,13 +354,12 @@ var admin_system_module_editWindow = new Class({
 
             columns: {
 
-                label: t('Classic grid columns'),
+                label: t('Select columns'),
                 type: 'fieldTable',
                 asFrameworkColumn: true,
                 withoutChildren: true,
                 tableItem: false,
-                addLabel: t('Add column'),
-                desc: t('Only needed if a entry point from type listing uses this class.')
+                addLabel: t('Add column')
 
             },
 

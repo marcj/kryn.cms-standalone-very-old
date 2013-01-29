@@ -70,9 +70,14 @@ ka.WindowAdd = new Class({
 
             if (this.addDialogLayoutPositionChooser){
 
-                this.addDialogLayoutPositionChooser.addEvent('positionChoose', function(pDom, pDirection, pItem, pChooser){
+                this.addDialogLayoutPositionChooser.addEvent('positionChoose', function(pDom, pDirection, pItem, pChooser, pTree){
 
-                    this.addItemToAdd = {position: pDirection, pk: ka.getObjectPk(pDom.objectKey, pItem), objectKey: pDom.objectKey};
+                    this.addItemToAdd = {
+                        position: pDirection == 'after' ? 'next' : 'first',
+                        pk: ka.getObjectPk(pDom.objectKey, pItem),
+                        objectKey: pDom.objectKey,
+                        tree: pTree
+                    };
 
                     this.checkAddItemForm();
                 }.bind(this));
@@ -89,9 +94,8 @@ ka.WindowAdd = new Class({
                 this.openAddItemNextButton.setEnabled(false);
             } else if (this.classProperties.addMultiple){
 
-                logger('asd');
                 this.openAddItemSaveButton = new ka.Button(tc('addMultipleItems', t('Add')))
-                .addEvent('click', this.multipleAdd.bind(this))
+                .addEvent('click', function(){ this.multipleAdd(); }.bind(this))
                 .inject(this.openAddItemPageBottom);
 
                 this.openAddItemSaveButton.setButtonStyle('blue');
@@ -115,9 +119,11 @@ ka.WindowAdd = new Class({
 
         request._multiple = true;
 
-        request._position = this.addItemToAdd.position;
-        request._pk = this.addItemToAdd.pk;
-        request._targetObjectKey = this.addItemToAdd.objectKey;
+        if (this.addItemToAdd){
+            request._position = this.addItemToAdd.position;
+            request._pk = this.addItemToAdd.pk;
+            request._targetObjectKey = this.addItemToAdd.objectKey;
+        }
 
         this.lastAddRq = new Request.JSON({url: _path + 'admin/' + this.getEntryPoint()+'/:multiple',
             noErrorReporting: ['DuplicateKeysException', 'ObjectItemNotModified'],
@@ -150,7 +156,11 @@ ka.WindowAdd = new Class({
 
             if (this.classProperties.loadSettingsAfterSave == true) ka.loadSettings();
 
-            this.fireEvent('addMultiple', [request, pResponse.data]);
+            var args = [request, pResponse.data];
+            if (this.addItemToAdd){
+                args.push(this.addItemToAdd.tree);
+            }
+            this.fireEvent('addMultiple', args);
 
             window.fireEvent('softReload', this.win.getEntryPoint());
 
@@ -282,7 +292,7 @@ ka.WindowAdd = new Class({
         var fieldObject;
 
         objectOptions.type = 'tree';
-        objectOptions.object = this.classProperties.object;
+        objectOptions.objectKey = this.classProperties.object;
         objectOptions.scopeChooser = false;
         objectOptions.noWrapper = true;
         objectOptions.selectable = false;
@@ -290,7 +300,7 @@ ka.WindowAdd = new Class({
 
         var lastSelected;
 
-        var choosePosition = function(pChooser, pDom, pDirection, pItem){
+        var choosePosition = function(pChooser, pDom, pDirection, pItem, pTree){
 
             if (lastSelected)
                 lastSelected.removeClass('ka-objectTree-positionChooser-item-active');
@@ -298,11 +308,11 @@ ka.WindowAdd = new Class({
             lastSelected = pChooser;
             lastSelected.addClass('ka-objectTree-positionChooser-item-active');
 
-            fieldObject.fireEvent('positionChoose', [pDom, pDirection, pItem, pChooser]);
+            fieldObject.fireEvent('positionChoose', [pDom, pDirection, pItem, pChooser, pTree]);
 
         }
 
-        var addChooser = function(pDom, pDirection, pItem){
+        var addChooser = function(pDom, pDirection, pItem, pTree){
 
             var div;
 
@@ -325,7 +335,7 @@ ka.WindowAdd = new Class({
                 style: 'text-decoration: none;'
             })
             .addEvent('click', function(){
-                choosePosition(this, pDom, pDirection, pItem);
+                choosePosition(this, pDom, pDirection, pItem, pTree);
             })
             .inject(div);
 
@@ -337,20 +347,20 @@ ka.WindowAdd = new Class({
             return div;
         }
 
-        objectOptions.onChildrenLoaded = function(pItem, pDom){
+        objectOptions.onChildrenLoaded = function(pItem, pDom, pTree){
 
             if (pDom.childrenContainer){
                 var children = pDom.childrenContainer.getChildren('.ka-objectTree-item');
                 if (children.length > 0){
                     pDom.childrenContainer.getChildren('.ka-objectTree-item').each(function(item){
-                        addChooser(item, 'after', item.objectEntry);
-                        addChooser(item, 'into', item.objectEntry);
+                        addChooser(item, 'after', item.objectEntry, pTree);
+                        addChooser(item, 'into', item.objectEntry, pTree);
                     });
                 }
             }
 
             if (!pDom.insertedAddChooser)
-                addChooser(pDom, 'into', pDom.objectEntry);
+                addChooser(pDom, 'into', pDom.objectEntry, pTree);
 
         }.bind(this);
 

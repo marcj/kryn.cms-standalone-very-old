@@ -293,7 +293,7 @@ ka.getClass = function(pClassPath){
 ka.urlEncode = function(pValue){
 
     if (typeOf(pValue) == 'string'){
-        return encodeURIComponent(pValue).replace('%2F', '%252F'); //fix apache default setting
+        return encodeURIComponent(pValue).replace(/%2F/g, '%252F'); //fix apache default setting
     } else if (typeOf(pValue) == 'array'){
         var result = '';
         Array.each(pValue, function(item){
@@ -322,7 +322,7 @@ ka.urlDecode = function(pValue){
     if (typeOf(pValue) != 'string') return pValue;
 
     try {
-        return decodeURIComponent(pValue);
+        return decodeURIComponent(pValue).replace(/%2F/g, '/');
     } catch(e){
         return pValue;
     }

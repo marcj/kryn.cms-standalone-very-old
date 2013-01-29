@@ -25,48 +25,16 @@
             "minWidth": 800,
             "minHeight": 460,
             "children": {
-                "add": {
-                    "title": "[[Add]]",
-                    "class": "Publication\\Admin\\NewsCrud",
-                    "type": "add",
-                    "isLink": false,
-                    "multi": true
-                },
-                "edit": {
-                    "title": "[[Edit]]",
-                    "class": "Publication\\Admin\\NewsCrud",
-                    "type": "edit",
-                    "isLink": false,
-                    "multi": true
-                },
                 "category": {
                     "title": "[[Category]]",
-                    "class": "publicationNewsCatsList",
-                    "type": "list",
+                    "class": "\\Publication\\Admin\\NewsCategoryCrud",
+                    "type": "combine",
+                    "icon": "",
                     "isLink": true,
                     "multi": true,
-                    "children": {
-                        "add": {
-                            "title": "[[Add]]",
-                            "class": "publicationNewsCatsAdd",
-                            "type": "add",
-                            "isLink": false,
-                            "multi": true,
-                            "children": [
-                                
-                            ]
-                        },
-                        "edit": {
-                            "title": "[[Edit]]",
-                            "class": "publicationNewsCatsEdit",
-                            "type": "edit",
-                            "isLink": false,
-                            "multi": true,
-                            "children": [
-                                
-                            ]
-                        }
-                    }
+                    "children": [
+                        
+                    ]
                 },
                 "comments": {
                     "title": "[[Comments]]",
@@ -79,16 +47,6 @@
                             "title": "[[Edit]]",
                             "class": "publicationNewsCommentsEdit",
                             "type": "edit",
-                            "isLink": false,
-                            "multi": true,
-                            "children": [
-                                
-                            ]
-                        },
-                        "add": {
-                            "title": "[[Add]]",
-                            "class": "publicationNewsCommentsAdd",
-                            "type": "add",
                             "isLink": false,
                             "multi": true,
                             "children": [

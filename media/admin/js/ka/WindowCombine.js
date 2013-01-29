@@ -25,8 +25,10 @@ ka.WindowCombine = new Class({
 
         this.mainLeft = this.mainLayout.getCell(1,1);
 
+        this.mainLeft.setStyle('background-color', '#fafafa');
+
         this.treeContainer = new Element('div', {
-            'class': 'ka-windowCombine-treeContainer'
+            'class': 'ka-windowCombine-treeContainer ka-objectTree-container'
         }).inject(this.mainLeft);
 
         this.mainRight = this.mainLayout.getCell(1,2);
@@ -66,7 +68,7 @@ ka.WindowCombine = new Class({
             new Element('span', {text: '-'}).inject(this.itemCount);
             this.itemsLoaded = new Element('span', {text: '0'}).inject(this.itemCount);
             new Element('span', {text: '/'}).inject(this.itemCount);
-            this.itemsMax = new Element('span', {text: '0'}).inject(this.itemCount);
+            this.itemsMaxSpan = new Element('span', {text: '0'}).inject(this.itemCount);
 
             this.mainLeftSearch = new Element('div', {
                 'class': 'ka-list-combine-searchpane'
@@ -191,44 +193,26 @@ ka.WindowCombine = new Class({
         return true;
     },
 
+    deselect: function(){
+
+        if (this.mainLeftItems){
+            var active = this.mainLeftItems.getElement('.active');
+            if (active) {
+                active.removeClass('active');
+            }
+        }
+
+        if (this.nestedField){
+            //deselect current trees
+            this.nestedField.getFieldObject().deselect();
+        }
+
+
+    },
+
     renderActionbar: function () {
 
-
         this.renderTopActionBar(this.headerLayoutLeft.getColumn(1));
-
-
-
-        /*
-
-        if (this.classProperties.multiLanguage || this.classProperties.add || this.classProperties.remove || this.classProperties.custom) {
-            this.win.extendHead();
-        }
-
-        //this.windowClassHeader = new Element('div').inject();
-
-        if (this.classProperties.add || this.classProperties.remove || this.classProperties.custom) {
-
-            if (this.classProperties.add || this.classProperties.remove || this.classProperties.custom) {
-                this.actionsNavi = new ka.ButtonGroup(this.headerLayoutLeft.getColumn(1));
-            }
-        }
-
-        if (this.actionsNavi) {
-            if (this.classProperties.remove) {
-
-                this.toggleRemoveBtn = this.actionsNavi.addButton(t('Remove'), ka.mediaPath(this.classProperties.removeIcon), function () {
-                    this.toggleRemove();
-                }.bind(this));
-            }
-
-            if (this.classProperties.add) {
-
-                var icon = this.classProperties.addIcon?this.classProperties.addIcon:'admin/images/icons/'+this.classProperties.iconAdd;
-
-                this.addBtn = this.actionsNavi.addButton(t('Add'), ka.mediaPath(icon), this.add.bind(this));
-            }
-        }
-        */
 
     },
 
@@ -439,13 +423,11 @@ ka.WindowCombine = new Class({
             return;
         }
 
-        this.clear();
-
-        this.maxItems = null;
-
         if (this.classProperties.asNested){
             return this.renderLayoutNested(this.treeContainer);
         } else {
+            this.clear();
+            this.maxItems = null;
             return this.loadItems(this.from, this.loadedCount);
         }
     },
@@ -579,7 +561,8 @@ ka.WindowCombine = new Class({
         onComplete: function(response){
 
             this.maxItems = response.data+0;
-            this.itemsMax.set('html', this.maxItems);
+            if (this.itemsMaxSpan)
+                this.itemsMaxSpan.set('html', this.maxItems);
 
             if (pCallback)
                 pCallback(response.data);
@@ -751,6 +734,10 @@ ka.WindowCombine = new Class({
 
         if (pDom.objectKey == this.classProperties.object){
             this.loadItem(pItem);
+        } else {
+
+            this.loadRootItem(pItem);
+
         }
 
     },
@@ -897,25 +884,32 @@ ka.WindowCombine = new Class({
         if (this.addBtn)
             this.addBtn.setPressed(true);
 
+        if (this.addRootBtn)
+            this.addRootBtn.setPressed(false);
+
         this.win.setTitle(t('Add'));
 
         this.lastItemPosition = null;
         this.currentItem = null;
 
-        if (this.mainLeftItems){
-            var active = this.mainLeftItems.getElement('.active');
-            if (active) {
-                active.removeClass('active');
-            }
-        }
+        this.deselect();
 
         if (this.currentEdit) {
             this.currentEdit.destroy();
             delete this.currentEdit;
         }
+
         if (this.currentAdd) {
             this.currentAdd.destroy();
             delete this.currentAdd;
+        }
+        if (this.currentRootAdd) {
+            this.currentRootAdd.destroy();
+            delete this.currentRootAdd;
+        }
+        if (this.currentRootEdit){
+            this.currentRootEdit.destroy();
+            delete this.currentRootEdit;
         }
 
         var win = {};
@@ -935,7 +929,65 @@ ka.WindowCombine = new Class({
 
     },
 
-    addSaved: function (pValues, pResponse) {
+
+    addNestedRoot: function(){
+
+        if (this.addBtn)
+            this.addBtn.setPressed(false);
+
+        if (this.addRootBtn)
+            this.addRootBtn.setPressed(true);
+
+        this.win.setTitle(this.addRootBtn.get('title'));
+
+        this.lastItemPosition = null;
+        this.currentItem = null;
+
+        this.deselect();
+
+        if (this.currentEdit) {
+            this.currentEdit.destroy();
+            delete this.currentEdit;
+        }
+
+        if (this.currentAdd) {
+            this.currentAdd.destroy();
+            delete this.currentAdd;
+        }
+
+        if (this.currentRootEdit){
+            this.currentRootEdit.destroy();
+            delete this.currentRootEdit;
+        }
+
+        if (this.currentAdd) {
+            this.currentAdd.destroy();
+            delete this.currentAdd;
+        }
+
+        var win = {};
+        for (var i in this.win){
+            win[i] = this.win[i];
+        }
+
+        win.entryPoint = ka.entrypoint.getRelative(this.getEntryPoint(), this.classProperties.nestedRootAddEntrypoint);
+
+        win.getTitleGroupContainer = function(){
+            return this.headerLayout.getColumn(2);
+        }.bind(this);
+
+        this.currentRootAdd = new ka.WindowAdd(win, this.mainRight);
+        this.currentRootAdd.addEvent('add', this.addRootSaved.bind(this));
+        this.currentRootAdd.addEvent('addMultiple', this.addRootSaved.bind(this));
+
+    },
+
+    addRootSaved: function(){
+        this.changeLanguage();
+    },
+
+
+    addSaved: function (pRequest, pResponse) {
 
         this.ignoreNextSoftLoad = true;
 
@@ -951,9 +1003,20 @@ ka.WindowCombine = new Class({
 
         this.win.params.selected = pResponse.data;
 
-        return this.loadCount(function(count){
-            this.loadAround(this.win.params.selected);
-        }.bind(this));
+        if (this.classProperties.asNested){
+
+            if (pRequest._position == 'first'){
+                this.nestedField.getFieldObject().reloadBranch(pRequest._pk, pRequest._targetObjectKey);
+            } else {
+                this.nestedField.getFieldObject().reloadParentBranch(pRequest._pk, pRequest._targetObjectKey);
+            }
+
+        } else {
+            return this.loadCount(function(count){
+                this.loadAround(this.win.params.selected);
+            }.bind(this));
+        }
+
 
     },
 
@@ -996,9 +1059,18 @@ ka.WindowCombine = new Class({
 
             //TODO check unsaved
             var hasUnsaved = this.currentAdd.hasUnsavedChanges();
-
             this.currentAdd.destroy();
             this.currentAdd = null;
+        }
+
+        if (this.currentRootEdit){
+            this.currentRootEdit.destroy();
+            this.currentRootEdit = null;
+        }
+
+        if (this.currentRootAdd){
+            this.currentRootAdd.destroy();
+            delete this.currentRootAdd;
         }
 
         if (!this.currentEdit) {
@@ -1006,6 +1078,8 @@ ka.WindowCombine = new Class({
             this.setActiveItem(pItem);
             if (this.addBtn)
                 this.addBtn.setPressed(false);
+            if (this.addRootBtn)
+                this.addRootBtn.setPressed(false);
 
             var win = {};
 
@@ -1044,6 +1118,81 @@ ka.WindowCombine = new Class({
             } else {
                 this.currentEdit.winParams = {item: pItem};
                 this.currentEdit.loadItem();
+
+                if (this.addBtn)
+                    this.addBtn.setPressed(false);
+
+                this.setActiveItem(pItem);
+            }
+
+        }
+
+        this.inputTrigger.focus();
+
+    },
+
+    loadRootItem: function (pItem) {
+        var _this = this;
+
+        if (this.currentAdd) {
+            //TODO check unsaved
+            var hasUnsaved = this.currentAdd.hasUnsavedChanges();
+            this.currentAdd.destroy();
+            this.currentAdd = null;
+        }
+
+        if (this.currentEdit){
+            this.currentEdit.destroy();
+            this.currentEdit = null;
+        }
+
+        if (!this.currentRootEdit) {
+
+            this.setActiveItem(pItem);
+
+            if (this.addBtn)
+                this.addBtn.setPressed(false);
+
+            if (this.addRootBtn)
+                this.addRootBtn.setPressed(false);
+
+            var win = {};
+
+            for (var i in this.win)
+                win[i] = this.win[i];
+
+            win.entryPoint = ka.entrypoint.getRelative(this.win.entryPoint, _this.classProperties.nestedRootEditEntrypoint);
+            win.params = {item: pItem};
+            win.getTitleGroupContainer = function(){
+                return this.headerLayout.getColumn(2);
+            }.bind(this);
+
+            this.currentRootEdit = new ka.WindowEdit(win, this.mainRight);
+
+            this.currentRootEdit.addEvent('save', this.saved.bind(this));
+            this.currentRootEdit.addEvent('load', this.itemLoaded.bind(this));
+
+        } else {
+
+            var hasUnsaved = this.currentRootEdit.hasUnsavedChanges();
+
+            if (hasUnsaved) {
+                this.win.interruptClose = true;
+                this.win._confirm(t('There are unsaved data. Want to continue?'), function (pAccepted) {
+                    if (pAccepted) {
+                        this.currentRootEdit.winParams = {item: pItem};
+                        this.currentRootEdit.loadItem();
+
+                        if (this.addBtn)
+                            this.addBtn.setPressed(false);
+
+                        this.setActiveItem(pItem);
+                    }
+                }.bind(this));
+                return;
+            } else {
+                this.currentRootEdit.winParams = {item: pItem};
+                this.currentRootEdit.loadItem();
 
                 if (this.addBtn)
                     this.addBtn.setPressed(false);

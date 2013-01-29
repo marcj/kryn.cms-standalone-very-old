@@ -492,7 +492,7 @@ class Local extends FALAbstract {
                     $match[1] = str_replace('\'', '', $match[1]);
 
                     //TODO, what is $res?
-                    if ($name == $match[1] || ($res['type'] == 'dir' && $match[1] == "*")) {
+                    if ($name == $match[1] || (is_dir($match[1]) && $match[1] == "*")) {
                         return strtolower($match[2])=='allow'?true:false;
                     }
                 }

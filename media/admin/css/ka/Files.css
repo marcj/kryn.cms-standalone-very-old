@@ -25,7 +25,8 @@
 
     -moz-border-radius: 5px;
     box-shadow: 0px 1px 0px #aaa;
-    border: 1px solid #7D7D7D;
+    border: 1px solid #818181;
+
     background: #e8e8e8; /* Old browsers */
     background: -moz-linear-gradient(top,  #e8e8e8 0%, #f4f4f4 58%); /* FF3.6+ */
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#e8e8e8), color-stop(58%,#f4f4f4)); /* Chrome,Safari4+ */
@@ -47,7 +48,7 @@
     box-shadow: 0px 1px 0px #aaa;
     display: block;
 
-    border: 1px solid #7D7D7D;
+    border: 1px solid #818181;
 
     padding-right: 23px;
 
@@ -146,7 +147,10 @@
 
 .admin-files-infos a:before {
     padding-right: 6px;
-    color: #ECA62D;
+     /* color: #ECA62D; */
+    color: #349BC4;
+    text-shadow: 1px 0 0 white;
+
     font-size: 14px;
 }
 
@@ -359,7 +363,9 @@ table.ka-files-search-table tr:hover td {
     height: 45px;
     background-repeat: no-repeat;
     background-position: center center;
-    color: #ECA62D; /* 13%,#339AC6*/
+    /*color: #ECA62D; */
+    color: #349BC4;
+    text-shadow: 1px 0 0 white;
 }
 
 .admin-files-listtype-miniatur .admin-files-item .admin-files-item-icon {

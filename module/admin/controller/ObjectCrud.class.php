@@ -320,9 +320,14 @@ class ObjectCrud {
 
         $this->entryPoint = $pEntryPoint;
 
-        $this->objectDefinition = \Core\Object::getDefinition($this->object);
-        if (!$this->objectDefinition && $this->object && !$pWithoutObjectCheck){
-            throw new \ObjectNotFoundException("Can not find object '".$this->object."'");
+        $this->initialize($pWithoutObjectCheck = false);
+    }
+
+    public function initialize($pWithoutObjectCheck = false){
+
+        $this->objectDefinition = \Core\Object::getDefinition($this->getObject());
+        if (!$this->objectDefinition && $this->getObject() && !$pWithoutObjectCheck){
+            throw new \ObjectNotFoundException("Can not find object '".$this->getObject()."'");
         }
 
         $this->table = $this->objectDefinition['table'];
@@ -978,14 +983,13 @@ class ObjectCrud {
      *     fixedField1: 'asd',
      *     fixedField2: 'fgh',
      *
-     *     _target: {
-     *         position: 'first', //take a look at `\Core\Object::add()` at parameter `$pPosition`
-     *         pk: {
-     *            id: 123132
-     *         },
-     *         objectKey: 'node' //can differ between the actual object and the target (if we have a different object as root,
-     *                           //then only position `first` and 'last` are available.)
-     *     }
+     *     _: 'first', //take a look at `\Core\Object::add()` at parameter `$pPosition`
+     *     _pk: {
+     *         id: 123132
+     *     },
+     *     _targetObjectKey: 'node' //can differ between the actual object and the target (if we have a different object as root,
+     *                              //then only position `first` and 'last` are available.)
+     *
      *
      * }
      *
@@ -1004,16 +1008,23 @@ class ObjectCrud {
 
         $fields = $this->getAddMultipleFields();
 
-        $position = $_POST['_target'];
+        $position = getArgv('_position');
 
-        foreach ($_POST['_items'] as $item){
+        $items = $_POST['_items'];
+
+        if ($position == 'first' || $position == 'next')
+            $items = array_reverse($_POST['_items']);
+
+        foreach ($items as $item){
 
             $data = $fixedData;
             $data += $this->collectData($fields, $item);
 
             try {
-                $inserted = $this->add($data, $position['pk'], $position['position'], $position['objectKey']);
+                $inserted = $this->add($data, getArgv('_pk'), $position, getArgv('_targetObjectKey'));
             } catch(\Exception $e){
+                var_dump($e);
+                exit;
                 $inserted[] = array('_error' => $e);
             }
 

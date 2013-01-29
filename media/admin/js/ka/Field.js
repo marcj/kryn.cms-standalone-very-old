@@ -49,15 +49,19 @@ ka.Field = new Class({
 
     children: {},
 
+    fieldForm: null,
+
     /**
      *
      * @param  {Object} pDefinition
      * @param  {Element} pContainer
      * @param  {String} pKey Optional
      */
-    initialize: function (pDefinition, pContainer, pKey) {
+    initialize: function (pDefinition, pContainer, pKey, pFieldForm) {
 
         this.key = pKey;
+
+        this.fieldForm = pFieldForm;
 
         if (pDefinition.type == 'predefined'){
             var definition = ka.getObjectDefinition(pDefinition.object);
@@ -243,6 +247,10 @@ ka.Field = new Class({
             this.fieldObject.setDisabled(true);
         }
 
+    },
+
+    getFieldForm: function(){
+        return this.fieldForm;
     },
 
     renderField: function () {

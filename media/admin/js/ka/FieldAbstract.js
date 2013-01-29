@@ -42,7 +42,7 @@ ka.FieldAbstract = new Class({
      * Constructor.
      *
      * @internal
-     * @param  {Object} pFieldObject The instance of ka.Field
+     * @param  {Object} pFieldInstance The instance of ka.Field
      * @param  {Object} pOptions
      */
     initialize: function(pFieldInstance, pOptions){

@@ -286,12 +286,17 @@ ka.FieldForm = new Class({
 
                 obj.fireEvent('check-depends');
             }
-            this.fields[ id ] = obj;
+
+            this.attachField(id, obj);
 
             if (pDependField)
                 pDependField.children[id] = obj;
 
         }.bind(this));
+    },
+
+    attachField: function(pId, pObj){
+        this.fields[pId] = pObj;
     },
 
     /**

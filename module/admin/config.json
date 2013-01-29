@@ -383,6 +383,13 @@
                     "children": [
                         
                     ]
+                },
+                "root": {
+                    "title": "[[Domain]]",
+                    "class": "\\Admin\\Admin\\DomainCrud",
+                    "type": "combine",
+                    "isLink": false,
+                    "multi": false
                 }
             }
         },
@@ -440,6 +447,17 @@
             "children": [
                 
             ]
+        },
+        "stores": {
+            "type": "acl",
+            "title": "[[Data Stores[[",
+            "children": {
+                "layout": {
+                    "title": "[[Layouts]]",
+                    "class": "\\Admin\\Stores\\Layout",
+                    "type": "store"
+                }
+            }
         }
     },
     "objectProperties": {

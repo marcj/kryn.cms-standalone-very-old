@@ -60,13 +60,13 @@ class NodeCrud extends \Admin\ObjectCrud {
     'children' => array (
       'field_1' => array (
         'label' => '#Todo',
-        'type' => 'label',
+        'type' => 'wysiwyg',
       ),
     ),
   ),
 );
 
-    public $itemsPerPage = 10;
+    public $defaultLimit = 15;
 
     public $asNested = true;
 
@@ -100,16 +100,35 @@ class NodeCrud extends \Admin\ObjectCrud {
 
     public $export = false;
 
+    public $addMultipleFixedFields = array (
+  'visible' => array (
+    'label' => 'Visible',
+    'type' => 'checkbox',
+  ),
+);
+
     public $addMultipleFields = array (
   'title' => array (
     'label' => 'Title',
     'type' => 'text',
     'required' => 'true',
   ),
-  'visible' => array (
-    'label' => 'Visible',
-    'type' => 'checkbox',
-    'width' => '100',
+  'type' => array (
+    'label' => 'Type',
+    'items' => array (
+      0 => 'Page',
+      1 => 'Link',
+      2 => 'Folder',
+      3 => 'Deposit',
+    ),
+    'type' => 'select',
+    'width' => '120',
+  ),
+  'layout' => array (
+    'label' => 'Layout',
+    'store' => 'admin/stores/layout',
+    'type' => 'select',
+    'width' => '220',
   ),
 );
 

@@ -37,7 +37,7 @@ ka.FieldTypes.Input = ka.FieldTypes.Text = new Class({
 
     createLayout: function(){
 
-        this.wrapper = new Element('div', {
+        this.main = this.wrapper = new Element('div', {
             'class': 'ka-Input-wrapper',
             style: this.options.style,
             styles: {
@@ -47,7 +47,7 @@ ka.FieldTypes.Input = ka.FieldTypes.Text = new Class({
         }).inject(this.fieldInstance.fieldPanel);
 
 
-        this.main = this.innerWrapper = new Element('div', {
+        this.innerWrapper = new Element('div', {
             'class': 'ka-Input-inner-wrapper'
         }).inject(this.wrapper);
 

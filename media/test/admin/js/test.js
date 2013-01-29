@@ -48,8 +48,53 @@ var test_test = new Class({
                 }
             }
         }, this.win.content);
-        
-        
+
+
+        var tree;
+
+
+        new ka.Button('Deselect')
+            .addEvent('click', function(){
+                tree.getFieldObject().deselect();
+            })
+            .inject(this.win.content);
+
+        new ka.Button('Reload 8')
+            .addEvent('click', function(){
+                tree.getFieldObject().reloadBranch({id: 8});
+            })
+            .inject(this.win.content);
+
+        new ka.Button('Reload parent 8')
+            .addEvent('click', function(){
+                tree.getFieldObject().reloadParentBranch({id: 8});
+            })
+            .inject(this.win.content);
+
+        new ka.Button('Reload 22')
+            .addEvent('click', function(){
+                tree.getFieldObject().reloadBranch({id: 22});
+            })
+            .inject(this.win.content);
+
+        new ka.Button('Reload parent 22')
+            .addEvent('click', function(){
+                tree.getFieldObject().reloadParentBranch({id: 22});
+            })
+            .inject(this.win.content);
+
+        new ka.Button('Reload Domain')
+            .addEvent('click', function(){
+                tree.getFieldObject().reloadBranch({id: 1}, 'Core\\Domain');
+            })
+            .inject(this.win.content);
+
+        tree = new ka.Field({
+            label: t('Nodes'),
+            type: 'tree',
+            objectKey: 'Core\\Node'
+        }, this.win.content);
+
 
         return;
 
