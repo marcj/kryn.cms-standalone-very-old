@@ -64,9 +64,12 @@ class Store extends Server {
             \Core\Utils::exceptionHandler($pException);
     }
 
-    public function run($pEntryPoint){
 
+    public function setEntryPoint($pEntryPoint){
         $this->entryPoint = $pEntryPoint;
+    }
+
+    public function run(){
 
         $this
             ->addGetRoute('', 'getItems')

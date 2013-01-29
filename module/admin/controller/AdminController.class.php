@@ -77,7 +77,8 @@ class AdminController {
                     $epc = new ObjectCrudController(($entryPoint['_module'] == 'admin' && getArgv(2) != 'admin' ? '': 'admin/') . $entryPoint['_url']);
                     $epc->setExceptionHandler($exceptionHandler);
                     $epc->setDebugMode($debugMode);
-                    die($epc->run($entryPoint));
+                    $epc->setEntryPoint($entryPoint);
+                    die($epc->run());
                 } else if ($entryPoint['type'] == 'store'){
 
                     $clazz = $entryPoint['class'];
@@ -85,7 +86,8 @@ class AdminController {
                     if (!class_exists($clazz)) throw new \ClassNotFoundException(sprintf('The class `%s` does not exist in entry point `%s`', $clazz, $entryPoint['_url']));
 
                     $obj = new $clazz($entryPoint['_url']);
-                    die($obj->run($entryPoint));
+                    $obj->setEntryPoint($entryPoint);
+                    die($obj->run());
 
                 }
 

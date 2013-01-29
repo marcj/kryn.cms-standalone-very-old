@@ -17,24 +17,27 @@ class ObjectCrudController extends Server {
             \Core\Utils::exceptionHandler($pException);
     }
 
-    public function run($pEntryPoint){
-
+    public function setEntryPoint($pEntryPoint){
         $this->entryPoint = $pEntryPoint;
+    }
 
-        if ($pEntryPoint['type'] == 'store') {
+    public function run(){
 
-            if (!$pEntryPoint['class']) {
+
+        if ($this->entryPoint['type'] == 'store') {
+
+            if (!$this->entryPoint['class']) {
                 $obj = new adminStore();
             } else {
-                require_once(PATH_MODULE . '' . $pEntryPoint['_module'] . '/' . $pEntryPoint['class'] . '.class.php');
-                $clazz = $pEntryPoint['class'];
+                require_once(PATH_MODULE . '' . $this->entryPoint['_module'] . '/' . $this->entryPoint['class'] . '.class.php');
+                $clazz = $this->entryPoint['class'];
                 $obj = new $clazz();
             }
 
             try {
-                $this->send($obj->handle($pEntryPoint));
+                $this->send($obj->handle($this->entryPoint));
             } catch (Exception $e){
-                $this->sendError('AdminStoreException', array('exception' => $e->getMessage(), 'entryPoint' => $pEntryPoint));
+                $this->sendError('AdminStoreException', array('exception' => $e->getMessage(), 'entryPoint' => $this->entryPoint));
             }
         } else {
 
@@ -131,7 +134,7 @@ class ObjectCrudController extends Server {
      *
      * @param $pFields
      */
-    public function translateFields(&$pFields){
+    public static function translateFields(&$pFields){
 
         if (is_array($pFields)){
             foreach ($pFields as &$field){
