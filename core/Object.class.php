@@ -280,7 +280,7 @@ class Object {
 
         $withoutFieldNames = is_numeric(key($pPk));
 
-        if (count($pks) == 1 && is_array($pItem)){
+        if (count($pks) == 1 && is_array($pPk)){
             return rawurlencode($pPk[ $withoutFieldNames ? 0 : $pks[0] ])+'';
         } else {
             $c = 0;
