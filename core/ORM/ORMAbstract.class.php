@@ -303,7 +303,7 @@ abstract class ORMAbstract {
      * @param        $pTargetObjectKey
      * @throws      \NotImplementedException
      */
-    public function move($pPk, $pTargetPk = null, $pMode = 'into', $pTargetObjectKey = null){
+    public function move($pPk, $pTargetPk, $pMode = 'first', $pTargetObjectKey = null){
         throw new \NotImplementedException('Move method is not implemented for this object layer.');
     }
 
