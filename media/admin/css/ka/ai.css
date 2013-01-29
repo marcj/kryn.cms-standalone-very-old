@@ -717,13 +717,6 @@ a.ka-subnavi-main:link {
     right: 0px;
     bottom: 0px;
     height: 26px;
-    -moz-border-radius-topleft: 6px;
-    -moz-border-radius-topright: 6px;
-
-    -webkit-border-top-left-radius: 6px;
-    -webkit-border-top-right-radius: 6px;
-    border-top-left-radius: 6px;
-    border-top-right-radius: 6px;
 
     padding: 0px 11px 0 11px;
     padding-left: 3px;
@@ -731,7 +724,10 @@ a.ka-subnavi-main:link {
     
     z-index: 111000;
     overflow: hidden;
+
+    background-image: url(../../images/admin-topbar-bg.png);
 }
+
 
 .ka-no-desktop div.windowList {
     position: absolute;

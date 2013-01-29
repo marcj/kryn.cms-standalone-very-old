@@ -1,29 +1,7 @@
-.wm-bar-item,
-.wm-bar-item-active {
-    display: block;
-    border-right: 1px solid #727175;
-    min-width: 110px;
-    float: left;
-    text-align: left;
-    line-height: 17px;
-    border: 1px solid #676767;
-    border: 1px solid #494949;
-    margin: 4px 1px 2px 1px;
-    color: white;
-    font-weight: normal;
-    cursor: pointer;
-    padding: 0px 13px 0px 13px;
-    -moz-border-radius: 4px;
-    background-image: url(../images/wm-bar-item-bg.jpg);
-    position: relative;
-}
+.windowList .wm-bar-item,
+.windowList .wm-bar-item-active {
+    background: -webkit-linear-gradient(top, #BBB 0%,#CECECE 15%,#A2A2A2 100%);
 
-.wm-bar-item:hover {
-    color: white;
-}
-
-.ka-with-desktop .wm-bar-item:hover {
-    background-image: url(../images/wm-bar-item-bg-hover.jpg);
 }
 
 .ka-with-desktop .wm-bar-item:hover {
@@ -32,23 +10,14 @@
 
 .ka-with-desktop .wm-bar-item-active,
 .ka-with-desktop .wm-bar-item-active:hover {
-    background-color: #285277;
-    background-image: url(../images/wm-bar-item-bg-active.jpg);
-    background-repeat: repeat-x;
-    border: 1px solid #3b3b3b;
-    border-top: 1px solid #333;
+    position: relative;
+    background: -webkit-linear-gradient(top, white 0%,#F2F2F2 15%,#D1D1D1 100%);
 }
 
 
 .ka-no-desktop .wm-bar-item,
 .ka-no-desktop .wm-bar-item-active {
-    height: 21px;
-    -moz-border-radius-bottomleft: 0px;
-    -moz-border-radius-bottomright: 0px;
-    line-height: 20px;
-    border-bottom: 0px;
-    margin-left: 3px;
-    color: #222;
+
     background: #8e8e8e; /* Old browsers */
     /* IE9 SVG, needs conditional override of 'filter' to 'none' */
     background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzhlOGU4ZSIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNhMGEwYTAiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
@@ -106,6 +75,7 @@
 
 .wm-bar-item-closer:hover {
     -moz-border-radius: 16px;
+    -webkit-border-radius: 16px;
+    border-radius: 16px;
     color: #444;
-    background-color: #eee;
 }

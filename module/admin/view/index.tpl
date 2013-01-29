@@ -51,7 +51,7 @@
 
     <link rel="stylesheet" type="text/css" href="lib/codemirror/lib/codemirror.css">
     <link rel="stylesheet" type="text/css" href="media/admin/css/ka/ai.css" />
-    <link rel="stylesheet" type="text/css" href="media/admin/css/ka/wm.css" />
+    <link rel="stylesheet" type="text/css" href="media/admin/css/ka.wm.css" />
     <link rel="stylesheet" type="text/css" href="media/admin/icons/style.css" />
 
     <link rel="stylesheet" type="text/css" href="media/admin/css/ka/Login.css" />

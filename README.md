@@ -38,6 +38,11 @@ Features
  - MVC architecture
  - Very secure password storage (salted, double sha512 in 500 rounds, incl. non-db hash key injection)
 
+Screenshot
+----------
+
+![Administration Screenshot](https://raw.github.com/KrynLabs/Kryn.cms/propel1.6/docu/images/admin-browser-screenshot.png)
+
 
 Contribution
 ------------
