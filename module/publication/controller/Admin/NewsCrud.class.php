@@ -49,7 +49,6 @@ class NewsCrud extends \Admin\ObjectCrud {
     'label' => 'Intro',
     'type' => 'tab',
     'children' => array (
-      '[object Object' => '[object Object]',
       'intro' => array (
         'label' => 'Intro',
         'type' => 'wysiwyg',
