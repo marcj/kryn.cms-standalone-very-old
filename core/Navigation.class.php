@@ -63,7 +63,7 @@ class Navigation {
             $page = self::arrayLevel(Kryn::$breadcrumbs, $pOptions['level']);
 
             if ($page && $page->getId() > 0)
-                $navigation =& Kryn::getPage($page->getId());
+                $navigation = Kryn::getPage($page->getId());
             elseif ($pOptions['level'] == $currentLevel + 1)
                 $navigation = Kryn::$page;
 //
