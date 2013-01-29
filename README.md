@@ -22,7 +22,7 @@ Installation
 Features
 --------
 
- - Propel ORM (MySQL, PostgreSQL)
+ - Propel ORM (Propel supports MySQL, PostgreSQL, SQLite, MSSQL, and Oracle) http://www.propelorm.org
  - Advanced, fast and fresh AJAX Backend Interface/RIA with mootools (yay!)
  - File abstraction layer (for mounts with external cloud storage), CDN
  - RESTful API - all actions are available through a RESTful JSON API
@@ -34,9 +34,9 @@ Features
  - Framework CRUD window generator without coding
  - Easy and integrated backup system - perfect for live/dev-scenarios
  - Workspaces (in the works)
- - Several authenication layers (seperated in backend and several frontend)
+ - Several authentication layers (separated in backend and several frontend)
  - MVC architecture
- - Very secure password storage (salted, double sha512 in 500 rounds, incl. non-db hash key injection)
+ - Very secure password storage (salted, double sha512 in 500 rounds, incl. non-db key injection)
 
 Screenshot
 ----------
@@ -51,7 +51,7 @@ Kryn.cms is a free open-source project for almost everyone. For web agencies, fr
 a lot of features, where we need guys like you to keep up the quality.
 
 Do you like Kryn.cms? Do you see potential in it? Then we'd love to see you contributing!
-Because the product still in heavy development, we really can need everyone's help to create a awesome product.
+Because the product is still in heavy development, we really can need everyone's help to create a awesome product.
 
 No matter if you have just ideas or have feedback, please just drop your thoughts in the issue tracker above.
 Or if you're a developer and want to contribute then please contact me. We really do love to meet any new
