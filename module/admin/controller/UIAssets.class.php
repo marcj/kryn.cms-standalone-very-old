@@ -27,7 +27,7 @@ class UIAssets {
         $lang = esc($pLang, 2);
         header('Content-Type: text/javascript');
         print "/* Kryn plural function */\n";
-        if (file_exists($file = PATH_MEDIA_CACHE.'gettext_plural_fn_'.$lang.'.js'))
+        if (file_exists($file = PATH_MEDIA_CACHE.'core_gettext_plural_fn_'.$lang.'.js'))
             readFile($file);
         print "\n";
         exit;
