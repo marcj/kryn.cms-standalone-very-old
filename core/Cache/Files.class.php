@@ -87,6 +87,10 @@ class Files implements CacheInterface {
 
         $path = $this->getPath($pKey);
 
+        if (!is_dir(dirname($path))){
+            mkdirr(dirname($path));
+        }
+
         if ($this->useJson){
             return file_put_contents($path, json_encode($pValue));
         }
