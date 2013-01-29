@@ -139,7 +139,7 @@ class Store extends Server {
         $pOffset += 0;
         $pLimit += 0;
 
-        if (!$this->table && !$this->sql) throw new \ConfigurationException('`table` or `sql` shall be defined.');
+        if (!$this->table && !$this->sql) throw new \MisconfigurationException('`table` or `sql` shall be defined.');
 
         $limit = $this->getLimit($pOffset, $pLimit);
 
