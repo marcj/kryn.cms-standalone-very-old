@@ -12,17 +12,15 @@ ka.FieldTypes.Wysiwyg = new Class({
 
     createLayout: function(){
 
-        this.fieldInstance.fieldPanel.set('html', '<div contenteditable="true" class="selectable ka-Field-wysiwyg"></div>');
-
-        this.main = this.fieldInstance.fieldPanel.getElement('div');
+        this.main = new Element('div', {
+            contentEditable: true,
+            'class': 'selectable ka-Field-wysiwyg'
+        }).inject(this.fieldInstance.fieldPanel);
 
         if (this.options['class'])
             this.main.addClass(this.options['class']);
 
-        logger(this.main);
-        (function(){
-            CKEDITOR.inline(this.main);
-        }.bind(this)).delay(500);
+        CKEDITOR.inline(this.main);
     },
 
     toElement: function(){
