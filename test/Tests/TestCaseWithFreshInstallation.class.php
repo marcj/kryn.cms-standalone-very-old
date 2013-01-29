@@ -25,7 +25,7 @@ class TestCaseWithFreshInstallation extends \PHPUnit_Framework_TestCase {
                 Manager::freshInstallation();
                 Manager::bootupCore();
             } catch (\Exception $ex){
-                die($ex);
+                die('exception: '.get_class($ex).': '.$ex);
                 $result->addError($this, $ex, 0);
                 return $result;
             }
@@ -36,7 +36,7 @@ class TestCaseWithFreshInstallation extends \PHPUnit_Framework_TestCase {
         try {
             Manager::uninstall();
         } catch (\Exception $ex){
-            die($ex);
+            die('exception: '.get_class($ex).': '.$ex);
             $result->addError($this, $ex, 0);
             return $result;
         }

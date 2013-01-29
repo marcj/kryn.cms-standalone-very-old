@@ -15,6 +15,5 @@ spl_autoload_register(function ($pClass) {
 
 include_once(dirname(__FILE__).'/../core/global/exceptions.global.php');
 
-error_reporting(E_COMPILE_ERROR|E_RECOVERABLE_ERROR|E_ERROR|E_CORE_ERROR|E_USER_ERROR);
 ini_set('display_errors', 1);
 error_reporting(E_ALL ^ E_NOTICE);

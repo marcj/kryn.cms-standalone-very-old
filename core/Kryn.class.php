@@ -596,10 +596,10 @@ class Kryn {
 
         $md5 = md5($md5);
         Kryn::$themes =& Kryn::getFastCache('systemThemes');
+        Kryn::$configs =& Kryn::getFastCache('systemConfigs');
 
-        Kryn::$configs = array();
-
-        if (!Kryn::$themes || $md5 != Kryn::$themes['__md5']) {
+        if ((!Kryn::$themes || $md5 != Kryn::$themes['__md5']) ||
+            (!Kryn::$configs || $md5 != Kryn::$configs['__md5'])) {
 
             foreach (Kryn::$extensions as $extension) {
                 Kryn::$configs[$extension] = Kryn::getModuleConfig($extension, false, true);
@@ -616,6 +616,7 @@ class Kryn {
                     }
                 }
             }
+            Kryn::$configs['__md5'] = $md5;
         }
 
         /*

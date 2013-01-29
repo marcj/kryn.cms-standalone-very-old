@@ -13,9 +13,9 @@ class PropelHelper {
 
         try {
             $result = self::fullGenerator();
-        } catch(Exception $e){
+        } catch(\Exception $e){
             self::cleanup();
-            die($e);
+            die('exception: '.get_class($e).': '.$e);
             Kryn::internalError('Propel initialization Error', is_array($e)?print_r($e,true):$e);
         }
 
@@ -467,8 +467,6 @@ class PropelHelper {
         try {
             /* Setup Phing environment */
             \Phing::startup();
-
-            error_reporting(E_ALL ^ E_NOTICE);
 
             \Phing::setOutputStream($outStream);
             \Phing::setErrorStream($outStream);

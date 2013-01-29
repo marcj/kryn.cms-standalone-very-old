@@ -215,7 +215,7 @@ class Manager {
 
             include('core/bootstrap.startup.php');
         } catch (\Exception $ex){
-            die($ex);
+            die('exception: '.get_class($ex).': '.$ex);
         }
 
         \Core\PropelHelper::cleanup();

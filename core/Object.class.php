@@ -278,7 +278,7 @@ class Object {
 
         if (count($pks) == 0 ) throw new \InvalidArgumentException($pObjectKey.' does not have primary keys.');
 
-        $withoutFieldNames = is_numeric(key($pItem));
+        $withoutFieldNames = is_numeric(key($pPk));
 
         if (count($pks) == 1 && is_array($pItem)){
             return rawurlencode($pPk[ $withoutFieldNames ? 0 : $pks[0] ])+'';
