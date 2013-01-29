@@ -1175,7 +1175,9 @@ class Kryn {
 
         if (!Kryn::$config['languages'] && $pLang == 'en') return true; //default
 
-        return array_search($pLang, Kryn::$config['languages']) !== true;
+        if (Kryn::$config['languages'])
+            return array_search($pLang, Kryn::$config['languages']) !== true;
+        else return $pLang == 'en';
     }
 
     /**
