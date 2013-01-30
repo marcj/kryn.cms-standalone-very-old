@@ -8,6 +8,7 @@ inc/module/admin/crawler.php
 inc/mooeditable
 
 .DS_Store
+._.DS_Store
 
 nbproject/project.xml
 
@@ -28,3 +29,5 @@ data/fileversions/
 inc/config_backups.php
 
 .idea
+
+inc/template/trash
