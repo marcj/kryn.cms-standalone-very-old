@@ -278,15 +278,15 @@ class Object {
 
         if (count($pks) == 0 ) throw new \InvalidArgumentException($pObjectKey.' does not have primary keys.');
 
-        $withoutFieldNames = is_numeric(key($pPk));
+        $withFieldNames = !is_numeric(key($pPk));
 
         if (count($pks) == 1 && is_array($pPk)){
-            return rawurlencode($pPk[ $withoutFieldNames ? 0 : $pks[0] ])+'';
+            return rawurlencode($pPk[ $withFieldNames ? $pks[0] : 0 ]);
         } else {
             $c = 0;
             $urlId = array();
             foreach ($pks as $pk){
-                $urlId[] = rawurlencode($pPk[ $withoutFieldNames ? $c:$pk ]);
+                $urlId[] = rawurlencode($pPk[ $withFieldNames ? $pk : $c ]);
                 $c++;
             }
             return implode(',', $urlId);
