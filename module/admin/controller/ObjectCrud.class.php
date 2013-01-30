@@ -1010,10 +1010,10 @@ class ObjectCrud {
 
         $position = getArgv('_position');
 
-        $items = $_POST['_items'];
+        $items = $_REQUEST['_items'];
 
         if ($position == 'first' || $position == 'next')
-            $items = array_reverse($_POST['_items']);
+            $items = array_reverse($_REQUEST['_items']);
 
         foreach ($items as $item){
 

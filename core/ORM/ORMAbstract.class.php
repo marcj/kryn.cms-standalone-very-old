@@ -297,13 +297,13 @@ abstract class ORMAbstract {
     /**
      *
      *
-     * @param        $pPk
-     * @param        $pTargetPk
-     * @param string $pMode into, below|down, before|up
+     * @param array  $pPk              Full PK as array
+     * @param array  $pTargetPk        Full PK as array
+     * @param string $pPosition        If nested set. `first` (child), `last` (last child), `prev` (sibling), `next` (sibling)
      * @param        $pTargetObjectKey
      * @throws      \NotImplementedException
      */
-    public function move($pPk, $pTargetPk, $pMode = 'first', $pTargetObjectKey = null){
+    public function move($pPk, $pTargetPk, $pPosition = 'first', $pTargetObjectKey = null){
         throw new \NotImplementedException('Move method is not implemented for this object layer.');
     }
 

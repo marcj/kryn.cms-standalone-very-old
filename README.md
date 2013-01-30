@@ -22,7 +22,7 @@ Installation
 Features
 --------
 
- - Propel ORM (Propel supports MySQL, PostgreSQL, SQLite, MSSQL, and Oracle) http://www.propelorm.org
+ - Based on Propel ORM (Propel supports MySQL, PostgreSQL, SQLite, MSSQL, and Oracle) http://www.propelorm.org
  - Advanced, fast and fresh AJAX Backend Interface/RIA with mootools (yay!)
  - File abstraction layer (for mounts with external cloud storage), CDN
  - RESTful API - all actions are available through a RESTful JSON API

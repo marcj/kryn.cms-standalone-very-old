@@ -4,7 +4,7 @@
 $_time = time();
 $_start = microtime(true);
 
-error_reporting(E_ALL ^ E_NOTICE);
+error_reporting(E_CORE_ERROR|E_COMPILE_ERROR|E_RECOVERABLE_ERROR|E_ERROR|E_CORE_ERROR|E_USER_ERROR|E_PARSE);
 
 //fix PATH_INFO
 if (!$_SERVER['PATH_INFO']){

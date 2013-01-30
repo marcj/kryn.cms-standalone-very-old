@@ -639,8 +639,9 @@ class Object {
             }
 
             $pPk = self::normalizePk($pTargetObjectKey, $pPk);
-            //since propel's nested set behaviour only allows a single value as scope, we can't
-            $scope = current($pPk[0]);
+
+            //since propel's nested set behaviour only allows a single value as scope, we need to use the first pk
+            $scope = current($pPk);
             return $obj->add($pValues, null, $pPosition, $scope);
         }
 

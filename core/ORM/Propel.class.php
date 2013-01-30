@@ -665,35 +665,36 @@ class Propel extends ORMAbstract {
     /**
      * {@inheritDoc}
      */
-    public function move($pPk, $pTargetPk, $pMode = 'first', $pTargetObjectKey = null){
+    public function move($pPk, $pTargetPk, $pPosition = 'first', $pTargetObjectKey = null){
 
         $query = $this->getQueryClass();
         $item = $query->findPK($this->getPropelPk($pPk));
 
+
         $method = 'moveToFirstChildOf';
-        if ($pMode == 'up' || $pMode == 'before')
+        if ($pPosition == 'up' || $pPosition == 'before'|| $pPosition == 'prev')
             $method = 'moveToPrevSiblingOf';
-        if ($pMode == 'down' || $pMode == 'below')
+        if ($pPosition == 'down' || $pPosition == 'below' || $pPosition == 'next')
             $method = 'moveToNextSiblingOf';
 
         if (!$pTargetPk){
-            //search root
-            $target = $query->findRoot();
-            $method = 'moveToFirstChildOf';
+            //we need a target
+            return null;
         } else {
 
-            if ($this->objectKey != $pTargetObjectKey){
+            if ($pTargetObjectKey && $this->objectKey != $pTargetObjectKey){
                 if (!$this->definition['nestedRootAsObject'])
                     throw new \InvalidArgumentException('This object has no different object as root.');
 
-                $scopeField = 'get'.ucfirst($this->definition['nestedRootObjectField']);
-                $scopeId = $item->$scopeField();
+                $scopeId = $item->getScopeValue();
                 $method = 'moveToFirstChildOf';
 
                 $target = $query->findRoot($scopeId);
             } else {
                 $target = $query->findPK($this->getPropelPk($pTargetPk));
             }
+
+            if (!$target) return false;
         }
 
         if ($item == $target){
@@ -718,7 +719,7 @@ class Propel extends ORMAbstract {
     /**
      * {@inheritdoc}
      */
-    public function add($pValues, $pBranchPk = false, $pMode = 'first', $pScope = null){
+    public function add($pValues, $pBranchPk = null, $pMode = 'first', $pScope = null){
 
         $this->init();
 
@@ -730,10 +731,19 @@ class Propel extends ORMAbstract {
             $query = $this->getQueryClass();
             if ($pBranchPk){
                 $branch = $query->findPk($this->getPropelPk($pBranchPk));
-            } else {
+            } else if ($pScope !== null){
                 $branch = $query->findRoot($pScope);
                 $root = true;
+                if (!$branch){
+                    //no root, create one
+                    $branch = new $clazz();
+                    $branch->setScopeValue($pScope);
+                    $branch->makeRoot();
+                    $branch->save();
+                }
             }
+
+            if (!$branch) return false;
 
             if ($branch->getLeftValue() == 1)
                 $root = true;
@@ -897,6 +907,8 @@ class Propel extends ORMAbstract {
         } else {
             $parent = $query->findPK($this->getPropelPk($pPk));
         }
+
+        if (!$parent) return null;
 
         if ($pDepth === null) $pDepth = 1;
 
