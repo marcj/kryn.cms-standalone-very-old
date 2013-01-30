@@ -15,7 +15,7 @@ ka.windowCombine = new Class({
         }).inject(this.win.content);
 
 
-        this.inputTrigger = new Element('input').inject(document.hidden);
+        this.inputTrigger = new Element('input').inject(document.hiddenElement);
 
         this.inputTrigger.addEvent('focus', function () {
             this.ready2ChangeThroughKeyboard = true;

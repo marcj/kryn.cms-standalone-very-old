@@ -549,7 +549,7 @@ ka.windowEdit = new Class({
             this.tooMuchTabFieldsButton.destroy();
 
         this.cachedTabItems.removeClass('ka-tabGroup-item-last');
-        this.cachedTabItems.inject(document.hidden);
+        this.cachedTabItems.inject(document.hiddenElement);
         this.cachedTabItems[0].inject(document.id(this.topTabGroup));
         var curWidth = this.cachedTabItems[0].getSize().x;
 

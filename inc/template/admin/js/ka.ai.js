@@ -98,7 +98,7 @@ window.addEvent('load', function () {
 
     window.ka.ai.renderLogin();
 
-    document.hidden = new Element('div', {
+    document.hiddenElement = new Element('div', {
         styles: {
             position: 'absolute',
             left: -154,

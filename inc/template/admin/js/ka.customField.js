@@ -35,7 +35,7 @@ ka.customField = new Class({
     initialize: function (pField, pFieldContainer) {
         this.field = pField; //values of the ka.field definition
         this.fieldContainer = pFieldContainer; //Element of your parent (Before .inject() it is not full registered in DOM at the target node)
-        this.main = new Element('div').inject(document.hidden);
+        this.main = new Element('div').inject(document.hiddenElement);
         this._createLayout();
     },
 

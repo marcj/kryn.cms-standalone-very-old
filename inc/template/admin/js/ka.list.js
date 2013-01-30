@@ -533,10 +533,10 @@ ka.list = new Class({
             action: _path + 'admin/' + this.win.module + '/' + this.win.code + '?cmd=exportItems&' + params.toQueryString(),
             method: 'post',
             target: 'myExportFrame' + this.win.id
-        }).inject(document.hidden);
+        }).inject(document.hiddenElement);
         this.lastExportFrame = new IFrame(null, {
             name: 'myExportFrame' + this.win.id
-        }).inject(document.hidden);
+        }).inject(document.hiddenElement);
         this.lastExportForm.submit();
     },
 

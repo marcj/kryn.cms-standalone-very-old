@@ -830,7 +830,7 @@ ka.files = new Class({
 
         this.inputTrigger = new Element('input', {
             'class': 'admin-files-preview-input'
-        }).inject(document.hidden);
+        }).inject(document.hiddenElement);
 
         this.inputTrigger.addEvent('blur', function () {
             (function () {

@@ -28,7 +28,7 @@ ka.field = new Class({
         if (this.field.tableitem) {
             this.tr = new Element('tr', {
                 'class': 'ka-field-main'
-            }).inject(pContainer || document.hidden);
+            }).inject(pContainer || document.hiddenElement);
             this.tr.store('ka.field', this);
 
             this.title = new Element('td', {
@@ -42,7 +42,7 @@ ka.field = new Class({
         } else {
             this.main = new Element('div', {
                 'class': 'ka-field-main'
-            }).inject(pContainer || document.hidden);
+            }).inject(pContainer || document.hiddenElement);
             this.main.store('ka.field', this);
 
             if (this.field.panel_width) {
