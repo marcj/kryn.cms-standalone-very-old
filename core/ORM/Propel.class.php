@@ -719,7 +719,7 @@ class Propel extends ORMAbstract {
     /**
      * {@inheritdoc}
      */
-    public function add($pValues, $pBranchPk = null, $pMode = 'first', $pScope = null){
+    public function add($pValues, $pTargetPk = null, $pMode = 'first', $pScope = null){
 
         $this->init();
 
@@ -729,8 +729,8 @@ class Propel extends ORMAbstract {
         if ($this->definition['nested']){
 
             $query = $this->getQueryClass();
-            if ($pBranchPk){
-                $branch = $query->findPk($this->getPropelPk($pBranchPk));
+            if ($pTargetPk){
+                $branch = $query->findPk($this->getPropelPk($pTargetPk));
             } else if ($pScope !== null){
                 $branch = $query->findRoot($pScope);
                 $root = true;

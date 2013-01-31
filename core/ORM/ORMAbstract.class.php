@@ -93,7 +93,7 @@ abstract class ORMAbstract {
     }
 
     /**
-     * Normalizes a primary keys, that are normally used inside PHP classes,
+     * Normalizes a primary key, that is normally used inside PHP classes,
      * since developers are lazy and we need to convert the lazy primary key
      * to the full definition.
      *
@@ -105,7 +105,7 @@ abstract class ORMAbstract {
      *  if the only primary key is named `id`.
      *
      * @param mixed $pPk
-     * @return array
+     * @return array A single primary key as array. Example: array('id' => 1).
      */
     public function normalizePrimaryKey($pPk){
         if (!is_array($pPk)){
@@ -150,11 +150,8 @@ abstract class ORMAbstract {
      * idFoo/Bar => array(array(id => idFoo), array(id2 => "Bar"))
      * 1,45/2,45 => array(array(id => 1, pid = 45), array(id => 2, pid=>45))
      *
-     *
-     *
-     *
      * @param string $pPk
-     * @return array
+     * @return array Always a array with primary keys as arrays too. So $return[0] is the first primary key array. Example array(array('id' => 4))
      */
     public function primaryStringToArray($pPk){
 
@@ -247,13 +244,13 @@ abstract class ORMAbstract {
     /**
      * @abstract
      * @param array  $pValues
-     * @param array  $pBranchPk If nested set
-     * @param string $pPosition  If nested set. `first` (child), `last` (last child), `prev` (sibling), `next` (sibling)
+     * @param array  $pTargetPk If nested set
+     * @param string $pPosition  `first` (child), `last` (last child), `prev` (sibling), `next` (sibling)
      * @param int    $pScope If nested set with scope
      *
      * @return array inserted/new primary key/s always as a array.
      */
-    abstract public function add($pValues, $pBranchPk = null, $pPosition = 'first', $pScope = null);
+    abstract public function add($pValues, $pTargetPk = null, $pPosition = 'first', $pScope = null);
 
     /**
      * Updates an object
@@ -295,13 +292,13 @@ abstract class ORMAbstract {
 
 
     /**
-     *
+     * Moves a item to a new position.
      *
      * @param array  $pPk              Full PK as array
      * @param array  $pTargetPk        Full PK as array
-     * @param string $pPosition        If nested set. `first` (child), `last` (last child), `prev` (sibling), `next` (sibling)
+     * @param string $pPosition        `first` (child), `last` (last child), `prev` (sibling), `next` (sibling)
      * @param        $pTargetObjectKey
-     * @throws      \NotImplementedException
+     * @throws       \NotImplementedException
      */
     public function move($pPk, $pTargetPk, $pPosition = 'first', $pTargetObjectKey = null){
         throw new \NotImplementedException('Move method is not implemented for this object layer.');
@@ -332,7 +329,7 @@ abstract class ORMAbstract {
      */
     public function getBranch($pPk = null, $pCondition = null, $pDepth = 1, $pScope = null, $pOptions = null){
         if (!$this->definition['nested']) throw new \Exception(t('Object %s it not a nested set.', $this->objectKey));
-        throw new \NotImplementedException(t('getTree is not implemented.'));
+        throw new \NotImplementedException(t('getBranch is not implemented.'));
     }
 
 
@@ -360,7 +357,7 @@ abstract class ORMAbstract {
 
 
     /**
-     * Returns parent's id, if exists
+     * Returns parent's pk, if exists, otherwise null.
      *
      * @param array $pPk
      * @return array
@@ -368,7 +365,7 @@ abstract class ORMAbstract {
     public function getParentId($pPk){
         $object = $this->getParent($pPk);
 
-        if (!$object) return false;
+        if (!$object) return null;
 
         if (count($this->primaryKeys) == 1){
             return $object[key($this->primaryKeys)];
