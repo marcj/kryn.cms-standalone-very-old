@@ -186,9 +186,9 @@ class AdminController {
 
                 ->addSubController('', '\Admin\Object\Controller')
 
-                    ->addGetRoute('objects', 'getItemsByUri')
-                    ->addGetRoute('object', 'getItemPerUri')
-                    ->addGetRoute('object-version', 'getVersionsPerUri')
+                    ->addGetRoute('objects', 'getItemsByUrl')
+                    ->addGetRoute('object', 'getItemPerUrl')
+                    ->addGetRoute('object-version', 'getVersionsPerUrl')
 
                     /*
                     ->addGetRoute('field-object/([a-zA-Z-_]+)/([^/]+)', 'getFieldItem')

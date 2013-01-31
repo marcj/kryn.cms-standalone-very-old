@@ -484,7 +484,7 @@ class Permission {
 
                                             if ($fields[$fKey]['type'] == 'object'){
                                                 $uri = $fields[$fKey]['object'].'/'.$fValue;
-                                                $satisfy = Object::satisfyFromUri($uri, $fRule['condition']);
+                                                $satisfy = Object::satisfyFromUrl($uri, $fRule['condition']);
                                             } else {
                                                 $satisfy = Object::satisfy($pField, $fRule['condition']);
                                             }

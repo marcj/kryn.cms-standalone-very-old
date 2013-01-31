@@ -14,14 +14,14 @@ class Controller {
     /**
      * General object items output. /admin/object?uri=...
      *
-     * @param string $pUri
+     * @param string $pUrl
      * @param string $pFields
      * @return array|bool
      * @throws \ObjectNotFoundException
      */
-    public function getItemPerUri($pUri, $pFields = null){
+    public function getItemPerUrl($pUrl, $pFields = null){
 
-        list($objectKey, $object_id) = \Core\Object::parseUri($pUri);
+        list($objectKey, $object_id) = \Core\Object::parseUrl($pUrl);
 
         $definition = \Core\Object::getDefinition($objectKey);
         if (!$definition) throw new \ObjectNotFoundException(tf('Object %s does not exists.', $objectKey));
@@ -33,7 +33,7 @@ class Controller {
     /**
      * Object items output for user interface field.  /admin/backend/field-object?uri=...
      *
-     * @param string $pUri
+     * @param string $pUrl
      * @param string $pFields
      * @return array|bool
      * @throws \ObjectNotFoundException
@@ -61,7 +61,7 @@ class Controller {
     /**
      * General object items output. /admin/objects?uri=...
      *
-     * @param string $pUri
+     * @param string $pUrl
      * @param string $pFields
      * @param bool   $pReturnKey Returns the list as a hash with the primary key as index. key=implode(',',rawurlencode($keys))
      * @param bool   $pReturnKeyAsRequested. Returns the list as a hash with the requested id as key.
@@ -70,12 +70,12 @@ class Controller {
      * @throws \ClassNotFoundException
      * @throws \ObjectNotFoundException
      */
-    public function getItemsByUri($pUri, $pFields = null, $pReturnKey = true, $pReturnKeyAsRequested = false){
+    public function getItemsByUrl($pUrl, $pFields = null, $pReturnKey = true, $pReturnKeyAsRequested = false){
 
-        list($objectKey, $objectIds, $params) = \Core\Object::parseUri($pUri);
+        list($objectKey, $objectIds, $params) = \Core\Object::parseUrl($pUrl);
         //check if we got an id
         if ($objectIds[0] === ''){
-            throw new \Exception(tf('No id given in uri %s.', $pUri));
+            throw new \Exception(tf('No id given in uri %s.', $pUrl));
         }
 
         $definition = \Core\Object::getDefinition($objectKey);
@@ -102,7 +102,7 @@ class Controller {
             if ($pReturnKeyAsRequested){
 
                 //map requetsed id to real ids
-                $requestedIds = explode(',', \Core\Object::getCroppedObjectId($pUri));
+                $requestedIds = explode(',', \Core\Object::getCroppedObjectId($pUrl));
                 $map = array();
                 foreach ($requestedIds as $id){
                     $pk = \Core\Object::parsePk($objectKey, $id);
