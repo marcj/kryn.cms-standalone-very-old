@@ -199,7 +199,7 @@ ka.FieldTypes.Wysiwyg = new Class({
 
         this.editor = CKEDITOR.replace(this.main, config);
 
-        this.editor.on('instanceReady', this.editorReady.bind(this));
+        //this.editor.on('instanceReady', this.editorReady.bind(this));
 
     },
 
