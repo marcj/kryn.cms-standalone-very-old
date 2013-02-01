@@ -56,6 +56,7 @@ ka.Field = new Class({
      * @param  {Object} pDefinition
      * @param  {Element} pContainer
      * @param  {String} pKey Optional
+     * @param  {ka.FieldForm} pFieldForm
      */
     initialize: function (pDefinition, pContainer, pKey, pFieldForm) {
 

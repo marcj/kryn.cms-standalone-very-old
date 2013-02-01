@@ -1,5 +1,5 @@
 ka.FieldTypes.Wysiwyg = new Class({
-    
+
     Extends: ka.FieldAbstract,
 
     value: '',
@@ -15,12 +15,19 @@ ka.FieldTypes.Wysiwyg = new Class({
         this.main = new Element('div', {
             contentEditable: true,
             'class': 'selectable ka-Field-wysiwyg'
-        }).inject(this.fieldInstance.fieldPanel);
+        }).inject(document.hiddenElement);
 
         if (this.options['class'])
             this.main.addClass(this.options['class']);
 
-        CKEDITOR.inline(this.main);
+        this.editor = CKEDITOR.inline(this.main);
+
+        this.editor.on('instanceReady', this.editorReady.bind(this));
+
+    },
+
+    editorReady: function(){
+        this.main.inject(this.fieldInstance.fieldPanel);
     },
 
     toElement: function(){
