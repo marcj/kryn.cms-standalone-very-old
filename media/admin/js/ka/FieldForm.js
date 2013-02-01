@@ -43,8 +43,6 @@ ka.FieldForm = new Class({
     initialize: function (pContainer, pFieldDefinition, pOptions, pRefs) {
         var self = this;
 
-        this.mainContainer = pContainer;
-
         this.setOptions(pOptions);
         this.refs = pRefs;
         this.main = pContainer;

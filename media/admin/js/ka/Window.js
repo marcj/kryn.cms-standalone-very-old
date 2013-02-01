@@ -812,8 +812,6 @@ ka.Window = new Class({
         if (borderPosition.x < 0)
             newX = 0;
 
-        logger(newY);
-
         if (newY !== false) this.border.setStyle('top', newY);
         if (newX !== false) this.border.setStyle('left', newX);
 

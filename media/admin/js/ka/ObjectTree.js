@@ -303,7 +303,6 @@ ka.ObjectTree = new Class({
 
     setRootPosition: function () {
 
-        logger('root ppsition');
         if (!this.options.rootObject) return;
 
         var nLeft = this.container.scrollLeft;
@@ -822,7 +821,6 @@ ka.ObjectTree = new Class({
                 this.fireEvent('ready');
             }
 
-            logger('ready: '+this.main.getStyle('height'));
             this.main.setStyle('height');
 
             this.setRootPosition();

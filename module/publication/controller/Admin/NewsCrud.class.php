@@ -52,6 +52,7 @@ class NewsCrud extends \Admin\ObjectCrud {
       'intro' => array (
         'label' => 'Intro',
         'type' => 'wysiwyg',
+        'preset' => 'simple'
       ),
     ),
   ),
@@ -61,7 +62,7 @@ class NewsCrud extends \Admin\ObjectCrud {
     'children' => array (
       'content' => array (
         'label' => 'Content',
-        'type' => 'wysiwyg',
+        'type' => 'wysiwyg'
       ),
     ),
   ),

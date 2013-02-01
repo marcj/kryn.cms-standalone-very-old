@@ -536,12 +536,9 @@ ka.WindowCombine = new Class({
                 }
             }
 
-                logger(this.maxItems-this.loadedCount);
-
             if (this.from > 0 && this.mainLeftItems.getScroll().y == 0) {
                 this.loadPrevious(true);
             } else if (this.maxItems-this.loadedCount > 0 && (this.mainLeftItems.getScrollSize().y - this.mainLeftItems.getSize().y) == 0) {
-                logger('loadMore');
                 this.loadMore(true);
             }
 

@@ -109,7 +109,6 @@ ka.WindowAdd = new Class({
 
     multipleAdd: function(pClose){
 
-        logger(this.addMultipleFieldForm.checkValid());
         if (!this.addMultipleFieldForm.checkValid()) return false;
 
         var request = this.addMultipleFieldForm.getValue();

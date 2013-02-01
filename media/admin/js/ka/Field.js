@@ -774,9 +774,6 @@ ka.Field = new Class({
 
             if (pTo.get('tag') != 'tbody' && pTo.get('tag') != 'table'){
                 //target is not a table/tbody, we need to create one or find one
-
-                logger(this.options.label);
-                logger(pTo);
                 
                 if (pTo.get('tag') == 'tr'){
                     this.containerAutoTable = pTo.getParent('table');

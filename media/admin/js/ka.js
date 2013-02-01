@@ -682,7 +682,6 @@ ka.getObjectFieldLabel = function(pValue, pField, pFieldId, pObjectKey, pRelatio
     var field = fields[fieldId];
 
     var showAsField = pField || field;
-    logger(showAsField);
     if (!showAsField.type){
         Object.each(field, function(v, i){
             if (!showAsField[i])
