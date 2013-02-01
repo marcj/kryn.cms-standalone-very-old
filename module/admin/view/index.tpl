@@ -27,7 +27,7 @@
     <script type="text/javascript" src="media/admin/js/ka/Button.js" ></script>
     <script type="text/javascript" src="media/admin/js/ka/Select.js" ></script>
     <script type="text/javascript" src="media/admin/js/ka/Checkbox.js" ></script>
-    <script type="text/javascript" src="lib/ckeditor/ckeditor.js" ></script>
+    <script type="text/javascript" src="vendor/krynlabs/ckeditor/ckeditor.js" ></script>
 
 
     <script type="text/javascript" >
@@ -44,9 +44,13 @@
         {/if}
 
         CodeMirror.modeURL = "lib/codemirror/mode/%N/%N.js";
+
+
+        window.addEvent('domready', function(){
+            ka.adminInterface = new ka.AdminInterface();
+        });
+
     </script>
-
-
 
     <link rel="stylesheet" type="text/css" href="lib/codemirror/lib/codemirror.css">
     <link rel="stylesheet" type="text/css" href="media/admin/css/ai.css" />

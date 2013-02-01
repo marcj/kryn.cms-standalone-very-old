@@ -5,15 +5,9 @@
         "index.php",
         "install.php",
         ".htaccess",
-        "inc\/template\/images\/",
-        "inc\/template\/css\/kryn_defaults.css",
-        "inc\/template\/css\/kryn_tinyMceContent.css",
-        "inc\/template\/css\/kryn_tinyMceContentElement.css",
-        "inc\/Kryn\/",
-        "inc\/pear\/",
-        "inc\/codemirror\/",
-        "inc\/smarty\/",
-        "inc\/tinymce\/"
+        "lib/",
+        "migration/",
+        "doc/"
     ],
     "domainProperties": {
         "cacheNavigations": {

@@ -13,6 +13,8 @@
 namespace Admin;
 
 use \Core\Kryn;
+use \Core\Object;
+use \Core\Render;
 
 class AdminController {
 
@@ -183,6 +185,8 @@ class AdminController {
 
                 ->done()
 
+                ->addGetRoute('editor', 'getKEditor')
+
 
                 ->addSubController('', '\Admin\Object\Controller')
 
@@ -283,6 +287,38 @@ class AdminController {
             exit;
 
         }
+    }
+
+    public function getKEditor($pNode){
+
+        $pk = \Core\Object::normalizePk('Core.Node', $pNode);
+
+        Kryn::addJs('core/mootools-core.js');
+        Kryn::addJs('core/mootools-more.js');
+        Kryn::addJs('admin/js/ka.js');
+        Kryn::addCss('admin/css/ka/layoutBox.css');
+        Kryn::addCss('admin/css/inpage.css');
+        Kryn::addCss('admin/css/ka/Field.css');
+        Kryn::addCss('admin/css/ka/Button.css');
+        Kryn::addCss('admin/css/ka/Select.css');
+        Kryn::addCss('admin/css/ka/PluginChooser.css');
+
+        Kryn::addCss('admin/css/ka/LayoutBox.css');
+        Kryn::addCss('admin/css/ka/LayoutContent.css');
+
+        Kryn::$page = \Core\NodeQuery::create()->findOneById($pk['id']);
+
+        Kryn::$domain = \Core\DomainQuery::create()->findOneById(Kryn::$page->getDomainId());
+        Kryn::$domain->setResourcecompression(false);
+        Kryn::$current_page = Kryn::$page;
+
+        //if (Kryn::$page->getRenderController() etc
+        $renderer = new \Core\Render\Page();
+
+        $body = 'test';
+        echo $renderer->getHtml($body);
+        exit;
+
     }
 
     public function loginUser($pUsername, $pPassword){

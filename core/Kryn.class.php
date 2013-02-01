@@ -327,7 +327,7 @@ class Kryn {
     public static $client;
 
     /**
-     * Contains all page objects of each Render::renderPage() call.
+     * Contains all page objects of each Render\Utils::renderPage() call.
      * For example {page id=<id>} calls this function.
      *
      * @var array
@@ -524,7 +524,7 @@ class Kryn {
      * 'xhtml 1.0 strict', 'xhtml 1.0 transitional', 'xhtml 1.0 frameset',
      * 'xhtml 1.1 dtd', 'html5'
      * If you want to add a own doctype, you have to extend the static var:
-     *     Kryn\Render::$docTypeMap['<id>'] = '<fullDocType>';
+     *     Kryn\Render\Utils::$docTypeMap['<id>'] = '<fullDocType>';
      * The default is 'xhtml 1.0 transitional'
      * Can also be called through the smarty function {setDocType value='html 4.01 strict'}
      * @static
@@ -532,7 +532,7 @@ class Kryn {
      * @param string $pDocType
      */
     public static function setDocType($pDocType) {
-        Render::$docType = $pDocType;
+        Render\Utils::$docType = $pDocType;
     }
 
     /**
@@ -541,7 +541,7 @@ class Kryn {
      * @return string Doctype
      */
     public static function getDocType() {
-        return Render::$docType;
+        return Render\Utils::$docType;
     }
 
 
@@ -1043,7 +1043,7 @@ class Kryn {
             $cachedUrls =& Kryn::getCache('systemUrls-' . $domain_id);
 
             if (!$cachedUrls || !$cachedUrls['id']) {
-                $cachedUrls = \Admin\Pages::updateUrlCache($domain_id);
+                $cachedUrls = Render\Utils::updateUrlCache($domain_id);
             }
         }
 
@@ -1495,7 +1495,7 @@ class Kryn {
         $domains =& Kryn::getCache('systemDomains');
 
         if (!$domains || !$domains['r2d']) {
-            $domains = \Admin\Pages::updateDomainCache();
+            $domains = Render\Utils::updateDomainCache();
         }
 
         if ($domains['_redirects'][$domainName]) {
@@ -1516,7 +1516,7 @@ class Kryn {
         if (!$domain && !$pNoRefreshCache){
             //we refresh the cache and try it again one times.
 
-            \Admin\Pages::updateDomainCache();
+            Render\Utils::updateDomainCache();
             return self::detectDomain(true);
         }
 
@@ -1708,7 +1708,7 @@ class Kryn {
         $page2Domain =& Kryn::getCache('systemPages2Domain');
 
         if (!is_array($page2Domain)) {
-            $page2Domain = \Admin\Pages::updatePage2DomainCache();
+            $page2Domain = Render\Utils::updatePage2DomainCache();
         }
 
         $pId = ',' . $pId . ',';
@@ -1739,7 +1739,7 @@ class Kryn {
         Kryn::$urls =& Kryn::readCache('systemUrls');
 
         if (!Kryn::$urls || !Kryn::$urls['url']) {
-            Kryn::$urls = \Admin\Pages::updateUrlCache($domain);
+            Kryn::$urls = Render\Utils::updateUrlCache($domain);
         }
 
 
@@ -2037,7 +2037,7 @@ class Kryn {
         if (!Kryn::$page->getLayout()) {
             Kryn::$pageHtml = self::internalError(t('No layout'), tf('No layout chosen for the page %s.', Kryn::$page->getTitle()));
         } else {
-            Kryn::$pageHtml = Render::renderPage();
+            Kryn::$pageHtml = Render\Utils::renderPage();
         }
 
         Kryn::$pageHtml = str_replace('\[[', '[[', Kryn::$pageHtml);
@@ -2066,13 +2066,13 @@ class Kryn {
             count($_POST) == 0
         ) {
 
-            $page = Render::getPage(Kryn::$pageHtml);
+            $page = Render\Utils::getPage(Kryn::$pageHtml);
             Kryn::setCache($pageCacheKey, $page, 10);
             print $page;
 
         } else {
 
-            Render::printPage(Kryn::$pageHtml);
+            Render\Utils::printPage(Kryn::$pageHtml);
         }
 
         exit;
@@ -2333,7 +2333,6 @@ class Kryn {
                 self::$cachedTempFolder .= DIRECTORY_SEPARATOR;
         }
 
-
         if ($pWithKrynContext){
             if (self::$config['id'] === null)
                 self::$config['id'] = 'no-id';
@@ -2344,7 +2343,7 @@ class Kryn {
                 throw new \FileIOException('Temp directory is not writeable. '.$folder);
 
             //add our id to folder, so this installation works inside of a own directory.
-            $folder = self::$cachedTempFolder . $id.DIRECTORY_SEPARATOR;
+            $folder = self::$cachedTempFolder . $id . DIRECTORY_SEPARATOR;
 
             if (!is_dir($folder))
                 mkdir($folder);

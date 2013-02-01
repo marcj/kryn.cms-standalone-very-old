@@ -11,7 +11,10 @@
  */
 
 
-namespace Core;
+namespace Core\Render;
+
+
+use Core\Kryn;
 
 /**
  * Html render class
@@ -21,9 +24,10 @@ namespace Core;
  *
  */
 
-class Render {
 
-    public static $docType = 'xhtml 1.0 transitional';
+class Utils {
+
+    public static $docType = 'html5';
 
 
     public static $docTypeMap = array(
@@ -51,6 +55,14 @@ class Render {
 
     }
 
+    public static function setDocType($docType) {
+        self::$docType = $docType;
+    }
+
+    public static function getDocType() {
+        return self::$docType;
+    }
+
     public static function getPage(&$pContent = '') {
         global $_start;
 
@@ -74,17 +86,14 @@ class Render {
     }
 
     public static function buildHead($pContinue = false) {
-        $tagEnd = (strpos(strtolower(self::$docType), 'xhtml') !== false) ? ' />' : ' >';
+        $tagEnd = (strpos(strtolower(self::$docType), 'xhtml') !== false) ? '/>' : '>';
 
         if ($pContinue == false && Kryn::$admin == false) {
             return '{*Kryn-header*}';
         }
-        $page = Kryn::$page;
-        $domain = Kryn::$domain;
 
-        $html = '<title>' . Kryn::$domain->getTitle() . '</title>' . "\n";
-
-        $html .= "<base href=\"" . Kryn::$baseUrl . "\" $tagEnd\n";
+    $html = '';
+        $html .= "<base href=\"" . Kryn::getBaseUrl() . "\" $tagEnd\n";
         $html .= '<meta name="DC.language" content="' . Kryn::$domain->getLang(). '" ' . $tagEnd . "\n";
 
         $html .= '<link rel="canonical" href="' . Kryn::$canonical . '" ' . $tagEnd . "\n";
@@ -103,7 +112,6 @@ class Render {
         }
 
 
-        $myCssFiles = array();
         $myJsFiles = array();
 
 
@@ -116,64 +124,6 @@ class Render {
             $myCssFiles[] = $css;
         }
 
-        # clearstatcache();
-
-        if (Kryn::$domain->getResourcecompression() != '1') {
-            foreach ($myCssFiles as $css) {
-                if (strpos($css, "http://") !== false) {
-                    $html .= '<link rel="stylesheet" type="text/css" href="' . $css . '" ' . $tagEnd . "\n";
-                } else if (file_exists(PATH . PATH_MEDIA . $css) &&
-                           $mtime = @filemtime(PATH . PATH_MEDIA . $css)
-                ) {
-                    $css .= '?c=' . $mtime;
-                    $html .=
-                        '<link rel="stylesheet" type="text/css" href="' . Kryn::$baseUrl . PATH_MEDIA . $css . '" ' .
-                        $tagEnd . "\n";
-                }
-            }
-        } else {
-            $cssCode = '';
-            foreach ($myCssFiles as $css) {
-                if (strpos($css, "http://") !== false) {
-                    $html .= '<script type="text/javascript" src="' . $css . '" ></script>' . "\n";
-                } else {
-                    //local
-                    $file = PATH_MEDIA . $css;
-                    if (file_exists(PATH . $file) && $mtime = @filemtime(PATH . $file)) {
-                        $cssCode .= $file . '_' . $mtime;
-                    }
-                }
-            }
-
-            $cssmd5 = md5($cssCode);
-
-            $cssCachedFile = PATH_MEDIA_CACHE . 'cachedCss_' . $cssmd5 . '.css';
-
-
-            $cssContent = '';
-
-            if (!file_exists(PATH . $cssCachedFile)) {
-                foreach ($myCssFiles as $css) {
-                    $file = PATH_MEDIA . $css;
-                    if (file_exists($file)) {
-                        $cssContent .= "/* $file: */\n\n";
-                        $temp = Kryn::fileRead($file) . "\n\n\n";
-                        //$cssContent .= Kryn::fileRead( $file )."\n\n\n";
-
-                        //replace relative urls to absolute
-                        $mypath = Kryn::$baseUrl . dirname($file);
-                        $temp = preg_replace('/url\(/', 'url(' . $mypath . '/', $temp);
-
-                        $cssContent .= $temp;
-                    }
-                }
-                Kryn::fileWrite($cssCachedFile, $cssContent);
-            }
-            $html .=
-                '<link rel="stylesheet" type="text/css" href="' . Kryn::$baseUrl . $cssCachedFile . '" ' . $tagEnd . "\n";
-
-            $jsCode = '';
-        }
 
 
         /*
@@ -187,14 +137,13 @@ class Render {
 
         if (Kryn::$domain->getResourcecompression() != '1') {
             foreach ($myJsFiles as $js) {
-                if (strpos($js, "http://") !== FALSE) {
+                if (strpos($js, "http://") !== false) {
                     $html .= '<script type="text/javascript" src="' . $js . '" ></script>' . "\n";
                 } else {
-                    if ($mtime = @filemtime(PATH . PATH_MEDIA . $js) || $js == '/krynJavascriptGlobalPath.js') {
-                        $html .= '<script type="text/javascript" src="'
-                            . ((substr($js,0,1)=='/') ? PATH_MEDIA . $js . '?c=' : substr($js, 1))
-                            . $mtime . '" ></script>' . "\n";
-                    }
+                    $mtime = @filemtime(PATH . (substr($js,0,1) != '/' ? PATH_MEDIA : ''). $js);
+                    $html .= '<script type="text/javascript" src="'
+                        . ((substr($js,0,1) != '/') ? PATH_MEDIA . $js . '?c=' : substr($js, 1))
+                        . $mtime . '" ></script>' . "\n";
                 }
             }
         } else {
@@ -715,6 +664,188 @@ class Render {
         return $html;
     }
 
+
+
+    public static function updateDomainCache() {
+        $res = dbQuery('SELECT * FROM '.pfx.'system_domain');
+        $domains = array();
+
+        while ($domain = dbFetch($res, 1)) {
+
+            $code = $domain['domain'];
+            $lang = "";
+            if ($domain['master'] != 1) {
+                $lang = '_' . $domain['lang'];
+                $code .= $lang;
+            }
+
+            $domains[$code] = $domain['id'];
+
+            $alias = explode(",", $domain['alias']);
+            if (count($alias) > 0) {
+                foreach ($alias as $ad) {
+                    $domainName = str_replace(' ', '', $ad);
+                    if ($domainName != '') {
+                        $domains[$domainName . $lang] = $domain['id'];
+                    }
+                }
+            }
+
+            $redirects = explode(",", $domain['redirect']);
+            if (count($redirects) > 0) {
+                foreach ($redirects as $redirect) {
+                    $domainName = str_replace(' ', '', $redirect);
+                    if ($domainName != '')
+                        $domains['_redirects'][$domainName] = $domain['id'];
+                }
+            }
+
+            Kryn::deleteCache('systemDomain-' . $domain['id']);
+        }
+        Kryn::setCache('systemDomains', $domains);
+        dbFree($res);
+        return $domains;
+    }
+
+
+
+    public static function updateMenuCache($pDomainRsn) {
+        $resu = dbQuery("SELECT id, title, url, pid FROM ".pfx."system_node WHERE
+        				 domain_id = $pDomainRsn AND (type = 0 OR type = 1 OR type = 4)");
+        $res = array();
+        while ($page = dbFetch($resu, 1)) {
+
+            if ($page['type'] == 0)
+                $res[$page['id']] = self::getParentMenus($page);
+            else
+                $res[$page['id']] = self::getParentMenus($page, true);
+
+        }
+
+        Kryn::setCache("menus-$pDomainRsn", $res);
+        Kryn::invalidateCache('navigation_' . $pDomainRsn);
+
+        dbFree($resu);
+        return $res;
+    }
+
+    public static function getParentMenus($pPage, $pAllParents = false) {
+        $pid = $pPage['parent_id'];
+        $res = array();
+        while ($pid != 0) {
+            $parent_page =
+                dbExfetch("SELECT id, title, url, pid, type FROM ".pfx."system_node WHERE id = " . $pid, 1);
+            if ($parent_page['type'] == 0 || $parent_page['type'] == 1 || $parent_page['type'] == 4) {
+                //page or link or page-mount
+                array_unshift($res, $parent_page);
+            } else if ($pAllParents) {
+                array_unshift($res, $parent_page);
+            }
+            $pid = $parent_page['parent_id'];
+        }
+        return $res;
+    }
+
+    public static function updateUrlCache($pDomainRsn) {
+
+        $pDomainRsn = $pDomainRsn + 0;
+
+        $resu = dbQuery("SELECT id, title, url, type, link FROM ".pfx."system_node WHERE domain_id = $pDomainRsn AND parent_id IS NULL");
+        $res = array('url' => array(), 'id' => array());
+
+        $domain = Kryn::getDomain($pDomainRsn);
+
+        while ($page = dbFetch($resu)) {
+
+            $page = self::__pageModify($page, array('realurl' => ''));
+            $newRes = self::updateUrlCacheChildren($page, $domain);
+            $res['url'] = array_merge($res['url'], $newRes['url']);
+            $res['id'] = array_merge($res['id'], $newRes['id']);
+        }
+
+        $aliasRes = dbQuery('SELECT node_id, url FROM '.pfx.'system_node_alias WHERE domain_id = ' . $pDomainRsn);
+        while ($row = dbFetch($aliasRes)) {
+            $res['alias'][$row['url']] = $row['node_id'];
+        }
+
+        self::updatePage2DomainCache();
+        Kryn::setCache("systemUrls-$pDomainRsn", $res);
+        dbFree($aliasRes);
+        dbFree($resu);
+        return $res;
+    }
+
+    public static function updatePage2DomainCache() {
+
+        $r2d = array();
+        $res = dbQuery('SELECT id, domain_id FROM '.pfx.'system_node ');
+
+        while ($row = dbFetch($res)) {
+            $r2d[$row['domain_id']] .= $row['id'] . ',';
+        }
+        Kryn::setCache('systemPages2Domain', $r2d);
+        dbFree(res);
+        return $r2d;
+    }
+
+    public static function updateUrlCacheChildren($pPage, $pDomain = false) {
+        $res = array('url' => array(), 'id' => array(), 'r2d' => array());
+
+        if ($pPage['type'] < 2) { //page or link or folder
+            if ($pPage['realurl'] != '') {
+                $res['url']['url=' . $pPage['realurl']] = $pPage['id'];
+                $res['id'] = array('id=' . $pPage['id'] => $pPage['realurl']);
+            } else {
+                $res['id'] = array('id=' . $pPage['id'] => $pPage['url']);
+            }
+        }
+
+        $pages = dbExfetchAll("SELECT id, title, url, type, link
+                             FROM ".pfx."system_node
+                             WHERE parent_id = " . $pPage['id']);
+
+        if (is_array($pages)) {
+            foreach ($pages as $page) {
+
+
+                Kryn::deleteCache('page_' . $page['id']);
+
+                $page = self::__pageModify($page, $pPage);
+                $newRes = self::updateUrlCacheChildren($page);
+
+                $res['url'] = array_merge($res['url'], $newRes['url']);
+                $res['id'] = array_merge($res['id'], $newRes['id']);
+                $res['r2d'] = array_merge($res['r2d'], $newRes['r2d']);
+
+            }
+        }
+        return $res;
+    }
+
+    public static function __pageModify($page, $pPage) {
+        if ($page['type'] == 0) {
+            $del = '';
+            if ($pPage['realurl'] != '')
+                $del = $pPage['realurl'] . '/';
+            $page['realurl'] = $del . $page['url'];
+
+        } elseif ($page['type'] == 1) { //link
+            if ($page['url'] == '') { //if empty, use parent-url else use url-hiarchy
+                $page['realurl'] = $pPage['realurl'];
+            } else {
+                $del = '';
+                if ($pPage['realurl'] != '')
+                    $del = $pPage['realurl'] . '/';
+                $page['realurl'] = $del . $page['url'];
+            }
+
+            $page['prealurl'] = $page['link'];
+        } else if ($page['type'] != 3) { //no deposit
+            //ignore the hiarchie-item
+            $page['realurl'] = $pPage['realurl'];
+        }
+        return $page;
+    }
 
 }
 

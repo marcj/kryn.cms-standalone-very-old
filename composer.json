@@ -1,0 +1,22 @@
+{
+    "name": "KrynLabs/Kryn.cms",
+    "description": "A open-source enterprise Content-Management-System and Content-Management-Framework based on Propel and Symfony components.",
+    "keywords": ["CMS", "PHP CMS", "WCMS"],
+    "license": "GPL",
+    "homepage": "http://www.kryn.org/",
+    "authors": [
+        {
+            "name": "MArc J. Schmidt",
+            "homepage": "https://github.com/MArcJ",
+            "email": "marc@kryn.org"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "twig/twig": "1.*",
+        "smarty/smarty": ">=v3.1",
+        "krynlabs/ckeditor": "4.0",
+        "propel/propel1": "1.6.*@dev",
+        "symfony/console": ">=v2.1"
+    }
+}

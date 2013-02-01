@@ -2,51 +2,14 @@
 
 namespace Core;
 
-
-
-//init auto-loader for propel module models.
-spl_autoload_register(function ($pClass) {
-
-    $cwd = getcwd();
-    chdir(PATH);
-
-    $ext = strtolower(substr($pClass, 0, $sPos = strpos($pClass, '\\')));
-    $clazz = substr($pClass, $sPos+1);
-
-    if (file_exists($clazz = PATH.Kryn::getModuleDir($ext).'model/'.$clazz.'.php')){
-        include $clazz;
-        chdir($cwd);
-        return true;
-    }
-    chdir($cwd);
-
-});
-
-
-
-$propelClasses = Kryn::getTempFolder().'propel-classes/';
-//init auto-loader for propel libs.
-spl_autoload_register(function($pClass) use ($propelClasses) {
-
-    if (substr($pClass, 0, 1) == '\\')
-        $pClass = substr($pClass, 1);
-    $pClass = str_replace('\\', '/', $pClass);
-
-    if (file_exists($propelClasses.$pClass.'.php')){
-        include $propelClasses.$pClass.'.php';
-        return true;
-    }
-
-    if ($pClass == 'Smarty'){
-        include PATH.'lib/Smarty/Smarty.class.php';
-        return true;
-    }
-});
-
 /**
  * Register auto loader.
  *
  */
+
+//composer's vendor autoload
+include('vendor/autoload.php');
+
 //init auto-loader for module folder.
 spl_autoload_register(function($pClass){
 
@@ -87,3 +50,32 @@ spl_autoload_register(function($pClass){
 
 });
 
+//init auto-loader for propel models.
+spl_autoload_register(function ($pClass) {
+
+
+    $ext = strtolower(substr($pClass, 0, $sPos = strpos($pClass, '\\')));
+    $clazz = substr($pClass, $sPos+1);
+
+    if (file_exists($clazz = PATH.Kryn::getModuleDir($ext).'model/'.$clazz.'.php')){
+        include $clazz;
+        return true;
+    }
+
+});
+
+
+//init auto-loader for propel model base libs.
+spl_autoload_register(function($pClass) {
+
+    $propelClasses = Kryn::getTempFolder().'propel-classes/';
+
+    if (substr($pClass, 0, 1) == '\\')
+        $pClass = substr($pClass, 1);
+    $pClass = str_replace('\\', '/', $pClass);
+
+    if (file_exists($propelClasses.$pClass.'.php')){
+        include $propelClasses.$pClass.'.php';
+        return true;
+    }
+});

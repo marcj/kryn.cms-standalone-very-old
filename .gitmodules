@@ -1,6 +1,0 @@
-[submodule "lib/propel"]
-	path = lib/propel
-	url = git://github.com/propelorm/Propel.git
-[submodule "lib/ckeditor"]
-	path = lib/ckeditor
-	url = https://github.com/ckeditor/ckeditor-dev.git

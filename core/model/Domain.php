@@ -41,20 +41,6 @@ class Domain extends BaseDomain {
         return $this->realDomain;
     }
 
-    /**
-     * @param string $title
-     */
-    public function setTitle($title) {
-        $this->title = $title;
-    }
-
-    /**
-     * @return string
-     */
-    public function getTitle() {
-        return $this->title;
-    }
-
     public function getUrl($pSSL = null){
 
         if ($pSSL === null)

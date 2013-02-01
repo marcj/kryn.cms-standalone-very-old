@@ -1,6 +1,5 @@
 <?php
 
-
 $_time = time();
 $_start = microtime(true);
 
@@ -23,7 +22,6 @@ if (!defined('PATH')){
 }
 $cwd = getcwd();
 chdir(PATH);
-@set_include_path( '.' . PATH_SEPARATOR . PATH . 'lib/pear/' . PATH_SEPARATOR . get_include_path());
 
 /**
  * Check and loading config.php or redirect to install.php
@@ -38,7 +36,7 @@ if (!isset($cfg)){
 
 
 if (!function_exists('mb_internal_encoding'))
-    die('FATAL ERROR: PHP module mbstring is not loaded. Aborted.');
+    die('FATAL ERROR: PHP module mbstring is not loaded. Aborted. Run the installer again.');
 
 mb_internal_encoding("UTF-8");
 
@@ -57,20 +55,30 @@ include_once(PATH_CORE.'global/framework.global.php');
 include_once(PATH_CORE.'global/exceptions.global.php');
 
 # Load very important classes.
-include_once(PATH_CORE.'Kryn.class.php');
 include_once(PATH_CORE.'Utils.class.php');
-include_once(PATH.'lib/propel/runtime/lib/Propel.php');
+
+include_once(PATH.'core/bootstrap.autoloading.php');
 
 Core\Kryn::$config = $cfg;
-Core\Kryn::setBaseUrl(str_replace('index.php', '', $_SERVER['SCRIPT_NAME']));
+
+$http = 'http://';
+if ($_SERVER['HTTPS'] == '1' || strtolower($_SERVER['HTTPS']) == 'on')
+    $http = 'https://';
+
+$port = '';
+if (($_SERVER['SERVER_PORT'] != 80 && $http == 'http://') ||
+    ($_SERVER['SERVER_PORT'] != 443 && $http == 'https://')
+) {
+    $port = ':' . $_SERVER['SERVER_PORT'];
+}
+
+Core\Kryn::setBaseUrl($http.$_SERVER['SERVER_NAME'].$port.str_replace('index.php', '', $_SERVER['SCRIPT_NAME']));
 
 
 /**
  * Load active modules into Kryn::$extensions.
  */
 Core\Kryn::loadActiveModules();
-
-include_once(PATH.'core/bootstrap.autoloading.php');
 
 
 if ($cfg['timezone'])

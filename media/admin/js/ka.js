@@ -22,11 +22,6 @@ window._ = function (p) {
     //return _kml2html(p);
 };
 
-window.addEvent('domready', function(){
-    ka.adminInterface = new ka.AdminInterface();
-});
-
-
 if (typeOf(ka.langs) != 'object') this.langs = {};
 
 window.logger = function(){
