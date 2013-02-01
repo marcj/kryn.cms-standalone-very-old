@@ -1,11 +1,10 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+<!DOCTYPE html>
+<html>
 <head>
     <title>{if Kryn::$config.systemTitle}{Kryn::$config.systemTitle} | {/if}Kryn.cms administration</title>
 
     <base href="{Kryn::getBaseUrl()}" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 
     <link rel="stylesheet" type="text/css" href="media/core/css/normalize.css"  />
     <script type="text/javascript" src="media/core/mootools-core-1.4.5-full-nocompat.js" ></script>
@@ -50,7 +49,7 @@
 
 
     <link rel="stylesheet" type="text/css" href="lib/codemirror/lib/codemirror.css">
-    <link rel="stylesheet" type="text/css" href="media/admin/css/ka/ai.css" />
+    <link rel="stylesheet" type="text/css" href="media/admin/css/ai.css" />
     <link rel="stylesheet" type="text/css" href="media/admin/css/ka.wm.css" />
     <link rel="stylesheet" type="text/css" href="media/admin/icons/style.css" />
 

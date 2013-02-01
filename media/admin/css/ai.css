@@ -126,7 +126,7 @@ div.header {
     color: white;
     z-index: 110000;
 
-    background-image: url(../../images/admin-topbar-bg.png);
+    background-image: url(../images/admin-topbar-bg.png);
 
 }
 
@@ -150,13 +150,10 @@ div.mainlinks {
     left: 0px;
 }
 
-div.headRight a img,
-div.mainlinks a img {
-    position: absolute;
-    top: 16px;
-    left: 8px;
-    width: 14px;
-    height: 14px;
+.bar-dock-logo img {
+    position: relative;
+    left: 7px;
+    top: 4px;
 }
 
 div.mainlinks > a:before {
@@ -225,9 +222,7 @@ div.mainlinks a.ka-menu-item-childopener img,
 div.mainlinks a.ka-menu-item-childopener:link img,
 div.ka-mainlink-additionalmenubar-container a.ka-menu-item-childopener img,
 div.ka-mainlink-additionalmenubar-container a.ka-menu-item-childopener:link img {
-    position: relative;
-    left: 2px;
-    top: 14px;
+    vertical-align: middle;
 }
 
 .header .ka-mainlink-additionalmenubar,
@@ -262,13 +257,6 @@ div.ka-mainlink-additionalmenubar-container {
     -moz-border-radius-topright: 5px;
     -webkit-border-top-right-radius: 5px;
     border-top-right-radius: 5px;
-}
-
-div.mainlinks a.bar-dock-logo img { 
-    width: 15px;
-    height: auto;
-    top: 15px;
-    left: 12px;
 }
 
 div.mainlinks a.bar-dock-logo {
@@ -385,7 +373,7 @@ div.ka-mainlink-additionalmenubar-container > a:active {
     top: 70px;
     bottom: 40px;
     min-width: 200px;
-    background-image: url(../../images/module-bar-bg.png);
+    background-image: url(../images/module-bar-bg.png);
     background-repeat: repeat-x;
     padding-top: 7px; 
     background-color: #656465;
@@ -489,7 +477,7 @@ div.ka-mainlink-additionalmenubar-container > a:active {
     cursor: pointer;
     text-align: center;
     
-    background-image: url(../../images/module-bar-button.png);
+    background-image: url(../images/module-bar-button.png);
     background-position: right top;
     background-repeat: no-repeat;
     
@@ -503,7 +491,7 @@ div.ka-mainlink-additionalmenubar-container > a:active {
 
 .ka-module-toggler:hover {
     background-color: #287ca4;
-    background-image: url(../../images/module-bar-button-active.png);
+    background-image: url(../images/module-bar-button-active.png);
 }
 
 .ka-module-toggler img {
@@ -725,7 +713,7 @@ a.ka-subnavi-main:link {
     z-index: 111000;
     overflow: hidden;
 
-    background-image: url(../../images/admin-topbar-bg.png);
+    background-image: url(../images/admin-topbar-bg.png);
 }
 
 
@@ -997,7 +985,7 @@ a.ka-create-search-index-icon.red {
     right: 0px;
     top: -6px;
     height: 6px;
-    background-image: url(../../images/ka-admin-possibleContenItems-toggler.png);
+    background-image: url(../images/ka-admin-possibleContenItems-toggler.png);
 }
 
 .ka-pages-tree-elementPropertyToolbar .ka-field-main-small {
