@@ -179,7 +179,7 @@
     <column name="sort_mode" type="VARCHAR" size="8" required="false"/>
     <column name="target" type="VARCHAR" size="64" required="false"/>
     <column name="visible" type="BOOLEAN" required="false"/>
-    <column name="access_denied" type="BOOLEAN" size="255" required="false"/>
+    <column name="access_denied" type="BOOLEAN" required="false"/>
     <column name="meta" type="VARCHAR" required="false"/>
     <column name="properties" type="LONGVARCHAR" required="false"/>
     <column name="cdate" type="INTEGER" required="false"/>

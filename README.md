@@ -5,8 +5,8 @@ A AJAX PHP enterprise open-source Content-Management-System and Content-Manageme
 
 We're in development. This means, there are still a _lot_ of issues in this product (not even an Alpha).
 
-[![Build Status](https://travis-ci.org/KrynLabs/Kryn.cms.png?branch=propel1.6)](https://travis-ci.org/KrynLabs/Kryn.cms)
 [![Build Status](https://drone.io/marcj/Kryn.cms/status.png)](https://drone.io/marcj/Kryn.cms/latest)
+[![Build Status](https://travis-ci.org/KrynLabs/Kryn.cms.png?branch=propel1.6)](https://travis-ci.org/KrynLabs/Kryn.cms)
 
 
 More information and screenshots:
@@ -17,7 +17,9 @@ Installation
 ------------
 
 1. Extract the tar/zip-ball
-2. Open the install.php through your browser
+2.1. get `composer` with `wget http://getcomposer.org/composer.phar`
+2.2. Update vendor libraries with `php composer.phar install`
+3. Open the install.php through your browser
 
 
 Features
