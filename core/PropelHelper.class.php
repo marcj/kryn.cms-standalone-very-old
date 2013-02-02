@@ -15,8 +15,8 @@ class PropelHelper {
             $result = self::fullGenerator();
         } catch(\Exception $e){
             self::cleanup();
-            die('exception: '.get_class($e).': '.$e);
             Kryn::internalError('Propel initialization Error', is_array($e)?print_r($e,true):$e);
+            throw $e;
         }
 
         self::cleanup();
@@ -399,7 +399,8 @@ class PropelHelper {
         $files = find($tmp . 'propel/build/migrations/PropelMigration_*.php');
         if ($files[0]) unlink($files[0]);
 
-        $content = self::execute('diff');
+        $content = self::execute('sql-diff');
+
         if (is_array($content)) return $content;
         if (strpos($content, '"sql-diff" failed'))
             return array($content);
@@ -455,6 +456,8 @@ class PropelHelper {
         $tmp .= 'propel/';
 
         $argv[] = '-Dproject.dir='.$tmp;
+
+        var_dump($tmp);
 
         require_once 'phing/Phing.php';
 
@@ -521,6 +524,8 @@ class PropelHelper {
         $dsn = $adapter.':host='.Kryn::$config['database']['server'].';dbname='.Kryn::$config['database']['name'].';';
 
         $properties = '
+propel.mysql.tableType = InnoDB
+
 propel.database = '.$adapter.'
 propel.database.url = '.$dsn.'
 propel.database.user = '.Kryn::$config['database']['user'].'
@@ -529,12 +534,14 @@ propel.tablePrefix = '.Kryn::$config['database']['prefix'].'
 propel.database.encoding = utf8
 propel.project = kryn
 
-propel.disableIdentifierQuoting = true
 propel.namespace.autoPackage = true
 propel.packageObjectModel = true
 propel.behavior.workspace.class = lib.WorkspaceBehavior
 
 ';
+
+        if ($adapter == 'pgsql')
+            $properties .= "propel.disableIdentifierQuoting=true";
 
         file_put_contents($tmp . 'propel/build.properties', $properties)?true:false;
 

@@ -193,30 +193,25 @@ class Manager {
 
         \Propel::setConfiguration(\Core\PropelHelper::getConfig());
 
-        try {
+        $manager->install('core', true);
+        $manager->install('admin', true);
+        $manager->install('users', true);
 
-            $manager->install('core', true);
-            $manager->install('admin', true);
-            $manager->install('users', true);
+        foreach ($pConfig['activeModules'] as $module)
+            $manager->install($module, true);
 
-            foreach ($pConfig['activeModules'] as $module)
-                $manager->install($module, true);
+        \Core\PropelHelper::updateSchema();
+        \Core\PropelHelper::generateClasses();
 
-            \Core\PropelHelper::updateSchema();
-            \Core\PropelHelper::generateClasses();
+        $manager->installDatabase('core');
+        $manager->installDatabase('admin');
+        $manager->installDatabase('users');
 
-            $manager->installDatabase('core');
-            $manager->installDatabase('admin');
-            $manager->installDatabase('users');
-
-            foreach ($pConfig['activeModules'] as $module)
-                $manager->installDatabase($module);
+        foreach ($pConfig['activeModules'] as $module)
+            $manager->installDatabase($module);
 
 
-            include('core/bootstrap.startup.php');
-        } catch (\Exception $ex){
-            die('exception: '.get_class($ex).': '.$ex);
-        }
+        include('core/bootstrap.startup.php');
 
         \Core\PropelHelper::cleanup();
 

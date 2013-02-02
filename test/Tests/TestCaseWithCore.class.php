@@ -28,7 +28,6 @@ class TestCaseWithCore extends \PHPUnit_Framework_TestCase {
                 }
                 Manager::bootupCore();
             } catch (\Exception $ex){
-                die('exception: '.get_class($ex).': '.$ex);
                 $result->addError($this, $ex, 0);
                 return $result;
             }
