@@ -6,6 +6,7 @@ A AJAX PHP enterprise open-source Content-Management-System and Content-Manageme
 We're in development. This means, there are still a _lot_ of issues in this product (not even an Alpha).
 
 [![Build Status](https://travis-ci.org/KrynLabs/Kryn.cms.png?branch=propel1.6)](https://travis-ci.org/KrynLabs/Kryn.cms)
+[![Build Status](https://drone.io/marcj/Kryn.cms/status.png)](https://drone.io/marcj/Kryn.cms/latest)
 
 
 More information and screenshots:

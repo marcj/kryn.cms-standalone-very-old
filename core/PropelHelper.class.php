@@ -441,10 +441,10 @@ class PropelHelper {
     public static function execute(){
 
         $chdir = getcwd();
-        chdir('lib/propel/generator/');
+        chdir('vendor/propel/propel1/generator/');
 
         $oldIncludePath = get_include_path();
-        set_include_path("./lib" . PATH_SEPARATOR . get_include_path());
+        set_include_path(PATH.'vendor/phing/phing/classes/' . PATH_SEPARATOR . get_include_path());
 
         $argv = array('propel-gen');
 
