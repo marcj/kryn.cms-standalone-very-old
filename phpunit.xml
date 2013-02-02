@@ -1,6 +1,5 @@
 <phpunit bootstrap="test/bootstrap.php"
          colors="true"
-         convertErrorsToExceptions="false"
          convertNoticesToExceptions="false"
          convertWarningsToExceptions="false">
 </phpunit>

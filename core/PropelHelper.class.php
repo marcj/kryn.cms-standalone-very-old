@@ -529,6 +529,7 @@ propel.tablePrefix = '.Kryn::$config['database']['prefix'].'
 propel.database.encoding = utf8
 propel.project = kryn
 
+propel.disableIdentifierQuoting = true
 propel.namespace.autoPackage = true
 propel.packageObjectModel = true
 propel.behavior.workspace.class = lib.WorkspaceBehavior
