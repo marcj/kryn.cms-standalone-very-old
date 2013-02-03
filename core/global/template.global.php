@@ -105,7 +105,12 @@ function tInit(){
         Core\Kryn::$smarty->template_dir = './';
         Core\Kryn::$smarty->registerClass('Kryn', 'Core\Kryn');
         Core\Kryn::$smarty->registerClass('Navigation', 'Core\Navigation');
-        Core\Kryn::$smarty->plugins_dir[] = 'core/Template/SmartyPlugins';
+        Core\Kryn::$smarty->addPluginsDir('./core/Template/SmartyPlugins');
+
+        include('core/Template/SmartyPlugins/smarty_internal_compile_tc.php');
+        include('core/Template/SmartyPlugins/smarty_internal_compile_t.php');
+        Core\Kryn::$smarty->loadPlugin('Smarty_Internal_Compile_Tc');
+        Core\Kryn::$smarty->loadPlugin('Smarty_Internal_Compile_T');
 
         Core\Kryn::$smarty->assign('random', mt_rand());
 
@@ -115,5 +120,3 @@ function tInit(){
         Core\Kryn::$smarty->compile_dir = $compileDir;
     }
 }
-
-?>

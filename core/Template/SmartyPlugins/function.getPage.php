@@ -8,4 +8,3 @@ function smarty_function_getPage($params, &$smarty){
         tAssign( $tId, $page );
         return $page;
 }
-?>

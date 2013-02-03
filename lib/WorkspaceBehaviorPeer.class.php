@@ -62,7 +62,7 @@ class WorkspaceBehaviorPeer extends \Core\PropelBasePeer {
 
         $tables = $criteria->getTablesColumns();
         if (empty($tables)) {
-            throw new PropelException("Empty Criteria");
+            throw new \PropelException("Empty Criteria");
         }
 
         $fields = array_keys($tableMap->getColumns());
@@ -91,7 +91,7 @@ class WorkspaceBehaviorPeer extends \Core\PropelBasePeer {
 
             } catch (Exception $e) {
                 Propel::log($e->getMessage(), Propel::LOG_ERR);
-                throw new PropelException(sprintf('Unable to execute DELETE statement [%s]', $sql), $e);
+                throw new PropelException(sprintf('Unable to execute INSERT INTO statement [%s]', $sql), $e);
             }
 
         } // for each table

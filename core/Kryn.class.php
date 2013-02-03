@@ -1441,13 +1441,13 @@ class Kryn {
         $possibleLanguage     = self::getPossibleLanguage();
         $hostnameWithLanguage = $hostname . '/' . $possibleLanguage;
 
-        $cachedDomains        = self::getFastCache('core.domains');
-        $cachedDomainsCreated = self::getCache('core.domains.created'); //for loadBalanced scenarios
+        $cachedDomains        = self::getFastCache('core/domains');
+        $cachedDomainsCreated = self::getCache('core/domains.created'); //for loadBalanced scenarios
         if ($cachedDomains) $cachedDomains = \unserialize($cachedDomains);
-
 
         if (!$cachedDomains || $cachedDomains['!created'] != $cachedDomainsCreated){
 
+            $cachedDomains = array();
             $domains = DomainQuery::create()->find();
             foreach ($domains as $domain){
                 $key = $domain->getDomain();
@@ -1478,24 +1478,23 @@ class Kryn {
 
             $created = microtime();
             $cachedDomains['!created'] = $created;
-            self::setFastCache('core.domains', \serialize($cachedDomains), true);
-            self::setCache('core.domains.created', $created);
+            self::setFastCache('core/domains', \serialize($cachedDomains));
+            self::setCache('core/domains.created', $created);
 
         }
-
-
         //search redirect
         if ($redirectToDomain = $cachedDomains['!redirects'][$hostnameWithLanguage] ||
             $redirectToDomain = $cachedDomains['!redirects'][$hostname]
         ){
             $domain = $cachedDomains[$redirectToDomain];
+
             $dispatcher->dispatch('core.domain-redirect', new GenericEvent($domain));
             return null;
         }
 
         //search alias
-        if ($aliasHostname = $cachedDomains['!alias'][$hostnameWithLanguage] ||
-            $aliasHostname = $cachedDomains['!alias'][$hostname]
+        if (($aliasHostname = $cachedDomains['!aliases'][$hostnameWithLanguage]) ||
+            ($aliasHostname = $cachedDomains['!aliases'][$hostname])
         ){
             $domain = $cachedDomains[$aliasHostname];
             $hostname = $aliasHostname;
@@ -1504,7 +1503,7 @@ class Kryn {
         }
 
         if (!$domain){
-            $dispatcher->dispatch('core.domain-not-found');
+            $dispatcher->dispatch('core.domain-not-found', new GenericEvent($hostname));
             return;
         }
 
@@ -1519,7 +1518,7 @@ class Kryn {
         $request    = self::getRequest();
 
         $dispatcher->addListener(KernelEvents::EXCEPTION, function(GetResponseForExceptionEvent $event){
-            Kryn::notFound();
+            Utils::exceptionHandler($event->getException());
         });
 
     }
@@ -1527,6 +1526,7 @@ class Kryn {
     public static function setupPageRoutes(){
 
         self::$domain = self::detectDomain();
+        if (!self::$domain) return;
         $dispatcher   = self::getEventDispatcher();
 
         $page = self::searchPage();
@@ -1568,7 +1568,7 @@ class Kryn {
         });
 
         $dispatcher->addListener('core.domain-not-found', function(GenericEvent $event){
-            Kryn::internalError('Domain not found');
+            Kryn::internalError(t('Domain not found'), tf('Domain `%s` not found.', $event->getSubject()));
         });
 
         $dispatcher->addListener('core.domain-no-start-page', function(GenericEvent $event){
@@ -1958,7 +1958,7 @@ class Kryn {
 
         $msg = sprintf(t('Route not found %s'), Kryn::$domain->getDomain() . '/' . Kryn::getRequestedPath(true));
         klog('404', $msg);
-        self::internalError('404 Not Found', $msg);
+        self::internalError('Not Found', $msg);
         exit;
     }
 
@@ -1972,7 +1972,8 @@ class Kryn {
     public static function internalError($pTitle = '', $pMsg) {
         tAssign('msg', $pMsg);
         tAssign('title', $pTitle?$pTitle:'Internal system error');
-        print tFetch('kryn/internal-error.tpl');
+        $response = new Response(tFetch('kryn/internal-error.tpl'), 404);
+        $response->send();
         exit;
     }
 

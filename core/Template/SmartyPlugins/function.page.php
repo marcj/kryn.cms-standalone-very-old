@@ -11,5 +11,3 @@ function smarty_function_page( $params, &$smarty ){
         return '';
         
 }
-
-?>

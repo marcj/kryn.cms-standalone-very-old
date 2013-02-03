@@ -15,5 +15,3 @@ function smarty_function_resizeImage( $params, &$smarty ){
     }
     return $imagelink;
 }
-
-?>

@@ -18,4 +18,3 @@ function smarty_modifier_active($string){
         return true;
     }
 }
-?>

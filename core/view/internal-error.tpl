@@ -30,6 +30,7 @@
         #error > h2 {
             margin-top: 50px;
             color: red;
+            text-shadow: 0 1px 0 black;
         }
 
         .msg {
@@ -64,7 +65,7 @@
 
         {foreach from=$backtrace item=trace name=trace}
             <div style="border-bottom: 1px solid silver; padding: 5px; margin-bottom: 5px;">
-               <div>#{$trace.id} <span style="color: gray;">{$trace.file}+{$trace.line}</span></div>
+               <div>#{$trace.id} <span style="color: gray;">{$trace.file} +{$trace.line}</span></div>
                {if $trace.function}<div style="color: gray;">(triggers {$trace.function}({$trace.args_string}))</div>{/if}
                <div relline="{$trace.relLine}" style="white-space: pre; border: 1px solid gray;" class="cm-s-default" id="codemirror_{$smarty.foreach.trace.index}">{$trace.code|escape:"html"}</div>
             </div>

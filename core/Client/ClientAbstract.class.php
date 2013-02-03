@@ -46,7 +46,7 @@ abstract class ClientAbstract {
      *   passwdHashKey = <diggets>
      *   tokenId = "cookieName"
      *   timeout = <seconds> (Default is time()+12*3600)
-     *   cookieDomain = '' (default is Kryn::getRequest()->getHost())
+     *   cookieDomain = '' (default is null)
      *   cookiePath = '' (default is '/')
      *   autoLoginLogout = false
      *   loginTrigger = auth-login
@@ -88,9 +88,6 @@ abstract class ClientAbstract {
 
         if (!$this->config['cookiePath'])
             $this->config['cookiePath'] = '/';
-
-        if (!$this->config['cookieDomain'])
-            $this->config['cookieDomain'] = Kryn::getRequest()->getHost();
 
         $this->config['store']['config']['ClientInstance'] = $this;
 
@@ -146,7 +143,6 @@ abstract class ClientAbstract {
 
         setCookie($this->getTokenId(), $this->getToken(), time() + $this->config['timeout'],
             $this->config['cookiePath'], $this->config['cookieDomain']);
-
 
     }
 

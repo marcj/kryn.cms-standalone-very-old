@@ -20,11 +20,7 @@ class Utils {
                 foreach ($config['caches'] as $cache){
                     if ($m = $cache['method']){
                         if (method_exists(Kryn::$modules[$extKey], $m))
-                            try {
-                                Kryn::$modules[$extKey]->$m();
-                            } catch (Exception $e){
-                                klog('admin', 'Error during the clearCache function: '.$e);
-                            }
+                            Kryn::$modules[$extKey]->$m();
                     } else {
                         Kryn::deleteCache($cache['key']);
                     }

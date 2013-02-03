@@ -22,7 +22,7 @@ class RestTestCase extends TestCaseWithCore {
             $this->fail(json_format(json_encode($data)));
         }
 
-        return !json_last_error() ? $data : false;
+        return !json_last_error() ? $data : $info['content'];
     }
 
     public function setUp(){

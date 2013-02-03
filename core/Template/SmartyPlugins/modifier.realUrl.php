@@ -14,4 +14,3 @@ function smarty_modifier_realUrl($params){
 
     return Core\Kryn::pageUrl( $rsn );
 }
-?>

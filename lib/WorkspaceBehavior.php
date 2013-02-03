@@ -136,20 +136,6 @@ class WorkspaceBehavior extends Behavior
                                           'autoIncrement' => 'true'
                                      ));
 
-            // create the foreign key
-            $fk = new ForeignKey();
-            $fk->setForeignTableCommonName($table->getCommonName());
-            $fk->setForeignSchemaName($table->getSchema());
-            $fk->setOnDelete(null);
-            $fk->setOnUpdate(null);
-            $tablePKs = $table->getPrimaryKey();
-            $fk->setOnDelete('cascade');
-            foreach ($tablePKs as $key => $column) {
-                $fk->addReference($column, $tablePKs[$key]);
-            }
-            $versionTable->addForeignKey($fk);
-
-
             /*
             // create the foreign key
             $fk = new ForeignKey();

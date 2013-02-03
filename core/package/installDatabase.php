@@ -18,7 +18,7 @@ use Core\WorkspaceQuery;
 
 //setup Nodes
 
-$domainName = $path = $_GET['domain']?$_GET['domain']:'127.0.0.1';
+$domainName = $_GET['domain']?$_GET['domain']:'127.0.0.1';
 if ($_SERVER['SERVER_NAME'])
     $domainName = $_SERVER['SERVER_NAME'];
 

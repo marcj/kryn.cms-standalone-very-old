@@ -7,4 +7,3 @@ function smarty_function_krynContent( $params, &$smarty ){
     return Core\PageController::getSlotHtml($params['id'], $params);
 
 }
-?>

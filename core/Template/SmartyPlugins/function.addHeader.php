@@ -23,4 +23,3 @@ function smarty_function_addHeader( $params, &$smarty ){
         Core\Kryn::addHeader($params['content']);
     }    
 }
-?>

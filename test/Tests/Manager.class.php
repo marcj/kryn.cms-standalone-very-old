@@ -72,6 +72,10 @@ class Manager {
             self::setupConfig();
         }
 
+        if (!extension_loaded('curl')){
+            return null;
+        }
+
         $domain = self::$config['domain'];
         if (self::$config['port'] && self::$config['port'] != 80)
             $domain .= ':'.self::$config['port'];
@@ -85,9 +89,13 @@ class Manager {
         $url = $domain.$pPath;
 
         curl_setopt($ch, CURLOPT_URL, $url);
+        //curl_setopt($ch, CURLOPT_HEADER, 1);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_COOKIEJAR, \Core\Kryn::getTempFolder().'/cookies.txt');
-        curl_setopt($ch, CURLOPT_COOKIEFILE, \Core\Kryn::getTempFolder().'/cookies.txt');
+        $cookieFile = \Core\Kryn::getTempFolder().'cookies.txt';
+        //$cookieFile = '/var/tmp/test.txt';
+        touch($cookieFile);
+        curl_setopt($ch, CURLOPT_COOKIEJAR, $cookieFile);
+        curl_setopt($ch, CURLOPT_COOKIEFILE, $cookieFile);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array("X-Requested-With: XMLHttpRequest"));
 
         if (strtoupper($pMethod) == 'POST' || strtoupper($pMethod) == 'PUT'){
@@ -114,7 +122,6 @@ class Manager {
 
     public static function uninstall(){
 
-
         $trace = debug_backtrace();
         foreach ($trace as $t){
             $string[] = basename($t['file']).':'.$t['line'];
@@ -126,10 +133,7 @@ class Manager {
             die("Kryn.cms not installed. =>".implode(', ', $string)." \n");
         }
 
-        $config['displayBeautyErrors'] = 0; //0 otherwise the exceptionHandler of kryn is used, what breaks the PHPUnit.
-        $cfg = $config;
-
-        $doit = true;
+        $config['displayBeautyErrors'] = 0; //0 otherwise the exceptionHandler of kryn is used, that breaks the PHPUnit.
 
         require('core/bootstrap.php');
 
@@ -138,17 +142,15 @@ class Manager {
 
         $manager = new \Admin\Module\Manager;
 
-            foreach ($config['activeModules'] as $module){
-                $manager->uninstall($module, false, true);
-            }
+        foreach ($config['activeModules'] as $module){
+            $manager->uninstall($module, false, true);
+        }
 
-            $manager->uninstall('users', false, true);
-            $manager->uninstall('admin', false, true);
-            $manager->uninstall('core', false, true);
+        $manager->uninstall('users', false, true);
+        $manager->uninstall('admin', false, true);
+        $manager->uninstall('core', false, true);
 
-            \Core\PropelHelper::updateSchema();
-
-
+        \Core\PropelHelper::updateSchema();
 
         \Core\SystemFile::remove('config.php');
 
@@ -231,9 +233,8 @@ class Manager {
         $cfg = include('config.php');
         $cfg['displayErrors'] = false;
 
-        //todo, make it configable
         $_SERVER['PATH_INFO'] = '/';
-        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['SERVER_NAME'] = self::$config['domain'];
 
         require('core/bootstrap.php');
         require('core/bootstrap.startup.php');
