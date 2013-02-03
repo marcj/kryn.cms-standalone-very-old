@@ -17,9 +17,9 @@ Installation
 ------------
 
 1. Extract the tar/zip-ball
-2.1. get `composer` with `wget http://getcomposer.org/composer.phar`
-2.2. Update vendor libraries with `php composer.phar install`
-3. Open the install.php through your browser
+2. get `composer` through `wget http://getcomposer.org/composer.phar`
+3. Install vendor libraries with `php composer.phar install`
+4. Open `install.php` through your browser
 
 
 Features
