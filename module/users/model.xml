@@ -54,7 +54,7 @@
     <foreign-key foreignTable="system_user" onDelete="cascade" phpName="GroupMembershipUser">
       <reference local="user_id" foreign="id"/>
     </foreign-key>
-    <foreign-key foreignTable="system_group" phpName="GroupMembership">
+    <foreign-key foreignTable="system_group" phpName="GroupMembership" onDelete="cascade">
       <reference local="group_id" foreign="id"/>
     </foreign-key>
     <vendor type="mysql">

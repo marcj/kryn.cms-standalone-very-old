@@ -2,8 +2,6 @@
 
 namespace Core;
 
-use \Core\Kryn;
-
 /**
  * Controller class for controllers.
  *
@@ -25,7 +23,7 @@ class Controller {
 	 * @param  mixed &$pValue
 	 */
 	public function assign($pName, $pValue){
-		if (!$viewData)
+		if (!$this->viewData)
 			$this->viewData = Kryn::$smarty->createData();
 
 		$this->viewData->assign($pName, $pValue);
@@ -41,7 +39,7 @@ class Controller {
 	 * @param  mixed &$pValue
 	 */
 	public function assignByRef($pName, &$pValue){
-		if (!$viewData)
+		if (!$this->viewData)
 			$this->viewData = Kryn::$smarty->createData();
 
 		$this->viewData->assignByRef($pName, $pValue);
@@ -82,7 +80,7 @@ class Controller {
 	 * @param  array  $pData Use this data instead of the data assigned through $this->assign()
 	 * @return string
 	 */
-	public function view($pView, $pData = null){
+	public function render($pView, $pData = null){
 		
 		$clazz = get_class($this);
 		if (($pos = strpos($clazz, '\\')) !== false) {
@@ -95,8 +93,13 @@ class Controller {
 		if (!file_exists($view)){
 			$view = tPath($pView);
 		}
+        if (!Kryn::$smarty)
+            tInit();
+
 		$tpl = Kryn::$smarty->createTemplate($view, $pData?$pData:$this->viewData);
-		return $tpl->fetch();
+		$html = $tpl->fetch();
+
+        return Kryn::translate($html);
 	}
 
 } 

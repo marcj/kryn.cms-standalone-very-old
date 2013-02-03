@@ -104,9 +104,14 @@ function tInit(){
         Core\Kryn::$smarty = new Smarty();
         Core\Kryn::$smarty->template_dir = './';
         Core\Kryn::$smarty->registerClass('Kryn', 'Core\Kryn');
+        Core\Kryn::$smarty->registerClass('Navigation', 'Core\Navigation');
+        Core\Kryn::$smarty->plugins_dir[] = 'core/Template/SmartyPlugins';
+
         Core\Kryn::$smarty->assign('random', mt_rand());
+
         if (!is_dir($compileDir = \Core\Kryn::getTempFolder().'smarty-compile/'))
             mkdir($compileDir);
+
         Core\Kryn::$smarty->compile_dir = $compileDir;
     }
 }

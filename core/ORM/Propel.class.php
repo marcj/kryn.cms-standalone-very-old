@@ -609,16 +609,15 @@ class Propel extends ORMAbstract {
      */
     public function clear(){
 
-        $query = $this->getQueryClass();
+        $peer = $this->getPeerName();
 
         if ($this->definition['workspace']){
             //delete all versions
-            $versionQueryClazz = $this->getPhpName().'VersionQuery';
-            $versionQuery = new $versionQueryClazz;
-            $versionQuery->deleteAll();
+            $versionQueryPeer = $this->getPhpName().'Peer';
+            $versionQueryPeer::doDeleteAll();
         }
 
-        return $query->deleteAll();
+        return $peer::doDeleteAll();
     }
 
     public function getVersions($pPk, $pOptions = null){

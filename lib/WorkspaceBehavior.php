@@ -143,6 +143,7 @@ class WorkspaceBehavior extends Behavior
             $fk->setOnDelete(null);
             $fk->setOnUpdate(null);
             $tablePKs = $table->getPrimaryKey();
+            $fk->setOnDelete('cascade');
             foreach ($tablePKs as $key => $column) {
                 $fk->addReference($column, $tablePKs[$key]);
             }

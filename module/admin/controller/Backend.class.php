@@ -14,7 +14,7 @@ class Backend {
 
     public function getDesktop() {
 
-        if ($desktop = Kryn::$adminClient->getUser()->getDesktop())
+        if ($desktop = Kryn::getAdminClient()->getUser()->getDesktop())
             return $desktop->toArray();
         else return false;
     }
@@ -22,8 +22,8 @@ class Backend {
     public function saveDesktop($pIcons) {
 
         $properties = new \Core\Properties($pIcons);
-        Kryn::$adminClient->getUser()->setDesktop($properties);
-        Kryn::$adminClient->getUser()->save();
+        Kryn::getAdminClient()->getUser()->setDesktop($properties);
+        Kryn::getAdminClient()->getUser()->save();
 
         return true;
     }
@@ -42,7 +42,7 @@ class Backend {
 
     public function getWidgets() {
 
-        if ($widgets = Kryn::$adminClient->getUser()->getWidgets())
+        if ($widgets = Kryn::getAdminClient()->getUser()->getWidgets())
             return $widgets->toArray();
         else return false;
 
@@ -51,8 +51,8 @@ class Backend {
     public function saveWidgets($pWidgets) {
 
         $properties = new \Core\Properties($pWidgets);
-        Kryn::$adminClient->getUser()->setWidgets($properties);
-        Kryn::$adminClient->getUser()->save();
+        Kryn::getAdminClient()->getUser()->setWidgets($properties);
+        Kryn::getAdminClient()->getUser()->save();
 
         return true;
     }
@@ -197,7 +197,7 @@ class Backend {
 
 
         if ($loadKeys == false || in_array('user', $loadKeys)){
-            if ($settings = Kryn::$adminClient->getUser()->getSettings()){
+            if ($settings = Kryn::getAdminClient()->getUser()->getSettings()){
                 if ($settings instanceof \Core\Properties)
                     $res['user'] = $settings->toArray();
             }
@@ -284,14 +284,14 @@ class Backend {
             $content = '';
             foreach ($jsFiles as $jsFile) {
                 $content .= "\n\n/* file: $jsFile */\n\n";
-                $content .= Kryn::fileRead($jsFile);
+                $content .= file_get_contents($jsFile);
             }
 
             //delete old cached files
             foreach (glob('cache/media/cachedAdminJs_*.js') as $cache)
                 @unlink($cache);
 
-            Kryn::fileWrite('cache/media/cachedAdminJs_' . $md5Hash . '.js', $content);
+            file_put_contents('cache/media/cachedAdminJs_' . $md5Hash . '.js', $content);
             print $content;
         }
 

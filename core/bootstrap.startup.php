@@ -27,7 +27,6 @@ if (!is_dir(\Core\Kryn::getTempFolder().'propel-classes')){
 if (!\Propel::isInit())
     \Propel::initialize();
 
-
 //read out the url so that we can use getArgv()
 Core\Kryn::prepareUrl();
 
@@ -39,6 +38,9 @@ Core\Kryn::$admin = (getArgv(1) == 'admin');
  */
 Core\Kryn::initConfig();
 
+/**
+ * Initialize caching controllers
+ */
 Core\Kryn::initCache();
 
 /*
@@ -47,11 +49,13 @@ Core\Kryn::initCache();
 Core\Kryn::loadLanguage();
 
 /*
- * Load themes
+ * Load themes and configs
  */
 Core\Kryn::loadModuleConfigs();
 
-
+/**
+ *
+ */
 Core\Kryn::initModules();
 
 if (Core\Kryn::$admin) {

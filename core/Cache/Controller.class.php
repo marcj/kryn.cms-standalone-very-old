@@ -188,7 +188,7 @@ class Controller {
      *
      * @return boolean
      */
-    public function set($pKey, $pValue, $pTimeout = 0) {
+    public function set($pKey, $pValue, $pTimeout = 3600) {
 
         if (!$pKey) return false;
 

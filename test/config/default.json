@@ -16,6 +16,7 @@
     },
     "fileGroupPermission": "rw",
     "fileGroupName": "",
+    "displayBeautyErrors": 1,
     "fileNoChangeMode": 1,
     "fileEveryonePermission": "r",
     "cache": {

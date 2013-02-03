@@ -16,43 +16,35 @@
  * @author MArc Schmidt <marc@kryn.org>
  */
 
-require('core/bootstrap.checkFile.php'); //deprecated, we should delete that.
+//load main config, setup some constants and check some requirements.
 require('core/bootstrap.php');
+
+//attach error handler, init propel, load module configs, initialise main controllers and setup the autoloader.
 require('core/bootstrap.startup.php');
 
-/*
- * Search domain
- */
-if (!Core\Kryn::$admin) {
-    Core\Kryn::searchDomain();
-}
+//Setup the HTTPKernel.
+Core\Kryn::setupHttpKernel();
 
-/*
- * Initialize the client objects for backend and frontend.
- */
+
+//Initialize the client objects for backend and frontend.
 Core\Kryn::initClient();
 
 
-if (Core\Kryn::$admin) {
+//Setup application routes.
+if (Core\Kryn::isAdmin()) {
 
-    /*
-     * initialize administration controller
-     */
-    Core\Kryn::$modules['admin']  = $admin = new Admin\AdminController();
-
-    /*
-     * Start backend controller
-     */
-
-    $admin->run();
+    //backend
+    Core\Kryn::$modules['admin'] = new Admin\AdminController();
+    Core\Kryn::$modules['admin']->run();
 
 } else {
 
-    /*
-     * Start frontend controller
-     */
-    
-    Core\Kryn::display();
+    //frontend
+    Core\Kryn::setupPageRoutes();
 }
+
+//handle request.
+Core\Kryn::handleRequest();
+
 
 ?>

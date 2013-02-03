@@ -17,8 +17,9 @@ class BasicTest extends RestTestCase {
         //login as admin
         $loggedIn = $this->restCall('/admin/logged-in');
 
-        if (!$loggedIn['data'])
+        if (!$loggedIn['data']){
             Manager::get('/admin/login?username=admin&password=admin');
+        }
     }
 
     public function testBasics(){

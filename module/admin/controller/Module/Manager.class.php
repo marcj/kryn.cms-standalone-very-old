@@ -193,7 +193,7 @@ class Manager {
             if (!file_exists($configFile)) {
                 return false;
             }
-            $json = Kryn::fileRead($configFile);
+            $json = file_get_contents($configFile);
             $config = json_decode($json, true);
             unset($config['noConfig']);
 

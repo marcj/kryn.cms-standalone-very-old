@@ -30,6 +30,8 @@ class Navigation {
         $pTemplate = $pOptions['template'];
         $pWithFolders = ($pOptions['folders'] == 1) ? true : false;
 
+        $cacheKey = 'core/navigation/' . Kryn::$page->getDomainId().'.'.Kryn::$page->getId() . '_'.md5(json_encode($pOptions));
+
         if (!$pTemplate){
             return t('Navigation: No template selected.');
         }
@@ -39,53 +41,46 @@ class Navigation {
         }
 
         $navigation = false;
+        $fromCache = false;
 
-        if ($pOptions['id'] + 0 > 0) {
-            $navigation =& Kryn::getPage($pOptions['id'] + 0);
+        if (!$pOptions['noCache'] && Kryn::$domainProperties['Kryn']['cacheNavigations'] !== 0){
 
-            if (!$navigation) return 'page_not_found';
+            $navigation = Kryn::getFastCache($cacheKey);
+            if ($navigation && is_array($navigation) && $navigation['mtime'] == $mtime)
+                return $navigation['data'];
 
-
-//            if (!$pOptions['noCache'] && Kryn::$domainProperties['Kryn']['cacheNavigations'] !== 0) {
-//                $cacheKey =
-//                    'systemNavigations-' . $navigation->getDomainId() . '_' . $navigation->getId() . '-'
-//                        . md5(Kryn::$canonical.$mtime);
-//                $cache =& Kryn::getCache($cacheKey);
-//                if ($cache) return $cache;
-//            }
-
-            //$navigation = self::getLinks($navigation->getId(), $pWithFolders, $navigation->getDomainId());
+        } else {
+            $navigation = Kryn::getFastCache($cacheKey);
+            if ($navigation && $navigation['mtime'] == $mtime){
+                $navigation = unserialize($navigation['data']);
+                if ($navigation)
+                    $fromCache = true;
+            }
         }
 
-        if ($pOptions['level'] > 1) {
+        if (!$navigation){
+            if ($pOptions['id'] + 0 > 0) {
+                $navigation =& Kryn::getPage($pOptions['id'] + 0);
 
-            $currentLevel = count(Kryn::$breadcrumbs) + 1;
-            $page = self::arrayLevel(Kryn::$breadcrumbs, $pOptions['level']);
+                if (!$navigation) return null;
+            }
 
-            if ($page && $page->getId() > 0)
-                $navigation = Kryn::getPage($page->getId());
-            elseif ($pOptions['level'] == $currentLevel + 1)
-                $navigation = Kryn::$page;
-//
-//            if (!$pOptions['noCache'] && Kryn::$domainProperties['Kryn']['cacheNavigations'] !== 0) {
-//                $cacheKey =
-//                    'systemNavigations-' . $navigation->getDomainId() . '_' . $navigation->getId() . '-' .
-//                        md5(Kryn::$canonical.$mtime);
-//                $cache =& Kryn::getCache($cacheKey);
-//                if ($cache) return $cache;
-//            }
+            if ($pOptions['level'] > 1) {
+
+                $currentLevel = count(Kryn::$breadcrumbs) + 1;
+                $page = self::arrayLevel(Kryn::$breadcrumbs, $pOptions['level']);
+
+                if ($page && $page->getId() > 0)
+                    $navigation = Kryn::getPage($page->getId());
+                elseif ($pOptions['level'] == $currentLevel + 1)
+                    $navigation = Kryn::$page;
+            }
+
+            if ($pOptions['level'] == 1) {
+                $navigation = NodeQuery::create()->findRoot(Kryn::$domain->getId());
+            }
         }
 
-        if ($pOptions['level'] == 1) {
-
-            /*if (!$pOptions['noCache'] && Kryn::$domainProperties['Kryn']['cacheNavigations'] !== 0) {
-                $cacheKey = 'systemNavigations-' . Kryn::$page->getDomainId() . '_0-' . md5(Kryn::$canonical.$mtime);
-                $cache =& Kryn::getCache($cacheKey);
-                if (false && $cache) return $cache;
-            }*/
-
-            $navigation = NodeQuery::create()->findRoot(Kryn::$domain->getId());
-        }
 
         if ($navigation !== false) {
 
@@ -94,10 +89,18 @@ class Navigation {
             if (Kryn::$domainProperties['kryn']['cacheNavigations'] !== 0) {
                 $res = tFetch($pTemplate);
                 //Kryn::setCache($cacheKey, $res, 10);
-                return $res;
+                $html = $res;
             } else {
-                return tFetch($pTemplate);
+                $html = tFetch($pTemplate);
             }
+
+            if (!$pOptions['noCache'] && Kryn::$domainProperties['Kryn']['cacheNavigations'] !== 0){
+                Kryn::setFastCache($cacheKey, array('mtime' => $mtime, 'data' => $html));
+            } else if (!$fromCache){
+                Kryn::setFastCache($cacheKey, array('mtime' => $mtime, 'data' => serialize($navigation)));
+            }
+
+            return $html;
         }
 
         switch ($pOptions['id']) {

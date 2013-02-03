@@ -336,7 +336,7 @@ class AdminController {
     }
 
     public function logoutUser(){
-        Kryn::getClient()->logout();
+        Kryn::getAdminClient()->logout();
         return true;
     }
 
@@ -399,7 +399,7 @@ class AdminController {
 
     public static function showLogin() {
 
-        $language = Kryn::$adminClient->getSession()->getLanguage();
+        $language = Kryn::getAdminClient()->getSession()->getLanguage();
         if (!$language) $language = 'en';
 
         if (getArgv('setLang') != '')

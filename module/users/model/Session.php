@@ -41,8 +41,8 @@ class Session extends BaseSession {
      * @throws Exception
      * @see        doSave()
      */
-    public function save(PropelPDO $con = null){
-        if ($this->isStoredInDatabase){
+    public function save(\PropelPDO $con = null){
+        if ($this->getIsStoredInDatabase()){
             parent::save($con);
         }
     }

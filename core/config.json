@@ -252,6 +252,7 @@
             "limitDataSets": [
                 
             ],
+            "publicUrlGenerator": "\\Core\\PageController::getPublicUrl",
             "propelClass": "",
             "propelClassName": "",
             "nestedLabel": "title",

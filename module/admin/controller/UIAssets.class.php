@@ -40,8 +40,8 @@ class UIAssets {
         if (!Kryn::isValidLanguage($lang))
             $lang = 'en';
 
-        Kryn::$adminClient->getSession()->setLanguage($lang);
-        Kryn::$adminClient->syncStore();
+        Kryn::getAdminClient()->getSession()->setLanguage($lang);
+        Kryn::getAdminClient()->syncStore();
 
         Kryn::loadLanguage($lang);
 

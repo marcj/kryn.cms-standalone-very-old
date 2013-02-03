@@ -1,8 +1,10 @@
-<div class="contentElement {$content.type}">
-    {if $content.title}
-        <h2>{$content.title}</h2>
+<div class="contentElement {$content->getType()}">
+    {if $content->getTitle()}
+        <h2>{$content->getTitle()}</h2>
     {/if}
     <div class="contentElementContent">
-        {$content.content}
+
+        {include file="core/view/content.tpl"}
+
     </div>
 </div>

@@ -1208,4 +1208,25 @@ class Object {
 
     }
 
+    /**
+     * Returns the public URL.
+     *
+     * @param string $pObjectKey
+     * @param string $pPk
+     * @param array  $pPlugin
+     * @return string
+     */
+    public static function getPublicUrl($pObjectKey, $pPk, $pPlugin = null){
+
+        $definition = self::getDefinition($pObjectKey);
+
+        if ($definition && $definition['publicUrlGenerator']){
+            $pk = self::normalizePkString($pObjectKey, $pPk);
+            return call_user_func_array($definition['publicUrlGenerator'], array($pObjectKey, $pk, $pPlugin));
+        }
+
+        return null;
+
+    }
+
 }

@@ -256,7 +256,7 @@ msgstr ""
         if (count($classes) > 0) {
             foreach ($classes as $class) {
 
-                $classPlain = Kryn::fileRead($class);
+                $classPlain = file_get_contents($class);
                 if (preg_match('/ extends ObjectCrud/', $classPlain)) {
                     require_once($class);
                     $className = str_replace(PATH_MODULE . '' . $mod . '/', '', $class);

@@ -768,7 +768,7 @@
             'content' => $content,
             'version' => $version,
             'cdate' => time(),
-            'user_id' => Kryn::$adminClient->user_id
+            'user_id' => Kryn::getAdminClient()->user_id
         );
 
         dbInsert('system_frameworkversion', $new);

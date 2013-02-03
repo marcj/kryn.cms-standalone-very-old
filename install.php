@@ -27,16 +27,13 @@ define('PATH_MEDIA_CACHE', 'media/cache/');
 
 @set_include_path( '.' . PATH_SEPARATOR . PATH . 'lib/pear/' . PATH_SEPARATOR . get_include_path());
 
-# Load very important classes.
-include(PATH_CORE . 'Kryn.class.php');
-include('lib/propel/runtime/lib/Propel.php');
+require('core/bootstrap.autoloading.php');
 
 if (file_exists('config.php'))
   Kryn::$config = require('config.php');
 
 if (!is_array(Kryn::$config)) Kryn::$config = array();
 
-require('core/bootstrap.autoloading.php');
 
 include(PATH_CORE.'global/misc.global.php');
 include(PATH_CORE.'global/database.global.php');

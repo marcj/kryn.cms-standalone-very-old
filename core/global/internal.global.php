@@ -98,7 +98,6 @@ function errorDbHandler($pCode, $pMsg, $pFile = false, $pLine = false) {
             $pCode = preg_replace('/\W/', '-', $pCode);
             $msg = htmlspecialchars($pMsg);
 
-            if (!Core\Kryn::$tables['system_log']) return;
             dbInsert('system_log', array(
                 'date' => time(),
                 'ip' => $ip,

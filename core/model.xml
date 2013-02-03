@@ -218,7 +218,7 @@
     <foreign-key foreignTable="system_domain" onDelete="cascade">
       <reference local="domain_id" foreign="id"/>
     </foreign-key>
-    <foreign-key foreignTable="system_node">
+    <foreign-key foreignTable="system_node" onDelete="cascade">
       <reference local="parent_id" foreign="id"/>
     </foreign-key>
     <vendor type="mysql">
@@ -262,7 +262,7 @@
     <index>
       <index-column name="url"/>
     </index>
-    <foreign-key foreignTable="system_node">
+    <foreign-key foreignTable="system_node" onDelete="cascade">
       <reference local="node_id" foreign="id"/>
     </foreign-key>
     <vendor type="mysql">
@@ -297,7 +297,7 @@
     <column name="title" type="VARCHAR"/>
     <column name="owner_id" type="INTEGER"/>
     <column name="created" type="BIGINT"/>
-    <foreign-key phpName="owner" foreignTable="system_user">
+    <foreign-key phpName="owner" foreignTable="system_user" onDelete="cascade">
       <reference local="owner_id" foreign="id"/>
     </foreign-key>
     <vendor type="mysql">

@@ -3,7 +3,8 @@
 namespace Core;
 
 use Core\om\BaseNode;
-
+use Symfony\Component\Routing\RouteCollection;
+use Symfony\Component\Routing\Route;
 
 /**
  * Skeleton subclass for representing a row from the 'kryn_system_node' table.
@@ -43,17 +44,61 @@ class Node extends BaseNode {
     }
 
     /**
+     * Returns all possible routes.
+     *
+     * This is depended on the actual url of this node and the containing plugins in the actual node content.
+     *
+     * @param RouteCollection $pRouteCollections
+     */
+    public function addRoutes(RouteCollection &$pRouteCollections){
+
+
+        $clazz = 'Core\\PageController';
+        $url = '/'.$this->getFullUrl();
+
+        //todo, if ($this->getController) $clazz = $this->getController();
+
+        $controller = $clazz.'::send';
+
+        if (Kryn::$domain && Kryn::$domain->getStartnodeId() == $this->getId()){
+
+            //startpage, so add a redirect controller
+
+            $pRouteCollections->add($pRouteCollections->count()+1,
+                new Route(
+                    '/',
+                    array('_controller' => $controller)
+                )
+            );
+
+            $controller = $clazz.'::redirectToStartPage';
+        }
+
+        $pRouteCollections->add($pRouteCollections->count()+1,
+            new Route(
+                $url,
+                array('_controller' => $controller)
+            )
+        );
+
+        //todo, add all plugins
+
+    }
+
+    /**
      * Same as getChildren but returns only visible pages and non-folder nodes
      *
      * @return array
      */
-    public function getLinks(){
+    public function getLinks($pWithFolders = false){
 
         if ($this->collNestedGetLinks === null){
+
+            $types = $pWithFolders ? array(0,1,2) : array(0,1);
             $this->collNestedGetLinks = NodeQuery::create()
                 ->childrenOf($this)
                 ->filterByVisible(1)
-                ->filterByType(array(0,1))
+                ->filterByType($types)
                 ->orderByBranch()
                 ->find();
         }
@@ -127,10 +172,10 @@ class Node extends BaseNode {
      * Returns the full url to the given page object.
      *
      * If the page belongs to another domain than the current,
-     * then the url contains http://<otherDomain>/<fullUrl>
+     * then the url contains http://<otherDomain>/<fullUrl> if your pass $pWithoutContextCheck=true
      *
      * @param bool $pWithoutContextCheck Does or does not check whether the page belongs to the current domain and
-     *                                   therefore add the domain name.
+     *                                   therefore add the domain name with `http` or just the uri.
      * @return string
      */
     public function getFullUrl($pWithoutContextCheck = false){

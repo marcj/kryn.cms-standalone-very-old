@@ -27,20 +27,26 @@ class Domain extends BaseDomain {
     private $realDomain;
 
     /**
-     * Full title after replace the vars in titleFormat or getting from methods.
      *
-     * @var string
+     * @param string $pRealDomain
      */
-    private $title;
-
     public function setRealDomain($pRealDomain){
         $this->realDomain = $pRealDomain;
     }
 
+    /**
+     * @return string
+     */
     public function getRealDomain(){
         return $this->realDomain;
     }
 
+    /**
+     * Returns the full url, with http/s, hostname and language prefix.
+     *
+     * @param boolean $pSSL
+     * @return string
+     */
     public function getUrl($pSSL = null){
 
         if ($pSSL === null)

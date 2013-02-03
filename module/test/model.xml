@@ -25,7 +25,7 @@
     <behavior name="workspace"/>
     <column name="category_id" type="INTEGER" />
 
-    <foreign-key foreignTable="test_item_category" phpName="OneCategory">
+    <foreign-key foreignTable="test_item_category" phpName="OneCategory" onDelete="cascade">
       <reference local="category_id" foreign="catid"/>
     </foreign-key>
 
@@ -36,11 +36,11 @@
   <table name="test_item_category_relation" isCrossRef="true" phpName="Category">
     <column name="item_id" type="INTEGER" primaryKey="true" required="true"/>
     <column name="item_category_id" type="INTEGER" primaryKey="true" required="true"/>
-    <foreign-key foreignTable="test_item" phpName="CategoryItem">
-      <reference local="item_id" foreign="id"/>
+    <foreign-key foreignTable="test_item" phpName="CategoryItem" onDelete="cascade">
+      <reference local="item_id" foreign="id" />
       <reference local="workspace_id" foreign="workspace_id"/>
     </foreign-key>
-    <foreign-key foreignTable="test_item_category">
+    <foreign-key foreignTable="test_item_category" onDelete="cascade">
       <reference local="item_category_id" foreign="catid"/>
       <reference local="workspace_id" foreign="workspace_id"/>
     </foreign-key>

@@ -31,7 +31,7 @@ class Editor {
             throw new \FileNotWritableException(tf('The config file %s for module %s is not writeable.', $path ,$pName));
         }
 
-        return Kryn::fileWrite($path, $json);
+        return file_put_contents($path, $json);
     }
 
     public function getLanguage($pName, $pLang = null){

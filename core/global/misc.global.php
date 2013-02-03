@@ -224,25 +224,6 @@ function delDir($dirName) {
 }
 
 
-/*
-* json_encode ()
-*/
-
-if (!function_exists('json_encode')) {
-    require('inc/lib/pear/JSON/JSON.php');
-    $json = new Services_JSON(SERVICES_JSON_LOOSE_TYPE);
-    function json_encode($p = false) {
-        global $json;
-        return $json->encode($p);
-    }
-
-    function json_decode($p = false, $pDisabled = true) {
-        global $json;
-        return $json->decode($p);
-    }
-}
-
-
 /**
  * Sents a http request to $pUrl and returns the result.
  * @source
@@ -281,7 +262,7 @@ function wget($pUrl, $pToFile = false, $pPostFiles = false) {
         foreach ($pPostFiles as $file) {
             $i++;
 
-            $content_file = Kryn::fileRead($file);
+            $content_file = file_get_contents($file);
             $content_type = mime_content_type($file);
             $data .= "
 Content-Disposition: form-data; name=\"file" . ($i) . "\"; filename=\"$file\"

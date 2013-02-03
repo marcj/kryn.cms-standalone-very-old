@@ -457,8 +457,6 @@ class PropelHelper {
 
         $argv[] = '-Dproject.dir='.$tmp;
 
-        var_dump($tmp);
-
         require_once 'phing/Phing.php';
 
         $outStreamS = fopen("php://memory", "w+");

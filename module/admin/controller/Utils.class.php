@@ -114,7 +114,7 @@ class Utils {
             foreach (glob('cache/media/cachedAdminCss_*.css') as $cache)
                 @unlink($cache);
 
-            Kryn::fileWrite('cache/media/cachedAdminCss_' . $md5Hash . '.css', $content);
+            file_put_contents('cache/media/cachedAdminCss_' . $md5Hash . '.css', $content);
             print $content;
         }
         exit;

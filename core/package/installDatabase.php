@@ -11,10 +11,10 @@ use Core\NodeQuery;
 use Core\Workspace;
 use Core\WorkspaceQuery;
 
-dbDelete('system_domain');
-dbDelete('system_node');
-dbDelete('system_content');
-dbDelete('system_app_lock');
+\Core\DomainPeer::doDeleteAll();
+\Core\NodePeer::doDeleteAll();
+\Core\ContentPeer::doDeleteAll();
+\Core\AppLockPeer::doDeleteAll();
 
 //setup Nodes
 

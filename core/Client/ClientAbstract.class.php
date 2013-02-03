@@ -45,9 +45,9 @@ abstract class ClientAbstract {
      *   passwdHashCompat = false,
      *   passwdHashKey = <diggets>
      *   tokenId = "cookieName"
-     *   timeout = <seconds>
-     *   cookieDomain = '' (default is Domain->getDomain())
-     *   cookiePath = '' (default is Domain->getPath())
+     *   timeout = <seconds> (Default is time()+12*3600)
+     *   cookieDomain = '' (default is Kryn::getRequest()->getHost())
+     *   cookiePath = '' (default is '/')
      *   autoLoginLogout = false
      *   loginTrigger = auth-login
      *   logoutTrigger = auth-logout
@@ -84,13 +84,13 @@ abstract class ClientAbstract {
             $this->tokenId = $this->config['tokenId'];
 
         if (!$this->config['timeout'])
-            $this->config['timeout'] = 3600;
+            $this->config['timeout'] = 12*3600;
 
-        if (!$this->config['cookieDomain'] && Kryn::getDomain())
-            $this->config['cookieDomain'] = Kryn::getDomain()->getDomain();
+        if (!$this->config['cookiePath'])
+            $this->config['cookiePath'] = '/';
 
-        if (!$this->config['cookiePath'] && Kryn::getDomain())
-            $this->config['cookiePath'] = Kryn::getDomain()->getPath();
+        if (!$this->config['cookieDomain'])
+            $this->config['cookieDomain'] = Kryn::getRequest()->getHost();
 
         $this->config['store']['config']['ClientInstance'] = $this;
 
@@ -145,7 +145,7 @@ abstract class ClientAbstract {
         $this->getSession()->setPage(Kryn::getRequestedPath(true));
 
         setCookie($this->getTokenId(), $this->getToken(), time() + $this->config['timeout'],
-            $this->config['path']?:Kryn::getBaseUrl(), $this->config['domain']);
+            $this->config['cookiePath'], $this->config['cookieDomain']);
 
 
     }
@@ -208,7 +208,7 @@ abstract class ClientAbstract {
     /**
      * Returns the user from current session.
      *
-     * @return User
+     * @return \Users\User
      */
     public function getUser(){
         //TODO, build in caching
@@ -338,9 +338,9 @@ abstract class ClientAbstract {
                 throw new \Exception('User not found '.$pUserId);
             }
 
-            $this->session->setUser($user);
+            $this->getSession()->setUser($user);
         } else {
-            $this->session->setUserId(null);
+            $this->getSession()->setUserId(null);
         }
 
         return $this;
@@ -393,13 +393,13 @@ abstract class ClientAbstract {
 
             if ($session) {
 
-                if ($this->config['store']['class'] == 'database')
+                if ($this->config['store']['class'] != 'database')
                     $session->setIsStoredInDatabase(false);
 
                 $this->setToken($session->getId());
 
                 setCookie($this->tokenId, $this->token, time() + $this->config['timeout'],
-                    $this->config['path']?:Kryn::getBaseUrl(), $this->config['domain']);
+                    $this->config['cookiePath'], $this->config['cookieDomain']);
 
                 return $session;
             }

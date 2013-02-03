@@ -12,7 +12,7 @@ class usersAdminSelfEdit extends windowEdit {
     private static $cacheUser = false;
 
     function __construct(){
-        $_REQUEST['id'] = kryn::$client->id;
+        $_REQUEST['id'] = Kryn::getClient()->id;
     }
 
     public $tabFields = array(
