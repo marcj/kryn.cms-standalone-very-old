@@ -4,7 +4,7 @@ Kryn.cms
 A enterprise open-source Content-Management-System and Content-Management-Framework with a full RESTful API
 written in PHP and mootools.
 
-We're in development. This means, there are still a _lot_ of issues in this product (not even an Alpha).
+We're in development. This means, there are still a _lot_ of issues in this product (not even an Alpha) and it's not anything implemented yet.
 
 [![Build Status](https://drone.io/marcj/Kryn.cms/status.png)](https://drone.io/marcj/Kryn.cms/latest)
 [![Build Status](https://travis-ci.org/KrynLabs/Kryn.cms.png?branch=propel1.6)](https://travis-ci.org/KrynLabs/Kryn.cms)
