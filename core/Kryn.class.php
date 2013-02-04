@@ -474,7 +474,7 @@ class Kryn {
                 $last = $lastDebugPoint ? '('.round((microtime(true)-$lastDebugPoint)*1000, 2).'ms)' : '';
                 $lastDebugPoint = microtime(true);
 
-                $log['message'] = "[$bytes\t{$timeUsed}ms\t$last] - ".$log['message'];
+                $log['message'] = "[$bytes, {$timeUsed}ms, $last] - ".$log['message'];
                 return $log;
             });
             self::$monolog->pushHandler(new \Monolog\Handler\SyslogHandler('kryn'));
