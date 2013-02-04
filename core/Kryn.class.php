@@ -471,7 +471,7 @@ class Kryn {
 
                 $timeUsed = round((microtime(true)-$_start)*1000, 2);
                 $bytes = convertSize(memory_get_usage(true));
-                $last = $lastDebugPoint ? '('.round((microtime(true)-$lastDebugPoint)*1000, 2).'ms)' : '';
+                $last = $lastDebugPoint ? 'diff '.round((microtime(true)-$lastDebugPoint)*1000, 2).'ms' : '';
                 $lastDebugPoint = microtime(true);
 
                 $log['message'] = "[$bytes, {$timeUsed}ms, $last] - ".$log['message'];
