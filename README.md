@@ -1,7 +1,8 @@
 Kryn.cms
 ========
 
-A AJAX PHP enterprise open-source Content-Management-System and Content-Management-Framework with full RESTful API.
+A enterprise open-source Content-Management-System and Content-Management-Framework with a full RESTful API
+written in PHP and mootools.
 
 We're in development. This means, there are still a _lot_ of issues in this product (not even an Alpha).
 
@@ -25,21 +26,27 @@ Installation
 Features
 --------
 
- - Based on Propel ORM (Propel supports MySQL, PostgreSQL, SQLite, MSSQL, and Oracle) http://www.propelorm.org
- - Advanced, fast and fresh AJAX Backend Interface/RIA with mootools (yay!)
+ - Based on Propel ORM (Propel supports MySQL, PostgreSQL, SQLite, MSSQL, and Oracle), http://www.propelorm.org
+ - Advanced, fast and fresh Administration Interface (powered by mootools, yay!)
+ - The Administration API is completely abstracted through a RESTful JSON API
  - File abstraction layer (for mounts with external cloud storage), CDN
- - RESTful API - all actions are available through a RESTful JSON API
- - Smarty template engine (not required)
- - getText i18n (plural support etc) with translator - compatible .po files
+ - Dynamic template engines, use the engine you want. (Smarty and Twig are shipped per default)
+ - getText i18n (plural support etc) with translator, compatible .po files
  - High-Performance through several cache layers
  - Session storage through several layers (LoadBalanced support)
- - Easy to extend through a fancy extension editor
- - Framework CRUD window generator without coding
- - Easy and integrated backup system - perfect for live/dev-scenarios
- - Workspaces (in the works)
- - Several authentication layers (separated in backend and several frontend)
- - MVC architecture
+ - Easy to extend through a fancy extension editor, completely modulized
+ - Framework CRUD window generator, without coding
+ - Easy and integrated backup system, perfect for live/dev-scenarios
+ - Working in workspaces
+ - Comes with a solid bunch of UI input widgets
+ - Several authentication layers (changeable for administration and/or per domain)
+ - MVC architecture, no HTML inside PHP
  - Very secure password storage (salted, double sha512 in 500 rounds, incl. non-db key injection)
+ - Observer pattern, truly extensible, http://symfony.com/doc/2.0/components/event_dispatcher/introduction.html
+ - Symfony2 Routing Component, http://symfony.com/doc/2.0/components/routing/introduction.html
+ - Symfony2 HttpKernel Component, http://symfony.com/doc/2.0/components/http_kernel/introduction.html
+ - Monolog Logger, sends your logs to almost everywhere, https://github.com/Seldaek/monolog
+ - CKEditor, inline editing and fancy WYSIWYG, http://ckeditor.com/
 
 Screenshot
 ----------
@@ -82,3 +89,4 @@ Examples:
     DOMAIN=localhost PORT=80 DB_PW='@#$TKKAFS' ./phpunit.phar test/
 
 The test suite installs automatically Kryn.cms with the credentials above if `./config.php` does not exist.
+Don't forget to run `composer install` first.
