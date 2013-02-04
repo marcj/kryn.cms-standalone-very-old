@@ -5,7 +5,7 @@
         <div class="header-top">
         {navigation level="1" template="th_krynDemo/navigation_top.tpl"}
         </div>
-        
+
         <div class="header-logo">
             <a href="{$path}">
                 <img src="{* resizeImage file=$themeProperties.logo dimension="90x90" *}" align="left" />
@@ -13,11 +13,11 @@
                 <span class="header-logo-slogan">{$themeProperties.slogan}</span>
             </a>
         </div>
-        
+
         <div class="header-subnavi">
             {navigation level="2" template="th_krynDemo/navigation_subnavi.tpl"}
         </div>
-        
+
         <div class="header-search">
             <form action="{$themeProperties.search_page|realUrl}" method="get">
                 <input type="text" name="q" value="[[Keyword ...]]" onfocus="if(this.value == '[[Keyword ...]]')this.value=''" onblur="if(this.value=='')this.value='[[Keyword ...]]'"/>
@@ -36,20 +36,6 @@
                     <div class="content-main">
                         <div class="content-main-padding">
                             {navigation id="breadcrumb" template="th_krynDemo/navigation_breadcrumb.tpl"}
-
-<pre>
-
-    {*
-title: 1 => {Core\Permission::checkUpdate('news', 1, 'title')+0}
-category_id: 1 => {Core\Permission::checkUpdate('news', 1, ['category_id'=>'1'])+0}
-category_id: 2 => {Core\Permission::checkUpdate('news', 1, ['category_id'=>'2'])+0}
-Core\Object::getList('news', false, ['fields' => 'id, title', 'permissionCheck' => true, 'order' => ['id' => 'ASc']])|print_r
-{Core\Object::getList('domain')|print_r}
-
-
-{Core\Object::getList('node', false, ['fields' => 'id, title', 'permissionCheck' => true, 'order' => ['id' => 'ASc']])|print_r}
-*}
-</pre>
 
                             {slot id="1" name="[[Main content]]" picturedimension="640x1000"}
                         </div>
@@ -71,7 +57,7 @@ Core\Object::getList('news', false, ['fields' => 'id, title', 'permissionCheck' 
                 </td>
             </tr>
         </table>
-    
+
     </div>
 </div>
 

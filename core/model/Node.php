@@ -20,30 +20,6 @@ use Symfony\Component\Routing\Route;
 class Node extends BaseNode {
 
     /**
-    * Generates the full url pasend on all parents.
-    *
-    * @param null|PropelPDO $con
-    * @return string
-    */
-    public function generateFullUrl(PropelPDO $con = null){
-
-        $url = '';
-
-        $parents = $this->getAncestors();
-        foreach ($parents as $parent){
-
-            if ($parent->getUrl() && $parent->getType() !== null && $parent->getType() < 2){ //only pages and links
-                $url .= $parent->getUrl().'/';
-            }
-
-        }
-
-        $url .= $this->getUrl();
-        return $url;
-
-    }
-
-    /**
      * Returns all possible routes.
      *
      * This is depended on the actual url of this node and the containing plugins in the actual node content.
@@ -174,35 +150,14 @@ class Node extends BaseNode {
      * If the page belongs to another domain than the current,
      * then the url contains http://<otherDomain>/<fullUrl> if your pass $pWithoutContextCheck=true
      *
-     * @param bool $pWithoutContextCheck Does or does not check whether the page belongs to the current domain and
+     * @param bool $pWithoutContextCheck Does or does not check whether the page belongs to the current Kryn::$domain and
      *                                   therefore add the domain name with `http` or just the uri.
      * @return string
      */
     public function getFullUrl($pWithoutContextCheck = false){
 
-        if (!$this->full_url && $this->getId()){
-
-            $this->full_url = $this->generateFullUrl();
-
-            //we save the result in the database
-            $c1 = new \Criteria();
-            $c1->add(NodePeer::ID, $this->getId());
-
-            $c2 = new \Criteria();
-            $c2->add(NodePeer::FULL_URL, $this->full_url);
-
-            \BasePeer::doUpdate($c1, $c2, \Propel::getConnection());
-
-        }
-
-        if (!$pWithoutContextCheck)
-            return $this->full_url;
-
-        if (!$this->full_url_context){
-            $this->full_url_context = Kryn::fullUrl($this);
-        }
-
-        return $this->full_url_context;
+        $urls =& Kryn::getCachedPageToUrl($this->getDomainId());
+        return $urls[$this->getId()];
 
     }
 

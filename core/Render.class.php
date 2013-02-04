@@ -26,92 +26,13 @@ use \Symfony\Component\EventDispatcher\GenericEvent;
 
 class Render {
 
+
     /**
-     * Returns all contents of the slot of the specified page.
+     * Cache of the current contents stage.
      *
-     * @static
-     * @param $pId
-     * @param bool $pBoxId
-     * @param bool $pWithoutCache
-     * @return array|string
+     * @var array
      */
-    public static function &getContents($pId, $pBoxId = false, $pWithoutCache = false) {
-
-        $pId = $pId + 0;
-
-        $time = time();
-        $page = Kryn::getPage($pId);
-
-        if (!$page) return 'page_not_found';
-
-        $page = Kryn::checkPageAccess($page, false);
-        if (!$page)
-            return array();
-
-        $result =& Kryn::getCache('contents-' . $pId);
-        if (false && $result && !$pWithoutCache) return $result;
-
-        $result = array();
-
-        $versionId = $page->getActiveVersionId();
-
-        //todo read acl from table
-        $aclCanViewOtherVersions = true;
-
-        if (Kryn::$page->getId() == $pId && getArgv('kVersionId') + 0 > 0 && $aclCanViewOtherVersions) {
-            $versionId = getArgv('kVersionId') + 0;
-        }
-
-        $box = '';
-        if ($pBoxId) {
-            $box = "AND box_id = $pBoxId";
-        }
-
-        if ($versionId > 0) {
-
-            $res = dbQuery("
-            SELECT c.*
-            FROM
-                ".pfx."system_content c,
-                ".pfx."system_page_version v
-            WHERE 
-                v.id = $versionId
-                AND v.page_id = $pId
-                AND c.version_id = v.id
-                $box
-                AND c.hide != 1
-                AND ( c.cdate > 0 AND c.cdate IS NOT NULL )
-            ORDER BY c.sort");
-
-            while ($content = dbFetch($res)) {
-                if (Kryn::checkPageAccess($content, false) !== false){
-                    $result[$content['box_id']][] = $content;
-                }
-            }
-
-            dbFree($res);
-
-        } else {
-
-            //compatibility o old kryns <=0.7
-            $result = array();
-
-            $res = dbQuery("SELECT * FROM ".pfx."system_content
-                WHERE node_id = $pId
-                $box
-                AND (hide != 1 OR hide IS NULL)
-                ORDER BY sortable_rank");
-
-            while ($page = dbFetch($res)) {
-                $result[$page['box_id']][] = $page;
-            }
-            dbFree($res);
-        }
-
-        Kryn::setCache('contents-' . $pId, $result);
-
-        return Kryn::getCache('contents-' . $pId);
-    }
+    public static $contents;
 
     /**
      *
@@ -126,14 +47,13 @@ class Render {
      */
     public static function renderPage($pPageId = false, $pSlotId = false, $pProperties = false) {
 
-
-        if (Kryn::$contents) {
-            $oldContents = Kryn::$contents;
+        if (self::$contents) {
+            $oldContents = self::$contents;
         }
 
         Kryn::$forceKrynContent = true;
+        Kryn::getLogger()->addDebug('renderPage('.$pPageId.', '.$pSlotId.')');
 
-        $start = microtime(true);
         if ($pPageId == Kryn::$page->getId()) {
             //endless loop
             return 'You produced a endless loop. Please check your latest changed pages.';
@@ -156,26 +76,31 @@ class Render {
             Kryn::$nestedLevels[] = Kryn::$page;
         }
 
-        $args = array($pPageId, $pSlotId);
-        Event::fire('preRenderContents', $args);
+        Kryn::getEventDispatcher()->dispatch('core.render-contents-pre');
 
-        Kryn::addCss('css/_pages/' . $pPageId . '.css');
-        Kryn::addJs('js/_pages/' . $pPageId . '.js');
+        if (file_exists($file = 'css/_pages/' . $pPageId . '.css'))
+            Kryn::getResponse()->addCssFile($file);
 
-        Kryn::$contents =& self::getContents($pPageId);
+        if (file_exists($file = 'js/_pages/' . $pPageId . '.js'))
+            Kryn::getResponse()->addJsFile($file);
+
+        self::$contents[$pSlotId] =& PageController::getSlotContents($pSlotId, $pSlotId);
 
         if (Kryn::$page->getType() == 3) { //deposit
             Kryn::$page->setLayout('core/blankLayout.tpl');
         }
 
+        $arguments = array($pPageId, $pSlotId, &self::$contents[$pSlotId]);
+        Kryn::getEventDispatcher()->dispatch('core.render-contents', new GenericEvent($arguments));
+
         if ($pSlotId) {
-            $html = self::renderContents(Kryn::$contents[$pSlotId], $pProperties);
+            $html = self::renderContents(self::$contents[$pSlotId], $pProperties);
         } else {
             $html = tFetch(Kryn::$page->getLayout());
         }
 
         if ($oldContents) {
-            Kryn::$contents = $oldContents;
+            self::$contents = $oldContents;
         }
         if ($oldPage) {
             Kryn::$page = $oldPage;
@@ -185,7 +110,7 @@ class Render {
 
 
         $arguments = array($pPageId, $pSlotId, &$html);
-        Event::fire('onRenderContents', $arguments);
+        Kryn::getEventDispatcher()->dispatch('core.render-contents-post', new GenericEvent($arguments));
 
         return $html;
     }
@@ -411,13 +336,13 @@ class Render {
                 break;
             case 'layoutelement':
 
-                $oldContents = Kryn::$contents;
+                $oldContents = self::$contents;
 
                 $layoutcontent = json_decode($content['content'], true);
-                Kryn::$contents = $layoutcontent['contents'];
+                self::$contents = $layoutcontent['contents'];
                 $content['content'] = tFetch($layoutcontent['layout']);
 
-                Kryn::$contents = $oldContents;
+                self::$contents = $oldContents;
 
                 break;
             case 'plugin':

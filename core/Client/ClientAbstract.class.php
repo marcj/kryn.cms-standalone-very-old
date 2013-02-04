@@ -63,6 +63,13 @@ abstract class ClientAbstract {
     public $config = array();
 
     /**
+     * Detects if start() has been called or not.
+     *
+     * @var bool
+     */
+    private $started = false;
+
+    /**
      * Instance of Cache class
      */
     private $store;
@@ -98,7 +105,6 @@ abstract class ClientAbstract {
 
     public function start() {
 
-        $this->setToken($this->getClientToken());
         error_log('sessionid: '.$this->getToken().' - '.Kryn::getRequestedPath());
         $this->session = $this->fetchSession();
 
@@ -128,7 +134,25 @@ abstract class ClientAbstract {
 
         if ($this->config['garbageCollector'] )
             $this->removeExpiredSessions();
+
+        $this->setStarted(true);
     }
+
+    /**
+     * @param boolean $started
+     */
+    public function setStarted($started) {
+        $this->started = $started;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getStarted() {
+        return $this->started;
+    }
+
+
 
     /**
      * Updates the time and refreshed-counter of a session,
@@ -208,6 +232,7 @@ abstract class ClientAbstract {
      */
     public function getUser(){
         //TODO, build in caching
+        if (!$this->getStarted()) $this->start();
         return $this->getSession()->getUser();
     }
 
@@ -217,6 +242,7 @@ abstract class ClientAbstract {
      * @return int
      */
     public function getUserId(){
+        if (!$this->getStarted()) $this->start();
         return $this->getSession()->getUser()->getId();
     }
 
@@ -242,6 +268,8 @@ abstract class ClientAbstract {
      * @return bool returns false, if someting went wrong.
      */
     public function login($pLogin, $pPassword) {
+
+        if (!$this->getStarted()) $this->start();
 
         if (!$this->config['noDelay']){
             // sleep(1);
@@ -327,6 +355,8 @@ abstract class ClientAbstract {
      */
     public function setUser($pUserId = null) {
 
+        if (!$this->getStarted()) $this->start();
+
         if ($pUserId !== null){
             $user = \Users\UserQuery::create()->findPk($pUserId);
 
@@ -347,6 +377,7 @@ abstract class ClientAbstract {
      * Change the user_id in the session object to 0. Means: is logged out then
      */
     public function logout() {
+        if (!$this->getStarted()) $this->start();
         $this->setUser();
     }
 
@@ -365,6 +396,8 @@ abstract class ClientAbstract {
      * 
      */
     public function syncStore() {
+
+        if (!$this->getStarted()) return;
 
         if ($this->hasSession()){
             if ($this->config['store']['class'] == 'database'){
@@ -475,6 +508,8 @@ abstract class ClientAbstract {
      * @return bool
      */
     public function getToken(){
+        if (!$this->token)
+            $this->token = $this->getClientToken();
         return $this->token;
     }
 

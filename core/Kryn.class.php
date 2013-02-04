@@ -43,33 +43,6 @@ class Kryn {
     public static $breadcrumbs;
 
     /**
-     * Contains all additional html header values.
-     * Use Kryn::addHeader( $pHeader ) to add additional headers.
-     * @var array
-     * @internal
-     * $static
-     */
-    public static $header = array();
-
-    /**
-     * Contains all paths to javascript files as each item
-     * Use Kryn::addJs( $pPath ) to add javascript files.
-     * @var array
-     * @internal
-     * $static
-     */
-    public static $jsFiles = array();
-
-    /**
-     * Contains all paths to css files as each item.
-     * Use Kryn::addCss( $pPath ) to add css files.
-     * @var array
-     * @internal
-     * $static
-     */
-    public static $cssFiles = array('css/kryn_defaults.css');
-
-    /**
      * Contains all translations as key -> value pair.
      * @var array
      * @static
@@ -287,13 +260,6 @@ class Kryn {
      */
     public static $dbConnectionIsSlave = \Propel::CONNECTION_WRITE;
 
-    /**
-     * Cache of the propel gererated classes for the autloader.
-     *
-     * @var array
-     */
-    public static $propelClassMap = array();
-
 
     /**
      * Current Smarty template object
@@ -455,6 +421,14 @@ class Kryn {
      */
     private static $response;
 
+
+    /**
+     * The monolog logger object.
+     *
+     * @var \Monolog\Logger
+     */
+    private static $monolog;
+
     /**
      * The response object. Here you can add
      *   - css files
@@ -479,6 +453,33 @@ class Kryn {
             self::$request = Request::createFromGlobals();
         }
         return self::$request;
+    }
+
+    /**
+     * Returns the logger object.
+     *
+     * @return \Monolog\Logger
+     */
+    public static function getLogger(){
+        if (!self::$monolog){
+            self::$monolog = new \Monolog\Logger('kryn');
+
+            //todo, setup via config
+            self::$monolog->pushProcessor(function($log){
+                global $_start;
+                static $lastDebugPoint;
+
+                $timeUsed = round((microtime(true)-$_start)*1000, 2);
+                $bytes = convertSize(memory_get_usage(true));
+                $last = $lastDebugPoint ? '('.round((microtime(true)-$lastDebugPoint)*1000, 2).'ms)' : '';
+                $lastDebugPoint = microtime(true);
+
+                $log['message'] = "[$bytes\t{$timeUsed}ms\t$last] - ".$log['message'];
+                return $log;
+            });
+            self::$monolog->pushHandler(new \Monolog\Handler\SyslogHandler('kryn'));
+        }
+        return self::$monolog;
     }
 
     /**
@@ -517,67 +518,6 @@ class Kryn {
 
         Kryn::$breadcrumbs[] = $pPage;
         tAssignRef("breadcrumbs", Kryn::$breadcrumbs);
-    }
-
-    /**
-     * Adds a new css file to the <header>. Use relative paths from media/ without a / as start
-     * Absolute paths with http:// also possible.
-     *
-     * @param string|array $pCss
-     *
-     * @static
-     */
-    public static function addCss($pCss) {
-        if (is_array($pCss)){
-            foreach ($pCss as $css)
-                if (!in_array($css, Kryn::$cssFiles))
-                    Kryn::$cssFiles[] = $css;
-        } else if (is_string($pCss) && !in_array($pCss, Kryn::$cssFiles))
-            Kryn::$cssFiles[] = $pCss;
-    }
-
-    /**
-     * Adds a new javascript file to the <header>. Use relative paths from media/ without a / as start
-     *
-     * @param string|array $pJs
-     * @static
-     */
-    public static function addJs($pJs) {
-
-        if (is_array($pJs)){
-            foreach ($pJs as $js)
-                if (!in_array($js, Kryn::$cssFiles))
-                    Kryn::$jsFiles[] = $js;
-        } else if (is_string($pJs) && !in_array($pJs, Kryn::$jsFiles))
-            Kryn::$jsFiles[] = $pJs;
-    }
-
-    /**
-     * Resets all javascript files.
-     */
-    public static function resetJs() {
-        Kryn::$jsFiles = array();
-    }
-
-    /**
-     * Resets all css files.
-     */
-    public static function resetCss() {
-        Kryn::$cssFiles = array('css/kryn_defaults.css');
-    }
-
-
-    /**
-     * Adds additional headers.
-     *
-     * @param string $pHeader
-     *
-     * @static
-     */
-    public static function addHeader($pHeader) {
-
-        if (array_search($pHeader, Kryn::$header) === false)
-            Kryn::$header[] = $pHeader;
     }
 
     /**
@@ -701,31 +641,6 @@ class Kryn {
         }
         unset(Kryn::$themes['__md5']);
 
-    }
-
-    /**
-     * Loads all config.json from all activated extensions to Kryn::$configs.
-     * @internal
-     * @static
-     */
-    public static function loadConfigs() {
-
-        Kryn::$configs = array();
-
-        foreach (Kryn::$extensions as $extension) {
-            Kryn::$configs[$extension] = Kryn::getModuleConfig($extension);
-        }
-
-        foreach (Kryn::$configs as &$config) {
-            if (is_array($config['extendConfig'])) {
-                foreach ($config['extendConfig'] as $extendModule => &$extendConfig) {
-                    if (Kryn::$configs[$extendModule]) {
-                        Kryn::$configs[$extendModule] =
-                            array_merge_recursive_distinct(Kryn::$configs[$extendModule], $extendConfig);
-                    }
-                }
-            }
-        }
     }
 
 
@@ -948,7 +863,7 @@ class Kryn {
      */
     public static function initCache() {
 
-        //global normal cache 
+        //global normal cache
         Kryn::$cache = new Cache\Controller(self::$config['cache']['class'], self::$config['cache_params']);
 
         $fastestCacheClass = Cache\Controller::getFastestCacheClass();
@@ -1043,68 +958,11 @@ class Kryn {
      *
      * @static
      * @return string
-     *
-     * @param boolean pWithAdditionalParameter If you want to get KGETs too
-     *
      * @internal
      */
-    public static function getRequestedPath($pWithAdditionalParameter = false) {
+    public static function getRequestedPath() {
 
-        return $pWithAdditionalParameter ? Kryn::$urlWithGet: Kryn::$url;
-
-    }
-
-    /**
-     * Reads all parameter out of the URL and insert them to $_REQUEST
-     * @internal
-     */
-    public static function prepareUrl() {
-
-        $url = self::getRequest()->getRequestUri();
-
-        if (($pos = strpos($url, '?')) !== false){
-            $query = substr($url, $pos+1);
-            $url = substr($url, 0, $pos);
-            parse_str($query, $_GET);
-        }
-
-        if (substr($url, 0, 1) == '/')
-            $url = substr($url, 1);
-
-        Kryn::$url = '';
-
-        $t = explode("/", $url);
-        $c = 1;
-
-        foreach ($t as $i) {
-            if (strpos($i, "=")) {
-                $param = explode("=", $i);
-                $_GET[$param[0]] = $param[1];
-                Kryn::$url .= '/' . urlencode($param[0]) . '=' . urlencode($param[1]);
-            } elseif (strpos($i, ":")) {
-                $param = explode(":", $i);
-                $_GET[$param[0]] = $param[1];
-                Kryn::$url .= '/' . urlencode($param[0]) . '=' . urlencode($param[1]);
-            } else {
-                Kryn::$url .= '/' . urlencode($i);
-                $c++;
-            }
-        }
-
-        if (substr(Kryn::$url, 0, 1) == '/')
-            Kryn::$url = substr(Kryn::$url, 1);
-
-        if (substr(Kryn::$url, -1) == '/')
-            Kryn::$url = substr(Kryn::$url, 0, -1);
-
-        Kryn::$urlWithGet = Kryn::$url;
-        $f = false;
-
-        foreach ($_GET as $k => &$v) {
-            if (is_array($v)) continue;
-            Kryn::$urlWithGet .= (!$f ? '?' : '&') . urlencode($k) . (($v)?'=' . urlencode($v):'');
-            if ($f == false) $f = true;
-        }
+        return self::getRequest()->getRequestUri();
 
     }
 
@@ -1219,9 +1077,6 @@ class Kryn {
     public static function cleanup(){
 
         self::$breadcrumbs = null;
-        self::$header = array();
-        self::$jsFiles = array();
-        self::$cssFiles = array('css/kryn_defaults.css');
         self::$lang = null;
         self::$language = null;
         self::$languages = null;
@@ -1249,7 +1104,6 @@ class Kryn {
         self::$themes = null;
         self::$dbConnection = null;
         self::$dbConnectionIsSlave = \Propel::CONNECTION_WRITE;
-        self::$propelClassMap = array();
         self::$smarty = array();
         self::$config = null;
         self::$cfg = null;
@@ -1554,11 +1408,11 @@ class Kryn {
     }
 
     public static function handleRequest(){
+        global $_start;
 
         $kernel     = self::getHttpKernel();
         $request    = self::getRequest();
         $dispatcher = self::getEventDispatcher();
-
 
         $dispatcher->addListener('core.domain-redirect', function(GenericEvent $event){
             header("HTTP/1.1 301 Moved Permanently");
@@ -1584,6 +1438,8 @@ class Kryn {
            PageController::injectPlugin($response);
            $response = PageController::getResponse();
         }
+
+        Kryn::getLogger()->addDebug('Sending. Generation time: '.(microtime(true)-$_start).' seconds.');
 
         $response->send();
 
@@ -1836,6 +1692,20 @@ class Kryn {
             self::setCache('core/urls.created', $urls['!created']);
         }
         return $urls;
+    }
+
+
+    /**
+     * @param integer $pDomainId
+     * @return array
+     */
+    public static function &getCachedPageToUrl($pDomainId){
+        static $flipped;
+
+        if (!$flipped){
+            $flipped = array_flip(self::getCachedUrlToPage($pDomainId));
+        }
+        return $flipped;
     }
 
     /**
@@ -2322,16 +2192,12 @@ class Kryn {
         }
 
         if ($pWithKrynContext){
-            if (self::$config['id'] === null)
-                self::$config['id'] = 'no-id';
-
-            $id = 'kryn-'.self::$config['id'];
 
             if (!is_writable(self::$cachedTempFolder))
                 throw new \FileIOException('Temp directory is not writeable. '.$folder);
 
             //add our id to folder, so this installation works inside of a own directory.
-            $folder = self::$cachedTempFolder . $id . DIRECTORY_SEPARATOR;
+            $folder = self::$cachedTempFolder . self::getId() . DIRECTORY_SEPARATOR;
 
             if (!is_dir($folder))
                 mkdir($folder);
@@ -2340,6 +2206,10 @@ class Kryn {
         }
 
         return self::$cachedTempFolder;
+    }
+
+    public static function getId(){
+        return 'kryn-'.(self::$config['id'] ?: 'no-id');
     }
 
     /**

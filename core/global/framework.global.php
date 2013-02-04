@@ -58,7 +58,12 @@ function debugPrint($pText = null, $pStop = null){
 function getArgv($pVal, $pEscape = false) {
 
     if (is_numeric($pVal)){
-        $exploded = explode('/', $_SERVER['PATH_INFO']);
+        static $exploded;
+        if (!$exploded){
+            $url = \Core\Kryn::getRequest()->getPathInfo();
+            if (substr($url, 0, 1) == '/') $url = substr($url, 1);
+            $exploded = explode('/', $url);
+        }
         return $exploded[$pVal-1];
     }
 

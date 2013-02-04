@@ -30,7 +30,6 @@ class PageController extends Controller {
      */
     public function send(Request $request){
 
-
         //is link
         if (Kryn::$page->getType() == 1) {
             $to = Kryn::$page->getLink();
@@ -97,7 +96,7 @@ class PageController extends Controller {
         $cache        = Kryn::getFastCache($cacheKey);
         $cacheCreated = Kryn::getCache($cacheKey.'.created');
 
-        if (true || !$cache || $cache['created'] != $cacheCreated){
+        if (!$cache || $cache['created'] != $cacheCreated){
 
             $contents = ContentQuery::create()
                 ->filterByNodeId($pPageId)

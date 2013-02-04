@@ -22,13 +22,14 @@ require('core/bootstrap.php');
 //attach error handler, init propel, load module configs, initialise main controllers and setup the autoloader.
 require('core/bootstrap.startup.php');
 
+
+Core\Kryn::getLogger()->addDebug('Bootstrap loaded.');
+
 //Setup the HTTPKernel.
 Core\Kryn::setupHttpKernel();
 
-
 //Initialize the client objects for backend and frontend.
 Core\Kryn::initClient();
-
 
 //Setup application routes.
 if (Core\Kryn::isAdmin()) {

@@ -122,7 +122,7 @@ class AdminController {
                 $definition = \Core\Object::getDefinition(getArgv(3));
 
                 if (!$definition)
-                    throw \ObjectNotFoundException(sprintf('Object `%s` not found.', getArgv(3)));
+                    throw new \ObjectNotFoundException(sprintf('Object `%s` not found.', getArgv(3)));
 
                 $object = new ObjectCrud();
                 $object->setObject(getArgv(3));

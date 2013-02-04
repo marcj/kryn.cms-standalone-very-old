@@ -27,7 +27,7 @@ class PageResponse extends Response {
     );
 
 
-    private $cssFiles = array();
+    private $cssFiles = array(array('path' => 'core/css/normalize.css', 'type' => 'text/css'));
     private $jsFiles = array();
 
     private $css = array();
@@ -57,19 +57,27 @@ class PageResponse extends Response {
     }
 
     public function addCssFile($pPath, $pType  = 'text/css'){
-        $this->cssFiles[] = array('path' => $pPath, 'type' => $pType);
+        $insert = array('path' => $pPath, 'type' => $pType);
+        if (array_search($insert, $this->cssFiles) === false)
+            $this->cssFiles[] = $insert;
     }
 
     public function addCss($pContent, $pType  = 'text/css'){
-        $this->css[] = array('content' => $pContent, 'type' => $pType);
+        $insert = array('content' => $pContent, 'type' => $pType);
+        if (array_search($insert, $this->css) === false)
+            $this->css[] = $insert;
     }
 
     public function addJsFile($pPath, $pPosition = 'top', $pType = 'text/javascript'){
-        $this->jsFiles[] = array('path' => $pPath, 'position' => $pPosition, 'type' => $pType);
+        $insert = array('path' => $pPath, 'position' => $pPosition, 'type' => $pType);
+        if (array_search($insert, $this->jsFiles) === false)
+            $this->jsFiles[] = $insert;
     }
 
     public function addJs($pContent, $pPosition = 'top', $pType = 'text/javascript'){
-        $this->js[] = array('content' => $pContent, 'position' => $pPosition, 'type' => $pType);
+        $insert = array('content' => $pContent, 'position' => $pPosition, 'type' => $pType);
+        if (array_search($insert, $this->js) === false)
+            $this->js[] = $insert;
     }
 
 
@@ -112,9 +120,6 @@ class PageResponse extends Response {
 
         $this->setContent($html);
 
-        global $_start;
-        error_log('Kryn.cms - page generation tooks '.(microtime(true)-$_start).' seconds.');
-
         return parent::send();
     }
 
@@ -156,8 +161,8 @@ class PageResponse extends Response {
 
         $myCssFiles = array();
 
-        foreach (Kryn::$cssFiles as $css) {
-            $myCssFiles[] = $css;
+        foreach ($this->cssFiles as $css) {
+            $myCssFiles[] = $css['path'];
         }
 
         $result = '';

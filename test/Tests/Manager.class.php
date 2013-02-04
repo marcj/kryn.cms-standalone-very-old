@@ -92,7 +92,6 @@ class Manager {
         //curl_setopt($ch, CURLOPT_HEADER, 1);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $cookieFile = \Core\Kryn::getTempFolder().'cookies.txt';
-        //$cookieFile = '/var/tmp/test.txt';
         touch($cookieFile);
         curl_setopt($ch, CURLOPT_COOKIEJAR, $cookieFile);
         curl_setopt($ch, CURLOPT_COOKIEFILE, $cookieFile);
@@ -138,7 +137,7 @@ class Manager {
         require('core/bootstrap.php');
 
         require('core/bootstrap.startup.php');
-        \Core\Kryn::loadConfigs();
+        \Core\Kryn::loadModuleConfigs();
 
         $manager = new \Admin\Module\Manager;
 
@@ -159,7 +158,7 @@ class Manager {
         \Core\PropelHelper::cleanup();
 
         //load all configs
-        \Core\Kryn::loadConfigs();
+        \Core\Kryn::loadModuleConfigs();
 
         \Admin\Utils::clearCache();
 
@@ -181,7 +180,7 @@ class Manager {
 
         require('core/bootstrap.startup.php');
         @ini_set('display_errors', 1);
-        \Core\Kryn::loadConfigs();
+        \Core\Kryn::loadModuleConfigs();
 
         $manager = new \Admin\Module\Manager;
 
@@ -218,7 +217,7 @@ class Manager {
         \Core\PropelHelper::cleanup();
 
         //load all configs
-        \Core\Kryn::loadConfigs();
+        \Core\Kryn::loadModuleConfigs();
 
         \Admin\Utils::clearCache();
 
@@ -246,7 +245,7 @@ class Manager {
     public static function cleanup(){
 
         //load all configs
-        \Core\Kryn::loadConfigs();
+        \Core\Kryn::loadModuleConfigs();
 
         \Core\Object::cleanup();
 
