@@ -1439,9 +1439,8 @@ class Kryn {
            $response = PageController::getResponse();
         }
 
-        Kryn::getLogger()->addDebug('Sending. Generation time: '.(microtime(true)-$_start).' seconds.');
-
         $response->send();
+        Kryn::getLogger()->addDebug('Done. Generation time: '.(microtime(true)-$_start).' seconds.');
 
         exit;
     }
