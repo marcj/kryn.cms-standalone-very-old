@@ -74,7 +74,7 @@ class Controller {
         if (class_exists($pClass)){
             $this->instance = new $pClass($pConfig);
         } else {
-            throw new \Exception(tf('The class %s does not exist.', $pClass));
+            throw new \Exception(tf('The class `%s` does not exist.', $pClass));
         }
 
     }

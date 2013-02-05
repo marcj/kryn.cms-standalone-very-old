@@ -213,8 +213,6 @@ class PageResponse extends Response {
                         $file = $css['path'];
                         $file = (substr($file,0,1) != '/' ? PATH_MEDIA . $file : substr($file, 1));
 
-
-                        var_dump($css);
                         if (file_exists($file)) {
                             $cssContent .= "/* $file: */\n\n";
                             $temp = file_get_contents($file) . "\n\n\n";

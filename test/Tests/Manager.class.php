@@ -157,9 +157,6 @@ class Manager {
 
         \Core\PropelHelper::cleanup();
 
-        //load all configs
-        \Core\Kryn::loadModuleConfigs();
-
         \Admin\Utils::clearCache();
 
     }
