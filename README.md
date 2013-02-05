@@ -10,9 +10,6 @@ We're in development. This means, there are still a _lot_ of issues in this prod
 [![Build Status](https://travis-ci.org/KrynLabs/Kryn.cms.png?branch=propel1.6)](https://travis-ci.org/KrynLabs/Kryn.cms)
 
 
-More information and screenshots:
-https://www.facebook.com/kryncms
-
 
 Installation
 ------------
@@ -55,6 +52,10 @@ Screenshot
 ![Administration Screenshot](https://raw.github.com/KrynLabs/Kryn.cms/propel1.6/docu/images/admin-browser-screenshot.png)
 
 [More Screenshots](https://github.com/KrynLabs/Kryn.cms/blob/propel1.6/docu/screenshots.markdown)
+
+More information and screenshots:
+https://www.facebook.com/kryncms
+
 
 Contribution
 ------------
