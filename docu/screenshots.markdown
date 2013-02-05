@@ -80,3 +80,9 @@ Installer
 
 Step 3
 ![Step 3](https://raw.github.com/KrynLabs/Kryn.cms/propel1.6/docu/images/installer-step3.png)
+
+Stuff
+------------------
+
+Errors/Exception Debug View
+![Errors/Exception Debug View](https://raw.github.com/KrynLabs/Kryn.cms/propel1.6/docu/images/errors-exception-debug-view.png)
