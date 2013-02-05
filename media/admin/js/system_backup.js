@@ -55,7 +55,7 @@ var admin_system_backup = new Class({
                                 needValue: 'local',
                                 lable: _('Target'),
                                 desc: _('Relative paths starts at the root of the kryn installation.'),
-                                type: 'folder'
+                                type: 'file'
                             }
                         }
                     },
@@ -144,7 +144,7 @@ var admin_system_backup = new Class({
                         label: _('Whole website'),
                         needValue: 'choose',
                         desc: _('Please select one or more domains. All nodes below this domains will then be included.'),
-                        type: 'textlist',
+                        type: 'textboxList',
                         store: 'backend/stores/domains'
                     },
                     pages_nodes: {
@@ -158,7 +158,8 @@ var admin_system_backup = new Class({
                         ],
                         fields: {
                             id: {
-                                type: 'page'
+                                type: 'object',
+                                object: 'Core\\Node'
                             }
                         }
                     }
@@ -191,7 +192,7 @@ var admin_system_backup = new Class({
                         ],
                         fields: {
                             folder: {
-                                type: 'folder',
+                                type: 'file',
                                 multi: 0
                             }
                         }
@@ -219,7 +220,7 @@ var admin_system_backup = new Class({
                 depends: {
                     extensions_choose: {
                         needValue: 'choose',
-                        type: 'textlist',
+                        type: 'textboxList',
                         store: 'admin/backend/stores/extensions'
                     }
                 }
@@ -243,7 +244,7 @@ var admin_system_backup = new Class({
                     },
                     extensions_data_choose: {
                         needValue: 'choose',
-                        type: 'textlist',
+                        type: 'textboxList',
                         store: 'admin/backend/stores/extensions'
                     }
                 }
@@ -758,7 +759,8 @@ var admin_system_backup = new Class({
                 }).inject(li);
 
                 new ka.Field({
-                    type: 'page'
+                    type: 'object',
+                    object: 'Core\\Node'
                 }, li, {win: this.win})
 
             }.bind(this));
