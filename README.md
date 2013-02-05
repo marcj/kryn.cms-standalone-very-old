@@ -38,6 +38,7 @@ Features
  - Framework CRUD window generator, without coding
  - Easy and integrated backup system, perfect for live/dev-scenarios
  - Working in workspaces
+ - Extremely detailed permission system
  - Comes with a solid bunch of UI input widgets
  - Several authentication layers (changeable for administration and/or per domain)
  - MVC architecture, no HTML inside PHP
@@ -53,6 +54,7 @@ Screenshot
 
 ![Administration Screenshot](https://raw.github.com/KrynLabs/Kryn.cms/propel1.6/docu/images/admin-browser-screenshot.png)
 
+More Screenshots
 
 Contribution
 ------------

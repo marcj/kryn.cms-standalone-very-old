@@ -340,7 +340,6 @@ ka.ObjectTree = new Class({
             this.rootA.childrenContainer = this.paneObjects;
 
         }
-        var objectUrl = '';
 
         var scope = null;
 
@@ -351,7 +350,7 @@ ka.ObjectTree = new Class({
             }
         }
         this.activeLoadings++;
-        this.lastFirstLevelRq = new Request.JSON({url: this.getUrl()+objectUrl+'/:branch',
+        this.lastFirstLevelRq = new Request.JSON({url: this.getUrl()+':branch',
             noCache: 1, onComplete: this.renderFirstLevel.bind(this)
         }).get({scope: scope});
 

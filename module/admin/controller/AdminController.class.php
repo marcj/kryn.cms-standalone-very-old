@@ -119,13 +119,14 @@ class AdminController {
                     'type' => 'combine'
                 );
 
-                $definition = \Core\Object::getDefinition(getArgv(3));
+                $objectKey = rawurldecode(getArgv(3));
+                $definition = \Core\Object::getDefinition($objectKey);
 
                 if (!$definition)
-                    throw new \ObjectNotFoundException(sprintf('Object `%s` not found.', getArgv(3)));
+                    throw new \ObjectNotFoundException(sprintf('Object `%s` not found.', $objectKey));
 
                 $object = new ObjectCrud();
-                $object->setObject(getArgv(3));
+                $object->setObject($objectKey);
                 $object->setAllowCustomSelectFields(true);
 
                 $autoFields = array();
@@ -137,6 +138,7 @@ class AdminController {
 
                 $epc = new ObjectCrudController(($entryPoint['_module'] == 'admin' ? '': 'admin/') . $entryPoint['_url']);
                 $epc->setObj($object);
+                $epc->getClient()->setUrl(substr(Kryn::getRequest()->getPathInfo(), 1));
                 $epc->setExceptionHandler($exceptionHandler);
                 $epc->setDebugMode($debugMode);
 
@@ -146,6 +148,7 @@ class AdminController {
 
             \RestService\Server::create('admin', $this)
 
+                ->getClient()->setUrl(substr(Kryn::getRequest()->getPathInfo(), 1))->getController()
                 ->setCheckAccess(array($this, 'checkAccess'))
                 ->setExceptionHandler($exceptionHandler)
                 ->setDebugMode($debugMode)

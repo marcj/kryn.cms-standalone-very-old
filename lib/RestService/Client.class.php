@@ -56,6 +56,20 @@ class Client {
     }
 
     /**
+     * @param \RestService\Server $controller
+     */
+    public function setController($controller) {
+        $this->controller = $controller;
+    }
+
+    /**
+     * @return \RestService\Server
+     */
+    public function getController() {
+        return $this->controller;
+    }
+
+    /**
      * Sends the actual response.
      *
      * @internal
@@ -76,7 +90,7 @@ class Client {
             header('HTTP/1.0 200 OK');
         }
 
-        $pMessage = array_reverse($pMessage, true); 
+        $pMessage = array_reverse($pMessage, true);
         $pMessage['status'] = $pHttpCode;
         $pMessage = array_reverse($pMessage, true);
 

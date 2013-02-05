@@ -173,6 +173,7 @@ ka.FieldProperty = new Class({
                     needValue: ['object', 'predefined', 'fieldCondition', 'objectCondition'],
                     label: t('Objecy key'),
                     required: true,
+                    combobox: true,
                     desc: t('The key of the object')
                 },
                 'field': {

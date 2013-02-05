@@ -69,6 +69,7 @@ class ObjectCrudController extends Server {
 
             //run parent
             parent::run();
+            var_dump('hi');
         }
     }
 

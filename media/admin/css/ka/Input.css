@@ -9,7 +9,6 @@ input.text {
     margin: 0;
 
     text-indent: 4px;
-    height: 18px;
 
     box-shadow: 0px 1px 0px #f9f9f9;
     border: 1px solid #bbb;
@@ -31,13 +30,11 @@ input.text {
 
 .ka-input-wrapper {
     text-indent: 0;
-    height: 20px;
     overflow: hidden;
 }
 
 .ka-input-inner-wrapper {
     position: relative;
-    height: 20px;
     margin: 1px;
     margin-left: 4px;
 }

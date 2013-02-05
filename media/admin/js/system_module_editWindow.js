@@ -372,8 +372,8 @@ var admin_system_module_editWindow = new Class({
                         label: t('Item layout (Optional)'),
                         desc: t('Default behaviour is that the system extracts the first three columns and build it on its own. You can define here your own item HTML.')+
                             '<br/>'+t('Example:')+'<br/>'+
-                            '&lt;h2&gt;{item.title}&lt;/h2&gt;<br/>'+
-                            '&lt;div style="font-size: 10px;"&gt;{item.anotherFieldName}&lt;/div&gt;',
+                            '&lt;h2&gt;{title}&lt;/h2&gt;<br/>'+
+                            '&lt;div style="font-size: 10px;"&gt;{anotherFieldName}&lt;/div&gt;',
                         type: 'codemirror',
                         inputHeight: 80
                     }
