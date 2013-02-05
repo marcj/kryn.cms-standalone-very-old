@@ -54,7 +54,7 @@ Screenshot
 
 ![Administration Screenshot](https://raw.github.com/KrynLabs/Kryn.cms/propel1.6/docu/images/admin-browser-screenshot.png)
 
-(More Screenshots)[https://github.com/KrynLabs/Kryn.cms/blob/propel1.6/docu/screenshots.markdown]
+[More Screenshots](https://github.com/KrynLabs/Kryn.cms/blob/propel1.6/docu/screenshots.markdown)
 
 Contribution
 ------------
