@@ -7,6 +7,9 @@ General
 Object CRUD Window with File manager
 ![Object CRUD Window with File manager](https://raw.github.com/KrynLabs/Kryn.cms/propel1.6/docu/images/admin-browser-screenshot.png)
 
+Administration login
+![Administration login](https://raw.github.com/KrynLabs/Kryn.cms/propel1.6/docu/images/admin-login.png)
+
 Files with image thumbnail and context menu
 ![Files with image thumbnail and context menu](https://raw.github.com/KrynLabs/Kryn.cms/propel1.6/docu/images/admin-files-context-image.png)
 
