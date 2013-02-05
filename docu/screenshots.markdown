@@ -56,4 +56,18 @@ Class Methods Tab 2
 
 
 
+Permission Management
+------------------
+
+Entry points
+![Entry points](https://raw.github.com/KrynLabs/Kryn.cms/propel1.6/docu/images/admin-permission-management1.png)
+
+Objects 1
+![Objects 1](https://raw.github.com/KrynLabs/Kryn.cms/propel1.6/docu/images/admin-permission-management2.png)
+
+Objects 2
+![Objects 2](https://raw.github.com/KrynLabs/Kryn.cms/propel1.6/docu/images/admin-permission-management3.png)
+
+Objects 3
+![Objects 3](https://raw.github.com/KrynLabs/Kryn.cms/propel1.6/docu/images/admin-permission-management4.png)
 
