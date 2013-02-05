@@ -19,11 +19,11 @@ ka.FieldTypes.Textarea = new Class({
         }).inject(this.fieldInstance.fieldPanel);
 
         this.innerWrapper = new Element('div', {
-            'class': 'ka-Input-inner-wrapper'
+            'class': 'ka-input-inner-wrapper'
         }).inject(this.wrapper);
 
         this.input = new Element('textarea', {
-            'class': 'ka-Input',
+            'class': 'ka-input',
             styles: {
                 'width': '100%',
                 'height': this.options.inputHeight

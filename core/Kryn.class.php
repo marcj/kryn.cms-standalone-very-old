@@ -1160,7 +1160,16 @@ class Kryn {
      */
     public static function getPropelCacheObject($pObjectClassName, $pObjectPk) {
 
-        $cacheKey = 'Object-'.str_replace('\'', '_',$pObjectClassName).'_'.$pObjectPk;
+        if (is_array($pObjectPk)){
+            $npk = '';
+            foreach ($pObjectPk as $k){
+                $npk .= urlencode($k).'_';
+            }
+        } else {
+            $pk = urlencode($pObjectPk);
+        }
+
+        $cacheKey = 'core.object-caching.'.str_replace('\'', '_',$pObjectClassName).'_'.$pk;
         if ($serialized = self::getCache($cacheKey)){
             return unserialize($serialized);
         }
@@ -1170,15 +1179,17 @@ class Kryn {
 
     /**
      * Returns propel object and cache it.
+     *
      * @param  int   $pObjectClassName If not defined, it returns the current page.
-     * @param  mixed $pPk Propel PK for $pObjectClassName int, string or array
-     * @param  mixed $pObject Pass the object, if you'd already fetch it.
+     * @param  mixed $pObjectPk        Propel PK for $pObjectClassName int, string or array
+     * @param  mixed $pObject          Pass the object, if you did already fetch it.
+     *
      * @return \BaseObject Propel object
      */
     public static function setPropelCacheObject($pObjectClassName, $pObjectPk, $pObject = false) {
 
         $pk = $pObjectPk;
-        if ($pk === null){
+        if ($pk === null && $pObject){
             $pk = $pObject->getPrimaryKey();
         }
 
@@ -1191,7 +1202,7 @@ class Kryn {
             $pk = urlencode($pk);
         }
 
-        $cacheKey = 'Object-'.str_replace('\'', '_',$pObjectClassName).'_'.$pk;
+        $cacheKey = 'core.object-caching.'.str_replace('\'', '_',$pObjectClassName).'_'.$pk;
 
         $clazz = $pObjectClassName.'Query';
         $object = $pObject;
@@ -1407,6 +1418,26 @@ class Kryn {
 
     }
 
+    public static function checkStaticCaching(){
+
+        //caching
+        if (true || Kryn::isEditMode()) return;
+
+        $key = md5(self::getRequest()->getRequestUri());
+        $caching = Kryn::getCache('core/static-caching');
+
+        if (!$caching){
+            //reload static-caching index
+        }
+
+        if ($caching[$key] && file_exists($file = 'media/cache/core.static.'.$key.'.html')){
+
+            $response = new Response(file_get_contents($file), 200);
+            $response->send();
+            exit;
+        }
+    }
+
     public static function handleRequest(){
         global $_start;
 
@@ -1415,9 +1446,9 @@ class Kryn {
         $dispatcher = self::getEventDispatcher();
 
         $dispatcher->addListener('core.domain-redirect', function(GenericEvent $event){
-            header("HTTP/1.1 301 Moved Permanently");
             $domain = $event->getSubject();
-            header('Location: ' . $domain->getUrl(Kryn::$ssl));
+            $response = new \Symfony\Component\HttpFoundation\RedirectResponse($domain->getUrl(Kryn::$ssl), 301);
+            $response->send();
             exit;
         });
 
@@ -1439,10 +1470,35 @@ class Kryn {
            $response = PageController::getResponse();
         }
 
+
+        //caching
+        if (false && !Kryn::isEditMode()){
+            $dispatcher->addListener('core.response-send-pre', function(){
+                $caching       = Kryn::getCache('core/static-caching');
+                $key           = md5(Kryn::getRequest()->getRequestUri());
+                $caching[$key] = true;
+                $file          = 'media/cache/core.static.'.$key.'.html';
+                file_put_contents($file, Kryn::getResponse()->getContent());
+                Kryn::setCache('core/static-caching', $caching, 60);
+            });
+        }
+
+        if (Kryn::isEditMode() && $response instanceof PageResponse){
+
+            \Admin\AdminController::handleKEditor();
+        }
+
+        $dispatcher->dispatch('core.response-send-pre', new GenericEvent($response));
         $response->send();
+        $dispatcher->dispatch('core.response-send', new GenericEvent($response));
+
         Kryn::getLogger()->addDebug('Done. Generation time: '.(microtime(true)-$_start).' seconds.');
 
         exit;
+    }
+
+    public static function isEditMode(){
+        return Kryn::getRequest()->get('_kryn_editor') == 1 && Kryn::$page && Permission::checkUpdate('Core.Node', Kryn::$page->getId());
     }
 
     /**
@@ -1714,7 +1770,7 @@ class Kryn {
      */
     public static function searchPage() {
 
-        $url = self::getRequest()->getRequestUri();
+        $url = self::getRequest()->getPathInfo();
 
         $domain = Kryn::$domain->getId();
         $urls   = self::getCachedUrlToPage($domain);
@@ -2027,8 +2083,9 @@ class Kryn {
      * @param string $pCode
      */
     public static function deleteCache($pCode) {
-        if (Kryn::$cache)
-            Kryn::$cache->delete($pCode);
+        if (!self::$cache)
+            self::initCache();
+        Kryn::$cache->delete($pCode);
     }
 
     /**
@@ -2043,9 +2100,9 @@ class Kryn {
      * @static
      */
     public static function setCache($pCode, $pValue, $pTimeout = null) {
-        if (Kryn::$cache)
-            return Kryn::$cache->set($pCode, $pValue, $pTimeout);
-        return false;
+        if (!self::$cache)
+            self::initCache();
+        return Kryn::$cache->set($pCode, $pValue, $pTimeout);
     }
 
     /**
@@ -2056,9 +2113,9 @@ class Kryn {
      * @return boolean
      */
     public static function invalidateCache($pCode, $pTime = null) {
-        if (Kryn::$cache)
-            return Kryn::$cache->invalidate($pCode, $pTime);
-        return false;
+        if (!self::$cache)
+            self::initCache();
+        return Kryn::$cache->invalidate($pCode, $pTime);
     }
 
     /**
@@ -2070,9 +2127,9 @@ class Kryn {
      * @static
      */
     public static function &getCache($pCode) {
-        if (Kryn::$cache)
-            return Kryn::$cache->get($pCode);
-        return false;
+        if (!self::$cache)
+            self::initCache();
+        return Kryn::$cache->get($pCode);
     }
 
     /**
@@ -2118,7 +2175,9 @@ class Kryn {
      * @static
      */
     public static function setFastCache($pCode, $pValue, $pTimeout = null) {
-        return Kryn::$cacheFast?Kryn::$cacheFast->set($pCode, $pValue, $pTimeout):false;
+        if (!self::$cache)
+            self::initCache();
+        return Kryn::$cacheFast->set($pCode, $pValue, $pTimeout);
     }
 
     /**
@@ -2130,7 +2189,9 @@ class Kryn {
      * @static
      */
     public static function &getFastCache($pCode) {
-        return Kryn::$cacheFast?Kryn::$cacheFast->get($pCode):null;
+        if (!self::$cache)
+            self::initCache();
+        return Kryn::$cacheFast->get($pCode);
     }
 
     /**

@@ -92,20 +92,20 @@ ka.Field = new Class({
                 this.options.tableItem = true;
 
                 this.tr = new Element('tr', {
-                    'class': 'ka-Field ka-field-main'
+                    'class': 'ka-field ka-field-main'
                 });
                 
                 this.tr.instance = this;
                 this.tr.store('ka.Field', this);
 
                 this.main = new Element('td', {
-                    'class': 'ka-Field-inputTd',
+                    'class': 'ka-field-inputTd',
                     colspan: 2
                 }).inject(this.tr);
 
             } else {
 
-                this.main = new Element('div', {'class': 'ka-Field'});
+                this.main = new Element('div', {'class': 'ka-field'});
                 this.main.instance = this;
                 this.main.store('ka.Field', this);
             }
@@ -123,7 +123,7 @@ ka.Field = new Class({
                 this.options.tableItem = true;
 
                 this.tr = new Element('tr', {
-                    'class': 'ka-Field ka-field-main'
+                    'class': 'ka-field ka-field-main'
                 });
 
                 this.tr.instance = this;
@@ -141,7 +141,7 @@ ka.Field = new Class({
 
             } else if (this.options.tableItem) {
                 this.tr = new Element('tr', {
-                    'class': 'ka-Field ka-field-main'
+                    'class': 'ka-field ka-field-main'
                 });
                 this.tr.instance = this;
                 this.tr.store('ka.Field', this);
@@ -152,12 +152,12 @@ ka.Field = new Class({
                 }).inject(this.tr);
 
                 this.main = new Element('td', {
-                    'class': 'ka-Field-inputTd'
+                    'class': 'ka-field-inputTd'
                 }).inject(this.tr);
 
             } else {
                 this.main = new Element('div', {
-                    'class': 'ka-Field ka-field-main'
+                    'class': 'ka-field ka-field-main'
                 });
                 this.main.instance = this;
                 this.main.store('ka.Field', this);
@@ -571,12 +571,12 @@ ka.Field = new Class({
             this.childrenContainerTd = new Element('td', {colspan: 2, style: 'padding: 0px; border-bottom: 0px;'}).inject(this.childrenContainerTr);
 
             this.childContainer = new Element('div', {
-                'class': 'ka-Field-childrenContainer ka-fields-sub'
+                'class': 'ka-field-childrenContainer ka-fields-sub'
             }).inject(this.childrenContainerTd);
 
         } else {
             this.childContainer = new Element('div', {
-                'class': 'ka-Field-childrenContainer ka-fields-sub'
+                'class': 'ka-field-childrenContainer ka-fields-sub'
             }).inject(document.id(this), 'after');
         }
 
@@ -604,7 +604,7 @@ ka.Field = new Class({
      */
     getParent: function(){
         if (!this.parent){
-            var parentChildrenContainer = this.toElement().getParent('.ka-Field-childrenContainer');
+            var parentChildrenContainer = this.toElement().getParent('.ka-field-childrenContainer');
             if (parentChildrenContainer)
                 return parentChildrenContainer.instance;
         }
@@ -673,7 +673,7 @@ ka.Field = new Class({
      */
     getPrevious: function(){
 
-        var previous = this.toElement().getPrevious('.ka-Field');
+        var previous = this.toElement().getPrevious('.ka-field');
 
         return previous ? previous.instance : null;
     },
@@ -685,7 +685,7 @@ ka.Field = new Class({
      */
     getNext: function(){
 
-        var next = this.toElement().getNext('.ka-Field');
+        var next = this.toElement().getNext('.ka-field');
 
         return next ? next.instance : null;
     },
@@ -716,7 +716,7 @@ ka.Field = new Class({
      */
     moveUp: function(){
 
-        var previous = this.toElement().getPrevious('.ka-Field');
+        var previous = this.toElement().getPrevious('.ka-field');
 
         if (previous) this.inject(previous.instance, 'before');
 
@@ -730,7 +730,7 @@ ka.Field = new Class({
      */
     moveDown: function(){
 
-        var next = this.toElement().getNext('.ka-Field');
+        var next = this.toElement().getNext('.ka-field');
 
         if (next) this.inject(next.instance, 'after');
 
@@ -749,7 +749,7 @@ ka.Field = new Class({
         pP = pP?pP:'bottom';
 
         if (instanceOf(pTo, ka.Field) && pP == 'after' && pTo.toElement().get('tag') == 'tr' && pTo.getChildrenContainer()){
-            //since in table mode the children container is actually under the ka-Field dom element, we
+            //since in table mode the children container is actually under the ka-field dom element, we
             //have to assign the pTo to the children container.
             pTo = pTo.getChildrenContainer();
         } else if(instanceOf(pTo, ka.Field)){
@@ -762,8 +762,8 @@ ka.Field = new Class({
 
         field.dispose();
 
-        if (this.containerAutoTable && this.containerAutoTable.hasClass('ka-Field-autotable')){
-            if (this.containerAutoTable.getChildren('.ka-Field').length === 0){
+        if (this.containerAutoTable && this.containerAutoTable.hasClass('ka-field-autotable')){
+            if (this.containerAutoTable.getChildren('.ka-field').length === 0){
                 //it's our own autotable, so delete it.
                 this.containerAutoTable.destroy();
                 delete this.containerAutoTable;
@@ -780,15 +780,15 @@ ka.Field = new Class({
                 } else {
                     //guess, we need one
                     if (pP == 'bottom' || pP == 'top')
-                        this.containerAutoTable = pTo.getLast('.ka-Field-autotable');
+                        this.containerAutoTable = pTo.getLast('.ka-field-autotable');
                     else if (pP == 'before')
-                        this.containerAutoTable = pTo.getPrevious('.ka-Field-autotable');
+                        this.containerAutoTable = pTo.getPrevious('.ka-field-autotable');
                     else if (pP == 'after'){
-                        this.containerAutoTable = pTo.getNext('.ka-Field-autotable');
+                        this.containerAutoTable = pTo.getNext('.ka-field-autotable');
                     }
 
                     if (!this.containerAutoTable){
-                        this.containerAutoTable = new Element('table', {'class': 'ka-Field-autotable', width: '100%'})
+                        this.containerAutoTable = new Element('table', {'class': 'ka-field-autotable', width: '100%'})
                         .inject(pTo, pP);
                     }
                 }
@@ -839,7 +839,7 @@ ka.Field = new Class({
         var field = this.toElement();
 
         //are we between 2 ka-field-autotables ? maybe we can merge it
-        if (field.getPrevious() && field.getNext() && field.getNext().hasClass('ka-Field-autotable') && field.getPrevious().hasClass('ka-Field-autotable')){
+        if (field.getPrevious() && field.getNext() && field.getNext().hasClass('ka-field-autotable') && field.getPrevious().hasClass('ka-field-autotable')){
             var next = field.getNext();
             var tbodyNext = next.getChildren('tbody').length>0?next.getChildren('tbody')[0]:next;
             var previous = field.getPrevious();
@@ -852,12 +852,12 @@ ka.Field = new Class({
 
         if (this.options.tableItem){
 
-            if (this.containerAutoTable && this.containerAutoTable.hasClass('ka-Field-autotable')){
+            if (this.containerAutoTable && this.containerAutoTable.hasClass('ka-field-autotable')){
 
                 var tbody = this.containerAutoTable.getChildren('tbody').length>0?
                              this.containerAutoTable.getChildren('tbody')[0]:this.containerAutoTable;
 
-                if (tbody.getChildren('.ka-Field').length === 0){
+                if (tbody.getChildren('.ka-field').length === 0){
                     //we're alone, delete the auto table
                     this.containerAutoTable.destroy();
                 }
@@ -927,7 +927,7 @@ ka.Field = new Class({
         var children = [];
 
         if (this.getChildrenContainer()){
-            this.getChildrenContainer().getChildren('.ka-Field').each(function(child){
+            this.getChildrenContainer().getChildren('.ka-field').each(function(child){
                 children.push(child.instance);
             });
         }

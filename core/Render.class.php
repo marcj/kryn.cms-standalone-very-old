@@ -403,7 +403,7 @@ class Render {
                 $html = $content->getContent();
         } else {
 
-            tAssign('content', $content);
+            tAssign('content', tFetch('core/content.tpl'));
             $template = $content->getTemplate();
             if ($unsearchable)
                 $html = '<!--unsearchable-begin-->' . tFetch($template) . '<!--unsearchable-end-->';

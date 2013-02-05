@@ -574,7 +574,7 @@ ka.getObjectLabel = function(pUri, pCb){
                 ka.getObjectLabelBusy[objectKey] = false;
                 ka.getObjectLabelQ[objectKey] = {};
 
-            }}).get({uri: uri, returnKeyAsRequested: 1});
+            }}).get({url: uri, returnKeyAsRequested: 1});
 
     }).delay(50);
 

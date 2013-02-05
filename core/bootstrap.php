@@ -5,13 +5,6 @@ $_start = microtime(true);
 
 error_reporting(E_CORE_ERROR|E_COMPILE_ERROR|E_RECOVERABLE_ERROR|E_ERROR|E_CORE_ERROR|E_USER_ERROR|E_PARSE);
 
-//fix PATH_INFO
-if (!$_SERVER['PATH_INFO']){
-    $pathInfo = explode('&', $_SERVER['QUERY_STRING']);
-    $_SERVER['PATH_INFO'] = $pathInfo[0];
-    array_shift($_GET);
-}
-
 
 if (!defined('PATH')){
     define('PATH', realpath(dirname(__FILE__).'/../') . '/');
@@ -20,8 +13,6 @@ if (!defined('PATH')){
     define('PATH_MEDIA', 'media/');
     define('PATH_MEDIA_CACHE', 'media/cache/');
 }
-$cwd = getcwd();
-chdir(PATH);
 
 /**
  * Check and loading config.php or redirect to install.php
@@ -53,9 +44,6 @@ include_once(PATH_CORE.'global/template.global.php');
 include_once(PATH_CORE.'global/internal.global.php');
 include_once(PATH_CORE.'global/framework.global.php');
 include_once(PATH_CORE.'global/exceptions.global.php');
-
-# Load very important classes.
-include_once(PATH_CORE.'Utils.class.php');
 
 include_once(PATH.'core/bootstrap.autoloading.php');
 
@@ -89,5 +77,4 @@ if ($cfg['locale'])
 
 define('pfx', $cfg['database']['prefix']);
 
-chdir($cwd);
 ?>

@@ -1,1 +1,1 @@
-{include file="core/view/content_default.tpl"}
+{$content}

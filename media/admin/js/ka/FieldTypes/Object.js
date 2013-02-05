@@ -145,13 +145,13 @@ ka.FieldTypes.Object = new Class({
         }, leftTd)
 
         this.input = this.field.getFieldObject().input;
-        this.input.addClass('ka-Input-disabled');
+        this.input.addClass('ka-input-disabled');
         this.input.disabled = true;
 
         if (this.options.combobox){
             this.input.disabled = false;
             this.input.addEvent('focus', function(){
-                this.input.removeClass('ka-Input-disabled');
+                this.input.removeClass('ka-input-disabled');
                 this._lastValue = this.input.value;
 
                 if (this.objectId){
@@ -163,16 +163,16 @@ ka.FieldTypes.Object = new Class({
             this.input.addEvent('blur', function(){
                 if (this.input.value == this.lastObjectLabel){
                     this.objectId = this.lastObjectId;
-                    this.input.addClass('ka-Input-disabled');
+                    this.input.addClass('ka-input-disabled');
                     return;
                 }
 
                 if (typeOf(this._lastValue) != 'null' && this.input.value != this._lastValue){
                     //changed it, so we delete this.objectValue since its now a custom value
                     delete this.objectId;
-                    this.input.removeClass('ka-Input-disabled');
+                    this.input.removeClass('ka-input-disabled');
                 } else if (this.objectId){
-                    this.input.addClass('ka-Input-disabled');
+                    this.input.addClass('ka-input-disabled');
                 }
             }.bind(this));
         }
@@ -326,14 +326,14 @@ ka.FieldTypes.Object = new Class({
             if (pLabel === false){
                 if (!this.options.combobox) {
                     this.input.value = 'not found: '+pObjectUri;
-                    this.input.removeClass('ka-Input-disabled');
+                    this.input.removeClass('ka-input-disabled');
                     delete this.objectId;
                 } else {
                     this.input.value = ka.urlDecode(ka.getCroppedObjectId(pObjectUri));
                 }
             } else {
                 this.input.value = pLabel;
-                this.input.addClass('ka-Input-disabled');
+                this.input.addClass('ka-input-disabled');
             }
 
         }.bind(this));

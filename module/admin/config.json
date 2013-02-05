@@ -483,10 +483,12 @@
         "admin\/js\/ka\/WindowEdit.js",
         "admin\/js\/ka\/WindowList.js",
         "admin\/js\/ka\/CustomField.js",
+        "admin\/js\/ka\/Select.js",
         "admin\/js\/ka\/*.js",
         "admin\/js\/ka\/FieldTypes\/Input.js",
         "admin\/js\/ka\/FieldTypes\/Object.js",
         "admin\/js\/ka\/FieldTypes\/*.js",
+        "admin\/js\/ka\/ContentTypes\/*.js",
         "admin\/js\/mootools-extras\/*.js"
     ],
     "adminCss": [

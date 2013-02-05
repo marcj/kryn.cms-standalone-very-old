@@ -27,18 +27,18 @@ class PageResponse extends Response {
     );
 
 
-    private $cssFiles = array(array('path' => 'core/css/normalize.css', 'type' => 'text/css'));
-    private $jsFiles = array();
+    private $css = array(
+        array('path' => 'core/css/normalize.css', 'type' => 'text/css'),
+        array('path' => 'core/css/defaults.css', 'type' => 'text/css')
+    );
 
-    private $css = array();
     private $js = array();
-
 
     /**
      * Constructor
      */
     public function __construct($content = '', $status = 200, $headers = array()){
-        $this->setEndTag((strpos(strtolower($this->getDocType()), 'xhtml') !== false) ? '/>' : '>'."\n");
+        $this->setEndTag(((strpos(strtolower($this->getDocType()), 'xhtml') !== false) ? '/>' : '>')."\n");
         parent::__construct($content, $status, $headers);
     }
 
@@ -58,8 +58,8 @@ class PageResponse extends Response {
 
     public function addCssFile($pPath, $pType  = 'text/css'){
         $insert = array('path' => $pPath, 'type' => $pType);
-        if (array_search($insert, $this->cssFiles) === false)
-            $this->cssFiles[] = $insert;
+        if (array_search($insert, $this->css) === false)
+            $this->css[] = $insert;
     }
 
     public function addCss($pContent, $pType  = 'text/css'){
@@ -70,8 +70,8 @@ class PageResponse extends Response {
 
     public function addJsFile($pPath, $pPosition = 'top', $pType = 'text/javascript'){
         $insert = array('path' => $pPath, 'position' => $pPosition, 'type' => $pType);
-        if (array_search($insert, $this->jsFiles) === false)
-            $this->jsFiles[] = $insert;
+        if (array_search($insert, $this->js) === false)
+            $this->js[] = $insert;
     }
 
     public function addJs($pContent, $pPosition = 'top', $pType = 'text/javascript'){
@@ -90,16 +90,14 @@ class PageResponse extends Response {
         $header .= $this->getBaseHref();
         $header .= $this->getMetaLanguage();
 
-        $header .= $this->getCssLinks();
+        $header .= $this->getCss();
         //$header .= $this->getCssContent();
 
-        $header .= $this->getJsFiles('top');
-        //$header .= $this->getJsScripts();
+        $header .= $this->getJs('top');
 
         $beforeBodyClose = '';
 
-        $beforeBodyClose .= $this->getJsFiles('bottom');
-        //$beforeBodyClose .= $this->getJsBottomScripts();
+        $beforeBodyClose .= $this->getJs('bottom');
 
         $docType = $this->getDocType();
         $htmlOpener = $this->getHtmlOpener();
@@ -113,12 +111,13 @@ class PageResponse extends Response {
 %s
 %s
 </body>
-</html>
-", $docType, $htmlOpener, $header, $this->getContent(), $beforeBodyClose);
+</html>", $docType, $htmlOpener, $header, $this->getContent(), $beforeBodyClose);
 
         $html = Kryn::parseObjectUrls($html);
 
         $this->setContent($html);
+
+        Kryn::getEventDispatcher()->dispatch('core.page-response-send-pre');
 
         return parent::send();
     }
@@ -157,38 +156,46 @@ class PageResponse extends Response {
         return sprintf("<title>%s</title>\n", $title);
     }
 
-    public function getCssLinks(){
+    public function getCss(){
 
-        $myCssFiles = array();
-
-        foreach ($this->cssFiles as $css) {
-            $myCssFiles[] = $css['path'];
-        }
 
         $result = '';
 
         if (!Kryn::$domain->getResourcecompression()) {
-            foreach ($myCssFiles as $css) {
-                if (strpos($css, "http://") !== false) {
-                    $result .= sprintf('<link rel="stylesheet" type="text/css" href="%s" %s', $css, $this->getEndTag());
-                } else {
+            foreach ($this->css as $css) {
 
-                    $mtime = @filemtime(PATH . (substr($css,0,1) != '/' ? PATH_MEDIA : ''). $css);
-                    $css .= '?c=' . $mtime;
-                    $result .= sprintf('<link rel="stylesheet" type="text/css" href="%s" %s',
-                        (substr($css,0,1) != '/' ? PATH_MEDIA.$css:substr($css, 1)), $this->getEndTag());
+                if ($css['path']){
+                    $file = $css['path'];
+
+                    if (strpos($file, "http://") !== false) {
+                        $result .= sprintf('<link rel="stylesheet" type="text/css" href="%s" %s', $file, $this->getEndTag());
+                    } else {
+
+                        $file = (substr($file,0,1) != '/' ? PATH_MEDIA . $file : substr($file, 1));
+
+                        $mtime = @filemtime(PATH . $file);
+
+                        $result .= sprintf('<link rel="stylesheet" type="%s" href="%s" %s',
+                            $css['type'],
+                            $file . ($mtime ? '?c=' . $mtime:''),
+                            $this->getEndTag());
+                    }
                 }
             }
         } else {
             $cssCode = '';
-            foreach ($myCssFiles as $css) {
-                if (strpos($css, "http://") !== false) {
-                    $result .= sprintf('<link rel="stylesheet" type="text/css" href="%s" %s', $css, $this->getEndTag());
-                } else {
-                    //local
-                    $file = PATH_MEDIA . $css;
-                    if (file_exists(PATH . $file) && $mtime = @filemtime(PATH . $file)) {
-                        $cssCode .= $file . '_' . $mtime;
+            foreach ($this->css as $css) {
+                if ($css['path']){
+                    $file = $css['path'];
+                    $file = (substr($file,0,1) != '/' ? PATH_MEDIA . $file : substr($file, 1));
+
+                    if (strpos($file, "http://") !== false) {
+                        $result .= sprintf('<link rel="stylesheet" type="text/css" href="%s" %s', $css, $this->getEndTag());
+                    } else {
+                        //local
+                        if (file_exists(PATH . $file) && $mtime = @filemtime(PATH . $file)) {
+                            $cssCode .= $file . '_' . $mtime;
+                        }
                     }
                 }
             }
@@ -200,19 +207,26 @@ class PageResponse extends Response {
             $cssContent = '';
 
             if (!file_exists(PATH . $cssCachedFile)) {
-                foreach ($myCssFiles as $css) {
-                    $file = PATH_MEDIA . $css;
-                    if (file_exists($file)) {
-                        $cssContent .= "/* $file: */\n\n";
-                        $temp = file_get_contents($file) . "\n\n\n";
+                foreach ($this->css as $css) {
 
-                        //replace relative urls to absolute
-                        $mypath = '../../'.dirname($file);
-                        $temp = preg_replace('/url\(\n*\'/', 'url("' . $mypath . '/', $temp);
-                        $temp = preg_replace('/url\(\n*"/', 'url("' . $mypath . '/', $temp);
-                        $temp = preg_replace('/url\(\n*/', 'url(' . $mypath . '/', $temp);
+                    if ($css['path']){
+                        $file = $css['path'];
+                        $file = (substr($file,0,1) != '/' ? PATH_MEDIA . $file : substr($file, 1));
 
-                        $cssContent .= $temp;
+
+                        var_dump($css);
+                        if (file_exists($file)) {
+                            $cssContent .= "/* $file: */\n\n";
+                            $temp = file_get_contents($file) . "\n\n\n";
+
+                            //replace relative urls to absolute
+                            $mypath = '../../'.dirname($file);
+                            $temp = preg_replace('/url\(\n*\'/', 'url("' . $mypath . '/', $temp);
+                            $temp = preg_replace('/url\(\n*"/', 'url("' . $mypath . '/', $temp);
+                            $temp = preg_replace('/url\(\n*/', 'url(' . $mypath . '/', $temp);
+
+                            $cssContent .= $temp;
+                        }
                     }
                 }
                 file_put_contents($cssCachedFile, $cssContent);
@@ -225,29 +239,36 @@ class PageResponse extends Response {
     }
 
 
-    public function getJsFiles($pPosition = 'top'){
+    public function getJs($pPosition = 'top'){
 
         $result = '';
 
         if (!Kryn::$domain->getResourcecompression()) {
-            foreach ($this->jsFiles as $js) {
+            foreach ($this->js as $js) {
 
                 if ($js['position'] != $pPosition) continue;
 
-                if (strpos($js, "http://") !== false) {
-                    $result .= sprintf('<script type="text/javascript" src="%s"></script>'.chr(13), $js);
-                } else {
-                    $mtime = @filemtime(PATH . (substr($js,0,1) != '/' ? PATH_MEDIA : ''). $js);
+                if ($js['path']){
+                    $file = $js['path'];
+                    $file = (substr($file,0,1) != '/' ? PATH_MEDIA . $file : substr($file, 1));
 
-                    $result .= sprintf(
-                        '<script type="text/javascript" src="%s"></script>'.chr(13),
-                        ((substr($js,0,1) != '/') ? PATH_MEDIA . $js . '?c=' : substr($js, 1)).$mtime
-                    );
+                    if (strpos($file, "http://") !== false) {
+                        $result .= sprintf('<script type="%s" src="%s"></script>'.chr(10), $js['type'], $file);
+                    } else {
+                        $mtime = @filemtime(PATH . $file);
+
+                        $result .= sprintf(
+                            '<script type="%s" src="%s"></script>'.chr(10), $js['type'],
+                            $file. ($mtime ? '?c='.$mtime :'')
+                        );
+                    }
+                } else {
+                    $result .= sprintf('<script type="%s">'.chr(10).'%s'.chr(10).'</script>'.chr(10), $js['type'], $js['content']);
                 }
             }
         } else {
             $jsCode = '';
-            foreach ($this->jsFiles as $js) {
+            foreach ($this->js as $js) {
 
                 if ($js['position'] != $pPosition) continue;
 
@@ -267,7 +288,7 @@ class PageResponse extends Response {
 
             if (!file_exists(PATH . $jsCachedFile)) {
 
-                foreach ($this->jsFiles as $js) {
+                foreach ($this->js as $js) {
 
                     if ($js['position'] != $pPosition) continue;
 

@@ -1,4 +1,4 @@
-ka.FieldAbstract = new Class({
+ka.ContentAbstract = new Class({
 
     Implements: [Options, Events],
 
@@ -23,31 +23,22 @@ ka.FieldAbstract = new Class({
 
 
     /**
-     * The reference to the current (parent) ka.Field instance.
+     * The reference to the current (parent) ka.Content instance.
      *
      * @type {ka.Field}
      */
-    fieldInstance: null,
-
-
-    /**
-     * The reference to the current ka.Window instance.
-     * Can be empty, if a script created a ka.Field without container inside of a ka.Window.
-     * @type {ka.Window}
-     */
-    win: null,
+    contentInstance: null,
 
 
     /**
      * Constructor.
      *
      * @internal
-     * @param  {Object} pFieldInstance The instance of ka.Field
+     * @param  {Object} pContentInstance The instance of ka.Field
      * @param  {Object} pOptions
      */
-    initialize: function(pFieldInstance, pOptions){
-        this.fieldInstance = pFieldInstance;
-        this.win = this.fieldInstance.win;
+    initialize: function(pContentInstance, pOptions){
+        this.contentInstance = pContentInstance;
         this.setOptions(pOptions);
         this.createLayout();
     },

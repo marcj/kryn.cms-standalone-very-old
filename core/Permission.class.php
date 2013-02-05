@@ -107,12 +107,12 @@ class Permission {
                 return self::$cache[$pObjectKey.'_'.$pMode];
         }
 
-        if ($pTargetType === null){
-            $user = Kryn::getAdminClient()->getUser();
+        if ($pTargetType === null && Kryn::getClient()->hasSession()){
+            $user = Kryn::getClient()->getUser();
         }
 
         if ($pTargetType === self::USER){
-            $user = UserQuery::create()->findOneById($pTargetId);
+            $user = Kryn::getPropelCacheObject('Users\\User', $pTargetId);
         }
 
         if ($user){
@@ -399,7 +399,7 @@ class Permission {
                                  $pTargetType, $pTargetId,
                                  $pRootHasAccess = false, $pAsParent = false) {
 
-        if (($pTargetId === null && $pTargetType === null) && Kryn::getClient()){
+        if (($pTargetId === null && $pTargetType === null) && Kryn::getClient() && Kryn::getClient()->hasSession()){
             $pTargetId = Kryn::getClient()->getUserId();
             $pTargetType = static::USER;
         }

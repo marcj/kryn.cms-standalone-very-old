@@ -1,5 +1,5 @@
-.ka-Input-wrapper,
-.ka-Input,
+.ka-input-wrapper,
+.ka-input,
 input.text {
 
     border: 1px solid #bbb;
@@ -29,20 +29,20 @@ input.text {
 
 }
 
-.ka-Input-wrapper {
+.ka-input-wrapper {
     text-indent: 0;
     height: 20px;
     overflow: hidden;
 }
 
-.ka-Input-inner-wrapper {
+.ka-input-inner-wrapper {
     position: relative;
     height: 20px;
     margin: 1px;
     margin-left: 4px;
 }
 
-.ka-Input-inner-wrapper > .ka-Input {
+.ka-input-inner-wrapper > .ka-input {
     width: 100%;
     padding: 0px;
     height: 20px;
@@ -59,12 +59,12 @@ input.text {
 }
 
 
-.ka-Field-disabled {
+.ka-field-disabled {
     color: #333;
     background: #f1f1f1;
 }
 
-.ka-Field-invalid {
+.ka-field-invalid {
     border: 1px solid red;
 }
 

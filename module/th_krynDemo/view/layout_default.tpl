@@ -32,7 +32,7 @@
     <div class="wrapper">
         <table width="100%" cellpadding="0" cellspacing="0">
             <tr>
-                <td valign="top">
+                <td valign="top" width="700">
                     <div class="content-main">
                         <div class="content-main-padding">
                             {navigation id="breadcrumb" template="th_krynDemo/navigation_breadcrumb.tpl"}

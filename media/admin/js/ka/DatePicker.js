@@ -22,7 +22,7 @@ ka.DatePicker = new Class({
         if (pInput.get('tag') != 'input'){
             this.input = new Element('input', {
                 type: 'text',
-                'class': 'ka-Input'
+                'class': 'ka-input'
             }).inject(pInput);
         } else {
            this.input = pInput;

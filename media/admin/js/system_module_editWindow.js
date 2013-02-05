@@ -819,7 +819,7 @@ var admin_system_module_editWindow = new Class({
             }
 
             if (parentContainer){
-                parentContainer.getChildren('.ka-Field').each(function(field){
+                parentContainer.getChildren('.ka-field').each(function(field){
 
                     if (isTab && instanceOf(field.instance.getParent(), ka.Field))
                         return;
@@ -1817,7 +1817,7 @@ var admin_system_module_editWindow = new Class({
             var currentScroll = container.getScroll();
 
             var children = [];
-            container.getElements('.ka-Field').each(function(child){
+            container.getElements('.ka-field').each(function(child){
                 if (child.instance.getParent() == button.tab)
                     children.push(child.instance);
             });
@@ -2021,7 +2021,7 @@ var admin_system_module_editWindow = new Class({
         field.parent = pParent;
 
         field.windowEditActions = new Element('div', {
-            'class': 'ka-Field-designMode-actions'
+            'class': 'ka-field-designMode-actions'
         }).inject( pField.tableItem ? field.main : field.toElement() );
 
         field.windowEditActions.setStyle('opacity', 0);

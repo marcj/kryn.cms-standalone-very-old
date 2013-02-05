@@ -149,7 +149,7 @@ ka.FieldTypes.Wysiwyg = new Class({
 
         this.main = new Element('div', {
             contentEditable: "true",
-            'class': 'selectable ka-Field-wysiwyg'
+            'class': 'selectable ka-field-wysiwyg'
         }).inject(this.fieldInstance.fieldPanel);
 
         if (this.options.inputHeight)
@@ -160,6 +160,16 @@ ka.FieldTypes.Wysiwyg = new Class({
 
         if (this.options['class'])
             this.main.addClass(this.options['class']);
+
+        var config = this.getEditorConfig();
+
+        this.editor = CKEDITOR.replace(this.main, config);
+
+        this.editor.on('instanceReady', this.editorReady.bind(this));
+
+    },
+
+    getEditorConfig: function(){
 
         var config = this.options.configs[this.options.preset] || {};
 
@@ -193,19 +203,17 @@ ka.FieldTypes.Wysiwyg = new Class({
             }
         }
 
+
         Object.each(this.options.customConfig, function(v,k){
             config[k] = v;
         });
 
-        this.editor = CKEDITOR.replace(this.main, config);
-
-        //this.editor.on('instanceReady', this.editorReady.bind(this));
-
+        return config;
     },
 
     editorReady: function(){
         this.ready = true;
-        this.main.inject(this.fieldInstance.fieldPanel);
+        //this.main.inject(this.fieldInstance.fieldPanel);
     },
 
     toElement: function(){

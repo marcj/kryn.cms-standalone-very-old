@@ -34,11 +34,13 @@
         CKEDITOR.disableAutoInline = true;
         window._session = {};
         window._session.user_id = {Kryn::getAdminClient()->getUserId()+0};
-        window._session.username = '{Kryn::getAdminClient()->getUser()->getUsername()}';
+        {if (Kryn::getAdminClient()->getUserId())}
+            window._session.username = '{Kryn::getAdminClient()->getUser()->getUsername()}';
+            window._session.lastlogin = '{Kryn::getAdminClient()->getUser()->getLastlogin()}';
+        {/if}
         window._session.sessionid = '{Kryn::getAdminClient()->getToken()}';
         window._session.tokenid = '{Kryn::getAdminClient()->getTokenId()}';
         window._session.lang = '{if $smarty.cookies.kryn_language}{$smarty.cookies.kryn_language}{else}{$adminLanguage}{/if}';
-        window._session.lastlogin = '{Kryn::getAdminClient()->getUser()->getLastlogin()}';
         {if $noAdminAccess}
         window._session.noAdminAccess = true;
         {/if}

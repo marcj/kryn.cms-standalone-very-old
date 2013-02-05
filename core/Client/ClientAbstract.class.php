@@ -105,7 +105,7 @@ abstract class ClientAbstract {
 
     public function start() {
 
-        error_log('sessionid: '.$this->getToken().' - '.Kryn::getRequestedPath());
+        Kryn::getLogger()->addDebug('Start session tracking: sessionid='.$this->getToken().' - '.Kryn::getRequestedPath());
         $this->session = $this->fetchSession();
 
         if (!$this->session) {
@@ -231,9 +231,9 @@ abstract class ClientAbstract {
      * @return \Users\User
      */
     public function getUser(){
-        //TODO, build in caching
         if (!$this->getStarted()) $this->start();
-        return $this->getSession()->getUser();
+        if (!$this->getSession()->getUserId()) return null;
+        return Kryn::getPropelCacheObject('Users\\User', $this->getSession()->getUserId());
     }
 
     /**
@@ -243,7 +243,7 @@ abstract class ClientAbstract {
      */
     public function getUserId(){
         if (!$this->getStarted()) $this->start();
-        return $this->getSession()->getUser()->getId();
+        return $this->getSession()->getUserId();
     }
 
     /**
@@ -265,7 +265,7 @@ abstract class ClientAbstract {
      * 
      * @param string $pLogin
      * @param string $pPassword
-     * @return bool returns false, if someting went wrong.
+     * @return bool
      */
     public function login($pLogin, $pPassword) {
 
@@ -750,7 +750,7 @@ abstract class ClientAbstract {
      */
     public function hasSession(){
 
-        if (!$this->session)
+        if (!$this->session && $this->getToken())
             $this->session = $this->fetchSession();
 
         return $this->session instanceof Session;

@@ -166,19 +166,18 @@ div.mainlinks > a:before {
 .bar-dock-menu-style > a,
 .ka-mainlink-additionalmenubar {
     float: left;
-    line-height: 43px;
+    line-height: 45px;
     padding: 0px 15px;
     border-right: 1px solid #313131;
     color: white;
     text-decoration: none;
     position: relative;
     display: block;
-    height: 43px;
+    height: 45px;
     cursor: pointer;
     outline: 0;
     font-size: 11px;
     color: white;
-    margin-top: 2px;
 }
 
 

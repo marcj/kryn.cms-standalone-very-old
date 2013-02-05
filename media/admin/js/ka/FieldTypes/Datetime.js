@@ -5,7 +5,7 @@ ka.FieldTypes.Datetime = new Class({
     createLayout: function(){
 
         this.wrapper = new Element('div', {
-            'class': 'ka-Input-wrapper',
+            'class': 'ka-input-wrapper',
             style: this.options.style,
             styles: {
                 'width': this.options.inputWidth=='100%'?null:this.options.inputWidth,
@@ -15,11 +15,11 @@ ka.FieldTypes.Datetime = new Class({
 
 
         this.innerWrapper = new Element('div', {
-            'class': 'ka-Input-inner-wrapper'
+            'class': 'ka-input-inner-wrapper'
         }).inject(this.wrapper);
 
         this.input = new Element('input', {
-            'class': 'ka-Input',
+            'class': 'ka-input',
             styles: {
                 'height': this.options.inputHeight
             },

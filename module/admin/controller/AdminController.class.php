@@ -57,7 +57,7 @@ class AdminController {
             $debugMode = true;
         }
 
-        $url = Kryn::getRequestedPath();
+        $url = Kryn::getRequest()->getPathInfo();
 
         //checkAccess
         $this->checkAccess($url);
@@ -67,7 +67,7 @@ class AdminController {
 
         if (array_search(getArgv(1), $blackListForEntryPoints) === false){
 
-            $url =  substr($url, strlen('admin/'));
+            $url =  substr($url, strlen('/admin/'));
             $entryPoint = Utils::getEntryPoint($url);
 
             if ($entryPoint) {
@@ -182,10 +182,11 @@ class AdminController {
                     ->addDeleteRoute('cache', 'clearCache')
 
                     ->addGetRoute('search', 'getSearch')
+                    ->addGetRoute('content-template', 'getContentTemplate')
 
                 ->done()
 
-                ->addGetRoute('editor', 'getKEditor')
+                //->addGetRoute('editor', 'getKEditor')
 
 
                 ->addSubController('', '\Admin\Object\Controller')
@@ -289,35 +290,50 @@ class AdminController {
         }
     }
 
-    public function getKEditor($pNode){
+    public function getContentTemplate($pTemplate){
+        $pTemplate = str_replace('..', '', $pTemplate);
 
-        $pk = \Core\Object::normalizePk('Core.Node', $pNode);
+        $html = file_get_contents(tPath($pTemplate));
 
-        Kryn::addJs('core/mootools-core.js');
-        Kryn::addJs('core/mootools-more.js');
-        Kryn::addJs('admin/js/ka.js');
-        Kryn::addCss('admin/css/ka/layoutBox.css');
-        Kryn::addCss('admin/css/inpage.css');
-        Kryn::addCss('admin/css/ka/Field.css');
-        Kryn::addCss('admin/css/ka/Button.css');
-        Kryn::addCss('admin/css/ka/Select.css');
-        Kryn::addCss('admin/css/ka/PluginChooser.css');
+        $html = str_replace('{$content}', '<div class="ka-content-container"></div>', $html);
 
-        Kryn::addCss('admin/css/ka/LayoutBox.css');
-        Kryn::addCss('admin/css/ka/LayoutContent.css');
+        return $html;
+    }
 
-        Kryn::$page = \Core\NodeQuery::create()->findOneById($pk['id']);
+    public static function handleKEditor(){
 
-        Kryn::$domain = \Core\DomainQuery::create()->findOneById(Kryn::$page->getDomainId());
+        $response = Kryn::getResponse();
+
+        $response->addJsFile('core/mootools-core.js');
+        $response->addJsFile('core/mootools-more.js');
+        $response->addJsFile('core/mowla.min.js');
+        $response->addCssFile('admin/icons/style.css');
+
+        $response->addJsFile('admin/js/ka.js');
+        $response->addJsFile('/lib/codemirror/lib/codemirror.js');
+        $response->addJsFile('/lib/codemirror/lib/util/loadmode.js');
+        $response->addCssFile('/lib/codemirror/lib/codemirror.css');
+
+        $response->addJsFile('/vendor/krynlabs/ckeditor/ckeditor.js');
+
+        $response->addJsFile('/admin/ui/possibleLangs?noCache=978699877');
+        $response->addJsFile('/admin/ui/language?lang=en&javascript=1');
+        $response->addJsFile('/admin/ui/languagePluralForm?lang=en');
+
+        $response->addCssFile('admin/icons/style.css');
+        $response->addCssFile('/admin/css/style.css');
+
         Kryn::$domain->setResourcecompression(false);
-        Kryn::$current_page = Kryn::$page;
 
-        //if (Kryn::$page->getRenderController() etc
-        $renderer = new \Core\Render\Page();
+        $response->addJs('window.currentNode = '.
+            json_encode(Kryn::$page->toArray(\BasePeer::TYPE_STUDLYPHPNAME)).';', 'bottom');
 
-        $body = 'test';
-        echo $renderer->getHtml($body);
-        exit;
+        $response->addJs('ka.adminInterface = {loaderDone: function(){}};', 'bottom');
+
+        $response->addJs('window._path = window._baseUrl = '.json_encode(Kryn::getBaseUrl()), 'bottom');
+
+        $response->addJsFile('/admin/backend/js/script.js', 'bottom');
+        $response->addJs('window.editor = new ka.Editor(null, {nodePk: '.Kryn::$page->getId().'});', 'bottom');
 
     }
 

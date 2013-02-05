@@ -5,9 +5,9 @@
         "index.php",
         "install.php",
         ".htaccess",
-        "lib/",
-        "migration/",
-        "doc/"
+        "lib\/",
+        "migration\/",
+        "doc\/"
     ],
     "domainProperties": {
         "cacheNavigations": {
@@ -619,6 +619,81 @@
                 }
             },
             "label": ""
+        },
+        "Content": {
+            "desc": "",
+            "table": "system_content",
+            "labelField": "id",
+            "labelTemplate": "",
+            "defaultSelection": "nodeId,boxId,template,type,content",
+            "blacklistSelection": "",
+            "limitDataSets": [
+                
+            ],
+            "propelClass": "",
+            "propelClassName": "",
+            "nested": false,
+            "dataModel": "propel",
+            "multiLanguage": false,
+            "workspace": false,
+            "domainDepended": false,
+            "plugins": "",
+            "fieldLabel": "",
+            "fieldTemplate": "",
+            "fieldFields": "",
+            "treeLabel": "",
+            "treeTemplate": "",
+            "treeFields": "",
+            "treeIcon": "",
+            "treeIconMapping": [
+                
+            ],
+            "treeDefaultIcon": "",
+            "treeFixedIcon": false,
+            "browserColumns": [
+                
+            ],
+            "fields": {
+                "id": {
+                    "label": "ID",
+                    "type": "number",
+                    "primaryKey": true,
+                    "autoIncrement": true
+                },
+                "nodeId": {
+                    "label": "Node",
+                    "combobox": false,
+                    "object": "Core\\Node",
+                    "objectLabel": "title",
+                    "objectRelation": "nTo1",
+                    "type": "object"
+                },
+                "boxId": {
+                    "type": "number"
+                },
+                "sortableId": {
+                    "type": "number"
+                },
+                "title": {
+                    "type": "text"
+                },
+                "content": {
+                    "type": "textarea"
+                },
+                "template": {
+                    "type": "text"
+                },
+                "type": {
+                    "type": "text"
+                },
+                "hide": {
+                    "type": "checkbox"
+                },
+                "unsearchable": {
+                    "type": "text"
+                }
+            },
+            "label": "[[Node Content]]"
         }
     },
     "__path": "core",

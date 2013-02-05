@@ -631,6 +631,7 @@ class ObjectCrud {
      *       'pages' => $maxPages
      *   );
      *
+     * @param array $pFilter
      * @param int $pLimit
      * @param int $pOffset
      * @return array
@@ -650,7 +651,6 @@ class ObjectCrud {
         $options['order'] = $this->getOrder();
 
         $options['fields'] = array_keys($this->getColumns());
-
 
         if ($pFilter)
             $condition = self::buildFilter($pFilter);
@@ -685,7 +685,7 @@ class ObjectCrud {
 
 
     /**
-     * @param $pFilter
+     * @param array $pFilter
      * @return array|null
      */
     public static function buildFilter($pFilter){
@@ -697,16 +697,24 @@ class ObjectCrud {
             foreach ($pFilter as $k => $v){
                 if ($condition) $condition[] = 'and';
 
+                $k = camelcase2Underscore(substr($k, 1));
+
                 if (strpos($v, '*') !== false){
-                    $condition[] = array(substr($k, 1), 'LIKE', str_replace('*', '%', $v));
+                    $condition[] = array($k, 'LIKE', str_replace('*', '%', $v));
                 } else {
-                    $condition[] = array(substr($k, 1), '=', $v);
+                    $condition[] = array($k, '=', $v);
                 }
             }
         }
         return $condition;
     }
 
+    /**
+     *
+     *
+     * @param string $pFields
+     * @return array
+     */
     public function getTreeFields($pFields = null){
 
         //use default fields from object definition
