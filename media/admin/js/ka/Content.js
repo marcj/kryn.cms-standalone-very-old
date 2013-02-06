@@ -53,6 +53,15 @@ ka.Content = new Class({
 
     },
 
+    focus: function(){
+        if (this.contentObject){
+            this.contentObject.focus();
+            this.nextFocus = false;
+        } else {
+            this.nextFocus = true;
+        }
+    },
+
     setValue: function(pValue){
 
         if (!this.currentType || pValue.type != this.currentType || !this.currentTemplate ||
@@ -70,6 +79,10 @@ ka.Content = new Class({
                 this.contentObject = new clazz(this);
             } else {
                 throw tf('ka.ContentType `%s` not found.', pValue.type);
+            }
+
+            if (this.nextFocus){
+                this.focus();
             }
             this.currentType = pValue.type;
         }

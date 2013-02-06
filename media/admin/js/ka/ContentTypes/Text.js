@@ -170,6 +170,10 @@ ka.ContentTypes.Text = new Class({
 
     },
 
+    focus: function(){
+        this.main.focus();
+    },
+
     getEditorConfig: function(){
 
         var config = this.options.configs[this.options.preset] || {};

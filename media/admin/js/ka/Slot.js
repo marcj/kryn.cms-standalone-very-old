@@ -82,7 +82,7 @@ ka.Slot = new Class({
 
     },
 
-    addContent: function(pContent){
+    addContent: function(pContent, pFocus){
 
         if (!pContent)
             pContent = {type: 'text'};
@@ -91,7 +91,10 @@ ka.Slot = new Class({
             pContent.template = 'core/content_default.tpl';
         }
 
-        new ka.Content(pContent, this);
+        var content = new ka.Content(pContent, this);
+
+        if (pFocus)
+            content.focus();
     }
 
 

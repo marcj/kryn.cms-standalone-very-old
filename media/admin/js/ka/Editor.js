@@ -91,23 +91,24 @@ ka.Editor = new Class({
             position: 'absolute'
         }).inject(body);
 
+        clone.addClass('ka-editor-sidebar-draggable-active');
+
 
         var drag = new Drag.Move(clone, {
 
             droppables: this.slots,
+            snap: 0,
 
             onDrop: function(dragging, slot){
 
                 dragging.destroy();
                 this.highlightSlots(false);
+                this.highlightSlotsBubbles(false);
 
                 if (slot){
                     slot.setStyle('background-color');
-                    slot.kaSlot.addContent({type: pElement.kaContentType});
+                    slot.kaSlot.addContent({type: pElement.kaContentType}, true);
                 }
-            }.bind(this),
-            onStart: function(){
-                this.highlightSlots(true);
             }.bind(this),
             onEnter: function(dragging, slot){
                 slot.setStyle('background-color', 'rgba(34, 124, 160,0.4)');
@@ -115,20 +116,76 @@ ka.Editor = new Class({
             onLeave: function(dragging, slot){
                 slot.setStyle('background-color');
             },
-            onCancel: function(dragging){
+            onCancel: function(dragging, slot){
                 dragging.destroy();
                 this.highlightSlots(false);
-                slot.setStyle('background-color');
+                this.highlightSlotsBubbles(false);
+                if (slot) slot.setStyle('background-color');
             }.bind(this)
         });
 
+        this.highlightSlots(true);
+        this.highlightSlotsBubbles(true);
         drag.start(pEvent);
 
     },
 
+    highlightSlotsBubbles: function(pHighlight){
+        if (!pHighlight && this.lastTimer){
+            this.lastBubbles.invoke('destroy');
+            return clearInterval(this.lastBubbleTimer);
+        }
+
+        this.lastBubbles = [];
+
+        this.slots.each(function(slot){
+
+            var bubble = new Element('div', {
+                'class': 'ka-editor-slot-infobubble',
+                text: t('Drag and drop it here')
+            }).inject(slot.getDocument().body);
+
+            bubble.position({
+                relativeTo: slot,
+                position: 'centerTop',
+                edge: 'centerBottom'
+            });
+
+            bubble.kaEditorOriginTop = bubble.getStyle('top').toInt()-10;
+            bubble.setStyle('top', bubble.kaEditorOriginTop);
+            bubble.kaEditorIsOrigin  = true;
+
+            bubble.set('tween', {transition: Fx.Transitions.Quad.easeOut, duration: 1500});
+
+            this.lastBubbles.push(bubble);
+
+        }.bind(this));
+
+        var delta = 8;
+
+        var jump = function(){
+
+            Array.each(this.lastBubbles, function(bubble){
+
+                if (bubble.kaEditorIsOrigin){
+                    bubble.tween('top', bubble.kaEditorOriginTop-delta);
+                    bubble.kaEditorIsOrigin = false;
+                } else {
+                    bubble.tween('top', bubble.kaEditorOriginTop);
+                    bubble.kaEditorIsOrigin = true;
+                }
+
+            });
+
+        }.bind(this);
+
+        jump();
+        this.lastBubbleTimer = jump.periodical(1500, this);
+    },
+
     highlightSave: function(pHighlight){
 
-        if (!pHighlight && this.lastTimer) return clearTimeout(this.lastTimer);
+        if (!pHighlight && this.lastTimer) return clearInterval(this.lastTimer);
 
         this.timerIdx = 0;
 

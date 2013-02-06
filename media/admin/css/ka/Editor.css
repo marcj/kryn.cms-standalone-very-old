@@ -46,7 +46,7 @@ a.ka-editor-sidebar-item-active:link {
 }
 
 a.ka-editor-sidebar-item-showslots:link {
-    cursor: default;
+    cursor: help;
 }
 
 a.ka-editor-sidebar-item-save:link {
@@ -59,5 +59,54 @@ a.ka-editor-sidebar-item-save:link {
 }
 
 a.ka-editor-sidebar-draggable:link {
-    cursor: default;
+    cursor: move;
+}
+
+a.ka-editor-sidebar-draggable-active:link {
+    border:  0px;
+}
+
+.ka-editor-slot-infobubble {
+
+    /*51a9d5 */
+
+    background: #3E9BCB;
+    border: 2px solid #3E9BCB;
+    padding: 15px;
+    color: white;
+
+    position: absolute;
+
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+
+    box-shadow: 1px 1px 1px white;
+}
+
+
+.ka-editor-slot-infobubble:after, .ka-editor-slot-infobubble:before {
+	top: 100%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+}
+
+.ka-editor-slot-infobubble:after {
+	border-color: rgba(81, 169, 213, 0);
+	border-top-color: #3E9BCB;
+	border-width: 15px;
+	left: 50%;
+	margin-left: -15px;
+}
+
+.ka-editor-slot-infobubble:before {
+	border-color: rgba(56, 189, 255, 0);
+	border-top-color: #3E9BCB;
+	border-width: 21px;
+	left: 50%;
+	margin-left: -21px;
 }

@@ -142,6 +142,14 @@ ka.ContentAbstract = new Class({
         return true;
     },
 
+    focus: function(){
+
+    },
+
+    blur: function(){
+
+    },
+
     /**
      * Detects if the entered data is valid and shows a visual
      * symbol if not.
