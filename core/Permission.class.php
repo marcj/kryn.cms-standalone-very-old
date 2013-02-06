@@ -399,7 +399,10 @@ class Permission {
                                  $pTargetType, $pTargetId,
                                  $pRootHasAccess = false, $pAsParent = false) {
 
-        if (($pTargetId === null && $pTargetType === null) && Kryn::getClient() && Kryn::getClient()->hasSession()){
+        if (($pTargetId === null && $pTargetType === null) && Kryn::getAdminClient() && Kryn::getAdminClient()->hasSession()){
+            $pTargetId = Kryn::getAdminClient()->getUserId();
+            $pTargetType = static::USER;
+        } else if(($pTargetId === null && $pTargetType === null) && Kryn::getClient() && Kryn::getClient()->hasSession()){
             $pTargetId = Kryn::getClient()->getUserId();
             $pTargetType = static::USER;
         }

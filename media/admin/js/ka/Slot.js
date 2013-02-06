@@ -12,6 +12,7 @@ ka.Slot = new Class({
     initialize: function(pDomSlot, pOptions){
 
         this.slot = pDomSlot;
+        this.slot.kaSlot = this;
         this.setOptions(pOptions);
 
         var params = this.slot.get('params');
@@ -27,6 +28,7 @@ ka.Slot = new Class({
 
         this.slot.empty();
 
+        return;
         this.header = new Element('div', {
             'class': 'ka-slot-header'
         }).inject(this.slot);
@@ -44,6 +46,7 @@ ka.Slot = new Class({
             'class': 'ka-slot-header-actions'
         }).inject(this.headerInner);
 
+        this.addActions();
     },
 
     loadContents: function(){
@@ -53,6 +56,7 @@ ka.Slot = new Class({
             _boxId: this.slotParams.id,
             _nodeId: this.options.nodePk
         });
+
     },
 
     renderContents: function(pResponse){
@@ -60,8 +64,6 @@ ka.Slot = new Class({
         Array.each(pResponse.data, function(content){
             this.addContent(content)
         }.bind(this));
-
-        this.addActions();
     },
 
     toElement: function(){
@@ -84,6 +86,10 @@ ka.Slot = new Class({
 
         if (!pContent)
             pContent = {type: 'text'};
+
+        if (!pContent.template){
+            pContent.template = 'core/content_default.tpl';
+        }
 
         new ka.Content(pContent, this);
     }

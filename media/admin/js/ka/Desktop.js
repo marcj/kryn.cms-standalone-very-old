@@ -1,5 +1,3 @@
-var icons = [];
-
 ka.Desktop = new Class({
 
     initialize: function (pContainer) {
@@ -165,10 +163,12 @@ ka.Desktop = new Class({
     },
 
     clear: function(){
-      this.container.empty();
+        //TODO, IMPORTANT, not clear, remove instead with getElement
+        this.container.empty();
     },
 
     load: function () {
+        return;
         if (this.lastLoad) {
             this.lastLoad.cancel();
         }

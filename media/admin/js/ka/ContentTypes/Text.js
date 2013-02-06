@@ -4,6 +4,7 @@ ka.ContentTypes.Text = new Class({
 
     Extends: ka.ContentAbstract,
 
+    icon : '&#xe2dd;',
 
 
     options: {

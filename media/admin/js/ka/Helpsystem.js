@@ -14,7 +14,7 @@ ka.Helpsystem = new Class({
     _update: function () {
 
 
-        var size = $('desktop').getSize();
+        var size = ka.adminInterface.desktopContainer.getSize();
         var maxHeight = size.y - 10;
         var curHeight = 0;
 
@@ -32,6 +32,8 @@ ka.Helpsystem = new Class({
     },
 
     newBubble: function (pTitle, pText, pDelay) {
+
+        if (!ka.adminInterface.desktopContainer) return;
 
         var box = new Element('div', {
             'class': 'ka-helpsystem-bubble selectable',

@@ -1,5 +1,5 @@
-.windowList .wm-bar-item,
-.windowList .wm-bar-item-active {
+.ka-windowList .wm-bar-item,
+.ka-windowList .wm-bar-item-active {
     background: -webkit-linear-gradient(top, #BBB 0%,#CECECE 15%,#A2A2A2 100%);
 
 }

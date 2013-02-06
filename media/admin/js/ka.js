@@ -859,14 +859,14 @@ ka.loadSettings = function (pOnlyThisKeys) {
         if (!ka.settings['user']['windows'])
             ka.settings['user']['windows'] = {};
 
-        if (!ka.settings.user.userBg)
+        if (!ka.adminInterface.options.frontPage && !ka.settings.user.userBg)
             ka.settings.user.userBg = 'admin/images/userBgs/defaultImages/color-blue.jpg';
 
-        if (ka.settings.user && ka.settings.user.userBg) {
+        if (!ka.adminInterface.options.frontPage && ka.settings.user && ka.settings.user.userBg) {
             document.id(document.body).setStyle('background-image', 'url(' + _path + PATH_MEDIA + ka.settings.user.userBg + ')');
         }
 
-        if (ka.settings.system && ka.settings.system.systemTitle) {
+        if (!ka.adminInterface.options.frontPage && ka.settings.system && ka.settings.system.systemTitle) {
             document.title = ka.settings.system.systemTitle + t(' | Kryn.cms Administration');
         }
 

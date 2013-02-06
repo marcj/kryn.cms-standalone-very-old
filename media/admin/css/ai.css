@@ -1,16 +1,18 @@
-html, body {
+.ka-admin {
     font-family: "Lucida Grande", "DejaVu Sans", "Bitstream Vera Sans", "Segoe UI", "Tahoma", sans-serif;
     font-family: Verdana, Arial;
     font-size: 11px;
     margin: 0px;
     padding: 0px;
+    line-height: normal;
 }
 
-.CodeMirror-gutter {
+.ka-admin .CodeMirror-gutter {
     z-index: auto;
 }
 
-div, span {
+.ka-admin div,
+.ka-admin span {
     -webkit-user-select: none;
     -khtml-user-select: none;
     -moz-user-select: -moz-none;
@@ -19,26 +21,29 @@ div, span {
 }
 
 body {
-    height: 100%;
     -webkit-tap-highlight-color: transparent;
 }
 
 /* ie9 hack for gradients */
 :root div, :root span, :root a { filter:none \0/IE9; }
 
-a img, a:link img {
+.ka-admin a img,
+.ka-admin a:link img {
     border: 0px;
 }
 
-img {
+.ka-admin img {
     border: 0px;
 }
 
-input, select, textarea {
+.ka-admin input,
+.ka-admin select,
+.ka-admin textarea {
     outline: 0;	
 }
 
-a, a:link {
+.ka-admin a,
+.ka-admin a:link {
     color: #333;
 }
 
@@ -56,35 +61,7 @@ span.selectable span, div.selectable div {
     user-select: text;
 }
 
-select {
-    font-size: 11px;
-    border: 1px solid silver;
-    padding: 1px;
-}
-
-html {
-    height: 100%;
-}
-
-.text-button-icon {
-    cursor: pointer;
-    font-family: 'icomoon';
-    padding: 0px 2px;
-    line-height: 22px;
-    color: black;
-    text-decoration: none;
-}
-
-.text-button-icon:hover {
-     color: #333;
- }
-
-.text-button-icon:active,
-.text-button-icon:focus {
-    color: #555;
-}
-
-.border {
+.ka-border {
     position: absolute;
     left: 0px;
     right: 0px;
@@ -92,8 +69,16 @@ html {
     bottom: 0px;
 }
 
+body.ka-frontpage-backend {
+    margin-top: 48px;
+}
 
-#desktop {
+.ka-editor {
+    margin-right: 50px;
+}
+
+
+.ka-desktop {
     position: absolute;
     right: 0px;
     left: 0px;
@@ -107,12 +92,13 @@ html {
 }
 
 /* main layout */
-div.header-inner {
-    height: 30px;
+div.ka-header-inner {
     position: relative;
+    height: 48px;
+    background-image: url(../images/admin-topbar-bg.png);
 }
 
-div.header {
+div.ka-header {
     z-index: 110000;
     /*text-shadow: 0px 1px 0px #444;*/
 
@@ -126,11 +112,14 @@ div.header {
     color: white;
     z-index: 110000;
 
-    background-image: url(../images/admin-topbar-bg.png);
-
 }
 
-div.headRight{
+.ka-frontpage-backend div.ka-header {
+    box-shadow: 3px 0px 2px black;
+    position: fixed;
+}
+
+div.ka-header-right{
     position: absolute;
     right: 0px;
     top: 0px;
@@ -140,11 +129,11 @@ div.headRight{
     padding: 0px 0px 3px 3px;
 }
 
-div.headRight img.arrowUp:hover {
+div.ka-header-right img.arrowUp:hover {
     background-color: #399bc7;
 }
 
-div.mainlinks {
+div.ka-mainLinks {
     position: absolute;
     top: 0px;
     left: 0px;
@@ -156,14 +145,17 @@ div.mainlinks {
     top: 4px;
 }
 
-div.mainlinks > a:before {
+div.ka-mainLinks > a:before {
     padding-right: 10px;
     font-size: 12px;
 }
 
-.mainlinks > a,
-.headRight > a,
+.ka-mainLinks > a,
+.ka-mainLinks > a:link,
+.ka-header-right > a,
+.ka-header-right > a:link,
 .bar-dock-menu-style > a,
+.bar-dock-menu-style > a:link,
 .ka-mainlink-additionalmenubar {
     float: left;
     line-height: 45px;
@@ -203,8 +195,8 @@ div.bar-dock-menu-style a.ka-menu-item-childopener:link {
 
 }
 
-.header a.ka-menu-item-hasChilds,
-.header a.ka-menu-item-hasChilds:link {
+.ka-header a.ka-menu-item-hasChilds,
+.ka-header a.ka-menu-item-hasChilds:link {
     padding-right: 26px;
 }
 
@@ -217,19 +209,19 @@ div.bar-dock-menu-style a:link {
 }
 
 
-div.mainlinks a.ka-menu-item-childopener img,
-div.mainlinks a.ka-menu-item-childopener:link img,
+div.ka-mainLinks a.ka-menu-item-childopener img,
+div.ka-mainLinks a.ka-menu-item-childopener:link img,
 div.ka-mainlink-additionalmenubar-container a.ka-menu-item-childopener img,
 div.ka-mainlink-additionalmenubar-container a.ka-menu-item-childopener:link img {
     vertical-align: middle;
 }
 
-.header .ka-mainlink-additionalmenubar,
-.header .ka-mainlink-additionalmenubar:link {
+.ka-header .ka-mainlink-additionalmenubar,
+.ka-header .ka-mainlink-additionalmenubar:link {
     padding: 0px 3px;
 }
 
-.header .ka-mainmenubar-item-hasIcon {
+.ka-header .ka-mainmenubar-item-hasIcon {
     padding-left: 28px;
 }
 
@@ -258,7 +250,7 @@ div.ka-mainlink-additionalmenubar-container {
     border-top-right-radius: 5px;
 }
 
-div.mainlinks a.bar-dock-logo {
+div.ka-mainLinks a.bar-dock-logo {
     width: 30px;
     padding-left: 5px;
     padding-right: 5px;
@@ -296,8 +288,8 @@ div.bar-dock-menu {
     z-index: 103000;
 }
 
-.border div.bar-dock-menu a.ka-module-item-sub,
-.border div.bar-dock-menu a.ka-module-item-sub:link {
+div.bar-dock-menu a.ka-module-item-sub,
+div.bar-dock-menu a.ka-module-item-sub:link {
     padding-left: 35px;
 }
 
@@ -313,18 +305,18 @@ div.ka-mainlink-additionalmenubar-container a img {
     top: -10px;
 }
 
-.header a img {
+.ka-header a img {
     border: 0px
 }
 
-.header [class^="icon-"]:before,
-.header [class*=" icon-"]:before {
+.ka-header [class^="icon-"]:before,
+.ka-header [class*=" icon-"]:before {
     padding-right: 5px;
     color: white;
 }
 
-.mainlinks > a:hover,
-.headRight > a:hover,
+.ka-mainLinks > a:hover,
+.ka-header-right > a:hover,
 div.bar-dock-menu-style > a:hover,
 div.ka-mainlink-additionalmenubar-container > a:hover {
     background: #339ac6; /* Old browsers */
@@ -341,8 +333,8 @@ div.ka-mainlink-additionalmenubar-container > a:hover {
     color: white;
 }
 
-.mainlinks > a:active,
-.headRight > a:active,
+.ka-mainLinks > a:active,
+.ka-header-right > a:active,
 div.ka-mainlink-additionalmenubar-container > a:active {
     background: #376aad; /* Old browsers */
     /* IE9 SVG, needs conditional override of 'filter' to 'none' */
@@ -357,10 +349,21 @@ div.ka-mainlink-additionalmenubar-container > a:active {
 
 }
 
-.headRight > a {
+.ka-header-right > a,
+.ka-header-right > a:link {
     border-right: 0px;
     border-left: 1px solid #313131;
     float: right;
+}
+
+.ka-header-right .icon-eye:link {
+    width: 15px;
+    font-size: 20px;
+    padding-right: 20px;
+}
+
+.ka-header-right .icon-user-2 {
+    padding:0px 8px;
 }
 
 /* module bar */
@@ -695,7 +698,7 @@ a.ka-subnavi-main:link {
 
 
 /* windlow list */
-.ka-with-desktop div.windowList {
+.ka-with-desktop div.ka-windowList {
     position: absolute;
     display: none;
     left: 35px;
@@ -716,7 +719,7 @@ a.ka-subnavi-main:link {
 }
 
 
-.ka-no-desktop div.windowList {
+.ka-no-desktop div.ka-windowList {
     position: absolute;
     top: 48px;
     left: 0px;
@@ -738,7 +741,7 @@ a.ka-subnavi-main:link {
 }
 */
 
-.iconbar-item {
+.ka-iconbar-item {
     white-space: nowrap;
 	border-left: 1px solid #313131;
 	float: right;
@@ -748,18 +751,18 @@ a.ka-subnavi-main:link {
     position: relative;
 }
 
-.iconbar-item > a {
+.ka-iconbar-item > a {
     color: white;
     font-size: 16px;
     text-decoration: none;
     position: relative;
 }
 
-.iconbar-item > a:hover:before {
+.ka-iconbar-item > a:hover:before {
     color: #ccc;
 }
 
-.iconbar-item > a:active:before {
+.ka-iconbar-item > a:active:before {
     color: #999;
 }
 
@@ -780,7 +783,7 @@ a.ka-subnavi-main:link {
     position: relative;
 }
 
-#ka-search-query {
+.ka-search-query {
     width: 119px;
     box-shadow: none;
     height: 22px;
@@ -789,7 +792,7 @@ a.ka-subnavi-main:link {
     padding-left: 16px;
 }
 
-.header .ka-search-query-icon {
+.ka-header .ka-search-query-icon {
     position: absolute;
     right: 122px;
     top: 18px;

@@ -18,8 +18,9 @@ ka.ContentAbstract = new Class({
         inputWidth: null
 
 
-
     },
+
+    icon: '',
 
 
     /**
@@ -38,6 +39,7 @@ ka.ContentAbstract = new Class({
      * @param  {Object} pOptions
      */
     initialize: function(pContentInstance, pOptions){
+        if (!pContentInstance) return;
         this.contentInstance = pContentInstance;
         this.setOptions(pOptions);
         this.createLayout();

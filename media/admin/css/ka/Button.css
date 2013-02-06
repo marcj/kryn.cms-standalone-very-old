@@ -1,4 +1,4 @@
-.ka-Button, .ka-Button:link {
+a.ka-Button, a.ka-Button:link {
 
     white-space: nowrap;
     padding: 0px 8px;
@@ -43,22 +43,22 @@
     top: 1px;
 }
 
-.ka-Button:hover {
+a.ka-Button:hover {
     border: 1px solid #888;
     color: black;
 }
 
-.ka-Button:focus {
+a.ka-Button:focus {
     border: 1px solid #3E9BCB;
     color: black;
 }
 
 
-.ka-Button:active,
-.ka-Button-pressed,
-.ka-Button-pressed:link,
-.ka-Button-pressed:hover,
-.ka-Button-pressed:active {
+a.ka-Button:active,
+a.ka-Button-pressed,
+a.ka-Button-pressed:link,
+a.ka-Button-pressed:hover,
+a.ka-Button-pressed:active {
 
     border: 1px solid #888;
     color: black;
@@ -76,7 +76,7 @@
 
 }
 
-.ka-Button span {
+a.ka-Button span {
     display: none;
 }
 
@@ -100,7 +100,7 @@ div.button-list {
 }
 
 
-.ka-Button-red, .ka-Button-red:link {
+a.ka-Button-red, a.ka-Button-red:link {
     color: white;
     border: 1px solid #AF1C1A;
     background: #b79292; /* Old browsers */
@@ -116,12 +116,12 @@ div.button-list {
 
 }
 
-.ka-Button-red:hover {
+a.ka-Button-red:hover {
     color: #eee;
     border: 1px solid #AD1E1B;
 }
 
-.ka-Button-red:active {
+a.ka-Button-red:active {
     background: #b54d4d; /* Old browsers */
     /* IE9 SVG, needs conditional override of 'filter' to 'none' */
     background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIyJSIgc3RvcC1jb2xvcj0iI2I1NGQ0ZCIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjglIiBzdG9wLWNvbG9yPSIjY2UyOTI5IiBzdG9wLW9wYWNpdHk9IjEiLz4KICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2FmMTcxNSIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgPC9saW5lYXJHcmFkaWVudD4KICA8cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSJ1cmwoI2dyYWQtdWNnZy1nZW5lcmF0ZWQpIiAvPgo8L3N2Zz4=);
@@ -134,8 +134,8 @@ div.button-list {
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b54d4d', endColorstr='#af1715',GradientType=0 ); /* IE6-8 */
 }
 
-.ka-Button-blue,
-.ka-Button-blue:link {
+a.ka-Button-blue,
+a.ka-Button-blue:link {
 
     color: white;
     border: 1px solid #116D9B;
@@ -153,7 +153,7 @@ div.button-list {
 
 }
 
-.ka-Button-blue:active {
+a.ka-Button-blue:active {
     background: #1579af; /* Old browsers */
     /* IE9 SVG, needs conditional override of 'filter' to 'none' */
     background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIyJSIgc3RvcC1jb2xvcj0iIzE1NzlhZiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjglIiBzdG9wLWNvbG9yPSIjMDk3ZWI1IiBzdG9wLW9wYWNpdHk9IjEiLz4KICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzExNmQ5YiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgPC9saW5lYXJHcmFkaWVudD4KICA8cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSJ1cmwoI2dyYWQtdWNnZy1nZW5lcmF0ZWQpIiAvPgo8L3N2Zz4=);
@@ -167,16 +167,16 @@ div.button-list {
 
 }
 
-.ka-Button-blue:hover {
+a.ka-Button-blue:hover {
     color: #ddd;
     border: 1px solid #005082;
 }
 
 
-.ka-Button-deactivate,
-.ka-Button-deactivate:link,
-.ka-Button-deactivate:active,
-.ka-Button-deactivate:hover {
+a.ka-Button-deactivate,
+a.ka-Button-deactivate:link,
+a.ka-Button-deactivate:active,
+a.ka-Button-deactivate:hover {
     cursor: default;
     color: gray;
 

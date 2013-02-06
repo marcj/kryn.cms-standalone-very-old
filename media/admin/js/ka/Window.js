@@ -764,7 +764,7 @@ ka.Window = new Class({
         if (this.inline) return;
         if (this.maximized) return;
 
-        var desktopSize = $('desktop').getSize();
+        var desktopSize = ka.adminInterface.desktopContainer.getSize();
         var borderSize = this.border.getSize();
         var borderPosition = {y: this.border.getStyle('top').toInt(), x: this.border.getStyle('left').toInt()};
 
@@ -1114,7 +1114,7 @@ ka.Window = new Class({
     createWin: function () {
 
         this.border = new Element('div', {
-            'class': 'kwindow-border  mooeditable-dialog-container'
+            'class': 'ka-admin kwindow-border  mooeditable-dialog-container'
         }).addEvent('mousedown', function (e) {
             if (this.mouseOnShadow != true) {
                 this.toFront();
@@ -1196,7 +1196,7 @@ ka.Window = new Class({
             handle: [this.title, this.titleGroups],
             //presentDefault: true,
             //stopPropagation: true,
-            container: $('desktop'),
+            container: ka.adminInterface.desktopContainer,
             snap: 3,
             onDrag: function (el, ev) {
                 var cor = el.getPosition(el.getParent());
@@ -1263,7 +1263,7 @@ ka.Window = new Class({
             this.getOpener().addEvent('resize', this.updateInlinePosition.bind(this));
 
         } else {
-            this.border.inject($('desktop'));
+            this.border.inject(ka.adminInterface.desktopContainer);
         }
 
         this.loadDimensions();
@@ -1428,7 +1428,7 @@ ka.Window = new Class({
 
                     newWidth = newHeight = newY = newX = null;
 
-                    max = $('desktop').getSize();
+                    max = ka.adminInterface.desktopContainer.getSize();
                 },
                 onDrag: function(pElement, pEvent){
 

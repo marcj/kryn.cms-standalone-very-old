@@ -208,7 +208,7 @@ ka.wm = {
 
     updateWindowBar: function () {
 
-        document.id('windowList').getChildren().destroy();
+       ka.adminInterface.windowList.getChildren().destroy();
 
         var c = 0;
         Object.each(ka.wm.windows, function (win, winId) {
@@ -216,7 +216,7 @@ ka.wm = {
             if (win.getParentId()) return;
 
             var item = ka.wm.newListBar(win);
-            item.inject($('windowList'));
+            item.inject(ka.adminInterface.windowList);
 
             c++;
 
@@ -229,12 +229,12 @@ ka.wm = {
         });
 
         if (c > 1 || document.body.hasClass('ka-no-desktop')) {
-            $('windowList').setStyle('display', 'block');
+            ka.adminInterface.windowList.setStyle('display', 'block');
             if (!document.body.hasClass('ka-no-desktop'))
-                $('desktop').setStyle('bottom', 27);
+                ka.adminInterface.desktopContainer.setStyle('bottom', 27);
         } else {
-            $('windowList').setStyle('display', 'none');
-            $('desktop').setStyle('bottom', 0);
+            ka.adminInterface.windowList.setStyle('display', 'none');
+            ka.adminInterface.desktopContainer.setStyle('bottom', 0);
         }
 
     },

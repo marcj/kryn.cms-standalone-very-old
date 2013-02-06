@@ -303,16 +303,58 @@ class AdminController {
         return $html;
     }
 
-    public static function handleKEditor(){
+    public static function addSessionScripts(){
 
         $response = Kryn::getResponse();
 
+        $client = Kryn::getAdminClient();
+        if (!$client)
+            $client = Kryn::getClient();
+
+        $session = array();
+        $session['user_id'] = $client->getUserId();
+        $session['sessionid'] = $client->getToken();
+        $session['tokenid'] = $client->getTokenId();
+        $session['lang'] = $client->getSession()->getLanguage();
+        if ($client->getUserId()){
+            $session['username'] = $client->getUser()->getUsername();
+            $session['lastlogin'] = $client->getUser()->getLastlogin();
+        }
+
+        $css = 'window._session = '.json_encode($session).';';
+        $response->addJs($css);
+    }
+
+    public static function handleKEditor(){
+
+        self::addMainResources();
+        self::addSessionScripts();
+
+        $response = Kryn::getResponse();
+        $response->addJs('window.currentNode = '.
+            json_encode(Kryn::$page->toArray(\BasePeer::TYPE_STUDLYPHPNAME)).';', 'bottom');
+
+        $response->addJs('ka.adminInterface = new ka.AdminInterface({frontPage: true});', 'bottom');
+
+        $response->addCssFile('/admin/css/style.css');
+        $response->addJsFile('/admin/backend/js/script.js', 'bottom');
+        $response->addJs('window.editor = new ka.Editor(null, {nodePk: '.Kryn::$page->getId().'});', 'bottom');
+
+    }
+
+    public static function addMainResources(){
+
+        $response = Kryn::getResponse();
+
+        $response->addJs('window._path = window._baseUrl = '.json_encode(Kryn::getBaseUrl()));
         $response->addJsFile('core/mootools-core.js');
         $response->addJsFile('core/mootools-more.js');
         $response->addJsFile('core/mowla.min.js');
         $response->addCssFile('admin/icons/style.css');
+        $response->addCssFile('admin/css/ai.css');
 
         $response->addJsFile('admin/js/ka.js');
+        $response->addJsFile('admin/js/ka/AdminInterface.js');
         $response->addJsFile('/lib/codemirror/lib/codemirror.js');
         $response->addJsFile('/lib/codemirror/lib/util/loadmode.js');
         $response->addCssFile('/lib/codemirror/lib/codemirror.css');
@@ -324,20 +366,8 @@ class AdminController {
         $response->addJsFile('/admin/ui/languagePluralForm?lang=en');
 
         $response->addCssFile('admin/icons/style.css');
-        $response->addCssFile('/admin/css/style.css');
 
-        Kryn::$domain->setResourcecompression(false);
-
-        $response->addJs('window.currentNode = '.
-            json_encode(Kryn::$page->toArray(\BasePeer::TYPE_STUDLYPHPNAME)).';', 'bottom');
-
-        $response->addJs('ka.adminInterface = {loaderDone: function(){}};', 'bottom');
-
-        $response->addJs('window._path = window._baseUrl = '.json_encode(Kryn::getBaseUrl()), 'bottom');
-
-        $response->addJsFile('/admin/backend/js/script.js', 'bottom');
-        $response->addJs('window.editor = new ka.Editor(null, {nodePk: '.Kryn::$page->getId().'});', 'bottom');
-
+        $response->setResourceCompression(false);
     }
 
     public function loginUser($pUsername, $pPassword){
@@ -418,15 +448,34 @@ class AdminController {
 
     public static function showLogin() {
 
-        $language = Kryn::getAdminClient()->getSession()->getLanguage();
-        if (!$language) $language = 'en';
+        self::addMainResources();
 
-        if (getArgv('setLang') != '')
-            $language = getArgv('setLang', 2);
+        $response = Kryn::getResponse();
+        $response->addJsFile('admin/js/ka/Select.js');
+        $response->addJsFile('admin/js/ka/Checkbox.js');
+        self::addSessionScripts();
 
-        tAssign('adminLanguage', $language);
 
-        print tFetch('admin/index.tpl');
+        $response->addJs("
+        CKEDITOR.disableAutoInline = true;
+        CodeMirror.modeURL = 'lib/codemirror/mode/%N/%N.js';
+        var loaded = 0;
+        window.addEvent('domready', function(){
+            if (loaded++ > 0)
+                throw 'gazzo';
+            ka.adminInterface = new ka.AdminInterface();
+        });
+        ");
+
+        $response->setResourceCompression(false);
+        $response->setDomainHandling(false);
+
+        $response->addCssFile('admin/css/ai.css');
+        $response->addCssFile('admin/css/ka/Login.css');
+        $response->addCssFile('admin/css/ka/Select.css');
+        $response->addCssFile('admin/css/ka/Checkbox.css');
+
+        $response->send();
         exit;
     }
 
