@@ -185,7 +185,8 @@ class AdminController {
                     ->addDeleteRoute('cache', 'clearCache')
 
                     ->addGetRoute('search', 'getSearch')
-                    ->addGetRoute('content-template', 'getContentTemplate')
+                    ->addGetRoute('content/template', 'getContentTemplate')
+                    ->addPutRoute('content', 'saveContents')
 
                 ->done()
 

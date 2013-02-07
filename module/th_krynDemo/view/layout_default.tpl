@@ -42,18 +42,9 @@
                     </div>
                 </td>
                 <td valign="top">
-                    {if $admin}
-                        <div class="content-sidebar">
-                            {slot id="2" name="[[Sidebar]]" assign="sidebar"}
-                        </div>
-                    {else}
+                    <div class="content-sidebar">
                         {slot id="2" name="[[Sidebar]]" assign="sidebar"}
-                        {if $sidebar ne ""}
-                            <div class="content-sidebar">
-                                {$sidebar}
-                            </div>
-                        {/if}
-                    {/if}
+                    </div>
                 </td>
             </tr>
         </table>

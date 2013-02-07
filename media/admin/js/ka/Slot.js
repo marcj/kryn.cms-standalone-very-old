@@ -70,6 +70,15 @@ ka.Slot = new Class({
         return this.slot;
     },
 
+
+    getValue: function(){
+
+        this.slot.getChildren('.ka-content').each(function(content){
+
+        });
+
+    },
+
     addActions: function(){
 
         this.addContentBtn = new Element('a',{

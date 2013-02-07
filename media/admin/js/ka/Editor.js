@@ -69,10 +69,17 @@ ka.Editor = new Class({
             title: t('Save changes'),
             'class': 'icon ka-editor-sidebar-item ka-editor-sidebar-item-save'
         })
-        .addEvent('click', function(){ this.togglePreview(); }.bind(this))
+        .addEvent('click', function(){ this.save(); }.bind(this))
         .inject(this.sidebar);
 
         this.initDragNDrop.delay(500, this);
+    },
+
+    save: function(){
+
+
+
+
     },
 
     initDragNDrop: function(){

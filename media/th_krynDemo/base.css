@@ -194,6 +194,11 @@ input.text, textarea {
     background-color: #a5ad79;
 }
 
+
+.content-sidebar > div {
+    margin: 0 5px;
+}
+
 .content-sidebar a,
 .content-sidebar a:link {
 	color: #333;

@@ -1457,7 +1457,7 @@ class Kryn {
         });
 
         $dispatcher->addListener('core.domain-no-start-page', function(GenericEvent $event){
-            Kryn::internalError(null, tf('There is no start page for domain %s', Kryn::$domain->getDomain()));
+            Kryn::internalError(null, tf('There is no start page for domain `%s`.', Kryn::$domain->getDomain()));
         });
 
         //search domain and set to Core\Kryn::$domain

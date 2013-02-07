@@ -36,7 +36,7 @@ ka.Content = new Class({
 
     loadTemplate: function(pValue){
 
-        this.lastRq = new Request.JSON({url: _path+'admin/content-template', noCache: true,
+        this.lastRq = new Request.JSON({url: _path+'admin/content/template', noCache: true,
             onComplete: function(pResponse){
 
                 this.main.empty();
@@ -60,6 +60,14 @@ ka.Content = new Class({
         } else {
             this.nextFocus = true;
         }
+    },
+
+    getValue: function(){
+        if (this.contentObject){
+            this.value.content = this.contentObject.getValue();
+        }
+
+        return this.value;
     },
 
     setValue: function(pValue){
@@ -87,6 +95,7 @@ ka.Content = new Class({
             this.currentType = pValue.type;
         }
 
+        this.value = pValue;
         this.contentObject.setValue(pValue.content);
 
     }
