@@ -15,6 +15,7 @@ class UIAssets {
             $where .= " OR code = '$file'";
         $langs = dbExFetchAll("SELECT * FROM ".pfx."system_langs WHERE $where");
 
+        $langs = dbToKeyIndex($langs, 'code');
         $json = json_encode($langs);
         header('Content-Type: text/javascript');
         print "if( typeof(ka)=='undefined') window.ka = {}; ka.possibleLangs = " . $json;

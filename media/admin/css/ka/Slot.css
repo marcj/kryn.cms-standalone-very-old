@@ -1,9 +1,9 @@
-.kryn-slot {
+.ka-slot {
     min-height: 20px;
 }
 
-.kryn-slot-highlight,
-.kryn-slot-highlight .ka-content {
+.ka-slot-highlight,
+.ka-slot-highlight .ka-content {
     outline: 1px solid #003366;
     background-color: rgba(34, 124, 160,0.1);
 }

@@ -20,8 +20,6 @@ ka.AdminInterface = new Class({
 
         this.setOptions(pOptions);
 
-        logger('!Initialize');
-
         if (this.isInit) return; else this.isInit = true;
 
         document.hiddenElement = new Element('div', {
@@ -518,7 +516,7 @@ ka.AdminInterface = new Class({
             this.reloadLogin();
         }).inject(form);
 
-        ka.possibleLangs.each(function (lang) {
+        Object.each(ka.possibleLangs, function (lang) {
             this.loginLangSelection.add(lang.code, lang.title + ' (' + lang.langtitle + ')');
         }.bind(this));
 
@@ -594,11 +592,11 @@ ka.AdminInterface = new Class({
             if (possibleLanguage.indexOf('-'))
                 possibleLanguage = possibleLanguage.substr(0, possibleLanguage.indexOf('-'));
 
-            if (ka.possibleLangs.contains(possibleLanguage)){
+            if (ka.possibleLangs[possibleLanguage]){
 
-                ka.loginLangSelection.setValue(possibleLanguage);
-                if (ka.loginLangSelection.getValue() != window._session.lang) {
-                    ka.loadLanguage(ka.loginLangSelection.getValue());
+                this.loginLangSelection.setValue(possibleLanguage);
+                if (this.loginLangSelection.getValue() != window._session.lang) {
+                    ka.loadLanguage(this.loginLangSelection.getValue());
                     this.reloadLogin();
                     return;
                 }

@@ -235,14 +235,14 @@ ka.Editor = new Class({
 
     highlightSlots: function(pEnter){
         if (pEnter)
-            this.slots.addClass('kryn-slot-highlight');
+            this.slots.addClass('ka-slot-highlight');
         else
-            this.slots.removeClass('kryn-slot-highlight');
+            this.slots.removeClass('ka-slot-highlight');
     },
 
     searchSlots: function(){
 
-        this.slots = this.container.getElements('.kryn-slot');
+        this.slots = this.container.getElements('.ka-slot');
 
         Array.each(this.slots, function(slot){
             this.initSlot(slot);

@@ -1,7 +1,38 @@
 
+.ka-content {
+    min-height: 15px;
+}
 
-
-.ka-content-text:hover {
+.ka-content:hover {
     outline: 1px solid silver;
     background-color: rgba(34, 124, 160,0.1);
+}
+
+
+.ka-content-plugin {
+    padding: 2px;
+}
+.ka-content-plugin-inner {
+    background: -webkit-linear-gradient(top, #339AC6 13%,#14779E 100%);
+    padding: 5px;
+    border-radius: 2px;
+
+    color: white;
+    cursor: pointer;
+}
+
+.ka-content-plugin-title {
+    font-weight: bold;
+}
+
+.ka-content-plugin-subtitle {
+}
+
+
+.ka-content-plugin-options {
+    display: none;
+}
+
+.ka-content-plugin:hover .ka-content-plugin-options {
+    display: block;
 }
