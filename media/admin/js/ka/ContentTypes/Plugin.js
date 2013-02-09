@@ -29,8 +29,18 @@ ka.ContentTypes.Plugin = new Class({
     openDialog: function(){
 
 
+        this.dialog = new ka.Dialog(document.body, {
+            title: t('Edit plugin'),
+            minWidth: '50%',
+            minHeight: '50%'
+        });
 
 
+        this.dialog.setContent('<div style="height: 200px; margin: 50px; border: 1px solid black;">asd</div>');
+
+        this.dialog.center();
+        this.dialog.addButton('Cancel').addEvent('click', this.dialog.close);
+        this.dialog.addButton('Apply').setButtonStyle('blue');
 
     },
 

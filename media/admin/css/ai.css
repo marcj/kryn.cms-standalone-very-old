@@ -11,6 +11,10 @@
     z-index: auto;
 }
 
+body.hide-scrollbar {
+    overflow: hidden;
+}
+
 .ka-admin div,
 .ka-admin span {
     -webkit-user-select: none;

@@ -1,0 +1,33 @@
+.ka-dialog-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    overflow: hidden;
+    background-color: rgba(34, 124, 160,0.2);
+}
+
+.ka-dialog {
+
+    background-color: #EEE;
+    box-shadow: 0px 0px 30px #444;
+    position: absolute;
+
+    min-height: 50px;
+    min-width: 150px;
+
+    max-height: 80%;
+    max-width: 90%;
+
+    overflow: auto;
+
+}
+
+.ka-dialog-bottom {
+    position: relative;
+
+    height: 30px;
+
+    text-align: right;
+}
