@@ -170,27 +170,24 @@
                 "template": {
                     "label": "[[Template]]",
                     "withoutExtension": 1,
-                    "directory": "inc\/template\/publication\/news\/list\/",
+                    "directory": "admin/",
                     "type": "files"
                 },
-                "category_id": {
+                "categoryId": {
                     "label": "[[Limit categories]]",
-                    "table": "publication_news_category",
-                    "table_key": "id",
-                    "table_label": "title",
-                    "multi": 1,
-                    "type": "select"
+                    "object": "Publication\\NewsCategory",
+                    "type": "textboxList"
                 },
                 "order": {
                     "label": "[[Sort by]]",
                     "items": {
                         "title": "[[Title]]",
-                        "releaseat": "[[Release date]]",
-                        "releasedate": "[[News date]]",
-                        "category_id": "[[Category]]"
+                        "releaseAt": "[[Release date]]",
+                        "releaseDate": "[[News date]]",
+                        "categoryId": "[[Category]]"
                     },
                     "type": "select",
-                    "default": "2"
+                    "default": "releaseAt"
                 },
                 "orderDirection": {
                     "label": "Sort direction",

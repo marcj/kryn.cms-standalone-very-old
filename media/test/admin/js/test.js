@@ -24,6 +24,16 @@ var test_test = new Class({
 
 
         new ka.Field({
+            "label": "Sort direction",
+            "items": {
+                "desc": "[[Descending]]",
+                "asc": "[[Ascending]]"
+            },
+            "type": "select"
+        }, this.win.content);
+
+
+        new ka.Field({
             label: t('EntryPoint'),
             type: 'object',
             combobox: true,

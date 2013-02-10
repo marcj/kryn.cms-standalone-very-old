@@ -1,5 +1,6 @@
 ka.Content = new Class({
 
+    Binds: ['onOver', 'onOut', 'remove'],
     Implements: [Options, Events],
 
     options: {
@@ -28,6 +29,52 @@ ka.Content = new Class({
             'class': 'ka-content'
         }).inject(this.slot);
 
+        this.main.kaContentInstance = this;
+
+        this.actionBar = new Element('div', {
+            'class': 'ka-normalize ka-content-actionBar'
+        });
+
+        this.addActionBarItems();
+
+    },
+
+    addActionBarItems: function(){
+
+        new Element('a', {
+            html: '&#xe0c6;',
+            href: 'javascript: ;',
+            class: 'icon',
+            title: t('Move content')
+        }).inject(this.actionBar);
+
+        new Element('a', {
+            html: '&#xe26b;',
+            href: 'javascript: ;',
+            title: t('Remove content'),
+            class: 'icon'
+        })
+        .addEvent('click', this.remove)
+        .inject(this.actionBar);
+
+    },
+
+    remove: function(){
+        this.main.destroy();
+        this.actionBar.destroy();
+    },
+
+    onOver: function(){
+        this.actionBar.inject(this.main);
+        this.actionBar.position({
+            relativeTo: this.main,
+            edge: 'leftBottom',
+            position: 'leftTop'
+        })
+    },
+
+    onOut: function(){
+        this.actionBar.dispose();
     },
 
     toElement: function(){

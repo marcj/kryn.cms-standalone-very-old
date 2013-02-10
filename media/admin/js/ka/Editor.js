@@ -1,5 +1,6 @@
 ka.Editor = new Class({
 
+    Binds: ['onOver', 'onOut'],
     Implements: [Options, Events],
 
     options: {
@@ -20,6 +21,28 @@ ka.Editor = new Class({
         this.renderSidebar();
 
         this.container.addClass('ka-editor');
+
+
+        this.container.addEvent('mouseenter:relay(.ka-content)', this.onOver);
+        this.container.addEvent('mouseleave:relay(.ka-content)', this.onOut);
+    },
+
+    onOver: function(pEvent, pElement){
+        if (this.lastHoveredContentInstance)
+            this.lastHoveredContentInstance.onOut();
+
+        if (pElement && pElement.kaContentInstance){
+            pElement.kaContentInstance.onOver(pEvent);
+            this.lastHoveredContentInstance = pElement.kaContentInstance;
+        }
+    },
+
+    onOut: function(pEvent, pElement){
+        logger(pElement);
+        if (pElement && pElement.kaContentInstance){
+            pElement.kaContentInstance.onOut(pEvent);
+            delete this.lastHoveredContentInstance;
+        }
     },
 
     adjustAnchors: function(){

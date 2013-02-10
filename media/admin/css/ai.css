@@ -1,10 +1,11 @@
-.ka-admin {
+.ka-admin, .ka-normalize {
     font-family: "Lucida Grande", "DejaVu Sans", "Bitstream Vera Sans", "Segoe UI", "Tahoma", sans-serif;
     font-family: Verdana, Arial;
     font-size: 11px;
     margin: 0px;
     padding: 0px;
     line-height: normal;
+    text-align: left;
 }
 
 .ka-admin .CodeMirror-gutter {

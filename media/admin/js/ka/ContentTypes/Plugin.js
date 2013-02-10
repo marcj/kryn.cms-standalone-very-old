@@ -15,8 +15,12 @@ ka.ContentTypes.Plugin = new Class({
     createLayout: function(){
 
         this.main = new Element('div', {
-            'class': 'ka-content-plugin'
+            'class': 'ka-normalize ka-content-plugin'
         }).inject(this.contentInstance);
+
+        this.icon = new Element('div', {
+            'class': 'ka-content-plugin-icon icon-cube-2'
+        }).inject(this.main);
 
         this.inner = new Element('div', {
             'class': 'ka-content-plugin-inner'
@@ -28,6 +32,18 @@ ka.ContentTypes.Plugin = new Class({
 
     openDialog: function(){
 
+        if (!this.value) return;
+
+        var module  = this.value.substr(0, this.value.indexOf('::'));
+        var plugin  = this.value.substr(module.length+2, this.value.substr(module.length+2).indexOf('::'));
+        var options = this.value.substr(module.length+plugin.length+4);
+        var fields  = null;
+
+        if (ka.settings.configs[module] && ka.settings.configs[module].plugins && ka.settings.configs[module].plugins[plugin]){
+            fields = ka.settings.configs[module].plugins[plugin][1];
+        } else {
+            return ;
+        }
 
         this.dialog = new ka.Dialog(document.body, {
             title: t('Edit plugin'),
@@ -35,12 +51,27 @@ ka.ContentTypes.Plugin = new Class({
             minHeight: '50%'
         });
 
+        this.cancelBtn = this.dialog.addButton('Cancel').addEvent('click', this.dialog.close);
+        this.saveBtn   = this.dialog.addButton('Apply').setButtonStyle('blue');
 
-        this.dialog.setContent('<div style="height: 200px; margin: 50px; border: 1px solid black;">asd</div>');
 
+        var generalFields = {
+            module: {
+                label: t('Extension'),
+                type: 'module'
+            }
+        };
+
+        this.dialogForm = new ka.FieldForm(document.id(this.dialog), generalFields);
+
+        this.dialogPropertyForm = new ka.FieldForm(document.id(this.dialog), fields, {
+            saveButton: this.saveBtn
+        });
+
+        this.dialogPropertyForm.setValue(options);
+
+        this.dialog.fixBottom();
         this.dialog.center();
-        this.dialog.addButton('Cancel').addEvent('click', this.dialog.close);
-        this.dialog.addButton('Apply').setButtonStyle('blue');
 
     },
 

@@ -450,7 +450,7 @@ class Kryn {
 
     public static function getRequest(){
         if (!self::$request){
-            self::$request = Request::createFromGlobals();
+            self::$request = HttpRequest::createFromGlobals();
         }
         return self::$request;
     }

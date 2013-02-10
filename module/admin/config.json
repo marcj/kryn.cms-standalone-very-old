@@ -487,6 +487,7 @@
         "admin\/js\/ka\/*.js",
         "admin\/js\/ka\/FieldTypes\/Input.js",
         "admin\/js\/ka\/FieldTypes\/Object.js",
+        "admin\/js\/ka\/FieldTypes\/Select.js",
         "admin\/js\/ka\/FieldTypes\/*.js",
         "admin\/js\/ka\/ContentTypes\/*.js",
         "admin\/js\/mootools-extras\/*.js"

@@ -41,7 +41,7 @@ ka.Dialog = new Class({
     renderLayout: function(){
 
         this.overlay = new Element('div', {
-            'class': 'ka-dialog-overlay'
+            'class': 'ka-admin ka-dialog-overlay'
         }).inject(this.container);
 
         this.main = new Element('div', {
@@ -80,11 +80,15 @@ ka.Dialog = new Class({
         this.bottom.setStyle('top', delta);
     },
 
+    fixBottom: function(){
+        this.bottom.inject(this.main);
+        this.updateBottomPosition();
+    },
+
     setContent: function(pHtml){
 
         this.bottom.dispose();
         this.main.set('html', pHtml);
-        this.bottom.inject(this.main);
         this.updateBottomPosition();
 
     },
@@ -142,10 +146,6 @@ ka.Dialog = new Class({
 
     toElement: function(){
         return this.main;
-    },
-
-    getContentContainer: function(){
-        return this.content;
     }
 
 

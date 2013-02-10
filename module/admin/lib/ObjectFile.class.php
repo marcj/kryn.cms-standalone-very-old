@@ -19,6 +19,7 @@ class ObjectFile extends \Core\ORM\Propel {
 
         $result = array();
 
+
         foreach ($groups as $group){
 
             $item = array();
@@ -129,20 +130,27 @@ class ObjectFile extends \Core\ORM\Propel {
     }
 
 
-    public function getTree($pParentPrimaryKey = null, $pCondition = null, $pDepth = 1, $pScope = null, $pOptions = null){
+    public function getBranch($pPk = null, $pCondition = null, $pDepth = 1, $pScope = null, $pOptions = null){
 
-        if ($pParentPrimaryKey)
-            $path = is_numeric($pParentPrimaryKey['id'])?
-                MediaFile::getPath($pParentPrimaryKey['id']) : $pParentPrimaryKey['id'];
+        if ($pPk)
+            $path = is_numeric($pPk['id'])?
+                MediaFile::getPath($pPk['id']) : $pPk['id'];
         else
             $path = '/';
 
         $files = MediaFile::getFiles($path);
 
-        foreach($files as &$file){
+        $c = -1;
+        $offset = $pOptions['offset'];
+        $result = array();
+
+        foreach($files as $file){
+            $c++;
+            if ($offset && $offset > $c) continue;
+
             if ($pDepth > 1 && $file['type'] == 'dir'){
 
-                $file['_children'] = self::getTree(array('id' => $file['path']), null, $pDepth-1);
+                $file['_children'] = self::getBranch(array('id' => $file['path']), null, $pDepth-1);
                 $file['_childrenCount'] = count($file['_children']);
 
             } else if ($file['type'] == 'dir'){
@@ -151,9 +159,10 @@ class ObjectFile extends \Core\ORM\Propel {
             } else {
                 $file['_childrenCount'] = 0;
             }
+            $result[] = $file;
         }
 
-        return $files;
+        return $result;
     }
 
 

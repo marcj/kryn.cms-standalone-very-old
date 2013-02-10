@@ -56,10 +56,27 @@ ka.Select = new Class({
         objectFields: false, //or a array
         objectLanguage: null,
 
+        /**
+         * Whether to use a branch or not
+         * /admin/object/<object>/<objectBranch>:branch
+         *
+         * Use true for the root.
+         * Define a objectScope, if the target object has multiple roots.
+         *
+         * @var {Boolean|String|Integer}
+         */
+        objectBranch: false,
+
+        /**
+         * The scope value, if you have objectBranch defined.
+         *
+         * @var {String|Integer}
+         */
+        objectScope: null,
+
         labelTemplate: false,
         maxItemsPerLoad: 20, //number
-        selectFirst: true,
-        customValue: false //boolean
+        selectFirst: true
 
     },
 
@@ -244,7 +261,7 @@ ka.Select = new Class({
 
         } if (this.options.object){
 
-            this.lastRq = new Request.JSON({url: _path+'admin/object/'+ka.urlEncode(this.options.object),
+            this.lastRq = new Request.JSON({url: this.getObjectUrl(),
                 noErrorReporting: ['NoAccessException'],
                 onCancel: function(){
                     pCallback(false);
@@ -281,10 +298,25 @@ ka.Select = new Class({
                 offset: pOffset,
                 limit: pCount,
                 _lang: this.options.objectLanguage,
+                scope: this.options.objectScope,
                 fields: this.objectFields ? this.objectFields.join(',') : null
             });
         }
 
+    },
+
+    getObjectUrl: function(){
+        var uri = _path+'admin/object/'+ka.urlEncode(this.options.object);
+
+        if (this.options.objectBranch){
+            if (this.options.objectBranch === true){
+                uri += '/:branch';
+            } else {
+                uri += '/'+ka.urlEncode(this.options.objectBranch)+'/branch';
+            }
+        }
+
+        return uri;
     },
 
     reset: function(){
@@ -794,12 +826,12 @@ ka.Select = new Class({
 
                 } else if (this.options.object){
                     this.lastLabelRequest = new Request.JSON({
-                        url: _path+'admin/object/'+ka.urlEncode(this.options.object)+'/'+pId,
+                        url: _path+'admin/object/'+ka.urlEncode(this.options.object)+'/'+ka.urlEncode(pId),
                         onComplete: function(response){
 
                             if (!response.error){
 
-                                if (response.data === false) return pCallback(false);
+                                if (!response.data) return pCallback(false);
 
                                 var id = ka.getObjectUrlId(this.options.object, response.data);
                                 pCallback({

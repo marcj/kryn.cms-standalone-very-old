@@ -9,8 +9,7 @@ ka.FieldTypes.Select = new Class({
 
         items: false, //array or object
         store: false, //string
-        object: false, //for object chooser
-        customValue: false //boolean
+        object: false //for object chooser
 
     },
 
