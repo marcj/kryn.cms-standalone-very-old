@@ -43,6 +43,8 @@ class ObjectCrudController extends Server {
 
             $this
 
+                ->getClient()->setUrl(substr(\Core\Kryn::getRequest()->getPathInfo(), 1))->getController()
+
                 ->addGetRoute(':branch', 'getRootBranchItems')
                 ->addGetRoute(':count', 'getCount')
                 ->addGetRoute(':roots', 'getRoots')
@@ -69,7 +71,6 @@ class ObjectCrudController extends Server {
 
             //run parent
             parent::run();
-            var_dump('hi');
         }
     }
 

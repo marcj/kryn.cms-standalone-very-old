@@ -353,6 +353,7 @@ class AdminController {
         $response->addJsFile('core/mowla.min.js');
         $response->addCssFile('admin/icons/style.css');
         $response->addCssFile('admin/css/ai.css');
+        $response->addCssFile('admin/css/ka.wm.css');
 
         $response->addJsFile('admin/js/ka.js');
         $response->addJsFile('admin/js/ka/AdminInterface.js');
