@@ -38,7 +38,6 @@ ka.Editor = new Class({
     },
 
     onOut: function(pEvent, pElement){
-        logger(pElement);
         if (pElement && pElement.kaContentInstance){
             pElement.kaContentInstance.onOut(pEvent);
             delete this.lastHoveredContentInstance;

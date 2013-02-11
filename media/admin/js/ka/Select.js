@@ -574,6 +574,8 @@ ka.Select = new Class({
 
     renderLabel: function(pData){
 
+        if (typeOf(pData) == 'null') return '';
+
         var data = pData;
 
         if (this.options.object && !this.options.labelTemplate){

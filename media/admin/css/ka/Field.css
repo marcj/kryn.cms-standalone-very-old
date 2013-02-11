@@ -322,3 +322,8 @@ input.ka-field-dateTime {
     padding: 5px;
     min-height: 50px;
 }
+
+.ka-field-plugin-options {
+    border-top: 2px solid silver;
+    padding-top: 5px;
+}

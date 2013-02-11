@@ -289,7 +289,7 @@ ka.WindowCombine = new Class({
                 field.label = t(title);
                 field.small = true;
                 field.tableitem = true;
-                field.tableitem_title_width = 50;
+                field.tableItemLabelWidth = 50;
 
                 var fieldObj = new ka.Field(field, this.searchPane).addEvent('change', this.doSearch.bind(this));
                 this.searchFields.set(mkey, fieldObj);

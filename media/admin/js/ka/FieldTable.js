@@ -10,7 +10,7 @@ ka.FieldTable = new Class({
         asFrameworkColumn: false, //for column definition, with width field. without the optional stuff and limited range of types
         asFrameworkSearch: false, //Remove some option fields, like 'visibility condition', 'can be empty', etc
         withoutChildren: false, //deactivate children?
-        tableitem_title_width: 330,
+        tableItemLabelWidth: 330,
         allTableItems: true,
         withActions: true,
 

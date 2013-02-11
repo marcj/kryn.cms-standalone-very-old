@@ -101,7 +101,7 @@ var admin_system_module_editWindow = new Class({
         this.generalTbody = new Element('tbody').inject(table);
 
         this.generalObj = new ka.FieldForm(this.generalTbody, generalFields,
-            {allTableItems:true, tableitem_title_width: 250, withEmptyFields: false},
+            {allTableItems:true, tableItemLabelWidth: 250, withEmptyFields: false},
             {win:this.win});
 
 

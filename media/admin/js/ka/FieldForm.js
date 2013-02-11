@@ -19,7 +19,7 @@ ka.FieldForm = new Class({
     options: {
         allTableItems: false,
         allSmall: false,
-        tableitem_title_width: false,
+        tableItemLabelWidth: false,
         returnDefault: false,
         saveButton: false,
 
@@ -45,7 +45,7 @@ ka.FieldForm = new Class({
 
         this.setOptions(pOptions);
         this.refs = pRefs;
-        this.main = pContainer;
+        this.main = document.id(pContainer);
         this.definition = pFieldDefinition;
 
         if (Object.getLength(pFieldDefinition) == 0) return false;
@@ -184,8 +184,8 @@ ka.FieldForm = new Class({
             if (typeOf(field.small) == 'null' && this.options.allSmall && field.type != 'tab')
                 field.small = 1;
 
-            if (this.options.tableitem_title_width)
-                field.tableitem_title_width = this.options.tableitem_title_width;
+            if (this.options.tableItemLabelWidth)
+                field.tableItemLabelWidth = this.options.tableItemLabelWidth;
 
             var target = pContainer.getElement('*[id=' + field.target + ']') ||
                          pContainer.getElement('*[id=' + id + ']') ||
@@ -238,16 +238,6 @@ ka.FieldForm = new Class({
                 obj.handleChildsMySelf = true;
 
             } else {
-
-                if (field.tableItem && target.get('tag') != 'table' && target.get('tag') != 'tbody'){
-
-                    if (!pContainer.kaFieldTable){
-                        pContainer.kaFieldTable = new Element('table', {width: '100%', 'class': 'ka-parse-table'}).inject(target);
-                    }
-
-                    target = pContainer.kaFieldTable;
-                }
-
                 obj = new ka.Field(field, target, id);
             }
 

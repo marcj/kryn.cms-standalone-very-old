@@ -1,7 +1,7 @@
 {
     "version": "1.0.0",
     "owner": "1",
-    "title": "Kryn.cms",
+    "title": "Kryn.cms admin",
     "desc": "The administration of Kryn.cms",
     "system": true,
     "widgetsLayout": "<div id='full'><\/div><div style='float: left; width: 49%;' id='left'><\/div><div style='float: right; width: 49%;' id='right'><\/div><div style='clear: both;'><\/div>",

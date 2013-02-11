@@ -18,6 +18,7 @@ ka.Field = new Class({
         type: 'text',
 
         tableItem: false, //use TR as parent instead of div
+        tableItemLabelWidth: null,
         help: null,
 
         startEmpty: false,
@@ -60,6 +61,7 @@ ka.Field = new Class({
      */
     initialize: function (pDefinition, pContainer, pKey, pFieldForm) {
 
+        pContainer = document.id(pContainer);
         this.key = pKey;
 
         this.fieldForm = pFieldForm;
@@ -148,7 +150,7 @@ ka.Field = new Class({
 
                 this.title = new Element('td', {
                     'class': 'ka-field-tdtitle selectable',
-                    width: (this.options.tableitem_title_width) ? this.options.tableitem_title_width : '40%'
+                    width: (this.options.tableItemLabelWidth) ? this.options.tableItemLabelWidth : '40%'
                 }).inject(this.tr);
 
                 this.main = new Element('td', {
@@ -262,7 +264,7 @@ ka.Field = new Class({
         if (clazz){
             this.fieldObject = new clazz(this, this.options);
         } else {
-            throw 'The ka.Field type `'+this.options.type+'` is not available.';
+            this.fieldPanel.set('text', 'The ka.Field type `'+this.options.type+'` is not available.');
         }
 
         return;
@@ -472,6 +474,7 @@ ka.Field = new Class({
      * @return {Mixed}
      */
     getValue: function () {
+        if (!this.fieldObject) return null;
         return this.fieldObject.getValue();
     },
 
@@ -501,6 +504,7 @@ ka.Field = new Class({
      * @param {Boolean} pInternal Fires fireChange() which fires the 'change' event. Default is false.
      */
     setValue: function (pValue, pInternal){
+        if (!this.fieldObject) return null;
 
         if (typeOf(pValue) == 'null' && this.field['default']) {
             pValue = this.field['default'];

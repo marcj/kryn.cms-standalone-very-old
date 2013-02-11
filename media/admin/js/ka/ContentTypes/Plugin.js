@@ -54,21 +54,16 @@ ka.ContentTypes.Plugin = new Class({
         this.cancelBtn = this.dialog.addButton('Cancel').addEvent('click', this.dialog.close);
         this.saveBtn   = this.dialog.addButton('Apply').setButtonStyle('blue');
 
+        this.dialogPluginChoser = new ka.Field({
+            type: 'plugin'
+        }, this.dialog);
 
-        var generalFields = {
-            module: {
-                label: t('Extension'),
-                type: 'module'
-            }
-        };
+        this.dialogPluginChoser.setValue(this.value);
 
-        this.dialogForm = new ka.FieldForm(document.id(this.dialog), generalFields);
-
-        this.dialogPropertyForm = new ka.FieldForm(document.id(this.dialog), fields, {
-            saveButton: this.saveBtn
-        });
-
-        this.dialogPropertyForm.setValue(options);
+        this.dialogPluginChoser.addEvent('change', function(){
+            this.dialog.fixBottom();
+            this.dialog.center();
+        }.bind(this));
 
         this.dialog.fixBottom();
         this.dialog.center();

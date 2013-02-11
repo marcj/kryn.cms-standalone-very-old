@@ -101,7 +101,7 @@ ka.FieldProperty = new Class({
                     options: {
                         asFrameworkColumn: true,
                         withoutChildren: true,
-                        tableitem_title_width: 200,
+                        tableItemLabelWidth: 200,
                         addLabel: t('Add column')
                     }
                 },
@@ -339,7 +339,7 @@ ka.FieldProperty = new Class({
         asFrameworkColumn: false, //for column definition, with width field. without the optional stuff and limited range of types
         asFrameworkSearch: false, //Remove some option fields, like 'visibility condition', 'can be empty', etc
         withoutChildren: false, //deactivate children?
-        tableitem_title_width: 330,
+        tableItemLabelWidth: 330,
         allTableItems: true,
         withActions: true,
 
@@ -568,7 +568,7 @@ ka.FieldProperty = new Class({
 
             this.fieldObject = new ka.FieldForm(this.main, this.kaFields, {
                 allTableItems: this.options.allTableItems,
-                tableitem_title_width: this.options.tableitem_title_width,
+                tableItemLabelWidth: this.options.tableItemLabelWidth,
                 withEmptyFields: false
             }, {win:this.win});
 
@@ -679,7 +679,7 @@ ka.FieldProperty = new Class({
 
         this.fieldObject = new ka.FieldForm(fieldContainer, this.kaFields, {
             allTableItems: this.options.allTableItems,
-            tableitem_title_width: this.options.tableitem_title_width,
+            tableItemLabelWidth: this.options.tableItemLabelWidth,
             saveButton: this.saveBtn,
             withEmptyFields: false
         }, {win:this.win});

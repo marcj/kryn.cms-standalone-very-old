@@ -919,7 +919,7 @@ var admin_system_module_edit = new Class({
 
             var fieldObject = new ka.FieldForm(dialog.content, this.entryPointSettingsFields, {
                 allTableItems: true,
-                tableitem_title_width: 300,
+                tableItemLabelWidth: 300,
                 saveButton: applyBtn
             });
 
@@ -2463,7 +2463,7 @@ var admin_system_module_edit = new Class({
                                 type: 'fieldTable',
                                 asFrameworkColumn: true,
                                 withoutChildren: true,
-                                tableitem_title_width: 200,
+                                tableItemLabelWidth: 200,
                                 addLabel: t('Add column')
                             },
                             'browserDataModel': {
@@ -2498,7 +2498,7 @@ var admin_system_module_edit = new Class({
             width: '100%'
         }).inject(this.dialog.content);
 
-        var kaParseObj = new ka.FieldForm(tbody, kaFields, {allTableItems: true, tableitem_title_width: 220}, {win: this.win});
+        var kaParseObj = new ka.FieldForm(tbody, kaFields, {allTableItems: true, tableItemLabelWidth: 220}, {win: this.win});
 
         new ka.Button(t('Cancel')).addEvent('click', this.cancelObjectSettings.bind(this)).inject(this.dialog.bottom);
 
@@ -3013,7 +3013,7 @@ var admin_system_module_edit = new Class({
             style: 'bottom: 31px;'
         }).inject(this.panes['extras']);
 
-        this.extraFieldsObj = new ka.FieldForm(this.extrasPane, extrasFields, {allTableItems:1, tableitem_title_width: 270});
+        this.extraFieldsObj = new ka.FieldForm(this.extrasPane, extrasFields, {allTableItems:1, tableItemLabelWidth: 270});
 
         var buttonBar = new ka.ButtonBar(this.panes['extras']);
         var saveBtn = buttonBar.addButton(t('Save'), this.saveExtras.bind(this));
