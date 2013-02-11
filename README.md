@@ -2,7 +2,7 @@ Kryn.cms
 ========
 
 An enterprise open-source Content-Management-System and Content-Management-Framework with a full RESTful API
-written in PHP and JavaScript using Symfony, mootools and other well tested frameworks.
+written in PHP and JavaScript using Symfony, mootools and other rock-solid libraries.
 
 We're in development. This means, there are still a _lot_ of issues in this product (not even an Alpha) and it's not everything implemented yet.
 
@@ -40,7 +40,7 @@ Features
  - Several flexible authentication layers (e.g. changeable for administration, changeable per domain)
  - MVC architecture
  - Secure password storage usign up-to-date encryptions
- - Events Supported, truly extensible, http://symfony.com/doc/2.0/components/event_dispatcher/introduction.html
+ - Observer pattern, truly extensible, http://symfony.com/doc/2.0/components/event_dispatcher/introduction.html
  - Symfony2 Routing Component, http://symfony.com/doc/2.0/components/routing/introduction.html
  - Symfony2 HttpKernel Component, http://symfony.com/doc/2.0/components/http_kernel/introduction.html
  - Monolog Framework, sends your logs to almost everywhere, https://github.com/Seldaek/monolog
