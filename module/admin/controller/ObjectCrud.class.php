@@ -749,14 +749,16 @@ class ObjectCrud {
     /**
      * Returns items per branch.
      *
-     * @param null $pPk
-     * @param null $pScope
-     * @param int $pDepth
-     * @param null $pLimit
-     * @param null $pOffset
+     * @param mixed $pPk
+     * @param array $pFilter
+     * @param mixed $pFields
+     * @param mixed $pScope
+     * @param int   $pDepth
+     * @param int   $pLimit
+     * @param int   $pOffset
      * @return mixed
      */
-    public function getBranchItems($pPk = null, $pFields = null, $pScope = null, $pDepth = 1, $pLimit = null, $pOffset = null) {
+    public function getBranchItems($pPk = null, $pFilter = null, $pFields = null, $pScope = null, $pDepth = 1, $pLimit = null, $pOffset = null) {
 
         $options = array();
         $options['permissionCheck'] = $this->getPermissionCheck();
@@ -764,6 +766,13 @@ class ObjectCrud {
         $options['limit'] = $pLimit ? $pLimit : $this->defaultLimit;
 
         $condition = $this->getCondition();
+
+        if ($pFilter){
+            if ($condition)
+                $condition = array($condition, 'AND', self::buildFilter($pFilter));
+            else
+                $condition = self::buildFilter($pFilter);
+        }
 
         if ($extraCondition = $this->getCustomListingCondition())
             $condition = !$condition ? $extraCondition : array($condition, 'AND', $extraCondition);
@@ -808,13 +817,21 @@ class ObjectCrud {
     /**
      * Returns items count per branch.
      *
-     * @param null $pPk
-     * @param null $pScope
+     * @param mixed $pPk
+     * @param mixed $pScope
+     * @param array $pFilter
      * @return array
      */
-    public function getBranchChildrenCount($pPk = null, $pScope = null) {
+    public function getBranchChildrenCount($pPk = null, $pScope = null, $pFilter = null){
 
         $condition = $this->getCondition();
+
+        if ($pFilter){
+            if ($condition)
+                $condition = array($condition, 'AND', self::buildFilter($pFilter));
+            else
+                $condition = self::buildFilter($pFilter);
+        }
 
         if ($extraCondition = $this->getCustomListingCondition())
             $condition = !$condition ? $extraCondition : array($condition, 'AND', $extraCondition);

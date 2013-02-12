@@ -222,27 +222,29 @@ class ObjectCrudController extends Server {
 
     }
 
-    public function getRootBranchItems($pScope = null, $pFields = null, $pDepth = 1, $pLimit = null, $pOffset = null){
+    public function getRootBranchItems($pScope = null, $pFields = null, $pDepth = 1, $pLimit = null, $pOffset = null,
+                                       $_ = null){
         $obj = $this->getObj();
 
         return $obj->getBranchItems(null, $pFields, $pScope, $pDepth, $pLimit, $pOffset);
     }
 
-    public function getBranchItems($pPk = null, $pFields = null, $pScope = null, $pDepth = 1, $pLimit = null, $pOffset = null){
+    public function getBranchItems($pPk = null, $pFields = null, $pScope = null, $pDepth = 1, $pLimit = null,
+                                   $pOffset = null, $_ = null){
         $obj = $this->getObj();
 
         $pk = \Core\Object::normalizePkString($obj->getObject(), $pPk);
-        return $obj->getBranchItems($pk, $pFields, $pScope, $pDepth, $pLimit, $pOffset);
+        return $obj->getBranchItems($pk, $_, $pFields, $pScope, $pDepth, $pLimit, $pOffset);
     }
 
-    public function getBranchChildrenCount($pPk = null, $pScope = null){
+    public function getBranchChildrenCount($pPk = null, $pScope = null, $_ = null){
 
         $obj = $this->getObj();
 
         if ($pPk)
             $pPk = \Core\Object::normalizePkString($obj->getObject(), $pPk);
 
-        return $obj->getBranchChildrenCount($pPk, $pScope);
+        return $obj->getBranchChildrenCount($pPk, $pScope, $_);
 
     }
 
