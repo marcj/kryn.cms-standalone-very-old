@@ -11,7 +11,6 @@ ka.ContentTypes.Plugin = new Class({
 
     },
 
-
     createLayout: function(){
 
         this.main = new Element('div', {
@@ -19,11 +18,11 @@ ka.ContentTypes.Plugin = new Class({
         }).inject(this.contentInstance);
 
         this.icon = new Element('div', {
-            'class': 'ka-content-plugin-icon icon-cube-2'
+            'class': 'ka-content-inner-icon icon-cube-2'
         }).inject(this.main);
 
         this.inner = new Element('div', {
-            'class': 'ka-content-plugin-inner'
+            'class': 'ka-content-inner'
         }).inject(this.main);
 
         this.main.addEvent('click', this.openDialog.bind(this));
@@ -86,12 +85,12 @@ ka.ContentTypes.Plugin = new Class({
             var pluginConfig = ka.settings.configs[module].plugins[plugin];
 
             new Element('div', {
-                'class': 'ka-content-plugin-title',
+                'class': 'ka-content-inner-title',
                 text: ka.settings.configs[module].title
             }).inject(this.inner);
 
             new Element('div', {
-                'class': 'ka-content-plugin-subtitle',
+                'class': 'ka-content-inner-subtitle',
                 text: pluginConfig[0]
             }).inject(this.inner);
 

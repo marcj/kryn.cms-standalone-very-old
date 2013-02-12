@@ -19,6 +19,7 @@ ka.Content = new Class({
         this.setOptions(pOptions);
 
         this.renderLayout();
+
         this.setValue(pContent);
 
     },
@@ -44,7 +45,7 @@ ka.Content = new Class({
         new Element('a', {
             html: '&#xe0c6;',
             href: 'javascript: ;',
-            class: 'icon',
+            class: 'icon ka-content-actionBar-move',
             title: t('Move content')
         }).inject(this.actionBar);
 
@@ -66,11 +67,6 @@ ka.Content = new Class({
 
     onOver: function(){
         this.actionBar.inject(this.main);
-        this.actionBar.position({
-            relativeTo: this.main,
-            edge: 'leftBottom',
-            position: 'leftTop'
-        })
     },
 
     onOut: function(){

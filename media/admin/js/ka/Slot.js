@@ -8,12 +8,14 @@ ka.Slot = new Class({
 
     slot: null,
     slotParams: {},
+    editor: null,
 
-    initialize: function(pDomSlot, pOptions){
+    initialize: function(pDomSlot, pOptions, pEditor){
 
         this.slot = pDomSlot;
         this.slot.kaSlot = this;
         this.setOptions(pOptions);
+        this.editor = pEditor;
 
         var params = this.slot.get('params');
         this.slotParams = JSON.decode(params);
@@ -22,6 +24,10 @@ ka.Slot = new Class({
 
         this.loadContents();
 
+    },
+
+    getEditor: function(){
+        return this.editor;
     },
 
     renderLayout: function(){

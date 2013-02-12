@@ -1,6 +1,6 @@
 ka.Editor = new Class({
 
-    Binds: ['onOver', 'onOut'],
+    Binds: ['onOver', 'onOut', 'mouseDown'],
     Implements: [Options, Events],
 
     options: {
@@ -22,14 +22,153 @@ ka.Editor = new Class({
 
         this.container.addClass('ka-editor');
 
-
         this.container.addEvent('mouseenter:relay(.ka-content)', this.onOver);
         this.container.addEvent('mouseleave:relay(.ka-content)', this.onOut);
+
+        this.container.addEvent('mousedown:relay(.ka-content-actionBar-move)', this.mouseDown);
+
     },
+
+    mouseDown: function(pEvent, pElement){
+
+        var content = pElement.getParent('.ka-content');
+
+        var value = content.kaContentInstance.getValue();
+
+        var clone;
+
+        if (value.type == 'text'){
+            clone = new Element('div', {
+                'class': 'ka-content'
+            }).inject(content.getDocument().body);
+
+            var outer = new Element('div', {
+                'class': 'ka-normalize ka-content-'+value.type
+            }).inject(clone);
+
+            var inner = new Element('div', {
+                'class': 'ka-content-inner'
+            }).inject(outer);
+
+            new Element('div', {
+                'class': 'ka-content-inner-title',
+                text: t('Text')
+            }).inject(inner);
+
+            new Element('div', {
+                'class': 'ka-content-inner-icon icon-cube-2'
+            }).inject(outer);
+
+        } else {
+            clone = content.clone().inject(content.getDocument().body);
+            clone.getElement('.ka-content-actionBar').destroy();
+        }
+
+        clone.addClass('ka-content-onDrag');
+        var position = pEvent.page;
+        position.x--;
+        position.y--;
+        clone.setPosition(pEvent.page);
+
+        clone.setStyle('opacity', 0.3);
+        clone.kaEditorIsClone = true;
+
+        var self = this;
+
+        var position = {}, delta = {};
+
+
+        this.lastDrag = new Drag.Move(clone, {
+            handle: '.ka-content-actionBar-move',
+            droppables: ['.ka-slot', '.ka-content'],
+            onEnter: function(element, droppable){
+
+                if (content != droppable){
+
+                    if (droppable.hasClass('ka-content')){
+                        self.currentHoveredElement = droppable;
+                        self.currentHoveredElementY = droppable.getPosition(droppable.getDocument().body).y;
+                        self.currentHoveredElementHeight = droppable.getSize().y;
+                        delete self.currentHoveredSlot;
+                    } else {
+                        self.currentHoveredSlot = droppable;
+                        delete self.currentHoveredElement;
+                    }
+                } else {
+                    delete self.currentHoveredElement;
+                    delete self.currentHoveredSlot;
+                }
+
+                self.updateDragPlaceholder();
+            },
+            onDrag: function(element, event){
+                self.updateDragPlaceholder(event);
+            },
+            onLeave: function(element, droppable){
+                delete self.currentHoveredElement;
+            },
+            onDrop: function(element, droppable){
+                if (self.lastPlaceHolder){
+                    content.inject(self.lastPlaceHolder, 'after');
+                    self.lastPlaceHolder.destroy();
+                    delete self.lastPlaceHolder;
+                }
+            },
+            onComplete: function(){
+                clone.destroy();
+                content.getDocument().body.removeClass('ka-editor-dragMode');
+                if (this.lastPlaceHolder){
+                    this.lastPlaceHolder.destroy();
+                    delete this.lastPlaceHolder;
+                }
+
+            }.bind(this),
+            onStart: function(){
+                content.getDocument().body.addClass('ka-editor-dragMode');
+                if (content.getDocument().activeElement)
+                    content.getDocument().activeElement.blur();
+            }
+        });
+
+        this.lastDrag.start(pEvent);
+
+    },
+
+    updateDragPlaceholder: function(pEvent){
+
+        if (!this.currentHoveredElement && !this.currentHoveredSlot) {
+
+            if (this.lastPlaceHolder){
+                this.lastPlaceHolder.destroy();
+                delete this.lastPlaceHolder;
+            }
+            return;
+        }
+
+        if (!this.lastPlaceHolder){
+            this.lastPlaceHolder = new Element('div', {
+                 'class': 'ka-editor-drag-placeholder'
+            });
+        }
+
+        //upper area or bottom?
+        if (this.currentHoveredSlot){
+            this.lastPlaceHolder.inject(this.currentHoveredSlot, 'top');
+        } else {
+            var injectPosition = 'after';
+            if (this.lastDrag.mouse.now.y-this.currentHoveredElementY < (this.currentHoveredElementHeight/2))
+                injectPosition = 'before';
+            this.lastPlaceHolder.inject(this.currentHoveredElement, injectPosition);
+        }
+
+    },
+
 
     onOver: function(pEvent, pElement){
         if (this.lastHoveredContentInstance)
             this.lastHoveredContentInstance.onOut();
+
+        if (pElement.getDocument().body.hasClass('ka-editor-dragMode')) return;
 
         if (pElement && pElement.kaContentInstance){
             pElement.kaContentInstance.onOver(pEvent);
@@ -237,7 +376,6 @@ ka.Editor = new Class({
             this.showPreview.removeClass('ka-editor-sidebar-item-active');
         }
 
-
     },
 
     addContentTypeIcon: function(pType, pContent){
@@ -274,7 +412,7 @@ ka.Editor = new Class({
 
     initSlot: function(pDomSlot){
 
-        pDomSlot.slotInstance = new ka.Slot(pDomSlot, this.options);
+        pDomSlot.slotInstance = new ka.Slot(pDomSlot, this.options, this);
 
     }
 

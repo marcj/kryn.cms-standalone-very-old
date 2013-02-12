@@ -110,3 +110,46 @@ a.ka-editor-sidebar-draggable-active:link {
 	left: 50%;
 	margin-left: -21px;
 }
+
+.ka-editor-drag-placeholder {
+    height: 2px;
+    background-color: #14779E;
+    box-shadow: 0px 1px 0px white;
+    position: relative;
+}
+
+.ka-editor-drag-placeholder:after {
+     right: -5px;
+     border: solid transparent;
+     content: " ";
+     height: 0;
+     width: 0;
+     position: absolute;
+     pointer-events: none;
+ }
+
+.ka-editor-drag-placeholder:after {
+    border-color: rgba(136, 183, 213, 0);
+    border-right-color: #14779E;
+    border-width: 8px;
+    top: 50%;
+    margin-top: -8px;
+}
+
+.ka-editor-drag-placeholder:before {
+    left: -5px;
+    border: solid transparent;
+    content: " ";
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+}
+
+.ka-editor-drag-placeholder:before {
+    border-color: rgba(136, 183, 213, 0);
+    border-left-color: #14779E;
+    border-width: 8px;
+    top: 50%;
+    margin-top: -8px;
+}
