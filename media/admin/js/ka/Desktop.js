@@ -168,7 +168,6 @@ ka.Desktop = new Class({
     },
 
     load: function () {
-        return;
         if (this.lastLoad) {
             this.lastLoad.cancel();
         }
