@@ -675,10 +675,6 @@ class ObjectCrud {
 
         $items = \Core\Object::getList($this->object, $condition, $options);
 
-        foreach ($items as &$item){
-            $this->prepareRow($item);
-        }
-
         return $items;
     }
 
@@ -804,10 +800,6 @@ class ObjectCrud {
         }
 
         $items = \Core\Object::getBranch($this->object, $pPk, $condition, $pDepth, $pScope, $options);
-
-        foreach ($items as &$item){
-            $this->prepareRow($item);
-        }
 
         return $items;
     }
@@ -986,6 +978,8 @@ class ObjectCrud {
         //check against additionaly our own custom condition
         if ($item && $condition = $this->getCondition())
             if (!\Core\Object::satisfy($item, $condition)) $item = null;
+
+        $this->prepareRow($item);
 
         return $item;
     }
