@@ -330,8 +330,8 @@ class AdminController {
 
         self::addMainResources();
         self::addSessionScripts();
-
         $response = Kryn::getResponse();
+
         $response->addJs('window.currentNode = '.
             json_encode(Kryn::$page->toArray(\BasePeer::TYPE_STUDLYPHPNAME)).';', 'bottom');
 
@@ -471,6 +471,8 @@ class AdminController {
 
         $response->setResourceCompression(false);
         $response->setDomainHandling(false);
+
+        $response->setTitle(Kryn::$config['systemTitle'].' | Kryn.cms Administration');
 
         $response->addCssFile('admin/css/ai.css');
         $response->addCssFile('admin/css/ka/Login.css');

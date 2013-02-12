@@ -31,9 +31,9 @@ class BasicTest extends RestTestCase {
 
         $this->assertNotEmpty($response['content']);
 
-        $this->assertContains('Kryn.cms administration', $response['content'], "we got the login view.");
+        $this->assertContains('Kryn.cms Administration', $response['content'], "we got the login view.");
 
-        $this->assertContains('window._session.user_id = 1;', $response['content'], "we're logged in.");
+        $this->assertContains('window._session = {"user_id":1', $response['content'], "we're logged in.");
 
     }
 

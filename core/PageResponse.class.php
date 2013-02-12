@@ -218,7 +218,7 @@ class PageResponse extends Response {
                     , $title);
             }
         } else {
-            $title = $this->title;
+            $title = $this->getTitle();
         }
 
         return sprintf("<title>%s</title>\n", $title);
@@ -231,6 +231,15 @@ class PageResponse extends Response {
     public function setTitle($pTitle){
         $this->title = $pTitle;
     }
+
+    /**
+     * @return string
+     */
+    public function getTitle(){
+        return $this->title;
+    }
+
+
 
     public function getCss(){
 
