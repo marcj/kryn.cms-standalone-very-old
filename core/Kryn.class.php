@@ -1138,7 +1138,7 @@ class Kryn {
 
         if (!$pDomainId) return self::$domain;
 
-        if ($domainSerialized = self::getCache('Object-Domain_'.$pDomainId)){
+        if ($domainSerialized = self::getCache('core/object-domain/'.$pDomainId)){
             return unserialize($domainSerialized);
         }
 
@@ -1148,7 +1148,9 @@ class Kryn {
             return false;
         }
 
-        self::setCache('Object-Domain_'.$pDomainId, serialize($domain));
+
+        //todo, do it via setFastCache
+        self::setCache('core/object-domain/'.$pDomainId, serialize($domain));
 
         return $domain;
     }
@@ -1173,7 +1175,7 @@ class Kryn {
             $pk = urlencode($pObjectPk);
         }
 
-        $cacheKey = 'core.object-caching.'.str_replace('\'', '_',$pObjectClassName).'_'.$pk;
+        $cacheKey = 'core/object-caching.'.strtolower(preg_replace('/[^\w]/', '.',$pObjectClassName)).'/'.$pk;
         if ($serialized = self::getCache($cacheKey)){
             return unserialize($serialized);
         }
@@ -1206,7 +1208,7 @@ class Kryn {
             $pk = urlencode($pk);
         }
 
-        $cacheKey = 'core.object-caching.'.str_replace('\'', '_',$pObjectClassName).'_'.$pk;
+        $cacheKey = 'core/object-caching.'.strtolower(preg_replace('/[^\w]/', '.',$pObjectClassName)).'/'.$pk;
 
         $clazz = $pObjectClassName.'Query';
         $object = $pObject;
@@ -1230,10 +1232,24 @@ class Kryn {
      * @param  mixed $pObjectPk        Propel PK for $pObjectClassName int, string or array
      */
     public static function removePropelCacheObject($pObjectClassName, $pObjectPk = null){
+
+        $pk = $pObjectPk;
+        if ($pk !== null){
+            if (is_array($pk)){
+                $npk = '';
+                foreach ($pk as $k){
+                    $npk .= urlencode($k).'_';
+                }
+            } else {
+                $pk = urlencode($pk);
+            }
+        }
+        $cacheKey = 'core/object-caching.'.strtolower(preg_replace('/[^\w]/', '.',$pObjectClassName));
+
         if ($pObjectPk){
-            self::deleteCache('Object-'.str_replace('\'', '_',$pObjectClassName).'_'.$pObjectPk, null);
+            self::deleteCache($cacheKey.'/'.$pk);
         } else {
-            self::invalidateCache('Object-'.str_replace('\'', '_',$pObjectClassName));
+            self::invalidateCache($cacheKey);
         }
     }
 
@@ -2071,16 +2087,16 @@ class Kryn {
     }
 
     /**
-     * Marks a code as invalidate until $pTime
+     * Marks a code as invalidate beginning at $pTime.
      *
      * @param string  $pCode
-     * @param integer $pTime Timestamp.
+     * @param integer $pTime Unix timestamp. Default is microtime(true)
      * @return boolean
      */
     public static function invalidateCache($pCode, $pTime = null) {
         if (!self::$cache)
             self::initCache();
-        return Kryn::$cache->invalidate($pCode, $pTime);
+        return Kryn::$cache->invalidate($pCode, $pTime ? $pTime : microtime(true));
     }
 
     /**
