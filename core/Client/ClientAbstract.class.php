@@ -233,7 +233,11 @@ abstract class ClientAbstract {
     public function getUser(){
         if (!$this->getStarted()) $this->start();
         if (!$this->getSession()->getUserId()) return null;
-        return Kryn::getPropelCacheObject('Users\\User', $this->getSession()->getUserId());
+
+        if (null === $this->user){
+            $this->user = Kryn::getPropelCacheObject('Users\\User', $this->getSession()->getUserId());
+        }
+        return $this->user;
     }
 
     /**
