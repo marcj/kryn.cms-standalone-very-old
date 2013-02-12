@@ -1432,6 +1432,8 @@ class Kryn {
         }
 
         Kryn::$page = self::getPage($page);
+        Kryn::$page = self::checkPageAccess(Kryn::$page);
+
         $dispatcher->dispatch('core.set-page', new GenericEvent(Kryn::$page));
 
         $routes = new RouteCollection();
@@ -1582,13 +1584,13 @@ class Kryn {
      * Checks the specified page.
      * Internal function.
      *
-     * @param   Page      $page
-     * @param   bool       $pWithRedirect
+     * @param   Node $page
+     * @param   bool $pWithRedirect
      *
      * @return  array|bool False if no access
      * @internal
      */
-    public static function checkPageAccess($page, $pWithRedirect = true) {
+    public static function checkPageAccess(Node $page, $pWithRedirect = true) {
 
         $oriPage = $page;
 
@@ -1638,13 +1640,13 @@ class Kryn {
         }
 
 
-        if (!$page && $pWithRedirect && $oriPage['access_need_via'] == 0) {
+        if (!$page && $pWithRedirect && $oriPage->getAccessNeedVia() == 0) {
 
-            if ($oriPage['access_redirectto'] + 0 > 0)
-                Kryn::redirectToPage($oriPage['access_redirectto']);
+            if ($oriPage->getAccessRedirectto() + 0 > 0)
+                Kryn::redirectToPage($oriPage->getAccessRedirectto());
         }
 
-        if (!$page && $pWithRedirect && $oriPage['access_need_via'] == 1) {
+        if (!$page && $pWithRedirect && $oriPage->getAccessNeedVia() == 1) {
             header('WWW-Authenticate: Basic realm="' .
                    t('Access denied. Maybe you are not logged in or have no access.') . '"');
             header('HTTP/1.0 401 Unauthorized');
@@ -1663,7 +1665,7 @@ class Kryn {
     public static function getDomainOfPage($pId) {
         $id = false;
 
-        $page2Domain =& Kryn::getCache('systemPages2Domain');
+        $page2Domain =& Kryn::getCache('core/domain-to-nodes');
 
         if (!is_array($page2Domain)) {
             $page2Domain = Render::updatePage2DomainCache();
