@@ -524,7 +524,7 @@ class Object {
 
                 //custom
                 if (!class_exists($className = $definition['class']))
-                    throw new \Exception(tf('Class for %s (%s) not found.', $pObjectKey. $definition['class']));
+                    throw new \Exception(tf('Class for %s (%s) not found.', $pObjectKey, $definition['class']));
 
                 self::$instances[$pObjectKey] = new $className($pObjectKey, $definition);
 
@@ -813,7 +813,7 @@ class Object {
      * @return mixed
      * @throws \Exception
      */
-    public static function getBranch($pObjectKey, $pPk = null, $pCondition = null, $pDepth = 1, $pScope = false, $pOptions = false){
+    public static function getBranch($pObjectKey, $pPk = null, $pCondition = null, $pDepth = 1, $pScope = null, $pOptions = false){
 
         $obj = self::getClass($pObjectKey);
         $definition = self::getDefinition($pObjectKey);
@@ -821,10 +821,13 @@ class Object {
         if ($pPk)
             $pPk = $obj->normalizePrimaryKey($pPk);
 
-        if (!$definition['nestedRootAsObject'] && $pScope === false) throw new \Exception('No scope defined.');
+        if ($definition['nestedRootAsObject'] && $pScope === null) throw new \Exception('No scope defined.');
 
         if (!$pOptions['fields']){
-            $fields[] = $definition['nestedRootObjectLabelField'];
+
+            $fields = array();
+            if ($definition['nestedRootObjectLabelField'])
+                $fields[] = $definition['nestedRootObjectLabelField'];
 
             if ($definition['nestedRootObjectExtraFields']){
                 $extraFields = explode(',', trim(str_replace(' ', '', $definition['nestedRootObjectExtraFields'])));
