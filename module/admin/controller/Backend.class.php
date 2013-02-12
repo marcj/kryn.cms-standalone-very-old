@@ -22,10 +22,9 @@ class Backend {
     public function saveDesktop($pIcons) {
 
         $properties = new \Core\Properties($pIcons);
-        Kryn::getAdminClient()->getUser()->setDesktop($properties);
-        Kryn::getAdminClient()->getUser()->save();
 
-        return true;
+        Kryn::getAdminClient()->getUser()->setDesktop($properties);
+        return Kryn::getAdminClient()->getUser()->save() > 0;
     }
 
     public function getSearch($pQ, $pLang = null) {
