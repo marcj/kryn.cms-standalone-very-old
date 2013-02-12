@@ -139,7 +139,7 @@ class Controller {
             if ($pWithoutValidationCheck == true) {
                 if (!$this->cache[$pKey]['value'] || !$this->cache[$pKey]['time']
                     || $this->cache[$pKey]['timeout'] < microtime(true)) {
-                    return false;
+                    return null;
                 }
                 return $this->cache[$pKey]['value'];
             }
@@ -155,7 +155,7 @@ class Controller {
                         $code .= $parent;
                         $invalidateTime = $this->getInvalidate($code);
                         if ($invalidateTime && $invalidateTime > $this->cache[$pKey]['time']) {
-                            return false;
+                            return null;
                         }
                         $code .= '/';
                     }
@@ -164,7 +164,9 @@ class Controller {
         }
 
         if ($this->withInvalidationChecks && !$pWithoutValidationCheck)
-            return $this->cache[$pKey]['value'];
+            if (is_array($this->cache[$pKey]))
+                return $this->cache[$pKey]['value'];
+            else return null;
         else
             return $this->cache[$pKey];
 
