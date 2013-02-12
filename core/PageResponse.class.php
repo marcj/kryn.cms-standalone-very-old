@@ -157,12 +157,19 @@ class PageResponse extends Response {
 </body>
 </html>", $docType, $htmlOpener, $header, $this->getContent(), $beforeBodyClose);
 
+        $html = preg_replace('/href="#([^"]*)"/', 'href="' . Kryn::getBaseUrl() . '#$1"', $html);
         $html = Kryn::parseObjectUrls($html);
+        Kryn::removeSearchBlocks($html);
 
         $this->setContent($html);
         $this->setCharset('UTF-8');
 
         Kryn::getEventDispatcher()->dispatch('core.page-response-send-pre');
+
+        //search engine, todo
+        if (false && Kryn::$disableSearchEngine == false) {
+            SearchEngine::createPageIndex($html);
+        }
 
         return parent::send();
     }

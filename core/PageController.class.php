@@ -150,7 +150,7 @@ class PageController extends Controller {
         $cachedUrls = self::$cachedUrls[$domainId];
 
         if (!$cachedUrls){
-            $cachedUrls =& Kryn::getCache('core/node-id-to-url-' . $domainId);
+            $cachedUrls =& Kryn::getCache('core/node-ids-to-url-' . $domainId);
 
             if (!$cachedUrls || !$cachedUrls['id']) {
                 $cachedUrls = Render::updateUrlCache($domainId);

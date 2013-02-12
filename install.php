@@ -1071,7 +1071,8 @@ function step3(){
         </td>
     </tr>
     <tr>
-        <td>Installation id*</td>
+        <td>Installation id*
+            <div style="color: #aaa">No special characters.</div></td>
         <td>
             <input type="text" class="ka-Input" required name="id" value="<?php echo dechex((time() / 1000) / mt_rand(10, 100)); ?>">
         </td>

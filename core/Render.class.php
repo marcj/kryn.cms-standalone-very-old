@@ -523,7 +523,7 @@ class Render {
         }
 
         self::updatePage2DomainCache();
-        Kryn::setCache("core/node-id-to-url-$pDomainRsn", $res);
+        Kryn::setCache("core/node-ids-to-url-$pDomainRsn", $res);
         dbFree($aliasRes);
         dbFree($resu);
         return $res;
@@ -537,7 +537,7 @@ class Render {
         while ($row = dbFetch($res)) {
             $r2d[$row['domain_id']] .= $row['id'] . ',';
         }
-        Kryn::setCache('systemPages2Domain', $r2d);
+        Kryn::setCache('core/domain-to-nodes', $r2d);
         dbFree(res);
         return $r2d;
     }

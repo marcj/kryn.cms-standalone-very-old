@@ -1434,6 +1434,11 @@ class Kryn {
         Kryn::$page = self::getPage($page);
         Kryn::$page = self::checkPageAccess(Kryn::$page);
 
+        if (!$page){
+            $dispatcher->dispatch('core.page-not-found');
+            return;
+        }
+
         $dispatcher->dispatch('core.set-page', new GenericEvent(Kryn::$page));
 
         $routes = new RouteCollection();
@@ -1899,118 +1904,6 @@ class Kryn {
         exit;
     }
 
-
-    /**
-     * Loads the layout from the current page and generate header and body HTML. Send to client.
-     *
-     * @param bool $pReturn Return instead of exit()
-     *
-     * @return bool
-     *
-     * @internal
-     */
-    public static function display($pReturn = false) {
-        global $_start;
-
-        Kryn::$pageUrl = '/' . Kryn::getRequestedPath(true); //Kryn::$baseUrl.$possibleUrl;
-
-        # search page for requested URL and sets to Kryn::$page
-        Kryn::searchPage();
-
-        if (!Kryn::$page) {
-            return Kryn::notFound();
-        }
-
-        Kryn::$page = self::checkPageAccess(Kryn::$page);
-
-        if (!Kryn::$page || !Kryn::$page->getId() > 0) { //no access
-            return Kryn::notFound();
-            return false;
-        }
-
-        Kryn::$canonical = Kryn::getBaseUrl() . Kryn::getRequestedPath(true);
-
-        $pageCacheKey =
-            'systemWholePage-' . Kryn::$domain->getId() . '_' . Kryn::$page->getId() . '-' . md5(Kryn::$canonical);
-
-        if (Kryn::$domainProperties['core']['cachePagesForAnons'] == 1 && Kryn::getClient()->user['id'] == 0 &&
-            count($_POST) == 0
-        ) {
-
-            $cache =& Kryn::getCache($pageCacheKey);
-            if ($cache) {
-                print $cache;
-                exit;
-            }
-
-        }
-
-        if (Kryn::$domain->getStartnodeId() == Kryn::$page->getId() && !Kryn::$isStartpage) {
-            Kryn::redirect(Kryn::$baseUrl);
-        }
-
-
-        if (Kryn::$page->getType() == 0) { //is page
-            if (Kryn::$page->getForceHttps() == 1 && Kryn::$ssl == false) {
-                header('Location: ' . str_replace('http://', 'https://', Kryn::$baseUrl) . Kryn::$page->getFullUrl());
-                exit;
-            }
-
-
-
-            tAssignRef('themeProperties', Kryn::$themeProperties);
-        }
-
-
-        Kryn::loadBreadcrumb();
-
-        Kryn::$breadcrumbs[] = Kryn::$page;
-
-
-        if (!Kryn::$page->getLayout()) {
-            Kryn::$pageHtml = self::internalError(t('No layout'), tf('No layout chosen for the page %s.', Kryn::$page->getTitle()));
-        } else {
-            Kryn::$pageHtml = Render::renderPage();
-        }
-
-        Kryn::$pageHtml = str_replace('\[[', '[[', Kryn::$pageHtml);
-        Kryn::replacePageIds(Kryn::$pageHtml);
-
-        //htmlspecialchars(urldecode(Kryn::$url));
-        Kryn::$pageHtml = preg_replace('/href="#(.*)"/', 'href="' . Kryn::$url . '#$1"', Kryn::$pageHtml);
-
-        foreach (Kryn::$modules as $key => $mod) {
-            Kryn::$modules[$key] = null;
-        }
-
-        if (Kryn::$disableSearchEngine == false) {
-            $resCode = SearchEngine::createPageIndex(Kryn::$pageHtml);
-
-            if ($resCode == 2) {
-                Kryn::notFound('invalid-arguments');
-            }
-        }
-
-        self::removeSearchBlocks(Kryn::$pageHtml);
-
-        header("Content-Type: text/html; charset=utf-8");
-
-        if (Kryn::$domainProperties['core']['cachePagesForAnons'] == 1 && self::$client->getUser()->getId() == 0 &&
-            count($_POST) == 0
-        ) {
-
-            $page = Render::getPage(Kryn::$pageHtml);
-            Kryn::setCache($pageCacheKey, $page, 10);
-            print $page;
-
-        } else {
-
-            Render::printPage(Kryn::$pageHtml);
-        }
-
-        exit;
-    }
-
     /**
      * Returns the wrapped content with the unsearchable block tags.
      * @static
@@ -2214,7 +2107,7 @@ class Kryn {
      *                                does not overwrite each other files.
      * 
      * @return string Path with trailing slash
-     * @throws FileIOException
+     * @throws \FileIOException
      */
     public static function getTempFolder($pWithKrynContext = true){
 
@@ -2251,6 +2144,11 @@ class Kryn {
         return self::$cachedTempFolder;
     }
 
+    /**
+     * Returns the installation id.
+     *
+     * @return string
+     */
     public static function getId(){
         return 'kryn-'.(self::$config['id'] ?: 'no-id');
     }
