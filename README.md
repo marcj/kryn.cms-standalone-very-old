@@ -28,7 +28,7 @@ Features
  - The administration API is completely abstracted through a RESTful JSON API
  - File abstraction layer (for mounts with external cloud storage), CDN
  - Dynamic template engines, use the engine you want. (Smarty, Twig and plain PHP are shipped)
- - i18n (including plural support) usign getText with translator, compatible .po files
+ - i18n using `getText` (with all of its features [e.g. including plural support, contexts]) compatible .po files
  - High-Performance through several cache layers
  - Session storage through several layers (distributed sessions supported)
  - Easy to extend through a fancy extension editor, completely modulized
