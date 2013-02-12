@@ -63,13 +63,18 @@ var admin_system_module_edit = new Class({
 
         var tr = new Element('tr').inject(this.pluginTBody);
         new Element('th', {
-            text: t('PHP Method name'),
-            style: 'width: 260px;'
+            text: t('Key'),
+            style: 'width: 150px;'
+        }).inject(tr);
+
+        new Element('th', {
+            text: t('PHP Class'),
+            style: 'width: 250px;'
         }).inject(tr);
 
         new Element('th', {
             text: t('Plugin title'),
-            style: 'width: 260px;'
+            style: 'width: 250px;'
         }).inject(tr);
 
         new Element('th', {
@@ -107,10 +112,11 @@ var admin_system_module_edit = new Class({
             var inputs = pluginDiv.getElements('input');
             var fieldTable = pluginDiv.retrieve('fieldTable');
 
-            var plugin = [
-                inputs[1].value,
-                fieldTable.getValue()
-            ]
+            var plugin = {
+                'class': inputs[1].value,
+                label: inputs[2].value,
+                options: fieldTable.getValue()
+            };
 
             req.plugins[inputs[0].value] = plugin;
         });
@@ -127,13 +133,24 @@ var admin_system_module_edit = new Class({
 
     },
 
+    normalizePluginDef: function(pPlugin){
+        var plugin = {};
+        plugin.label   = pPlugin[0];
+        plugin.options = pPlugin[1];
+        return plugin;
+    },
+
     addPlugin: function (pPlugin, pKey) {
+
+        logger(pPlugin);
+        if (typeOf(pPlugin) == 'array') pPlugin = this.normalizePluginDef(pPlugin);
 
         var tr = new Element('tr', {
             'class': 'plugin'
         }).inject(this.pluginTBody);
 
         var leftTd = new Element('td').inject(tr);
+        var classTd = new Element('td').inject(tr);
         var rightTd = new Element('td').inject(tr);
         var right2Td = new Element('td').inject(tr);
         var actionTd = new Element('td').inject(tr);
@@ -142,14 +159,19 @@ var admin_system_module_edit = new Class({
         var tr2 = new Element('tr').inject(this.pluginTBody);
         var bottomTd = new Element('td', {style: 'border-bottom: 1px solid silver', colspan: 4}).inject(tr2);
 
-        new Element('input', {'class': 'text', style: 'width: 250px;', value:pKey?pKey:''}).inject(leftTd);
+        new Element('input', {'class': 'text', style: 'width: 150px;', value:pKey?pKey:''}).inject(leftTd);
 
-        new Element('input', {'class': 'text', style: 'width: 250px;', value:pPlugin?pPlugin[0]:''}).inject(rightTd);
+        var mod = this.mod.substr(0,1).toUpperCase()+this.mod.substr(1);
+        var clazz = '\\'+mod+'\\Plugin\\';
+
+        new Element('input', {'class': 'text', style: 'width: 250px;', value:pPlugin&&pPlugin['class']?pPlugin['class']:clazz}).inject(classTd);
+
+        new Element('input', {'class': 'text', style: 'width: 250px;', value:pPlugin?pPlugin.label:''}).inject(rightTd);
 
 
         new Element('a', {
             style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
-            title: _('Delete property'),
+            title: t('Delete plugin'),
             html: '&#xe26b;'
         })
         .addEvent('click', function(){
@@ -221,9 +243,8 @@ var admin_system_module_edit = new Class({
         });
 
         tr.store('fieldTable', fieldTable);
-
         if (pPlugin)
-            fieldTable.setValue(pPlugin[1]);
+            fieldTable.setValue(pPlugin.options);
 
     },
 
