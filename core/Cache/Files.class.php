@@ -70,14 +70,35 @@ class Files implements CacheInterface {
      */
     public function get($pKey){
         $path = $this->getPath($pKey);
+
         if (!file_exists($path)) return false;
+        $h = fopen($path, 'r');
+
+        $maxTries = 400; //wait max. 2 seconds, otherwise force it
+        $tries    = 0;
+        while (!flock($h, LOCK_SH) and $tries <= $maxTries){
+            usleep(1000*5); //5ms
+            $tries++;
+        }
 
         if ($this->useJson){
             $json = file_get_contents($path);
             return json_decode($json, true);
         }
 
-        return include($path);
+        if (!$this->useJson){
+            $value = include($path);
+        } else {
+            $value = '';
+            while (!feof($h)) {
+                $value .= fread($h, 8192);
+            }
+        }
+
+        flock($h, LOCK_UN);
+        fclose($h);
+
+        return $value;
     }
 
     /**
@@ -91,12 +112,32 @@ class Files implements CacheInterface {
             mkdirr(dirname($path));
         }
 
-        if ($this->useJson){
-            return file_put_contents($path, json_encode($pValue));
+        if (!file_exists($path)) touch($path);
+
+        if (!$this->useJson){
+            $pValue = '<' . "?php \nreturn " . var_export($pValue, true) . ";\n";
+        } else {
+            $pValue = json_encode($pValue);
         }
 
-        return file_put_contents($path, '<' . "?php \nreturn " . var_export($pValue, true) . ";\n ?" . '>');
+        $h = fopen($path, 'w');
 
+        if (!$h){
+            return false;
+        }
+
+        $maxTries = 400; //wait max. 2 seconds, otherwise force it
+        $tries    = 0;
+        while (!flock($h, LOCK_EX) and $tries <= $maxTries){
+            usleep(1000*5); //5ms
+            $tries++;
+        }
+
+        fwrite($h, $pValue);
+        flock($h, LOCK_UN);
+        fclose($h);
+
+        return true;
     }
 
     /**
