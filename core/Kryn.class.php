@@ -765,7 +765,7 @@ class Kryn {
     /**
      * Replaces all page links within the builded HTML to their full URL.
      *
-     * @param string $pContent
+     * @param string $pContent The content of this variable will be modified.
      *
      * @static
      * @internal
@@ -786,10 +786,11 @@ class Kryn {
     /**
      * Translates all string which are surrounded with [[ and ]].
      *
-     * @param string &$pContent
+     * @param string $pContent
      *
      * @static
      * @internal
+     * @return mixed The result of preg_replace_callback()
      */
     public static function translate($pContent) {
         Kryn::loadLanguage();
@@ -954,7 +955,7 @@ class Kryn {
 
 
     /**
-     * Returns the requested path in the URL, without http and domain name/path
+     * Returns the requested path in the URL, without http and domain name.
      *
      * @static
      * @return string
@@ -1074,6 +1075,9 @@ class Kryn {
     }
 
 
+    /**
+     * Cleans up the class variables. Is used in the test suite.
+     */
     public static function cleanup(){
 
         self::$breadcrumbs = null;
@@ -1154,7 +1158,7 @@ class Kryn {
      * Returns cached propel object.
      * 
      * @param  int   $pObjectClassName If not defined, it returns the current page.
-     * @param  mixed $pPk Propel PK for $pObjectClassName int, string or array
+     * @param  mixed $pObjectPk        Propel PK for $pObjectClassName int, string or array
      * @return \BaseObject Propel object
      * @static
      */
@@ -1220,9 +1224,10 @@ class Kryn {
     }
 
     /**
-     * [removePropelCacheObject description]
+     * Removes a object from the cache.
+     *
      * @param  int   $pObjectClassName If not defined, it returns the current page.
-     * @param  mixed $pPk Propel PK for $pObjectClassName int, string or array
+     * @param  mixed $pObjectPk        Propel PK for $pObjectClassName int, string or array
      */
     public static function removePropelCacheObject($pObjectClassName, $pObjectPk = null){
         if ($pObjectPk){
@@ -1235,7 +1240,7 @@ class Kryn {
 
 
     /**
-     * Returns Page object.
+     * Returns a super fast cached Page object.
      * 
      * @param  int $pPageId If not defined, it returns the current page.
      * @return \Page
@@ -1295,7 +1300,9 @@ class Kryn {
      * @static
      * @param bool $pNoRefreshCache
      * @return Domain|null
-     * @event core.redirect-domain
+     *
+     * @event core.domain-redirect
+     * @event core.domain-not-found
      */
     public static function detectDomain($pNoRefreshCache = false){
 
@@ -1377,6 +1384,9 @@ class Kryn {
         return $domain;
     }
 
+    /**
+     * Setups the HTTPKernel.
+     */
     public static function setupHttpKernel(){
 
         $dispatcher = self::getEventDispatcher();
@@ -1388,6 +1398,10 @@ class Kryn {
 
     }
 
+    /**
+     * Attaches the page and their plugin routes as routeCollection to the the event dispatcher
+     * for later usage in HTTPKernel.
+     */
     public static function setupPageRoutes(){
 
         self::$domain = self::detectDomain();
@@ -1418,6 +1432,12 @@ class Kryn {
 
     }
 
+    /**
+     * Check whether we have a static version of the current request.
+     * If so and if static caching is activated, it prints the cached html
+     * and exits.
+     *
+     */
     public static function checkStaticCaching(){
 
         //caching
@@ -1438,6 +1458,14 @@ class Kryn {
         }
     }
 
+    /**
+     * Handles the actual request.
+     *
+     * This exits the application.
+     *
+     * @event core.response-send-pre
+     * @event core.response-send
+     */
     public static function handleRequest(){
         global $_start;
 
@@ -1497,77 +1525,14 @@ class Kryn {
         exit;
     }
 
+    /**
+     * Checks if we're in the frtonend editor mode.
+     * Only true if ?_kryn_editor=1 is set and the current user has update-access to the Core\\Node object.
+     *
+     * @return bool
+     */
     public static function isEditMode(){
         return Kryn::getRequest()->get('_kryn_editor') == 1 && Kryn::$page && Permission::checkUpdate('Core.Node', Kryn::$page->getId());
-    }
-
-    /**
-     * Loads the current domain based on the requested URL
-     *
-     * @internal
-     */
-    public static function searchDomain() {
-
-        Kryn::$languages =& Kryn::getCache('systemLanguages');
-
-        if (getArgv(1) != 'admin') {
-
-            $http = 'http://';
-            if ($_SERVER['HTTPS'] == '1' || strtolower($_SERVER['HTTPS']) == 'on') {
-                $http = 'https://';
-                Kryn::$ssl = true;
-            }
-
-            Kryn::$port = '';
-            if ((
-                ($_SERVER['SERVER_PORT'] != 80 && $http == 'http://') ||
-                    ($_SERVER['SERVER_PORT'] != 443 && $http == 'https://')
-            ) && $_SERVER['SERVER_PORT'] + 0 > 0
-            ) {
-                Kryn::$port = ':' . $_SERVER['SERVER_PORT'];
-            }
-
-            self::$domain = self::detectDomain();
-
-            Kryn::$language = self::$domain->getLang();
-
-            if (Kryn::$domain->getPhplocale()) {
-                setlocale(LC_ALL, Kryn::$domain->getPhplocale());
-            }
-
-            Kryn::$baseUrl = $http . self::$domain->getRealDomain() . Kryn::$port . Kryn::$domain->getPath();
-            if (Kryn::$domain->getMaster() != 1 && getArgv(1) != 'admin') {
-                Kryn::$baseUrl = $http . self::$domain->getRealDomain() . Kryn::$port . Kryn::$domain->getPath()
-                    . Kryn::$domain->getLang(). '/';
-            }
-
-            tAssignRef("language", $language);
-
-            if (getArgv(1) == 'robots.txt' && Kryn::$domain->getRobots() != "") {
-                header('Content-Type: text/plain');
-                print Kryn::$domain->getRobots();
-                exit();
-            }
-
-            if (Kryn::$domain->getFavicon() != "") {
-                Kryn::addHeader('<link rel="shortcut icon" href="' . Kryn::$baseUrl . Kryn::$domain->getFavicon() . '" />');
-            }
-
-
-            if (substr($_SERVER['PATH_INFO'], -1) == '/') {
-                $get = array();
-                foreach ($_GET as $k => $v)
-                    $get[] = $k . "=" . $v;
-
-                $toUrl = substr($_SERVER['PATH_INFO'], 0, -1);
-                if (count($get) > 0)
-                    $toUrl .= '?' . implode("&", $get);
-
-                if (count($_POST) == 0) //only when the browser don't send data
-                    Kryn::redirect($toUrl);
-            }
-        }
-
     }
 
     /**
