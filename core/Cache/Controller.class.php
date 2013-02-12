@@ -39,11 +39,11 @@ class Controller {
      * @type bool
      *
      * If activated, each time get() is called, the function searched
-     * for parents based on a exploded string by '_'. If a parent is
+     * for parents based on a exploded string by '/'. If a parent is
      * found is a invalidated cache, the call is ignored and false will be returned.
-     * Example: call get('workspace_tables_tableA')
-     *          => checks 'workspace_tables' for invalidating (getInvalidate('workspace_tables'))
-     *          => if 'workspace_tables' was flagged as invalidate (invalidate('workspace_tables')), return false
+     * Example: call get('workspace/tables/tableA')
+     *          => checks 'workspace/tables' for invalidating (getInvalidate('workspace/tables'))
+     *          => if 'workspace/tables' was flagged as invalidate (invalidate('workspace/tables')), return false
      *          => checks 'workspace' for invalidating (getInvalidate('workspace'))
      *          => if 'workspace' was flagged as invalidate (invalidate('workspace')), return false
      * So you can invalidate multiple keys with just one call.
@@ -52,7 +52,14 @@ class Controller {
 
 
     /**
-     * krynCache class constructor.
+     * The class name.
+     *
+     * @var string
+     */
+    public $class;
+
+    /**
+     * Constructor.
      *
      * @param string  $pClass                   The class of the cache service.
      * @param array   $pConfig                  Contains config values.
@@ -70,6 +77,7 @@ class Controller {
     function __construct($pClass = '\Core\Cache\File', $pConfig = array(), $pWithInvalidationChecks = true) {
 
         $this->withInvalidationChecks = $pWithInvalidationChecks;
+        $this->class = $pClass;
 
         if (class_exists($pClass)){
             $this->instance = new $pClass($pConfig);
@@ -78,6 +86,14 @@ class Controller {
         }
 
     }
+
+    /**
+     * @return string
+     */
+    public function getClass() {
+        return $this->class;
+    }
+
 
     /**
      * Detects the fastest available cache on current machine.
@@ -115,14 +131,14 @@ class Controller {
         }
 
         if (!$this->cache[$pKey]) {
-            return false;
+            return null;
         }
 
-        if ($this->withInvalidationChecks) {
+        if ($this->withInvalidationChecks && !$pWithoutValidationCheck) {
 
             if ($pWithoutValidationCheck == true) {
                 if (!$this->cache[$pKey]['value'] || !$this->cache[$pKey]['time']
-                    || $this->cache[$pKey]['timeout'] < time()) {
+                    || $this->cache[$pKey]['timeout'] < microtime(true)) {
                     return false;
                 }
                 return $this->cache[$pKey]['value'];
@@ -130,24 +146,24 @@ class Controller {
 
             //valid cache
             //search if a parent has been flagged as invalid
-            if (strpos($pKey, '_') !== false) {
+            if (strpos($pKey, '/') !== false) {
 
-                $parents = explode('_', $pKey);
+                $parents = explode('/', $pKey);
                 $code = '';
                 if (is_array($parents)) {
                     foreach ($parents as $parent) {
                         $code .= $parent;
                         $invalidateTime = $this->getInvalidate($code);
-                        if ($invalidateTime && $invalidateTime > $this->cache['time']) {
+                        if ($invalidateTime && $invalidateTime > $this->cache[$pKey]['time']) {
                             return false;
                         }
-                        $code .= '_';
+                        $code .= '/';
                     }
                 }
             }
         }
 
-        if ($this->withInvalidationChecks)
+        if ($this->withInvalidationChecks && !$pWithoutValidationCheck)
             return $this->cache[$pKey]['value'];
         else
             return $this->cache[$pKey];
@@ -171,10 +187,9 @@ class Controller {
      * @param string   $pKey
      * @param bool|int $pTime
      */
-    public function invalidate($pKey, $pTime = false) {
+    public function invalidate($pKey, $pTime = null) {
         $this->cache['invalidate-'.$pKey] = $pTime;
-
-        return $this->instance->set('invalidate-'.$pKey, $pTime);
+        return $this->instance->set('invalidate-'.$pKey, $pTime, 99999999, true);
     }
 
     /**
@@ -185,20 +200,21 @@ class Controller {
      * @param string   $pKey
      * @param mixed    $pValue
      * @param int      $pTimeout In seconds. Default is one hour
+     * @param bool     $pWithoutValidationData
      *
      * @return boolean
      */
-    public function set($pKey, $pValue, $pTimeout = 3600) {
+    public function set($pKey, $pValue, $pTimeout = 3600, $pWithoutValidationData = false) {
 
         if (!$pKey) return false;
 
         if (!$pTimeout)
             $pTimeout = 3600;
 
-        if ($this->withInvalidationChecks) {
+        if ($this->withInvalidationChecks && !$pWithoutValidationData) {
             $pValue = array(
-                'timeout' => time()+$pTimeout,
-                'time' => time(),
+                'timeout' => microtime(true)+$pTimeout,
+                'time' => microtime(true),
                 'value' => $pValue
             );
         }
