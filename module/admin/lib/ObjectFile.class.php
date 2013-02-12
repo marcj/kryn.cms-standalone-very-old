@@ -59,7 +59,7 @@ class ObjectFile extends \Core\ORM\Propel {
      */
     public function mapPrimaryKey(&$pPrimaryKey){
         if (!is_numeric($pPrimaryKey['id'])){
-            $file = MediaFile::getfile(urldecode($pPrimaryKey['id']));
+            $file = MediaFile::getFile(urldecode($pPrimaryKey['id']));
             $pPrimaryKey['id'] = $file['id'];
         }
     }
@@ -104,6 +104,9 @@ class ObjectFile extends \Core\ORM\Propel {
         return parent::update($pPrimaryKey, $pValues);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getItem($pPrimaryKey, $pOptions = null){
 
         if ($pPrimaryKey)
@@ -116,6 +119,9 @@ class ObjectFile extends \Core\ORM\Propel {
         return MediaFile::getFile($path);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getItems($pCondition = null, $pOptions = null){
 
         $items = parent::getItems($pCondition, $pOptions);
@@ -130,6 +136,9 @@ class ObjectFile extends \Core\ORM\Propel {
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public function getBranch($pPk = null, $pCondition = null, $pDepth = 1, $pScope = null, $pOptions = null){
 
         if ($pPk)
@@ -140,22 +149,24 @@ class ObjectFile extends \Core\ORM\Propel {
 
         $files = MediaFile::getFiles($path);
 
-        $c = -1;
+        $c = 0;
         $offset = $pOptions['offset'];
+        $limit = $pOptions['limit'];
         $result = array();
 
         foreach($files as $file){
+            if ($pCondition && !\Core\Object::satisfy($file, $pCondition)) continue;
+
             $c++;
-            if ($offset && $offset > $c) continue;
+            if ($offset && $offset >= $c) continue;
+            if ($limit && $limit < $c) continue;
 
-            if ($pDepth > 1 && $file['type'] == 'dir'){
-
-                $file['_children'] = self::getBranch(array('id' => $file['path']), null, $pDepth-1);
-                $file['_childrenCount'] = count($file['_children']);
-
-            } else if ($file['type'] == 'dir'){
-                $file['_childrenCount'] = MediaFile::getCount($file['path']);
-
+            if ($file['type'] == 'dir'){
+                $children = self::getBranch(array('id' => $file['path']), $pCondition, $pDepth-1);
+                $file['_childrenCount'] = count($children);
+                if ($pDepth > 1){
+                    $file['_children'] = $children;
+                }
             } else {
                 $file['_childrenCount'] = 0;
             }
