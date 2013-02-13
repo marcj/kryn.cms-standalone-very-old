@@ -202,7 +202,7 @@ var admin_backend_chooser = new Class({
         } else if (objectDefinition.nested){
 
             objectOptions.type = 'tree';
-            objectOptions.object = pObjectKey;
+            objectOptions.objectKey = pObjectKey;
             objectOptions.scopeChooser = true;
             objectOptions.noWrapper = true;
 

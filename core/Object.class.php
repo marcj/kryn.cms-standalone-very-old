@@ -821,7 +821,7 @@ class Object {
         if ($pPk)
             $pPk = $obj->normalizePrimaryKey($pPk);
 
-        if ($definition['nestedRootAsObject'] && $pScope === null) throw new \Exception('No scope defined.');
+        if (!$pPk && $definition['nestedRootAsObject'] && $pScope === null) throw new \Exception('No scope defined.');
 
         if (!$pOptions['fields']){
 

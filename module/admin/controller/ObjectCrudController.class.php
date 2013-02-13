@@ -226,7 +226,7 @@ class ObjectCrudController extends Server {
                                        $_ = null){
         $obj = $this->getObj();
 
-        return $obj->getBranchItems(null, $pFields, $pScope, $pDepth, $pLimit, $pOffset);
+        return $obj->getBranchItems(null, $_, $pFields, $pScope, $pDepth, $pLimit, $pOffset);
     }
 
     public function getBranchItems($pPk = null, $pFields = null, $pScope = null, $pDepth = 1, $pLimit = null,
