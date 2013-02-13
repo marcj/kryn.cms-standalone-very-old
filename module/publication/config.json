@@ -59,9 +59,10 @@
         }
     },
     "plugins": {
-        "newsDetail": [
-            "[[Article detail]]",
-            {
+        "detail": {
+            "class": "\\Publication\\Plugin\\Detail",
+            "label": "[[Article detail]]",
+            "options": {
                 "template": {
                     "label": "[[Template]]",
                     "withoutExtension": 1,
@@ -103,10 +104,11 @@
                     "type": "select"
                 }
             }
-        ],
-        "newsDetailFixed": [
-            "[[News detail fixed]]",
-            {
+        },
+        "detailFixed": {
+            "class": "\\Publication\\Plugin\\DetailFixed",
+            "label": "[[News detail fixed]]",
+            "options": {
                 "template": {
                     "label": "[[Template]]",
                     "withoutExtension": 1,
@@ -147,10 +149,11 @@
                     }
                 }
             }
-        ],
-        "newsList": [
-            "[[News list]]",
-            {
+        },
+        "list": {
+            "class": "\\Publication\\Plugin\\List",
+            "label": "[[News list]]",
+            "options": {
                 "itemsPerPage": {
                     "label": "[[Count per page]]",
                     "type": "number",
@@ -168,10 +171,9 @@
                     "type": "page"
                 },
                 "template": {
-                    "label": "[[Template]]",
-                    "withoutExtension": 1,
-                    "directory": "admin/",
-                    "type": "files"
+                    "label": "[[View]]",
+                    "directory": "publication\/news\/list",
+                    "type": "view"
                 },
                 "categoryId": {
                     "label": "[[Limit categories]]",
@@ -211,10 +213,11 @@
                     }
                 }
             }
-        ],
-        "rssList": [
-            "[[News RSS Feed]]",
-            {
+        },
+        "rssList": {
+            "class": "\\Publication\\Plugin\\RssList",
+            "label": "[[News RSS Feed]]",
+            "options": {
                 "itemsPerPage": {
                     "label": "[[Maximum Items for rss feed]]",
                     "type": "number",
@@ -240,10 +243,11 @@
                     "type": "select"
                 }
             }
-        ],
-        "categoryList": [
-            "[[Category list (with Counts)]]",
-            {
+        },
+        "categoryList": {
+            "class": "\\Publication\\Plugin\\CategoryList",
+            "label": "[[Category list (with Counts)]]",
+            "options": {
                 "listPage": {
                     "label": "[[Page with list plugin]]",
                     "type": "page"
@@ -263,7 +267,7 @@
                     "type": "select"
                 }
             }
-        ]
+        }
     },
     "objects": {
         "News": {
