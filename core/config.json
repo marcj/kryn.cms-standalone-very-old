@@ -694,6 +694,52 @@
                 }
             },
             "label": "[[Node Content]]"
+        },
+        "View": {
+            "desc": "Template views",
+            "class": "\\Admin\\ObjectView",
+            "labelField": "name",
+            "labelTemplate": "",
+            "defaultSelection": "",
+            "blacklistSelection": "",
+            "limitDataSets": [
+                
+            ],
+            "nestedLabel": "",
+            "nestedRootAsObject": false,
+            "nested": true,
+            "dataModel": "custom",
+            "multiLanguage": false,
+            "workspace": false,
+            "domainDepended": false,
+            "plugins": "",
+            "fieldLabel": "",
+            "fieldTemplate": "",
+            "fieldFields": "",
+            "treeLabel": "",
+            "treeTemplate": "",
+            "treeFields": "",
+            "treeIcon": "",
+            "treeIconMapping": [
+                
+            ],
+            "treeDefaultIcon": "",
+            "treeFixedIcon": false,
+            "browserColumns": [
+                
+            ],
+            "fields": {
+                "path": {
+                    "label": "[[Path]]",
+                    "type": "text",
+                    "primaryKey": true
+                },
+                "name": {
+                    "label": "[[File name]]",
+                    "type": "text"
+                }
+            },
+            "label": "[[Template View]]"
         }
     },
     "__path": "core",
