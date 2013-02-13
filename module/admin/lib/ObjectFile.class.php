@@ -161,12 +161,10 @@ class ObjectFile extends \Core\ORM\Propel {
             if ($offset && $offset >= $c) continue;
             if ($limit && $limit < $c) continue;
 
-            if ($file['type'] == 'dir'){
+            if ($pDepth > 1 && $file['type'] == 'dir'){
                 $children = self::getBranch(array('id' => $file['path']), $pCondition, $pDepth-1);
                 $file['_childrenCount'] = count($children);
-                if ($pDepth > 1){
-                    $file['_children'] = $children;
-                }
+                $file['_children'] = $children;
             } else {
                 $file['_childrenCount'] = 0;
             }

@@ -4,20 +4,9 @@ namespace Admin;
 
 class ObjectEntryPoint extends \Core\ORM\ORMAbstract {
 
+
     /**
-     *
-     * $pOptions is a array which can contain following options. All options are optional.
-     *
-     *  'fields'          Limit the columns selection. Use a array or a comma separated list (like in SQL SELECT)
-     *                    If empty all columns will be selected.
-     *
-     *  'permissionCheck' Defines whether we check against the ACL or not. true or false. default false
-     *
-     *
-     * @param array  $pPrimaryKey
-     * @param array  $pOptions
-     *
-     * @return array
+     * {@inheritDoc}
      */
     public function getItem($pPk, $pOptions = null)
     {
@@ -30,25 +19,9 @@ class ObjectEntryPoint extends \Core\ORM\ORMAbstract {
 
     }
 
+
     /**
-     *
-     * $pOptions is a array which can contain following options. All options are optional.
-     *
-     *  'fields'          Limit the columns selection. Use a array or a comma separated list (like in SQL SELECT)
-     *                    If empty all columns will be selected.
-     *  'offset'          Offset of the result set (in SQL OFFSET)
-     *  'limit'           Limits the result set (in SQL LIMIT)
-     *  'order'           The column to order. Example:
-     *                    array(
-     *                      array('category' => 'asc'),
-     *                      array(title' => 'asc')
-     *                    )
-     *
-     *  'permissionCheck' Defines whether we check against the ACL or not. true or false. default false
-     *
-     *
-     * @param array  $pCondition Condition object as it is described in function dbConditionToSql() #Extended.
-     * @param array  $pOptions
+     * {@inheritDoc}
      */
     public function getItems($pCondition = null, $pOptions = null)
     {
@@ -56,9 +29,7 @@ class ObjectEntryPoint extends \Core\ORM\ORMAbstract {
     }
 
     /**
-     *
-     * @param array $pPrimaryKey
-     *
+     * {@inheritDoc}
      */
     public function remove($pPrimaryKey)
     {
@@ -66,12 +37,7 @@ class ObjectEntryPoint extends \Core\ORM\ORMAbstract {
     }
 
     /**
-     * @param array  $pValues
-     * @param array  $pBranchPk If nested set
-     * @param string $pMode  If nested set. 'first' (child), 'last' (child), 'prev' (sibling), 'next' (sibling)
-     * @param int    $pScope If nested set with scope
-     *
-     * @return array inserted/new primary key/s always as a array.
+     * {@inheritDoc}
      */
     public function add($pValues, $pBranchPk = null, $pMode = 'into', $pScope = null)
     {
@@ -110,11 +76,17 @@ class ObjectEntryPoint extends \Core\ORM\ORMAbstract {
         // TODO: Implement clear() method.
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getPrimaryKeys()
     {
         return parent::getPrimaryKeys();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public static function normalizePath(&$pPath){
 
         $pPath = str_replace('.', '/', $pPath); //debug
@@ -124,9 +96,12 @@ class ObjectEntryPoint extends \Core\ORM\ORMAbstract {
 
     }
 
+    /**
+     * Sets the children information at $pItem directly.
+     */
     public function setChildren($pPath, &$pItem, $pDepth){
 
-        $children = $this->getTree(array('path' => $pPath), null, $pDepth-1);
+        $children = $this->getBranch(array('path' => $pPath), null, $pDepth-1);
 
         if ($children && count($children) > 0){
             if ($pDepth > 1)
@@ -137,7 +112,10 @@ class ObjectEntryPoint extends \Core\ORM\ORMAbstract {
         }
     }
 
-    public function getTree($pPk = null, $pCondition = null, $pDepth = 1, $pScope = null, $pOptions = null)
+    /**
+     * {@inheritDoc}
+     */
+    public function getBranch($pPk = null, $pCondition = null, $pDepth = 1, $pScope = null, $pOptions = null)
     {
 
         $result = null;
@@ -196,16 +174,25 @@ class ObjectEntryPoint extends \Core\ORM\ORMAbstract {
         return $result;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getParent($pPk)
     {
         parent::getParent($pPk);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getParents($pPk)
     {
         parent::getParents($pPk);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getParentId($pPrimaryKey)
     {
         return parent::getParentId($pPrimaryKey);
