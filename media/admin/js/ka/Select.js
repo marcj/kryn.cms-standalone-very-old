@@ -56,6 +56,8 @@ ka.Select = new Class({
         objectFields: false, //or a array
         objectLanguage: null,
 
+        filter: {},
+
         /**
          * Whether to use a branch or not
          * /admin/object/<object>/<objectBranch>:branch

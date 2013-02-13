@@ -2,6 +2,7 @@ ka.ContentTypes || (ka.ContentTypes = {});
 
 ka.ContentTypes.Plugin = new Class({
 
+    Binds: ['apply'],
     Extends: ka.ContentAbstract,
 
     icon : '&#xe271;',
@@ -31,19 +32,6 @@ ka.ContentTypes.Plugin = new Class({
 
     openDialog: function(){
 
-        if (!this.value) return;
-
-        var module  = this.value.substr(0, this.value.indexOf('::'));
-        var plugin  = this.value.substr(module.length+2, this.value.substr(module.length+2).indexOf('::'));
-        var options = this.value.substr(module.length+plugin.length+4);
-        var fields  = null;
-
-        if (ka.settings.configs[module] && ka.settings.configs[module].plugins && ka.settings.configs[module].plugins[plugin]){
-            fields = ka.settings.configs[module].plugins[plugin][1];
-        } else {
-            return ;
-        }
-
         this.dialog = new ka.Dialog(document.body, {
             title: t('Edit plugin'),
             minWidth: '50%',
@@ -51,7 +39,7 @@ ka.ContentTypes.Plugin = new Class({
         });
 
         this.cancelBtn = this.dialog.addButton('Cancel').addEvent('click', this.dialog.close);
-        this.saveBtn   = this.dialog.addButton('Apply').setButtonStyle('blue');
+        this.saveBtn   = this.dialog.addButton('Apply').setButtonStyle('blue').addEvent('click', this.apply);
 
         this.dialogPluginChoser = new ka.Field({
             type: 'plugin'
@@ -66,6 +54,20 @@ ka.ContentTypes.Plugin = new Class({
 
         this.dialog.fixBottom();
         this.dialog.center();
+
+    },
+
+    apply: function(){
+
+
+        this.dialog.close();
+        return;
+
+        this.value = this.dialogPluginChoser.getValue();
+
+        this.renderValue();
+
+        this.contentInstance.fireChange();
 
     },
 
@@ -91,7 +93,7 @@ ka.ContentTypes.Plugin = new Class({
 
             new Element('div', {
                 'class': 'ka-content-inner-subtitle',
-                text: pluginConfig[0]
+                text: pluginConfig.label
             }).inject(this.inner);
 
             /*

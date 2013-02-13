@@ -73,7 +73,7 @@ ka.ContentAbstract = new Class({
      * Do not call this function in your code.
      *
      * If you UI element received a value change,
-     * call it the ka.Field instance with this.fieldInstance.fireChange().
+     * call it the ka.Field instance with this.contentInstance.fireChange().
      *
      * @param {Mixed} pValue
      */

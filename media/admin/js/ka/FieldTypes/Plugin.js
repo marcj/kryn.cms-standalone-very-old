@@ -71,9 +71,13 @@ ka.FieldTypes.Plugin = new Class({
 
             var def = this.normalizePlugin(ka.settings.configs[module].plugins[plugin]);
 
-            this.pluginPropertyForm = new ka.FieldForm(this.pluginPropertyContainer, def.options, {
-                allTableItems: true
-            });
+            if (def.options){
+                this.pluginPropertyForm = new ka.FieldForm(this.pluginPropertyContainer, def.options, {
+                    allTableItems: true
+                });
+            } else {
+                delete this.pluginPropertyForm;
+            }
 
             this.fieldInstance.fireChange();
 
@@ -84,6 +88,7 @@ ka.FieldTypes.Plugin = new Class({
 
     normalizePlugin: function(pPlugin){
 
+        if (typeOf(pPlugin) != 'array') return pPlugin;
         var plugin = {};
 
         plugin.label   = pPlugin[0];
@@ -122,7 +127,21 @@ ka.FieldTypes.Plugin = new Class({
     },
 
     getValue: function(){
-        //todo
+
+        var plugin = '';
+        var module = this.fieldForm.getValue('module');
+
+        plugin += module;
+        plugin += '::'+this.fieldForm.getValue('plugin['+module+']')
+
+        plugin += '::';
+        if (this.pluginPropertyForm){
+            //plugin += JSON.encode(this.pluginPropertyForm.getValue());
+        } else {
+            plugin += '{}';
+        }
+
+        return plugin;
     }
 
 });

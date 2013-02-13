@@ -1,6 +1,6 @@
 ka.Content = new Class({
 
-    Binds: ['onOver', 'onOut', 'remove'],
+    Binds: ['onOver', 'onOut', 'remove', 'fireChange'],
     Implements: [Options, Events],
 
     options: {
@@ -37,6 +37,12 @@ ka.Content = new Class({
         });
 
         this.addActionBarItems();
+
+    },
+
+    fireChange: function(){
+
+
 
     },
 
