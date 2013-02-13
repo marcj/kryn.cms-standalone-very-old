@@ -48,14 +48,62 @@ ka.Select = new Class({
 
     options: {
 
-        items: false, //array or object
-        store: false, //string
+        /**
+         * Static items. You can pass a array of items or a object. In case of the object, the value-key is returned
+         * as value. In case of the array, the actual label value is returned as value;
+         *
+         * @var {Array|Object}
+         */
+        items: null, //array or object
 
-        object: false, //for object chooser
-        objectLabel: false, //string
-        objectFields: false, //or a array
+        /**
+         * Pass here the entry point path to your store.
+         * You'll get as value always the raw id of your store. Not urlencoded as it is if you pass an object key.
+         *
+         * @var {String}
+         */
+        store: null, //string
+
+        /**
+         * If you pass an object, the REST entry point /admin/object/<object>/ is called and you'll
+         * get as value always an array containing the primary keys.
+         *
+         * @var {String}
+         */
+        object: false,
+
+        /**
+         * Use a other field as label as the default.
+         *
+         * @var {String}
+         */
+        objectLabel: null,
+
+        /**
+         * Requests more fields at the REST backend, so
+         * you have more information iny our template/
+         */
+        objectFields: null,
+
+        /**
+         * The language. If the `object` is multi-language based, we filter
+         * it by `objectLanguage` per default at the REST backend.
+         *
+         * @var {String}
+         */
         objectLanguage: null,
 
+        /**
+         * More filter.
+         *
+         * {
+         *    field1: 'filterByThis'
+         * }
+         *
+         * @todo implement it
+         *
+         * @var {Object}
+         */
         filter: {},
 
         /**
@@ -67,7 +115,7 @@ ka.Select = new Class({
          *
          * @var {Boolean|String|Integer}
          */
-        objectBranch: false,
+        objectBranch: null,
 
         /**
          * The scope value, if you have objectBranch defined.
@@ -76,8 +124,26 @@ ka.Select = new Class({
          */
         objectScope: null,
 
-        labelTemplate: false,
+        /**
+         * Custom label template. Use `objectFields` if you use here more fields than
+         * the default REST backend returns.
+         *
+         * @var {String}
+         */
+        labelTemplate: null,
+
+        /**
+         * Default items per load.
+         *
+         * @var {Number}
+         */
         maxItemsPerLoad: 20, //number
+
+        /**
+         * Tries to select the first entry.
+         *
+         * @var {Boolean}
+         */
         selectFirst: true
 
     },
@@ -863,10 +929,14 @@ ka.Select = new Class({
 
         this.value = pValue;
 
+        if (this.options.object && typeOf(this.value) == 'object'){
+            this.value = ka.getObjectUrlId(this.options.object, this.value);
+        }
+
         if (typeOf(this.value) == 'null')
             return this.title.set('text', '');
 
-        this.getLabel(pValue, function(item){
+        this.getLabel(this.value, function(item){
             if (typeOf(item) != 'null' && item !== false)
                 this.title.set('html', this.renderLabel(item.label));
             else
@@ -905,6 +975,10 @@ ka.Select = new Class({
         while(this.duringFirstSelectLoading){
             i++;
         };
+
+        if (this.options.object){
+            return ka.getObjectId(this.options.object+'/'+this.value);
+        }
 
         return this.value;
     },
