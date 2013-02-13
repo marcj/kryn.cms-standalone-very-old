@@ -213,7 +213,7 @@ ka.FieldTypes.Object = new Class({
 
         this.setValue = function (pVal, pIntern) {
 
-            if (typeOf(pVal) == 'null' || pVal === false || pVal === '' || !ka.getObjectId(pVal)) {
+            if (typeOf(pVal) == 'null' || pVal === false || pVal === '' || !ka.getCroppedObjectId(pVal)) {
                 this.objectId = '';
                 this.input.value = '';
                 this.input.title = '';
@@ -229,7 +229,7 @@ ka.FieldTypes.Object = new Class({
 
             this.showLabel(this.objectId);
 
-            this.input.title = ka.getObjectId(pVal);
+            this.input.title = ka.urlDecode(ka.getCroppedObjectId(pVal));
 
         };
 
@@ -239,7 +239,7 @@ ka.FieldTypes.Object = new Class({
             var val = this.objectId;
 
             if (this.options.withoutObjectWrapper && typeOf(val) == 'string' && val.substr(0, 'object://'.length) == 'object://'){
-                return ka.getObjectId(val);
+                return ka.getCroppedObjectId(val);
             }
             return val;
         }
@@ -272,9 +272,7 @@ ka.FieldTypes.Object = new Class({
 
                 if (!this.objectId) this.objectId = [];
 
-                var id = ka.getObjectId(pId);
-
-                this.objectId.include(ka.getObjectId(pId));
+                this.objectId.include(ka.getCroppedObjectId(pId));
                 this.renderObjectTable();
 
             }.bind(this),

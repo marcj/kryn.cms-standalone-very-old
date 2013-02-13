@@ -383,7 +383,7 @@ ka.getObjectPk = function(pObjectKey, pItem){
 }
 
 /**
- * This just cut off object://<objectName>/ and returns the primary key part.
+ * This just cut off object://<objectName>/ and returns the raw primary key part.
  *
  * @param {String} pUri Internal uri
  * @return {String}
@@ -455,19 +455,18 @@ ka.getObjectKey = function(pUrl){
 }
 
 /**
- * Returns the PK of an object from a internal object uri as object or string.
- * Since the ID part of the url is urlencoded, we return it urldecoded.
+ * Returns the PK of an object from a internal object url as object.
  *
  * Examples:
  *
  *  pUrl = object://user/1
- *  => 1
+ *  => {id: 1}
  *
  *  pUrl = object://user/1/3
- *  => [1,3]
+ *  => [{id: 1}, {id: 3}]
  *
  *  pUrl = object://file/%2Fadmin%2Fimages%2Fhi.jpg
- *  => /admin/images/hi.jpg
+ *  => {path: /admin/images/hi.jpg}
  *
  * @param  {String} pUrl   object://user/1
  * @return {String|Object}  If we have only one pk, it returns a string, otherwise an array.
@@ -479,18 +478,36 @@ ka.getObjectId = function(pUrl){
     if (pUrl.indexOf('object://') != -1){
         var id = pUrl.substr(10+pUrl.substr('object://'.length).indexOf('/'));
     } else if (pUrl.indexOf('/') != -1){
-        var id = pUrl.substr(pUrl.indexOf('/'));
+        var id = pUrl.substr(pUrl.indexOf('/')+1);
     } else {
         var id = pUrl;
     }
 
-    if (id.indexOf(';') != -1){
-        Array.each(id.split(';'), function(tId){
-            res.push(ka.urlDecode(tId));
+    var objectKey = ka.getObjectKey(pUrl);
+    var objectUri = ka.getCroppedObjectId(pUrl);
+
+    var pks = ka.getObjectPrimaryList(objectKey);
+
+    var keys = objectUri.split('/');
+
+    if (keys.length > 1){
+        var result = [];
+        Array.each(keys, function(key){
+            var pk = {};
+            Array.each(key.split(','), function(id, pos){
+                pk[pks[pos]] = ka.urlDecode(id);
+            });
+            result.push(pk);
         });
-        return res;
+        return result;
     } else {
-        return ka.urlDecode(id);
+        var result = {};
+
+        Array.each(objectUri.split(','), function(id, pos){
+            result[pks[pos]] = ka.urlDecode(id);
+        });
+
+        return result;
     }
 }
 
@@ -533,7 +550,7 @@ ka.getObjectLabel = function(pUri, pCb){
 
         var uri = 'object://'+ka.urlEncode(objectKey)+'/';
         Object.each(ka.getObjectLabelQ[objectKey], function(cbs, requestedUri){
-            uri += ka.getCroppedObjectId(requestedUri)+';';
+            uri += ka.getCroppedObjectId(requestedUri)+'/';
         });
         if (uri.substr(uri.length-1, 1)==';')
             uri = uri.substr(0, uri.length-1);
@@ -551,9 +568,6 @@ ka.getObjectLabel = function(pUri, pCb){
                     id = 'object://'+objectKey+'/'+pk;
                     result = ka.getObjectLabelByItem(objectKey, item);
 
-                    //if the pUri and id differs, then the appropriate cb
-                    //is not called. Like 'files' object that accepts
-                    //two ids: the numeric id and the path.
                     //TODO, search solution for this
 
                     if (ka.getObjectLabelQ[objectKey][id]){
@@ -734,7 +748,7 @@ ka.getObjectFieldLabel = function(pValue, pField, pFieldId, pObjectKey, pRelatio
 
     if (typeOf(pValue[relation]) == 'array'){
         //to-many relation
-        //we join by pField['join'] char, default is ';'
+        //we join by pField['join'] char, default is ', '
         value = [];
         Array.each(pValue[relation], function(relValue){
             value.push(relValue[label]);

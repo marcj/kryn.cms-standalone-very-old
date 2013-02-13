@@ -637,7 +637,7 @@ var users_users_acl = new Class({
 
         var uri = pDomObject.get('text');
         var objectKey = ka.getObjectKey(uri);
-        var objectId  = ka.getObjectId(uri);
+        var objectId  = ka.getCroppedObjectId(uri);
 
         //todo, maybe we have a template and extra fields for the label
         var definition = ka.getObjectDefinition(objectKey);
