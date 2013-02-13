@@ -617,6 +617,7 @@ ka.ObjectTree = new Class({
         } else {
 
             this.startupWithObjectInfo(pPk, function(parents){
+                if (typeOf(parents) != 'array') return;
 
                 if (parents.length == 1){
                     return this.reload();
