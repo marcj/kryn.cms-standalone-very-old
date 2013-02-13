@@ -578,7 +578,7 @@ class Kryn {
     public static function loadActiveModules($pWithoutDefaults = false) {
         Kryn::$extensions = $pWithoutDefaults ? array() : array('core', 'admin', 'users');
         if (Kryn::$config['activeModules'])
-            Kryn::$extensions = array_merge(Kryn::$extensions, Kryn::$config['activeModules']);
+            Kryn::$extensions = array_unique(array_merge(Kryn::$extensions, Kryn::$config['activeModules']));
     }
 
     /**
