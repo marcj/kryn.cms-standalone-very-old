@@ -13,12 +13,19 @@ class ObjectView extends \Core\ORM\ORMAbstract {
     public function getItem($pPk, $pOptions = null)
     {
 
-        $entryPoint = Utils::getEntryPoint($pPk['path']);
-        if ($entryPoint)
-            return array('path' => $pPk['path'],
-                      'type' => $entryPoint['type'],
-                      'title' => $entryPoint['title']? $entryPoint['title'].' ('.$pPk['path'].')' : $pPk['path']);
+        $path    = $pPk['path'];
 
+        $module  = $path;
+        $subPath = '';
+        if ( ($pos = strpos($path, '/')) !== false){
+            $module = substr($path, 0, $pos);
+            $subPath = substr($path, $pos+1);
+        }
+
+        $file    = '/module/'.$module.'/view/'.$subPath;
+        $fileObj = SystemFile::getFile($file);
+
+        return $fileObj;
     }
 
 
@@ -126,6 +133,7 @@ class ObjectView extends \Core\ORM\ORMAbstract {
                 $file = SystemFile::getFile($directory);
                 if (!$file) continue;
                 $file['name'] = $extension;
+                $file['path'] = $extension.'/';
                 if ($offset && $offset > $c) continue;
                 if ($limit && $limit < $c) continue;
                 if ($pCondition && !\Core\Object::satisfy($file, $pCondition)) continue;
@@ -154,6 +162,7 @@ class ObjectView extends \Core\ORM\ORMAbstract {
                 if ($limit && $limit < $c) continue;
 
                 $fPath = $module.'/'.substr($file['path'], strlen('/module/'.$module.'/view/'));
+                $file['path'] = $fPath;
 
                 if ($pDepth > 0){
                     $children = self::getBranch(array('path' => $fPath), $pCondition, $pDepth-1);
