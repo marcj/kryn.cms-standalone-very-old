@@ -97,12 +97,11 @@ class Controller {
 
         if ($pReturnKey || $pReturnKeyAsRequested) {
 
-
             $res = array();
             if ($pReturnKeyAsRequested){
 
                 //map requetsed id to real ids
-                $requestedIds = explode(',', \Core\Object::getCroppedObjectId($pUrl));
+                $requestedIds = explode('/', \Core\Object::getCroppedObjectId($pUrl));
                 $map = array();
                 foreach ($requestedIds as $id){
                     $pk = \Core\Object::parsePk($objectKey, $id);
