@@ -104,6 +104,7 @@ class ObjectView extends \Core\ORM\ORMAbstract {
         $result = null;
 
         $path    = $pPk['path'];
+        if ($pDepth === null) $pDepth = 1;
 
         $module  = $path;
         $subPath = '';
@@ -121,11 +122,23 @@ class ObjectView extends \Core\ORM\ORMAbstract {
 
             $result = array();
             foreach (\Core\Kryn::$extensions as $extension){
-                $c++;
                 $directory = '/module/'.$extension.'/view/';
                 $file = SystemFile::getFile($directory);
+                if (!$file) continue;
+                $file['name'] = $extension;
                 if ($offset && $offset > $c) continue;
+                if ($limit && $limit < $c) continue;
                 if ($pCondition && !\Core\Object::satisfy($file, $pCondition)) continue;
+                $c++;
+
+                if ($pDepth > 0){
+                    $children = self::getBranch(array('path' => $extension), $pCondition, $pDepth-1);
+                    $file['_childrenCount'] = count($children);
+                    if ($pDepth > 1 && $file['type'] == 'dir'){
+                        $file['_children'] = $children;
+                    }
+                }
+                $result[] = $file;
             }
 
         } else {
@@ -142,12 +155,12 @@ class ObjectView extends \Core\ORM\ORMAbstract {
 
                 $fPath = $module.'/'.substr($file['path'], strlen('/module/'.$module.'/view/'));
 
-                if ($pDepth > 1 && $file['type'] == 'dir'){
+                if ($pDepth > 0){
                     $children = self::getBranch(array('path' => $fPath), $pCondition, $pDepth-1);
                     $file['_childrenCount'] = count($children);
-                    $file['_children'] = $children;
-                } else {
-                    $file['_childrenCount'] = 0;
+                    if ($pDepth > 1 && $file['type'] == 'dir'){
+                        $file['_children'] = $children;
+                    }
                 }
                 $result[] = $file;
             }

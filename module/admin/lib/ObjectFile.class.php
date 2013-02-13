@@ -147,6 +147,8 @@ class ObjectFile extends \Core\ORM\Propel {
         else
             $path = '/';
 
+        if ($pDepth === null) $pDepth = 1;
+
         $files = MediaFile::getFiles($path);
 
         $c = 0;
@@ -161,12 +163,12 @@ class ObjectFile extends \Core\ORM\Propel {
             if ($offset && $offset >= $c) continue;
             if ($limit && $limit < $c) continue;
 
-            if ($pDepth > 1 && $file['type'] == 'dir'){
+            if ($pDepth > 0){
                 $children = self::getBranch(array('id' => $file['path']), $pCondition, $pDepth-1);
                 $file['_childrenCount'] = count($children);
-                $file['_children'] = $children;
-            } else {
-                $file['_childrenCount'] = 0;
+                if ($pDepth > 1 && $file['type'] == 'dir'){
+                    $file['_children'] = $children;
+                }
             }
             $result[] = $file;
         }
