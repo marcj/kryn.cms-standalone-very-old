@@ -66,11 +66,13 @@ class Manager {
             if (array_search($pName, \Core\Kryn::$extensions) === false)
                 \Core\Kryn::$extensions[] = $pName;
 
-            if ($pReloadConfig)
+            if ($pReloadConfig){
                 Kryn::loadModuleConfigs();
+            }
         }
 
-        return self::saveMainConfig();
+        \Admin\Utils::clearModuleCache($pName);
+        self::saveMainConfig();
 
         return false;
     }
@@ -349,10 +351,10 @@ class Manager {
      *
      * @param string $pName
      * @param bool   $pRemoveFiles
-     * @param bool   $pWithoutPropelUpdate
+     * @param bool   $pWithoutOrmUpdate
      * @return bool
      */
-    public function uninstall($pName, $pRemoveFiles = true, $pWithoutPropelUpdate = false){
+    public function uninstall($pName, $pRemoveFiles = true, $pWithoutOrmUpdate = false){
 
         Manager::prepareName($pName);
         $config = self::getConfig($pName);
@@ -395,7 +397,7 @@ class Manager {
         $this->deactivate($pName, true);
 
         //fire update propel orm
-        if ($hasPropelModels){
+        if ($pWithoutOrmUpdate){
             //remove propel classes in temp
             foreach ($propelClasses as $propelClass){
                 $propelClasses = substr($propelClasses, strlen(\Core\Kryn::getModuleDir($pName).'model/'));
@@ -406,7 +408,7 @@ class Manager {
             }
 
             //update propel
-            if (!$pWithoutPropelUpdate){
+            if (!$pWithoutOrmUpdate){
                 \Core\PropelHelper::updateSchema();
                 $files = find(\Core\Kryn::getTempFolder().'/propel/');
                 \Core\PropelHelper::cleanup();

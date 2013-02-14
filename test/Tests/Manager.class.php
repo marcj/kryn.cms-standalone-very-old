@@ -135,9 +135,10 @@ class Manager {
         $config['displayBeautyErrors'] = 0; //0 otherwise the exceptionHandler of kryn is used, that breaks the PHPUnit.
 
         require('core/bootstrap.php');
-
         require('core/bootstrap.startup.php');
-        \Core\Kryn::loadModuleConfigs();
+
+
+        \Core\Kryn::loadModuleConfigs(true);
 
         $manager = new \Admin\Module\Manager;
 

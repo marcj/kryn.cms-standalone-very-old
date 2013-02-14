@@ -16,26 +16,37 @@ class Utils {
 
 
         foreach (Kryn::$configs as $extKey => $config){
-            if ($config['caches']){
-                foreach ($config['caches'] as $cache){
-                    if ($m = $cache['method']){
-                        if (method_exists(Kryn::$modules[$extKey], $m))
-                            Kryn::$modules[$extKey]->$m();
-                    } else {
-                        Kryn::deleteCache($cache['key']);
-                    }
-                }
-            }
-            if ($config['cacheInvalidation']){
-                foreach ($config['cacheInvalidation'] as $cache){
-                    Kryn::invalidateCache($cache['key']);
-                }
-            }
+            self::clearModuleCache($extKey);
         }
 
 
         return true;
 	}
+
+    public static function clearModuleCache($pName){
+        $config = Kryn::$configs[$pName];
+
+        Kryn::invalidateCache($pName);
+        if (!$config) return false;
+
+        if ($config['caches']){
+            foreach ($config['caches'] as $cache){
+                if ($m = $cache['method']){
+                    if (method_exists(Kryn::$modules[$pName], $m))
+                        Kryn::$modules[$pName]->$m();
+                } else {
+                    Kryn::deleteCache($cache['key']);
+                }
+            }
+        }
+        if ($config['cacheInvalidation']){
+            foreach ($config['cacheInvalidation'] as $cache){
+                Kryn::invalidateCache($cache['key']);
+            }
+        }
+
+        return true;
+    }
 
     public static function loadCss() {
 
