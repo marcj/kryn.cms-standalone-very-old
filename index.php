@@ -39,10 +39,6 @@ if (Core\Kryn::isAdmin()) {
     Core\Kryn::$modules['admin'] = new Admin\AdminController();
     Core\Kryn::$modules['admin']->run();
 
-} else {
-
-    //frontend
-    Core\Kryn::setupPageRoutes();
 }
 
 //handle request.

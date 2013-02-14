@@ -437,7 +437,7 @@ class Kryn {
      *   - http headers
      *   - add plain javascript/css
      *
-     * or modify the content in the 'core.send-page' event.
+     * or modify the content in the 'core/send-page' event.
      *
      * @return PageResponse
      */
@@ -583,10 +583,11 @@ class Kryn {
 
     /**
      * Loads all activated extension configs and tables
-     * 
+     *
+     * @param bool $pForceNoCache
      * @internal
      */
-    public static function loadModuleConfigs() {
+    public static function loadModuleConfigs($pForceNoCache = false) {
 
         $md5 = '';
 
@@ -598,12 +599,15 @@ class Kryn {
         }
 
         $md5 = md5($md5);
-        Kryn::$themes =& Kryn::getFastCache('core/themes');
-        Kryn::$configs =& Kryn::getFastCache('core/configs');
+        if (!$pForceNoCache){
+            Kryn::$themes =& Kryn::getFastCache('core/themes');
+            Kryn::$configs =& Kryn::getFastCache('core/configs');
+        }
 
         if ((!Kryn::$themes || $md5 != Kryn::$themes['__md5']) ||
             (!Kryn::$configs || $md5 != Kryn::$configs['__md5'])) {
 
+            Kryn::$configs = array();
             foreach (Kryn::$extensions as $extension) {
                 Kryn::$configs[$extension] = Kryn::getModuleConfig($extension, false, true);
             }
@@ -615,6 +619,29 @@ class Kryn {
                         if (Kryn::$configs[$extendModule]) {
                             Kryn::$configs[$extendModule] =
                                 array_merge_recursive_distinct(Kryn::$configs[$extendModule], $extendConfig);
+                        }
+                    }
+                }
+
+                //resolve relations
+                //if a object has a MANY_TO_ONE relation to another, then we create a virtual field to other need
+                //that points to the referencing object with the opposite relation.
+                if (is_array($config['objects'])){
+                    foreach ($config['objects'] as $objectKey => $object){
+                        if (is_array($object['fields'])){
+                            foreach ($object['fields'] as $fieldKey => $field){
+                                if ($field['objectRelation'] == ORM\ORMAbstract::MANY_TO_ONE){
+                                    $objectName = Object::getName($field['object']);
+                                    $module     = strtolower(Object::getModule($field['object']));
+                                    $fieldName  = $field['objectRelationName'] ?: lcfirst($objectKey);
+                                    Kryn::$configs[$module]['objects'][$objectName]['fields'][$fieldName] = array(
+                                        'virtual' => true,
+                                        'label' => 'Auto Object relation ('.ORM\ORMAbstract::MANY_TO_ONE.')',
+                                        'object' => $extension.'\\'.$objectKey,
+                                        'objectRelation' => ORM\ORMAbstract::ONE_TO_MANY
+                                    );
+                                }
+                            }
                         }
                     }
                 }
@@ -1031,7 +1058,7 @@ class Kryn {
         //<div
         foreach (Kryn::$extensions as $key) {
             if ($key == 'core')
-                $md5 .= @filemtime(PATH_CORE.'lang/' . $pLang . '.po');
+                $md5 .= @filemtime(PATH_core/'lang/' . $pLang . '.po');
             else
                 $md5 .= @filemtime(PATH_MODULE . $key . '/lang/' . $pLang . '.po');
         }
@@ -1317,8 +1344,8 @@ class Kryn {
      * @param bool $pNoRefreshCache
      * @return Domain|null
      *
-     * @event core.domain-redirect
-     * @event core.domain-not-found
+     * @event core/domain-redirect
+     * @event core/domain-not-found
      */
     public static function detectDomain($pNoRefreshCache = false){
 
@@ -1331,6 +1358,7 @@ class Kryn {
 
         $cachedDomains        = self::getFastCache('core/domains');
         $cachedDomainsCreated = self::getCache('core/domains.created'); //for loadBalanced scenarios
+
         if ($cachedDomains) $cachedDomains = \unserialize($cachedDomains);
 
         if (!$cachedDomains || $cachedDomains['!created'] != $cachedDomainsCreated){
@@ -1376,7 +1404,7 @@ class Kryn {
         ){
             $domain = $cachedDomains[$redirectToDomain];
 
-            $dispatcher->dispatch('core.domain-redirect', new GenericEvent($domain));
+            $dispatcher->dispatch('core/domain-redirect', new GenericEvent($domain));
             return null;
         }
 
@@ -1391,7 +1419,7 @@ class Kryn {
         }
 
         if (!$domain){
-            $dispatcher->dispatch('core.domain-not-found', new GenericEvent($hostname));
+            $dispatcher->dispatch('core/domain-not-found', new GenericEvent($hostname));
             return;
         }
 
@@ -1427,7 +1455,7 @@ class Kryn {
         $page = self::searchPage();
 
         if (!$page){
-            $dispatcher->dispatch('core.page-not-found');
+            $dispatcher->dispatch('core/page-not-found');
             return;
         }
 
@@ -1435,18 +1463,18 @@ class Kryn {
         Kryn::$page = self::checkPageAccess(Kryn::$page);
 
         if (!$page){
-            $dispatcher->dispatch('core.page-not-found');
+            $dispatcher->dispatch('core/page-not-found');
             return;
         }
 
-        $dispatcher->dispatch('core.set-page', new GenericEvent(Kryn::$page));
+        $dispatcher->dispatch('core/set-page', new GenericEvent(Kryn::$page));
 
         $routes = new RouteCollection();
-        $dispatcher->dispatch('core.setup-routes-pre', new GenericEvent($routes));
+        $dispatcher->dispatch('core/setup-routes-pre', new GenericEvent($routes));
 
         Kryn::$page->addRoutes($routes);
 
-        $dispatcher->dispatch('core.setup-routes', new GenericEvent($routes));
+        $dispatcher->dispatch('core/setup-routes', new GenericEvent($routes));
 
         $matcher = new UrlMatcher($routes, new RequestContext());
 
@@ -1473,7 +1501,7 @@ class Kryn {
             //reload static-caching index
         }
 
-        if ($caching[$key] && file_exists($file = 'media/cache/core.static.'.$key.'.html')){
+        if ($caching[$key] && file_exists($file = 'media/cache/core/static.'.$key.'.html')){
 
             $response = new Response(file_get_contents($file), 200);
             $response->send();
@@ -1486,8 +1514,8 @@ class Kryn {
      *
      * This exits the application.
      *
-     * @event core.response-send-pre
-     * @event core.response-send
+     * @event core/response-send-pre
+     * @event core/response-send
      */
     public static function handleRequest(){
         global $_start;
@@ -1496,23 +1524,27 @@ class Kryn {
         $request    = self::getRequest();
         $dispatcher = self::getEventDispatcher();
 
-        $dispatcher->addListener('core.domain-redirect', function(GenericEvent $event){
+        $dispatcher->addListener('core/domain-redirect', function(GenericEvent $event){
             $domain = $event->getSubject();
             $response = new \Symfony\Component\HttpFoundation\RedirectResponse($domain->getUrl(Kryn::$ssl), 301);
             $response->send();
             exit;
         });
 
-        $dispatcher->addListener('core.domain-not-found', function(GenericEvent $event){
+        $dispatcher->addListener('core/domain-not-found', function(GenericEvent $event){
             Kryn::internalError(t('Domain not found'), tf('Domain `%s` not found.', $event->getSubject()));
         });
 
-        $dispatcher->addListener('core.domain-no-start-page', function(GenericEvent $event){
+        $dispatcher->addListener('core/domain-no-start-page', function(GenericEvent $event){
             Kryn::internalError(null, tf('There is no start page for domain `%s`.', Kryn::$domain->getDomain()));
         });
 
         //search domain and set to Core\Kryn::$domain
         self::detectDomain();
+
+        //setup page/plugin routes
+        if (!self::isAdmin())
+            self::setupPageRoutes();
 
         $response = $kernel->handle($request);
 
@@ -1524,11 +1556,11 @@ class Kryn {
 
         //caching
         if (false && !Kryn::isEditMode()){
-            $dispatcher->addListener('core.response-send-pre', function(){
+            $dispatcher->addListener('core/response-send-pre', function(){
                 $caching       = Kryn::getCache('core/static-caching');
                 $key           = md5(Kryn::getRequest()->getRequestUri());
                 $caching[$key] = true;
-                $file          = 'media/cache/core.static.'.$key.'.html';
+                $file          = 'media/cache/core/static.'.$key.'.html';
                 file_put_contents($file, Kryn::getResponse()->getContent());
                 Kryn::setCache('core/static-caching', $caching, 60);
             });
@@ -1539,9 +1571,9 @@ class Kryn {
             \Admin\AdminController::handleKEditor();
         }
 
-        $dispatcher->dispatch('core.response-send-pre', new GenericEvent($response));
+        $dispatcher->dispatch('core/response-send-pre', new GenericEvent($response));
         $response->send();
-        $dispatcher->dispatch('core.response-send', new GenericEvent($response));
+        $dispatcher->dispatch('core/response-send', new GenericEvent($response));
 
         Kryn::getLogger()->addDebug('Done. Generation time: '.(microtime(true)-$_start).' seconds.');
 
@@ -1555,7 +1587,7 @@ class Kryn {
      * @return bool
      */
     public static function isEditMode(){
-        return Kryn::getRequest()->get('_kryn_editor') == 1 && Kryn::$page && Permission::checkUpdate('Core.Node', Kryn::$page->getId());
+        return Kryn::getRequest()->get('_kryn_editor') == 1 && Kryn::$page && Permission::checkUpdate('core/Node', Kryn::$page->getId());
     }
 
     /**
@@ -1836,7 +1868,7 @@ class Kryn {
             $pageId = Kryn::$domain->getStartnodeId();
 
             if (!$pageId > 0) {
-                self::getEventDispatcher()->dispatch('core.domain-no-start-page');
+                self::getEventDispatcher()->dispatch('core/domain-no-start-page');
             }
 
             Kryn::$isStartpage = true;
