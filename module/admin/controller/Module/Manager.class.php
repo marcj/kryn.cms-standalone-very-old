@@ -56,14 +56,19 @@ class Manager {
     public function activate($pName, $pReloadConfig = false){
         Manager::prepareName($pName);
 
-        if (array_search($pName, Kryn::$config['activeModules']) === false)
-            Kryn::$config['activeModules'][] = $pName;
+        $systemModules = array('admin', 'core', 'users');
 
-        if (array_search($pName, \Core\Kryn::$extensions) === false)
-            \Core\Kryn::$extensions[] = $pName;
+        if (array_search($pName, $systemModules) === false){
 
-        if ($pReloadConfig)
-            Kryn::loadModuleConfigs();
+            if (array_search($pName, Kryn::$config['activeModules']) === false)
+                Kryn::$config['activeModules'][] = $pName;
+
+            if (array_search($pName, \Core\Kryn::$extensions) === false)
+                \Core\Kryn::$extensions[] = $pName;
+
+            if ($pReloadConfig)
+                Kryn::loadModuleConfigs();
+        }
 
         return self::saveMainConfig();
 
