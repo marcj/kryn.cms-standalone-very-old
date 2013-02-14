@@ -25,7 +25,6 @@ class ObjectEntryPoint extends \Core\ORM\ORMAbstract {
      */
     public function getItems($pCondition = null, $pOptions = null)
     {
-        // TODO: Implement getItems() method.
     }
 
     /**
@@ -33,7 +32,6 @@ class ObjectEntryPoint extends \Core\ORM\ORMAbstract {
      */
     public function remove($pPrimaryKey)
     {
-        // TODO: Implement remove() method.
     }
 
     /**
@@ -41,39 +39,34 @@ class ObjectEntryPoint extends \Core\ORM\ORMAbstract {
      */
     public function add($pValues, $pBranchPk = null, $pMode = 'into', $pScope = null)
     {
-        // TODO: Implement add() method.
     }
 
     /**
-     * Updates an object
-     *
-     * @param array $pPrimaryKey
-     * @param array $pValues
-     * @throws \ObjectItemNotModified
+     * {@inheritDoc}
      */
     public function update($pPrimaryKey, $pValues)
     {
-        // TODO: Implement update() method.
     }
 
     /**
-     * @param array $pCondition
-     *
-     * @return int
+     * {@inheritDoc}
+     */
+    public function patch($pPrimaryKey, $pValues)
+    {
+    }
+
+    /**
+     * {@inheritDoc}
      */
     public function getCount($pCondition = null)
     {
-        // TODO: Implement getCount() method.
     }
 
     /**
-     * Do whatever is needed, to clear all items out of this object scope.
-     *
-     * @return bool
+     * {@inheritDoc}
      */
     public function clear()
     {
-        // TODO: Implement clear() method.
     }
 
     /**

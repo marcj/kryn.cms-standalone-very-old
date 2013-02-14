@@ -34,7 +34,6 @@ class ObjectView extends \Core\ORM\ORMAbstract {
      */
     public function getItems($pCondition = null, $pOptions = null)
     {
-        // TODO: Implement getItems() method.
     }
 
 
@@ -43,7 +42,6 @@ class ObjectView extends \Core\ORM\ORMAbstract {
      */
     public function remove($pPrimaryKey)
     {
-        // TODO: Implement remove() method.
     }
 
 
@@ -52,7 +50,6 @@ class ObjectView extends \Core\ORM\ORMAbstract {
      */
     public function add($pValues, $pBranchPk = null, $pMode = 'into', $pScope = null)
     {
-        // TODO: Implement add() method.
     }
 
 
@@ -61,7 +58,14 @@ class ObjectView extends \Core\ORM\ORMAbstract {
      */
     public function update($pPrimaryKey, $pValues)
     {
-        // TODO: Implement update() method.
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public function patch($pPrimaryKey, $pValues)
+    {
     }
 
 
@@ -70,7 +74,6 @@ class ObjectView extends \Core\ORM\ORMAbstract {
      */
     public function getCount($pCondition = null)
     {
-        // TODO: Implement getCount() method.
     }
 
 
@@ -79,7 +82,6 @@ class ObjectView extends \Core\ORM\ORMAbstract {
      */
     public function clear()
     {
-        // TODO: Implement clear() method.
     }
 
     /**
