@@ -12,10 +12,9 @@
 if (function_exists('mb_internal_encoding'))
   mb_internal_encoding("UTF-8");
 
-error_reporting(E_ALL ^ E_NOTICE);
+error_reporting(E_CORE_ERROR|E_COMPILE_ERROR|E_RECOVERABLE_ERROR|E_ERROR|E_CORE_ERROR|E_USER_ERROR|E_PARSE);
 
 use Core\Kryn;
-use Core\File;
 use Core\SystemFile;
 
 $GLOBALS['krynInstaller'] = true;
@@ -638,7 +637,7 @@ function step5Done($pMsg){
         \Core\PropelHelper::cleanup();
 
         //load all configs
-        \Core\Kryn::loadConfigs();
+        \Core\Kryn::loadModuleConfigs();
 
         \Admin\Utils::clearCache();
 
