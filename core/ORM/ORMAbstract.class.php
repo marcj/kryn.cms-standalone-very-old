@@ -19,6 +19,11 @@ namespace Core\ORM;
  */
 abstract class ORMAbstract {
 
+  const
+    MANY_TO_ONE = 'nTo1',
+    ONE_TO_MANY = '1ToN',
+    ONE_TO_ONE = '1To1',
+    MANY_TO_MANY = 'nToM';
 
     /**
      * Cached primary key order.
