@@ -179,7 +179,7 @@ class Object {
     }
 
     /**
-     * Cuts of the namespace name of a object key.
+     * Cuts of the namespace/module name of a object key.
      * Core\Node => Node.
      *
      * @param string $pObjectKey
@@ -187,10 +187,20 @@ class Object {
      */
     public static function getName($pObjectKey){
         $pObjectKey = str_replace('.', '\\', $pObjectKey);
-        if (strpos($pObjectKey, '\\') === false) return $pObjectKey;
-        $temp   = explode('\\', $pObjectKey);
-        $name   = $temp[1];
-        return $name;
+        $pos = strrpos($pObjectKey, '\\');
+        return substr($pObjectKey, $pos+1);
+    }
+    /**
+     * Cuts of the actual object key.
+     * Core\Node => Core.
+     *
+     * @param string $pObjectKey
+     * @return string
+     */
+    public static function getModule($pObjectKey){
+        $pObjectKey = str_replace('.', '\\', $pObjectKey);
+        $pos = strrpos($pObjectKey, '\\');
+        return substr($pObjectKey, 0, $pos);
     }
 
     /**
@@ -262,6 +272,24 @@ class Object {
         if ($idx == -1) return $pUrl;
 
         return substr($pUrl, 0, $idx);
+    }
+
+    /**
+     * Return only the primary keys of pItem as object.
+     *
+     * @param string $pObjectKey
+     * @param array  $pItem
+     * @return string
+     */
+    public static function getObjectPk($pObjectKey, $pItem){
+
+        $pks = self::getPrimaryList($pObjectKey);
+        $result = array();
+        foreach($pks as $pk){
+            if ($pItem[$pk] !== null)
+                $result[$pk] = $pItem[$pk];
+        }
+        return $result;
     }
 
     /**
@@ -508,7 +536,9 @@ class Object {
         $pObjectKey = str_replace('.', '\\', $pObjectKey);
         $definition = self::getDefinition($pObjectKey);
 
-        if (!$definition) throw new \ObjectNotFoundException(tf('Object not found %s', $pObjectKey));
+        if (!$definition){
+            throw new \ObjectNotFoundException(tf('Object not found %s', $pObjectKey));
+        }
 
         if (!self::$instances[$pObjectKey]){
 
@@ -724,6 +754,9 @@ class Object {
      */
     public static function patch($pObjectKey, $pPk, $pValues, $pOptions = null){
 
+        $obj = self::getClass($pObjectKey);
+        $pPk = $obj->normalizePrimaryKey($pPk);
+
         if ($pOptions['permissionCheck']){
 
             $item = \Core\Object::get($pObjectKey, $pPk, $pOptions);
@@ -736,9 +769,7 @@ class Object {
             }
         }
 
-        $obj = self::getClass($pObjectKey);
-        $primaryKey = $obj->normalizePrimaryKey($pPk);
-        return $obj->patch($primaryKey, $pValues);
+        return $obj->patch($pPk, $pValues);
     }
 
 
