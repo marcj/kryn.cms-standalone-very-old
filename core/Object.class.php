@@ -683,7 +683,7 @@ class Object {
     }
 
     /**
-     * Updates a item.
+     * Updates a object entry. This means, all fields which are not defined will be saved as NULL.
      * 
      * @param  string $pObjectKey
      * @param  mixed  $pPk
@@ -694,6 +694,10 @@ class Object {
     public static function update($pObjectKey, $pPk, $pValues, $pOptions = null){
 
         if ($pOptions['permissionCheck']){
+
+            $item = \Core\Object::get($pObjectKey, $pPk, $pOptions);
+            if (!$item) return false;
+
             foreach ($pValues as $fieldName => $value){
                 //if (!Permission::checkUpdate($pObjectKey, $pPk, $fieldName)){
                 //    throw new \NoFieldWritePermission(tf("No update permission to field '%s' in item '%s' from object '%s'", $fieldName, $pPk, $pObjectKey));
@@ -705,6 +709,39 @@ class Object {
         $primaryKey = $obj->normalizePrimaryKey($pPk);
         return $obj->update($primaryKey, $pValues);
     }
+
+
+    /**
+     * Patches a object entry. This means, only defined fields will be saved. Fields which are not defined will
+     * not be overwritten.
+     *
+     *
+     * @param  string $pObjectKey
+     * @param  mixed  $pPk
+     * @param  array $pValues
+     * @param  array $pOptions
+     * @return bool
+     */
+    public static function patch($pObjectKey, $pPk, $pValues, $pOptions = null){
+
+        if ($pOptions['permissionCheck']){
+
+            $item = \Core\Object::get($pObjectKey, $pPk, $pOptions);
+            if (!$item) return false;
+
+            foreach ($pValues as $fieldName => $value){
+                //if (!Permission::checkUpdate($pObjectKey, $pPk, $fieldName)){
+                //    throw new \NoFieldWritePermission(tf("No update permission to field '%s' in item '%s' from object '%s'", $fieldName, $pPk, $pObjectKey));
+                //}
+            }
+        }
+
+        $obj = self::getClass($pObjectKey);
+        $primaryKey = $obj->normalizePrimaryKey($pPk);
+        return $obj->patch($primaryKey, $pValues);
+    }
+
+
 
     /**
      * Removes a object item per url.

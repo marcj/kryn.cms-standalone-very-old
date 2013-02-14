@@ -27,7 +27,7 @@ class Client {
      * List of possible methods.
      * @var array
      */
-    public $methods = array('get', 'post', 'put', 'delete', 'head', 'options');
+    public $methods = array('get', 'post', 'put', 'delete', 'head', 'options', 'patch');
 
 
     /**

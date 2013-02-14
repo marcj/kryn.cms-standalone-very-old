@@ -64,6 +64,7 @@ class ObjectCrudController extends Server {
                 ->addPostRoute('', 'addItem')
                 ->addPostRoute(':multiple', 'addMultipleItem')
                 ->addPutRoute('([^/]+)', 'updateItem')
+                ->addPatchRoute('([^/]+)', 'patchItem')
                 ->addDeleteRoute('([^/]+)', 'removeItem')
                 ->addOptionsRoute('', 'getInfo');
 
@@ -172,6 +173,21 @@ class ObjectCrudController extends Server {
         $pk = \Core\Object::parsePk($obj->getObject(), $pObject);
 
         return $obj->update($pk[0]);
+    }
+
+    /**
+     * Proxy method for REST PATCH to patch().
+     *
+     * @param null $pObject
+     * @return mixed
+     */
+    public function patchItem($pObject = null){
+
+        $obj = $this->getObj();
+
+        $pk = \Core\Object::parsePk($obj->getObject(), $pObject);
+
+        return $obj->patch($pk[0]);
     }
 
     /**

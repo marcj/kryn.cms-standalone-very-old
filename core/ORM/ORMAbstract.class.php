@@ -253,7 +253,7 @@ abstract class ORMAbstract {
     abstract public function add($pValues, $pTargetPk = null, $pPosition = 'first', $pScope = null);
 
     /**
-     * Updates an object
+     * Updates an object entry.  This means, all fields which are not defined will be saved as NULL.
      *
      * @abstract
      * @param array $pPk
@@ -261,6 +261,17 @@ abstract class ORMAbstract {
      * @throws \ObjectItemNotModified
      */
     abstract public function update($pPk, $pValues);
+
+    /**
+     * Patches a object entry. This means, only defined fields will be saved. Fields which are not defined will
+     * not be overwritten.
+     *
+     * @abstract
+     * @param array $pPk
+     * @param array $pValues
+     * @throws \ObjectItemNotModified
+     */
+    abstract public function patch($pPk, $pValues);
 
     /**
      * @abstract

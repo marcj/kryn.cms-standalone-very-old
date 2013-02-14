@@ -979,7 +979,8 @@ class ObjectCrud {
         if ($item && $condition = $this->getCondition())
             if (!\Core\Object::satisfy($item, $condition)) $item = null;
 
-        $this->prepareRow($item);
+        if ($item)
+            $this->prepareRow($item);
 
         return $item;
     }
@@ -1080,7 +1081,7 @@ class ObjectCrud {
             array('permissionCheck' => $this->getPermissionCheck())
         );
 
-        //handle customSaves
+        //handle customPostSave
         foreach ($this->_fields as $key => $field){
             if ($field['customPostSave'] && method_exists($this, $method = $field['customPostSave']))
                 $this->$method($field, $key);
@@ -1090,7 +1091,10 @@ class ObjectCrud {
     }
 
 
-
+    /**
+     * @param $pPk
+     * @return bool
+     */
     public function remove($pPk){
         $this->primaryKey = $pPk;
         $options['permissionCheck'] = $this->getPermissionCheck();
@@ -1098,6 +1102,13 @@ class ObjectCrud {
     }
 
 
+    /**
+     * Updates a object entry. This means, all fields which are not defined will be saved as NULL.
+     *
+     * @param array $pPk
+     * @return bool
+     * @throws \ObjectItemNotFoundException
+     */
     public function update($pPk){
 
         $this->primaryKey = $pPk;
@@ -1105,27 +1116,47 @@ class ObjectCrud {
         $options['fields'] = '';
         $options['permissionCheck'] = $this->getPermissionCheck();
 
-        $item = \Core\Object::get($this->object, $pPk, $options);
-
-        //check against additionally our own custom condition
-        if ($item && $condition = $this->getCondition())
-            if (!\Core\Object::satisfy($item, $condition)) $item = false;
-
-        if (!$item) throw new \ObjectItemNotFoundException(tf('Can not find the object item with primaryKey %s', json_encode($pPk)));
-
         //collect values
         $data = $this->collectData();
+
+        //check against additionally our own custom condition
+        if ($condition = $this->getCondition()){
+            $item = \Core\Object::get($this->getObject(), $pPk, $options);
+            if (!\Core\Object::satisfy($item, $condition)) return null;
+        }
 
         //do normal update through Core\Object
         $result = \Core\Object::update($this->getObject(), $pPk, $data, array('permissionCheck' => $this->getPermissionCheck()));
 
-        //handle customSaves
-        foreach ($this->_fields as $key => $field){
-            if ($field['customSave']){
-                if (method_exists($this, $field['customSave']))
-                    call_user_method($field['customSave'], $this);
-            }
+        return $result;
+    }
+
+    /**
+     * Patches a object entry. This means, only defined fields will be saved. Fields which are not defined will
+     * not be overwritten.
+     *
+     * @param array $pPk
+     * @return bool
+     * @throws \ObjectItemNotFoundException
+     */
+    public function patch($pPk){
+
+        $this->primaryKey = $pPk;
+
+        $options['fields'] = '';
+        $options['permissionCheck'] = $this->getPermissionCheck();
+
+        //collect values
+        $data = $this->collectData();
+
+        //check against additionally our own custom condition
+        if ($condition = $this->getCondition()){
+            $item = \Core\Object::get($this->getObject(), $pPk, $options);
+            if (!\Core\Object::satisfy($item, $condition)) return null;
         }
+
+        //do normal update through Core\Object
+        $result = \Core\Object::patch($this->getObject(), $pPk, $data, array('permissionCheck' => $this->getPermissionCheck()));
 
         return $result;
     }
@@ -1135,7 +1166,7 @@ class ObjectCrud {
      * Iterates only through all defined fields in $fields.
      *
      * @param mixed $pFields The fields definition. If empty we use $this->fields.
-     * @param mixed $pData
+     * @param mixed $pData Is used if a field is not defined through _POST or _GET
      * @return array
      * @throws \FieldCanNotBeEmptyException
      */
