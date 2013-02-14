@@ -3,7 +3,7 @@
  "domain": "127.0.0.1",
  "port": 8000,
  "config": {
-    "id": "5b46",
+    "id": "5d12",
     "database": {
         "server": "127.0.0.1",
         "user": "root",
