@@ -2,4 +2,11 @@
          colors="true"
          convertNoticesToExceptions="false"
          convertWarningsToExceptions="false">
+
+
+    <testsuites>
+        <testsuite name="Kryn.cms">
+            <directory>./test/</directory>
+        </testsuite>
+    </testsuites>
 </phpunit>
