@@ -642,7 +642,6 @@ class Propel extends ORMAbstract {
     }
 
 
-
     /**
      * {@inheritdoc}
      */
@@ -654,9 +653,25 @@ class Propel extends ORMAbstract {
 
         $this->mapPk($query, $pPk);
         $item = $query->findOne();
+        $values = $pPk+$pValues;
+        $this->mapValues($item, $values);
 
-        $this->mapValues($item, $pValues);
+        return $item->save()?true:false;
+    }
 
+
+    /**
+     * {@inheritdoc}
+     */
+    public function patch($pPk, $pValues){
+
+        $this->init();
+
+        $query = $this->getQueryClass();
+
+        $this->mapPk($query, $pPk);
+        $item = $query->findOne();
+        $this->mapValues($item, $pValues, false);
         return $item->save()?true:false;
     }
 
@@ -668,7 +683,6 @@ class Propel extends ORMAbstract {
 
         $query = $this->getQueryClass();
         $item = $query->findPK($this->getPropelPk($pPk));
-
 
         $method = 'moveToFirstChildOf';
         if ($pPosition == 'up' || $pPosition == 'before'|| $pPosition == 'prev')
@@ -778,11 +792,12 @@ class Propel extends ORMAbstract {
         return $newPk;
     }
 
-    public function mapValues(&$pItem, &$pValues){
+    public function mapValues(&$pItem, &$pValues, $pSetUndefinedAsNull = true){
 
-        foreach ($pValues as $fieldName => $fieldValue){
+        foreach ($this->definition['fields'] as $fieldName => $field){
 
-            $field = $this->getField($fieldName);
+            $fieldValue = $pValues[$fieldName];
+
             if ($field['primaryKey']) continue;
 
             $fieldName = ucfirst($fieldName);
@@ -806,6 +821,7 @@ class Propel extends ORMAbstract {
 
                         $foreignObjClass = \Core\Object::getClass($field['object']);
 
+                        $primaryKeys = array();
                         foreach ($fieldValue as $value){
                             $primaryKeys[] = $foreignObjClass->normalizePrimaryKey($value);
                         }
@@ -817,7 +833,7 @@ class Propel extends ORMAbstract {
 
                         $collItems = $foreignQuery->findPks($propelPks);
                         $pItem->$setItems($collItems);
-                    } else {
+                    } else if ($pSetUndefinedAsNull){
                         $pItem->$clearItems();
                     }
                     continue;
@@ -825,6 +841,8 @@ class Propel extends ORMAbstract {
             }
 
             if ($methodExist){
+                if ($fieldValue === null && !$pSetUndefinedAsNull) continue;
+
                 $pItem->$set($fieldValue);
             } else {
                 throw new \FieldNotFoundException(tf('Field %s in object %s not found (%s)', $fieldName, $this->objectKey, $set));
