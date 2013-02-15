@@ -207,7 +207,6 @@ ka.Editor = new Class({
         .addEvent('mouseleave', function(){ this.highlightSlots(false); }.bind(this))
         .inject(this.sidebar);
 
-
         this.showPreview = new Element('a', {
             'html': '&#xe28d;',
             href: 'javascript: ;',
@@ -216,7 +215,6 @@ ka.Editor = new Class({
         })
         .addEvent('click', function(){ this.togglePreview(); }.bind(this))
         .inject(this.sidebar);
-
 
         this.highlightSave();
 
@@ -233,20 +231,36 @@ ka.Editor = new Class({
         .addEvent('click', function(){ this.save(); }.bind(this))
         .inject(this.sidebar);
 
-        this.initDragNDrop.delay(500, this);
+        this.sidebar.addEvent('mousedown:relay(.ka-editor-sidebar-draggable)', this.startDrag.bind(this));
+    },
+
+    getValue: function(){
+        this.slots = this.container.getElements('.ka-slot');
+
+        var contents = [];
+
+        Array.each(this.slots, function(slot){
+            if (slot.kaSlotInstance){
+                contents = contents.concat(slot.kaSlotInstance.getValue());
+            }
+        });
+
+        return contents;
+    },
+
+    getUrl: function(){
+        return _path+'admin/object/Core.Node/'+window.currentNode.id+'?_method=patch';
     },
 
     save: function(){
 
+        if (this.lastSaveRq) this.lastSaveRq.cancel();
 
+        var contents = this.getValue();
 
+        this.lastSaveRq = new Request.JSON({url: this.getUrl(), onComplete: function(pResponse){
 
-    },
-
-    initDragNDrop: function(){
-
-        //this.slots.addEvent('mousedown:relay(.ka-content)', this.startDrag.bind(this));
-        this.sidebar.addEvent('mousedown:relay(.ka-editor-sidebar-draggable)', this.startDrag.bind(this));
+        }.bind(this)}).post({content: contents});
 
     },
 

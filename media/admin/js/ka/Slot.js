@@ -13,7 +13,7 @@ ka.Slot = new Class({
     initialize: function(pDomSlot, pOptions, pEditor){
 
         this.slot = pDomSlot;
-        this.slot.kaSlot = this;
+        this.slot.kaSlotInstance = this;
         this.setOptions(pOptions);
         this.editor = pEditor;
 
@@ -79,9 +79,16 @@ ka.Slot = new Class({
 
     getValue: function(){
 
+        var contents = [];
+        var data;
         this.slot.getChildren('.ka-content').each(function(content){
+            if (!content.kaContentInstance) return;
+            data = content.kaContentInstance.getValue();
+            data.boxId = this.slotParams.id;
+            contents.push(data);
+        }.bind(this));
 
-        });
+        return contents;
 
     },
 

@@ -2,10 +2,10 @@ ka.ContentTypes || (ka.ContentTypes = {});
 
 ka.ContentTypes.Plugin = new Class({
 
-    Binds: ['apply'],
     Extends: ka.ContentAbstract,
+    Binds: ['applyValue', 'openDialog'],
 
-    icon : '&#xe271;',
+    icon: '&#xe271;',
 
 
     options: {
@@ -18,7 +18,7 @@ ka.ContentTypes.Plugin = new Class({
             'class': 'ka-normalize ka-content-plugin'
         }).inject(this.contentInstance);
 
-        this.icon = new Element('div', {
+        this.iconDiv = new Element('div', {
             'class': 'ka-content-inner-icon icon-cube-2'
         }).inject(this.main);
 
@@ -26,7 +26,7 @@ ka.ContentTypes.Plugin = new Class({
             'class': 'ka-content-inner'
         }).inject(this.main);
 
-        this.main.addEvent('click', this.openDialog.bind(this));
+        this.main.addEvent('click', this.openDialog);
 
     },
 
@@ -39,7 +39,7 @@ ka.ContentTypes.Plugin = new Class({
         });
 
         this.cancelBtn = this.dialog.addButton('Cancel').addEvent('click', this.dialog.close);
-        this.saveBtn   = this.dialog.addButton('Apply').setButtonStyle('blue').addEvent('click', this.apply);
+        this.saveBtn   = this.dialog.addButton('Apply').setButtonStyle('blue').addEvent('click', this.applyValue);
 
         this.dialogPluginChoser = new ka.Field({
             type: 'plugin'
@@ -57,11 +57,9 @@ ka.ContentTypes.Plugin = new Class({
 
     },
 
-    apply: function(){
-
+    applyValue: function(){
 
         this.dialog.close();
-        return;
 
         this.value = this.dialogPluginChoser.getValue();
 
