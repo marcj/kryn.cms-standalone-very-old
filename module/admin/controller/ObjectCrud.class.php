@@ -947,12 +947,11 @@ class ObjectCrud {
 
         $this->primaryKey = $pPk;
 
-
         if ($pFields && $this->getAllowCustomSelectFields()){
             if (is_array($pFields)){
                 $fields = $pFields;
             } else {
-                $fields = explode(',', trim(preg_replace('/[^a-zA-Z0-9_,]/', '', $pFields)));
+                $fields = explode(',', trim(preg_replace('/[^a-zA-Z0-9_\.\-,]/', '', $pFields)));
             }
         }
 
