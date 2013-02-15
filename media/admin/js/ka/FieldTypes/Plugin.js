@@ -69,9 +69,14 @@ ka.FieldTypes.Plugin = new Class({
             var module = this.fieldForm.getValue('module');
             var plugin = this.fieldForm.getValue('plugin['+module+']');
 
+            if (!ka.settings.configs[module]){
+                delete this.pluginPropertyForm;
+                return;
+            }
+
             var def = this.normalizePlugin(ka.settings.configs[module].plugins[plugin]);
 
-            if (def.options){
+            if (def && def.options){
                 this.pluginPropertyForm = new ka.FieldForm(this.pluginPropertyContainer, def.options, {
                     allTableItems: true
                 });
@@ -82,6 +87,14 @@ ka.FieldTypes.Plugin = new Class({
             this.fieldInstance.fireChange();
 
         }.bind(this));
+
+        if (pValue && pValue.module){
+            var value = {};
+            value.module = pValue.module;
+            value.plugin = {};
+            value.plugin[value.module] = pValue.plugin;
+            this.fieldForm.setValue(value);
+        }
 
         this.fieldForm.fireEvent('change');
     },
