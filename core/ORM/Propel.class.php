@@ -809,30 +809,57 @@ class Propel extends ORMAbstract {
 
             if ($field['type'] == 'object' || $this->tableMap->hasRelation($fieldName)){
 
-                if ($field['objectRelation'] == 'nToM'){
+                if ($field['objectRelation'] == ORMAbstract::MANY_TO_MANY || $field['objectRelation'] == ORMAbstract::ONE_TO_MANY){
 
                     //$getItems = 'get'.underscore2Camelcase($fieldName).'s';
-                    $setItems = 'set'.underscore2Camelcase($fieldName).'s';
+                    $setItems   = 'set'.underscore2Camelcase($fieldName).'s';
+                    $getItems   = 'get'.underscore2Camelcase($fieldName).'s';
                     $clearItems = 'clear'.underscore2Camelcase($fieldName).'s';
+                    $addItem    = 'add'.underscore2Camelcase($fieldName);
 
                     if ($fieldValue){
 
-                        $foreignQuery = $this->getQueryClass($field['object']);
-
+                        $foreignQuery    = $this->getQueryClass($field['object']);
+                        $foreignClass    = $this->getPhpName($field['object']);
                         $foreignObjClass = \Core\Object::getClass($field['object']);
 
-                        $primaryKeys = array();
-                        foreach ($fieldValue as $value){
-                            $primaryKeys[] = $foreignObjClass->normalizePrimaryKey($value);
-                        }
+                        if ($field['objectRelation'] == ORMAbstract::ONE_TO_MANY){
 
-                        $propelPks = array();
-                        foreach ($primaryKeys as $primaryKey){
-                            $propelPks[] = $this->getPropelPk($primaryKey);
-                        }
+                            $foreignItems = array();
+                            $coll = new \PropelObjectCollection();
+                            $coll->setModel(ucfirst($foreignClass));
 
-                        $collItems = $foreignQuery->findPks($propelPks);
-                        $pItem->$setItems($collItems);
+                            foreach ($fieldValue as $foreignItem){
+                                $pk   = Object::getObjectPk($field['object'], $foreignItem);
+                                $item = null;
+                                if ($pk){
+                                    $pk   = $this->getPropelPk($pk);
+                                    $item = $foreignQuery->findPk($pk);
+                                }
+                                if (!$item){
+                                    $item = new $foreignClass();
+                                }
+                                $item->fromArray($foreignItem, \BasePeer::TYPE_STUDLYPHPNAME);
+                                $coll[] = $item;
+                            }
+
+                            $pItem->$setItems($coll);
+
+                        } else {
+
+                            $primaryKeys = array();
+                            foreach ($fieldValue as $value){
+                                $primaryKeys[] = $foreignObjClass->normalizePrimaryKey($value);
+                            }
+
+                            $propelPks = array();
+                            foreach ($primaryKeys as $primaryKey){
+                                $propelPks[] = $this->getPropelPk($primaryKey);
+                            }
+
+                            $collItems = $foreignQuery->findPks($propelPks);
+                            $pItem->$setItems($collItems);
+                        }
                     } else if ($pSetUndefinedAsNull){
                         $pItem->$clearItems();
                     }
