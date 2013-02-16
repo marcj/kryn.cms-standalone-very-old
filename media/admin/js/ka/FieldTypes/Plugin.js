@@ -6,12 +6,11 @@ ka.FieldTypes.Plugin = new Class({
 
         this.main = new Element('div').inject(this.fieldInstance.fieldPanel);
 
-        this.renderValue();
-
+        logger('WHAT');
     },
 
-    renderValue: function(pValue){
-        pValue = pValue || {};
+    renderValue: function(){
+        this.value = this.value || {};
 
         this.main.getElements('*').destroy();
 
@@ -63,8 +62,10 @@ ka.FieldTypes.Plugin = new Class({
             'class': 'ka-field-plugin-options'
         }).inject(this.main);
 
+        var i = 0;
         this.fieldForm.addEvent('change', function(){
 
+            logger('CHANGE: '+(i++));
             this.pluginPropertyContainer.getChildren().destroy();
             var module = this.fieldForm.getValue('module');
             var plugin = this.fieldForm.getValue('plugin['+module+']');
@@ -80,19 +81,20 @@ ka.FieldTypes.Plugin = new Class({
                 this.pluginPropertyForm = new ka.FieldForm(this.pluginPropertyContainer, def.options, {
                     allTableItems: true
                 });
+                this.pluginPropertyForm.setValue(this.value.options);
             } else {
                 delete this.pluginPropertyForm;
             }
 
-            this.fieldInstance.fireChange();
+            //this.fieldInstance.fireChange();
 
         }.bind(this));
 
-        if (pValue && pValue.module){
+        if (this.value && this.value.module){
             var value = {};
-            value.module = pValue.module;
+            value.module = this.value.module;
             value.plugin = {};
-            value.plugin[value.module] = pValue.plugin;
+            value.plugin[value.module] = this.value.plugin;
             this.fieldForm.setValue(value);
         }
 
@@ -111,20 +113,25 @@ ka.FieldTypes.Plugin = new Class({
     },
 
     setValue: function(pValue){
-        if (typeOf(pValue) == 'string'){
-            pValue = this.normalizeValue(pValue);
-        }
+        pValue = this.normalizeValue(pValue);
 
-        this.renderValue(pValue);
+        this.value = pValue;
+        this.renderValue();
     },
 
     /**
      * since old kryn version stores the value as string
      * we need to convert it to the new object def.
-     * @param {String} pValue
+     * @param {String|Object} pValue
      * @return {Object}
      */
     normalizeValue: function(pValue){
+
+        if (typeOf(pValue) == 'object') return pValue;
+
+        if (typeOf(pValue) == 'string' && JSON.validate(pValue)){
+            return JSON.decode(pValue);
+        }
 
         var module  = pValue.substr(0, pValue.indexOf('::'));
         var plugin  = pValue.substr(module.length+2, pValue.substr(module.length+2).indexOf('::'));
@@ -141,20 +148,18 @@ ka.FieldTypes.Plugin = new Class({
 
     getValue: function(){
 
-        var plugin = '';
-        var module = this.fieldForm.getValue('module');
+        var plugin = {};
+        plugin.module = this.fieldForm.getValue('module');
 
-        plugin += module;
-        plugin += '::'+this.fieldForm.getValue('plugin['+module+']')
+        plugin.plugin = this.fieldForm.getValue('plugin['+plugin.module+']')
 
-        plugin += '::';
         if (this.pluginPropertyForm){
-            //plugin += JSON.encode(this.pluginPropertyForm.getValue());
+            plugin.options = this.pluginPropertyForm.getValue();
         } else {
-            plugin += '{}';
+            plugin.options = {};
         }
 
-        return plugin;
+        return JSON.encode(plugin);
     }
 
 });

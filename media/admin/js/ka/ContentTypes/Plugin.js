@@ -62,6 +62,7 @@ ka.ContentTypes.Plugin = new Class({
         this.dialog.close();
 
         this.value = this.dialogPluginChoser.getValue();
+        this.value = this.normalizeValue(this.value);
 
         this.renderValue();
 
@@ -69,17 +70,40 @@ ka.ContentTypes.Plugin = new Class({
 
     },
 
+    /**
+     * since old kryn version stores the value as string
+     * we need to convert it to the new object def.
+     * @param {String|Object} pValue
+     * @return {Object}
+     */
+    normalizeValue: function(pValue){
+
+        if (typeOf(pValue) == 'object') return pValue;
+
+        if (typeOf(pValue) == 'string' && JSON.validate(pValue)){
+            return JSON.decode(pValue);
+        }
+
+        var module  = pValue.substr(0, pValue.indexOf('::'));
+        var plugin  = pValue.substr(module.length+2, pValue.substr(module.length+2).indexOf('::'));
+        var options = pValue.substr(module.length+plugin.length+4);
+
+        options = JSON.validate(options) ? JSON.decode(options) : {};
+
+        return {
+            module: module,
+            plugin: plugin,
+            options: options
+        };
+    },
+
     renderValue: function(){
 
         this.inner.empty();
 
-        var module  = this.value.substr(0, this.value.indexOf('::'));
-        var plugin  = this.value.substr(module.length+2, this.value.substr(module.length+2).indexOf('::'));
-        var options = this.value.substr(module.length+plugin.length+4);
-
-        if (JSON.validate(options)){
-            options = JSON.decode(options);
-        }
+        var module  = this.value.module;
+        var plugin  = this.value.plugin;
+        var options = this.value.options;
 
         if (ka.settings.configs[module] && ka.settings.configs[module].plugins && ka.settings.configs[module].plugins[plugin]){
             var pluginConfig = ka.settings.configs[module].plugins[plugin];
@@ -127,13 +151,16 @@ ka.ContentTypes.Plugin = new Class({
     },
 
     setValue: function(pValue){
-        this.value = pValue;
-
+        if (!pValue) {
+            this.value = null;
+            return;
+        }
+        this.value = this.normalizeValue(pValue);
         this.renderValue();
     },
 
     getValue: function(){
-        return this.value;
+        return typeOf(this.value) == 'string' ? this.value : JSON.encode(this.value);
     }
 
 });
