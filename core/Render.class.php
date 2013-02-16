@@ -13,7 +13,10 @@
 
 namespace Core;
 
-use \Symfony\Component\EventDispatcher\GenericEvent;
+use Symfony\Component\EventDispatcher\GenericEvent;
+
+use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Html render class
@@ -76,7 +79,7 @@ class Render {
             Kryn::$nestedLevels[] = Kryn::$page;
         }
 
-        Kryn::getEventDispatcher()->dispatch('core.render-contents-pre');
+        Kryn::getEventDispatcher()->dispatch('core.render.contents.pre');
 
         if (file_exists($file = 'css/_pages/' . $pPageId . '.css'))
             Kryn::getResponse()->addCssFile($file);
@@ -91,7 +94,7 @@ class Render {
         }
 
         $arguments = array($pPageId, $pSlotId, &self::$contents[$pSlotId]);
-        Kryn::getEventDispatcher()->dispatch('core.render-contents', new GenericEvent($arguments));
+        Kryn::getEventDispatcher()->dispatch('core.render.contents', new GenericEvent($arguments));
 
         if ($pSlotId) {
             $html = self::renderContents(self::$contents[$pSlotId], $pProperties);
@@ -110,7 +113,7 @@ class Render {
 
 
         $arguments = array($pPageId, $pSlotId, &$html);
-        Kryn::getEventDispatcher()->dispatch('core.render-contents-post', new GenericEvent($arguments));
+        Kryn::getEventDispatcher()->dispatch('core.render.contents.post', new GenericEvent($arguments));
 
         return $html;
     }
@@ -125,10 +128,8 @@ class Render {
      * @internal
      */
     public static function renderContents(&$pContents, $pSlotProperties) {
-        global $client, $adminClient;
 
         $contents = array();
-        Kryn::getEventDispatcher()->dispatch('core.render-contents', new GenericEvent($pContents));
 
         foreach ($pContents as $content) {
 
@@ -251,35 +252,36 @@ class Render {
 
         $argument = array(&$content, $pProperties);
 
-        Kryn::getEventDispatcher()->dispatch('core.render-content', new GenericEvent($pContent));
+        Kryn::getEventDispatcher()->dispatch('core.render.content', new GenericEvent($pContent));
         Event::fire('preRenderContent', $argument);
 
-        /*
+        $data = $content->toArray(\BasePeer::TYPE_STUDLYPHPNAME);
 
         switch (strtolower($content->getType())) {
             case 'text':
                 //replace all [[ with a workaround, so that multilanguage will not fetch.
-                //$content->setContent(str_replace('[[', '[<!-- -->[', $content->getContent()));
-
+                //we replace it later again in the actual send()
+                $data['content'] = str_replace('[[', '\[[', $data['content']);
 
                 break;
             case 'html':
-                $content->setContent(str_replace('[[', '\[[', $content->getContent()));
+                $data['content'] = str_replace('[[', '\[[', $data['content']);
 
                 break;
             case 'navigation':
 
-                if ($content->getContent()){
-                    $temp = json_decode($content->getContent(), 1);
+                if ($data['content']){
+                    $temp = json_decode($data['content'], 1);
                     $temp['id'] = $temp['entryPoint']+0;
                     unset($temp['entryPoint']);
 
-                    $content->setContent(krynNavigation::get($temp));
+                    $data['content'] = krynNavigation::get($temp);
                 }
 
                 break;
             case 'picture':
 
+                /*
                 $temp = explode('::', $content['content']);
 
                 if ($temp[0] != '' && $temp[0] != 'none') {
@@ -316,72 +318,82 @@ class Render {
                 } else {
                     $content['content'] = '<img src="' . $temp[1] . '" />';
                 }
+                */
 
                 break;
             case 'template':
 
-                if (substr($content['content'], 0, 1) == '/')
-                    $content['content'] = substr($content['content'], 1);
+                if (substr($data['content'], 0, 1) == '/')
+                    $data['content'] = substr($data['content'], 1);
 
-                $file = str_replace('..', '', $content['content']);
+                $file = str_replace('..', '', $data['content']);
                 if (file_exists(PATH . PATH_MEDIA . $file)) {
-                    $content['content'] = tFetch($file);
+                    $data['content'] = tFetch($file);
                 }
                 break;
             case 'pointer':
 
-                if ($content['content'] + 0 > 0 && $content['content'] + 0 != Kryn::$page['id'])
-                    $content['content'] = self::renderContents($content['content'] + 0, 1, $pProperties);
+                if ($data['content'] + 0 > 0 && $data['content'] + 0 != Kryn::$page['id'])
+                    $data['content'] = self::renderContents($data['content'] + 0, 1, $pProperties);
 
                 break;
+
             case 'layoutelement':
 
                 $oldContents = self::$contents;
 
-                $layoutcontent = json_decode($content['content'], true);
+                $layoutcontent = json_decode($data['content'], true);
                 self::$contents = $layoutcontent['contents'];
-                $content['content'] = tFetch($layoutcontent['layout']);
+                $data['content'] = tFetch($layoutcontent['layout']);
 
                 self::$contents = $oldContents;
 
                 break;
             case 'plugin':
 
+                if ($data['content']){
+                    $plugin = json_decode($data['content'], 1);
+                    if ($pluginDef = Kryn::$configs[$plugin['module']]['plugins'][$method = $plugin['plugin']]) {
+                        $clazz = $pluginDef['class'];
+                        if (class_exists($clazz)){
 
-                $t = explode('::', $content['content']);
-                $config = $content['content'];
+                            //create a sub request
+                            $request = new Request();
+                            $request->attributes->add(array(
+                                '_controller' => $clazz.'::'.$method,
+                                'options'     => $plugin['options']
+                            ));
 
-                $content['content'] = '<div>Plugin not found.</div>';
+                            ob_start();
+                            $response = Kryn::getHttpKernel()->handle($request, HttpKernelInterface::SUB_REQUEST);
+                            $ob = ob_get_clean();
 
-                if (Kryn::$modules[$t[0]]) {
-
-                    $config = substr($config, strlen($t[0]) + 2 + strlen($t[1]) + 2);
-                    $config = json_decode($config, true);
-
-                    if (method_exists(Kryn::$modules[$t[0]], $t[1]))
-                        $content['content'] = Kryn::$modules[$t[0]]->$t[1]($config);
-
-                    // if in seachindex mode and plugin is configured unsearchable the kill plugin output
-                    if (isset(Kryn::$configs[$t[0]]['plugins'][$t[1]][3]) &&
-                        Kryn::$configs[$t[0]]['plugins'][$t[1]][3] == true
-                    )
-                        $content['content'] = Kryn::$unsearchableBegin . $content['content'] . Kryn::$unsearchableEnd;
-
+                            if ($response instanceof Response){
+                                Kryn::sendResponse($response);
+                            } else {
+                                $data['content'] = $ob.$response->getContent();
+                            }
+                        } else {
+                            $data['content'] = tf('Class `%s` does not exist. You should create this class.', $clazz);
+                        }
+                    } else {
+                        $data['content'] = tf('Plugin `%s` in extension `%s` does not exist. You probably want to install the extension.',
+                            $method, $plugin['module']);
+                    }
                 }
-
                 break;
             case 'php':
                 $temp = ob_get_contents();
                 ob_end_clean();
                 ob_start();
-                eval($content['content']);
-                $content['content'] = ob_get_contents();
+                eval($data['content']);
+                $data['content'] = ob_get_contents();
                 ob_end_clean();
                 ob_start();
                 print $temp;
                 break;
         }
-        */
+
 
         $unsearchable = false;
         if ((!is_array($content->getAccessFromGroups()) && $content->getAccessFromGroups() != '') ||
@@ -403,14 +415,14 @@ class Render {
                 $html = $content->getContent();
         } else {
 
-            tAssign('content', tFetch('core/content.tpl'));
-            $template = $content->getTemplate();
+            tAssign('content', $data['content']);
+            tAssign('contentElement', $data);
+            $template = $data['template'];
             if ($unsearchable)
                 $html = '<!--unsearchable-begin-->' . tFetch($template) . '<!--unsearchable-end-->';
             else
                 $html = tFetch($template);
         }
-
 
         $argument = array($pContent, $pProperties, &$html);
         Event::fire('onAfterRenderContent', $argument);

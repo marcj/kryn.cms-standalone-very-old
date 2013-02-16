@@ -67,7 +67,7 @@ $Nodes = array(
         array(
             '1' => array(
                 array('text', 'Kryn.cms has been installed!', $defaultContentTemplate, '<p>Kryn.cms has been installed correctly.</p><p>&nbsp;</p><p><a href="http://www.kryn.org">Kryn CMS Website</a></p><p>&nbsp;</p><p>&nbsp;</p><p>Go to <a href="admin">administration</a> to manage your new website.</p><p>&nbsp;</p><p><strong>Default login:</strong></p><p><strong><br /></strong></p><p style="padding-left: 10px;">Username: admin</p><p style="padding-left: 10px;">Password: admin</p>'),
-                array('plugin', '', $defaultContentTemplate, 'publication::newsList::{"itemsPerNode":"","maxNodes":"","detailNode":"16","template":"default","category_rsn":["1"]}')
+                array('plugin', '', $defaultContentTemplate, '{"module":"publication","plugin":"listing","options":{"itemsPerPage":10,"maxPages":10,"detailPage":"","template":"default.tpl","categoryId":[],"enableRss":false}}')
             ),
             '2' => array(
                 array('plugin', '» CATEGORIES', $defaultContentTemplate, 'publication::categoryList::{"listNode":"1","template":"default","category_rsn":[]}'),

@@ -10,8 +10,19 @@ namespace Core;
  */
 class Controller {
 
-	private $viewData = array();
+    /**
+     * View data.
+     *
+     * @var array
+     */
+    private $viewData = array();
 
+    /**
+     * Last checked cache key through isValidCache().
+     * This gives us a performance gain since the renderCache() doesn't need
+     * @var string
+     */
+    private $lastCheckedCacheKey = '';
 
 	/**
 	 * Assign data to a variable inside this controller.
@@ -113,11 +124,29 @@ class Controller {
     }
 
     /**
+     * @param $pCacheKey
+     * @return mixed
+     */
+    public function isValidCache($pCacheKey){
+        return Kryn::getDistributedCache($pCacheKey);
+    }
+
+    /**
+     * Returns a rendered view. If the view is already cached under the given
+     * cacheKey it returns directly the cache. Use `isValidCache()` to decide
+     * whether you generate and pass $pData or not.
      *
+     * Example:
      *
-     * @param string $pCacheKey
-     * @param string $pView
-     * @param array  $pData
+     *  return $this->renderCache('myCache', 'plugin1/default.tpl', function(){
+     *     return array('items' => heavyDbQuery());
+     * });
+     *
+     * Note: The $pData callable is only called if the cache needs to regenerate.
+     *
+     * @param string          $pCacheKey
+     * @param string          $pView
+     * @param array|callable  $pData Pass the data as array or a data provider function.
      *
      * @return string
      */
@@ -128,7 +157,7 @@ class Controller {
 
         if (!$data || !is_array($data) || $mTime != $data['fileMTime']){
             $data = array(
-                'content' => $this->render($pView, $pData),
+                'content' => $this->render($pView, is_callable($pData) ? $pData() : $pData),
                 'fileMTime' => $mTime
             );
 

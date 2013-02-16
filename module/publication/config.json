@@ -150,8 +150,8 @@
                 }
             }
         },
-        "list": {
-            "class": "\\Publication\\Plugin\\List",
+        "listing": {
+            "class": "\\Publication\\Plugin\\News",
             "label": "[[News list]]",
             "options": {
                 "itemsPerPage": {
