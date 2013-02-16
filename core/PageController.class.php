@@ -23,7 +23,7 @@ class PageController extends Controller {
     private static $slotContents = array();
 
     /**
-     * Build the page and return the modified Response of Core\Kryn::getReponse().
+     * Build the page and return the modified Response of Core\Kryn::getResponse().
      *
      * @param Request $request
      * @return Response
@@ -45,7 +45,6 @@ class PageController extends Controller {
                 return new RedirectResponse($to, 301);
             }
         }
-
 
         return Kryn::getResponse()->setContent($this->buildBody());
     }
