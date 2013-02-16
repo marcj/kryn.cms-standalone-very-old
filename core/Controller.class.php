@@ -124,11 +124,13 @@ class Controller {
     }
 
     /**
-     * @param $pCacheKey
-     * @return mixed
+     * Returns whether this cache is valid(exists) or not.
+     *
+     * @param string $pCacheKey
+     * @return boolean
      */
     public function isValidCache($pCacheKey){
-        return Kryn::getDistributedCache($pCacheKey);
+        return Kryn::getDistributedCache($pCacheKey) !== null;
     }
 
     /**
