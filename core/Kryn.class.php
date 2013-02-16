@@ -24,6 +24,7 @@ use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
+use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
 use Symfony\Component\EventDispatcher\GenericEvent;
 
 /**
@@ -1404,7 +1405,7 @@ class Kryn {
         ){
             $domain = $cachedDomains[$redirectToDomain];
 
-            $dispatcher->dispatch('core/domain-redirect', new GenericEvent($domain));
+            $dispatcher->dispatch('core.domain-redirect', new GenericEvent($domain));
             return null;
         }
 
@@ -1419,7 +1420,7 @@ class Kryn {
         }
 
         if (!$domain){
-            $dispatcher->dispatch('core/domain-not-found', new GenericEvent($hostname));
+            $dispatcher->dispatch('core.domain-not-found', new GenericEvent($hostname));
             return;
         }
 
@@ -1434,10 +1435,14 @@ class Kryn {
     public static function setupHttpKernel(){
 
         $dispatcher = self::getEventDispatcher();
-        $request    = self::getRequest();
 
         $dispatcher->addListener(KernelEvents::EXCEPTION, function(GetResponseForExceptionEvent $event){
             Utils::exceptionHandler($event->getException());
+        });
+
+        $dispatcher->addListener(KernelEvents::VIEW, function(GetResponseForControllerResultEvent $event){
+            $data = $event->getControllerResult();
+            $event->setResponse(new PluginResponse($data));
         });
 
     }
@@ -1455,7 +1460,7 @@ class Kryn {
         $page = self::searchPage();
 
         if (!$page){
-            $dispatcher->dispatch('core/page-not-found');
+            $dispatcher->dispatch('core.page-not-found');
             return;
         }
 
@@ -1463,18 +1468,18 @@ class Kryn {
         Kryn::$page = self::checkPageAccess(Kryn::$page);
 
         if (!$page){
-            $dispatcher->dispatch('core/page-not-found');
+            $dispatcher->dispatch('core.page-not-found');
             return;
         }
 
-        $dispatcher->dispatch('core/set-page', new GenericEvent(Kryn::$page));
+        $dispatcher->dispatch('core.set-page', new GenericEvent(Kryn::$page));
 
         $routes = new RouteCollection();
-        $dispatcher->dispatch('core/setup-routes-pre', new GenericEvent($routes));
+        $dispatcher->dispatch('core.setup-routes-pre', new GenericEvent($routes));
 
         Kryn::$page->addRoutes($routes);
 
-        $dispatcher->dispatch('core/setup-routes', new GenericEvent($routes));
+        $dispatcher->dispatch('core.setup-routes', new GenericEvent($routes));
 
         $matcher = new UrlMatcher($routes, new RequestContext());
 
@@ -1518,24 +1523,23 @@ class Kryn {
      * @event core/response-send
      */
     public static function handleRequest(){
-        global $_start;
 
         $kernel     = self::getHttpKernel();
         $request    = self::getRequest();
         $dispatcher = self::getEventDispatcher();
 
-        $dispatcher->addListener('core/domain-redirect', function(GenericEvent $event){
+        $dispatcher->addListener('core.domain-redirect', function(GenericEvent $event){
             $domain = $event->getSubject();
             $response = new \Symfony\Component\HttpFoundation\RedirectResponse($domain->getUrl(Kryn::$ssl), 301);
             $response->send();
             exit;
         });
 
-        $dispatcher->addListener('core/domain-not-found', function(GenericEvent $event){
+        $dispatcher->addListener('core.domain-not-found', function(GenericEvent $event){
             Kryn::internalError(t('Domain not found'), tf('Domain `%s` not found.', $event->getSubject()));
         });
 
-        $dispatcher->addListener('core/domain-no-start-page', function(GenericEvent $event){
+        $dispatcher->addListener('core.domain-no-start-page', function(GenericEvent $event){
             Kryn::internalError(null, tf('There is no start page for domain `%s`.', Kryn::$domain->getDomain()));
         });
 
@@ -1553,10 +1557,10 @@ class Kryn {
            $response = PageController::getResponse();
         }
 
-
         //caching
         if (false && !Kryn::isEditMode()){
-            $dispatcher->addListener('core/response-send-pre', function(){
+            //todo
+            $dispatcher->addListener('core.response-send-pre', function(){
                 $caching       = Kryn::getCache('core/static-caching');
                 $key           = md5(Kryn::getRequest()->getRequestUri());
                 $caching[$key] = true;
@@ -1571,12 +1575,26 @@ class Kryn {
             \Admin\AdminController::handleKEditor();
         }
 
-        $dispatcher->dispatch('core/response-send-pre', new GenericEvent($response));
-        $response->send();
-        $dispatcher->dispatch('core/response-send', new GenericEvent($response));
+        self::sendResponse($response);
+    }
+
+    /**
+     * Sends the response and exits the process.
+     *
+     * @event core/response-send-pre
+     * @event core/response-send
+     * @param Response $pResponse
+     */
+    public static function sendResponse(Response $pResponse){
+        global $_start;
+
+        $dispatcher = self::getEventDispatcher();
+
+        $dispatcher->dispatch('core.response-send-pre', new GenericEvent($pResponse));
+        $pResponse->send();
+        $dispatcher->dispatch('core.response-send', new GenericEvent($pResponse));
 
         Kryn::getLogger()->addDebug('Done. Generation time: '.(microtime(true)-$_start).' seconds.');
-
         exit;
     }
 
@@ -1868,7 +1886,7 @@ class Kryn {
             $pageId = Kryn::$domain->getStartnodeId();
 
             if (!$pageId > 0) {
-                self::getEventDispatcher()->dispatch('core/domain-no-start-page');
+                self::getEventDispatcher()->dispatch('core.domain-no-start-page');
             }
 
             Kryn::$isStartpage = true;
@@ -1988,118 +2006,178 @@ class Kryn {
     /**
      * Removes a value for the specified cache-key
      *
-     * @param string $pCode
+     * @param string $pKey
      */
-    public static function deleteCache($pCode) {
+    public static function deleteCache($pKey) {
         if (!self::$cache)
             self::initCache();
-        Kryn::$cache->delete($pCode);
+        Kryn::$cache->delete($pKey);
     }
 
     /**
-     * Sets a content to the specified cache-key.
-     * 
-     * If you want to save php class objects, you should serialize it before.
+     * Sets a cache on a (perhaps) distributed cache or local cache.
+     * Depends on the system settings.
      *
-     * @param string  $pCode
-     * @param string  $pValue
-     * @param integer $pTimeout In seconds. Default is one hour
+     * This may be a distributed cache controller. If you want to make
+     * sure, that your cache is known distributed over several Kryn.cms
+     * installations and is at the same time very fast, then you should use
+     * `setDistributedCache`.
+     *
+     * @param string  $pKey
+     * @param string  $pValue Only simple data types. Serialize your value if you have objects/arrays.
+     * @param integer $pLifeTime In seconds. Default is one hour
      * @return boolean
      * @static
      */
-    public static function setCache($pCode, $pValue, $pTimeout = null) {
+    public static function setCache($pKey, $pValue, $pLifeTime = null) {
         if (!self::$cache)
             self::initCache();
-        return Kryn::$cache->set($pCode, $pValue, $pTimeout);
+        return Kryn::$cache->set($pKey, $pValue, $pLifeTime);
     }
 
     /**
      * Marks a code as invalidate beginning at $pTime.
+     * This is the distributed cache controller. Use it if you want
+     * to invalidate caches on a distributed backend.
      *
-     * @param string  $pCode
-     * @param integer $pTime Unix timestamp. Default is microtime(true)
+     * You don't have to define the full key, instead you can pass only a part of the key.
+     * This means, if you have following caches defined:
+     *
+     *   - news/list/2
+     *   - news/list/3
+     *   - news/list/4
+     *   - news/comments/134
+     *   - news/comments/51
+     *
+     * you can mark all listing caches as invalid by calling
+     *   - invalidateCache('news/list');
+     * or to mark all caches as invalid which starts with `news/` you can call:
+     *   - invalidateCache('news');
+     *
+     *
+     * The invalidation mechanism explodes the key by / and checks all levels whether they're marked
+     * as invalid or not.
+     *
+     * Default is $pTime is `mark all caches as invalid which are older than CURRENT`.
+     *
+     * @param string  $pKey
+     * @param integer $pTime Unix timestamp. Default is microtime(true). Uses float for ms.
      * @return boolean
      */
-    public static function invalidateCache($pCode, $pTime = null) {
+    public static function invalidateCache($pKey, $pTime = null) {
         if (!self::$cache)
             self::initCache();
-        return Kryn::$cache->invalidate($pCode, $pTime ? $pTime : microtime(true));
+        return Kryn::$cache->invalidate($pKey, $pTime ? $pTime : microtime(true));
     }
 
     /**
-     * Returns the content of the specified cache-key
+     * Returns the content of the specified cache-key.
+     * This is the distributed cache controller. Use it if you want
+     * to store/retrieve caches on a distributed backend.
      *
-     * @param string $pCode
+     * @param string $pKey
      *
      * @return string
      * @static
      */
-    public static function &getCache($pCode) {
+    public static function &getCache($pKey) {
         if (!self::$cache)
             self::initCache();
-        return Kryn::$cache->get($pCode);
+        return Kryn::$cache->get($pKey);
     }
 
     /**
-     * Sets data to the specified cache-key.
-     * This function saves the value in a generated php file
-     * as php code or via apc_store.
+     * Returns a distributed cache.
      *
-     * If you want to save php class objects, you should serialize it before!
-     * 
-     * The idea behind this: If the server has active apc or
-     * other opcode caching, then this method is way faster then tcp caching-server.
-     * Please be sure, that you really want to use that: This
-     * is not compatible with load balanced Kryn.cms installations
-     * and should only be used, if you are really sure, that
-     * a other machine in a load balanced scenario does not
-     * need information about this cache.
-     * A good purpose for this is for example caching converted
-     * local json files (like the installed extension configs).
+     * @see \Core\Kryn::setDistributedCache for more information
      *
-     * Use otherwise setCache() to save the whole data or save only
-     * a timestamp in the setCache() method and check it later against your
-     * getFastCache().
-     *  Example:
+     * @param string $pKey
      *
-     *    $data['content'] = $actualData;
-     *    $data['created'] = microtime();
-     *    Kryn::setFastCache('data', $data);
-     *    Kryn::setCache('data.created', $data['created']);
+     * @return mixed
+     */
+    public static function getDistributedCache($pKey){
+
+        $invalidationKey = $pKey.'/!invalidationCheck';
+        $timestamp       = self::getCache($invalidationKey);
+        $cache           = null;
+
+        if ($timestamp !== null){
+            $cache = self::getFastCache($pKey);
+            if ($cache['timestamp'] == $timestamp){
+                return $cache['data'];
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Sets a distributed cache.
      *
-     *    //then later
+     * This stores a ms timestamp on the distributed cache (Kryn::setCache())
+     * and the actual data on the high-speed cache driver (Kryn::setFastCache()).
+     * This mechanism makes sure, you gain the maximum performance by using the
+     * fast cache driver to store the actual data and using the distributed cache driver
+     * to store a ms timestamp where we can check (over several kryn.cms installations)
+     * whether the cache is still valid or not.
      *
-     *    $data        = Kryn::getFastCache('data');
-     *    $dataCreated = Kryn::getCache('data.created');
-     *    if (!$data || $data['created'] != $dataCreated)
-     *        //data invalid/outdated
+     * Use Kryn::invalidateCache($pKey) to invalidate this cache.
+     * You don't have to define the full key, instead you can pass only a part of the key.
+     * @see \Core\Kryn::invalidateCache for more information.
      *
-     *  This makes sure, all machines in a load balanced scenario knows the data status.
+     * Don't mix the usage if getDistributedCache() and getCache() since this method
+     * stores extra values at the value, which makes getCache() returning something invalid.
      *
-     * @param string $pCode
-     * @param string $pValue
-     * @param int    $pTimeout
+     * @param string $pKey
+     * @param mixed  $pValue Only simple data types. Serialize your value if you have objects/arrays.
+     * @param int    $pLifeTime
+     *
      * @return boolean
      * @static
      */
-    public static function setFastCache($pCode, $pValue, $pTimeout = null) {
+    public static function setDistributedCache($pKey, $pValue, $pLifeTime = null){
+
+        $invalidationKey = $pKey.'/!invalidationCheck';
+        $timestamp       = microtime();
+
+        $cache['data']      = $pValue;
+        $cache['timestamp'] = $timestamp;
+        return Kryn::setFastCache($pKey, $cache, $pLifeTime) && Kryn::setCache($invalidationKey, $timestamp, $pLifeTime);
+    }
+
+    /**
+     * Sets a local cache.
+     *
+     * This function saves the value in a generated php file
+     * as php code, via apc_store or other high-performance caching driver.
+     *
+     * If you want a distributed cache, use `setDistributedCache()`.
+     *
+     * @param string $pKey
+     * @param string $pValue Only simple data types. Serialize your value if you have objects/arrays.
+     * @param int    $pLifeTime
+     *
+     * @return boolean
+     * @static
+     */
+    public static function setFastCache($pKey, $pValue, $pLifeTime = null) {
         if (!self::$cache)
             self::initCache();
-        return Kryn::$cacheFast->set($pCode, $pValue, $pTimeout);
+        return Kryn::$cacheFast->set($pKey, $pValue, $pLifeTime);
     }
 
     /**
      * Returns the content of the specified cache-key.
      * See Kryn::setFastCache for more information.
      *
-     * @param string $pCode
+     * @param string $pKey
      * @return boolean
      * @static
      */
-    public static function &getFastCache($pCode) {
+    public static function &getFastCache($pKey) {
         if (!self::$cache)
             self::initCache();
-        return Kryn::$cacheFast->get($pCode);
+        return Kryn::$cacheFast->get($pKey);
     }
 
     /**
