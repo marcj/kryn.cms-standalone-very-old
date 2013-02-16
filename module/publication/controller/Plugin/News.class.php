@@ -20,12 +20,7 @@ class News extends Controller {
         $cacheKey = 'publication/news/list/'.$page;
         $view     = 'publication/news/list/'.$options['template'];
 
-
-        if (!$this->isValidCache($cacheKey)){
-
-        }
-
-        return $this->renderCached($cacheKey, $view, function(){
+        return $this->renderCached($cacheKey, $view, function() use ($page, $options){
 
             $items = NewsQuery::create()
                 ->paginate($page, $options['itemsPerPage'] ?: 10)

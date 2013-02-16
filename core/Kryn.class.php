@@ -2125,7 +2125,7 @@ class Kryn {
      * You don't have to define the full key, instead you can pass only a part of the key.
      * @see \Core\Kryn::invalidateCache for more information.
      *
-     * Don't mix the usage if getDistributedCache() and getCache() since this method
+     * Don't mix the usage of getDistributedCache() and getCache() since this method
      * stores extra values at the value, which makes getCache() returning something invalid.
      *
      * @param string $pKey
