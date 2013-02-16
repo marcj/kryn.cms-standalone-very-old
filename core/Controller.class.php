@@ -10,51 +10,40 @@ namespace Core;
  */
 class Controller {
 
-	private $viewData = null;
+	private $viewData = array();
 
 
 	/**
-	 * Assign data to a variable inside the template engine.
-	 * The assigned data belongs to the scope of the current object.
+	 * Assign data to a variable inside this controller.
+	 * This data is used in $this->render() if you don't pass a data array.
 	 *
-	 * Use tAssign() for global assignment.
-	 * 
-	 * @param  string $pName
-	 * @param  mixed &$pValue
+	 * @param string $pKey
+	 * @param mixed  $pValue
 	 */
-	public function assign($pName, $pValue){
-		if (!$this->viewData)
-			$this->viewData = Kryn::$smarty->createData();
-
-		$this->viewData->assign($pName, $pValue);
+	public function assign($pKey, $pValue){
+        $this->viewData[$pKey] = $pValue;
 	}
 
 	/**
-	 * Assign data to a variable inside the template engine by reference.
-	 * The assigned data belongs to the scope of the current object.
+     * Assign data by reference to a variable inside this controller.
+     * This data is used in $this->render() if you don't pass a data array.
 	 *
-	 * Use tAssignByRef() for global assignment.
-	 * 
-	 * @param  string $pName
-	 * @param  mixed &$pValue
+	 * @param string $pKey
+	 * @param mixed &$pValue
 	 */
-	public function assignByRef($pName, &$pValue){
-		if (!$this->viewData)
-			$this->viewData = Kryn::$smarty->createData();
-
-		$this->viewData->assignByRef($pName, $pValue);
+	public function assignByRef($pKey, &$pValue){
+        $this->viewData[$pKey] = $pValue;
 	}
 
 
 	/**
-	 * Returns true if the specified name has a value assigned in this scope.
+	 * Returns true if the specified name has a value assigned.
 	 *
-	 * @param $pName
+	 * @param string $pKey
 	 * @return bool
 	 */
-	public function assigned($pName) {
-		if (!$this->viewData) return false;
-	    return $this->viewData->getTemplateVars($pName) !== null;
+	public function assigned($pKey) {
+        return $this->viewData[$pKey] !== null;
 	}
 
 
@@ -63,24 +52,36 @@ class Controller {
 	 * 
 	 */
 	public function clearAllAssign(){
-		if ($this->viewData)
-	    	$this->viewData->clearAllAssign();
+        $this->viewData = array();
 	}
 
 
 	/**
-	 * Returns the view output.
+	 * Returns the rendered view output.
 	 *
 	 * If you've extended your main controller with this controller,
-	 * then $pTemplate will be prefixed with the current module key,
+	 * then $pView will be prefixed with the current module key,
 	 * so that the views of <moduleKey>/views/ will be loaded primarily.
-	 * If the view does not exists there, it trys to load the view from root.
-	 * 
-	 * @param  string $pTemplate
+	 * If the view does not exists there, it tries to load the view from root.
+     *
+     * Meaning both is a valid view:
+     *   publication/news/list/default.tpl
+     *   news/list/default.tpl (if the current class is \Publication\News\Bar)
+     *
+     * Depending on the file name of the view we use Smarty, Twig, plain PHP or nothing.
+     *
+     * Examples:
+     *    plugin1/default.php           -> php
+     *    plugin1/default.tpl           -> smarty
+     *    plugin1/default.smarty.tpl    -> smarty
+     *    plugin1/default.twig.tpl      -> twig
+     *    plugin1/default.html          -> none
+	 *
+	 * @param  string $pView
 	 * @param  array  $pData Use this data instead of the data assigned through $this->assign()
 	 * @return string
 	 */
-	public function render($pView, $pData = null){
+    public function render($pView, $pData = null){
 		
 		$clazz = get_class($this);
 		if (($pos = strpos($clazz, '\\')) !== false) {
@@ -90,6 +91,10 @@ class Controller {
 				$view = tPath($namespace.'/'.$pView);	
 			}
 		}
+
+        $view = str_replace('..', '', $view);
+
+        //todo, detect the file extension and load the appropriate template engine.
 		if (!file_exists($view)){
 			$view = tPath($pView);
 		}
@@ -101,5 +106,36 @@ class Controller {
 
         return Kryn::translate($html);
 	}
+
+    public function getFileMTime($pView){
+        $view = tPath($pView);
+        return filemtime($view);
+    }
+
+    /**
+     *
+     *
+     * @param string $pCacheKey
+     * @param string $pView
+     * @param array  $pData
+     *
+     * @return string
+     */
+    public function renderCached($pCacheKey, $pView, $pData = null){
+
+        $data  = Kryn::getDistributedCache($pCacheKey);
+        $mTime = $this->getFileMTime($pView);
+
+        if (!$data || !is_array($data) || $mTime != $data['fileMTime']){
+            $data = array(
+                'content' => $this->render($pView, $pData),
+                'fileMTime' => $mTime
+            );
+
+            Kryn::setDistributedCache($pCacheKey, $data);
+        }
+
+        return $data['content'];
+    }
 
 } 
