@@ -334,11 +334,11 @@ class PageResponse extends Response {
 
                 if ($js['position'] != $pPosition) continue;
 
-                if (strpos($js, "http://") !== false) {
-                    $result .= '<script type="text/javascript" src="' . $js . '" ></script>' . "\n";
+                if (strpos($js['path'], "http://") !== false) {
+                    $result .= '<script type="text/javascript" src="' . $js['path'] . '" ></script>' . "\n";
                 } else {
                     //local
-                    $file = PATH_MEDIA . $js;
+                    $file = PATH_MEDIA . $js['path'];
                     if (file_exists(PATH . $file) && $mtime = @filemtime(PATH . $file)) {
                         $jsCode .= $file . '_' . $mtime;
                     }
@@ -354,9 +354,9 @@ class PageResponse extends Response {
 
                     if ($js['position'] != $pPosition) continue;
 
-                    $file = PATH_MEDIA . $js;
+                    $file = PATH_MEDIA . $js['path'];
                     if (file_exists( $file)) {
-                        $jsContent .= "/* $file: */\n\n";
+                        $jsContent .= "/* file: $file: */\n\n";
                         $jsContent .= file_get_contents($file) . "\n\n\n";
                     }
                 }
