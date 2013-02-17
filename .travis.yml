@@ -28,7 +28,7 @@ before_script:
   - ls -al;
 
 script:
-  - sudo -u www-data phpunit;
+  - phpunit;
 
 after_failure:
   - tail -n 50 /var/log/syslog;
