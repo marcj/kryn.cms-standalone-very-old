@@ -247,7 +247,7 @@
             "table": "system_node",
             "labelField": "title",
             "labelTemplate": "",
-            "defaultSelection": "type, title, alternativeTitle, url, layout, visible, target",
+            "defaultSelection": "type, title, alternativeTitle, urn, layout, visible, target",
             "blacklistSelection": "",
             "limitDataSets": [
                 
@@ -339,8 +339,8 @@
                     "primaryKey": 0,
                     "empty": 1
                 },
-                "url": {
-                    "label": "[[URL]]",
+                "urn": {
+                    "label": "[[URN]]",
                     "type": "text",
                     "primaryKey": 0,
                     "empty": 1

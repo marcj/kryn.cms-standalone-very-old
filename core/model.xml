@@ -171,7 +171,7 @@
     <column name="type" type="INTEGER" required="false"/>
     <column name="title" type="VARCHAR" size="255" required="false"/>
     <column name="alternative_title" type="VARCHAR" size="255" required="false"/>
-    <column name="url" type="VARCHAR" size="255" required="false"/>
+    <column name="urn" type="VARCHAR" size="255" required="false"/>
     <column name="link" type="VARCHAR" size="255" required="false"/>
     <column name="layout" type="VARCHAR" size="64" required="false"/>
     <column name="sort" type="INTEGER" required="false"/>

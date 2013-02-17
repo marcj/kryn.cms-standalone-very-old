@@ -19,8 +19,8 @@ class NodeCrud extends \Admin\ObjectCrud {
         'type' => 'number',
         'required' => 'true',
       ),
-      'url' => array (
-        'label' => 'URL',
+      'urn' => array (
+        'label' => 'URN',
         'type' => 'text',
         'required' => 'true',
       ),
