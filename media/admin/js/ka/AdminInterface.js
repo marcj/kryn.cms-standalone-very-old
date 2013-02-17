@@ -120,7 +120,7 @@ ka.AdminInterface = new Class({
             title: t('Clear cache'),
             href: 'javascript: ;'
         })
-        .addEvent('click', function(){ ka.clearCache(); } )
+        .addEvent('click', function(){ this.clearCache();}.bind(this) )
         .inject(this.headerIconBar);
 
         this.openHelpBtn = new Element('a', {
@@ -147,6 +147,19 @@ ka.AdminInterface = new Class({
         this.windowList = new Element('div', {
             'class': 'ka-windowList ka-admin'
         }).inject(this.border);
+
+    },
+
+    clearCache: function () {
+
+        if (!this.cacheToolTip) {
+            this.cacheToolTip = new ka.Tooltip(this.clearCacheBtn, t('Clearing cache ...'), 'top');
+        }
+        this.cacheToolTip.show();
+
+        new Request.JSON({url: _path + 'admin/backend/cache', noCache: 1, onComplete: function (res) {
+            this.cacheToolTip.stop(t('Cache cleared'));
+        }.bind(this)}).delete();
 
     },
 
