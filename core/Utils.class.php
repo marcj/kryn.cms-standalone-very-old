@@ -7,6 +7,7 @@ class Utils {
     private static $inErrorHandler = false;
 
     public static function exceptionHandler($pException){
+
         $exceptionArray = array(
             'type' => $pException->getCode(),
             'message' => $pException->getMessage(),
@@ -29,6 +30,12 @@ class Utils {
     public static function errorHandler($pErrorCode, $pErrorStr, $pFile, $pLine, $pBacktrace = null){
 
         ob_end_clean();
+
+        if (!Kryn::$config['displayErrors']){
+            Kryn::internalError('Internal Server Error',
+                tf('The server encountered an internal error and was unable to complete your request. Please contact the administrator. %s',
+                    Kryn::$config['email']));
+        }
 
         if (!Kryn::$config['displayBeautyErrors'] || $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest' || php_sapi_name() == 'cli'){
             $response = array(
