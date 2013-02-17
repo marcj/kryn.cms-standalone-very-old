@@ -153,6 +153,15 @@
         "listing": {
             "class": "\\Publication\\Plugin\\News",
             "label": "[[News list]]",
+            "routes": [
+                {
+                    "pattern": "{page}",
+                    "defaults": {"page": 1},
+                    "requirements": {
+                        "page": "\\d+"
+                    }
+                }
+            ],
             "options": {
                 "itemsPerPage": {
                     "label": "[[Count per page]]",

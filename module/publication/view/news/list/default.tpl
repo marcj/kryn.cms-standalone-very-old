@@ -26,13 +26,13 @@
 {foreach from=$items item=item name="newsloop"}
 
     <div class="publicationNewsListDefaultItem" {if $smarty.foreach.newsloop.last}style="border: 0px;"{/if}>
-    
-        
-        <h2><a class="publicationNewsListDefaultItemLink" href="{$pConf.detailPage|realUrl}/{$item.title|escape:"rewrite"}/{$item.id}/" >{$item.title}</a></h2>
+
+
+        <h2><a class="publicationNewsListDefaultItemLink" href="{$item.url}" >{$item.title}</a></h2>
         <div class="publicationNewsListDefaultItemDate">at
         <a>{$item.releasedate|date_format:"%B %d, %Y"}</a></div>
         {* %H:%M *}
-        
+
         <div class="publicationNewsListDefaultItemIntro">
             {if $item.introimage ne ""}
                 <img src="{$item.introimage}" class="publicationNewsListDefaultItemIntroImage" align="left" />
@@ -51,7 +51,7 @@
                 [[with no tags]]
             {/if}
             
-            <a style="float: right;" href="{$pConf.detailPage|realUrl}/{$item.title|escape:"rewrite"}/{$item.id}/">[[read more]]</a>
+            <a style="float: right;" href="{$item.url}">[[read more]]</a>
             
         </div>
     </div>
