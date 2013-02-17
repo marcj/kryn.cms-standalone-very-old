@@ -111,9 +111,13 @@ header("Content-Type: text/html; charset=utf-8");
         vertical-align: top;
       }
 
-      a, a:link {
+      .step a, .step a:link {
         text-decoration: none;
         color: gray;
+      }
+
+      a, a:link {
+          color: gray;
       }
 
       body {
@@ -690,7 +694,7 @@ function step5Done($pMsg){
             $dir = opendir( PATH_MODULE );
             if(! $dir ) return;
             while (($file = readdir($dir)) !== false){
-                if( $file != '..' && $file != '.' && $file != 'admin' && $file != 'users' ){
+                if (is_dir($file) && $file != '..' && $file != '.' && $file != 'admin' && $file != 'users' ){
                     if ($_POST['modules'][$file])
                         $modules[] = $file;
                 }
@@ -700,7 +704,8 @@ function step5Done($pMsg){
 
             \Core\SystemFile::setContent('config.php', "<?php\nreturn ".var_export(Kryn::$config, true).";\n?>");
         }
-        Kryn::$extensions = Kryn::$config['activeModules'];
+        Kryn::$extensions = array('core', 'admin', 'users');
+        Kryn::$extensions = array_merge(Kryn::$extensions, Kryn::$config['activeModules']);
 
 
         if (file_exists($file = 'propel-config.php')){
@@ -873,7 +878,7 @@ Your installation file contains following modules:<br />
     $modules = array();
     if(! $dir ) return;
     while (($file = readdir($dir)) !== false){
-        if( $file != '..' && $file != '.' && $file != '.svn' && (array_search($file, $systemModules) === false) ){
+        if (is_dir($file) && $file != '..' && $file != '.' && $file != '.svn' && (array_search($file, $systemModules) === false) ){
             $modules[] = $file;
         }
     }
