@@ -43,22 +43,24 @@ class Navigation {
         $navigation = false;
         $fromCache = false;
 
-        if (!$pOptions['noCache'] && Kryn::$domainProperties['Kryn']['cacheNavigations'] !== 0){
+        if (!$pOptions['noCache'] && Kryn::$domainProperties['core']['cacheNavigations'] !== 0){
 
-            $navigation = Kryn::getFastCache($cacheKey);
-            if ($navigation && is_array($navigation) && $navigation['mtime'] == $mtime)
-                return $navigation['data'];
+            $cache = Kryn::getDistributedCache($cacheKey);
+            if ($cache && is_array($cache) && $cache['html'] !== null && $cache['mtime'] == $mtime)
+                return $cache['html'];
 
-        } else {
-            $navigation = Kryn::getFastCache($cacheKey);
-            if ($navigation && $navigation['mtime'] == $mtime){
-                $navigation = unserialize($navigation['data']);
-                if ($navigation)
-                    $fromCache = true;
-            }
         }
 
-        if (!$navigation){
+        $cache = Kryn::getDistributedCache($cacheKey);
+
+        if ($cache && $cache['object'] && $cache['mtime'] == $mtime){
+            $navigation = unserialize($cache['object']);
+            $fromCache = true;
+        }
+
+
+        if (!$navigation && $pOptions['id'] != 'breadcrumb' && ($pOptions['id'] || $pOptions['level'])){
+
             if ($pOptions['id'] + 0 > 0) {
                 $navigation =& Kryn::getPage($pOptions['id'] + 0);
 
@@ -86,18 +88,16 @@ class Navigation {
 
             tAssign('navigation', $navigation);
 
-            if (Kryn::$domainProperties['kryn']['cacheNavigations'] !== 0) {
-                $res = tFetch($pTemplate);
-                //Kryn::setCache($cacheKey, $res, 10);
-                $html = $res;
+            if (Kryn::$domainProperties['core']['cacheNavigations'] !== 0) {
+                $html = tFetch($pTemplate);
             } else {
                 $html = tFetch($pTemplate);
             }
 
-            if (!$pOptions['noCache'] && Kryn::$domainProperties['Kryn']['cacheNavigations'] !== 0){
-                Kryn::setFastCache($cacheKey, array('mtime' => $mtime, 'data' => $html));
+            if (!$pOptions['noCache'] && Kryn::$domainProperties['core']['cacheNavigations'] !== 0){
+                Kryn::setDistributedCache($cacheKey, array('mtime' => $mtime, 'html' => $html));
             } else if (!$fromCache){
-                Kryn::setFastCache($cacheKey, array('mtime' => $mtime, 'data' => serialize($navigation)));
+                Kryn::setDistributedCache($cacheKey, array('mtime' => $mtime, 'object' => serialize($navigation)));
             }
 
             return $html;
