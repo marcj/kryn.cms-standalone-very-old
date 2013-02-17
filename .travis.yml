@@ -23,12 +23,12 @@ before_script:
   - php composer.phar install
 
   # File access
-  - sudo chown -R www-data .;
+  - sudo chown -R travis .;
   - sudo chmod -R g-w .;
   - ls -al;
 
 script:
-  - sudo -u www-data phpunit;
+  - phpunit;
 
 after_failure:
   - tail -n 50 /var/log/syslog;
