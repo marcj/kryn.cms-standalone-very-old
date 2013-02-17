@@ -352,8 +352,6 @@ class PropelHelper {
 
         foreach (Kryn::$extensions as $extension){
 
-            if ($extension == 'kryn') continue;
-
             if (file_exists($schema = \Core\Kryn::getModuleDir($extension).'model.xml')){
 
                 $tables = simplexml_load_file($schema);
