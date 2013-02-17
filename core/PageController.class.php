@@ -23,12 +23,11 @@ class PageController extends Controller {
     private static $slotContents = array();
 
     /**
-     * Build the page and return the modified Response of Core\Kryn::getResponse().
+     * Build the page and return the Response of Core\Kryn::getResponse().
      *
-     * @param Request $request
      * @return Response
      */
-    public function send(Request $request){
+    public function handle(){
 
         //is link
         if (Kryn::$page->getType() == 1) {
@@ -46,48 +45,9 @@ class PageController extends Controller {
             }
         }
 
-        return Kryn::getResponse()->setContent($this->buildBody());
+        return Kryn::getResponse();
     }
 
-    /**
-     * Builds the html body of the current page.
-     *
-     * @return string
-     */
-    public function buildBody(){
-
-        $page   = Kryn::getPage();
-
-        Kryn::$themeProperties = array();
-        $propertyPath = '';
-
-        foreach (Kryn::$themes as $extKey => &$themes) {
-            foreach ($themes as $tKey => &$theme) {
-                if ($theme['layouts']) {
-                    foreach ($theme['layouts'] as $lKey => &$layout) {
-                        if ($layout == Kryn::$page->getLayout()) {
-                            $propertyPath = $extKey.'/'.$tKey;
-                            break;
-                        }
-                    }
-                }
-                if ($propertyPath) break;
-            }
-            if ($propertyPath) break;
-        }
-
-        if ($propertyPath) {
-            if ($themeProperties = kryn::$domain->getThemeProperties())
-                Kryn::$themeProperties = $themeProperties->getByPath($propertyPath);
-        }
-
-        $layout = $page->getLayout();
-
-        return $this->render($layout, array(
-            'themeProperties' => Kryn::$themeProperties
-        ));
-
-    }
 
     public static function getSlotContents($pPageId, $pSlotId){
 
@@ -131,65 +91,14 @@ class PageController extends Controller {
      * @return string
      */
     public static function getPublicUrl($pObjectKey, $pObjectPk, $pPlugin = null){
-        return self::getPageUrl($pObjectPk['id']);
+        return Node::getUrl($pObjectPk['id']+0);
     }
 
-    public static function getPageUrl($pPageId){
-
-        if (Kryn::$page && Kryn::$page->getId() == $pPageId){
-            $domainId = Kryn::$page->getDomainId();
-        } else {
-            $domainId = Kryn::getDomainOfPage($pPageId);
-        }
-
-        if (!$domainId) {
-            return null;
-        }
-
-        $cachedUrls = self::$cachedUrls[$domainId];
-
-        if (!$cachedUrls){
-            $cachedUrls =& Kryn::getCache('core/node-ids-to-url-' . $domainId);
-
-            if (!$cachedUrls || !$cachedUrls['id']) {
-                $cachedUrls = Render::updateUrlCache($domainId);
-            }
-            self::$cachedUrls[$domainId] = $cachedUrls;
-        }
-
-        $url = $cachedUrls['id']['id=' . $pPageId];
-
-        if ($domainId != Kryn::$domain->getId()){
-            if ($domainId != Kryn::$domain->getId())
-                $domain = Kryn::getDomain($domainId);
-            else
-                $domain = Kryn::$domain;
-
-            $domainName = $domain->getRealDomain();
-            if ($domain->getMaster() != 1) {
-                $url = $domainName . $domain->getPath() . $domain->getLang() . '/' . $url;
-            } else {
-                $url = $domainName . $domain->getPath() . $url;
-            }
-
-            $url = 'http' . (Kryn::$ssl ? 's' : '') . '://' . $url;
-        }
-
-        if (substr($url, -1) == '/')
-            $url = substr($url, 0, -1);
-
-        if ($url == '/')
-            $url = '.';
-
-        if (substr($url, -1) == '/')
-            $url = substr($url, 0, -1);
-
-        if ($url == '/')
-            $url = '.';
-
-        return $url;
-    }
-
+    /**
+     * Returns a permanent(301) redirectResponse object.
+     *
+     * @return RedirectResponse
+     */
     public function redirectToStartPage(){
 
         $response = new RedirectResponse(Kryn::getBaseUrl(), 301);

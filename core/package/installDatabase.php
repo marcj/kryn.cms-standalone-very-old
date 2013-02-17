@@ -175,7 +175,7 @@ if (!function_exists(__NAMESPACE__.'\installNodes')){
             $oNode->setType($Node[0]);
             $oNode->setTitle($Node[1]);
             $oNode->setLayout($Node[2]);
-            $oNode->setUrl($Node[3]);
+            $oNode->setUrn($Node[3]);
             $oNode->setParentId($pNode->getId());
             $oNode->insertAsLastChildOf($pNode);
 
@@ -259,7 +259,7 @@ foreach ($Nodes as $Node){
     $oNode->setType($Node[0]);
     $oNode->setTitle($Node[1]);
     $oNode->setLayout($Node[2]);
-    $oNode->setUrl($Node[3]);
+    $oNode->setUrn($Node[3]);
     $oNode->insertAsLastChildOf($root);
     if ($Node[7] !== null)
         $oNode->setVisible($Node[7]);

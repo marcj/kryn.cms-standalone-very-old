@@ -351,27 +351,33 @@ class Render {
                 break;
             case 'plugin':
 
-                if ($data['content']){
+                if ($response = Kryn::getResponse()->getPluginResponse($content)){
+                    $data['content'] = $response->getContent();
+                } else if ($data['content']){
                     $plugin = json_decode($data['content'], 1);
                     if ($pluginDef = Kryn::$configs[$plugin['module']]['plugins'][$method = $plugin['plugin']]) {
                         $clazz = $pluginDef['class'];
                         if (class_exists($clazz)){
 
-                            //create a sub request
-                            $request = new Request();
-                            $request->attributes->add(array(
-                                '_controller' => $clazz.'::'.$method,
-                                'options'     => $plugin['options']
-                            ));
+                            if (method_exists($clazz, $method)){
+                                //create a sub request
+                                $request = new Request();
+                                $request->attributes->add(array(
+                                    '_controller' => $clazz.'::'.$method,
+                                    'options'     => $plugin['options']
+                                ));
 
-                            ob_start();
-                            $response = Kryn::getHttpKernel()->handle($request, HttpKernelInterface::SUB_REQUEST);
-                            $ob = ob_get_clean();
+                                ob_start();
+                                $response = Kryn::getHttpKernel()->handle($request, HttpKernelInterface::SUB_REQUEST);
+                                $ob = ob_get_clean();
 
-                            if ($response instanceof Response){
-                                Kryn::sendResponse($response);
+                                if ($response instanceof Response){
+                                    Kryn::sendResponse($response);
+                                } else {
+                                    $data['content'] = $ob.$response->getContent();
+                                }
                             } else {
-                                $data['content'] = $ob.$response->getContent();
+                                return '';
                             }
                         } else {
                             $data['content'] = tf('Class `%s` does not exist. You should create this class.', $clazz);
@@ -549,8 +555,9 @@ class Render {
         while ($row = dbFetch($res)) {
             $r2d[$row['domain_id']] .= $row['id'] . ',';
         }
-        Kryn::setCache('core/domain-to-nodes', $r2d);
         dbFree(res);
+
+        Kryn::setDistributedCache('core/node/toDomains', $r2d);
         return $r2d;
     }
 

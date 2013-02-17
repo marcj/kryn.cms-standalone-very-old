@@ -20,51 +20,10 @@ use Symfony\Component\Routing\Route;
 class Node extends BaseNode {
 
     /**
-     * Returns all possible routes.
-     *
-     * This is depended on the actual url of this node and the containing plugins in the actual node content.
-     *
-     * @param RouteCollection $pRouteCollections
-     */
-    public function addRoutes(RouteCollection &$pRouteCollections){
-
-
-        $clazz = 'Core\\PageController';
-        $url = '/'.$this->getFullUrl();
-
-        //todo, if ($this->getController) $clazz = $this->getController();
-
-        $controller = $clazz.'::send';
-
-        if (Kryn::$domain && Kryn::$domain->getStartnodeId() == $this->getId()){
-
-            //startpage, so add a redirect controller
-
-            $pRouteCollections->add($pRouteCollections->count()+1,
-                new Route(
-                    '/',
-                    array('_controller' => $controller)
-                )
-            );
-
-            $controller = $clazz.'::redirectToStartPage';
-        }
-
-        $pRouteCollections->add($pRouteCollections->count()+1,
-            new Route(
-                $url,
-                array('_controller' => $controller)
-            )
-        );
-
-        //todo, add all plugins
-
-    }
-
-    /**
      * Same as getChildren but returns only visible pages and non-folder nodes
      *
-     * @return array
+     * @param boolean $pWithFolders
+     * @return \PropelObjectCollection
      */
     public function getLinks($pWithFolders = false){
 
@@ -145,20 +104,46 @@ class Node extends BaseNode {
     }
 
     /**
-     * Returns the full url to the given page object.
+     * Returns the URL of the given page.
      *
-     * If the page belongs to another domain than the current,
-     * then the url contains http://<otherDomain>/<fullUrl> if your pass $pWithoutContextCheck=true
+     * If the current domain differs from page's domain,
+     * then we'll add the protocol and domain name as well (means with http://<domain>[/<language>]/<urn>).
      *
-     * @param bool $pWithoutContextCheck Does or does not check whether the page belongs to the current Kryn::$domain and
-     *                                   therefore add the domain name with `http` or just the uri.
-     * @return string
+     * @param integer|Node $pPage
+     * @param boolean      $pForceFullUrl No matter if the page' domain differs from the current domain, we always
+     *                                    return the full URL (means with http://<domain>[/<language>]/<urn>)
+     * @return string|void
+     * @static
      */
-    public function getFullUrl($pWithoutContextCheck = false){
+    public static function getUrl($pPage, $pForceFullUrl = false){
 
-        $urls =& Kryn::getCachedPageToUrl($this->getDomainId());
-        return $urls[$this->getId()];
+        $id       = $pPage instanceof Node ? $pPage->getId() : $pPage+0;
+        $domainId = $pPage instanceof Node ? $pPage->getDomainId() : Kryn::getDomainOfPage($pPage+0);
 
+        $urls =& Kryn::getCachedPageToUrl($domainId);
+        $url  = $urls[$id];
+
+        if ($pForceFullUrl || !Kryn::$domain || $domainId != Kryn::$domain->getId()){
+            $domain = Kryn::$domain ?: Kryn::getDomain($domainId);
+
+            $domainName = $domain->getRealDomain();
+            if ($domain->getMaster() != 1) {
+                $url = $domainName . $domain->getPath() . $domain->getLang() . '/' . $url;
+            } else {
+                $url = $domainName . $domain->getPath() . $url;
+            }
+
+            $url = 'http' . (Kryn::$ssl ? 's' : '') . '://' . $url;
+        }
+
+        //crop last /
+        if (substr($url, -1) == '/')
+            $url = substr($url, 0, -1);
+
+        if ($url == '/')
+            $url = '.';
+
+        return $url;
     }
 
     /**
@@ -171,8 +156,8 @@ class Node extends BaseNode {
 
         if( $this->getId() == \Core\Kryn::$page->getId() ) return true;
 
-        $url = \Core\Kryn::$page->getFullUrl();
-        $purl = $this->getFullUrl();
+        $url  = self::getUrl(\Core\Kryn::$page);
+        $purl = self::getUrl($this);
 
         if ($url && $purl){
             $pos = strpos( $url, $purl );

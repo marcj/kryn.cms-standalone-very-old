@@ -134,9 +134,9 @@ class Controller {
     }
 
     /**
-     * Returns a rendered view. If the view is already cached under the given
-     * cacheKey it returns directly the cache. Use `isValidCache()` to decide
-     * whether you generate and pass $pData or not.
+     * Returns a rendered view. If we find data behind the given cache
+     * it uses this data instead of calling $pData. So this function
+     * does not cache the whole rendered html. Tho do so use renderFullCache().
      *
      * Example:
      *
@@ -145,28 +145,99 @@ class Controller {
      * });
      *
      * Note: The $pData callable is only called if the cache needs to regenerate.
+     * If the callable $pData returns NULL, then this will return NULL, too.
      *
      * @param string          $pCacheKey
      * @param string          $pView
      * @param array|callable  $pData Pass the data as array or a data provider function.
      *
+     * @see method `render` to get more information.
+     *
      * @return string
      */
     public function renderCached($pCacheKey, $pView, $pData = null){
 
-        $data  = Kryn::getDistributedCache($pCacheKey);
+        $cache = Kryn::getDistributedCache($pCacheKey);
         $mTime = $this->getFileMTime($pView);
 
-        if (!$data || !is_array($data) || $mTime != $data['fileMTime']){
-            $data = array(
-                'content' => $this->render($pView, is_callable($pData) ? $pData() : $pData),
+        if (!$cache || !$cache['data'] || !is_array($cache) || $mTime != $cache['fileMTime']){
+
+            $data = $pData;
+            if (is_callable($pData)){
+                $data = call_user_func($pData, $pView);
+                if ($data === null) return null;
+            }
+
+            $cache = array(
+                'data'      => $data,
                 'fileMTime' => $mTime
             );
 
-            Kryn::setDistributedCache($pCacheKey, $data);
+            Kryn::setDistributedCache($pCacheKey, $cache);
         }
 
-        return $data['content'];
+        return $this->render($pView, $cache['data']);
+
+    }
+
+
+    /**
+     * Returns a rendered view. If we find html behind the given cache
+     * it returns this directly. This is a couple os ms faster than `renderCached`
+     * since the template engine is never used when there's a valid cache.
+     *
+     * Example:
+     *
+     *  return $this->renderFullCached('myCache', 'plugin1/default.tpl', function(){
+     *     return array('items' => heavyDbQuery());
+     * });
+     *
+     * Note: The $pData callable is only called if the cache needs to regenerate.
+     *
+     * If the callable $pData returns NULL, then this will return NULL, too, without entering
+     * the actual rendering process.
+     *
+     * @param string          $pCacheKey
+     * @param string          $pView
+     * @param array|callable  $pData Pass the data as array or a data provider function.
+     *
+     * @see method `render` to get more information.
+     *
+     * @return string
+     */
+    public function renderFullCached($pCacheKey, $pView, $pData = null){
+
+        $cache = Kryn::getDistributedCache($pCacheKey);
+        $mTime = $this->getFileMTime($pView);
+
+        if (!$cache || !$cache['content'] || !is_array($cache) || $mTime != $cache['fileMTime']){
+
+            $oldResponse = clone Kryn::getResponse();
+
+            $data = $pData;
+            if (is_callable($pData)){
+                $data = call_user_func($pData, $pView);
+                if ($data === null) return null;
+            }
+
+            $content     = $this->render($pView, $data);
+            $response    = Kryn::getResponse();
+            $diff        = $oldResponse->diff($response);
+
+            $cache   = array(
+                'content'      => $content,
+                'fileMTime'    => $mTime,
+                'responseDiff' => $diff
+            );
+
+            Kryn::setDistributedCache($pCacheKey, $cache);
+
+        }
+
+        if ($cache['responseDiff'])
+            Kryn::getResponse()->patch($cache['responseDiff']);
+
+        return $cache['content'];
     }
 
 } 

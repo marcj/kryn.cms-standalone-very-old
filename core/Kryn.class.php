@@ -15,6 +15,7 @@ Namespace Core;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpKernel;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\EventListener\RouterListener;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -26,6 +27,7 @@ use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
 use Symfony\Component\EventDispatcher\GenericEvent;
+use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
  * Kryn.core class
@@ -261,7 +263,6 @@ class Kryn {
      */
     public static $dbConnectionIsSlave = \Propel::CONNECTION_WRITE;
 
-
     /**
      * Current Smarty template object
      *
@@ -285,7 +286,7 @@ class Kryn {
 
     /**
      * The Auth user object of the backend user.
-     * @var Auth
+     * @var \Core\Client\ClientAbstract
      * @static
      */
     private static $adminClient;
@@ -294,7 +295,7 @@ class Kryn {
      * The krynAuth object of the frontend user.
      * It's empty when we're in the backend.
      *
-     * @var krynAuth
+     * @var \Core\Client\ClientAbstract
      * @static
      */
     private static $client;
@@ -339,7 +340,6 @@ class Kryn {
      */
     public static $canonical = '';
 
-
     /**
      * Defines whether the content check before sending the html to the client is activate or not.
      * @var bool
@@ -351,17 +351,17 @@ class Kryn {
     /**
      * Contains the Kryn\Cache object
      *
-     * @var Cache
+     * @var Cache\CacheInterface
      * @static
      */
     public static $cache;
 
     /**
-     * Contains the Kryn\Cache object for file caching
-     * See Kryn::setFastCache for more informations.
+     * Contains the Core\Cache\* object for file caching.
+     * See Kryn::setFastCache for more information.
      *
      * @static
-     * @var Cache
+     * @var Cache\CacheInterface
      */
     public static $cacheFast;
 
@@ -422,6 +422,11 @@ class Kryn {
      */
     private static $response;
 
+
+    /**
+     * @var RouteCollection
+     */
+    public static $routes;
 
     /**
      * The monolog logger object.
@@ -1441,8 +1446,34 @@ class Kryn {
         });
 
         $dispatcher->addListener(KernelEvents::VIEW, function(GetResponseForControllerResultEvent $event){
+
             $data = $event->getControllerResult();
-            $event->setResponse(new PluginResponse($data));
+
+            if ($data !== null){
+                $response = new PluginResponse($data);
+                $response->setControllerRequest($event->getRequest());
+                $event->setResponse($response);
+            } else {
+                $content = $event->getRequest()->attributes->get('_content');
+                if ($content){
+                    $foundRoute = false;
+                    foreach (Kryn::$routes as $idx => $route){
+                        /** @var \Symfony\Component\Routing\Route $route */
+                        if ($content == $route->getDefault('_content')){
+                            Kryn::$routes->remove($idx);
+                            $foundRoute = true;
+                            break;
+                        }
+                    }
+                    if ($foundRoute){
+                        //we've remove the route and fire now again a sub request
+                        Kryn::getRequest()->attributes = new ParameterBag();
+                        $response = Kryn::getHttpKernel()->handle(Kryn::getRequest(), HttpKernelInterface::SUB_REQUEST);
+                        $event->setResponse($response);
+                        return;
+                    }
+                }
+            }
         });
 
     }
@@ -1477,14 +1508,89 @@ class Kryn {
         $routes = new RouteCollection();
         $dispatcher->dispatch('core.setup-routes-pre', new GenericEvent($routes));
 
-        Kryn::$page->addRoutes($routes);
+        $clazz     = 'Core\\PageController';
+        $domainUrl = (!Kryn::$domain->getMaster()) ? '/'.Kryn::$domain->getLang() : '';
+        $url       = $domainUrl.Node::getUrl(Kryn::$page);
+
+        $controller = $clazz.'::handle';
+
+        if (Kryn::$domain && Kryn::$domain->getStartnodeId() == Kryn::$page->getId()){
+
+            //This is the start page, so add a redirect controller
+            $routes->add($routes->count()+1,
+                new Route(
+                    $url,
+                    array('_controller' => $clazz.'::redirectToStartPage')
+                )
+            );
+
+            $url = $domainUrl;
+        }
+
+        $routes->add($routes->count()+1,
+            new Route(
+                $url,
+                array('_controller' => $controller)
+            )
+        );
+
+        $cacheKey = 'core/node/plugins-'.Kryn::$page->getId();
+        $plugins  = Kryn::getDistributedCache($cacheKey);
+
+        if ($plugins === null){
+
+            $plugins = ContentQuery::create()
+                ->filterByNodeId(Kryn::$page->getId())
+                ->filterByType('plugin')
+                ->find();
+
+            Kryn::setDistributedCache($cacheKey, serialize($plugins));
+        } else {
+            $plugins = unserialize($plugins);
+        }
+
+        foreach ($plugins as $plugin){
+            if (!$plugin->getContent()) continue;
+            $data = json_decode($plugin->getContent(), true);
+            if (!$data) continue;
+
+            $pluginDefinition = Kryn::$configs[$data['module']]['plugins'][$data['plugin']];
+
+            if ($pluginDefinition['routes']){
+                foreach ($pluginDefinition['routes'] as $route){
+
+                    $controller = $data['module'].'\\Controller'.'::'.$data['plugin'];
+
+                    if ($pluginDefinition['class'])
+                        $controller = $pluginDefinition['class'].'::'.$data['plugin'];
+
+                    $defaults = array('_controller' => $controller,
+                                      '_content' => $plugin,
+                                      'options' => $data['options']);
+
+                    if ($route['defaults'])
+                        $defaults     = array_merge($defaults, $route['defaults']);
+
+                    $requirements = $route['requirements'];
+
+                    $routes->add($routes->count()+1,
+                        new Route(
+                            $url.'/'.$route['pattern'],
+                            $defaults,
+                            $requirements
+                        )
+                    );
+                }
+            }
+        }
 
         $dispatcher->dispatch('core.setup-routes', new GenericEvent($routes));
 
-        $matcher = new UrlMatcher($routes, new RequestContext());
 
-        $dispatcher->addSubscriber(new RouterListener($matcher));
-
+        self::$routes = $routes;
+        $matcher = new UrlMatcher(self::$routes, new RequestContext());
+        $routerListener = new RouterListener($matcher);
+        $dispatcher->addSubscriber($routerListener);
 
     }
 
@@ -1539,7 +1645,7 @@ class Kryn {
             Kryn::internalError(t('Domain not found'), tf('Domain `%s` not found.', $event->getSubject()));
         });
 
-        $dispatcher->addListener('core.domain-no-start-page', function(GenericEvent $event){
+        $dispatcher->addListener('core.domain-no-start-page', function(){
             Kryn::internalError(null, tf('There is no start page for domain `%s`.', Kryn::$domain->getDomain()));
         });
 
@@ -1551,10 +1657,10 @@ class Kryn {
             self::setupPageRoutes();
 
         $response = $kernel->handle($request);
+        //var_dump($request); exit;
 
         if ($response instanceof PluginResponse) {
-           PageController::injectPlugin($response);
-           $response = PageController::getResponse();
+            $response = Kryn::getResponse()->setPluginResponse($response);
         }
 
         //caching
@@ -1712,15 +1818,16 @@ class Kryn {
     }
 
     /**
-     * Returns the domain of the specified page
+     * Returns the domain of the given $pId page.
+     *
      * @static
-     * @param $pId
-     * @return bool|string
+     * @param integer $pId
+     * @return integer|null
      */
     public static function getDomainOfPage($pId) {
-        $id = false;
+        $id = null;
 
-        $page2Domain =& Kryn::getCache('core/domain-to-nodes');
+        $page2Domain =& Kryn::getDistributedCache('core/node/toDomains');
 
         if (!is_array($page2Domain)) {
             $page2Domain = Render::updatePage2DomainCache();
@@ -1736,7 +1843,6 @@ class Kryn {
         return $id;
     }
 
-
     /**
      * Returns a array with all urls to id pairs.
      *
@@ -1745,13 +1851,13 @@ class Kryn {
      */
     public static function &getCachedUrlToPage($pDomainId){
 
-        $urls        = self::getFastCache('core/urls');
-        $urlsCreated = self::getCache('core/urls.created');
+        $cacheKey = 'core/urls/'.$pDomainId;
+        $urls     = self::getDistributedCache($cacheKey);
 
-        if (!$urls || $urls['!created'] != $urlsCreated) {
+        if (!$urls) {
 
             $nodes = NodeQuery::create()
-                ->select(array('id', 'url', 'lvl', 'type'))
+                ->select(array('id', 'urn', 'lvl', 'type'))
                 ->filterByDomainId($pDomainId)
                 ->orderByBranch()
                 ->find();
@@ -1760,29 +1866,26 @@ class Kryn {
             $urls         = array();
             $level        = array();
 
-            $url = '';
-
             foreach ($nodes as $node){
                 if ($node['lvl'] == 0) continue; //root
                 if ($node['type'] == 3) continue; //deposit
 
-                if ($node['type'] == 2 || $node['url'] == ''){
+                if ($node['type'] == 2 || $node['urn'] == ''){
                     //folder or empty url
                     $level[$node['lvl']+0] = ($level[$node['lvl']-1]) ?: '';
                     continue;
                 }
 
                 $url = ($level[$node['lvl']-1]) ?: '';
-                $url .= '/'.$node['url'];
+                $url .= '/'.$node['urn'];
 
                 $level[$node['lvl']+0] = $url;
 
                 $urls[$url] = $node['id'];
             }
 
-            $urls['!created'] = microtime();
-            self::setFastCache('core/urls', $urls);
-            self::setCache('core/urls.created', $urls['!created']);
+            self::setDistributedCache($cacheKey, $urls);
+
         }
         return $urls;
     }
@@ -2093,7 +2196,7 @@ class Kryn {
      *
      * @param string $pKey
      *
-     * @return mixed
+     * @return mixed Null if not found
      */
     public static function getDistributedCache($pKey){
 
@@ -2108,7 +2211,7 @@ class Kryn {
             }
         }
 
-        return false;
+        return null;
     }
 
     /**

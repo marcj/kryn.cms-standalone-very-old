@@ -4,18 +4,22 @@ namespace Core;
 
 use \Symfony\Component\HttpFoundation\Response;
 
+/**
+ * This is the response, we use to generate the basic html skeleton.
+ * Ths actual body content comes from Core\PageController.
+ */
 class PageResponse extends Response {
 
     /**
      * @var string
      */
-    public static $docType = 'html5';
+    public $docType = 'html5';
 
 
     /**
      * @var array
      */
-    public static $docTypeMap = array(
+    public static $docTypeDeclarations = array(
 
         'html 4.01 transitional' => '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">',
         'html 4.01 strict' => '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">',
@@ -31,8 +35,23 @@ class PageResponse extends Response {
         'html5' => '<!DOCTYPE html>'
     );
 
+    /**
+     * The html starting tag.
+     *
+     * @var string
+     */
+    private $htmlTag = '<html>';
 
     /**
+     * All plugin responses. Mostly only one.
+     *
+     * @var array
+     */
+    private $pluginResponse = array();
+
+    /**
+     * CSS files.
+     *
      * @var array
      */
     private $css = array(
@@ -41,6 +60,8 @@ class PageResponse extends Response {
     );
 
     /**
+     * Javascript files and scripts.
+     *
      * @var array
      */
     private $js = array();
@@ -64,15 +85,26 @@ class PageResponse extends Response {
      * Constructor
      */
     public function __construct($content = '', $status = 200, $headers = array()){
-        $this->setEndTag(((strpos(strtolower($this->getDocType()), 'xhtml') !== false) ? '/>' : '>')."\n");
+        $this->setDocType($this->getDocType());
         parent::__construct($content, $status, $headers);
     }
 
     /**
+     * Sets the end-tag of header elements. default is '>', but on XHTML it needs to be '/>'.
+     *
      * @param string $endTag
      */
     public function setEndTag($endTag) {
         $this->endTag = $endTag;
+    }
+
+    /**
+     * Returns the end-tag of header elements. default is '>', but on XHTML it needs to be '/>'.
+     *
+     * @return string
+     */
+    public function getEndTag() {
+        return $this->endTag;
     }
 
     public function setDomainHandling($pDomainHandling){
@@ -89,13 +121,6 @@ class PageResponse extends Response {
 
     public function getResourceCompression() {
         return $this->resourceCompression;
-    }
-
-    /**
-     * @return string
-     */
-    public function getEndTag() {
-        return $this->endTag;
     }
 
     public function addCssFile($pPath, $pType  = 'text/css'){
@@ -123,43 +148,20 @@ class PageResponse extends Response {
     }
 
 
+    /**
+     * Builds the HTML skeleton, sends all HTTP headers and the HTTP body.
+     *
+     * This handles the SearchEngine stuff as well.
+     *
+     * @return Response
+     */
     public function send(){
 
         //build html skeleton
         $header = '';
         $this->prepare(Kryn::getRequest());
 
-        $header .= $this->getTitleTag();
-        $header .= $this->getBaseHref();
-        $header .= $this->getContentTypeTag();
-        $header .= $this->getMetaLanguage();
-
-        $header .= $this->getCss();
-        //$header .= $this->getCssContent();
-
-        $header .= $this->getJs('top');
-
-        $beforeBodyClose = '';
-
-        $beforeBodyClose .= $this->getJs('bottom');
-
-        $docType = $this->getDocType();
-        $htmlOpener = $this->getHtmlTag();
-
-        $html = sprintf("%s
-%s
-<head>
-%s
-</head>
-<body>
-%s
-%s
-</body>
-</html>", $docType, $htmlOpener, $header, $this->getContent(), $beforeBodyClose);
-
-        $html = preg_replace('/href="#([^"]*)"/', 'href="' . Kryn::getBaseUrl() . '#$1"', $html);
-        $html = Kryn::parseObjectUrls($html);
-        Kryn::removeSearchBlocks($html);
+        $html = $this->buildHtml();
 
         $this->setContent($html);
         $this->setCharset('UTF-8');
@@ -174,26 +176,167 @@ class PageResponse extends Response {
         return parent::send();
     }
 
+    public function buildHtml(){
+
+        $body    = $this->buildBody();
+
+        $header  = $this->getTitleTag();
+        $header .= $this->getBaseHrefTag();
+        $header .= $this->getContentTypeTag();
+        $header .= $this->getMetaLanguageTag();
+
+        $header .= $this->getCssTags();
+        //$header .= $this->getCssContent();
+
+        $header .= $this->getScriptTags('top');
+
+        $beforeBodyClose = '';
+
+        $beforeBodyClose .= $this->getScriptTags('bottom');
+
+        $docType = $this->getDocTypeDeclaration();
+        $htmlOpener = $this->getHtmlTag();
+
+        $html = sprintf("%s
+%s
+<head>
+%s
+</head>
+<body>
+%s
+%s
+</body>
+</html>", $docType, $htmlOpener, $header, $body, $beforeBodyClose);
+
+        $html = preg_replace('/href="#([^"]*)"/', 'href="' . Kryn::getBaseUrl() . '#$1"', $html);
+        $html = Kryn::parseObjectUrls($html);
+        Kryn::removeSearchBlocks($html);
+
+
+
+        return $html;
+    }
+
+
+    /**
+     * Builds the html body of the current page.
+     *
+     * @return string
+     */
+    public function buildBody(){
+
+        $page   = Kryn::getPage();
+        if (!$page) return '';
+
+        Kryn::$themeProperties = array();
+        $propertyPath = '';
+
+        foreach (Kryn::$themes as $extKey => &$themes) {
+            foreach ($themes as $tKey => &$theme) {
+                if ($theme['layouts']) {
+                    foreach ($theme['layouts'] as $lKey => &$layout) {
+                        if ($layout == Kryn::$page->getLayout()) {
+                            $propertyPath = $extKey.'/'.$tKey;
+                            break;
+                        }
+                    }
+                }
+                if ($propertyPath) break;
+            }
+            if ($propertyPath) break;
+        }
+
+        if ($propertyPath) {
+            if ($themeProperties = kryn::$domain->getThemeProperties())
+                Kryn::$themeProperties = $themeProperties->getByPath($propertyPath);
+        }
+
+        $controller = new Controller();
+        $layout = $page->getLayout();
+
+        return $controller->render($layout, array(
+               'themeProperties' => Kryn::$themeProperties
+          ));
+
+    }
+
+    /**
+     * Returns `<meta http-equiv="content-type" content="text/html; charset=%s">` based on $this->getCharset().
+     *
+     * @return string
+     */
     public function getContentTypeTag(){
-
         return sprintf('<meta http-equiv="content-type" content="text/html; charset=%s">'.chr(10), $this->getCharset());
-
     }
 
-
+    /**
+     * Returns the key of current doc type.
+     * If you need the whole doctype message use `getDocTypeDeclaration`
+     *
+     * @return string
+     */
     public function getDocType(){
-        return self::$docTypeMap[self::$docType];
+        return $this->docType;
     }
 
+    /**
+     * Sets the current docType.
+     *
+     * If you want to use own docTypes, extend `PageResponse::$docTypeDeclarations`.
+     * Example
+     *
+     *    PageResponse::$docTypeDeclarations['doctypXy'] = '<!DOCTYPE HTML PUBLIC "-/ ...';
+     *    Kryn::getResponse()->setDocType('doctypXy');
+     *
+     * @param $pDocType The key of PageResponse::$docTypeDeclarations
+     */
+    public function setDocType($pDocType){
+        $this->docType = $pDocType;
+        $this->setEndTag(((strpos(strtolower($this->docType), 'xhtml') !== false) ? '/>' : '>')."\n");
+    }
+
+    /**
+     * Returns the full doc type declaration.
+     *
+     * @return mixed
+     */
+    public function getDocTypeDeclaration(){
+        return self::$docTypeDeclarations[$this->docType];
+    }
+
+    /**
+     * Returns the current html starting tag.
+     *
+     * @return string
+     */
     public function getHtmlTag(){
-        return "<html>";
+        return $this->htmlTag;
     }
 
-    public function getBaseHref(){
+    /**
+     * Sets the current html starting tag.
+     *
+     * @param string $pHtmlTag
+     */
+    public function setHtmlTag($pHtmlTag){
+        $this->htmlTag = $pHtmlTag;
+    }
+
+    /**
+     * Returns the `<base href="%s"` based on Core\Kryn::getBaseUrl().
+     *
+     * @return string
+     */
+    public function getBaseHrefTag(){
         return sprintf('<base href="%s" %s', Kryn::getBaseUrl(), $this->getEndTag());
     }
 
-    public function getMetaLanguage(){
+    /**
+     * Returns `<meta name="DC.language" content="%s">` filled with the language of the current domain.
+     *
+     * @return string
+     */
+    public function getMetaLanguageTag(){
         if ($this->getDomainHandling())
             return sprintf('<meta name="DC.language" content="%s" %s', Kryn::$domain->getLang(), $this->getEndTag());
     }
@@ -225,6 +368,7 @@ class PageResponse extends Response {
     }
 
     /**
+     * Sets the html title.
      *
      * @param string $pTitle
      */
@@ -233,6 +377,8 @@ class PageResponse extends Response {
     }
 
     /**
+     * Gets the html title.
+     *
      * @return string
      */
     public function getTitle(){
@@ -240,9 +386,142 @@ class PageResponse extends Response {
     }
 
 
+    /**
+     * Compares two PageResponses and returns the difference as array/
+     *
+     * @param PageResponse $pResponse
+     * @return array
+     */
+    public function diff(PageResponse $pResponse){
+        $diff = array();
 
-    public function getCss(){
+        foreach ($this as $key => $value){
+            $getter = 'get'.ucfirst($key);
 
+            if (!is_callable(array($this, $getter))) continue;
+
+            $particular = null;
+            $other      = $pResponse->$getter();
+
+            if (is_array($value)){
+                $particular = $this->arrayDiff($value, $other);
+            } else if ($value != $other){
+                $particular = $other;
+            }
+
+            if ($particular)
+                $diff[$key] = $particular;
+        }
+
+        return $diff;
+    }
+
+    /**
+     * @param array $p1
+     * @param arry $p2
+     * @return array
+     */
+    public function arrayDiff($p1, $p2){
+        $diff = array();
+        foreach ($p2 as $v){
+            if (array_search($v, $p1) === false){
+                $diff[] = $v;
+            }
+        }
+        return $diff;
+    }
+
+    /**
+     * Patches a diff from $this->diff().
+     *
+     * @param array $diff
+     */
+    public function patch(array $diff){
+        foreach ($diff as $key => $value){
+            if (is_array($value) && is_array($this->$key)){
+                $this->$key = array_merge($this->$key, $value);
+            } else {
+                $this->$key = $value;
+            }
+        }
+    }
+
+    /**
+     * @param \Symfony\Component\HttpFoundation\ResponseHeaderBag $headers
+     */
+    public function setHeaders($headers) {
+        $this->headers = $headers;
+    }
+
+    /**
+     * @return \Symfony\Component\HttpFoundation\ResponseHeaderBag
+     */
+    public function getHeaders() {
+        return $this->headers;
+    }
+
+    /**
+     * @param array $css
+     */
+    public function setCss($css) {
+        $this->css = $css;
+    }
+
+    /**
+     * @return array
+     */
+    public function getCss() {
+        return $this->css;
+    }
+
+    /**
+     * @param array $js
+     */
+    public function setJs($js) {
+        $this->js = $js;
+    }
+
+    /**
+     * @return array
+     */
+    public function getJs() {
+        return $this->js;
+    }
+
+    /**
+     *
+     *
+     * @param PluginResponse $pResponse
+     * @return PageResponse
+     */
+    public function setPluginResponse(PluginResponse $pResponse){
+        $param =& $pResponse->getControllerRequest()->attributes->get('_route_params');
+        $this->pluginResponse[$param['_content']->getId()] = $pResponse;
+        return $this;
+    }
+
+    /**
+     *
+     *
+     * @param integer|Content $pContent
+     */
+    public function getPluginResponse($pContent){
+        $id = $pContent;
+        if ($pContent instanceof Content){
+            $id = $pContent->getId();
+        }
+
+        return $this->pluginResponse[$id];
+    }
+
+
+
+    /**
+     * Returns all <link> tags based on the attached css files.
+     *
+     * @return string
+     */
+    public function getCssTags(){
 
         $result = '';
 
@@ -324,7 +603,13 @@ class PageResponse extends Response {
     }
 
 
-    public function getJs($pPosition = 'top'){
+    /**
+     * Generates the <script> tags based on all attached js files/scripts.
+     *
+     * @param string $pPosition
+     * @return string
+     */
+    public function getScriptTags($pPosition = 'top'){
 
         $result = '';
 
