@@ -3,7 +3,7 @@
   <table name="test_test" phpName="Test">
     <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true"/>
     <column name="name" type="VARCHAR"/>
-    <column name="desc" type="VARCHAR"/>
+    <column name="description" type="VARCHAR"/>
     <column name="lang" type="VARCHAR" size="3"/>
 
     <vendor type="mysql">
