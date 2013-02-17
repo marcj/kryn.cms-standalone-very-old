@@ -3,6 +3,7 @@ language: php
 php:
   - 5.3
   - 5.4
+  - 5.5
 
 env:
   - TEMP=/var/tmp/ DB_TYPE=mysql DB_USER=root
@@ -24,10 +25,10 @@ before_script:
   # File access
   - sudo chown -R www-data .;
   - sudo chmod -R g-w .;
+  - ls -al;
 
 script:
-  - ls -al;
-  - sudo -u www-data phpunit test/Tests;
+  - sudo -u www-data phpunit;
 
 after_failure:
   - tail -n 50 /var/log/syslog;
