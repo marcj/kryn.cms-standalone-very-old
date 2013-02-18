@@ -76,7 +76,7 @@
                 "name": {
                     "type": "text"
                 },
-                "desc": {
+                "description": {
                     "type": "text"
                 },
                 "lang": {
