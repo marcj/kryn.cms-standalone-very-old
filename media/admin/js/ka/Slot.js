@@ -81,6 +81,7 @@ ka.Slot = new Class({
 
         var contents = [];
         var data;
+
         this.slot.getChildren('.ka-content').each(function(content){
             if (!content.kaContentInstance) return;
             data = content.kaContentInstance.getValue();
@@ -117,6 +118,8 @@ ka.Slot = new Class({
 
         if (pFocus)
             content.focus();
+
+        return content;
     }
 
 

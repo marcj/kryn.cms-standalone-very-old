@@ -1,6 +1,6 @@
 ka.Editor = new Class({
 
-    Binds: ['onOver', 'onOut', 'mouseDown'],
+    Binds: ['onOver', 'onOut', 'contentMouseDown', 'contentSidebarMouseDown'],
     Implements: [Options, Events],
 
     options: {
@@ -25,18 +25,16 @@ ka.Editor = new Class({
         this.container.addEvent('mouseenter:relay(.ka-content)', this.onOver);
         this.container.addEvent('mouseleave:relay(.ka-content)', this.onOut);
 
-        this.container.addEvent('mousedown:relay(.ka-content-actionBar-move)', this.mouseDown);
+        this.container.addEvent('mousedown:relay(.ka-content-actionBar-move)', this.contentMouseDown);
+        this.container.addEvent('mousedown:relay(.ka-editor-sidebar-draggable)', this.contentSidebarMouseDown);
 
     },
 
-    mouseDown: function(pEvent, pElement){
+    contentMouseDown: function(pEvent, pElement){
 
         var content = pElement.getParent('.ka-content');
-
         var value = content.kaContentInstance.getValue();
-
         var clone;
-
         if (value.type == 'text'){
             clone = new Element('div', {
                 'class': 'ka-content'
@@ -63,8 +61,66 @@ ka.Editor = new Class({
             clone = content.clone().inject(content.getDocument().body);
             clone.getElement('.ka-content-actionBar').destroy();
         }
-
         clone.addClass('ka-content-onDrag');
+
+        this.startDragNDrop(pEvent, content, clone, function(pTarget){
+            content.inject(pTarget, 'after');
+        }
+        );
+    },
+
+    contentSidebarMouseDown: function(pEvent, pElement){
+
+        var content = pElement;
+
+        var clone = pElement.clone().setStyles(pElement.getCoordinates()).setStyles({
+            opacity: 0.7,
+            position: 'absolute'
+        }).inject(pElement.getDocument().body);
+        clone.addClass('ka-editor-sidebar-draggable-active');
+
+
+        var removeBg = function(pTarget){
+            var slot = pTarget.hasClass('ka-slot') ? pTarget : pTarget.getParent('.ka-slot');
+            slot.setStyle('background-color');
+        }
+
+        this.startDragNDrop(pEvent, content, clone, function(pTarget){
+
+            this.highlightSlots(false);
+            this.highlightSlotsBubbles(false);
+
+            //check position of pTarget?
+            var slot = pTarget.getParent('.ka-slot').kaSlotInstance;
+            var newContent = slot.addContent({type: pElement.kaContentType}, true);
+            document.id(newContent).inject(pTarget, 'after');
+            removeBg(pTarget);
+        }.bind(this));
+
+        this.lastDrag.addEvent('enter', function(element, droppable){
+            var slot = droppable.hasClass('ka-slot') ? droppable : droppable.getParent('.ka-slot');
+            slot.setStyle('background-color', 'rgba(34, 124, 160,0.4)');
+        }.bind(this));
+
+        this.lastDrag.addEvent('leave', function(element, droppable){
+            removeBg(droppable);
+        }.bind(this));
+
+        this.lastDrag.addEvent('cancel', function(element, droppable){
+            this.highlightSlots(false);
+            this.highlightSlotsBubbles(false)
+            removeBg(droppable);
+        }.bind(this));
+
+        this.highlightSlots(true);
+        this.highlightSlotsBubbles(true);
+    },
+
+    startDragNDrop: function(pEvent, pElement, pClone, pCallback){
+
+        var content = pElement
+        var clone   = pClone;
+
         var position = pEvent.page;
         position.x--;
         position.y--;
@@ -76,7 +132,6 @@ ka.Editor = new Class({
         var self = this;
 
         var position = {}, delta = {};
-
 
         this.lastDrag = new Drag.Move(clone, {
             handle: '.ka-content-actionBar-move',
@@ -109,7 +164,7 @@ ka.Editor = new Class({
             },
             onDrop: function(element, droppable){
                 if (self.lastPlaceHolder){
-                    content.inject(self.lastPlaceHolder, 'after');
+                    pCallback(self.lastPlaceHolder);
                     self.lastPlaceHolder.destroy();
                     delete self.lastPlaceHolder;
                 }
@@ -132,7 +187,9 @@ ka.Editor = new Class({
 
         this.lastDrag.start(pEvent);
 
+        return clone;
     },
+
 
     updateDragPlaceholder: function(pEvent){
 
@@ -231,7 +288,6 @@ ka.Editor = new Class({
         .addEvent('click', function(){ this.save(); }.bind(this))
         .inject(this.sidebar);
 
-        this.sidebar.addEvent('mousedown:relay(.ka-editor-sidebar-draggable)', this.startDrag.bind(this));
     },
 
     getValue: function(){
@@ -261,54 +317,6 @@ ka.Editor = new Class({
         this.lastSaveRq = new Request.JSON({url: this.getUrl(), onComplete: function(pResponse){
 
         }.bind(this)}).post({content: contents});
-
-    },
-
-    startDrag: function(pEvent, pElement){
-
-        var body = pElement.getDocument().body;
-
-        var clone = pElement.clone().setStyles(pElement.getCoordinates()).setStyles({
-            opacity: 0.7,
-            position: 'absolute'
-        }).inject(body);
-
-        clone.addClass('ka-editor-sidebar-draggable-active');
-
-
-        var drag = new Drag.Move(clone, {
-
-            droppables: this.slots,
-            snap: 0,
-
-            onDrop: function(dragging, slot){
-
-                dragging.destroy();
-                this.highlightSlots(false);
-                this.highlightSlotsBubbles(false);
-
-                if (slot){
-                    slot.setStyle('background-color');
-                    slot.kaSlot.addContent({type: pElement.kaContentType}, true);
-                }
-            }.bind(this),
-            onEnter: function(dragging, slot){
-                slot.setStyle('background-color', 'rgba(34, 124, 160,0.4)');
-            },
-            onLeave: function(dragging, slot){
-                slot.setStyle('background-color');
-            },
-            onCancel: function(dragging, slot){
-                dragging.destroy();
-                this.highlightSlots(false);
-                this.highlightSlotsBubbles(false);
-                if (slot) slot.setStyle('background-color');
-            }.bind(this)
-        });
-
-        this.highlightSlots(true);
-        this.highlightSlotsBubbles(true);
-        drag.start(pEvent);
 
     },
 
