@@ -283,8 +283,6 @@ $startNode = NodeQuery::create()->filterByDomainId($domain->getId())->findOneByL
 $domain->setStartNodeId($startNode->getId());
 $domain->save();
 
-dbExec("SET NAMES 'utf8'");
-
 dbDelete('system_langs');
 $h = fopen(PATH_MODULE . 'admin/package/ISO_639-1_codes.csv', 'r');
 if ($h) {

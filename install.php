@@ -555,7 +555,7 @@ function step5Done($pMsg){
 
         \Core\TempFile::remove('propel');
 
-        \Core\Kryn::$config['activeModules'] = array('core', 'admin', 'users');
+        \Core\Kryn::$config['activeModules'] = array();
         \Core\Kryn::$extensions = array('core', 'admin', 'users');
 
         try {
@@ -694,7 +694,7 @@ function step5Done($pMsg){
             $dir = opendir( PATH_MODULE );
             if(! $dir ) return;
             while (($file = readdir($dir)) !== false){
-                if (is_dir($file) && $file != '..' && $file != '.' && $file != 'admin' && $file != 'users' ){
+                if (is_dir(PATH_MODULE.$file) && $file != '..' && $file != '.' && $file != 'admin' && $file != 'users' ){
                     if ($_POST['modules'][$file])
                         $modules[] = $file;
                 }
@@ -874,11 +874,11 @@ Your installation file contains following modules:<br />
     $systemModules = array('core','admin','users');
     buildModInfo( $systemModules );
 
-    $dir = opendir( PATH_MODULE."" );
+    $dir = opendir( PATH_MODULE );
     $modules = array();
     if(! $dir ) return;
     while (($file = readdir($dir)) !== false){
-        if (is_dir($file) && $file != '..' && $file != '.' && $file != '.svn' && (array_search($file, $systemModules) === false) ){
+        if (is_dir(PATH_MODULE.$file) && $file != '..' && $file != '.' && $file != '.svn' && (array_search($file, $systemModules) === false) ){
             $modules[] = $file;
         }
     }
@@ -1013,13 +1013,47 @@ function step3(){
     ?>
 
 <script type="text/javascript">
+
+    window.addEvent('domready', function(){
+        var driver = document.id('db_type');
+        var server = document.id('db_server');
+        var info   = document.id('db_name_sqlite_info');
+        var user   = document.id('db_username');
+        var passwd = document.id('db_password');
+        var port   = document.id('db_port');
+        var persis = document.id('db_persistent');
+
+        driver.addEvent('change', function(){
+            if (driver.value == 'sqlite'){
+                server.required = false;
+                user.required = false;
+                [server, passwd, user, port, persis].each(function(item){
+                    item.getParent('tr').setStyle('display', 'none');
+                });
+                info.setStyle('display', 'block');
+            } else {
+                server.required = true;
+                user.required = true;
+                [server, passwd, user, port, persis].each(function(item){
+                    item.getParent('tr').setStyle('display', 'table-row');
+                });
+                info.setStyle('display', 'none');
+            }
+        });
+
+        driver.fireEvent('change');
+
+    });
+
     window.checkConfigEntries = function(){
         var ok = true;
-        
-        if( document.id('db_server').value == '' ){ document.id('db_server').highlight(); ok = false; }
-        if( document.id('db_prefix').value == '' ){ document.id('db_prefix').highlight(); ok = false; }
-        if( document.id('db_username').value == '' ){ document.id('db_username').highlight(); ok = false; }
-        if( document.id('db_name').value == '' ){ document.id('db_name').highlight(); ok = false; }
+        var driver = document.id('db_type');
+
+        if (driver.value != 'sqlite'){
+            if( document.id('db_server').value == '' ){ document.id('db_server').highlight(); ok = false; }
+            if( document.id('db_username').value == '' ){ document.id('db_username').highlight(); ok = false; }
+            if( document.id('db_name').value == '' ){ document.id('db_name').highlight(); ok = false; }
+        }
 
         if( ok ){
             document.id( 'status' ).set('html', '<span style="color:green;">Check data ...</span>');
@@ -1197,7 +1231,7 @@ function step3(){
           Persistent connections
             <div style="color: #aaa">You should probably deactivate this on the most low-cost and free web hoster.</div>
         </td>
-        <td><input type="checkbox" checked="checked" name="persistent" value="1" /></td>
+        <td><input type="checkbox" checked="checked" id="db_persistent" name="persistent" value="1" /></td>
     </tr>
     <tr>
         <td>
@@ -1210,7 +1244,7 @@ function step3(){
           Port
             <div style="color: #aaa">Empty for default</div>
         </td>
-        <td><input type="text" class="ka-Input" style="width:50px" name="port" value="" /></td>
+        <td><input type="text" class="ka-Input" style="width:50px" id="db_port" name="port" value="" /></td>
     </tr>
     <tr id="ui_username">
         <td>Username *</td>
@@ -1223,6 +1257,7 @@ function step3(){
     <tr id="ui_db">
         <td>
         	Database name *
+            <div id="db_name_sqlite_info" style="display: none; color: #aaa">For SQLite enter here the file name</div>
         </td>
         <td><input required type="text" class="ka-Input" name="db" id="db_name" /></td>
     </tr>

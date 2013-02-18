@@ -214,8 +214,6 @@ class PropelHelper {
         $adapter = Kryn::$config['database']['type'];
         if ($adapter == 'postgresql') $adapter = 'pgsql';
 
-        $dsn = $adapter.':host='.Kryn::$config['database']['server'].';dbname='.Kryn::$config['database']['name'];
-
         $persistent = Kryn::$config['database']['persistent'] ? true:false;
 
         $emulatePrepares = Kryn::$config['database']['type'] == 'mysql';
@@ -224,7 +222,7 @@ class PropelHelper {
         $config['datasources']['kryn'] = array(
             'adapter' => $adapter,
             'connection' => array(
-                'dsn' => $dsn,
+                'dsn' => self::getDsn($adapter),
                 'user' => Kryn::$config['database']['user'],
                 'password' => Kryn::$config['database']['password'],
                 'options' => array(
@@ -244,6 +242,23 @@ class PropelHelper {
         return $config;
     }
 
+    public static function getDsn($pDriver){
+
+        $dsn = strtolower($pDriver);
+
+        if ($dsn == 'sqlite'){
+            $file = Kryn::$config['database']['name'];
+            if (substr($file, 0, 1) != '/')
+                $file = PATH.$file;
+            $dsn .= ':'.$file;
+        } else {
+            $dsn .= ':host='.Kryn::$config['database']['server'];
+            $dsn .= ';dbname='.Kryn::$config['database']['name'];
+        }
+
+        return $dsn;
+    }
+
 
     public static function writeXmlConfig(){
 
@@ -255,8 +270,6 @@ class PropelHelper {
         $adapter = Kryn::$config['database']['type'];
         if ($adapter == 'postgresql') $adapter = 'pgsql';
 
-        $dsn = $adapter.':host='.Kryn::$config['database']['server'].';dbname='.Kryn::$config['database']['name'];
-
         $persistent = Kryn::$config['database']['persistent'] ? true:false;
 
         $xml = '<?xml version="1.0"?>
@@ -267,7 +280,7 @@ class PropelHelper {
                 <adapter>'.$adapter.'</adapter>
                 <connection>
                     <classname>PropelPDO</classname>
-                    <dsn>'.$dsn.'</dsn>
+                    <dsn>'.self::getDsn($adapter).'</dsn>
                     <user>'.Kryn::$config['database']['user'].'</user>
                     <password>'.Kryn::$config['database']['password'].'</password>
                     <options>
@@ -327,8 +340,9 @@ class PropelHelper {
 
         dbBegin();
         try {
-            foreach ($sql as $query)
+            foreach ($sql as $query){
                 dbExec($query);
+            }
         } catch (\PDOException $e){
             dbRollback();
             throw new \PDOException($e->getMessage().' in SQL: '.$query);
@@ -517,13 +531,11 @@ class PropelHelper {
         $adapter = Kryn::$config['database']['type'];
         if ($adapter == 'postgresql') $adapter = 'pgsql';
 
-        $dsn = $adapter.':host='.Kryn::$config['database']['server'].';dbname='.Kryn::$config['database']['name'].';';
-
         $properties = '
 propel.mysql.tableType = InnoDB
 
 propel.database = '.$adapter.'
-propel.database.url = '.$dsn.'
+propel.database.url = '.self::getDsn($adapter).'
 propel.database.user = '.Kryn::$config['database']['user'].'
 propel.database.password = '.Kryn::$config['database']['password'].'
 propel.tablePrefix = '.Kryn::$config['database']['prefix'].'

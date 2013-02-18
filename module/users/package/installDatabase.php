@@ -26,19 +26,19 @@ $groupGuest->save();
 $id = $groupGuest->getId(0);
 dbUpdate('system_group', array('id' => $id), array('id' => 0));
 
-$groupUsers = new Group();
-$groupUsers->setName('Users');
-$groupUsers->setDescription('Registered user');
-$groupUsers->save();
-
 $groupAdmin = new Group();
 $groupAdmin->setName('Admin');
 $groupAdmin->setDescription('Super user');
 $groupAdmin->save();
-$id = $groupAdmin->getId(0);
+$id = $groupAdmin->getId();
 dbUpdate('system_group', array('id' => $id), array('id' => 1));
 $groupAdmin->setId(1);
 
+
+$groupUsers = new Group();
+$groupUsers->setName('Users');
+$groupUsers->setDescription('Registered user');
+$groupUsers->save();
 
 
 $admin = new User();
