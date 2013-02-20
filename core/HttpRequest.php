@@ -4,10 +4,10 @@ namespace Core;
 
 use \Symfony\Component\HttpFoundation\Request;
 
-class HttpRequest extends Request {
-
-    public function getPathInfo(){
-
+class HttpRequest extends Request
+{
+    public function getPathInfo()
+    {
         if (null === $this->pathInfo) {
             $this->pathInfo = $this->preparePathInfo();
             //fix / and \ escape 'feature-bug' in apache

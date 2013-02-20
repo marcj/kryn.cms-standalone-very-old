@@ -2,12 +2,11 @@
 
 namespace Core;
 
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
-class PageController extends Controller {
-
+class PageController extends Controller
+{
     /**
      * Cache for getPublicUrl().
      *
@@ -27,8 +26,8 @@ class PageController extends Controller {
      *
      * @return Response
      */
-    public function handle(){
-
+    public function handle()
+    {
         //is link
         if (Kryn::$page->getType() == 1) {
             $to = Kryn::$page->getLink();
@@ -41,6 +40,7 @@ class PageController extends Controller {
             } else {
                 header("HTTP/1.1 301 Moved Permanently");
                 header("Location: $to");
+
                 return new RedirectResponse($to, 301);
             }
         }
@@ -48,14 +48,13 @@ class PageController extends Controller {
         return Kryn::getResponse();
     }
 
-
-    public static function getSlotContents($pPageId, $pSlotId){
-
+    public static function getSlotContents($pPageId, $pSlotId)
+    {
         $cacheKey     = 'core/contents/'.$pPageId.'.'.$pSlotId;
         $cache        = Kryn::getFastCache($cacheKey);
         $cacheCreated = Kryn::getCache($cacheKey.'.created');
 
-        if (!$cache || $cache['created'] != $cacheCreated){
+        if (!$cache || $cache['created'] != $cacheCreated) {
 
             $contents = ContentQuery::create()
                 ->filterByNodeId($pPageId)
@@ -73,8 +72,8 @@ class PageController extends Controller {
 
     }
 
-    public static function getSlotHtml($pSlotId, $pSlotProperties){
-
+    public static function getSlotHtml($pSlotId, $pSlotProperties)
+    {
         if (!self::$slotContents[$pSlotId])
             self::$slotContents[$pSlotId] = self::getSlotContents(Kryn::$page->getId(), $pSlotId);
 
@@ -85,12 +84,13 @@ class PageController extends Controller {
     /**
      * Returns the public url for the Core\Node object.
      *
-     * @param string $pObjectKey
-     * @param string $pObjectPk
-     * @param array $pPlugin
+     * @param  string $pObjectKey
+     * @param  string $pObjectPk
+     * @param  array  $pPlugin
      * @return string
      */
-    public static function getPublicUrl($pObjectKey, $pObjectPk, $pPlugin = null){
+    public static function getPublicUrl($pObjectKey, $pObjectPk, $pPlugin = null)
+    {
         return Node::getUrl($pObjectPk['id']+0);
     }
 
@@ -99,8 +99,8 @@ class PageController extends Controller {
      *
      * @return RedirectResponse
      */
-    public function redirectToStartPage(){
-
+    public function redirectToStartPage()
+    {
         $response = new RedirectResponse(Kryn::getBaseUrl(), 301);
 
         return $response;

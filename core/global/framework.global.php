@@ -10,32 +10,35 @@
  *
  */
 
-
 /**
  * Global important functions for working with Kryn.cms
  * @author MArc Schmidt <marc@Kryn.org>
  */
-
 
 /**
  * klog saves log informations to the log monitor.
  * @package    Kryn
  * @subpackage Log
  */
-function klog($pArea, $pMsg) {
+function klog($pArea, $pMsg)
+{
     errorDbHandler($pArea, $pMsg);
 }
 
-function convertSize($pSize){
+function convertSize($pSize)
+{
     $units = array('b','kb','mb','gb','tb','pb');
+
     return @round($pSize / pow(1024, ($i=floor(log($pSize,1024)))),2).$units[$i];
 }
 
-function debugStop($pText = null){
+function debugStop($pText = null)
+{
     debugPrint($pText, true);
 }
 
-function debugPrint($pText = null, $pStop = null){
+function debugPrint($pText = null, $pStop = null)
+{
     global $_start, $_lastDebugPoint;
     $timeUsed = round((microtime(true)-$_start)*1000, 2);
     $bytes = convertSize(memory_get_usage(true));
@@ -55,15 +58,16 @@ function debugPrint($pText = null, $pStop = null){
  *
  * @return string|array
  */
-function getArgv($pVal, $pEscape = false) {
-
-    if (is_numeric($pVal)){
+function getArgv($pVal, $pEscape = false)
+{
+    if (is_numeric($pVal)) {
         static $exploded;
-        if (!$exploded){
+        if (!$exploded) {
             $url = \Core\Kryn::getRequest()->getPathInfo();
             if (substr($url, 0, 1) == '/') $url = substr($url, 1);
             $exploded = explode('/', $url);
         }
+
         return $exploded[$pVal-1];
     }
 
@@ -72,13 +76,13 @@ function getArgv($pVal, $pEscape = false) {
     return esc($_REQUEST[$pVal], $pEscape);
 }
 
-
 /**
  * This convert the argument in json, send the json to the client and exit the script.
  *
  * @param mixed
  */
-function json($pValue) {
+function json($pValue)
+{
     global $client, $adminClient, $argv;
 
     ob_end_clean();
@@ -100,7 +104,8 @@ function json($pValue) {
  *
  * @param string Error code
  */
-function jsonError($pErrorCode){
+function jsonError($pErrorCode)
+{
     json(array('error' => $pErrorCode));
 }
 
@@ -114,14 +119,14 @@ function jsonError($pErrorCode){
  *
  * @return string
  */
-function t($pMsg, $pPlural = '', $pCount = false, $pContext = '') {
-
+function t($pMsg, $pPlural = '', $pCount = false, $pContext = '')
+{
     $id = ($pContext == '') ? $pMsg : $pContext . "\004" . $pMsg;
 
     if (Core\Kryn::$lang[$id]) {
         if (is_array(Core\Kryn::$lang[$id])) {
 
-            if ($pCount){
+            if ($pCount) {
                 $plural = intval(@call_user_func('gettext_plural_fn_' . Core\Kryn::$lang['__lang'], $pCount));
                 if ($pCount && Core\Kryn::$lang[$id][$plural])
                     return str_replace('%d', $pCount, Kryn::$lang[$id][$plural]);
@@ -151,7 +156,8 @@ function t($pMsg, $pPlural = '', $pCount = false, $pContext = '') {
  *
  * @return string
  */
-function tpf(){
+function tpf()
+{
     $arguments = func_get_args();
     $first  = array_shift($arguments);
     $second = array_shift($arguments);
@@ -164,6 +170,7 @@ function tpf(){
         if (is_array($arg)) $arg = json_encode($arg);
 
     $sprintf = array_merge($sprintf, $arguments);
+
     return t(call_user_func_array('sprintf', $sprintf));
 }
 
@@ -175,7 +182,8 @@ function tpf(){
  *
  * @return string
 */
-function tf(){
+function tf()
+{
     $arguments = func_get_args();
     foreach ($arguments as &$arg)
         if (is_array($arg)) $arg = json_encode($arg);
@@ -190,7 +198,8 @@ function tf(){
  *
  * @return string
  */
-function tc($pContext, $pMsg) {
+function tc($pContext, $pMsg)
+{
     return t($pMsg, null, null, $pContext);
 }
 
@@ -203,8 +212,7 @@ function tc($pContext, $pMsg) {
  * @return string Translated string
  * @deprecated Use t() instead.
  */
-function _l($pMsg) {
+function _l($pMsg)
+{
     return t($pMsg);
 }
-
-?>

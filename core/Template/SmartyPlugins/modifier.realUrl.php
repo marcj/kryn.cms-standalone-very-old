@@ -1,8 +1,8 @@
 <?php
-function smarty_modifier_realUrl($params){
-
-    if(! is_array( $params ) ){
-        $t = (int)($params)+0;
+function smarty_modifier_realUrl($params)
+{
+    if (! is_array( $params ) ) {
+        $t = (int) ($params)+0;
         $params = array('rsn' => $t);
         $rsn = $t;
     } else {

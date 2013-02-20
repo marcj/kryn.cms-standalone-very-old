@@ -34,8 +34,8 @@ use Symfony\Component\HttpFoundation\ParameterBag;
  * @author MArc Schmidt <marc@Kryn.org>
  */
 
-class Kryn {
-
+class Kryn
+{
     /**
      * Contains all parent pages, which can be shown as a breadcrumb navigation.
      * This is filled automatically. If you want to add own items, use Kryn::addMenu( $pName, $pUrl );
@@ -95,7 +95,7 @@ class Kryn {
 
     /**
      * Contains the current page with all information as copy for staging in \Render.
-     * 
+     *
      * @var array ref
      * @static
      */
@@ -103,7 +103,7 @@ class Kryn {
 
     /**
      * State where describes, \Render should really write content
-     * 
+     *
      * @var boolean
      * @static
      */
@@ -120,7 +120,7 @@ class Kryn {
     /**
      * Contains the current requested URL without http://, urlencoded
      * use urldecode(htmlspecialchars(Kryn::$url)) to display it safely in your page.
-     * 
+     *
      * @var string
      */
     public static $url;
@@ -128,7 +128,7 @@ class Kryn {
     /**
      * Contains the current requested URL without http:// and with _GET params, urlencoded
      * use urldecode(htmlspecialchars(Kryn::$urlWithGet)) to display it safely in your page.
-     * 
+     *
      * @var string
      * @static
      */
@@ -136,7 +136,7 @@ class Kryn {
 
     /**
      * Contains the values of the properties from current theme.
-     * 
+     *
      * @var array
      * @static
      */
@@ -152,7 +152,7 @@ class Kryn {
     /**
      * Contains the values of the domain-properties from the current domain.
      * @var array
-     * 
+     *
      * @static
      */
     public static $domainProperties = array();
@@ -447,17 +447,21 @@ class Kryn {
      *
      * @return PageResponse
      */
-    public static function getResponse(){
-        if (!self::$response){
+    public static function getResponse()
+    {
+        if (!self::$response) {
             self::$response = new PageResponse();
         }
+
         return self::$response;
     }
 
-    public static function getRequest(){
-        if (!self::$request){
+    public static function getRequest()
+    {
+        if (!self::$request) {
             self::$request = HttpRequest::createFromGlobals();
         }
+
         return self::$request;
     }
 
@@ -466,8 +470,9 @@ class Kryn {
      *
      * @return \Monolog\Logger
      */
-    public static function getLogger(){
-        if (!self::$monolog){
+    public static function getLogger()
+    {
+        if (!self::$monolog) {
             self::$monolog = new \Monolog\Logger('kryn');
 
             //todo, setup via config
@@ -481,10 +486,12 @@ class Kryn {
                 $lastDebugPoint = microtime(true);
 
                 $log['message'] = "[$bytes, {$timeUsed}ms, $last] - ".$log['message'];
+
                 return $log;
             });
             self::$monolog->pushHandler(new \Monolog\Handler\SyslogHandler('kryn'));
         }
+
         return self::$monolog;
     }
 
@@ -493,11 +500,13 @@ class Kryn {
      *
      * @return HttpKernel
      */
-    public static function getHttpKernel(){
-        if (!self::$httpKernel){
+    public static function getHttpKernel()
+    {
+        if (!self::$httpKernel) {
             self::$controllerResolver = new ControllerResolver();
             self::$httpKernel = new HttpKernel(self::getEventDispatcher(), self::$controllerResolver);
         }
+
         return self::$httpKernel;
     }
 
@@ -506,10 +515,12 @@ class Kryn {
      *
      * @return EventDispatcher
      */
-    public static function getEventDispatcher(){
-        if (!self::$eventDispatcher){
+    public static function getEventDispatcher()
+    {
+        if (!self::$eventDispatcher) {
             self::$eventDispatcher = new EventDispatcher();
         }
+
         return self::$eventDispatcher;
     }
 
@@ -520,8 +531,8 @@ class Kryn {
      *
      * @static
      */
-    public static function addBreadcrumb($pPage) {
-
+    public static function addBreadcrumb($pPage)
+    {
         Kryn::$breadcrumbs[] = $pPage;
         tAssignRef("breadcrumbs", Kryn::$breadcrumbs);
     }
@@ -540,7 +551,8 @@ class Kryn {
      *
      * @param string $pDocType
      */
-    public static function setDocType($pDocType) {
+    public static function setDocType($pDocType)
+    {
         Render::$docType = $pDocType;
     }
 
@@ -549,7 +561,8 @@ class Kryn {
      * @static
      * @return string Doctype
      */
-    public static function getDocType() {
+    public static function getDocType()
+    {
         return Render::$docType;
     }
 
@@ -558,8 +571,8 @@ class Kryn {
      * Get some information about the system Kryn was installed and Kryn itself
      * @static
      */
-    public static function getDebugInformation() {
-
+    public static function getDebugInformation()
+    {
         $infos = array();
 
         foreach (Kryn::$extensions as $extension) {
@@ -581,7 +594,8 @@ class Kryn {
         return $infos;
     }
 
-    public static function loadActiveModules($pWithoutDefaults = false) {
+    public static function loadActiveModules($pWithoutDefaults = false)
+    {
         Kryn::$extensions = $pWithoutDefaults ? array() : array('core', 'admin', 'users');
         if (Kryn::$config['activeModules'])
             Kryn::$extensions = array_unique(array_merge(Kryn::$extensions, Kryn::$config['activeModules']));
@@ -593,8 +607,8 @@ class Kryn {
      * @param bool $pForceNoCache
      * @internal
      */
-    public static function loadModuleConfigs($pForceNoCache = false) {
-
+    public static function loadModuleConfigs($pForceNoCache = false)
+    {
         $md5 = '';
 
         foreach (Kryn::$extensions as $extension) {
@@ -605,7 +619,7 @@ class Kryn {
         }
 
         $md5 = md5($md5);
-        if (!$pForceNoCache){
+        if (!$pForceNoCache) {
             Kryn::$themes =& Kryn::getFastCache('core/themes');
             Kryn::$configs =& Kryn::getFastCache('core/configs');
         }
@@ -632,11 +646,11 @@ class Kryn {
                 //resolve relations
                 //if a object has a MANY_TO_ONE relation to another, then we create a virtual field to other need
                 //that points to the referencing object with the opposite relation.
-                if (is_array($config['objects'])){
-                    foreach ($config['objects'] as $objectKey => $object){
-                        if (is_array($object['fields'])){
-                            foreach ($object['fields'] as $fieldKey => $field){
-                                if ($field['objectRelation'] == ORM\ORMAbstract::MANY_TO_ONE){
+                if (is_array($config['objects'])) {
+                    foreach ($config['objects'] as $objectKey => $object) {
+                        if (is_array($object['fields'])) {
+                            foreach ($object['fields'] as $fieldKey => $field) {
+                                if ($field['objectRelation'] == ORM\ORMAbstract::MANY_TO_ONE) {
                                     $objectName = Object::getName($field['object']);
                                     $module     = strtolower(Object::getModule($field['object']));
                                     $fieldName  = $field['objectRelationName'] ?: lcfirst($objectKey);
@@ -684,15 +698,16 @@ class Kryn {
      * @static
      * @return array|string
      */
-    public static function getLanguage() {
-
+    public static function getLanguage()
+    {
         if (Kryn::$domain && Kryn::$domain->getLang()) {
             return Kryn::$domain->getLang();
-        } else if ( getArgv(1) == 'admin' && getArgv('lang', 2)) {
+        } elseif ( getArgv(1) == 'admin' && getArgv('lang', 2)) {
             return getArgv('lang', 2);
-        } else if (Kryn::getAdminClient() && Kryn::getAdminClient()->hasSession()) {
+        } elseif (Kryn::getAdminClient() && Kryn::getAdminClient()->hasSession()) {
             return Kryn::getAdminClient()->getSession()->getLanguage();
         }
+
         return 'en';
 
     }
@@ -708,8 +723,8 @@ class Kryn {
      *
      * @return array All config values from the config.json
      */
-    public static function getModuleConfig($pModule, $pLang = false, $pNoCache = false ) {
-
+    public static function getModuleConfig($pModule, $pLang = false, $pNoCache = false )
+    {
         $pModule = str_replace('.', '', $pModule);
         $pModule = self::getModuleDir($pModule);
 
@@ -752,8 +767,8 @@ class Kryn {
      * Load and initialise all activated extension classes.
      * @internal
      */
-    public static function initModules() {
-
+    public static function initModules()
+    {
         Kryn::$modules['users'] = new \Users\Controller();
 
         foreach (Kryn::$extensions as $mod) {
@@ -768,11 +783,13 @@ class Kryn {
     /**
      * Checks whether a module is active/enabled or not.
      *
-     * @param string $pModuleKey
+     * @param  string $pModuleKey
      * @return bool
      */
-    public static function isActiveModule($pModuleKey){
+    public static function isActiveModule($pModuleKey)
+    {
         $pModuleKey = strtolower($pModuleKey);
+
         return $pModuleKey=='admin' || $pModuleKey == 'users' || $pModuleKey == 'core' ||
             array_search($pModuleKey, self::$config['activeModules']) !== false;
     }
@@ -785,13 +802,15 @@ class Kryn {
      * @return string
      * @static
      */
-    public static function toModRewrite($pString) {
+    public static function toModRewrite($pString)
+    {
         $res = @str_replace('ä', "ae", strtolower($pString));
         $res = @str_replace('ö', "oe", $res);
         $res = @str_replace('ü', "ue", $res);
         $res = @str_replace('ß', "ss", $res);
         $res = @preg_replace('/[^a-zA-Z0-9]/', "-", $res);
         $res = @preg_replace('/--+/', '-', $res);
+
         return $res;
     }
 
@@ -803,12 +822,14 @@ class Kryn {
      * @static
      * @internal
      */
-    public static function replacePageIds(&$pContent) {
+    public static function replacePageIds(&$pContent)
+    {
         $pContent = preg_replace_callback(
             '/href="(\d+)"/',
             create_function(
                 '$pP',
                 '
+
                 return \'href="\'.Core\Kryn::pageUrl($pP[1]).\'"\';
             '
             ),
@@ -825,13 +846,16 @@ class Kryn {
      * @internal
      * @return mixed The result of preg_replace_callback()
      */
-    public static function translate($pContent) {
+    public static function translate($pContent)
+    {
         Kryn::loadLanguage();
+
         return preg_replace_callback(
             '/([^\\\\]?)\[\[([^\]]*)\]\]/',
             create_function(
                 '$pP',
                 '
+
                 return $pP[1].t( $pP[2] );
                 '
             ),
@@ -847,8 +871,8 @@ class Kryn {
      *
      * @static
      */
-    public static function redirect($pUrl = '') {
-
+    public static function redirect($pUrl = '')
+    {
         if (strpos($pUrl, 'http') === false && Kryn::$domain) {
 
             if (Kryn::$domain->getMaster() != 1)
@@ -872,7 +896,6 @@ class Kryn {
             $pUrl = 'http://' . $domain . $path . $pUrl;
         }
 
-
         header("HTTP/1.1 301 Moved Permanently");
         header('Location: ' . $pUrl);
         exit;
@@ -882,8 +905,8 @@ class Kryn {
      * Initialize config.
      * @internal
      */
-    public static function initConfig() {
-
+    public static function initConfig()
+    {
         if (!self::$config['cache'])
             self::$config['cache']['class'] = '\Core\Cache\Files';
 
@@ -893,10 +916,10 @@ class Kryn {
 
     /**
      * Init cache and cacheFast instances.
-     * 
+     *
      */
-    public static function initCache() {
-
+    public static function initCache()
+    {
         //global normal cache
         Kryn::$cache = new Cache\Controller(self::$config['cache']['class'], self::$config['cache_params']);
 
@@ -907,8 +930,8 @@ class Kryn {
     /**
      * Init admin and frontend client.
      */
-    public static function initClient() {
-
+    public static function initClient()
+    {
         if (!self::$config['client'])
             self::internalError('Client configuration', 'There is no client handling class configured. Please run the installer.');
 
@@ -933,7 +956,7 @@ class Kryn {
             $frontendClientStore = $defaultClientStore;
             $frontendAutoStart = $defaultAutoStart;
 
-            if ($sessionProperties['class']){
+            if ($sessionProperties['class']) {
                 $frontClientClass = $sessionProperties['class'];
                 $frontClientConfig = $sessionProperties['config'];
             }
@@ -957,20 +980,22 @@ class Kryn {
     /**
      * Returns current client instance.
      * If we are in the administration area, then this return the admin client (same as getAdminClient())
-     * 
+     *
      * @return \Core\Client\ClientAbstract
      */
-    public static function getClient(){
+    public static function getClient()
+    {
         return self::$client;
     }
 
     /**
      * Returns current admin client instance.
      * Only available if the call is in admin area. (Kryn::isAdmin())
-     * 
+     *
      * @return \Core\Client\ClientAbstract
      */
-    public static function getAdminClient(){
+    public static function getAdminClient()
+    {
         return self::$adminClient;
     }
 
@@ -978,14 +1003,14 @@ class Kryn {
      * Redirect the user to specified page
      *
      * @param integer $pId
-     * @param string $pParams
+     * @param string  $pParams
      *
      * @static
      */
-    public static function redirectToPage($pId, $pParams = '') {
+    public static function redirectToPage($pId, $pParams = '')
+    {
         self::redirect(self::pageUrl($pId) . ($pParams ? '?' . $pParams : ''));
     }
-
 
     /**
      * Returns the requested path in the URL, without http and domain name.
@@ -994,8 +1019,8 @@ class Kryn {
      * @return string
      * @internal
      */
-    public static function getRequestedPath() {
-
+    public static function getRequestedPath()
+    {
         return self::getRequest()->getRequestUri();
 
     }
@@ -1008,8 +1033,8 @@ class Kryn {
      * @return bool
      * @internal
      */
-    public static function isValidLanguage($pLang) {
-
+    public static function isValidLanguage($pLang)
+    {
         if (!Kryn::$config['languages'] && $pLang == 'en') return true; //default
 
         if (Kryn::$config['languages'])
@@ -1021,16 +1046,18 @@ class Kryn {
      * Clears the language caches.
      *
      * @internal
-     * @param null $pLang
+     * @param  null $pLang
      * @return bool
      */
-    public static function clearLanguageCache($pLang = null) {
+    public static function clearLanguageCache($pLang = null)
+    {
         if ($pLang == false) {
 
             $langs = dbTableFetch('system_langs', DB_FETCH_ALL, 'visible = 1');
             foreach ($langs as $lang) {
                 Kryn::clearLanguageCache($lang['code']);
             }
+
             return false;
         }
         $code = 'cacheLang_' . $pLang;
@@ -1043,16 +1070,17 @@ class Kryn {
      * @static
      * @internal
      * @param string $pLang
-     * @param bool $pForce
+     * @param bool   $pForce
      */
-    public static function loadLanguage($pLang = null, $pForce = false) {
-
+    public static function loadLanguage($pLang = null, $pForce = false)
+    {
         if (!$pLang) $pLang = Kryn::getLanguage();
 
         if (!Kryn::isValidLanguage($pLang))
             $pLang = 'en';
 
         if( Kryn::$lang && Kryn::$lang['__lang'] && Kryn::$lang['__lang'] == $pLang && $pForce == false )
+
             return;
 
         if (!$pLang) return;
@@ -1096,7 +1124,6 @@ class Kryn {
             $code .= "}\n?>";
             TempFile::setContent('core_gettext_plural_fn_' . $pLang . '.php', $code);
 
-
             $code = "function gettext_plural_fn_$pLang(n){\n";
             $code .= "    return " . $pluralForm . ";\n";
             $code .= "}";
@@ -1107,12 +1134,11 @@ class Kryn {
         include_once(self::getTempFolder().'core_gettext_plural_fn_' . $pLang . '.php');
     }
 
-
     /**
      * Cleans up the class variables. Is used in the test suite.
      */
-    public static function cleanup(){
-
+    public static function cleanup()
+    {
         self::$breadcrumbs = null;
         self::$lang = null;
         self::$language = null;
@@ -1164,23 +1190,22 @@ class Kryn {
      *
      * @param int $pDomainId If not defined, it returns the current domain.
      *
-     * @return \Domain 
+     * @return \Domain
      * @static
      */
-    public static function getDomain($pDomainId = null) {
-
+    public static function getDomain($pDomainId = null)
+    {
         if (!$pDomainId) return self::$domain;
 
-        if ($domainSerialized = self::getCache('core/object-domain/'.$pDomainId)){
+        if ($domainSerialized = self::getCache('core/object-domain/'.$pDomainId)) {
             return unserialize($domainSerialized);
         }
 
         $domain = DomainQuery::create()->findPk($pDomainId);
 
-        if (!$domain){
+        if (!$domain) {
             return false;
         }
-
 
         //todo, do it via setFastCache
         self::setCache('core/object-domain/'.$pDomainId, serialize($domain));
@@ -1188,20 +1213,19 @@ class Kryn {
         return $domain;
     }
 
-
     /**
      * Returns cached propel object.
-     * 
-     * @param  int   $pObjectClassName If not defined, it returns the current page.
-     * @param  mixed $pObjectPk        Propel PK for $pObjectClassName int, string or array
+     *
+     * @param  int         $pObjectClassName If not defined, it returns the current page.
+     * @param  mixed       $pObjectPk        Propel PK for $pObjectClassName int, string or array
      * @return \BaseObject Propel object
      * @static
      */
-    public static function getPropelCacheObject($pObjectClassName, $pObjectPk) {
-
-        if (is_array($pObjectPk)){
+    public static function getPropelCacheObject($pObjectClassName, $pObjectPk)
+    {
+        if (is_array($pObjectPk)) {
             $npk = '';
-            foreach ($pObjectPk as $k){
+            foreach ($pObjectPk as $k) {
                 $npk .= urlencode($k).'_';
             }
         } else {
@@ -1209,32 +1233,32 @@ class Kryn {
         }
 
         $cacheKey = 'core/object-caching.'.strtolower(preg_replace('/[^\w]/', '.',$pObjectClassName)).'/'.$pk;
-        if ($serialized = self::getCache($cacheKey)){
+        if ($serialized = self::getCache($cacheKey)) {
             return unserialize($serialized);
         }
 
         return self::setPropelCacheObject($pObjectClassName, $pObjectPk);
-    } 
+    }
 
     /**
      * Returns propel object and cache it.
      *
-     * @param  int   $pObjectClassName If not defined, it returns the current page.
-     * @param  mixed $pObjectPk        Propel PK for $pObjectClassName int, string or array
-     * @param  mixed $pObject          Pass the object, if you did already fetch it.
+     * @param int   $pObjectClassName If not defined, it returns the current page.
+     * @param mixed $pObjectPk        Propel PK for $pObjectClassName int, string or array
+     * @param mixed $pObject          Pass the object, if you did already fetch it.
      *
      * @return \BaseObject Propel object
      */
-    public static function setPropelCacheObject($pObjectClassName, $pObjectPk, $pObject = false) {
-
+    public static function setPropelCacheObject($pObjectClassName, $pObjectPk, $pObject = false)
+    {
         $pk = $pObjectPk;
-        if ($pk === null && $pObject){
+        if ($pk === null && $pObject) {
             $pk = $pObject->getPrimaryKey();
         }
 
-        if (is_array($pk)){
+        if (is_array($pk)) {
             $npk = '';
-            foreach ($pk as $k){
+            foreach ($pk as $k) {
                 $npk .= urlencode($k).'_';
             }
         } else {
@@ -1248,7 +1272,7 @@ class Kryn {
         if (!$object)
             $object = $clazz::create()->findPk($pObjectPk);
 
-        if (!$object){
+        if (!$object) {
             return false;
         }
 
@@ -1261,16 +1285,16 @@ class Kryn {
     /**
      * Removes a object from the cache.
      *
-     * @param  int   $pObjectClassName If not defined, it returns the current page.
-     * @param  mixed $pObjectPk        Propel PK for $pObjectClassName int, string or array
+     * @param int   $pObjectClassName If not defined, it returns the current page.
+     * @param mixed $pObjectPk        Propel PK for $pObjectClassName int, string or array
      */
-    public static function removePropelCacheObject($pObjectClassName, $pObjectPk = null){
-
+    public static function removePropelCacheObject($pObjectClassName, $pObjectPk = null)
+    {
         $pk = $pObjectPk;
-        if ($pk !== null){
-            if (is_array($pk)){
+        if ($pk !== null) {
+            if (is_array($pk)) {
                 $npk = '';
-                foreach ($pk as $k){
+                foreach ($pk as $k) {
                     $npk .= urlencode($k).'_';
                 }
             } else {
@@ -1279,36 +1303,34 @@ class Kryn {
         }
         $cacheKey = 'core/object-caching.'.strtolower(preg_replace('/[^\w]/', '.',$pObjectClassName));
 
-        if ($pObjectPk){
+        if ($pObjectPk) {
             self::deleteCache($cacheKey.'/'.$pk);
         } else {
             self::invalidateCache($cacheKey);
         }
     }
 
-
-
     /**
      * Returns a super fast cached Page object.
-     * 
-     * @param  int $pPageId If not defined, it returns the current page.
+     *
+     * @param  int   $pPageId If not defined, it returns the current page.
      * @return \Page
      * @static
      */
-    public static function getPage($pPageId = null) {
-
+    public static function getPage($pPageId = null)
+    {
         if (!$pPageId) return self::$page;
 
         $created = self::getCache('core/object.page.'.$pPageId.'.created');
         $data    = self::getFastCache('core/object.page.'.$pPageId);
 
-        if ($data && $created == $data['!created']){
+        if ($data && $created == $data['!created']) {
             return unserialize($data['page']);
         }
 
         $page = NodeQuery::create()->findPk($pPageId);
 
-        if (!$page){
+        if (!$page) {
             return false;
         }
 
@@ -1326,8 +1348,8 @@ class Kryn {
      * @return string Empty string if nothing found.
      * @internal
      */
-    public static function getPossibleLanguage() {
-
+    public static function getPossibleLanguage()
+    {
         $uri = self::getRequest()->getRequestUri();
 
         if (strpos($uri, '/') > 0)
@@ -1342,19 +1364,18 @@ class Kryn {
         return '';
     }
 
-
     /**
      * Tries to detect the domain/host name, if they is available in this system.
      *
      * @static
-     * @param bool $pNoRefreshCache
+     * @param  bool        $pNoRefreshCache
      * @return Domain|null
      *
      * @event core/domain-redirect
      * @event core/domain-not-found
      */
-    public static function detectDomain($pNoRefreshCache = false){
-
+    public static function detectDomain($pNoRefreshCache = false)
+    {
         $request    = self::getRequest();
         $dispatcher = self::getEventDispatcher();
         $hostname   = $request->get('kryn_domain') ?: $request->getHost();
@@ -1367,32 +1388,32 @@ class Kryn {
 
         if ($cachedDomains) $cachedDomains = \unserialize($cachedDomains);
 
-        if (!$cachedDomains || $cachedDomains['!created'] != $cachedDomainsCreated){
+        if (!$cachedDomains || $cachedDomains['!created'] != $cachedDomainsCreated) {
 
             $cachedDomains = array();
             $domains = DomainQuery::create()->find();
-            foreach ($domains as $domain){
+            foreach ($domains as $domain) {
                 $key = $domain->getDomain();
                 $langKey = '';
 
-                if (!$domain->getMaster()){
+                if (!$domain->getMaster()) {
                     $langKey = '/'.$domain->getLanguage();
                 }
 
                 $cachedDomains[$key.$langKey] = $domain;
 
-                if ($domain->getRedirect()){
+                if ($domain->getRedirect()) {
                     $redirects = $domain->getRedirect();
                     $redirects = explode(',', str_replace(' ', '', $redirects));
-                    foreach ($redirects as $redirectDomain){
+                    foreach ($redirects as $redirectDomain) {
                         $cachedDomains['!redirects'][$redirectDomain.$langKey] = $key.$langKey;
                     }
                 }
 
-                if ($domain->getAlias()){
+                if ($domain->getAlias()) {
                     $aliases = $domain->getAlias();
                     $aliases = explode(',', str_replace(' ', '', $aliases));
-                    foreach ($aliases as $aliasDomain){
+                    foreach ($aliases as $aliasDomain) {
                         $cachedDomains['!aliases'][$aliasDomain.$langKey] = $key.$langKey;
                     }
                 }
@@ -1407,10 +1428,11 @@ class Kryn {
         //search redirect
         if ($redirectToDomain = $cachedDomains['!redirects'][$hostnameWithLanguage] ||
             $redirectToDomain = $cachedDomains['!redirects'][$hostname]
-        ){
+) {
             $domain = $cachedDomains[$redirectToDomain];
 
             $dispatcher->dispatch('core.domain-redirect', new GenericEvent($domain));
+
             return null;
         }
 
@@ -1424,8 +1446,9 @@ class Kryn {
             $domain = $cachedDomains[$hostname];
         }
 
-        if (!$domain){
+        if (!$domain) {
             $dispatcher->dispatch('core.domain-not-found', new GenericEvent($hostname));
+
             return;
         }
 
@@ -1437,8 +1460,8 @@ class Kryn {
     /**
      * Setups the HTTPKernel.
      */
-    public static function setupHttpKernel(){
-
+    public static function setupHttpKernel()
+    {
         $dispatcher = self::getEventDispatcher();
 
         $dispatcher->addListener(KernelEvents::EXCEPTION, function(GetResponseForExceptionEvent $event){
@@ -1449,27 +1472,28 @@ class Kryn {
 
             $data = $event->getControllerResult();
 
-            if ($data !== null){
+            if ($data !== null) {
                 $response = new PluginResponse($data);
                 $response->setControllerRequest($event->getRequest());
                 $event->setResponse($response);
             } else {
                 $content = $event->getRequest()->attributes->get('_content');
-                if ($content){
+                if ($content) {
                     $foundRoute = false;
-                    foreach (Kryn::$routes as $idx => $route){
+                    foreach (Kryn::$routes as $idx => $route) {
                         /** @var \Symfony\Component\Routing\Route $route */
-                        if ($content == $route->getDefault('_content')){
+                        if ($content == $route->getDefault('_content')) {
                             Kryn::$routes->remove($idx);
                             $foundRoute = true;
                             break;
                         }
                     }
-                    if ($foundRoute){
+                    if ($foundRoute) {
                         //we've remove the route and fire now again a sub request
                         Kryn::getRequest()->attributes = new ParameterBag();
                         $response = Kryn::getHttpKernel()->handle(Kryn::getRequest(), HttpKernelInterface::SUB_REQUEST);
                         $event->setResponse($response);
+
                         return;
                     }
                 }
@@ -1482,24 +1506,26 @@ class Kryn {
      * Attaches the page and their plugin routes as routeCollection to the the event dispatcher
      * for later usage in HTTPKernel.
      */
-    public static function setupPageRoutes(){
-
+    public static function setupPageRoutes()
+    {
         self::$domain = self::detectDomain();
         if (!self::$domain) return;
         $dispatcher   = self::getEventDispatcher();
 
         $page = self::searchPage();
 
-        if (!$page){
+        if (!$page) {
             $dispatcher->dispatch('core.page-not-found');
+
             return;
         }
 
         Kryn::$page = self::getPage($page);
         Kryn::$page = self::checkPageAccess(Kryn::$page);
 
-        if (!$page){
+        if (!$page) {
             $dispatcher->dispatch('core.page-not-found');
+
             return;
         }
 
@@ -1514,7 +1540,7 @@ class Kryn {
 
         $controller = $clazz.'::handle';
 
-        if (Kryn::$domain && Kryn::$domain->getStartnodeId() == Kryn::$page->getId()){
+        if (Kryn::$domain && Kryn::$domain->getStartnodeId() == Kryn::$page->getId()) {
 
             //This is the start page, so add a redirect controller
             $routes->add($routes->count()+1,
@@ -1537,7 +1563,7 @@ class Kryn {
         $cacheKey = 'core/node/plugins-'.Kryn::$page->getId();
         $plugins  = Kryn::getDistributedCache($cacheKey);
 
-        if ($plugins === null){
+        if ($plugins === null) {
 
             $plugins = ContentQuery::create()
                 ->filterByNodeId(Kryn::$page->getId())
@@ -1549,15 +1575,15 @@ class Kryn {
             $plugins = unserialize($plugins);
         }
 
-        foreach ($plugins as $plugin){
+        foreach ($plugins as $plugin) {
             if (!$plugin->getContent()) continue;
             $data = json_decode($plugin->getContent(), true);
             if (!$data) continue;
 
             $pluginDefinition = Kryn::$configs[$data['module']]['plugins'][$data['plugin']];
 
-            if ($pluginDefinition['routes']){
-                foreach ($pluginDefinition['routes'] as $route){
+            if ($pluginDefinition['routes']) {
+                foreach ($pluginDefinition['routes'] as $route) {
 
                     $controller = $data['module'].'\\Controller'.'::'.$data['plugin'];
 
@@ -1600,19 +1626,19 @@ class Kryn {
      * and exits.
      *
      */
-    public static function checkStaticCaching(){
-
+    public static function checkStaticCaching()
+    {
         //caching
         if (true || Kryn::isEditMode()) return;
 
         $key = md5(self::getRequest()->getRequestUri());
         $caching = Kryn::getCache('core/static-caching');
 
-        if (!$caching){
+        if (!$caching) {
             //reload static-caching index
         }
 
-        if ($caching[$key] && file_exists($file = 'media/cache/core/static.'.$key.'.html')){
+        if ($caching[$key] && file_exists($file = 'media/cache/core/static.'.$key.'.html')) {
 
             $response = new Response(file_get_contents($file), 200);
             $response->send();
@@ -1628,8 +1654,8 @@ class Kryn {
      * @event core/response-send-pre
      * @event core/response-send
      */
-    public static function handleRequest(){
-
+    public static function handleRequest()
+    {
         $kernel     = self::getHttpKernel();
         $request    = self::getRequest();
         $dispatcher = self::getEventDispatcher();
@@ -1664,7 +1690,7 @@ class Kryn {
         }
 
         //caching
-        if (false && !Kryn::isEditMode()){
+        if (false && !Kryn::isEditMode()) {
             //todo
             $dispatcher->addListener('core.response-send-pre', function(){
                 $caching       = Kryn::getCache('core/static-caching');
@@ -1676,7 +1702,7 @@ class Kryn {
             });
         }
 
-        if (Kryn::isEditMode() && $response instanceof PageResponse){
+        if (Kryn::isEditMode() && $response instanceof PageResponse) {
 
             \Admin\AdminController::handleKEditor();
         }
@@ -1691,7 +1717,8 @@ class Kryn {
      * @event core/response-send
      * @param Response $pResponse
      */
-    public static function sendResponse(Response $pResponse){
+    public static function sendResponse(Response $pResponse)
+    {
         global $_start;
 
         $dispatcher = self::getEventDispatcher();
@@ -1710,7 +1737,8 @@ class Kryn {
      *
      * @return bool
      */
-    public static function isEditMode(){
+    public static function isEditMode()
+    {
         return Kryn::getRequest()->get('_kryn_editor') == 1 && Kryn::$page && Permission::checkUpdate('core/Node', Kryn::$page->getId());
     }
 
@@ -1718,15 +1746,16 @@ class Kryn {
      * @static
      * @return string
      */
-    public static function getBaseUrl(){
+    public static function getBaseUrl()
+    {
         return Kryn::$baseUrl;
     }
-
 
     /**
      * @static
      */
-    public static function setBaseUrl($pBaseUrl){
+    public static function setBaseUrl($pBaseUrl)
+    {
         Kryn::$baseUrl = $pBaseUrl;
     }
 
@@ -1737,7 +1766,8 @@ class Kryn {
      *
      * @return bool
      */
-    public static function isAdmin(){
+    public static function isAdmin()
+    {
         return self::$admin;
     }
 
@@ -1745,14 +1775,14 @@ class Kryn {
      * Checks the specified page.
      * Internal function.
      *
-     * @param   Node $page
-     * @param   bool $pWithRedirect
+     * @param Node $page
+     * @param bool $pWithRedirect
      *
-     * @return  array|bool False if no access
+     * @return array|bool False if no access
      * @internal
      */
-    public static function checkPageAccess(Node $page, $pWithRedirect = true) {
-
+    public static function checkPageAccess(Node $page, $pWithRedirect = true)
+    {
         $oriPage = $page;
 
         if ($page->getAccessFrom() > 0 && ($page->getAccessFrom() > time()))
@@ -1800,7 +1830,6 @@ class Kryn {
             }
         }
 
-
         if (!$page && $pWithRedirect && $oriPage->getAccessNeedVia() == 0) {
 
             if ($oriPage->getAccessRedirectto() + 0 > 0)
@@ -1814,6 +1843,7 @@ class Kryn {
 
             exit;
         }
+
         return $page;
     }
 
@@ -1821,10 +1851,11 @@ class Kryn {
      * Returns the domain of the given $pId page.
      *
      * @static
-     * @param integer $pId
+     * @param  integer      $pId
      * @return integer|null
      */
-    public static function getDomainOfPage($pId) {
+    public static function getDomainOfPage($pId)
+    {
         $id = null;
 
         $page2Domain =& Kryn::getDistributedCache('core/node/toDomains');
@@ -1840,13 +1871,14 @@ class Kryn {
                 $id = $domain_id;
             }
         }
+
         return $id;
     }
 
     /**
      * Returns a array with all urls to id pairs.
      *
-     * @param integer $pDomainId
+     * @param  integer $pDomainId
      * @return array
      */
     public static function &getCachedUrlToPage($pDomainId){
@@ -1866,11 +1898,11 @@ class Kryn {
             $urls         = array();
             $level        = array();
 
-            foreach ($nodes as $node){
+            foreach ($nodes as $node) {
                 if ($node['lvl'] == 0) continue; //root
                 if ($node['type'] == 3) continue; //deposit
 
-                if ($node['type'] == 2 || $node['urn'] == ''){
+                if ($node['type'] == 2 || $node['urn'] == '') {
                     //folder or empty url
                     $level[$node['lvl']+0] = ($level[$node['lvl']-1]) ?: '';
                     continue;
@@ -1887,20 +1919,21 @@ class Kryn {
             self::setDistributedCache($cacheKey, $urls);
 
         }
+
         return $urls;
     }
 
-
     /**
-     * @param integer $pDomainId
+     * @param  integer $pDomainId
      * @return array
      */
     public static function &getCachedPageToUrl($pDomainId){
         static $flipped;
 
-        if (!$flipped){
+        if (!$flipped) {
             $flipped = array_flip(self::getCachedUrlToPage($pDomainId));
         }
+
         return $flipped;
     }
 
@@ -1909,8 +1942,8 @@ class Kryn {
      * @internal
      * @return int
      */
-    public static function searchPage() {
-
+    public static function searchPage()
+    {
         $url = self::getRequest()->getPathInfo();
 
         $domain = Kryn::$domain->getId();
@@ -1927,7 +1960,7 @@ class Kryn {
 
             if ($id > 0 || $possibleUrl == '') {
                 $found = true;
-            } else if (!$found) {
+            } elseif (!$found) {
                 $id = Kryn::$urls['alias'][$possibleUrl];
                 if ($id > 0) {
                     $found = true;
@@ -2000,7 +2033,6 @@ class Kryn {
         return $pageId;
     }
 
-
     /**
      * Initialize the breadcrumb list.
      *
@@ -2008,7 +2040,8 @@ class Kryn {
      *
      * @internal
      */
-    public static function loadBreadcrumb() {
+    public static function loadBreadcrumb()
+    {
         Kryn::$breadcrumbs = Kryn::$page->getParents();
         tAssignRef('breadcrumbs', Kryn::$breadcrumbs);
     }
@@ -2020,8 +2053,8 @@ class Kryn {
      *
      * @static
      */
-    public static function notFound() {
-
+    public static function notFound()
+    {
         $msg = sprintf(t('Route not found %s'), Kryn::$domain->getDomain() . '/' . Kryn::getRequestedPath(true));
         klog('404', $msg);
         self::internalError('Not Found', $msg);
@@ -2035,7 +2068,8 @@ class Kryn {
      * @param $pTitle
      * @param $pMsg
      */
-    public static function internalError($pTitle = '', $pMsg) {
+    public static function internalError($pTitle = '', $pMsg)
+    {
         tAssign('msg', $pMsg);
         tAssign('title', $pTitle?$pTitle:'Internal system error');
         $response = new Response(tFetch('kryn/internal-error.tpl'), 404);
@@ -2050,7 +2084,8 @@ class Kryn {
      * @param $pTitle
      * @param $pMsg
      */
-    public static function internalMessage($pTitle, $pMsg = '') {
+    public static function internalMessage($pTitle, $pMsg = '')
+    {
         tAssign('title', $pTitle);
         tAssign('msg', $pMsg);
         print tFetch('kryn/internal-message.tpl');
@@ -2065,7 +2100,8 @@ class Kryn {
      *
      * @return string Wrapped content
      */
-    public static function unsearchable($pContent) {
+    public static function unsearchable($pContent)
+    {
         return '<!--unsearchable-begin-->' . $pContent . '<!--unsearchable-end-->';
     }
 
@@ -2075,7 +2111,8 @@ class Kryn {
      *
      * @param string $pHtml
      */
-    public static function removeSearchBlocks(&$pHtml) {
+    public static function removeSearchBlocks(&$pHtml)
+    {
         $pHtml = str_replace('<!--unsearchable-begin-->', '', $pHtml);
         $pHtml = str_replace('<!--unsearchable-end-->', '', $pHtml);
     }
@@ -2083,8 +2120,8 @@ class Kryn {
     /**
      * Deactivates the 404 content check
      */
-    public static function disableSearchEngine() {
-
+    public static function disableSearchEngine()
+    {
         self::$disableSearchEngine = true;
 
     }
@@ -2098,11 +2135,13 @@ class Kryn {
      * @static
      * @internal
      */
-    public static function compress($pString) {
+    public static function compress($pString)
+    {
         $res = $pString;
         $res = preg_replace('/\s\s+/', ' ', $res);
         $res = preg_replace('/\t/', '', $res);
         $res = preg_replace('/\n\n+/', "\n", $res);
+
         return $res;
     }
 
@@ -2111,7 +2150,8 @@ class Kryn {
      *
      * @param string $pKey
      */
-    public static function deleteCache($pKey) {
+    public static function deleteCache($pKey)
+    {
         if (!self::$cache)
             self::initCache();
         Kryn::$cache->delete($pKey);
@@ -2126,15 +2166,17 @@ class Kryn {
      * installations and is at the same time very fast, then you should use
      * `setDistributedCache`.
      *
-     * @param string  $pKey
-     * @param string  $pValue Only simple data types. Serialize your value if you have objects/arrays.
-     * @param integer $pLifeTime In seconds. Default is one hour
+     * @param  string  $pKey
+     * @param  string  $pValue    Only simple data types. Serialize your value if you have objects/arrays.
+     * @param  integer $pLifeTime In seconds. Default is one hour
      * @return boolean
      * @static
      */
-    public static function setCache($pKey, $pValue, $pLifeTime = null) {
+    public static function setCache($pKey, $pValue, $pLifeTime = null)
+    {
         if (!self::$cache)
             self::initCache();
+
         return Kryn::$cache->set($pKey, $pValue, $pLifeTime);
     }
 
@@ -2163,13 +2205,15 @@ class Kryn {
      *
      * Default is $pTime is `mark all caches as invalid which are older than CURRENT`.
      *
-     * @param string  $pKey
-     * @param integer $pTime Unix timestamp. Default is microtime(true). Uses float for ms.
+     * @param  string  $pKey
+     * @param  integer $pTime Unix timestamp. Default is microtime(true). Uses float for ms.
      * @return boolean
      */
-    public static function invalidateCache($pKey, $pTime = null) {
+    public static function invalidateCache($pKey, $pTime = null)
+    {
         if (!self::$cache)
             self::initCache();
+
         return Kryn::$cache->invalidate($pKey, $pTime ? $pTime : microtime(true));
     }
 
@@ -2186,6 +2230,7 @@ class Kryn {
     public static function &getCache($pKey) {
         if (!self::$cache)
             self::initCache();
+
         return Kryn::$cache->get($pKey);
     }
 
@@ -2198,15 +2243,15 @@ class Kryn {
      *
      * @return mixed Null if not found
      */
-    public static function getDistributedCache($pKey){
-
+    public static function getDistributedCache($pKey)
+    {
         $invalidationKey = $pKey.'/!invalidationCheck';
         $timestamp       = self::getCache($invalidationKey);
         $cache           = null;
 
-        if ($timestamp !== null){
+        if ($timestamp !== null) {
             $cache = self::getFastCache($pKey);
-            if ($cache['timestamp'] == $timestamp){
+            if ($cache['timestamp'] == $timestamp) {
                 return $cache['data'];
             }
         }
@@ -2232,19 +2277,20 @@ class Kryn {
      * stores extra values at the value, which makes getCache() returning something invalid.
      *
      * @param string $pKey
-     * @param mixed  $pValue Only simple data types. Serialize your value if you have objects/arrays.
+     * @param mixed  $pValue    Only simple data types. Serialize your value if you have objects/arrays.
      * @param int    $pLifeTime
      *
      * @return boolean
      * @static
      */
-    public static function setDistributedCache($pKey, $pValue, $pLifeTime = null){
-
+    public static function setDistributedCache($pKey, $pValue, $pLifeTime = null)
+    {
         $invalidationKey = $pKey.'/!invalidationCheck';
         $timestamp       = microtime();
 
         $cache['data']      = $pValue;
         $cache['timestamp'] = $timestamp;
+
         return Kryn::setFastCache($pKey, $cache, $pLifeTime) && Kryn::setCache($invalidationKey, $timestamp, $pLifeTime);
     }
 
@@ -2257,15 +2303,17 @@ class Kryn {
      * If you want a distributed cache, use `setDistributedCache()`.
      *
      * @param string $pKey
-     * @param string $pValue Only simple data types. Serialize your value if you have objects/arrays.
+     * @param string $pValue    Only simple data types. Serialize your value if you have objects/arrays.
      * @param int    $pLifeTime
      *
      * @return boolean
      * @static
      */
-    public static function setFastCache($pKey, $pValue, $pLifeTime = null) {
+    public static function setFastCache($pKey, $pValue, $pLifeTime = null)
+    {
         if (!self::$cache)
             self::initCache();
+
         return Kryn::$cacheFast->set($pKey, $pValue, $pLifeTime);
     }
 
@@ -2273,13 +2321,14 @@ class Kryn {
      * Returns the content of the specified cache-key.
      * See Kryn::setFastCache for more information.
      *
-     * @param string $pKey
+     * @param  string  $pKey
      * @return boolean
      * @static
      */
     public static function &getFastCache($pKey) {
         if (!self::$cache)
             self::initCache();
+
         return Kryn::$cacheFast->get($pKey);
     }
 
@@ -2292,12 +2341,12 @@ class Kryn {
      * @return array
      * @static
      */
-    public static function readFolder($pPath, $pWithExt = false) {
+    public static function readFolder($pPath, $pWithExt = false)
+    {
         $h = @opendir($pPath);
         if (!$h) {
             return false;
-        }
-        while ($file = readdir($h)) {
+        } while ($file = readdir($h)) {
             if (substr($file, 0, 1) != '.') {
                 if (!$pWithExt) {
                     $file = substr($file, 0, (strpos($file, '.') > 0) ? strrpos($file, '.') : strlen($file));
@@ -2305,6 +2354,7 @@ class Kryn {
                 $files[] = $file;
             }
         }
+
         return $files;
     }
 
@@ -2316,15 +2366,15 @@ class Kryn {
      *
      * @static
      * @internal
-     * @param  bool $pWithKrynContext Adds the 'id' value of the config as sub folder. This makes sure, multiple kryn installations
+     * @param bool $pWithKrynContext Adds the 'id' value of the config as sub folder. This makes sure, multiple kryn installations
      *                                does not overwrite each other files.
-     * 
-     * @return string Path with trailing slash
+     *
+     * @return string           Path with trailing slash
      * @throws \FileIOException
      */
-    public static function getTempFolder($pWithKrynContext = true){
-
-        if (!self::$cachedTempFolder){
+    public static function getTempFolder($pWithKrynContext = true)
+    {
+        if (!self::$cachedTempFolder) {
 
             $folder = Kryn::$config['fileTemp'];
             if (!$folder && getenv('TMP')) $folder = getenv('TMP');
@@ -2340,7 +2390,7 @@ class Kryn {
                 self::$cachedTempFolder .= DIRECTORY_SEPARATOR;
         }
 
-        if ($pWithKrynContext){
+        if ($pWithKrynContext) {
 
             if (!is_writable(self::$cachedTempFolder))
                 throw new \FileIOException('Temp directory is not writeable. '.$folder);
@@ -2362,7 +2412,8 @@ class Kryn {
      *
      * @return string
      */
-    public static function getId(){
+    public static function getId()
+    {
         return 'kryn-'.(self::$config['id'] ?: 'no-id');
     }
 
@@ -2375,8 +2426,8 @@ class Kryn {
      * @param  string $pPrefix
      * @return string Path with trailing slash
      */
-    public static function createTempFolder($pPrefix = ''){
-
+    public static function createTempFolder($pPrefix = '')
+    {
         $tmp = self::getTempFolder();
 
         do {
@@ -2394,22 +2445,22 @@ class Kryn {
     /**
      * Returns the module directory.
      *
-     * @param string $pModule
+     * @param  string $pModule
      * @return string
      */
-    public static function getModuleDir($pModule){
+    public static function getModuleDir($pModule)
+    {
         return $pModule == 'core' ? 'core/' : PATH_MODULE.strtolower($pModule).'/';
     }
-
 
     /**
      * Replaces all object://<objectKey>/<pk> strings by its real url.
      *
-     * @param string $pHtml
+     * @param  string $pHtml
      * @return string
      */
-    public static function parseObjectUrls($pHtml){
-
+    public static function parseObjectUrls($pHtml)
+    {
         return preg_replace_callback(
             '|object://([a-zA-Z0-9\.\\\\]+)/([^"/,]+)|',
             '\\Core\\Kryn::replaceObjectUrl',
@@ -2418,7 +2469,8 @@ class Kryn {
 
     }
 
-    public static function replaceObjectUrl($pMatch){
+    public static function replaceObjectUrl($pMatch)
+    {
         return Object::getPublicUrl($pMatch[1], $pMatch[2]);
     }
 
@@ -2432,12 +2484,10 @@ class Kryn {
      * @return string
      * @static
      */
-    public static function pageUrl($pId = 0, $pAbsolute = false, $pDomainId = false) {
-
+    public static function pageUrl($pId = 0, $pAbsolute = false, $pDomainId = false)
+    {
         return 'object://node/'.$pId;
 
     }
 
 }
-
-?>

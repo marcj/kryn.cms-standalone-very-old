@@ -1,10 +1,9 @@
 <?php
 
-
 namespace Core\Cache;
 
-interface CacheInterface {
-
+interface CacheInterface
+{
     /**
      * Initialize the class.
      *
@@ -15,7 +14,7 @@ interface CacheInterface {
     /**
      * Gets the data for a key.
      *
-     * @param string $pKey
+     * @param  string $pKey
      * @return mixed
      */
     public function get($pKey);
@@ -23,9 +22,9 @@ interface CacheInterface {
     /**
      * Sets data for a key with a timeout.
      *
-     * @param string $pKey
-     * @param mixed  $pValue
-     * @param int    $pTimeout
+     * @param  string  $pKey
+     * @param  mixed   $pValue
+     * @param  int     $pTimeout
      * @return boolean
      */
     public function set($pKey, $pValue, $pTimeout = null);
@@ -42,7 +41,7 @@ interface CacheInterface {
      * This should also check whether the driver can be used in general or not (like if a necessary php module
      * is loaded or not).
      *
-     * @param array $pConfig
+     * @param  array   $pConfig
      * @return boolean returns true if everything is fine, if not it should throw an exception with the detailed issue.
      */
     public function testConfig($pConfig);

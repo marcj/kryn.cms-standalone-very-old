@@ -12,14 +12,15 @@
 /**
  * Smarty Internal Plugin Compile Level Class
  */
-class Smarty_Internal_Compile_T extends Smarty_Internal_CompileBase {
-
+class Smarty_Internal_Compile_T extends Smarty_Internal_CompileBase
+{
     public $optional_attributes = array('plural', 'count', 'context');
 
     public $shorttag_order = array('singular', 'plural', 'count', 'context');
     public $required_attributes = array('singular');
 
-    public function compile($args, $compiler){
+    public function compile($args, $compiler)
+    {
         $this->compiler = $compiler;
 
         // check and get attributes

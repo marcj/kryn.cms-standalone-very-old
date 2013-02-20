@@ -4,11 +4,10 @@ namespace Core;
 
 use Core\om\BaseNodePeer;
 
-
 /**
  * Skeleton subclass for performing query and update operations on the 'kryn_system_node' table.
  *
- * 
+ *
  *
  * You should add additional methods to this class to meet the
  * application requirements.  This class will only be generated as
@@ -16,6 +15,6 @@ use Core\om\BaseNodePeer;
  *
  * @package    propel.generator.Core
  */
-class NodePeer extends BaseNodePeer {
-
+class NodePeer extends BaseNodePeer
+{
 } // NodePeer

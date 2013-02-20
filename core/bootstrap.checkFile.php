@@ -8,14 +8,14 @@
  * @author MArc Schmidt <marc@Kryn.org>
  */
 
-if (array_key_exists('__url', $_GET)){
+if (array_key_exists('__url', $_GET)) {
     $pfile = preg_replace('/\.\.+/', '.', trim($_REQUEST['__url']));
     $temp = 'media/';
     $file = false;
 
     if (file_exists($temp . $pfile)) {
         $file = $temp . $pfile;
-    } else if (file_exists($temp . substr($pfile, 3, strlen($pfile)))) {
+    } elseif (file_exists($temp . substr($pfile, 3, strlen($pfile)))) {
         $file = $temp . substr($pfile, 3, strlen($pfile));
     }
 
@@ -26,5 +26,3 @@ if (array_key_exists('__url', $_GET)){
         exit;
     }
 }
-
-?>

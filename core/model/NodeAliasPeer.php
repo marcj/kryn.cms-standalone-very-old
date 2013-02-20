@@ -4,11 +4,10 @@ namespace Core;
 
 use Core\om\BaseNodeAliasPeer;
 
-
 /**
  * Skeleton subclass for performing query and update operations on the 'kryn_system_node_alias' table.
  *
- * 
+ *
  *
  * You should add additional methods to this class to meet the
  * application requirements.  This class will only be generated as
@@ -16,6 +15,6 @@ use Core\om\BaseNodeAliasPeer;
  *
  * @package    propel.generator.Core
  */
-class NodeAliasPeer extends BaseNodeAliasPeer {
-
+class NodeAliasPeer extends BaseNodeAliasPeer
+{
 } // NodeAliasPeer

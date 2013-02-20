@@ -4,11 +4,10 @@ namespace Core;
 
 use Core\om\BaseAcl;
 
-
 /**
  * Skeleton subclass for representing a row from the 'kryn_system_acl' table.
  *
- * 
+ *
  *
  * You should add additional methods to this class to meet the
  * application requirements.  This class will only be generated as
@@ -16,6 +15,6 @@ use Core\om\BaseAcl;
  *
  * @package    propel.generator.kryn
  */
-class Acl extends BaseAcl {
-
+class Acl extends BaseAcl
+{
 } // Acl

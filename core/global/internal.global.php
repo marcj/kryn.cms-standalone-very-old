@@ -1,6 +1,5 @@
 <?php
 
-
 /*
  * This file is part of Kryn.cms.
  *
@@ -11,7 +10,6 @@
  *
  */
 
-
 /**
  * Internal functions
  * @author MArc Schmidt <marc@Kryn.org>
@@ -21,20 +19,22 @@
 $errorHandlerInside = false;
 
 /** proxie */
-function coreUtilsErrorHandler($pErrorCode, $pErrorStr, $pFile, $pLine){
+function coreUtilsErrorHandler($pErrorCode, $pErrorStr, $pFile, $pLine)
+{
     \Core\Utils::errorHandler($pErrorCode, $pErrorStr, $pFile, $pLine);
 }
 
-function coreUtilsExceptionHandler($pException){
+function coreUtilsExceptionHandler($pException)
+{
     \Core\Utils::exceptionHandler($pException);
 }
 
-function coreUtilsShutdownHandler(){
-
+function coreUtilsShutdownHandler()
+{
     if (\Core\Kryn::getClient())
         \Core\Kryn::getClient()->syncStore();
 
-    if (\Core\Kryn::getAdminClient() && \Core\Kryn::getAdminClient() != \Core\Kryn::getClient()){
+    if (\Core\Kryn::getAdminClient() && \Core\Kryn::getAdminClient() != \Core\Kryn::getClient()) {
         \Core\Kryn::getAdminClient()->syncStore();
     }
 
@@ -45,7 +45,8 @@ function coreUtilsShutdownHandler(){
  * Deactivate magic quotes
  */
 if (get_magic_quotes_gpc()) {
-    function magicQuotes_awStripslashes(&$value, $key) {
+    function magicQuotes_awStripslashes(&$value, $key)
+    {
         $value = stripslashes($value);
     }
 
@@ -53,17 +54,17 @@ if (get_magic_quotes_gpc()) {
     array_walk_recursive($gpc, 'magicQuotes_awStripslashes');
 }
 
-
 /**
  * Handles errors and store it to database log.
- * 
+ *
  * @param  [type]  $pCode [description]
  * @param  [type]  $pMsg  [description]
  * @param  boolean $pFile [description]
  * @param  boolean $pLine [description]
  * @return [type]         [description]
  */
-function errorDbHandler($pCode, $pMsg, $pFile = false, $pLine = false) {
+function errorDbHandler($pCode, $pMsg, $pFile = false, $pLine = false)
+{
     global $errorHandlerInside, $client, $cfg;
 
     if ($errorHandlerInside) return;
@@ -79,6 +80,7 @@ function errorDbHandler($pCode, $pMsg, $pFile = false, $pLine = false) {
 
     if (array_key_exists('krynInstaller', $GLOBALS) && $GLOBALS['krynInstaller'] == true) {
         @error_log($msg, 3, 'install.log');
+
         return;
     }
 
@@ -88,7 +90,7 @@ function errorDbHandler($pCode, $pMsg, $pFile = false, $pLine = false) {
 
     } else {
 
-        if (php_sapi_name() == "cli"){
+        if (php_sapi_name() == "cli") {
 
             print $msg;
 
@@ -110,7 +112,3 @@ function errorDbHandler($pCode, $pMsg, $pFile = false, $pLine = false) {
     $errorHandlerInside = false;
 
 }
-
-
-
-?>

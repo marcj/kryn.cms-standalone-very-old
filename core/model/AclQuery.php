@@ -4,11 +4,10 @@ namespace Core;
 
 use Core\om\BaseAclQuery;
 
-
 /**
  * Skeleton subclass for performing query and update operations on the 'kryn_system_acl' table.
  *
- * 
+ *
  *
  * You should add additional methods to this class to meet the
  * application requirements.  This class will only be generated as
@@ -16,6 +15,6 @@ use Core\om\BaseAclQuery;
  *
  * @package    propel.generator.kryn
  */
-class AclQuery extends BaseAclQuery {
-
+class AclQuery extends BaseAclQuery
+{
 } // AclQuery

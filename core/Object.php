@@ -2,8 +2,8 @@
 
 namespace Core;
 
-class Object {
-
+class Object
+{
     /**
      * Array of instances of the object classes
      *
@@ -29,8 +29,8 @@ class Object {
      *
      * @return string|bool
      */
-    public static function getUrl($pInternalUrl, $pPluginContentElementId){
-
+    public static function getUrl($pInternalUrl, $pPluginContentElementId)
+    {
         $pos = strpos($pInternalUrl,'://');
         $objectIds = substr($pInternalUrl, 0, $pos);
         $params = explode('/', substr($pInternalUrl, $pos+2));
@@ -38,18 +38,18 @@ class Object {
         $objectDefinition = self::getDefinition($objectIds);
         if (!$objectDefinition) return false;
 
-        if (method_exists($objectDefinition['_extension'], $objectDefinition['urlGetter'])){
+        if (method_exists($objectDefinition['_extension'], $objectDefinition['urlGetter'])) {
             return call_user_func(array($objectDefinition['_extension'], $objectDefinition['urlGetter']), $params);
 
         } else return false;
     }
 
-
     /**
      * Clears the instances cache.
      *
      */
-    public static function cleanup(){
+    public static function cleanup()
+    {
         self::$instances = array();
     }
 
@@ -96,22 +96,22 @@ class Object {
      *
      *
      * @static
-     * @param string $pInternalUrl
-     * @return array [object_key, object_id/s, queryParams]
+     * @param  string $pInternalUrl
+     * @return array  [object_key, object_id/s, queryParams]
      */
-    public static function parseUrl($pInternalUrl){
-
+    public static function parseUrl($pInternalUrl)
+    {
         $pInternalUrl = trim($pInternalUrl);
 
         $list = false;
 
         $catch = 'object://';
-        if (substr(strtolower($pInternalUrl),0,strlen($catch)) == $catch){
+        if (substr(strtolower($pInternalUrl),0,strlen($catch)) == $catch) {
             $pInternalUrl = substr($pInternalUrl, strlen($catch));
         }
 
         $catch = 'objects://';
-        if (substr(strtolower($pInternalUrl),0,strlen($catch)) == $catch){
+        if (substr(strtolower($pInternalUrl),0,strlen($catch)) == $catch) {
             $list = true;
             $pInternalUrl = substr($pInternalUrl, strlen($catch));
         }
@@ -119,7 +119,7 @@ class Object {
         $pos = strpos($pInternalUrl, '/');
         $questionPos = strpos($pInternalUrl, '?');
 
-        if ($pos === false && $questionPos === false){
+        if ($pos === false && $questionPos === false) {
             return array(
                 $pInternalUrl,
                 false,
@@ -137,18 +137,18 @@ class Object {
 
         $params = array();
 
-        if ($questionPos !== false){
+        if ($questionPos !== false) {
             parse_str(substr($pInternalUrl, $questionPos+1), $params);
 
             if ($pos !== false)
                 $objectIds = substr($pInternalUrl, $pos+1, $questionPos-($pos+1));
 
-        } else if ($pos !== false)
+        } elseif ($pos !== false)
             $objectIds = substr($pInternalUrl, $pos+1);
 
         $objectIds = self::parsePk($objectKey, $objectIds);
 
-        if ($params && $params['condition']){
+        if ($params && $params['condition']) {
             $params['condition'] = json_decode($params['condition'], true);
         }
 
@@ -163,17 +163,19 @@ class Object {
     /**
      * Get object's definition.
      *
-     * @param string $pObjectKey `Core\Language` or `Core.Language`.
+     * @param  string $pObjectKey `Core\Language` or `Core.Language`.
      * @return array
      */
-    public static function getDefinition($pObjectKey){
+    public static function getDefinition($pObjectKey)
+    {
         $pObjectKey = str_replace('.', '\\', $pObjectKey);
         $temp   = explode('\\', $pObjectKey);
         $module = strtolower($temp[0]);
         $name   = $temp[1];
 
-        if (Kryn::$configs[$module] && ($res = Kryn::$configs[$module]['objects'][$name])){
+        if (Kryn::$configs[$module] && ($res = Kryn::$configs[$module]['objects'][$name])) {
             $res['_module'] = $module;
+
             return $res;
         }
     }
@@ -182,38 +184,44 @@ class Object {
      * Cuts of the namespace/module name of a object key.
      * Core\Node => Node.
      *
-     * @param string $pObjectKey
+     * @param  string $pObjectKey
      * @return string
      */
-    public static function getName($pObjectKey){
+    public static function getName($pObjectKey)
+    {
         $pObjectKey = str_replace('.', '\\', $pObjectKey);
         $pos = strrpos($pObjectKey, '\\');
+
         return substr($pObjectKey, $pos+1);
     }
     /**
      * Cuts of the actual object key.
      * Core\Node => Core.
      *
-     * @param string $pObjectKey
+     * @param  string $pObjectKey
      * @return string
      */
-    public static function getModule($pObjectKey){
+    public static function getModule($pObjectKey)
+    {
         $pObjectKey = str_replace('.', '\\', $pObjectKey);
         $pos = strrpos($pObjectKey, '\\');
+
         return substr($pObjectKey, 0, $pos);
     }
 
     /**
      * Returns true of the object is nested.
      *
-     * @param string $pObjectKey
+     * @param  string $pObjectKey
      * @return mixed
      */
-    public static function isNested($pObjectKey){
+    public static function isNested($pObjectKey)
+    {
         static $nested;
         if ($nested && $nested[$pObjectKey]) return $nested[$pObjectKey];
         $def = self::getDefinition($pObjectKey);
         $nested[$pObjectKey] = ($def['nested']) ? true : false;
+
         return $nested[$pObjectKey];
     }
 
@@ -221,14 +229,16 @@ class Object {
      * Returns the table name behind a object.
      * Not all objects has a table. If the object is based on propel's orm, then it has one.
      *
-     * @param string $pObjectKey
+     * @param  string $pObjectKey
      * @return string
      */
-    public static function getTable($pObjectKey){
+    public static function getTable($pObjectKey)
+    {
         static $tableName;
         if ($tableName && $tableName[$pObjectKey]) return pfx.$tableName[$pObjectKey];
         $def = self::getDefinition($pObjectKey);
         $tableName[$pObjectKey] = $def['table'];
+
         return pfx.$tableName[$pObjectKey];
     }
 
@@ -244,12 +254,12 @@ class Object {
      *
      *
      * @static
-     * @param string $pObjectKey
-     * @param string $pPrimaryKey
+     * @param  string      $pObjectKey
+     * @param  string      $pPrimaryKey
      * @return array|mixed
      */
-    public static function parsePk($pObjectKey, $pPrimaryKey){
-
+    public static function parsePk($pObjectKey, $pPrimaryKey)
+    {
         $obj = self::getClass($pObjectKey);
 
         $objectIds = $obj->primaryStringToArray($pPrimaryKey);
@@ -260,63 +270,64 @@ class Object {
     /**
      * Returns the object key (not id) from an object url.
      *
-     * @param string $pUrl
+     * @param  string $pUrl
      * @return string
      */
-    public static function getObjectKey($pUrl){
-
+    public static function getObjectKey($pUrl)
+    {
         if (strpos($pUrl, '/') == 0)
             $pUrl = substr($pUrl, 9);
 
         $idx = strpos($pUrl, '/');
         if ($idx == -1) return $pUrl;
-
         return substr($pUrl, 0, $idx);
     }
 
     /**
      * Return only the primary keys of pItem as object.
      *
-     * @param string $pObjectKey
-     * @param array  $pItem
+     * @param  string $pObjectKey
+     * @param  array  $pItem
      * @return string
      */
-    public static function getObjectPk($pObjectKey, $pItem){
-
+    public static function getObjectPk($pObjectKey, $pItem)
+    {
         $pks = self::getPrimaryList($pObjectKey);
         $result = array();
-        foreach($pks as $pk){
+        foreach ($pks as $pk) {
             if ($pItem[$pk] !== null)
                 $result[$pk] = $pItem[$pk];
         }
+
         return $result;
     }
 
     /**
      * This just cut off object://<objectName>/ and returns the primary key part as plain text.
      *
-     * @param string $pUrl
+     * @param  string $pUrl
      * @return string
      */
-    public static function getCroppedObjectId($pUrl){
-
+    public static function getCroppedObjectId($pUrl)
+    {
         if (strpos($pUrl, 'object://') === 0)
             $pUrl = substr($pUrl, 9);
 
         $idx = strpos($pUrl, '/');
+
         return substr($pUrl, $idx+1);
     }
 
     /**
      * Returns the id of an object item for the usage in urls (internal url's) - rawurlencoded.
      *
-     * @param string $pObjectKey
-     * @param array $pPk
+     * @param  string                    $pObjectKey
+     * @param  array                     $pPk
      * @return string
      * @throws \InvalidArgumentException
      */
-    public static function getObjectUrlId($pObjectKey, $pPk){
-
+    public static function getObjectUrlId($pObjectKey, $pPk)
+    {
         $pPk = self::normalizePk($pObjectKey, $pPk);
         $pks = self::getPrimaryList($pObjectKey);
 
@@ -324,15 +335,16 @@ class Object {
 
         $withFieldNames = !is_numeric(key($pPk));
 
-        if (count($pks) == 1 && is_array($pPk)){
+        if (count($pks) == 1 && is_array($pPk)) {
             return rawurlencode($pPk[ $withFieldNames ? $pks[0] : 0 ]);
         } else {
             $c = 0;
             $urlId = array();
-            foreach ($pks as $pk){
+            foreach ($pks as $pk) {
                 $urlId[] = rawurlencode($pPk[ $withFieldNames ? $pk : $c ]);
                 $c++;
             }
+
             return implode(',', $urlId);
         }
 
@@ -341,11 +353,12 @@ class Object {
     /**
      * Checks if a field in a object exists.
      *
-     * @param string $pObjectKey
-     * @param string $pField
+     * @param  string $pObjectKey
+     * @param  string $pField
      * @return bool
      */
-    public static function checkField($pObjectKey, $pField){
+    public static function checkField($pObjectKey, $pField)
+    {
         $definition = self::getDefinition($pObjectKey);
         if (!$definition['fields'][$pField])
             return false;
@@ -356,19 +369,21 @@ class Object {
      * Converts given object key and the object item to the internal url.
      *
      * @static
-     * @param string $pObjectKey
-     * @param mixed $pPrimaryValues
+     * @param  string $pObjectKey
+     * @param  mixed  $pPrimaryValues
      * @return string
      */
-    public static function toUrl($pObjectKey, $pPrimaryValues){
+    public static function toUrl($pObjectKey, $pPrimaryValues)
+    {
         $url = 'object://'.$pObjectKey.'/';
-        if (is_array($pPrimaryValues)){
-            foreach ($pPrimaryValues as $key => $val){
+        if (is_array($pPrimaryValues)) {
+            foreach ($pPrimaryValues as $key => $val) {
                 $url .= rawurlencode($val).',';
             }
         } else {
             return $url . rawurlencode($pPrimaryValues);
         }
+
         return substr($url, 0, -1);
     }
 
@@ -381,8 +396,8 @@ class Object {
      * @param $pInternalUrl
      * @return object
      */
-    public static function getFromUrl($pInternalUrl){
-
+    public static function getFromUrl($pInternalUrl)
+    {
         list($objectKey, $objectIds, $params, $asList) = self::parseUrl($pInternalUrl);
 
         return $asList?self::getList($objectKey, $objectIds, $params):self::get($objectKey, $objectIds, $params);
@@ -409,25 +424,25 @@ class Object {
      *  'permissionCheck' Defines whether we check against the ACL or not. true or false. default false
      *
      * @static
-     * @param string $pObjectKey
-     * @param mixed  $pPk
-     * @param array  $pOptions
+     * @param  string     $pObjectKey
+     * @param  mixed      $pPk
+     * @param  array      $pOptions
      * @return array|null
      */
-    public static function get($pObjectKey, $pPk, $pOptions = array()){
-
+    public static function get($pObjectKey, $pPk, $pOptions = array())
+    {
         $obj = self::getClass($pObjectKey);
         $primaryKey = $obj->normalizePrimaryKey($pPk);
         $pks = $obj->getPrimaryKeys();
 
-        if (!$pOptions['fields']){
+        if (!$pOptions['fields']) {
             if ($obj->definition['defaultSelection'])
                 $pOptions['fields'] = $obj->definition['defaultSelection'];
             else
                 $pOptions['fields'] = '*';
         }
 
-        if ($pOptions['fields'] != '*' && $obj->definition['limitDataSets']){
+        if ($pOptions['fields'] != '*' && $obj->definition['limitDataSets']) {
 
             if (is_string($pOptions['fields']))
                 $pOptions['fields'] = explode(',', trim(str_replace(' ', '', $pOptions['fields'])));
@@ -435,9 +450,9 @@ class Object {
             $extraFields = dbExtractConditionFields($obj->definition['limitDataSets']);
             $deleteFieldValues = array();
 
-            foreach ($extraFields as $field){
-                if ($obj->definition['fields'][$field]){
-                    if (array_search($field, $pOptions['fields']) === false && array_search($field, $pks) === false){
+            foreach ($extraFields as $field) {
+                if ($obj->definition['fields'][$field]) {
+                    if (array_search($field, $pOptions['fields']) === false && array_search($field, $pks) === false) {
                         $pOptions['fields'][] = $field;
                         $deleteFieldValues[] = $field;
                     }
@@ -449,15 +464,15 @@ class Object {
 
         if (!$item) return null;
 
-        if ($pOptions['permissionCheck'] && $aclCondition = Permission::getListingCondition($pObjectKey)){
+        if ($pOptions['permissionCheck'] && $aclCondition = Permission::getListingCondition($pObjectKey)) {
             if (!self::satisfy($item, $aclCondition)) return false;
         }
 
-        if ($obj->definition['limitDataSets']){
+        if ($obj->definition['limitDataSets']) {
             if (!self::satisfy($item, $obj->definition['limitDataSets'])) return false;
         }
 
-        if ($deleteFieldValues){
+        if ($deleteFieldValues) {
             foreach ($deleteFieldValues as $field)
                 unset($item[$field]);
         }
@@ -494,11 +509,11 @@ class Object {
      * @see \dbConditionToSql
      * @return array|bool
      */
-    public static function getList($pObjectKey, $pCondition = false, $pOptions = array()){
-
+    public static function getList($pObjectKey, $pCondition = false, $pOptions = array())
+    {
         $obj = self::getClass($pObjectKey);
 
-        if (!$pOptions['fields']){
+        if (!$pOptions['fields']) {
             if ($obj->definition['defaultSelection'])
                 $pOptions['fields'] = $obj->definition['defaultSelection'];
             else
@@ -512,7 +527,7 @@ class Object {
         if ($obj->definition['limitDataSets'])
             $pCondition = $pCondition ? array($pCondition, 'AND', $obj->definition['limitDataSets']) : $obj->definition['limitDataSets'];
 
-        if ($pOptions['permissionCheck'] && $aclCondition = Permission::getListingCondition($pObjectKey)){
+        if ($pOptions['permissionCheck'] && $aclCondition = Permission::getListingCondition($pObjectKey)) {
             if ($pCondition)
                 $pCondition = array($aclCondition, 'AND', $pCondition);
             else
@@ -536,13 +551,13 @@ class Object {
         $pObjectKey = str_replace('.', '\\', $pObjectKey);
         $definition = self::getDefinition($pObjectKey);
 
-        if (!$definition){
+        if (!$definition) {
             throw new \ObjectNotFoundException(tf('Object not found %s', $pObjectKey));
         }
 
-        if (!self::$instances[$pObjectKey]){
+        if (!self::$instances[$pObjectKey]) {
 
-            if ($definition['dataModel'] != 'custom'){
+            if ($definition['dataModel'] != 'custom') {
 
                 //propel
                 if ($propelClass = $definition['propelClass'])
@@ -571,7 +586,8 @@ class Object {
      * @param $pInternalUrl
      * @return array
      */
-    public static function getCountFromUrl($pInternalUrl){
+    public static function getCountFromUrl($pInternalUrl)
+    {
         list($objectKey, $objectIds, $params) = self::parseUrl($pInternalUrl);
 
         return self::getCount($objectKey, $params['condition']);
@@ -583,21 +599,23 @@ class Object {
      *
      * @param string $pObjectKey
      */
-    public static function clear($pObjectKey){
+    public static function clear($pObjectKey)
+    {
         $obj = self::getClass($pObjectKey);
+
         return $obj->clear();
     }
 
     /**
      * Counts the items of $pObjectKey filtered by $pCondition
      *
-     * @param string $pObjectKey
-     * @param array  $pCondition
-     * @param array  $pOptions
+     * @param  string $pObjectKey
+     * @param  array  $pCondition
+     * @param  array  $pOptions
      * @return array
      */
-    public static function getCount($pObjectKey, $pCondition = null, $pOptions = null){
-
+    public static function getCount($pObjectKey, $pCondition = null, $pOptions = null)
+    {
         $obj = self::getClass($pObjectKey);
 
         if ($pCondition)
@@ -606,7 +624,7 @@ class Object {
         if ($obj->definition['limitDataSets'])
             $pCondition = $pCondition ? array($pCondition, 'AND', $obj->definition['limitDataSets']) : $obj->definition['limitDataSets'];
 
-        if ($pOptions['permissionCheck'] && $aclCondition = Permission::getListingCondition($pObjectKey)){
+        if ($pOptions['permissionCheck'] && $aclCondition = Permission::getListingCondition($pObjectKey)) {
             if ($pCondition)
                 $pCondition = array($aclCondition, 'AND', $pCondition);
             else
@@ -620,15 +638,15 @@ class Object {
     /**
      * Counts the items of $pObjectKey filtered by $pCondition
      *
-     * @param string $pObjectKey
-     * @param mixed $pPk
-     * @param array $pCondition
-     * @param mixed $pScope
-     * @param array $pOptions
+     * @param  string $pObjectKey
+     * @param  mixed  $pPk
+     * @param  array  $pCondition
+     * @param  mixed  $pScope
+     * @param  array  $pOptions
      * @return array
      */
-    public static function getBranchChildrenCount($pObjectKey, $pPk = null, $pCondition = null, $pScope = null, $pOptions = null){
-
+    public static function getBranchChildrenCount($pObjectKey, $pPk = null, $pCondition = null, $pScope = null, $pOptions = null)
+    {
         $obj = self::getClass($pObjectKey);
 
         if ($pPk)
@@ -640,7 +658,7 @@ class Object {
         if ($obj->definition['limitDataSets'])
             $pCondition = $pCondition ? array($pCondition, 'AND', $obj->definition['limitDataSets']) : $obj->definition['limitDataSets'];
 
-        if ($pOptions['permissionCheck'] && $aclCondition = Permission::getListingCondition($pObjectKey)){
+        if ($pOptions['permissionCheck'] && $aclCondition = Permission::getListingCondition($pObjectKey)) {
             if ($pCondition)
                 $pCondition = array($aclCondition, 'AND', $pCondition);
             else
@@ -660,7 +678,7 @@ class Object {
      * @param string $pPosition        If nested set. `first` (child), `last` (last child), `prev` (sibling), `next` (sibling)
      * @param bool   $pTargetObjectKey If this object key differs from $pObjectKey then we'll use $pPk as `scope`. Also
      *                                 it is then only possible to have position `first` and `last`.
-     * @param array  $pOptions
+     * @param  array $pOptions
      * @return mixed
      *
      * @throws \NoFieldWritePermission
@@ -671,21 +689,21 @@ class Object {
         $pPk = self::normalizePk($pObjectKey, $pPk);
 
         $obj = self::getClass($pObjectKey);
-    
-        if ($pOptions['permissionCheck']){
 
-            foreach ($pValues as $fieldName => $value){
+        if ($pOptions['permissionCheck']) {
+
+            foreach ($pValues as $fieldName => $value) {
 
                 //todo, what if $pTargetObjectKey differs from $pObjectKey
 
-                if (!Permission::checkAdd($pObjectKey, $pPk, $fieldName)){
+                if (!Permission::checkAdd($pObjectKey, $pPk, $fieldName)) {
                     throw new \NoFieldWritePermission(tf("No update permission to field '%s' in item '%s' from object '%s'", $fieldName, $pPk, $pObjectKey));
                 }
             }
         }
 
-        if ($pTargetObjectKey && $pTargetObjectKey != $pObjectKey){
-            if ($pPosition == 'prev' || $pPosition == 'next'){
+        if ($pTargetObjectKey && $pTargetObjectKey != $pObjectKey) {
+            if ($pPosition == 'prev' || $pPosition == 'next') {
                 throw \InvalidArgumentException('Its not possible to use `prev` or `next` to add a new entry with a different object key.');
             }
 
@@ -693,6 +711,7 @@ class Object {
 
             //since propel's nested set behaviour only allows a single value as scope, we need to use the first pk
             $scope = current($pPk);
+
             return $obj->add($pValues, null, $pPosition, $scope);
         }
 
@@ -703,33 +722,35 @@ class Object {
     /**
      * Updates a item per url.
      *
-     * @param string $pObjectUrl
-     * @param array $pValues
+     * @param  string $pObjectUrl
+     * @param  array  $pValues
      * @return bool
      */
-    public static function updateFromUrl($pObjectUrl, $pValues){
+    public static function updateFromUrl($pObjectUrl, $pValues)
+    {
         list($objectKey, $objectIds, $params) = self::parseUrl($pObjectUrl);
+
         return self::update($objectKey, $objectIds[0], $pValues, $params);
     }
 
     /**
      * Updates a object entry. This means, all fields which are not defined will be saved as NULL.
-     * 
+     *
      * @param  string $pObjectKey
      * @param  mixed  $pPk
-     * @param  array $pValues
-     * @param  array $pOptions
+     * @param  array  $pValues
+     * @param  array  $pOptions
      * @return bool
      */
-    public static function update($pObjectKey, $pPk, $pValues, $pOptions = null){
-
-        if ($pOptions['permissionCheck']){
+    public static function update($pObjectKey, $pPk, $pValues, $pOptions = null)
+    {
+        if ($pOptions['permissionCheck']) {
 
             $item = \Core\Object::get($pObjectKey, $pPk, $pOptions);
             if (!$item) return false;
 
-            foreach ($pValues as $fieldName => $value){
-                //if (!Permission::checkUpdate($pObjectKey, $pPk, $fieldName)){
+            foreach ($pValues as $fieldName => $value) {
+                //if (!Permission::checkUpdate($pObjectKey, $pPk, $fieldName)) {
                 //    throw new \NoFieldWritePermission(tf("No update permission to field '%s' in item '%s' from object '%s'", $fieldName, $pPk, $pObjectKey));
                 //}
             }
@@ -737,6 +758,7 @@ class Object {
 
         $obj = self::getClass($pObjectKey);
         $primaryKey = $obj->normalizePrimaryKey($pPk);
+
         return $obj->update($primaryKey, $pValues);
     }
 
@@ -748,22 +770,22 @@ class Object {
      *
      * @param  string $pObjectKey
      * @param  mixed  $pPk
-     * @param  array $pValues
-     * @param  array $pOptions
+     * @param  array  $pValues
+     * @param  array  $pOptions
      * @return bool
      */
-    public static function patch($pObjectKey, $pPk, $pValues, $pOptions = null){
-
+    public static function patch($pObjectKey, $pPk, $pValues, $pOptions = null)
+    {
         $obj = self::getClass($pObjectKey);
         $pPk = $obj->normalizePrimaryKey($pPk);
 
-        if ($pOptions['permissionCheck']){
+        if ($pOptions['permissionCheck']) {
 
             $item = \Core\Object::get($pObjectKey, $pPk, $pOptions);
             if (!$item) return false;
 
-            foreach ($pValues as $fieldName => $value){
-                //if (!Permission::checkUpdate($pObjectKey, $pPk, $fieldName)){
+            foreach ($pValues as $fieldName => $value) {
+                //if (!Permission::checkUpdate($pObjectKey, $pPk, $fieldName)) {
                 //    throw new \NoFieldWritePermission(tf("No update permission to field '%s' in item '%s' from object '%s'", $fieldName, $pPk, $pObjectKey));
                 //}
             }
@@ -777,39 +799,43 @@ class Object {
     /**
      * Removes a object item per url.
      *
-     * @param string $pObjectUrl
+     * @param  string $pObjectUrl
      * @return bool
      */
-    public static function removeFromUrl($pObjectUrl){
+    public static function removeFromUrl($pObjectUrl)
+    {
         list($objectKey, $objectIds, $params) = self::parseUrl($pObjectUrl);
         $obj = self::getClass($objectKey);
+
         return $obj->remove($objectIds[0]);
     }
 
     /**
      * Removes a object item.
      *
-     * @param string $pObjectKey
-     * @param mixed $pPk
+     * @param  string  $pObjectKey
+     * @param  mixed   $pPk
      * @return boolean
      */
-    public static function remove($pObjectKey, $pPk){
+    public static function remove($pObjectKey, $pPk)
+    {
         $obj = self::getClass($pObjectKey);
         $primaryKey = $obj->normalizePrimaryKey($pPk);
+
         return $obj->remove($primaryKey);
     }
 
     /*
-    public static function removeUsages($pObjectUrl){
-
+    public static function removeUsages($pObjectUrl)
+    {
     }
 
-    public static function removeUsage($pObjectUrl, $pUseObjectId){
-
+    public static function removeUsage($pObjectUrl, $pUseObjectId)
+    {
     }
 
-    public static function addUsage($pObjectUrl, $pUseObjectId){
-
+    public static function addUsage($pObjectUrl, $pUseObjectId)
+    {
     }
     */
 
@@ -817,14 +843,14 @@ class Object {
     /**
      * Returns a single root item. Only for nested objects.
      *
-     * @param string $pObjectKey
-     * @param mixed $pScope
-     * @param bool $pOptions
+     * @param  string     $pObjectKey
+     * @param  mixed      $pScope
+     * @param  bool       $pOptions
      * @return array
      * @throws \Exception
      */
-    public static function getRoot($pObjectKey, $pScope, $pOptions = false){
-
+    public static function getRoot($pObjectKey, $pScope, $pOptions = false)
+    {
         $definition = self::getDefinition($pObjectKey);
 
         if ($definition['nestedRootAsObject'] && $pScope === null) throw new \Exception('No `scope` defined.');
@@ -837,14 +863,14 @@ class Object {
     /**
      * Returns all roots. Only for nested objects.
      *
-     * @param string $pObjectKey
-     * @param array $pCondition
-     * @param options $pOptions
+     * @param  string     $pObjectKey
+     * @param  array      $pCondition
+     * @param  options    $pOptions
      * @return array
      * @throws \Exception
      */
-    public static function getRoots($pObjectKey, $pCondition = null, $pOptions = null){
-
+    public static function getRoots($pObjectKey, $pCondition = null, $pOptions = null)
+    {
         $definition = self::getDefinition($pObjectKey);
 
         if (!$definition['nested']) throw new \Exception('Object is not a nested set.');
@@ -852,13 +878,12 @@ class Object {
         if ($definition['nestedRootObjectLabelField'] && !$pOptions['fields'])
             $pOptions['fields'] = $definition['nestedRootObjectLabelField'];
 
-        if ($definition['nestedRootAsObject']){
-
+        if ($definition['nestedRootAsObject']) {
             return self::getList($definition['nestedRootObject'], null, $pOptions);
         } else {
             $obj = self::getClass($pObjectKey);
 
-            if ($pOptions['permissionCheck'] && $aclCondition = Permission::getListingCondition($pObjectKey)){
+            if ($pOptions['permissionCheck'] && $aclCondition = Permission::getListingCondition($pObjectKey)) {
                 if ($pCondition)
                     $pCondition = array($aclCondition, 'AND', $pCondition);
                 else
@@ -873,16 +898,16 @@ class Object {
     /**
      * @static
      * @param $pObjectKey
-     * @param null $pPk
-     * @param null $pCondition
-     * @param int $pDepth
-     * @param bool $pScope
-     * @param bool $pOptions
+     * @param  null       $pPk
+     * @param  null       $pCondition
+     * @param  int        $pDepth
+     * @param  bool       $pScope
+     * @param  bool       $pOptions
      * @return mixed
      * @throws \Exception
      */
-    public static function getBranch($pObjectKey, $pPk = null, $pCondition = null, $pDepth = 1, $pScope = null, $pOptions = false){
-
+    public static function getBranch($pObjectKey, $pPk = null, $pCondition = null, $pDepth = 1, $pScope = null, $pOptions = false)
+    {
         $obj = self::getClass($pObjectKey);
         $definition = self::getDefinition($pObjectKey);
 
@@ -891,13 +916,13 @@ class Object {
 
         if (!$pPk && $definition['nestedRootAsObject'] && $pScope === null) throw new \Exception('No scope defined.');
 
-        if (!$pOptions['fields']){
+        if (!$pOptions['fields']) {
 
             $fields = array();
             if ($definition['nestedRootObjectLabelField'])
                 $fields[] = $definition['nestedRootObjectLabelField'];
 
-            if ($definition['nestedRootObjectExtraFields']){
+            if ($definition['nestedRootObjectExtraFields']) {
                 $extraFields = explode(',', trim(str_replace(' ', '', $definition['nestedRootObjectExtraFields'])));
                 foreach ($extraFields as $field)
                     $fields[] = $field;
@@ -908,7 +933,7 @@ class Object {
         if ($pCondition)
             $pCondition = dbPrimaryKeyToCondition($pCondition, $pObjectKey);
 
-        if ($pOptions['permissionCheck'] && $aclCondition = Permission::getListingCondition($pObjectKey)){
+        if ($pOptions['permissionCheck'] && $aclCondition = Permission::getListingCondition($pObjectKey)) {
             if ($pCondition)
                 $pCondition = array($aclCondition, 'AND', $pCondition);
             else
@@ -928,11 +953,12 @@ class Object {
      * @param $pObjectId
      * @return array
      */
-    public static function getPrimaries($pObjectId){
+    public static function getPrimaries($pObjectId)
+    {
         $objectDefinition = self::getDefinition($pObjectId);
 
         $primaryFields = array();
-        foreach ($objectDefinition['fields'] as $fieldKey => $field){
+        foreach ($objectDefinition['fields'] as $fieldKey => $field) {
             if ($field['primaryKey'])
                 $primaryFields[$fieldKey] = $field;
         }
@@ -949,11 +975,12 @@ class Object {
      * @param $pObjectId
      * @return array
      */
-    public static function getPrimaryList($pObjectId){
+    public static function getPrimaryList($pObjectId)
+    {
         $objectDefinition = self::getDefinition($pObjectId);
 
         $primaryFields = array();
-        foreach ($objectDefinition['fields'] as $fieldKey => $field){
+        foreach ($objectDefinition['fields'] as $fieldKey => $field) {
             if ($field['primaryKey'])
                 $primaryFields[] = $fieldKey;
         }
@@ -964,24 +991,26 @@ class Object {
     /**
      * Returns the parent pk.
      *
-     * @param string $pObjectKey
-     * @param mixed $pPk
+     * @param  string $pObjectKey
+     * @param  mixed  $pPk
      * @return array
      */
-    public static function getParentPk($pObjectKey, $pPk){
+    public static function getParentPk($pObjectKey, $pPk)
+    {
         $obj = self::getClass($pObjectKey);
         $pk = $obj->normalizePrimaryKey($pPk);
+
         return $obj->getParentId($pk);
     }
 
     /**
      * Returns the parent pk from a url.
      *
-     * @param string $pObjectUrl
+     * @param  string $pObjectUrl
      * @return array
      */
-    public static function getParentPkFromUrl($pObjectUrl){
-
+    public static function getParentPkFromUrl($pObjectUrl)
+    {
         list($objectKey, $objectIds, $params) = self::parseUrl($pObjectUrl);
 
         return self::getParentId($objectKey, $objectIds[0]);
@@ -990,47 +1019,55 @@ class Object {
     /**
      * Returns the parent item per url. Only if the object is nested.
      *
-     * @param string $pObjectKey
-     * @param mixed $pPk
-     * @param null $pOptions
+     * @param  string $pObjectKey
+     * @param  mixed  $pPk
+     * @param  null   $pOptions
      * @return mixed
      */
-    public static function getParent($pObjectKey, $pPk, $pOptions = null){
+    public static function getParent($pObjectKey, $pPk, $pOptions = null)
+    {
         $obj = self::getClass($pObjectKey);
         $pk = $obj->normalizePrimaryKey($pPk);
+
         return $obj->getParent($pk, $pOptions);
     }
 
     /**
      * Returns the parent item. Only if the object is nested.
      *
-     * @param string $pObjectUrl
+     * @param  string $pObjectUrl
      * @return array
      */
-    public static function getParentFromUrl($pObjectUrl){
+    public static function getParentFromUrl($pObjectUrl)
+    {
         list($objectKey, $objectIds, $params) = self::parseUrl($pObjectUrl);
+
         return self::getParent($objectKey, $objectIds[0]);
     }
 
     /**
-     * @param string $pObjectUrl
-     * @param array  $pOptions
+     * @param  string $pObjectUrl
+     * @param  array  $pOptions
      * @return array
      */
-    public static function getVersionsFromUrl($pObjectUrl, $pOptions = null){
+    public static function getVersionsFromUrl($pObjectUrl, $pOptions = null)
+    {
         list($objectKey, $objectId) = Object::parseUrl($pObjectUrl);
+
         return self::getVersions($objectKey, $objectId[0], $pOptions);
     }
 
     /**
-     * @param string $pObjectKey
-     * @param mixed  $pPk
-     * @param array  $pOptions
+     * @param  string $pObjectKey
+     * @param  mixed  $pPk
+     * @param  array  $pOptions
      * @return array
      */
-    public static function getVersions($pObjectKey, $pPk, $pOptions = null){
+    public static function getVersions($pObjectKey, $pPk, $pOptions = null)
+    {
         $obj = self::getClass($pObjectKey);
         $pk = $obj->normalizePrimaryKey($pPk);
+
         return $obj->getVersions($pk);
 
     }
@@ -1048,12 +1085,14 @@ class Object {
      *    'id' => 24
      * );
      *
-     * @param string $pObjectKey
-     * @param mixed $pPk
-     * @return array A single primary key as array. Example: array('id' => 1).
+     * @param  string $pObjectKey
+     * @param  mixed  $pPk
+     * @return array  A single primary key as array. Example: array('id' => 1).
      */
-    public static function normalizePk($pObjectKey, $pPk){
+    public static function normalizePk($pObjectKey, $pPk)
+    {
         $obj = self::getClass($pObjectKey);
+
         return $obj->normalizePrimaryKey($pPk);
     }
 
@@ -1072,8 +1111,8 @@ class Object {
      * @param $pPkString
      * @return array Example array('id' => 4)
      */
-    public static function normalizePkString($pObjectKey, $pPkString){
-
+    public static function normalizePkString($pObjectKey, $pPkString)
+    {
         $obj = self::getClass($pObjectKey);
         $objectIds = $obj->primaryStringToArray($pPkString);
 
@@ -1083,63 +1122,65 @@ class Object {
     /**
      * Returns all parents, incl. the root object (if root is an object, it returns this object entry as well)
      *
-     * @param string $pObjectKey
-     * @param mixed  $pPk
-     * @param array  $pOptions
+     * @param  string $pObjectKey
+     * @param  mixed  $pPk
+     * @param  array  $pOptions
      * @return mixed
      */
-    public static function getParents($pObjectKey, $pPk, $pOptions = null){
+    public static function getParents($pObjectKey, $pPk, $pOptions = null)
+    {
         $obj = self::getClass($pObjectKey);
         $pk = $obj->normalizePrimaryKey($pPk);
+
         return $obj->getParents($pk, $pOptions);
     }
 
     /**
      * Returns all parents per url, incl. the root object (if root is an object, it returns this object entry as well)
      *
-     * @param string $pObjectUrl
+     * @param  string $pObjectUrl
      * @return mixed
      */
-    public static function getParentsFromUrl($pObjectUrl){
+    public static function getParentsFromUrl($pObjectUrl)
+    {
         list($objectKey, $objectIds, $params) = self::parseUrl($pObjectUrl);
+
         return self::getParents($objectKey, $objectIds[0]);
     }
 
     /**
      * Moves a item to a new position.
      *
-     * @param string $pObjectKey
-     * @param array  $pPk
-     * @param array  $pTargetPk
-     * @param string $pPosition `first` (child), `last` (last child), `prev` (sibling), `next` (sibling)
-     * @param string $pTargetObjectKey
-     * @param array $pOptions
+     * @param  string $pObjectKey
+     * @param  array  $pPk
+     * @param  array  $pTargetPk
+     * @param  string $pPosition        `first` (child), `last` (last child), `prev` (sibling), `next` (sibling)
+     * @param  string $pTargetObjectKey
+     * @param  array  $pOptions
      * @return mixed
      */
-    public static function move($pObjectKey, $pPk, $pTargetPk, $pPosition = 'first', $pTargetObjectKey = null, $pOptions = null){
-
+    public static function move($pObjectKey, $pPk, $pTargetPk, $pPosition = 'first', $pTargetObjectKey = null, $pOptions = null)
+    {
         $obj = self::getClass($pObjectKey);
 
         $pk = $obj->normalizePrimaryKey($pPk);
         $pTargetPk = self::normalizePk($pTargetObjectKey ? $pTargetObjectKey : $pObjectKey, $pTargetPk);
 
         //todo check access
-
-
         return $obj->move($pk, $pTargetPk, $pPosition, $pTargetObjectKey);
     }
 
     /**
      * Moves a item around by a url.
      *
-     * @param string $pSourceObjectUrl
-     * @param string $pTargetObjectUrl
-     * @param string $pPosition
-     * @param array  $pOptions
+     * @param  string $pSourceObjectUrl
+     * @param  string $pTargetObjectUrl
+     * @param  string $pPosition
+     * @param  array  $pOptions
      * @return mixed
      */
-    public static function moveFromUrl($pSourceObjectUrl, $pTargetObjectUrl, $pPosition = 'first', $pOptions = null){
-
+    public static function moveFromUrl($pSourceObjectUrl, $pTargetObjectUrl, $pPosition = 'first', $pOptions = null)
+    {
         list($objectKey, $objectIds, $params) = self::parseUrl($pSourceObjectUrl);
         list($targetObjectKey, $targetObjectIds, $targetParams) = self::parseUrl($pTargetObjectUrl);
 
@@ -1149,13 +1190,14 @@ class Object {
     /**
      * Checks whether the conditions in $pCondition are complied with the given object url.
      *
-     * @param string $pObjectUrl
-     * @param array  $pCondition
+     * @param  string $pObjectUrl
+     * @param  array  $pCondition
      * @return bool
      */
-    public static function satisfyFromUrl($pObjectUrl, $pCondition){
-
+    public static function satisfyFromUrl($pObjectUrl, $pCondition)
+    {
         $object = self::getFromUrl($pObjectUrl);
+
         return self::satisfy($object, $pCondition);
 
     }
@@ -1171,23 +1213,23 @@ class Object {
      *
      * @return bool
      */
-    public static function satisfy(&$pObjectItem, $pCondition){
-
+    public static function satisfy(&$pObjectItem, $pCondition)
+    {
         $complied = null;
         $lastOperator = 'and';
 
-        if (is_array($pCondition) && is_string($pCondition[0])){
+        if (is_array($pCondition) && is_string($pCondition[0])) {
             return self::checkRule($pObjectItem, $pCondition);
         }
 
-        foreach ($pCondition as $condition){
+        foreach ($pCondition as $condition) {
 
-            if (is_string($condition)){
+            if (is_string($condition)) {
                 $lastOperator = strtolower($condition);
                 continue;
             }
 
-            if (is_array($condition) && is_array($condition[0])){
+            if (is_array($condition) && is_array($condition[0])) {
                 //group
                 $res = self::satisfy($pObjectItem, $condition);
             } else {
@@ -1215,25 +1257,26 @@ class Object {
     /**
      * Checks a single condition.
      *
-     * @param array $pObjectItem
-     * @param array $pCondition
+     * @param  array    $pObjectItem
+     * @param  array    $pCondition
      * @return bool|int
      */
-    public static function checkRule(&$pObjectItem, $pCondition){
+    public static function checkRule(&$pObjectItem, $pCondition)
+    {
         global $client;
 
         $field = $pCondition[0];
         $operator = $pCondition[1];
         $value = $pCondition[2];
 
-        if (is_numeric($field)){
+        if (is_numeric($field)) {
             $ovalue = $field;
         } else {
             $ovalue = $pObjectItem[$field];
         }
 
         //'<', '>', '<=', '>=', '=', 'LIKE', 'IN', 'REGEXP'
-        switch(strtoupper($operator)){
+        switch (strtoupper($operator)) {
 
             case '!=':
                 return ($ovalue != $value);
@@ -1242,6 +1285,7 @@ class Object {
                 $value = preg_quote($value, '/');
                 $value = str_replace('%', '.*', $value);
                 $value = str_replace('_', '.', $value);
+
                 return preg_match('/^'.$value.'$/', $ovalue);
 
             case 'REGEXP':
@@ -1251,14 +1295,18 @@ class Object {
                 return strpos(','.$value.',', ','.$ovalue.',') !== false;
 
             case '<';
+
                 return ($ovalue < $value);
             case '>';
+
                 return ($ovalue > $value);
             case '<=';
             case '=<';
+
                 return ($ovalue <= $value);
             case '>=';
             case '=>';
+
                 return ($ovalue >= $value);
 
             case '= CURRENT_USER':
@@ -1277,17 +1325,18 @@ class Object {
     /**
      * Returns the public URL.
      *
-     * @param string $pObjectKey
-     * @param string $pPk
-     * @param array  $pPlugin
+     * @param  string $pObjectKey
+     * @param  string $pPk
+     * @param  array  $pPlugin
      * @return string
      */
-    public static function getPublicUrl($pObjectKey, $pPk, $pPlugin = null){
-
+    public static function getPublicUrl($pObjectKey, $pPk, $pPlugin = null)
+    {
         $definition = self::getDefinition($pObjectKey);
 
-        if ($definition && $definition['publicUrlGenerator']){
+        if ($definition && $definition['publicUrlGenerator']) {
             $pk = self::normalizePkString($pObjectKey, $pPk);
+
             return call_user_func_array($definition['publicUrlGenerator'], array($pObjectKey, $pk, $pPlugin));
         }
 

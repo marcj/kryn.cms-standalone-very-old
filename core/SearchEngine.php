@@ -12,15 +12,15 @@ namespace Core;
  * Search class
  */
 
-class SearchEngine {
-
+class SearchEngine
+{
     public static $forceSearchIndex = false;
 
     public static $returnCodes = false;
 
-    static $jsonFoundPages = array();
+    public static $jsonFoundPages = array();
 
-    static $pageUrl;
+    public static $pageUrl;
 
     public static $minWaitTimeTillNextCrawl = 260; //for 'keep index up 2 date' adminSearchIndexer::getIndex();
 
@@ -29,8 +29,8 @@ class SearchEngine {
     public static $autoCrawlPermissionLifetime = 60; //sec
 
     //create a new search index for this page
-    public static function createPageIndex(&$pContent) {
-
+    public static function createPageIndex(&$pContent)
+    {
         //indexing forced no matter if already indexed
         if (isset($_REQUEST['forceSearchIndex']) && $_REQUEST['forceSearchIndex']) {
 
@@ -50,7 +50,6 @@ class SearchEngine {
         if (getArgv('kVersionId') || getArgv('kryn_framework_version_id')) {
             return 6;
         }
-
 
         $indexedContent = self::stripContent($pContent);
         $contentMd5 = md5($indexedContent);
@@ -78,6 +77,7 @@ class SearchEngine {
         ) {
 
             self::$redirectTo = $b;
+
             return 2; //'Given arguments does not change the content!', 2);
 
         }
@@ -89,7 +89,7 @@ class SearchEngine {
 
         $index = SearchQuery::create()->findPk(array($a, Kryn::$domain->getId()));
 
-        if (!$index){
+        if (!$index) {
             $index = new Search();
         }
 
@@ -110,12 +110,12 @@ class SearchEngine {
 
         self::getLinksInContent($pContent);
 
-        return 1; //'Indexing successfully completed!', 1);             
+        return 1; //'Indexing successfully completed!', 1);
 
     }
 
-    public static function stripContent($pContent) {
-
+    public static function stripContent($pContent)
+    {
         $arSearch = array('@<script[^>]*>.*</script>@Uis', // javascript
             '@<style[^>]*>.*</style>@Uis', //  style tags
             '@<\!--unsearchable-begin-->.*<\!--unsearchable-end-->@Uis', //unsearchable html comment
@@ -126,11 +126,13 @@ class SearchEngine {
 
         );
         $pContent = preg_replace($arSearch, '', $pContent);
+
         return Kryn::compress(strip_tags($pContent, '<p><br><br /><h1><h2><h3><h4><h5><h6>'));
     }
 
     //search for links in parsed html content
-    public static function getLinksInContent($pContent) {
+    public static function getLinksInContent($pContent)
+    {
         global $cfg;
 
         Kryn::replacePageIds($pContent);
@@ -201,7 +203,8 @@ class SearchEngine {
 
     }
 
-    public static function getSearchIndexOverview($pPageId) {
+    public static function getSearchIndexOverview($pPageId)
+    {
         $indexes = dbExFetch("
             SELECT url, title , mdate, md5
             FROM %pfx%system_search
@@ -215,13 +218,12 @@ class SearchEngine {
         return $arIndexes;
     }
 
-
     //insert a page into the search table for further indexing
-    public static function disposePageForIndex($pUrl, $pTitle, $pDomainId, $pPageId = '0') {
-
+    public static function disposePageForIndex($pUrl, $pTitle, $pDomainId, $pPageId = '0')
+    {
         $index = SearchQuery::create()->findPk(array($pUrl, $pDomainId));
 
-        if (!$index){
+        if (!$index) {
             $index = new Search();
         }
 
@@ -237,13 +239,11 @@ class SearchEngine {
     }
 
     //clear complete search index
-    public static function clearSearchIndex() {
-
+    public static function clearSearchIndex()
+    {
         dbDelete('system_search');
         Kryn::invalidateCache('krynSearch');
 
         return array('state' => true);
     }
 }
-
-?>

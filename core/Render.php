@@ -10,7 +10,6 @@
  *
  */
 
-
 namespace Core;
 
 use Symfony\Component\EventDispatcher\GenericEvent;
@@ -26,10 +25,8 @@ use Symfony\Component\HttpFoundation\Request;
  *
  */
 
-
-class Render {
-
-
+class Render
+{
     /**
      * Cache of the current contents stage.
      *
@@ -43,13 +40,13 @@ class Render {
      * it returns the layouts with all it contents.
      *
      * @static
-     * @param bool $pPageId
-     * @param bool $pSlotId
-     * @param bool $pProperties
+     * @param  bool         $pPageId
+     * @param  bool         $pSlotId
+     * @param  bool         $pProperties
      * @return mixed|string
      */
-    public static function renderPage($pPageId = false, $pSlotId = false, $pProperties = false) {
-
+    public static function renderPage($pPageId = false, $pSlotId = false, $pProperties = false)
+    {
         if (self::$contents) {
             $oldContents = self::$contents;
         }
@@ -66,13 +63,14 @@ class Render {
 
             $pPageId = Kryn::$page->getId();
 
-        } else if ($pPageId != Kryn::$page->getId()) {
+        } elseif ($pPageId != Kryn::$page->getId()) {
 
             $oldPage = Kryn::$page;
             Kryn::$page = Kryn::getPage($pPageId, true);
 
-            if (!Kryn::$page){
+            if (!Kryn::$page) {
                 Kryn::$page = $oldPage;
+
                 return 'page_not_found';
             }
 
@@ -111,7 +109,6 @@ class Render {
         }
         Kryn::$forceKrynContent = false;
 
-
         $arguments = array($pPageId, $pSlotId, &$html);
         Kryn::getEventDispatcher()->dispatch('core.render.contents.post', new GenericEvent($arguments));
 
@@ -127,8 +124,8 @@ class Render {
      * @return string
      * @internal
      */
-    public static function renderContents(&$pContents, $pSlotProperties) {
-
+    public static function renderContents(&$pContents, $pSlotProperties)
+    {
         $contents = array();
 
         foreach ($pContents as $content) {
@@ -153,7 +150,7 @@ class Render {
 
                 $userGroups = Kryn::getClient()->getUser()->getUserGroups();
 
-                foreach ($userGroups as $group){
+                foreach ($userGroups as $group) {
                     if (strpos($groups, ',' . $group->getGroupId() . ',') !== false) {
                         $access = true;
                         break;
@@ -176,7 +173,6 @@ class Render {
             }
         }
 
-
         $count = count($contents);
         /*
          * Compatiblity
@@ -186,7 +182,6 @@ class Render {
         tAssign('layoutContentsIsLast', false);
         tAssign('layoutContentsId', $pSlotProperties['id']);
         tAssign('layoutContentsName', $pSlotProperties['name']);
-
 
         $slot = $pSlotProperties;
         $slot['maxItems'] = $count;
@@ -229,6 +224,7 @@ class Render {
 
         if ($pSlotProperties['assign'] != "") {
             tAssignRef($pSlotProperties['assign'], $html);
+
             return;
         }
 
@@ -244,8 +240,8 @@ class Render {
      * @param $pProperties
      * @return mixed|string
      */
-    public static function renderContent(Content $pContent, $pProperties) {
-
+    public static function renderContent(Content $pContent, $pProperties)
+    {
         $content =& $pContent;
 
         tAssignRef('content', $content);
@@ -270,7 +266,7 @@ class Render {
                 break;
             case 'navigation':
 
-                if ($data['content']){
+                if ($data['content']) {
                     $temp = json_decode($data['content'], 1);
                     $temp['id'] = $temp['entryPoint']+0;
                     unset($temp['entryPoint']);
@@ -301,7 +297,7 @@ class Render {
                     $link = '';
                     if ($opts['link'] + 0 > 0) {
                         $link = Kryn::pageUrl($opts['link']);
-                    } else if ($opts['link'] != '') {
+                    } elseif ($opts['link'] != '') {
                         $link = $opts['link'];
                     }
 
@@ -351,15 +347,15 @@ class Render {
                 break;
             case 'plugin':
 
-                if ($response = Kryn::getResponse()->getPluginResponse($content)){
+                if ($response = Kryn::getResponse()->getPluginResponse($content)) {
                     $data['content'] = $response->getContent();
-                } else if ($data['content']){
+                } elseif ($data['content']) {
                     $plugin = json_decode($data['content'], 1);
                     if ($pluginDef = Kryn::$configs[$plugin['module']]['plugins'][$method = $plugin['plugin']]) {
                         $clazz = $pluginDef['class'];
-                        if (class_exists($clazz)){
+                        if (class_exists($clazz)) {
 
-                            if (method_exists($clazz, $method)){
+                            if (method_exists($clazz, $method)) {
                                 //create a sub request
                                 $request = new Request();
                                 $request->attributes->add(array(
@@ -371,7 +367,7 @@ class Render {
                                 $response = Kryn::getHttpKernel()->handle($request, HttpKernelInterface::SUB_REQUEST);
                                 $ob = ob_get_clean();
 
-                                if ($response instanceof Response){
+                                if ($response instanceof Response) {
                                     Kryn::sendResponse($response);
                                 } else {
                                     $data['content'] = $ob.$response->getContent();
@@ -399,7 +395,6 @@ class Render {
                 print $temp;
                 break;
         }
-
 
         $unsearchable = false;
         if ((!is_array($content->getAccessFromGroups()) && $content->getAccessFromGroups() != '') ||
@@ -436,9 +431,8 @@ class Render {
         return $html;
     }
 
-
-
-    public static function updateDomainCache() {
+    public static function updateDomainCache()
+    {
         $res = dbQuery('SELECT * FROM '.pfx.'system_domain');
         $domains = array();
 
@@ -476,14 +470,14 @@ class Render {
         }
         Kryn::setCache('systemDomains', $domains);
         dbFree($res);
+
         return $domains;
     }
 
-
-
-    public static function updateMenuCache($pDomainRsn) {
+    public static function updateMenuCache($pDomainRsn)
+    {
         $resu = dbQuery("SELECT id, title, url, pid FROM ".pfx."system_node WHERE
-        				 domain_id = $pDomainRsn AND (type = 0 OR type = 1 OR type = 4)");
+                         domain_id = $pDomainRsn AND (type = 0 OR type = 1 OR type = 4)");
         $res = array();
         while ($page = dbFetch($resu, 1)) {
 
@@ -498,10 +492,12 @@ class Render {
         Kryn::invalidateCache('navigation_' . $pDomainRsn);
 
         dbFree($resu);
+
         return $res;
     }
 
-    public static function getParentMenus($pPage, $pAllParents = false) {
+    public static function getParentMenus($pPage, $pAllParents = false)
+    {
         $pid = $pPage['parent_id'];
         $res = array();
         while ($pid != 0) {
@@ -510,16 +506,17 @@ class Render {
             if ($parent_page['type'] == 0 || $parent_page['type'] == 1 || $parent_page['type'] == 4) {
                 //page or link or page-mount
                 array_unshift($res, $parent_page);
-            } else if ($pAllParents) {
+            } elseif ($pAllParents) {
                 array_unshift($res, $parent_page);
             }
             $pid = $parent_page['parent_id'];
         }
+
         return $res;
     }
 
-    public static function updateUrlCache($pDomainRsn) {
-
+    public static function updateUrlCache($pDomainRsn)
+    {
         $pDomainRsn = $pDomainRsn + 0;
 
         $resu = dbQuery("SELECT id, title, url, type, link FROM ".pfx."system_node WHERE domain_id = $pDomainRsn AND parent_id IS NULL");
@@ -544,11 +541,12 @@ class Render {
         Kryn::setCache("core/node-ids-to-url-$pDomainRsn", $res);
         dbFree($aliasRes);
         dbFree($resu);
+
         return $res;
     }
 
-    public static function updatePage2DomainCache() {
-
+    public static function updatePage2DomainCache()
+    {
         $r2d = array();
         $res = dbQuery('SELECT id, domain_id FROM '.pfx.'system_node ');
 
@@ -558,10 +556,12 @@ class Render {
         dbFree(res);
 
         Kryn::setDistributedCache('core/node/toDomains', $r2d);
+
         return $r2d;
     }
 
-    public static function updateUrlCacheChildren($pPage, $pDomain = false) {
+    public static function updateUrlCacheChildren($pPage, $pDomain = false)
+    {
         $res = array('url' => array(), 'id' => array(), 'r2d' => array());
 
         if ($pPage['type'] < 2) { //page or link or folder
@@ -580,7 +580,6 @@ class Render {
         if (is_array($pages)) {
             foreach ($pages as $page) {
 
-
                 Kryn::deleteCache('page_' . $page['id']);
 
                 $page = self::__pageModify($page, $pPage);
@@ -592,10 +591,12 @@ class Render {
 
             }
         }
+
         return $res;
     }
 
-    public static function __pageModify($page, $pPage) {
+    public static function __pageModify($page, $pPage)
+    {
         if ($page['type'] == 0) {
             $del = '';
             if ($pPage['realurl'] != '')
@@ -613,13 +614,12 @@ class Render {
             }
 
             $page['prealurl'] = $page['link'];
-        } else if ($page['type'] != 3) { //no deposit
+        } elseif ($page['type'] != 3) { //no deposit
             //ignore the hiarchie-item
             $page['realurl'] = $pPage['realurl'];
         }
+
         return $page;
     }
 
 }
-
-?>

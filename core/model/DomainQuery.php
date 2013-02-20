@@ -4,11 +4,10 @@ namespace Core;
 
 use Core\om\BaseDomainQuery;
 
-
 /**
  * Skeleton subclass for performing query and update operations on the 'kryn_system_domain' table.
  *
- * 
+ *
  *
  * You should add additional methods to this class to meet the
  * application requirements.  This class will only be generated as
@@ -16,6 +15,6 @@ use Core\om\BaseDomainQuery;
  *
  * @package    propel.generator.kryn
  */
-class DomainQuery extends BaseDomainQuery {
-
+class DomainQuery extends BaseDomainQuery
+{
 } // DomainQuery

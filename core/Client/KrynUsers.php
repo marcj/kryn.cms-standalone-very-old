@@ -3,10 +3,9 @@
 namespace Core\Client;
 
 use Core\Kryn;
-use Core\Utils;
 
-class KrynUsers extends ClientAbstract {
-
+class KrynUsers extends ClientAbstract
+{
     /**
      * Checks the given credentials.
      *
@@ -15,8 +14,8 @@ class KrynUsers extends ClientAbstract {
      *
      * @return bool|integer Returns false if credentials are wrong and returns the user id, if credentials are correct.
      */
-    public function checkCredentials($pLogin, $pPassword) {
-
+    public function checkCredentials($pLogin, $pPassword)
+    {
         $login = $pLogin;
 
         $userColumn = 'username';
@@ -27,7 +26,7 @@ class KrynUsers extends ClientAbstract {
         $row = dbExfetch("
             SELECT id, passwd, passwd_salt
             FROM ".pfx."system_user
-            WHERE 
+            WHERE
                 id > 0
                 AND $userColumn = ?
                 AND passwd IS NOT NULL AND passwd != ''
@@ -37,13 +36,12 @@ class KrynUsers extends ClientAbstract {
 
         if ($row['id'] > 0) {
 
-
             $hash = self::getHashedPassword($pPassword, $row['passwd_salt']);
 
             if (!$hash || $hash != $row['passwd']) return false;
-
             return $row['id'];
         }
+
         return false;
     }
 

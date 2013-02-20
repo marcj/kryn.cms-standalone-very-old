@@ -21,10 +21,9 @@ namespace Core;
  * Does not support external mount points.
  *
  */
-class SystemFile extends MediaFile {
-
+class SystemFile extends MediaFile
+{
     public static $fsObjects = array();
-
 
     //not permission check, since file object is only for media/ folder, so for MediaFile:: class.
     public static $checkObject = false;
@@ -32,7 +31,7 @@ class SystemFile extends MediaFile {
     //we do not support mounts outside of media/.
     public static $checkMounts = false;
 
-	/**
+    /**
      *
      * Returns the instance of the local file layer.
      *
@@ -40,8 +39,8 @@ class SystemFile extends MediaFile {
      * @param  string $pPath
      * @return object
      */
-    public static function getLayer($pPath = null){
-
+    public static function getLayer($pPath = null)
+    {
         $class = '\Core\FAL\Local';
 
         $params['root'] = PATH;
@@ -54,15 +53,18 @@ class SystemFile extends MediaFile {
 
     }
 
-    public static function getPath($pPath){
+    public static function getPath($pPath)
+    {
         throw new \Exception(t('getPath on SystemFile is not possible. Use Core\File::getPath'));
     }
 
-    public static function getUrl($pPath){
+    public static function getUrl($pPath)
+    {
         throw new \Exception(t('getUrl on SystemFile is not possible. Use Core\File::getUrl'));
     }
 
-    public static function getTrashFiles(){
+    public static function getTrashFiles()
+    {
         throw new \Exception(t('getTrashFiles on SystemFile is not possible. Use Core\File::getTrashFiles'));
     }
 

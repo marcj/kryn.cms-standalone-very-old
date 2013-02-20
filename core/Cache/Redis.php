@@ -2,17 +2,17 @@
 
 namespace Core\Cache;
 
-class Redis implements CacheInterface {
-
-	private $connection;
+class Redis implements CacheInterface
+{
+    private $connection;
 
     private $noServerTest = false;
 
     /**
      * {@inheritdoc}
      */
-	public function __construct($pConfig){
-
+    public function __construct($pConfig)
+    {
         $this->noServerTest = true;
         $this->testConfig($pConfig);
         $this->noServerTest = false;
@@ -25,12 +25,13 @@ class Redis implements CacheInterface {
 
         $this->connection->setOption(Redis::OPT_SERIALIZER, Redis::SERIALIZER_IGBINARY);
 
-	}
+    }
 
     /**
      * {@inheritdoc}
      */
-    public function testConfig($pConfig){
+    public function testConfig($pConfig)
+    {
         if (!$pConfig['servers'])
             throw new \Exception('No redis servers set.');
 
@@ -38,7 +39,7 @@ class Redis implements CacheInterface {
             throw new \Exception('The module Redis is not activated in your PHP environment.');
 
         //TODO, test if all servers are reachable
-        if (!$this->noServerTest){
+        if (!$this->noServerTest) {
 
         }
 
@@ -48,21 +49,24 @@ class Redis implements CacheInterface {
     /**
      * {@inheritdoc}
      */
-	public function get($pKey){
-		return $this->connection->get($pKey);
-	}
+    public function get($pKey)
+    {
+        return $this->connection->get($pKey);
+    }
 
     /**
      * {@inheritdoc}
      */
-	public function set($pKey, $pValue, $pTimeout = null){
-		return $this->connection->setex($pKey, $pTimeout, $pValue);
-	}
+    public function set($pKey, $pValue, $pTimeout = null)
+    {
+        return $this->connection->setex($pKey, $pTimeout, $pValue);
+    }
 
     /**
      * {@inheritdoc}
      */
-	public function delete($pKey){
-		$this->connection->delete($pKey);
-	}
+    public function delete($pKey)
+    {
+        $this->connection->delete($pKey);
+    }
 }

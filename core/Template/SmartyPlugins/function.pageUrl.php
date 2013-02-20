@@ -1,4 +1,5 @@
 <?php
-function smarty_function_pageUrl($params, &$smarty){
+function smarty_function_pageUrl($params, &$smarty)
+{
     return Core\Kryn::pageUrl( $params['id'] );
 }

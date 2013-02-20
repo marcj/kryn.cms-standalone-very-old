@@ -8,17 +8,17 @@ namespace Core\ORM;
  * Please do not handle 'permissionCheck' in $pOptions. This is handled in \Core\Object.
  * You will get in getList()  a complex $pCondition object instead (if there are any ACL items)
  *
- * 
+ *
  * $pPk is an array with following format
  *
  *  array(
  *      '<keyName>'  => <value>
  *      '<keyName2>' => <value2>
  *  )
- *  
+ *
  */
-abstract class ORMAbstract {
-
+abstract class ORMAbstract
+{
   const
     MANY_TO_ONE = 'nTo1',
     ONE_TO_MANY = '1ToN',
@@ -47,31 +47,31 @@ abstract class ORMAbstract {
      */
     public $definition;
 
-
-
     /**
      * Constructor
      *
      * @param string $pObjectKey
      * @param array  $pDefinition
      */
-    function __construct($pObjectKey, $pDefinition){
+    public function __construct($pObjectKey, $pDefinition)
+    {
         $this->objectKey = $pObjectKey;
         $this->definition = $pDefinition;
-        foreach($this->definition['fields'] as $key => $field){
+        foreach ($this->definition['fields'] as $key => $field) {
             if ($field['primaryKey'])
                 $this->primaryKeys[] = $key;
         }
     }
 
-    public function setPrimaryKeys($pPks){
+    public function setPrimaryKeys($pPks)
+    {
         $this->primaryKeys = $pPks;
     }
 
     /**
      * Returns a field definition.
      *
-     * @param string $pFieldKey
+     * @param  string $pFieldKey
      * @return array
      */
     public function &getField($pFieldKey){
@@ -80,20 +80,21 @@ abstract class ORMAbstract {
 
     /**
      * Returns the primary keys as array.
-     * 
+     *
      * @return array [key1, key2, key3]
      */
-    public function getPrimaryKeys(){
+    public function getPrimaryKeys()
+    {
         return $this->primaryKeys;
     }
 
-
     /**
      * Returns the object key.
-     * 
+     *
      * @return string
      */
-    public function getObjectKey(){
+    public function getObjectKey()
+    {
         return $this->object_key;
     }
 
@@ -109,25 +110,26 @@ abstract class ORMAbstract {
      *  array('id' => 'bla'), array('id' => 'peter'), array('id' => 123)
      *  if the only primary key is named `id`.
      *
-     * @param mixed $pPk
+     * @param  mixed $pPk
      * @return array A single primary key as array. Example: array('id' => 1).
      */
-    public function normalizePrimaryKey($pPk){
-        if (!is_array($pPk)){
+    public function normalizePrimaryKey($pPk)
+    {
+        if (!is_array($pPk)) {
             $result = array();
             $result[$this->primaryKeys[0]] = $pPk;
-        } else if (is_numeric(key($pPk))){
+        } elseif (is_numeric(key($pPk))) {
             $result = array();
             $length = count($this->primaryKeys);
-            for($i=0; $i<$length; $i++){
+            for ($i=0; $i<$length; $i++) {
                 $result[$this->primaryKeys[$i]] = $pPk[$i];
             }
-        } else{
+        } else {
             $result = $pPk;
         }
 
-        if (count($this->primaryKeys) > count($result)){
-            foreach ($this->primaryKeys as $pk){
+        if (count($this->primaryKeys) > count($result)) {
+            foreach ($this->primaryKeys as $pk) {
                 if (!$result[$pk]) $result[$pk] = null;
             }
         }
@@ -155,36 +157,36 @@ abstract class ORMAbstract {
      * idFoo/Bar => array(array(id => idFoo), array(id2 => "Bar"))
      * 1,45/2,45 => array(array(id => 1, pid = 45), array(id => 2, pid=>45))
      *
-     * @param string $pPk
-     * @return array Always a array with primary keys as arrays too. So $return[0] is the first primary key array. Example array(array('id' => 4))
+     * @param  string $pPk
+     * @return array  Always a array with primary keys as arrays too. So $return[0] is the first primary key array. Example array(array('id' => 4))
      */
-    public function primaryStringToArray($pPk){
-
+    public function primaryStringToArray($pPk)
+    {
         if ($pPk === '') return false;
         $groups = explode('/', $pPk);
 
         $result = array();
 
-        foreach ($groups as $group){
+        foreach ($groups as $group) {
 
             $item = array();
             $primaryGroups = explode(',', $group);
 
-            foreach ($primaryGroups as $pos => $value){
+            foreach ($primaryGroups as $pos => $value) {
 
-                if ($ePos = strpos($value, '=')){
+                if ($ePos = strpos($value, '=')) {
                     $key = substr($value, 0, $ePos);
                     $value = substr($value, $ePos+1);
                     if (!in_array($key, $this->primaryKeys)) continue;
-                } else if (!$this->primaryKeys[$pos]) continue;
+                } elseif (!$this->primaryKeys[$pos]) continue;
 
                 $key = $this->primaryKeys[$pos];
 
                 $item[$key] = rawurldecode(str_replace('%2F', '/', $value));
             }
 
-            if (count($this->primaryKeys) > count($item)){
-                foreach ($this->primaryKeys as $pk){
+            if (count($this->primaryKeys) > count($item)) {
+                foreach ($this->primaryKeys as $pk) {
                     if (!$item[$pk]) $item[$pk] = null;
                 }
             }
@@ -208,8 +210,8 @@ abstract class ORMAbstract {
      *
      *
      * @abstract
-     * @param array  $pPk
-     * @param array  $pOptions
+     * @param array $pPk
+     * @param array $pOptions
      *
      * @return array
      */
@@ -233,13 +235,13 @@ abstract class ORMAbstract {
      *
      *
      * @abstract
-     * @param array  $pCondition Condition object as it is described in function dbConditionToSql() #Extended.
-     * @param array  $pOptions
+     * @param array $pCondition Condition object as it is described in function dbConditionToSql() #Extended.
+     * @param array $pOptions
      */
     abstract public function getItems($pCondition = null, $pOptions = null);
 
     /**
-     * 
+     *
      * @abstract
      * @param array $pPk
      *
@@ -250,8 +252,8 @@ abstract class ORMAbstract {
      * @abstract
      * @param array  $pValues
      * @param array  $pTargetPk If nested set
-     * @param string $pPosition  `first` (child), `last` (last child), `prev` (sibling), `next` (sibling)
-     * @param int    $pScope If nested set with scope
+     * @param string $pPosition `first` (child), `last` (last child), `prev` (sibling), `next` (sibling)
+     * @param int    $pScope    If nested set with scope
      *
      * @return array inserted/new primary key/s always as a array.
      */
@@ -261,8 +263,8 @@ abstract class ORMAbstract {
      * Updates an object entry.  This means, all fields which are not defined will be saved as NULL.
      *
      * @abstract
-     * @param array $pPk
-     * @param array $pValues
+     * @param  array                  $pPk
+     * @param  array                  $pValues
      * @throws \ObjectItemNotModified
      */
     abstract public function update($pPk, $pValues);
@@ -272,8 +274,8 @@ abstract class ORMAbstract {
      * not be overwritten.
      *
      * @abstract
-     * @param array $pPk
-     * @param array $pValues
+     * @param  array                  $pPk
+     * @param  array                  $pValues
      * @throws \ObjectItemNotModified
      */
     abstract public function patch($pPk, $pValues);
@@ -302,21 +304,22 @@ abstract class ORMAbstract {
      * @abstract
      * @return bool
      */
-    public function drop(){
-
+    public function drop()
+    {
     }
 
 
     /**
      * Moves a item to a new position.
      *
-     * @param array  $pPk              Full PK as array
-     * @param array  $pTargetPk        Full PK as array
-     * @param string $pPosition        `first` (child), `last` (last child), `prev` (sibling), `next` (sibling)
-     * @param        $pTargetObjectKey
-     * @throws       \NotImplementedException
+     * @param  array                    $pPk              Full PK as array
+     * @param  array                    $pTargetPk        Full PK as array
+     * @param  string                   $pPosition        `first` (child), `last` (last child), `prev` (sibling), `next` (sibling)
+     * @param                           $pTargetObjectKey
+     * @throws \NotImplementedException
      */
-    public function move($pPk, $pTargetPk, $pPosition = 'first', $pTargetObjectKey = null){
+    public function move($pPk, $pTargetPk, $pPosition = 'first', $pTargetObjectKey = null)
+    {
         throw new \NotImplementedException('Move method is not implemented for this object layer.');
     }
 
@@ -333,17 +336,18 @@ abstract class ORMAbstract {
      *
      *  )
      *
-     * @param array $pPk
-     * @param array $pCondition
-     * @param int   $pDepth Started with one. One means, only the first level, no children at all.
-     * @param mixed $pScope
-     * @param array $pOptions
+     * @param  array                    $pPk
+     * @param  array                    $pCondition
+     * @param  int                      $pDepth     Started with one. One means, only the first level, no children at all.
+     * @param  mixed                    $pScope
+     * @param  array                    $pOptions
      * @throws \NotImplementedException
      * @throws \Exception
      *
      * @return array
      */
-    public function getBranch($pPk = null, $pCondition = null, $pDepth = 1, $pScope = null, $pOptions = null){
+    public function getBranch($pPk = null, $pCondition = null, $pDepth = 1, $pScope = null, $pOptions = null)
+    {
         if (!$this->definition['nested']) throw new \Exception(t('Object %s it not a nested set.', $this->objectKey));
         throw new \NotImplementedException(t('getBranch is not implemented.'));
     }
@@ -353,21 +357,23 @@ abstract class ORMAbstract {
     /**
      * Returns the parent if exists otherwise false.
      *
-     * @param array $pPk
+     * @param  array                    $pPk
      * @throws \NotImplementedException
      * @return mixed
      */
-    public function getParent($pPk){
+    public function getParent($pPk)
+    {
         throw new \NotImplementedException(t('getParent is not implemented.'));
     }
 
     /**
      * Returns all parents.
      *
-     * @param array $pPk
+     * @param  array                    $pPk
      * @throws \NotImplementedException
      */
-    public function getParents($pPk){
+    public function getParents($pPk)
+    {
         throw new \NotImplementedException(t('getParents is not implemented.'));
     }
 
@@ -375,25 +381,25 @@ abstract class ORMAbstract {
     /**
      * Returns parent's pk, if exists, otherwise null.
      *
-     * @param array $pPk
+     * @param  array $pPk
      * @return array
      */
-    public function getParentId($pPk){
+    public function getParentId($pPk)
+    {
         $object = $this->getParent($pPk);
 
         if (!$object) return null;
 
-        if (count($this->primaryKeys) == 1){
+        if (count($this->primaryKeys) == 1) {
             return $object[key($this->primaryKeys)];
         } else {
             $result = array();
-            foreach ($this->primaryKeys as $key){
+            foreach ($this->primaryKeys as $key) {
                 $result[] = $object[$key];
             }
+
             return $result;
         }
     }
 
 }
-
-?>

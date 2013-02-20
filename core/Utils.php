@@ -2,12 +2,12 @@
 
 namespace Core;
 
-class Utils {
-
+class Utils
+{
     private static $inErrorHandler = false;
 
-    public static function exceptionHandler($pException){
-
+    public static function exceptionHandler($pException)
+    {
         $exceptionArray = array(
             'type' => $pException->getCode(),
             'message' => $pException->getMessage(),
@@ -19,32 +19,33 @@ class Utils {
             array_merge(array($exceptionArray), $pException->getTrace()));
     }
 
-    public static function shutdownHandler(){
+    public static function shutdownHandler()
+    {
         chdir(PATH);
         $error = error_get_last();
-        if($error['type'] == 1){
+        if ($error['type'] == 1) {
             $backtrace = array($error);
             self::errorHandler($error['type'], $error['message'], $error['file'], $error['line'], $backtrace);
         }
     }
-    public static function errorHandler($pErrorCode, $pErrorStr, $pFile, $pLine, $pBacktrace = null){
-
+    public static function errorHandler($pErrorCode, $pErrorStr, $pFile, $pLine, $pBacktrace = null)
+    {
         ob_end_clean();
 
-        if (!Kryn::$config['displayErrors']){
+        if (!Kryn::$config['displayErrors']) {
             Kryn::internalError('Internal Server Error',
                 tf('The server encountered an internal error and was unable to complete your request. Please contact the administrator. %s',
                     Kryn::$config['email']));
         }
 
-        if (!Kryn::$config['displayBeautyErrors'] || $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest' || php_sapi_name() == 'cli'){
+        if (!Kryn::$config['displayBeautyErrors'] || $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest' || php_sapi_name() == 'cli') {
             $response = array(
                 'status' => 500,
                 'error' => $pErrorCode,
                 'message' => $pErrorStr
             );
 
-            if (Kryn::$config['displayDetailedRestErrors']){
+            if (Kryn::$config['displayDetailedRestErrors']) {
                 $response['file'] = $pFile;
                 $response['line'] = $pLine;
                 $response['backstrace'] = $pBacktrace ? $pBacktrace : debug_backtrace();
@@ -53,18 +54,18 @@ class Utils {
             json($response);
         }
 
-        if (self::$inErrorHandler === true){
+        if (self::$inErrorHandler === true) {
             print $pErrorCode.', '.$pErrorStr.' in '.$pFile.' at '.$pLine;
             if ($pBacktrace)
                 print_r($pBacktrace);
-            else 
+            else
                 print_r(debug_backtrace());
             exit;
         }
 
         self::$inErrorHandler = true;
 
-        if (is_numeric($pErrorCode)){
+        if (is_numeric($pErrorCode)) {
             $errorCodes = array(
                 E_ERROR => 'E_ERROR',
                 E_WARNING => 'E_WARNING',
@@ -79,7 +80,7 @@ class Utils {
                 E_USER_WARNING => 'E_USER_WARNING',
                 E_USER_NOTICE => 'E_USER_NOTICE',
             );
-            if ($errorCodes[$pErrorCode]){
+            if ($errorCodes[$pErrorCode]) {
                 $pErrorCode = $errorCodes[$pErrorCode];
             }
         }
@@ -87,7 +88,7 @@ class Utils {
         $msg = '<div style="margin-bottom: 15px; background-color: white; padding: 5px;">'.$pErrorStr.'</div>';
 
         $backtrace = $pBacktrace;
-        if (!$backtrace){
+        if (!$backtrace) {
             $backtrace = debug_backtrace();
         }
 
@@ -95,7 +96,7 @@ class Utils {
 
         $traces = array();
         $count = count($backtrace);
-        foreach ($backtrace as $trace){
+        foreach ($backtrace as $trace) {
 
             $trace['file'] = substr($trace['file'], strlen(PATH));
             $trace['id'] = $count--;
@@ -114,7 +115,6 @@ class Utils {
 
         //$msg .= self::getHighlightedFile($pFile, $pLine);
 
-
         kryn::internalError($pErrorCode, $msg, false);
 
         self::$inErrorHandler = true;
@@ -123,15 +123,15 @@ class Utils {
 
     }
 
-    public static function getFileContent($pFile, $pLine, $pOffset = 10){
-
+    public static function getFileContent($pFile, $pLine, $pOffset = 10)
+    {
         $fh = fopen($pFile, 'r');
 
-        if ($fh){
+        if ($fh) {
             $line = 1;
             $code = '';
             while (($buffer = fgets($fh, 4096)) !== false) {
-                
+
                 if ($line >= ($pLine-$pOffset) && $line <= ($pLine+$pOffset))
                     $code .= $buffer;
 
@@ -140,11 +140,12 @@ class Utils {
 
                 $line++;
             }
+
             return $code;
         }
+
         return '';
     }
-
 
     /**
      * Stores all locked keys, so that we can release all,
@@ -158,7 +159,8 @@ class Utils {
      *
      * Will be called during process shutdown. (register_shutdown_function)
      */
-    public static function releaseLocks(){
+    public static function releaseLocks()
+    {
         foreach (self::$lockedKeys as $key => $value) {
             self::appRelease($key);
         }
@@ -167,17 +169,17 @@ class Utils {
     /**
      * Locks the process until the lock of $pId has been acquired for this process.
      * If no lock has been acquired for this id, it returns without waiting true.
-     * 
-     * @param  string $pId
+     *
+     * @param  string  $pId
      * @param  integer $pTimeout Milliseconds
      * @return boolean
      */
-    public static function appLock($pId, $pTimeout = 15){
-
+    public static function appLock($pId, $pTimeout = 15)
+    {
         if (self::appTryLock($pId, $pTimeout))
             return true;
         else {
-            for($i=0; $i<1000; $i++){
+            for ($i=0; $i<1000; $i++) {
                 usleep(15*1000); //15ms
                 if (self::appTryLock($pId, $pTimeout))
                     return true;
@@ -192,13 +194,13 @@ class Utils {
      * the function returns without waiting.
      *
      * @see appLock()
-     * 
+     *
      * @param  string $pId
      * @param  int    $pTimeout Default is 30sec
      * @return bool
      */
-    public static function appTryLock($pId, $pTimeout = 30){
-
+    public static function appTryLock($pId, $pTimeout = 30)
+    {
         //already aquired by this process?
         if (self::$lockedKeys[$pId] === true) return true;
 
@@ -210,8 +212,9 @@ class Utils {
         try {
             dbInsert('system_app_lock', array('id' => $pId, 'timeout' => $timeout));
             self::$lockedKeys[$pId] = true;
+
             return true;
-        } catch(\Exception $e){
+        } catch (\Exception $e) {
             return false;
         }
     }
@@ -219,21 +222,20 @@ class Utils {
     /**
      * Releases a lock.
      * If you're not the owner of the lock with $pId, then you'll kill it anyway.
-     * 
-     * @param  string $pId
+     *
+     * @param string $pId
      */
-    public static function appRelease($pId){
-
+    public static function appRelease($pId)
+    {
         unset(self::$lockedKeys[$pId]);
 
         try {
             dbDelete('system_app_lock', array('id' => $pId));
-        } catch(\Exception $e){
+        } catch (\Exception $e) {
         }
     }
 
 }
 
-
-//when we'll be loaded, then we register our releaseLocks 
+//when we'll be loaded, then we register our releaseLocks
 register_shutdown_function('\Core\Utils::releaseLocks');

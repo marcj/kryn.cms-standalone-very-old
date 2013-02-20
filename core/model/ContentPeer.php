@@ -4,11 +4,10 @@ namespace Core;
 
 use Core\om\BaseContentPeer;
 
-
 /**
  * Skeleton subclass for performing query and update operations on the 'kryn_system_content' table.
  *
- * 
+ *
  *
  * You should add additional methods to this class to meet the
  * application requirements.  This class will only be generated as
@@ -16,6 +15,6 @@ use Core\om\BaseContentPeer;
  *
  * @package    propel.generator.Core
  */
-class ContentPeer extends BaseContentPeer {
-
+class ContentPeer extends BaseContentPeer
+{
 } // ContentPeer
