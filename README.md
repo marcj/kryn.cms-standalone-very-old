@@ -39,7 +39,7 @@ Features
  - Ships with a solid bunch of UI input widgets
  - Several flexible authentication layers (e.g. changeable for administration, changeable per domain)
  - MVC architecture
- - Secure password storage usign up-to-date encryptions
+ - Secure password storage using up-to-date encryptions
  - Observer pattern, truly extensible, http://symfony.com/doc/2.0/components/event_dispatcher/introduction.html
  - Symfony2 Routing Component, http://symfony.com/doc/2.0/components/routing/introduction.html
  - Symfony2 HttpKernel Component, http://symfony.com/doc/2.0/components/http_kernel/introduction.html
