@@ -4,26 +4,30 @@ namespace Admin;
 
 use Core\PropelHelper;
 
-class ORM {
+class ORM
+{
+    public function buildEnvironment()
+    {
+        return PropelHelper::callGen('environment');
+    }
 
-
-	public function buildEnvironment(){
-		return PropelHelper::callGen('environment');
-	}
-
-	public function writeModels(){
+    public function writeModels()
+    {
         \Core\TempFile::remove('propel/');
-		return PropelHelper::generateClasses();
-	}
 
-	public function updateScheme(){
+        return PropelHelper::generateClasses();
+    }
+
+    public function updateScheme()
+    {
         \Core\TempFile::remove('propel/');
-		return PropelHelper::updateSchema();
-	}
 
-	public function checkScheme(){
-		return ($errors)?$error:true;
-	}
+        return PropelHelper::updateSchema();
+    }
+
+    public function checkScheme()
+    {
+        return ($errors)?$error:true;
+    }
 
 }
-

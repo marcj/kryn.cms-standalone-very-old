@@ -4,9 +4,8 @@ namespace Admin;
 
 use Core\SystemFile;
 
-class ObjectView extends \Core\ORM\ORMAbstract {
-
-
+class ObjectView extends \Core\ORM\ORMAbstract
+{
     /**
      * {@inheritDoc}
      */
@@ -17,7 +16,7 @@ class ObjectView extends \Core\ORM\ORMAbstract {
 
         $module  = $path;
         $subPath = '';
-        if ( ($pos = strpos($path, '/')) !== false){
+        if ( ($pos = strpos($path, '/')) !== false) {
             $module = substr($path, 0, $pos);
             $subPath = substr($path, $pos+1);
         }
@@ -28,14 +27,12 @@ class ObjectView extends \Core\ORM\ORMAbstract {
         return $fileObj;
     }
 
-
     /**
      * {@inheritDoc}
      */
     public function getItems($pCondition = null, $pOptions = null)
     {
     }
-
 
     /**
      * {@inheritDoc}
@@ -44,14 +41,12 @@ class ObjectView extends \Core\ORM\ORMAbstract {
     {
     }
 
-
     /**
      * {@inheritDoc}
      */
     public function add($pValues, $pBranchPk = null, $pMode = 'into', $pScope = null)
     {
     }
-
 
     /**
      * {@inheritDoc}
@@ -60,7 +55,6 @@ class ObjectView extends \Core\ORM\ORMAbstract {
     {
     }
 
-
     /**
      * {@inheritDoc}
      */
@@ -68,14 +62,12 @@ class ObjectView extends \Core\ORM\ORMAbstract {
     {
     }
 
-
     /**
      * {@inheritDoc}
      */
     public function getCount($pCondition = null)
     {
     }
-
 
     /**
      * {@inheritDoc}
@@ -95,8 +87,8 @@ class ObjectView extends \Core\ORM\ORMAbstract {
     /**
      * {@inheritDoc}
      */
-    public static function normalizePath(&$pPath){
-
+    public static function normalizePath(&$pPath)
+    {
         $pPath = str_replace('.', '/', $pPath); //debug
 
         if (substr($pPath, -1) == '/')
@@ -117,7 +109,7 @@ class ObjectView extends \Core\ORM\ORMAbstract {
 
         $module  = $path;
         $subPath = '';
-        if ( ($pos = strpos($path, '/')) !== false){
+        if ( ($pos = strpos($path, '/')) !== false) {
             $module = substr($path, 0, $pos);
             $subPath = substr($path, $pos+1);
         }
@@ -127,10 +119,10 @@ class ObjectView extends \Core\ORM\ORMAbstract {
         $limit = $pOptions['limit'];
         $result = array();
 
-        if (!$path){
+        if (!$path) {
 
             $result = array();
-            foreach (\Core\Kryn::$extensions as $extension){
+            foreach (\Core\Kryn::$extensions as $extension) {
                 $directory = '/module/'.$extension.'/view/';
                 $file = SystemFile::getFile($directory);
                 if (!$file) continue;
@@ -141,10 +133,10 @@ class ObjectView extends \Core\ORM\ORMAbstract {
                 if ($pCondition && !\Core\Object::satisfy($file, $pCondition)) continue;
                 $c++;
 
-                if ($pDepth > 0){
+                if ($pDepth > 0) {
                     $children = self::getBranch(array('path' => $extension), $pCondition, $pDepth-1);
                     $file['_childrenCount'] = count($children);
-                    if ($pDepth > 1 && $file['type'] == 'dir'){
+                    if ($pDepth > 1 && $file['type'] == 'dir') {
                         $file['_children'] = $children;
                     }
                 }
@@ -156,7 +148,7 @@ class ObjectView extends \Core\ORM\ORMAbstract {
             $directory = '/module/'.$module.'/view/'.$subPath;
             $files     = SystemFile::getFiles($directory);
 
-            foreach($files as $file){
+            foreach ($files as $file) {
                 if ($pCondition && !\Core\Object::satisfy($file, $pCondition)) continue;
 
                 $c++;
@@ -166,10 +158,10 @@ class ObjectView extends \Core\ORM\ORMAbstract {
                 $fPath = $module.'/'.substr($file['path'], strlen('/module/'.$module.'/view/'));
                 $file['path'] = $fPath;
 
-                if ($pDepth > 0){
+                if ($pDepth > 0) {
                     $children = self::getBranch(array('path' => $fPath), $pCondition, $pDepth-1);
                     $file['_childrenCount'] = count($children);
-                    if ($pDepth > 1 && $file['type'] == 'dir'){
+                    if ($pDepth > 1 && $file['type'] == 'dir') {
                         $file['_children'] = $children;
                     }
                 }
@@ -203,6 +195,5 @@ class ObjectView extends \Core\ORM\ORMAbstract {
     {
         return parent::getParentId($pPrimaryKey);
     }
-
 
 }

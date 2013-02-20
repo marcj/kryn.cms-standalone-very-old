@@ -1,14 +1,11 @@
 <?php
 
-
 namespace Publication;
 
-class AdminController {
-
-
-    public function run(){
-
-
+class AdminController
+{
+    public function run()
+    {
         $query = NewsQuery::create();
 
         $item = $query->findOneById(1);
@@ -28,10 +25,12 @@ class AdminController {
         $item = $query->findOneById(1);
 
         var_dump($item);
+
         return $item;
 
         $item->setTitle('Hi was geht '.time());
         $item->save();
+
         return $item;
         $bla = '';
 
@@ -79,19 +78,12 @@ class AdminController {
 
         die($c->toString());
 
-
-
-
-
         exit;
 
         $query = NewsQuery::create();
         $item = $query->find();
 
-
         return $item;
     }
 
 }
-
-?>

@@ -1,18 +1,17 @@
 <?php
 
-class adminModule {
-
+class adminModule
+{
     public static $defaultRepoServer = 'http://api.kryn.org/';
     private static $migrationCurrentPos = 0;
 
-
-    public static function manageInstall($pMethod, $pName){
-
+    public static function manageInstall($pMethod, $pName)
+    {
         $pModuleName = esc($pName, 2);
 
         if (file_exists(PATH_MODULE . "$pName/$pName.class.php")) {
             require_once(PATH_MODULE . "$pName/$pName.class.php");
-            if (class_exists($pName)){
+            if (class_exists($pName)) {
                 $m = new $pName();
                 $m->install();
             } else {
@@ -25,7 +24,8 @@ class adminModule {
         return true;
     }
 
-    public static function init() {
+    public static function init()
+    {
         global $cfg;
 
         if (!$cfg['repoServer']) {
@@ -35,7 +35,6 @@ class adminModule {
         switch (getArgv(4)) {
 
             case 'manage/install': return self::manageInstall(getArgv('module'));
-
 
             case 'deactivate':
                 return self::deactivate($_REQUEST['name']);
@@ -67,20 +66,21 @@ class adminModule {
             case 'getModules':
                 return self::getModules();
 
-
             case 'check4updates':
                 return self::check4updates();
 
-
             case 'getInstallInfo': #step 1
+
                 return self::getInstallInfo(getArgv('name', 2), getArgv('type'));
             case 'getPrepareInstall': #step 2
+
                 return self::getPrepareInstall(getArgv('name', 2), getArgv('type'));
 
             case 'getDependExtension':
                 json(self::getDependExtension(getArgv('name', 2), getArgv('file'), getArgv('version')));
 
             case 'installModule': # step 3
+
                 return json(self::installModule(getArgv('name', 2), getArgv('type')));
 
             case 'loadLocal':
@@ -153,7 +153,6 @@ class adminModule {
             case 'addCheckCode':
                 return self::addCheckCode(getArgv('name', 2));
 
-
             case 'getWindowDefinition':
                 return self::getWindowDefinition(getArgv('name', 2), getArgv('class', 2));
             case 'saveWindowClass':
@@ -180,24 +179,24 @@ class adminModule {
      * @static
      * @return bool
      */
-    public static function convertPagesTo10(){
-
+    public static function convertPagesTo10()
+    {
         $domains = SystemDomainQuery::create()->find();
 
-        foreach ($domains as $domain){
+        foreach ($domains as $domain) {
             self::convertPagesTo10Domain($domain->getId());
         }
 
         return true;
     }
 
-    public static function convertPagesTo10Domain($pDomainRsn){
-
+    public static function convertPagesTo10Domain($pDomainRsn)
+    {
         $res = dbExec('SELECT id, pid FROM '.pfx.'system_page WHERE (pid = 0 OR pid IS NULL) AND domain_id = '.($pDomainRsn+0).
                       ' ORDER BY sort');
 
         self::$migrationCurrentPos = 2;
-        while ($row = dbFetch($res)){
+        while ($row = dbFetch($res)) {
             self::convertPagesTo10Node($row['id']);
         }
 
@@ -210,8 +209,8 @@ class adminModule {
         ));
 
     }
-    public static function convertPagesTo10Node($pNodeRsn, $pDepth = 1){
-
+    public static function convertPagesTo10Node($pNodeRsn, $pDepth = 1)
+    {
         $node = dbExFetch('SELECT id, pid, title FROM '.pfx.'system_page WHERE id = '.($pNodeRsn+0));
 
         self::$migrationCurrentPos++;
@@ -221,8 +220,8 @@ class adminModule {
 
         echo str_repeat('  ', $pDepth)."#".$node['id'].' - '.$node['title'].' => '.$newPosOfNode['lft']."\n";
 
-        if ($res){
-            while ($row = dbFetch($res)){
+        if ($res) {
+            while ($row = dbFetch($res)) {
                 $newPos = self::convertPagesTo10Node($row['id'], $pDepth+1);
             }
         }
@@ -240,24 +239,25 @@ class adminModule {
 
     }
 
-    public static function windowsExists($pName, $pClassName){
-
+    public static function windowsExists($pName, $pClassName)
+    {
         if (!$pName) return false;
 
         $path = PATH_MODULE.$pName.'/'.$pClassName.'.class.php';
+
         return file_exists($path);
 
     }
 
-    public static function createWindows($pName, $pObjectKey, $pValues){
-
+    public static function createWindows($pName, $pObjectKey, $pValues)
+    {
         $columns = array();
 
         $config = self::loadConfig($pName);
         $definition = $config['objects'][$pObjectKey];
 
-        foreach ($pValues['windowListColumns'] as $column){
-            if ($column['usage']){
+        foreach ($pValues['windowListColumns'] as $column) {
+            if ($column['usage']) {
                 $columns[$column['key']] = array(
                     'label' => $column['label'],
                     'type' => 'predefined',
@@ -284,10 +284,9 @@ class adminModule {
         );
         self::saveWindowClass($pName, trim($pValues['windowListName']), $list);
 
-
         $fields = array();
 
-        foreach ($pValues['windowEditFields'] as $field){
+        foreach ($pValues['windowEditFields'] as $field) {
             $fields[$field] = array(
                 'label' => $definition['fields'][$field]['label']?$definition['fields'][$field]['label']:$field,
                 'type' => 'predefined',
@@ -314,7 +313,7 @@ class adminModule {
 
         $fields = array();
 
-        foreach ($pValues['windowAddFields'] as $field){
+        foreach ($pValues['windowAddFields'] as $field) {
             $fields[$field] = array(
                 'label' => $definition['fields'][$field]['label']?$definition['fields'][$field]['label']:$field,
                 'type' => 'predefined',
@@ -339,8 +338,7 @@ class adminModule {
         );
         self::saveWindowClass($pName, trim($pValues['windowAddName']), $add);
 
-
-        if ($pValues['addEntrypoints']){
+        if ($pValues['addEntrypoints']) {
 
             //$config = self::loadConfig($pName);
             $config['admin'][$pObjectKey] = array(
@@ -371,8 +369,8 @@ class adminModule {
         return true;
     }
 
-    public static function newWindow($pName, $pClassName, $pClass){
-
+    public static function newWindow($pName, $pClassName, $pClass)
+    {
         $path = PATH_MODULE.$pName.'/'.$pClassName.'.class.php';
         if (file_exists($path)) return array('error' => 'file_already_exists');
 
@@ -389,19 +387,19 @@ class $pClassName extends $pClass {
         return true;
     }
 
-    public static function saveWindowClass($pName, $pClass, $pValues){
-
+    public static function saveWindowClass($pName, $pClass, $pValues)
+    {
         $path = PATH_MODULE.$pName.'/'.$pClass.'.class.php';
 
-        if (file_exists($path) && !is_writeable($path)){
+        if (file_exists($path) && !is_writeable($path)) {
             return array('error' => 'no_writeaccess', 'error_file' => $path);
         }
 
-        if (!file_exists($path) && !is_writeable(dirname($path))){
+        if (!file_exists($path) && !is_writeable(dirname($path))) {
             return array('error' => 'no_writeaccess', 'error_file' => dirname($path));
         }
 
-        if (!file_exists($path)){
+        if (!file_exists($path)) {
             touch($path);
         }
 
@@ -411,7 +409,7 @@ class $pClassName extends $pClass {
 
         $php .= "class $pClass extends ".$general['class']." {\n\n";
 
-        foreach ($general as $key => $val){
+        foreach ($general as $key => $val) {
             if ($key == 'class') continue;
             if ($key == 'object') continue;
             if ($key == 'primary') continue;
@@ -420,7 +418,7 @@ class $pClassName extends $pClass {
                 $val = explode(',', str_replace(' ', '', $val));
             };
 
-            if ($key == 'dataModel'){
+            if ($key == 'dataModel') {
                 if ($val == 'object')
                     $php .= "    public \$object = '".$general['object']."';\n\n";
                 else {
@@ -435,7 +433,7 @@ class $pClassName extends $pClass {
             }
         }
 
-        if ($pValues['columns']){
+        if ($pValues['columns']) {
             $fields = $pValues['columns'];
             $var = 'columns';
         } else {
@@ -443,7 +441,7 @@ class $pClassName extends $pClass {
             $var = 'fields';
         }
 
-        if ($fields){
+        if ($fields) {
             self::parseFieldValues($fields);
 
             $fieldsCode = var_export($fields, true);
@@ -453,13 +451,12 @@ class $pClassName extends $pClass {
             $php .= "\n    public \$".$var." = ".$fieldsCode.";\n\n";
         }
 
-
         $methods = $pValues['methods'];
 
-        if (is_array($methods)){
-            foreach ($methods as $key => $val){
+        if (is_array($methods)) {
+            foreach ($methods as $key => $val) {
 
-                if (substr($val, 0, 5) == '<?php'){
+                if (substr($val, 0, 5) == '<?php') {
                     $val = substr($val, 6, -3);
                 }
 
@@ -474,10 +471,10 @@ class $pClassName extends $pClass {
 
     }
 
-    public static function parseFieldValues(&$pFields){
-
-        if (is_array($pFields)){
-            foreach ($pFields as &$value){
+    public static function parseFieldValues(&$pFields)
+    {
+        if (is_array($pFields)) {
+            foreach ($pFields as &$value) {
                 if (is_numeric($value)) $value += 0;
                 if (is_array($value)) self::parseFieldValues($value);
             }
@@ -485,10 +482,9 @@ class $pClassName extends $pClass {
 
     }
 
-
-    public static function getDependExtension($pName, $pFile, $pNeedVersion) {
+    public static function getDependExtension($pName, $pFile, $pNeedVersion)
+    {
         $res = array('ok' => false);
-
 
         $del = false;
         $del = (strpos($pNeedVersion, '>') === false) ? $del : '>';
@@ -520,28 +516,32 @@ class $pClassName extends $pClass {
 
         return $res;
     }
-    public static function getCategoryItems($pId, $pLang) {
+    public static function getCategoryItems($pId, $pLang)
+    {
         global $cfg;
         $res = wget($cfg['repoServer'] . "/?exGetCategoryList=1&id=$pId&lang=" . $pLang);
         print $res;
         exit;
     }
 
-    public static function getBox($pCode) {
+    public static function getBox($pCode)
+    {
         global $cfg;
         $res = wget($cfg['repoServer'] . "/?exGetBox=1&code=$pCode");
         print $res;
         exit;
     }
 
-    public static function managerSearch($q) {
+    public static function managerSearch($q)
+    {
         global $cfg;
         $res = wget($cfg['repoServer'] . "/?exSearch=$q");
         print $res;
         exit;
     }
 
-    function getHelp($pName, $pLang) {
+    public function getHelp($pName, $pLang)
+    {
         $helpFile = PATH_MODULE . "$pName/lang/help_$pLang.json";
         $res = array();
         if (!file_exists($helpFile))
@@ -553,21 +553,24 @@ class $pClassName extends $pClass {
         }
     }
 
-    public static function saveHelp($pName, $pLang, $pHelp) {
+    public static function saveHelp($pName, $pLang, $pHelp)
+    {
         $helpFile = PATH_MODULE . "$pName/lang/help_$pLang.json";
         $json = json_format($pHelp);
         Core\Kryn::fileWrite($helpFile, $json);
         json(1);
     }
 
-    public static function getDocu() {
+    public static function getDocu()
+    {
         $lang = getArgv('lang', 2);
         $name = getArgv('name', 2);
         $text = Core\Kryn::fileRead(PATH_MODULE . "$name/docu/$lang.html");
         json($text);
     }
 
-    public static function saveDocu() {
+    public static function saveDocu()
+    {
         $lang = getArgv('lang', 2);
         $text = getArgv('text');
         $name = getArgv('name', 2);
@@ -577,7 +580,8 @@ class $pClassName extends $pClass {
         json(1);
     }
 
-    public static function addCheckCode($pName) {
+    public static function addCheckCode($pName)
+    {
         global $cfg;
 
         if (file_exists(PATH_MODULE . '' . $pName)) {
@@ -610,8 +614,8 @@ class $pClassName extends $pClass {
 
     }
 
-    public static function saveDb() {
-
+    public static function saveDb()
+    {
         $name = getArgv('name', 2);
 
         $config = self::loadConfig($name);
@@ -622,11 +626,12 @@ class $pClassName extends $pClass {
         $config['db'] = $db;
 
         $res = self::writeConfig($name, $config);
+
         return $res === true?true:$res;
     }
 
-    public static function saveLinks() {
-
+    public static function saveLinks()
+    {
         $name = getArgv('name', 2);
 
         $config = self::loadConfig($name);
@@ -635,11 +640,12 @@ class $pClassName extends $pClass {
         $config['admin'] = $admin;
 
         $res = self::writeConfig($name, $config);
+
         return $res === true?true:$res;
     }
 
-    public static function saveGeneral() {
-
+    public static function saveGeneral()
+    {
         $name = getArgv('name', 2);
 
         $config = self::loadConfig($name);
@@ -658,17 +664,18 @@ class $pClassName extends $pClass {
         $config['depends'] = getArgv('depends');
 
         $res = self::writeConfig($name, $config);
+
         return $res === true?true:$res;
     }
 
-    public static function saveExtras() {
-
+    public static function saveExtras()
+    {
         $vars = array('attachEvents', 'events', 'caches', 'cacheInvalidation', 'adminJavascript', 'adminCss');
 
         $name = getArgv('name', 2);
         $config = self::loadConfig($name);
 
-        foreach ($vars as $var){
+        foreach ($vars as $var) {
             if (getArgv($var) !== '')
                 $config[$var] = getArgv($var);
             else
@@ -676,11 +683,12 @@ class $pClassName extends $pClass {
         }
 
         $res = self::writeConfig($name, $config);
+
         return $res === true?true:$res;
     }
 
-    public static function saveLayouts() {
-
+    public static function saveLayouts()
+    {
         $themes = json_decode(getArgv('themes'), true);
         $name = getArgv('name', 2);
 
@@ -688,10 +696,12 @@ class $pClassName extends $pClass {
         $config['themes'] = $themes;
 
         $res = self::writeConfig($name, $config);
+
         return $res === true?true:$res;
     }
 
-    public static function writeConfig($pName, $pConfig) {
+    public static function writeConfig($pName, $pConfig)
+    {
         $json = json_format(json_encode($pConfig));
 
         $path = "core/config.json";
@@ -699,15 +709,15 @@ class $pClassName extends $pClass {
         if ($pName != 'kryn')
             $path = PATH_MODULE . "$pName/config.json";
 
-        if (!is_writeable($path)){
+        if (!is_writeable($path)) {
             return array('error' => 'file_not_writeable');
         }
 
         return Core\Kryn::fileWrite(PATH_MODULE . "$pName/config.json", $json);
     }
 
-    public static function removeModule($pModuleName) {
-
+    public static function removeModule($pModuleName)
+    {
         $files = json_decode($_REQUEST['files'], true);
         $pModuleName = esc(str_replace("..", "", $pModuleName));
 
@@ -733,7 +743,6 @@ class $pClassName extends $pClass {
                     }
                 }
 
-
                 if ($save) {
                     mkdirr("data/packages/modules/removeMod/$id/" . dirname($filename));
                     rename($filename, "data/packages/modules/removeMod/$id/" . $filename);
@@ -758,17 +767,17 @@ class $pClassName extends $pClass {
                 rename("data/packages/modules/removeMod/$id/" . $file, $file);
             }
 
-
         delDir("data/packages/modules/removeMod/$id/");
         adminDb::remove(Core\Kryn::$configs[$pModuleName]);
         dbDelete('system_modules', "name = '$pModuleName'");
 
         Core\Kryn::clearLanguageCache();
+
         return true;
     }
 
-    public static function getChangedFiles($pModuleName) {
-
+    public static function getChangedFiles($pModuleName)
+    {
         $res = array();
         $res['modifiedFiles'] = array();
 
@@ -801,17 +810,21 @@ class $pClassName extends $pClass {
         return $res;
     }
 
-    public static function getVersion($pName) {
+    public static function getVersion($pName)
+    {
         global $cfg;
+
         return wget($cfg['repoServer'] . '/?version=' . $pName);
     }
 
-    public static function getPackage($pModuleName) {
+    public static function getPackage($pModuleName)
+    {
         $res['file'] = self::createArchive($pModuleName);
         json($res);
     }
 
-    public static function publish($pPw, $pModuleName, $pMessage) {
+    public static function publish($pPw, $pModuleName, $pMessage)
+    {
         global $cfg;
         $res = wget($cfg['repoServer'] . '/?checkPw=1&id=' . $cfg['communityId'] . "&pw=$pPw");
         if ($res != "1")
@@ -825,8 +838,8 @@ class $pClassName extends $pClass {
         json($res);
     }
 
-    public static function createArchive($pModuleName) {
-
+    public static function createArchive($pModuleName)
+    {
         $config = self::loadInfo($pModuleName);
 
         $temp = 'data/packages/modules/createArchive_' . $pModuleName . '/';
@@ -853,7 +866,7 @@ class $pClassName extends $pClass {
             }
         }
 
-        include_once('File/Archive.php');
+        include_once 'File/Archive.php';
         #generate md5 of each file
 
         chdir($temp);
@@ -869,11 +882,11 @@ class $pClassName extends $pClass {
             if (is_dir($temp . $file) && is_dir($temp . $file . '/.svn')) {
                 delDir($temp . $file . '/.svn');
 
-            } else if (!is_dir($temp . $file) && strpos($file, 'files.md5') === false) {
+            } elseif (!is_dir($temp . $file) && strpos($file, 'files.md5') === false) {
                 $file = substr($file, 2);
                 $md5s .= $file . ' ' . md5(Core\Kryn::fileRead($temp . $file)) . "\n";
 
-                if (!class_exists('ZipArchive')){
+                if (!class_exists('ZipArchive')) {
                     $reads[] = File_Archive::read($file, $file);
                 }
             }
@@ -888,17 +901,18 @@ class $pClassName extends $pClass {
 
         $archive = "data/packages/modules/$pModuleName-" . $config['version'] . '_' . date("ymdhis") . ".zip";
 
-        if (!is_writeable('data/packages/modules/')){
+        if (!is_writeable('data/packages/modules/')) {
             klog('core', 'data/packages/modules is not writeable. Can not create the extension archive.');
+
             return;
         }
 
-        if (class_exists('ZipArchive')){
+        if (class_exists('ZipArchive')) {
             $zip = new ZipArchive();
             $zip->open($archive, ZIPARCHIVE::CREATE);
 
             foreach ($files as $file)
-                if (!is_dir($file)){
+                if (!is_dir($file)) {
                     $zip->addFile($file, $file);
                 }
             $zip->addFile($temp . $md5File, $md5File);
@@ -924,15 +938,14 @@ class $pClassName extends $pClass {
 
     }
 
-    public static function dbRemove($pName) {
-
-
-        if (!$pName){
+    public static function dbRemove($pName)
+    {
+        if (!$pName) {
 
             $res = (php_sapi_name() === 'cli' )?"Remove all tables from all extensions\n\n":array();
 
-            foreach (Core\Kryn::$configs as $key => $config){
-                if (php_sapi_name() === 'cli' ){
+            foreach (Core\Kryn::$configs as $key => $config) {
+                if (php_sapi_name() === 'cli' ) {
                     $res .= self::dbRemove($key)."\n";
                 } else {
                     $res = array_merge($res, self::dbRemove($key));
@@ -947,28 +960,29 @@ class $pClassName extends $pClass {
         $config = Core\Kryn::getModuleConfig($pName);
         $removedTables = adminDb::remove($config);
 
-        if (php_sapi_name() === 'cli' ){
-            if (is_array($removedTables) && count($removedTables) > 0){
-                foreach ($removedTables as $table){
+        if (php_sapi_name() === 'cli' ) {
+            if (is_array($removedTables) && count($removedTables) > 0) {
+                foreach ($removedTables as $table) {
                     $res .= "\t$table removed.\n";
                 }
             } else {
                 $res .= "\tno tables removed.\n";
             }
+
             return $res;
         } else {
             return array($pName =>$removedTables);
         }
     }
 
-    public static function dbInit($pName) {
-
-        if (!$pName){
+    public static function dbInit($pName)
+    {
+        if (!$pName) {
 
             $res = (php_sapi_name() === 'cli')?"Sync all tables from all extensions\n\n":array();
 
-            foreach (Core\Kryn::$configs as $key => $config){
-                if (php_sapi_name() === 'cli' ){
+            foreach (Core\Kryn::$configs as $key => $config) {
+                if (php_sapi_name() === 'cli' ) {
                     $res .= self::dbInit($key)."\n";
                 } else {
                     $res = array_merge($res, self::dbInit($key));
@@ -983,21 +997,23 @@ class $pClassName extends $pClass {
         $config = Core\Kryn::getModuleConfig($pName);
         $installedTables = adminDb::sync($config);
 
-        if (php_sapi_name() === 'cli'){
-            if (is_array($installedTables) && count($installedTables) > 0){
-                foreach ($installedTables as $table => $status){
+        if (php_sapi_name() === 'cli') {
+            if (is_array($installedTables) && count($installedTables) > 0) {
+                foreach ($installedTables as $table => $status) {
                     $res .= "\t$table ".($status?"installed":"updated").".\n";
                 }
             } else {
                 $res .= "\tno tables to install.\n";
             }
+
             return $res;
         } else {
             return array($pName => $installedTables);
         }
     }
 
-    public static function getPublishInfo($pName) {
+    public static function getPublishInfo($pName)
+    {
         $config = Core\Kryn::getModuleConfig($pName);
         $res['config'] = $config;
         $res['serverVersion'] = self::getVersion($pName);
@@ -1019,7 +1035,8 @@ class $pClassName extends $pClass {
         json($res);
     }
 
-    public static function loadInstalled() {
+    public static function loadInstalled()
+    {
         global $cfg;
 
         $res = array();
@@ -1040,8 +1057,8 @@ class $pClassName extends $pClass {
         json($res);
     }
 
-    static public function loadLocal() {
-
+    public static function loadLocal()
+    {
         $modules = Core\Kryn::readFolder(PATH_MODULE);
         $modules[] = 'kryn';
         $res = array();
@@ -1064,17 +1081,20 @@ class $pClassName extends $pClass {
 
     }
 
-    static public function loadConfig($pModuleName) {
+    public static function loadConfig($pModuleName)
+    {
         if ($pModuleName == 'kryn')
             $configFile = "core/config.json";
         else
             $configFile = PATH_MODULE . "$pModuleName/config.json";
         $json = Core\Kryn::fileRead($configFile);
         $config = json_decode($json, true);
+
         return $config;
     }
 
-    static public function loadInfo($pModuleName, $pType = false, $pExtract = false) {
+    public static function loadInfo($pModuleName, $pType = false, $pExtract = false)
+    {
         global $cfg;
 
         /*
@@ -1122,7 +1142,7 @@ class $pClassName extends $pClass {
             }
         }
 
-        //local zip 
+        //local zip
         if (($pType !== false && $pType != "0") && ($pType !== true && $pType != "1")) {
             if (file_exists(PATH_MEDIA . $pType)) {
                 $pType = PATH_MEDIA . $pType;
@@ -1136,7 +1156,7 @@ class $pClassName extends $pClass {
 
         if ($extract) {
             @mkdir("data/packages/modules/$pModuleName");
-            include_once('File/Archive.php');
+            include_once 'File/Archive.php';
             $toDir = "data/packages/modules/$pModuleName/";
             $zipFile .= "/";
             $res = File_Archive::extract($zipFile, $toDir);
@@ -1186,8 +1206,8 @@ class $pClassName extends $pClass {
 
     }
 
-    public static function getChangedFilesForUpdate($pConfig) {
-
+    public static function getChangedFilesForUpdate($pConfig)
+    {
         $writableFiles = explode("\n", $pConfig['writableFiles']);
 
         $modFiles = array();
@@ -1212,10 +1232,12 @@ class $pClassName extends $pClass {
                 }
             }
         }
+
         return $modFiles;
     }
 
-    public static function getPrepareInstall($pModuleName, $pType) {
+    public static function getPrepareInstall($pModuleName, $pType)
+    {
         global $cfg;
 
         if ($pType != "0" && $pType != "1") {
@@ -1233,7 +1255,6 @@ class $pClassName extends $pClass {
 
             $depends = explode(',', str_replace(' ', '', $info['depends']));
             foreach ($depends as $depend) {
-
 
                 $del = false;
                 $del = (strpos($depend, '=') === false) ? $del : '=';
@@ -1276,7 +1297,6 @@ class $pClassName extends $pClass {
 
                     $res['depends_ext'][$dependKey]['server_version'] = false;
 
-
                     $serverRes = wget($cfg['repoServer'] . '/?version=' . $dependKey);
                     if ($serverRes && $serverRes != '') {
                         $res['depends_ext'][$dependKey]['server_version'] = true;
@@ -1286,9 +1306,7 @@ class $pClassName extends $pClass {
                         }
                     }
 
-
                 }
-
 
             }
         }
@@ -1301,7 +1319,8 @@ class $pClassName extends $pClass {
         json($res);
     }
 
-    private static function versionCompareToServer($local, $server) {
+    private static function versionCompareToServer($local, $server)
+    {
         list($major, $minor, $patch) = explode(".", $local);
         $lversion = $major * 1000 * 1000 + $minor * 1000 + $patch;
 
@@ -1316,7 +1335,8 @@ class $pClassName extends $pClass {
             return '>'; // Local newer
     }
 
-    public static function getInstallInfo($pModuleName, $pType) {
+    public static function getInstallInfo($pModuleName, $pType)
+    {
         global $cfg;
 
         if ($pType != "0" && $pType != "1") {
@@ -1327,7 +1347,6 @@ class $pClassName extends $pClass {
         $info = self::loadInfo($pModuleName, $pType);
         if ($info['cannotConnect'])
             json($info);
-
 
         $res = json_decode(wget($cfg['repoServer'] . "/?getAdditionalInfo=$pModuleName"), 1);
 
@@ -1347,7 +1366,8 @@ class $pClassName extends $pClass {
         json($res);
     }
 
-    public static function installModule($pModuleName, $pType) {
+    public static function installModule($pModuleName, $pType)
+    {
         global $cfg;
         if ($pType != "0" && $pType != "1") {
             $temp = explode("-", basename($pType));
@@ -1410,7 +1430,8 @@ class $pClassName extends $pClass {
     }
 
     //list all modules which have plugins -> for pluginChoooser
-    public static function getModules() {
+    public static function getModules()
+    {
         global $user;
 
         $lang = $user->user['settings']['adminLanguage'] ? $user->user['settings']['adminLanguage'] : 'en';
@@ -1426,7 +1447,8 @@ class $pClassName extends $pClass {
         json($res);
     }
 
-    public static function check4updates() {
+    public static function check4updates()
+    {
         global $cfg;
 
         $res['found'] = false;
@@ -1451,40 +1473,49 @@ class $pClassName extends $pClass {
     }
 
     /*
-    function devRemove( $pModule ){
+    public function devRemove( $pModule )
+    {
         dbExec( "DELETE FROM %pfx%system_modules WHERE name = '$pModule'" );
         adminDb::remove( $pModule );
+
         return 'Ok';
     }
 
-    function devUpdate( $pModule ){
+    public function devUpdate( $pModule )
+    {
         self::create2ndClass( $pModule );
         require( PATH_MODULE."$pModule/$pModule.class.php.new" );
         $module = new $pModule();
         $module->update();
+
         return 'ok';
     }
 
-    function devInstall( $pModule ){
+    public function devInstall( $pModule )
+    {
         dbExec( "INSERT INTO %pfx%system_modules VALUES('$pModule', 1)" );
+
         return '<pre>'.adminDb::install( $pModule ).'</pre>';
     }
     */
 
-    public static function deactivate($pName) {
+    public static function deactivate($pName)
+    {
         dbUpdate('system_modules', array('name' => $pName), array('activated' => 0));
         Core\Kryn::clearLanguageCache();
         Core\Kryn::deleteCache('activeModules');
         json(1);
     }
 
-    public static function exists($pModule) {
+    public static function exists($pModule)
+    {
         if (Core\Kryn::$configs[$pModule])
             return true;
         return false;
     }
 
-    public static function activate($pName) {
+    public static function activate($pName)
+    {
         $row = dbTableFetch('system_modules', 1, "name = '" . esc($pName) . "'");
 
         if ($row['name'] == '')
@@ -1499,14 +1530,14 @@ class $pClassName extends $pClass {
 
     /*
 
-function deinstall($pName, $pLinks = array()){
-
+function deinstall($pName, $pLinks = array())
+{
    $info = self::loadInfo( $pName );
    $filename = $info['__path'].'/files.md5';
 
    $h = @fopen($filename, 'r');
    $md5s = array();
-   while($line = @fgets($h)) {
+   while ($line = @fgets($h)) {
        $temp = explode( '  ', $line );
        $temp[1] = substr( $temp[1], 0, -1);
        @unlink( $temp[1] );
@@ -1519,7 +1550,8 @@ function deinstall($pName, $pLinks = array()){
 }
     */
 
-    public static function readDirRekursiv($pDir) {
+    public static function readDirRekursiv($pDir)
+    {
         global $step2;
         $res = array();
 
@@ -1535,9 +1567,8 @@ function deinstall($pName, $pLinks = array()){
                 }
             }
         }
+
         return $res;
     }
 
 }
-
-?>

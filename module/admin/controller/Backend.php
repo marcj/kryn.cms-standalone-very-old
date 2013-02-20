@@ -1,54 +1,56 @@
 <?php
 
-
 namespace Admin;
 
 use \Core\Kryn;
 
-class Backend {
-
-    public function clearCache(){
+class Backend
+{
+    public function clearCache()
+    {
         \Admin\Utils::clearCache();
+
         return true;
     }
 
-    public function getDesktop() {
-
+    public function getDesktop()
+    {
         if ($desktop = Kryn::getAdminClient()->getUser()->getDesktop())
             return $desktop->toArray();
         else return false;
     }
 
-    public function saveDesktop($pIcons) {
-
+    public function saveDesktop($pIcons)
+    {
         $properties = new \Core\Properties($pIcons);
 
         Kryn::getAdminClient()->getUser()->setDesktop($properties);
+
         return Kryn::getAdminClient()->getUser()->save() > 0;
     }
 
-    public function getSearch($pQ, $pLang = null) {
-
+    public function getSearch($pQ, $pLang = null)
+    {
         $res = array();
         foreach (Kryn::$modules as &$mod) {
             if (method_exists($mod, 'searchAdmin')) {
                 $res = array_merge($res, $mod->searchAdmin($pQ));
             }
         }
+
         return $res;
     }
 
-
-    public function getWidgets() {
-
+    public function getWidgets()
+    {
         if ($widgets = Kryn::getAdminClient()->getUser()->getWidgets())
             return $widgets->toArray();
         else return false;
 
     }
 
-    public function saveWidgets($pWidgets) {
-
+    public function saveWidgets($pWidgets)
+    {
         $properties = new \Core\Properties($pWidgets);
         Kryn::getAdminClient()->getUser()->setWidgets($properties);
         Kryn::getAdminClient()->getUser()->save();
@@ -56,12 +58,11 @@ class Backend {
         return true;
     }
 
-
-    public function saveUserSettings($pSettings) {
-
+    public function saveUserSettings($pSettings)
+    {
         $properties = new \Core\Properties($pSettings);
 
-        if (Kryn::getAdminClient()->getUser()->getId() > 0){
+        if (Kryn::getAdminClient()->getUser()->getId() > 0) {
             Kryn::getAdminClient()->getUser()->setSettings($properties);
             Kryn::getAdminClient()->getUser()->save();
         }
@@ -69,9 +70,8 @@ class Backend {
         return true;
     }
 
-
-    public function getCustomJs() {
-
+    public function getCustomJs()
+    {
         $module = getArgv('module', 2);
         $code = getArgv('code', 2);
 
@@ -96,7 +96,7 @@ class Backend {
     /**
      * Returns a huge array with settings.
      *
-     * items: 
+     * items:
      *
      *  modules
      *  configs
@@ -110,14 +110,14 @@ class Backend {
      *  langs
      *
      *  Example: settings?keys[]=modules&keys[]=layouts
-     * 
+     *
      * @param  array $keys Limits the result.
      * @return array
      */
-    public function getSettings($keys = array()){
-
+    public function getSettings($keys = array())
+    {
         $loadKeys = $keys;
-        if (!$loadKeys){
+        if (!$loadKeys) {
             $loadKeys = false;
         }
 
@@ -141,7 +141,6 @@ class Backend {
         if ($loadKeys == false || in_array('themeProperties', $loadKeys))
             $res['themeProperties'] = array();
 
-
         if (
             $loadKeys == false ||
             (in_array('modules', $loadKeys) || in_array('contents', $loadKeys) || in_array('navigations', $loadKeys))
@@ -150,26 +149,25 @@ class Backend {
                 if ($config['themes']) {
                     foreach ($config['themes'] as $themeTitle => $theme) {
 
-                        if ($loadKeys == false || in_array('layouts', $loadKeys)){
+                        if ($loadKeys == false || in_array('layouts', $loadKeys)) {
                             if ($theme['layouts']) {
                                 $res['layouts'][$themeTitle] = $theme['layouts'];
                             }
                         }
 
-
-                        if ($loadKeys == false || in_array('navigations', $loadKeys)){
+                        if ($loadKeys == false || in_array('navigations', $loadKeys)) {
                             if ($theme['navigations']) {
                                 $res['navigations'][$themeTitle] = $theme['navigations'];
                             }
                         }
 
-                        if ($loadKeys == false || in_array('contents', $loadKeys)){
+                        if ($loadKeys == false || in_array('contents', $loadKeys)) {
                             if ($theme['contents']) {
                                 $res['contents'][$themeTitle] = $theme['contents'];
                             }
                         }
 
-                        if ($loadKeys == false || in_array('themeProperties', $loadKeys)){
+                        if ($loadKeys == false || in_array('themeProperties', $loadKeys)) {
                             //publicProperties is deprecated. themeProperties is the new key. for compatibility is it here.
                             if ($theme['publicProperties'] && count($theme['publicProperties']) > 0) {
                                 $res['themeProperties'][$key][$themeTitle] = $theme['publicProperties'];
@@ -184,7 +182,7 @@ class Backend {
             }
         }
 
-        if ($loadKeys == false || in_array('upload_max_filesize', $loadKeys)){
+        if ($loadKeys == false || in_array('upload_max_filesize', $loadKeys)) {
             $v = ini_get('upload_max_filesize');
             $v2 = ini_get('post_max_size');
             $b = $this->return_bytes(($v < $v2) ? $v : $v2);
@@ -194,9 +192,8 @@ class Backend {
         if ($loadKeys == false || in_array('groups', $loadKeys))
             $res['groups'] = dbTableFetchAll('system_group');
 
-
-        if ($loadKeys == false || in_array('user', $loadKeys)){
-            if ($settings = Kryn::getAdminClient()->getUser()->getSettings()){
+        if ($loadKeys == false || in_array('user', $loadKeys)) {
+            if ($settings = Kryn::getAdminClient()->getUser()->getSettings()) {
                 if ($settings instanceof \Core\Properties)
                     $res['user'] = $settings->toArray();
             }
@@ -205,18 +202,17 @@ class Backend {
                 $res['user'] = array();
         }
 
-
-        if ($loadKeys == false || in_array('system', $loadKeys)){
+        if ($loadKeys == false || in_array('system', $loadKeys)) {
             $res['system'] = Kryn::$config;
             $res['system']['db_name'] = '';
             $res['system']['db_user'] = '';
             $res['system']['db_passwd'] = '';
         }
 
-        if ($loadKeys == false || in_array('r2d', $loadKeys)){
+        if ($loadKeys == false || in_array('r2d', $loadKeys)) {
             $res['r2d'] =& Kryn::getCache("systemPages2Domain");
 
-            if (!$res['r2d']){
+            if (!$res['r2d']) {
                 $res['r2d'] = \Core\Render::updatePage2DomainCache();
             }
 
@@ -224,12 +220,11 @@ class Backend {
                 $res['r2d'] = array();
         }
 
-        if ($loadKeys == false || in_array('domains', $loadKeys)){
+        if ($loadKeys == false || in_array('domains', $loadKeys)) {
             $res['domains'] = \Core\Object::getList('Core\Domain', null, array('permissionCheck' => true));
         }
 
-
-        if ($loadKeys == false || in_array('langs', $loadKeys)){
+        if ($loadKeys == false || in_array('langs', $loadKeys)) {
             $tlangs = \Core\LanguageQuery::create()->filterByVisible(true)->find()->toArray(null, null, \BasePeer::TYPE_STUDLYPHPNAME);
 
             $langs = dbToKeyIndex($tlangs, 'code');
@@ -239,8 +234,8 @@ class Backend {
         return $res;
     }
 
-
-    public function return_bytes($val) {
+    public function return_bytes($val)
+    {
         $val = trim($val);
         $last = strtolower($val[strlen($val) - 1]);
         switch ($last) {
@@ -256,9 +251,8 @@ class Backend {
         return $val;
     }
 
-
-    public static function loadJs() {
-
+    public static function loadJs()
+    {
         header('Content-Type: application/x-javascript');
 
         $md5Hash = '';
@@ -298,10 +292,8 @@ class Backend {
         exit;
     }
 
-
-
-    public function getMenus() {
-
+    public function getMenus()
+    {
         $links = array();
 
         foreach (Kryn::$configs as $extCode => $config) {
@@ -344,9 +336,8 @@ class Backend {
         return $links;
     }
 
-
-    public function getChildMenus($pCode, $pValue) {
-
+    public function getChildMenus($pCode, $pValue)
+    {
         $links = array();
         foreach ($pValue['children'] as $key => $value) {
 
@@ -373,6 +364,7 @@ class Backend {
             }
 
         }
+
         return $links;
     }
 

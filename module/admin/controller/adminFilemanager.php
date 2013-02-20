@@ -1,6 +1,5 @@
 <?php
 
-
 /*
  * This file is part of Kryn.cms.
  *
@@ -11,20 +10,19 @@
  *
  */
 
-
-class adminFilemanager {
-
+class adminFilemanager
+{
     public static $fs;
     public static $fsObjects = array();
 
-    public function getFs($pPath){
-
+    public function getFs($pPath)
+    {
         return krynFile::getLayer($pPath);
 
     }
 
-    public static function init() {
-
+    public static function init()
+    {
         $path = str_replace('..', '', getArgv('path'));
         $path = str_replace('//', '/', $path);
         if ($path != '/' && substr($path,-1) == '/') $path = substr($path,0,-1);
@@ -69,12 +67,10 @@ class adminFilemanager {
             case 'getAccess':
                 return self::getAccess($path);
 
-
             case 'createFile':
                 return self::createFile($path);
             case 'createFolder':
                 return self::createFolder($path);
-
 
             case 'setContent':
                 return self::setContent($path, getArgv('content'));
@@ -83,12 +79,10 @@ class adminFilemanager {
             case 'duplicateFile':
                 return self::duplicateFile($path, getArgv('newName'), getArgv('overwrite')==1?true:false);
 
-
             case 'deleteFile':
                 return self::deleteFile($path);
             case 'recover':
                 return self::recover(getArgv('id'));
-
 
             case 'prepareUpload':
                 return self::prepareUpload($path);
@@ -111,16 +105,15 @@ class adminFilemanager {
         }
     }
 
-
-    public static function setContent($pPath, $pContent){
-
+    public static function setContent($pPath, $pContent)
+    {
         if (!krynAcl::checkWrite('file', $pPath)) return array('error'=>'access_denied');
 
         krynFile::setContent($pPath, $pContent);
     }
 
-    public static function preview($pPath){
-
+    public static function preview($pPath)
+    {
         $expires = 3600;
         header("Pragma: public");
         header("Cache-Control: maxage=".$expires);
@@ -134,12 +127,14 @@ class adminFilemanager {
         exit;
     }
 
-    public static function redirectToPublicUrl($pPath){
+    public static function redirectToPublicUrl($pPath)
+    {
         $path = self::$fs->getPublicUrl(self::normalizePath($pPath));
         kryn::redirect($path);
     }
 
-    public static function diffFiles($pFrom, $pTo) {
+    public static function diffFiles($pFrom, $pTo)
+    {
         require_once(PATH_MODULE . 'admin/FineDiff.class.php');
 
         $textFrom = self::readFile($pFrom);
@@ -155,20 +150,21 @@ class adminFilemanager {
         // Fix newlines and spaces
         //$htmlOutput = nl2br($htmlOutput);
         //$htmlOutput = str_replace(" ", "&nbsp;", $htmlOutput);
-
         return $diff;
     }
 
-    public static function getContent($pPath) {
+    public static function getContent($pPath)
+    {
         json(self::$fs->getContent(self::normalizePath($pPath)));
     }
 
-    public static function getFile($pPath) {
-
-        if (self::normalizePath($pPath) == '/'){
+    public static function getFile($pPath)
+    {
+        if (self::normalizePath($pPath) == '/') {
             //its the magic folder itself
             $key = substr($pPath, 1);
             $folder = kryn::$config['magic_folders'][$key];
+
             return array(
                 'path'  => $pPath,
                 'magic' => true,
@@ -190,13 +186,13 @@ class adminFilemanager {
         json($file);
     }
 
-    public static function getSize($pPath) {
+    public static function getSize($pPath)
+    {
         json(self::$fs->getSize(self::normalizePath($pPath)));
     }
 
-
-
-    public static function setInternalAcl($pFilePath, $pRules) {
+    public static function setInternalAcl($pFilePath, $pRules)
+    {
         global $cfg;
 
         if(!krynAcl::checkWrite('file', $pFilePath)) return array('error'=>'access_denied');
@@ -230,9 +226,8 @@ class adminFilemanager {
     }
 
     /*
-    public static function setFilesystem($pPath, $pChmod, $pOwner = false, $pGroup = false, $pWithSub = false) {
-
-
+    public static function setFilesystem($pPath, $pChmod, $pOwner = false, $pGroup = false, $pWithSub = false)
+    {
         $pPath = str_replace("..", '', $pPath);
         chmod($pPath, octdec('0' . $pChmod));
         chown($pPath, $pOwner);
@@ -250,23 +245,23 @@ class adminFilemanager {
                 }
             }
         }
+
         return true;
     }*/
 
-    public static function setPublicAccess($pPath, $pAccess) {
-
+    public static function setPublicAccess($pPath, $pAccess)
+    {
         if(!krynAcl::checkWrite('file', $pPath)) return array('error'=>'access_denied');
 
         if ($pAccess == '') $pAccess = -1;
         if (strtolower($pAccess) == 'allow') $pAccess = true;
         if (strtolower($pAccess) == 'deny') $pAccess = false;
-
         return self::$fs->setPublicAccess(self::normalizePath($pPath), $pAccess);
 
     }
 
-    public static function getAccess($pPath) {
-
+    public static function getAccess($pPath)
+    {
         $res['writeaccess'] = krynAcl::checkWrite('file', $pPath);
 
         $res['public'] = self::$fs->getPublicAccess(self::normalizePath($pPath));
@@ -278,13 +273,14 @@ class adminFilemanager {
         return $res;
     }
 
-    public static function recoverVersion($pRsn) {
-
+    public static function recoverVersion($pRsn)
+    {
         $pRsn = $pRsn + 0;
         $version = dbTableFetch("system_files_versions", "id = " . $pRsn, 1);
 
         if (!file_exists($version['versionpath'])) {
             klog('files', str_replace('%s', $version['versionpath'], _l('Can not recover the version for file %s')));
+
             return false;
         }
 
@@ -299,17 +295,18 @@ class adminFilemanager {
 
     }
 
-    public static function getVersions($pPath) {
+    public static function getVersions($pPath)
+    {
         $pPath = str_replace("..", ".", esc($pPath));
         $pPath = str_replace("//", "/", $pPath);
 
         $versions = dbExfetch("
-        	SELECT v.*, u.username
-        	FROM %pfx%system_files_versions v, %pfx%system_user u
-        	WHERE
-        		u.id = v.user_id AND
-        		path = '" . $pPath . "'
-        	ORDER BY v.id DESC
+            SELECT v.*, u.username
+            FROM %pfx%system_files_versions v, %pfx%system_user u
+            WHERE
+                u.id = v.user_id AND
+                path = '" . $pPath . "'
+            ORDER BY v.id DESC
         ", -1);
 
         foreach ($versions as &$version) {
@@ -323,7 +320,8 @@ class adminFilemanager {
     /**
      * Adds a new version in the files_versions table for given path
      */
-    public static function addVersion($pPath) {
+    public static function addVersion($pPath)
+    {
         global $user;
 
         //TODO, need to create a way, where we can define another path/backend for saving versions
@@ -333,6 +331,7 @@ class adminFilemanager {
         if (!file_exists('data/fileversions/')) {
             if (!mkdir('data/fileversions/')) {
                 klog('files', t('Can not create the file versions folder data/fileversions/, so the system can not create file versions.'));
+
                 return;
             }
         }
@@ -362,18 +361,17 @@ class adminFilemanager {
         return true;
     }
 
-
-    public static function resize($pFile, $pWidth, $pHeight) {
-
+    public static function resize($pFile, $pWidth, $pHeight)
+    {
         if(!krynAcl::checkWrite('file', $pFile)) return array('error'=>'access_denied');
-
 
         $content = self::$fs->getContent(self::normalizePath($pFile));
 
         $image = imagecreatefromstring($content);
-        if (!$image){
+        if (!$image) {
             klog('filemanager',
                 str_replace('%s', $pFile, t('Can not rotate image %s, cause the image type is not supported.')));
+
             return array('error' => 'image_type_not_supported');
         }
 
@@ -385,7 +383,6 @@ class adminFilemanager {
         imagecopyresampled($imageNew, $image, 0, 0, 0, 0, $pWidth, $pHeight, $oriWidth, $oriHeight);
 
         self::addVersion($pFile);
-
 
         $type = mime_content_type_for_name($pFile);
         $imageSave = '';
@@ -409,8 +406,8 @@ class adminFilemanager {
         return true;
     }
 
-
-    public static function rotateImage($image) {
+    public static function rotateImage($image)
+    {
         $width = imagesx($image);
         $height = imagesy($image);
         $newImage = imagecreatetruecolor($height, $width);
@@ -421,20 +418,21 @@ class adminFilemanager {
                 $ref = imagecolorat($image, $w, $h);
                 imagesetpixel($newImage, $h, ($width - 1) - $w, $ref);
             }
+
         return $newImage;
     }
 
-
-    public static function rotateFile($pFile, $pPosition) {
-
+    public static function rotateFile($pFile, $pPosition)
+    {
         if(!krynAcl::checkWrite('file', $pFile)) return array('error'=>'access_denied');
 
         $content = self::$fs->getContent(self::normalizePath($pFile));
 
         $source = imagecreatefromstring($content);
-        if (!$source){
+        if (!$source) {
             klog('filemanager',
                         str_replace('%s', $pFile, t('Can not rotate image %s, cause the image type is not supported.')));
+
             return array('error' => 'image_type_not_supported');
         }
 
@@ -481,19 +479,20 @@ class adminFilemanager {
         return true;
     }
 
-
-    public static function getImages($pPath) {
-
+    public static function getImages($pPath)
+    {
         $result = self::$fs->search(self::normalizePath($pPath), '.*\.(jpg|jpeg|png|bmp)', 1);
-        if (self::$fs->magicFolderName){
-            foreach ($result as &$item){
+        if (self::$fs->magicFolderName) {
+            foreach ($result as &$item) {
                 $item['path'] = self::$fs->magicFolderName.$item['path'];
             }
         }
+
         return $result;
     }
 
-    public static function showImage($pPath) {
+    public static function showImage($pPath)
+    {
         $pPath = str_replace('..', '', $pPath);
 
         if(!krynAcl::checkRead('file', $pPath)) return array('error'=>'access_denied');
@@ -515,7 +514,8 @@ class adminFilemanager {
         exit;
     }
 
-    public static function imageThumb($pPath, $pWidth = 120, $pHeight = 70) {
+    public static function imageThumb($pPath, $pWidth = 120, $pHeight = 70)
+    {
         $pPath = str_replace('..', '', $pPath);
 
         if(!krynAcl::checkRead('file', $pPath)) return array('error'=>'access_denied');
@@ -540,7 +540,8 @@ class adminFilemanager {
         exit;
     }
 
-    public static function prepareUpload($pPath) {
+    public static function prepareUpload($pPath)
+    {
         global $adminClient;
 
         $oriName = getArgv('name');
@@ -566,8 +567,8 @@ class adminFilemanager {
         return $res;
     }
 
-
-    public static function uploadFile($pPath) {
+    public static function uploadFile($pPath)
+    {
         global $adminClient;
 
         $name = $_FILES['file']['name'];
@@ -603,6 +604,7 @@ class adminFilemanager {
             }
 
             klog('file', sprintf(t('Failed to upload the file %s to %s. Error: %s'), $name, $pPath, $error));
+
             return;
         }
 
@@ -632,23 +634,25 @@ class adminFilemanager {
         return $newPath;
     }
 
-    public static function createFile($pPath) {
-
+    public static function createFile($pPath)
+    {
         $access = krynAcl::checkWrite('file', $pPath);
 
         if (!$access) return array('error'=>'access_denied');
         if(self::$fs->fileExists(self::normalizePath($pPath)))
+
             return false;
 
         return self::$fs->createFile(self::normalizePath($pPath));
     }
 
-    public static function createFolder($pPath) {
-
+    public static function createFolder($pPath)
+    {
         $access = krynAcl::checkUpdate('file', $pPath);
         if (!$access) return array('error'=>'access_denied');
 
         if(self::$fs->fileExists(self::normalizePath($pPath)))
+
             return array('error'=>'exist_already');
 
         return self::$fs->createFolder(self::normalizePath($pPath));
@@ -660,27 +664,28 @@ class adminFilemanager {
      * @param $pPath
      * @return string
      */
-    public function normalizePath($pPath){
-
+    public function normalizePath($pPath)
+    {
         return krynFile::normalizePath($pPath);
     }
 
-    public function normalizeName($pName){
-
+    public function normalizeName($pName)
+    {
         return krynFile::normalizeName($pName);
     }
 
-    public static function moveFile($pPath, $pNewPath, $pOverwrite = false) {
-
+    public static function moveFile($pPath, $pNewPath, $pOverwrite = false)
+    {
         if (!krynAcl::checkWrite('file', $pPath)) return array('array'=>'access_denied');
         if (!krynAcl::checkWrite('file', $pNewPath)) return array('array'=>'access_denied');
 
         $otherFs = self::getFs($pNewPath);
 
         if(!$pOverwrite && $otherFs->fileExists(self::normalizePath($pNewPath)))
+
             return array('file_exists'=>true);
 
-        if($otherFs == self::$fs){
+        if ($otherFs == self::$fs) {
             self::$fs->move(self::normalizePath($pPath), self::normalizePath($pNewPath));
         } else {
             $content = self::$fs->getContent(self::normalizePath($pPath));
@@ -691,25 +696,24 @@ class adminFilemanager {
 
         //todo, self::renameVersion($pPath, $pNewPath);
         //todo, self::renameAcls($pPath, $pNewPath);
-
         return true;
     }
 
-    public static function duplicateFile($pPath, $pNewName, $pOverwrite = false) {
-
+    public static function duplicateFile($pPath, $pNewName, $pOverwrite = false)
+    {
         $pNewPath = dirname($pPath).'/'.self::normalizeName($pNewName);
 
         if (!krynAcl::checkWrite('file', $pNewPath)) return array('array'=>'access_denied');
 
         if(!$pOverwrite && self::$fs->fileExists(self::normalizePath($pNewPath)))
+
             return array('file_exists'=>true);
 
         return self::$fs->copy(self::normalizePath($pPath), self::normalizePath($pNewPath));
     }
 
-
-    public static function recover($pRsn) {
-
+    public static function recover($pRsn)
+    {
         $item = dbTableFetch('system_files_log', 1, "id = " . ($pRsn + 0));
         if ($item['id'] > 0) {
 
@@ -731,14 +735,13 @@ class adminFilemanager {
 
             dbDelete('system_files_log', "id = " . $item['id']);
         }
+
         return true;
 
     }
 
-    public static function deleteFile($pPath) {
-
-
-
+    public static function deleteFile($pPath)
+    {
 /*
         //this filesystem layer moves the files to trash instead of real removing
         //the class above '\Core\' handles the deletions in the trash folder
@@ -777,8 +780,8 @@ class adminFilemanager {
         return true;
     }
 
-    public static function paste($pToPath) {
-
+    public static function paste($pToPath)
+    {
         if (!krynAcl::checkWrite('file', $pToPath)) return array('array'=>'access_denied');
 
         $files = getArgv('files');
@@ -827,7 +830,7 @@ class adminFilemanager {
 
                     $file = $oldFs->getFile(self::normalizePath($oldFile));
 
-                    if ($file['type'] == 'file'){
+                    if ($file['type'] == 'file') {
                         $content = $oldFs->getContent(self::normalizePath($oldFile));
                         $newFs->setContent(self::normalizePath($newPath), $content);
                     } else {
@@ -853,16 +856,16 @@ class adminFilemanager {
         return true;
     }
 
-    public static function downloadFolder($pPath, $pTo){
-
+    public static function downloadFolder($pPath, $pTo)
+    {
         $fs = self::getFs($pPath);
         $files = $fs->getFiles(self::normalizePath($pPath));
 
         if (!is_dir($pTo)) mkdirr($pTo);
 
-        if (is_array($files)){
-            foreach ($files as $file){
-                if ($file['type'] == 'file'){
+        if (is_array($files)) {
+            foreach ($files as $file) {
+                if ($file['type'] == 'file') {
 
                     $content = $fs->getContent(self::normalizePath($pPath.'/'.$file['name']));
                     kryn::fileWrite($pTo . '/' . $file['name'], $content);
@@ -875,8 +878,8 @@ class adminFilemanager {
 
     }
 
-    public static function copyFolder($pFrom, $pTo){
-
+    public static function copyFolder($pFrom, $pTo)
+    {
         $fs = self::getFs($pTo);
         $fs->createFolder(self::normalizePath($pTo));
 
@@ -884,7 +887,7 @@ class adminFilemanager {
 
         $files = find($pFrom.'/*');
 
-        foreach ($files as $file){
+        foreach ($files as $file) {
             $newName = $normalizedPath.'/'.substr($file, strlen($pFrom)+1);
 
             if (is_dir($file))
@@ -895,30 +898,33 @@ class adminFilemanager {
 
     }
 
-    public static function search($pPath, $pPattern) {
+    public static function search($pPath, $pPattern)
+    {
         if ($pPattern == '') return array();
         $result = self::$fs->search(self::normalizePath($pPath), $pPattern);
 
-        if (self::$fs->magicFolderName){
-            foreach ($result as &$item){
+        if (self::$fs->magicFolderName) {
+            foreach ($result as &$item) {
                 $item['path'] = self::$fs->magicFolderName.$item['path'];
             }
         }
+
         return $result;
     }
 
-    public static function getPublicAccess($pPath){
+    public static function getPublicAccess($pPath)
+    {
         return self::$fs->getPublicAccess($pPath);
     }
 
-    public static function getInternalAccess($pPath){
+    public static function getInternalAccess($pPath)
+    {
         return dbTableFetch('system_acl', "type = 3 AND (code LIKE '$pPath\\\%%' OR code LIKE '$pPath\[%')", -1);
     }
 
-    public static function getFiles($pPath) {
+    public static function getFiles($pPath)
+    {
         return krynFile::getFiles($pPath);
     }
 
 }
-
-?>

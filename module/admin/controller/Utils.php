@@ -4,34 +4,33 @@ namespace Admin;
 
 use Core\Kryn;
 
-class Utils {
-
-	public static function clearCache(){
-
+class Utils
+{
+    public static function clearCache()
+    {
         \Core\TempFile::remove('cache-object');
         \Core\TempFile::remove('smarty-compile');
 
         \Core\MediaFile::remove('cache');
         \Core\MediaFile::createFolder('cache');
 
-
-        foreach (Kryn::$configs as $extKey => $config){
+        foreach (Kryn::$configs as $extKey => $config) {
             self::clearModuleCache($extKey);
         }
 
-
         return true;
-	}
+    }
 
-    public static function clearModuleCache($pName){
+    public static function clearModuleCache($pName)
+    {
         $config = Kryn::$configs[$pName];
 
         Kryn::invalidateCache($pName);
         if (!$config) return false;
 
-        if ($config['caches']){
-            foreach ($config['caches'] as $cache){
-                if ($m = $cache['method']){
+        if ($config['caches']) {
+            foreach ($config['caches'] as $cache) {
+                if ($m = $cache['method']) {
                     if (method_exists(Kryn::$modules[$pName], $m))
                         Kryn::$modules[$pName]->$m();
                 } else {
@@ -39,8 +38,8 @@ class Utils {
                 }
             }
         }
-        if ($config['cacheInvalidation']){
-            foreach ($config['cacheInvalidation'] as $cache){
+        if ($config['cacheInvalidation']) {
+            foreach ($config['cacheInvalidation'] as $cache) {
                 Kryn::invalidateCache($cache['key']);
             }
         }
@@ -48,8 +47,8 @@ class Utils {
         return true;
     }
 
-    public static function loadCss() {
-
+    public static function loadCss()
+    {
         header('Content-Type: text/css');
 
         $from = array(
@@ -127,14 +126,12 @@ class Utils {
         exit;
     }
 
-
-    
-    public static function collectFiles($pArray, &$pFiles){
-
+    public static function collectFiles($pArray, &$pFiles)
+    {
         foreach ($pArray as $jsFile) {
-            if (strpos($jsFile, '*') !== -1){
+            if (strpos($jsFile, '*') !== -1) {
                 $folderFiles = find(PATH_MEDIA . $jsFile, false);
-                foreach ($folderFiles as $file){
+                foreach ($folderFiles as $file) {
                     if (!array_search($file, $pFiles))
                         $pFiles[] = $file;
                 }
@@ -146,7 +143,6 @@ class Utils {
 
     }
 
-    
     /**
      *
      * Gets the item from the administration entry points defined in the config.json, by the given code.
@@ -156,8 +152,8 @@ class Utils {
      * @param $pCode <extKey>/news/foo/bar/edit
      * @return array|bool
      */
-    public static function getEntryPoint($pCode, $pWithChildren = false) {
-
+    public static function getEntryPoint($pCode, $pWithChildren = false)
+    {
         $codes = explode('/', $pCode);
         $actualCode = array();
 
@@ -168,7 +164,7 @@ class Utils {
             $actualCode[] = $module;
             $actualCode[] = $codes[0];
 
-        } else if (Kryn::$configs[$codes[0]]) {
+        } elseif (Kryn::$configs[$codes[0]]) {
 
             //inside other extension
             $adminInfo = Kryn::$configs[$codes[0]]['entryPoints'];
@@ -183,10 +179,10 @@ class Utils {
         $path = array();
         $path[] = $entryPoint['title'];
 
-        if ($entryPoint && $entryPoint['children']){
+        if ($entryPoint && $entryPoint['children']) {
 
-            foreach ($codes as $c){
-                if ($entryPoint['children'][$c]){
+            foreach ($codes as $c) {
+                if ($entryPoint['children'][$c]) {
                     $actualCode[] = $c;
                     $entryPoint = $entryPoint['children'][$c];
                     $path[] = $entryPoint['title'];

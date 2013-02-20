@@ -1,8 +1,9 @@
 <?php
 
-class adminLayout {
-
-    function init() {
+class adminLayout
+{
+    public function init()
+    {
         switch (getArgv(4)) {
             case 'get':
                 return self::get(getArgv('name'), getArgv('plain'));
@@ -18,14 +19,16 @@ class adminLayout {
         }
     }
 
-    public static function save($pFile) {
+    public static function save($pFile)
+    {
         $file = str_replace("..", "", $pFile);
         kryn::fileWrite(PATH_MEDIA.$file, getArgv('content'));
+
         return true;
     }
 
-    public static function loadFile($pFile) {
-
+    public static function loadFile($pFile)
+    {
         $res = array();
         foreach (kryn::$configs as $config) {
             if ($config['themes']) {
@@ -42,12 +45,12 @@ class adminLayout {
                 }
             }
         }
+
         return $res;
     }
 
-
-    public static function load($pType) {
-
+    public static function load($pType)
+    {
         $res = array();
         foreach (kryn::$configs as $config) {
             if ($config['themes']) {
@@ -58,11 +61,12 @@ class adminLayout {
                 }
             }
         }
+
         return $res;
     }
 
-    public static function get($pFile, $pPlain = false) {
-
+    public static function get($pFile, $pPlain = false)
+    {
         $id = getArgv('id') + 0;
         $page = dbTableFetch('system_page', 1, "id = $id");
         kryn::$current_page = $page;
@@ -120,5 +124,3 @@ class adminLayout {
     }
 
 }
-
-?>

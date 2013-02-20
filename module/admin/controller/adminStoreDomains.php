@@ -1,11 +1,9 @@
 <?php
 
-
-class adminStoreDomains extends adminStore {
-
-
-    public function getItem($pId) {
-
+class adminStoreDomains extends adminStore
+{
+    public function getItem($pId)
+    {
         if (!kryn::checkDomainAccess($pId, 'showDomain'))
             return array();
 
@@ -20,8 +18,8 @@ class adminStoreDomains extends adminStore {
         );
     }
 
-    public function getItems($pFrom = 0, $pCount = 0) {
-
+    public function getItems($pFrom = 0, $pCount = 0)
+    {
         $where = $this->getSearchWhere();
         $limit = $this->getLimit($pFrom, $pCount);
 
@@ -38,5 +36,3 @@ class adminStoreDomains extends adminStore {
     }
 
 }
-
-?>

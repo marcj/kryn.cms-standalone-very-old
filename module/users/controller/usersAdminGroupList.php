@@ -1,7 +1,7 @@
 <?php
 
-class usersAdminGroupList extends windowList {
-
+class usersAdminGroupList extends windowList
+{
     public $table = 'system_groups';
     public $itemsPerPage = 20;
     public $orderBy = 'name';
@@ -30,10 +30,11 @@ class usersAdminGroupList extends windowList {
         ),
     );
 
-    function acl( $pItem ){
+    public function acl( $pItem )
+    {
         $res = parent::acl( $pItem );
 
-        if( $pItem['id'] == 1 ){
+        if ($pItem['id'] == 1) {
             $res['remove'] = false;
             $res['edit'] = false;
         }
@@ -42,5 +43,3 @@ class usersAdminGroupList extends windowList {
     }
 
 }
-
-?>

@@ -1,44 +1,44 @@
 <?php
 
 namespace Users\Admin;
- 
-class User extends \Admin\ObjectCrud {
 
+class User extends \Admin\ObjectCrud
+{
     public $columns = array (
-  'lastName' => 
+  'lastName' =>
   array (
     'label' => 'Last name',
     'type' => 'text',
   ),
-  'firstName' => 
+  'firstName' =>
   array (
     'label' => 'First name',
     'type' => 'text',
   ),
-  'username' => 
+  'username' =>
   array (
     'label' => 'Username',
     'width' => '100',
     'type' => 'text',
   ),
-  'email' => 
+  'email' =>
   array (
     'label' => 'Email',
     'type' => 'text',
   ),
-  'activate' => 
+  'activate' =>
   array (
     'label' => 'Active',
     'width' => '35',
     'type' => 'imagemap',
-    'imageMap' => 
+    'imageMap' =>
     array (
       0 => 'admin/images/icons/cancel.png',
       1 => 'admin/images/icons/accept.png',
       'null' => 'admin/images/icons/cancel.png',
     ),
   ),
-  'groupMembership.name' => 
+  'groupMembership.name' =>
   array (
     'label' => 'Group membership',
     'type' => 'text',
@@ -81,7 +81,6 @@ class User extends \Admin\ObjectCrud {
     public $multiDomain = false;
 
     public $versioning = false;
-
 
     public $order = array('username' => 'asc');
 
@@ -234,18 +233,19 @@ class User extends \Admin\ObjectCrud {
         )
     );
 
-    public function collectData($pPk){
+    public function collectData($pPk)
+    {
         $data = parent::collectData();
 
         //save settings
         $settings = array();
-        if ($pPk){
+        if ($pPk) {
             $item = $this->getItem($pPk);
             $settings = $item['settings'];
         }
 
         $settingsFields = array('autocrawler', 'css3Shadow', 'userBg');
-        foreach ($settingsFields as $field){
+        foreach ($settingsFields as $field) {
             $settings[$field] = $_POST[$field] ?: $_GET[$field];
         }
 
@@ -254,9 +254,9 @@ class User extends \Admin\ObjectCrud {
         return $data;
     }
 
-    private function getSettings(){
-
-        if( !$this->cachedUser ){
+    private function getSettings()
+    {
+        if (!$this->cachedUser) {
 
             $options['fields'][] = 'settings';
             $options['permissionCheck'] = $this->getPermissionCheck();
@@ -265,7 +265,7 @@ class User extends \Admin\ObjectCrud {
         }
 
         $settings = array();
-        if ($this->cachedUser['settings']){
+        if ($this->cachedUser['settings']) {
             if (is_string($this->cachedUser['settings']))
                 $this->cachedUser['settings'] = unserialize($this->cachedUser['settings']);
             $settings = $this->cachedUser['settings']->toArray();
@@ -274,40 +274,43 @@ class User extends \Admin\ObjectCrud {
         return $settings;
     }
 
-    private function getSetting( $pKey ){
-
+    private function getSetting( $pKey )
+    {
         $settings = $this->getSettings();
 
         return $settings[$pKey];
     }
-
-
 
     /*
      * Getter
      *
      */
 
-    public function userBgValue($pPrimary, $pItem){
+    public function userBgValue($pPrimary, $pItem)
+    {
         return $this->getSetting('userBg');
     }
 
-    public function getCssShadow(){
+    public function getCssShadow()
+    {
         return $this->getSetting('css3Shadow');
     }
 
-    public function getAutocrawler(){
+    public function getAutocrawler()
+    {
         return $this->getSetting('autocrawler');
     }
 
-    public function getAutocrawlerDelay(){
+    public function getAutocrawlerDelay()
+    {
         $val = $this->getSetting('autocrawler_minddelay');
         if( !$val ) return 200;
+
         return $val;
     }
 
-    public function savePasswd( &$pRow ){
-
+    public function savePasswd( &$pRow )
+    {
         $salt = krynAuth::getSalt();
         $passwd = krynAuth::getHashedPassword( getArgv('passwd'), $salt );
         $pRow['passwd'] = $passwd;

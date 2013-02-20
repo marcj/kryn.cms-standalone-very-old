@@ -4,27 +4,30 @@ namespace Admin;
 
 use Core\SystemFile;
 
-class Config {
-
-    public static function getLabels() {
+class Config
+{
+    public static function getLabels()
+    {
         $res['langs'] = dbTableFetchAll('system_langs', "1=1 ORDER BY title");
         $res['timezones'] = timezone_identifiers_list();
+
         return $res;
     }
 
-    public static function getConfig() {
+    public static function getConfig()
+    {
         global $cfg;
 
-        $cfg = include('config.php');
+        $cfg = include 'config.php';
 
         $settings['system'] = $cfg;
 
         return $settings;
     }
 
-    public static function saveConfig() {
-
-        $cfg = include('config.php');
+    public static function saveConfig()
+    {
+        $cfg = include 'config.php';
 
         $blacklist[] = 'passwd_hash_key';
 
@@ -47,7 +50,8 @@ class Config {
         return true;
     }
 
-    public static function saveCommunity() {
+    public static function saveCommunity()
+    {
         global $cfg;
 
         $pw = md5(getArgv('passwd'));
@@ -66,7 +70,4 @@ class Config {
         json(0);
     }
 
-
 }
-
-?>

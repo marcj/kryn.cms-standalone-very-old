@@ -1,7 +1,7 @@
 <?php
 
-class usersAdminGroupEdit extends windowEdit {
-
+class usersAdminGroupEdit extends windowEdit
+{
     public $table = 'system_groups';
     public $primary = array('id');
 
@@ -18,5 +18,3 @@ class usersAdminGroupEdit extends windowEdit {
     );
 
 }
-
-?>

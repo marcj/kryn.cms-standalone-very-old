@@ -1,9 +1,7 @@
 <?php
 
-
-
-    public function olDadmin(){
-
+    public function olDadmin()
+    {
             $content = null;
             switch (getArgv(2)) {
                 case 'mini-search':
@@ -12,6 +10,7 @@
                     return self::loadCss();
                 case 'widgets':
                     require(PATH_MODULE . "admin/adminWidgets.class.php");
+
                     return adminWidgets::init();
                 case 'pages':
                     json(adminPages::init());
@@ -28,7 +27,6 @@
                             break;
                         case 'nothing':
                             die("");
-
 
                         case 'objectGetLabel':
                             $content = self::objectGetLabel(getArgv('object'));
@@ -56,7 +54,6 @@
                         case 'getPluginElements':
                             $content = self::getPluginElements(getArgv('object', 2));
                             break;
-
 
                         case 'clearCache':
                             json(self::clearCache());
@@ -100,6 +97,7 @@
                             return self::pointerPreview(getArgv('content'));
                         case 'plugins':
                             require(PATH_MODULE . "admin/adminPlugins.class.php");
+
                             return adminPlugins::init();
                         case 'window':
                             if (getArgv(4) == 'sessionbasedFileUpload') {
@@ -121,7 +119,6 @@
                     $content = filebrowser::init();
                     break;
                 case 'system':
-
 
                     switch (getArgv(3)) {
                         case 'tools':
@@ -161,24 +158,25 @@
                 json($content);
     }
 
-
-
-    public static function getObjectParents($pObjectUrl){
+    public static function getObjectParents($pObjectUrl)
+    {
         return krynObjects::getParentsFromUri($pObjectUrl);
     }
 
-    public static function getObjectTree($pObjectUrl, $pDepth = 0){
+    public static function getObjectTree($pObjectUrl, $pDepth = 0)
+    {
         return krynObjects::getTreeFromUri($pObjectUrl, $pDepth);
     }
 
-    public static function getObjectTreeRoot($pObjectUrl, $pRootId){
+    public static function getObjectTreeRoot($pObjectUrl, $pRootId)
+    {
         return krynObjects::getTreeRoot($pObjectUrl, $pRootId);
     }
 
-    public static function moveObject($pSourceObjectUrl, $pTargetObjectUrl, $pMode){
+    public static function moveObject($pSourceObjectUrl, $pTargetObjectUrl, $pMode)
+    {
         return krynObjects::move($pSourceObjectUrl, $pTargetObjectUrl, $pMode);
     }
-
 
     /**
      * Returns all plugin elements for specified object
@@ -187,8 +185,8 @@
      * @param $pObjectKey
      * @return array
      */
-    public static function getPluginElements($pObjectKey){
-
+    public static function getPluginElements($pObjectKey)
+    {
         if (!Kryn::$objects[$pObjectKey]) return array('error' => 'object_not_found');
 
         $definition = Kryn::$objects[$pObjectKey];
@@ -232,14 +230,11 @@
         return $previewPluginPages;
     }
 
-
-
-
     /**
      * Loads all plugins from system_contents to a indexed cached array
      */
-    private static function cachePluginsRelations() {
-
+    private static function cachePluginsRelations()
+    {
         $res = dbExec('
         SELECT p.domain_id, p.id, c.content, p.title
         FROM
@@ -257,6 +252,7 @@
 
         if (!$res) {
             Kryn::setCache('kryn_pluginrelations', array());
+
             return;
         }
 
@@ -271,10 +267,9 @@
         Kryn::setCache('kryn_pluginrelations', $pluginRelations);
     }
 
-
-    public static function objectGetItems($pUrl){
-
-        if (is_numeric($pUrl)){
+    public static function objectGetItems($pUrl)
+    {
+        if (is_numeric($pUrl)) {
             //compatibility
             $object_key = '';
         } else {
@@ -286,7 +281,7 @@
 
         //todo check here access
 
-        if ($definition['chooserFieldDataModel'] == 'custom'){
+        if ($definition['chooserFieldDataModel'] == 'custom') {
 
             $class = $definition['chooserFieldDataModel'];
             $classFile = PATH_MODULE.'/'.$definition['_extension'].'/'.$class.'.class.php';
@@ -303,7 +298,7 @@
 
             $fields = array_keys($primaryKeys);
 
-            foreach ($definition['chooserFieldDataModelFields'] as $key => $val){
+            foreach ($definition['chooserFieldDataModelFields'] as $key => $val) {
                 $fields[] = $key;
             }
 
@@ -314,11 +309,11 @@
         }
 
         $res = array();
-        if (is_array($items)){
-            foreach ($items as &$item){
+        if (is_array($items)) {
+            foreach ($items as &$item) {
 
                 $keys = array();
-                foreach($primaryKeys as $key => &$field){
+                foreach ($primaryKeys as $key => &$field) {
                     $keys[] = rawurlencode($item[$key]);
                 }
                 $res[ implode(',', $keys) ] = $item;
@@ -328,9 +323,9 @@
         return $res;
     }
 
-    public static function objectGetLabel($pUrl){
-
-        if (is_numeric($pUrl)){
+    public static function objectGetLabel($pUrl)
+    {
+        if (is_numeric($pUrl)) {
             //compatibility
             $object_key = '';
         } else {
@@ -342,7 +337,7 @@
 
         //todo check here access
 
-        if ($definition['chooserFieldDataModel'] == 'custom'){
+        if ($definition['chooserFieldDataModel'] == 'custom') {
 
             $class = $definition['chooserFieldDataModelClass'];
             $classFile = PATH_MODULE.'/'.$definition['_extension'].'/'.$class.'.class.php';
@@ -352,6 +347,7 @@
             $dataModel = new $class($object_key);
 
             $item = $dataModel->getItem($object_id[0]);
+
             return array(
                 'object' => $object_key,
                 'values' => $item
@@ -360,7 +356,7 @@
         } else {
 
             $fields = array();
-            foreach ($definition['fields'] as $key => $field){
+            foreach ($definition['fields'] as $key => $field) {
                 if ($field['primaryKey'])
                     $fields[] = $key;
             }
@@ -383,11 +379,11 @@
     /**
      * @static
      * @param $pObjectKey
-     * @param int $pPage
+     * @param  int   $pPage
      * @return array
      */
-    public static function autoChooser($pObjectKey, $pPage = 1){
-
+    public static function autoChooser($pObjectKey, $pPage = 1)
+    {
         //todo, check permissions
 
         $definition = Kryn::$objects[$pObjectKey];
@@ -397,7 +393,7 @@
 
         $order = false; //todo
 
-        if ($definition['chooserBrowserDataModel'] == 'custom' && $definition['chooserBrowserDataModelClass']){
+        if ($definition['chooserBrowserDataModel'] == 'custom' && $definition['chooserBrowserDataModelClass']) {
 
             $class = $definition['chooserBrowserDataModelClass'];
             $classFile = PATH_MODULE.'/'.$definition['_extension'].'/'.$class.'.class.php';
@@ -427,20 +423,20 @@
 
         $fields = array();
 
-        foreach ($definition['fields'] as $key => $field){
+        foreach ($definition['fields'] as $key => $field) {
             if ($field['primaryKey'])
                 $fields[] = $key;
         }
 
-        if ($definition['chooserBrowserAutoColumns']){
-            foreach ($definition['chooserBrowserAutoColumns'] as $key => $column){
+        if ($definition['chooserBrowserAutoColumns']) {
+            foreach ($definition['chooserBrowserAutoColumns'] as $key => $column) {
                 $fields[] = $key;
             }
         } else {
-            if ($definition['chooserBrowserDataModelFields']){
+            if ($definition['chooserBrowserDataModelFields']) {
                 $tempFields = explode(',', str_replace(' ', '', $definition['chooserBrowserDataModelFields']));
-                if (is_array($tempFields)){
-                    foreach ($tempFields as $field){
+                if (is_array($tempFields)) {
+                    foreach ($tempFields as $field) {
                         $fields[] = $field;
                     }
                 }
@@ -470,9 +466,8 @@
 
     }
 
-
-    public static function loadContentLayout() {
-
+    public static function loadContentLayout()
+    {
         $content = array();
 
         $vars = array('title', 'type', 'template');
@@ -493,8 +488,8 @@
         json(tFetch('string:' . $tpl));
     }
 
-    public static function loadLayoutElementFile($pFile) {
-
+    public static function loadLayoutElementFile($pFile)
+    {
         $pFile = str_replace('..', '', $pFile);
 
         $found = false;
@@ -518,13 +513,12 @@
         json($res);
     }
 
-    public static function logs() {
-
-
+    public static function logs()
+    {
     }
 
-    public static function database() {
-
+    public static function database()
+    {
         $res = array('fetchtime' => 0);
 
         $sql = getArgv('sql');
@@ -544,8 +538,8 @@
         json($res);
     }
 
-    public static function miniSearch($pQ) {
-
+    public static function miniSearch($pQ)
+    {
         $res = array();
         foreach (Kryn::$modules as &$mod) {
             if (method_exists($mod, 'searchAdmin')) {
@@ -557,8 +551,8 @@
 
     }
 
-    public static function getLogs() {
-
+    public static function getLogs()
+    {
         if (getArgv(5) == 'clear') {
             dbDelete('system_log');
             json(1);
@@ -568,7 +562,6 @@
         if (getArgv('page') + 0 > 1) {
             $page = getArgv('page') + 0;
         }
-
 
         $perPage = 40;
         $where = "WHERE ";
@@ -596,7 +589,6 @@
                 $where = "";
 
         }
-
 
         $from = ($perPage * $page) - $perPage;
         $count = $perPage;
@@ -632,8 +624,8 @@
         return $return;
     }
 
-
-    public static function loadHelp() {
+    public static function loadHelp()
+    {
         $id = getArgv('id');
 
         $temp = explode("/", $id);
@@ -661,9 +653,8 @@
         }
     }
 
-
-    public static function loadHelpTree($pLang = 'en') {
-
+    public static function loadHelpTree($pLang = 'en')
+    {
         $res = array();
         foreach (Kryn::$configs as $modCode => &$config) {
 
@@ -693,14 +684,12 @@
 
     }
 
-    public static function fixDb() {
-
-
+    public static function fixDb()
+    {
     }
 
-
-    public static function stream() {
-
+    public static function stream()
+    {
         $res['time'] = date('H:i');
         $res['last'] = time();
 
@@ -723,21 +712,18 @@
             }
         }
 
-
         json($res);
     }
 
-    public static function systemInfo() {
-
+    public static function systemInfo()
+    {
         $res['version'] = Kryn::$configs['kryn']['version'];
 
         json($res);
     }
 
-
-
-    public static function addVersion($pTable, $pPrimary) {
-
+    public static function addVersion($pTable, $pPrimary)
+    {
         foreach ($pPrimary as $fieldName => $fieldValue) {
             if ($fieldValue+0 > 0)
                 $sql = " AND $fieldName = ".($fieldValue+0);
@@ -750,8 +736,8 @@
         return self::addVersionRow($pTable, $pPrimary, $row);
     }
 
-    public static function addVersionRow($pTable, $pPrimary, $pRow) {
-
+    public static function addVersionRow($pTable, $pPrimary, $pRow)
+    {
         $code = $pTable;
         foreach ($pPrimary as $fieldName => $fieldValue) {
             $code .= '_' . $fieldName . '=' . $fieldValue;
@@ -772,12 +758,12 @@
         );
 
         dbInsert('system_frameworkversion', $new);
+
         return $version;
     }
 
-
-    public static function getVersion($pTable, $pPrimary, $pVersion) {
-
+    public static function getVersion($pTable, $pPrimary, $pVersion)
+    {
         $code = $pTable;
         foreach ($pPrimary as $fieldName => $fieldValue) {
             $code .= '_' . $fieldName . '=' . $fieldValue;
@@ -789,14 +775,14 @@
         return json_decode($version['content'], true);
     }
 
-
     /*
     *
     * WIDGET STUFF
     *
     */
 
-    public function widgetLastLogins($pConf) {
+    public function widgetLastLogins($pConf)
+    {
         $res['title'] = "Letzte Sessions";
 
         $sessions = dbExFetch('SELECT s.*, u.username
@@ -810,19 +796,19 @@
         return $res;
     }
 
-    public function widgetVersion() {
-
+    public function widgetVersion()
+    {
         $res['title'] = 'Kryn ' . Kryn::$configs['kryn']['version'];
         $res['content'] = '
-            <span style="color: green;">Sie benutzen die aktuellste Version.</span>    
+            <span style="color: green;">Sie benutzen die aktuellste Version.</span>
         ';
 
         return $res;
 
     }
 
-    public function widgetWaitingContent($pConf) {
-
+    public function widgetWaitingContent($pConf)
+    {
         $pages = dbExFetch('SELECT u.username, p.*, v.modified
             FROM %pfx%system_user u, %pfx%system_page p, %pfx%system_page_version v
             WHERE draft_exist = 1
@@ -853,30 +839,34 @@
 
     }
 
-    public function manipulateUnpublishedContentsRow($pRow) {
+    public function manipulateUnpublishedContentsRow($pRow)
+    {
         $domain = Kryn::getDomain($pRow[4]);
         $pRow[2] = '<a href="javascript:;" onclick="ka.wm.open(\'admin/pages\', {id: ' . $pRow[2] . '});">' .
                    Kryn::getPagePath($pRow[2] + 0) . '</a>';
+
         return $pRow;
     }
 
-    public function manipulateLastChangesRow($pRow) {
+    public function manipulateLastChangesRow($pRow)
+    {
         //$domain = Kryn::getDomain( $pRow[4] );
         $pRow[3] = '<a href="javascript:;" onclick="ka.wm.open(\'admin/pages\', {id: ' . $pRow[3] . '});">' .
                    Kryn::getPagePath($pRow[3] + 0) . '</a>';
+
         return $pRow;
     }
 
-    public function cacheDeleteSystemUrls(){
-
+    public function cacheDeleteSystemUrls()
+    {
         $domains = krynObjects::getList('domain');
         foreach ($domains as $domain)
             Kryn::deleteCache('systemUrls-'.$domain['id']);
 
     }
 
-    public function cacheDeleteDomain(){
-
+    public function cacheDeleteDomain()
+    {
         $domains = krynObjects::getList('domain');
         foreach ($domains as $domain)
             Kryn::deleteCache('systemDomain-'.$domain['id']);

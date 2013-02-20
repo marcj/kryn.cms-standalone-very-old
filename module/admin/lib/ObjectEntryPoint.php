@@ -2,9 +2,8 @@
 
 namespace Admin;
 
-class ObjectEntryPoint extends \Core\ORM\ORMAbstract {
-
-
+class ObjectEntryPoint extends \Core\ORM\ORMAbstract
+{
     /**
      * {@inheritDoc}
      */
@@ -18,7 +17,6 @@ class ObjectEntryPoint extends \Core\ORM\ORMAbstract {
                       'title' => $entryPoint['title']? $entryPoint['title'].' ('.$pPk['path'].')' : $pPk['path']);
 
     }
-
 
     /**
      * {@inheritDoc}
@@ -80,8 +78,8 @@ class ObjectEntryPoint extends \Core\ORM\ORMAbstract {
     /**
      * {@inheritDoc}
      */
-    public static function normalizePath(&$pPath){
-
+    public static function normalizePath(&$pPath)
+    {
         $pPath = str_replace('.', '/', $pPath); //debug
 
         if (substr($pPath, -1) == '/')
@@ -92,11 +90,11 @@ class ObjectEntryPoint extends \Core\ORM\ORMAbstract {
     /**
      * Sets the children information at $pItem directly.
      */
-    public function setChildren($pPath, &$pItem, $pDepth){
-
+    public function setChildren($pPath, &$pItem, $pDepth)
+    {
         $children = $this->getBranch(array('path' => $pPath), null, $pDepth-1);
 
-        if ($children && count($children) > 0){
+        if ($children && count($children) > 0) {
             if ($pDepth > 1)
                 $pItem['_children'] = $children;
             $pItem['_childrenCount'] = count($children);
@@ -113,10 +111,10 @@ class ObjectEntryPoint extends \Core\ORM\ORMAbstract {
 
         $result = null;
 
-        if (!$pPk || !$pPk['path']){
+        if (!$pPk || !$pPk['path']) {
 
             $config = \Core\Kryn::getModuleConfig('admin');
-            foreach ($config['entryPoints'] as $key => $entryPoint){
+            foreach ($config['entryPoints'] as $key => $entryPoint) {
                 $item = array(
                     'path' => $key,
                     'type' => $entryPoint['type'],
@@ -127,12 +125,11 @@ class ObjectEntryPoint extends \Core\ORM\ORMAbstract {
                 $result[] = $item;
             }
 
-
-            foreach (\Core\Kryn::$extensions as $extension){
+            foreach (\Core\Kryn::$extensions as $extension) {
                 if ($extension == 'admin') continue;
                 $config = \Core\Kryn::getModuleConfig($extension);
 
-                foreach ($config['entryPoints'] as $key => $entryPoint){
+                foreach ($config['entryPoints'] as $key => $entryPoint) {
                     $item = array('path' => $extension.'/'.$key,
                                   'type' => $entryPoint['type'],
                                   'title' => $entryPoint['title']? $entryPoint['title'].' ('.$key.')' : $key);
@@ -148,9 +145,9 @@ class ObjectEntryPoint extends \Core\ORM\ORMAbstract {
             self::normalizePath($pPk['path']);
 
             $entryPoint = Utils::getEntryPoint($pPk['path'], true);
-            if ($entryPoint && $entryPoint['children'] && count($entryPoint['children']) > 0){
+            if ($entryPoint && $entryPoint['children'] && count($entryPoint['children']) > 0) {
 
-                foreach ($entryPoint['children'] as $key => $entryPoint){
+                foreach ($entryPoint['children'] as $key => $entryPoint) {
                     $item = array('path' => $pPk['path'].'/'.$key,
                                   'type' => $entryPoint['type'],
                                   'title' => $entryPoint['title']? $entryPoint['title'].' ('.$key.')' : $key);
@@ -190,6 +187,5 @@ class ObjectEntryPoint extends \Core\ORM\ORMAbstract {
     {
         return parent::getParentId($pPrimaryKey);
     }
-
 
 }

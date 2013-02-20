@@ -4,7 +4,6 @@ namespace Publication;
 
 use Publication\om\BaseNewsVersionQuery;
 
-
 /**
  * Skeleton subclass for performing query and update operations on the 'kryn_publication_news_version' table.
  *

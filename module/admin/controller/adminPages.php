@@ -1,6 +1,5 @@
 <?php
 
-
 /*
  * This file is part of Kryn.cms.
  *
@@ -11,11 +10,10 @@
  *
  */
 
-
-class adminPages {
-
-    public static function init() {
-
+class adminPages
+{
+    public static function init()
+    {
         switch (getArgv(3)) {
             case 'domain':
                 return self::domain();
@@ -57,6 +55,7 @@ class adminPages {
             case 'getVersion':
                 $id = getArgv('id') + 0;
                 $version = getArgv('version') + 0;
+
                 return json(self::getVersion($id, $version));
             /*case 'addVersion':
         return self::addVersion( getArgv('id')+0, getArgv('name',true) );*/
@@ -79,7 +78,8 @@ class adminPages {
         }
     }
 
-    public static function setHide($pRsn, $pVisible) {
+    public static function setHide($pRsn, $pVisible)
+    {
         $pRsn += 0;
         $pVisible += 0;
 
@@ -87,8 +87,8 @@ class adminPages {
             dbUpdate('system_page', 'id = ' . $pRsn, array('visible' => $pVisible));
     }
 
-    public static function getPageInfo($pRsn) {
-
+    public static function getPageInfo($pRsn)
+    {
         $pRsn += 0;
         $page = dbTableFetch('system_page', "id = $pRsn", 1);
         $page['_parents'] = Core\Kryn::getPageParents($pRsn);
@@ -100,21 +100,23 @@ class adminPages {
 
     }
 
-    public static function getAliases($pRsn) {
+    public static function getAliases($pRsn)
+    {
         $pRsn = $pRsn + 0;
 
         $items = dbTableFetch('system_urlalias', 'to_page_id = ' . $pRsn, -1);
         json($items);
     }
 
-    public static function deleteAlias($pRsn) {
+    public static function deleteAlias($pRsn)
+    {
         $pRsn = $pRsn + 0;
 
         dbDelete('system_urlalias', 'id = ' . $pRsn);
     }
 
-    public static function setLive($pVersion) {
-
+    public static function setLive($pVersion)
+    {
         $pVersion = $pVersion + 0;
         $version = dbTableFetch('system_page_version', 1, 'id = ' . $pVersion);
 
@@ -129,14 +131,16 @@ class adminPages {
 
             dbUpdate('system_page_version', array('page_id' => $version['page_id']), array('active' => 0));
             dbUpdate('system_page_version', array('id' => $version['id']), array('active' => 1));
+
             return 1;
         }
+
         return 0;
 
     }
 
-    public static function paste() {
-
+    public static function paste()
+    {
         $domain = getArgv('to_domain') == 1 ? true : false;
         if (getArgv('type') == 'pageCopy') {
             self::copyPage(getArgv('page'), getArgv('to'), $domain, getArgv('pos'));
@@ -164,7 +168,8 @@ class adminPages {
 
     }
 
-    public static function copyPage($pFrom, $pTo, $pToDomain, $pPos, $pWithSubpages = false, $pWithoutThisPage = false) {
+    public static function copyPage($pFrom, $pTo, $pToDomain, $pPos, $pWithSubpages = false, $pWithoutThisPage = false)
+    {
         global $user;
 
         $pFrom += 0;
@@ -233,7 +238,7 @@ class adminPages {
                     if ($end + 0 > 0) {
                         if ($newCount < $end + 1)
                             $newCount = $end + 1; //$newPage['title'] .= ' #'.($end+1);
-                    } else if ($end == '') { //equal title
+                    } elseif ($end == '') { //equal title
                         if ($newCount == 0)
                             $newCount = 1; //$newPage['title'] .= ' #1';
                     }
@@ -256,7 +261,7 @@ class adminPages {
                     $end = substr($sibling['url'], strlen($newPage['url']));
                     if ($end + 0 > 0) {
                         $newPage['url'] .= '_' . ($end + 1);
-                    } else if ($end == '') { //equal title
+                    } elseif ($end == '') { //equal title
                         $newPage['url'] .= '_1';
                     }
                 }
@@ -320,7 +325,6 @@ class adminPages {
             }
         }
 
-
         //copy subpages
         if ($pWithSubpages) {
             if (count($childs) > 0) {
@@ -333,7 +337,8 @@ class adminPages {
         return $lastId;
     }
 
-    public static function domain() {
+    public static function domain()
+    {
         switch (getArgv(4)) {
             case 'add':
                 return self::addDomain();
@@ -348,7 +353,8 @@ class adminPages {
         }
     }
 
-    public static function getDomainMaster() {
+    public static function getDomainMaster()
+    {
         $id = getArgv('id') + 0;
         if (!Core\Kryn::checkPageAcl($id, 'domainLanguageMaster', 'd')) {
             json(array('error' => 'access_denied'));
@@ -359,12 +365,12 @@ class adminPages {
         json($res);
     }
 
-    public static function saveDomain() {
+    public static function saveDomain()
+    {
         $id = getArgv('id') + 0;
 
         $dbUpdate = array();
         $canChangeMaster = false;
-
 
         if (Core\Kryn::checkPageAcl($id, 'domainName', 'd')) {
             $dbUpdate[] = 'domain';
@@ -395,7 +401,6 @@ class adminPages {
             $dbUpdate[] = 'email';
         }
 
-
         if (Core\Kryn::checkPageAcl($id, 'themeProperties', 'd')) {
             $dbUpdate[] = 'themeproperties';
         }
@@ -409,7 +414,6 @@ class adminPages {
             $dbUpdate[] = 'alias';
             $dbUpdate[] = 'redirect';
         }
-
 
         if (Core\Kryn::checkPageAcl($id, 'phpLocale', 'd')) {
             $dbUpdate[] = 'phplocale';
@@ -443,9 +447,8 @@ class adminPages {
         json($domain);
     }
 
-    public static function getDomain() {
-
-
+    public static function getDomain()
+    {
         $id = getArgv('id') + 0;
 
         if (!Core\Kryn::checkPageAcl($id, 'showDomain', 'd')) {
@@ -456,9 +459,9 @@ class adminPages {
         json($res);
     }
 
-    public static function delDomain() {
+    public static function delDomain()
+    {
         $domain = getArgv('id') + 0;
-
 
         if (!Core\Kryn::checkPageAcl($domain, 'deleteDomain', 'd')) {
             json(array('error' => 'access_denied'));
@@ -470,7 +473,8 @@ class adminPages {
         json(true);
     }
 
-    public static function updateDomainCache() {
+    public static function updateDomainCache()
+    {
         $res = dbExec('SELECT * FROM '.pfx.'system_domain');
         $domains = array();
 
@@ -507,11 +511,12 @@ class adminPages {
             Core\Kryn::deleteCache('systemDomain-' . $domain['id']);
         }
         Core\Kryn::setCache('systemDomains', $domains);
+
         return $domains;
     }
 
-    public static function addDomain() {
-
+    public static function addDomain()
+    {
         if (!Core\Kryn::checkUrlAccess('admin/pages/addDomains'))
             json(array('error' => 'access_denied'));
         ;
@@ -521,13 +526,13 @@ class adminPages {
         json(true);
     }
 
-
     /*
      *
      *  Pages
      */
 
-    public static function getPageVersion($pRsn) {
+    public static function getPageVersion($pRsn)
+    {
         $pRsn = $pRsn + 0;
 
         $res = array();
@@ -543,14 +548,15 @@ class adminPages {
         return $res;
     }
 
-    public static function getUrl($pRsn) {
+    public static function getUrl($pRsn)
+    {
         $pRsn = $pRsn + 0;
 
         json(Core\Kryn::getPagePath($pRsn));
     }
 
-    public static function deletePage($pPage, $pNoCacheRefresh = false) {
-
+    public static function deletePage($pPage, $pNoCacheRefresh = false)
+    {
         $pPage = $pPage + 0;
 
         if (!Core\Kryn::checkPageAcl($pPage, 'deletePages')) {
@@ -579,7 +585,8 @@ class adminPages {
         }
     }
 
-    public static function getDomains($pLanguage) {
+    public static function getDomains($pLanguage)
+    {
         $where = " 1=1 ";
         if ($pLanguage != "")
             $where = "lang = '$pLanguage'";
@@ -596,8 +603,8 @@ class adminPages {
         json($result);
     }
 
-
-    public static function getTemplate($pTemplate) {
+    public static function getTemplate($pTemplate)
+    {
         global $cfg;
 
         Core\Kryn::resetJs();
@@ -642,7 +649,7 @@ class adminPages {
             'MooEditable.Table.css'
         );
 
-        /*foreach( $js as $t ){
+        /*foreach ($js as $t) {
             Core\Kryn::addHeader( '<script type="text/javascript" src="'.'http://'.getArgv('domain').$domainPath.
                 'inc/lib/mooeditable/Source/MooEditable/'.$t.'"></script>');
         }*/
@@ -652,7 +659,6 @@ class adminPages {
                 '<link rel="stylesheet" type="text/css" href="' . 'http://' . getArgv('domain') . $domainPath .
                 'inc/lib/mooeditable/Assets/MooEditable/' . $t . '" />');
         }
-
 
         $id = getArgv('id') + 0;
         $page = dbTableFetch('system_page', 1, "id = $id");
@@ -696,8 +702,8 @@ class adminPages {
         exit;
     }
 
-    public static function getVersion($pPageRsn, $pVersion) {
-
+    public static function getVersion($pPageRsn, $pVersion)
+    {
         $pPageRsn = $pPageRsn + 0;
 
         if (!Core\Kryn::checkPageAcl($pPageRsn, 'versions')) {
@@ -715,12 +721,13 @@ class adminPages {
                 $contents[$cont['box_id']][] = $cont;
             }
         }
+
         return $contents;
     }
 
-    public static function getVersions() {
+    public static function getVersions()
+    {
         $id = getArgv('id') + 0;
-
 
         if (!Core\Kryn::checkPageAcl($id, 'versions')) {
             json(array('error' => 'access_denied'));
@@ -732,14 +739,16 @@ class adminPages {
         json($res);
     }
 
-    public static function addNotice($pRsn) {
+    public static function addNotice($pRsn)
+    {
         global $user;
         dbInsert('system_page_notices', array('page_id' => $pRsn, 'user_id' => $user->user_id, 'content',
             'created' => time()));
         json(true);
     }
 
-    public static function getNotices($pRsn) {
+    public static function getNotices($pRsn)
+    {
         $res['notices'] = dbExfetch('SELECT n.*, u.username
             FROM '.pfx.'system_page_notices n, '.pfx.'system_user u
             WHERE u.id = n.user_id AND page_id = ' . $pRsn . ' ORDER BY id', DB_FETCH_ALL);
@@ -747,7 +756,8 @@ class adminPages {
         json($res);
     }
 
-    public static function getTreeDomain($pDomainRsn) {
+    public static function getTreeDomain($pDomainRsn)
+    {
         $pDomainRsn = $pDomainRsn + 0;
 
         $viewAllPages = (getArgv('viewAllPages') == 1) ? true : false;
@@ -777,7 +787,8 @@ class adminPages {
         json($domain);
     }
 
-    public static function getTree($pPageRsn) {
+    public static function getTree($pPageRsn)
+    {
         $pPageRsn += 0;
 
         if ($pPageRsn == 0) return array();
@@ -811,6 +822,7 @@ class adminPages {
                     unset($item);
                 }
             }
+
             return $items;
 
         } else {
@@ -818,7 +830,8 @@ class adminPages {
         }
     }
 
-    public static function getIcons($pRsn) {
+    public static function getIcons($pRsn)
+    {
         global $cfg;
 
         $page = self::getPageByRsn($pRsn);
@@ -832,23 +845,22 @@ class adminPages {
         if ($page['type'] == '1')
             $pngs[] = 'bullet_go';
 
-
         if (count($pngs) > 0)
             foreach ($pngs as $png) {
                 $res .= '<img src="' . $cfg['path'] . PATH_MEDIA . '/admin/images/icons/' . $png . '_.png" />';
             }
+
         return $res;
     }
 
-    public static function move() {
+    public static function move()
+    {
         $whoId = $_REQUEST['id'] + 0;
         $targetId = $_REQUEST['toid'] + 0;
         $mode = getArgv('mode', 1);
 
-
         $who = self::getPageByRsn($whoId);
         $target = self::getPageByRsn($targetId);
-
 
         //check if $who is parent of $target, then cancel
         $whoIsParent = false;
@@ -870,7 +882,6 @@ class adminPages {
             $targetId = 0;
             $mode = 'into';
         }
-
 
         if ($who['domain_id'] != $target['domain_id']) {
             $domainChanged = true;
@@ -934,7 +945,6 @@ class adminPages {
         Core\Kryn::deleteCache('page-' . $whoId);
         Core\Kryn::deleteCache('page-' . $target);
 
-
         $parents = Core\Kryn::getPageParents($whoId);
         foreach ($parents as &$parent) {
             Core\Kryn::deleteCache('page-' . $parent['id']);
@@ -966,7 +976,8 @@ class adminPages {
         return true;
     }
 
-    public static function fixPageDomainRsn($pPageRsn, $pDomainRsn) {
+    public static function fixPageDomainRsn($pPageRsn, $pDomainRsn)
+    {
         $pPageRsn += 0;
 
         dbUpdate('system_page', 'pid = ' . $pPageRsn, array('domain_id' => $pDomainRsn));
@@ -977,8 +988,8 @@ class adminPages {
         }
     }
 
-    public static function add() {
-
+    public static function add()
+    {
         $found = (getArgv('field_1') != '') ? true : false;
         $c = 1;
         $id = getArgv('id') + 0;
@@ -996,7 +1007,7 @@ class adminPages {
 
         $targetItem = Core\KrynObjects::get(getArgv('parentObjectKey'), getArgv('parentId'));
 
-        if (getArgv('parentObjectKey') == 'node'){
+        if (getArgv('parentObjectKey') == 'node') {
             $domain_id = $targetItem['domain_id'];
         } else {
             $domain_id = $targetItem['id'];
@@ -1055,7 +1066,7 @@ class adminPages {
         self::updateUrlCache($domain_id);
         self::updateMenuCache($domain_id);
 
-        if (getArgv('parentObjectKey') == 'node'){
+        if (getArgv('parentObjectKey') == 'node') {
             Core\Kryn::deleteCache('page-' . $id);
             $parents = Core\Kryn::getPageParents($id);
             foreach ($parents as &$parent) {
@@ -1073,7 +1084,8 @@ class adminPages {
         json(true);
     }
 
-    public static function save() {
+    public static function save()
+    {
         global $user, $kcache;
 
         $id = getArgv('id') + 0;
@@ -1094,13 +1106,11 @@ class adminPages {
         if (is_array(getArgv('access_from_groups')))
             $groups = esc(implode(",", getArgv('access_from_groups')));
 
-
         $active = 0;
         $publishPage = false;
         if (getArgv('andPublish') == 1 && $aclCanPublish) {
             $publishPage = true;
         }
-
 
         $updateArray = array();
 
@@ -1124,7 +1134,6 @@ class adminPages {
             $updateArray[] = 'target';
             $updateArray[] = 'link';
         }
-
 
         if (Core\Kryn::checkPageAcl($id, 'access')) {
 
@@ -1181,7 +1190,6 @@ class adminPages {
         $updateArray['draft_exist'] = ($publishPage) ? 0 : 1;
         $updateArray['mdate'] = time();
 
-
         $oldPage = dbTableFetch("system_page", "id = " . ($id + 0), 1);
 
         Core\Kryn::invalidateCache('systemWholePage-' . $oldPage['domain_id']);
@@ -1192,7 +1200,6 @@ class adminPages {
         $oldRealUrl = $kcache['realUrl']['id']['id=' . $id];
 
         if (in_array('url', $updateArray) && $oldPage['url'] != getArgv('url') && getArgv('newAlias')) {
-
 
             if (getArgv('newAliasWithSub')) {
                 $oldRealUrl .= '/%';
@@ -1292,7 +1299,6 @@ class adminPages {
             }
         }
 
-
         if (Core\Kryn::checkPageAcl($id, 'resources')) {
             if (getArgv('getType') == 0 || getArgv('getType') == 3) { //page or deposit
 
@@ -1313,7 +1319,6 @@ class adminPages {
                         @unlink(PATH_MEDIA."css/_pages/$id.css");
                 }
 
-
                 if (Core\Kryn::checkPageAcl($id, 'js')) {
                     if (getArgv('resourcesJs') != '')
                         Core\Kryn::fileWrite(PATH_MEDIA."js/_pages/$id.js", getArgv('resourcesJs'));
@@ -1333,9 +1338,10 @@ class adminPages {
         json($res);
     }
 
-    public static function updateMenuCache($pDomainRsn) {
+    public static function updateMenuCache($pDomainRsn)
+    {
         $resu = dbExec("SELECT id, title, url, pid FROM ".pfx."system_page WHERE
-        				 domain_id = $pDomainRsn AND (type = 0 OR type = 1 OR type = 4)");
+                         domain_id = $pDomainRsn AND (type = 0 OR type = 1 OR type = 4)");
         $res = array();
         while ($page = dbFetch($resu, 1)) {
 
@@ -1352,7 +1358,8 @@ class adminPages {
         return $res;
     }
 
-    public static function getParentMenus($pPage, $pAllParents = false) {
+    public static function getParentMenus($pPage, $pAllParents = false)
+    {
         $pid = $pPage['parent_id'];
         $res = array();
         while ($pid != 0) {
@@ -1361,16 +1368,17 @@ class adminPages {
             if ($parent_page['type'] == 0 || $parent_page['type'] == 1 || $parent_page['type'] == 4) {
                 //page or link or page-mount
                 array_unshift($res, $parent_page);
-            } else if ($pAllParents) {
+            } elseif ($pAllParents) {
                 array_unshift($res, $parent_page);
             }
             $pid = $parent_page['parent_id'];
         }
+
         return $res;
     }
 
-    public static function updateUrlCache($pDomainRsn) {
-
+    public static function updateUrlCache($pDomainRsn)
+    {
         $pDomainRsn = $pDomainRsn + 0;
 
         $resu =
@@ -1394,11 +1402,12 @@ class adminPages {
 
         self::updatePage2DomainCache();
         Core\Kryn::setCache("systemUrls-$pDomainRsn", $res);
+
         return $res;
     }
 
-    public static function updatePage2DomainCache() {
-
+    public static function updatePage2DomainCache()
+    {
         $r2d = array();
         $res = dbExec('SELECT id, domain_id FROM '.pfx.'system_page ');
 
@@ -1406,10 +1415,12 @@ class adminPages {
             $r2d[$row['domain_id']] .= $row['id'] . ',';
         }
         Core\Kryn::setCache('systemPages2Domain', $r2d);
+
         return $r2d;
     }
 
-    public static function updateUrlCacheChilds($pPage, $pDomain = false) {
+    public static function updateUrlCacheChilds($pPage, $pDomain = false)
+    {
         $res = array('url' => array(), 'id' => array(), 'r2d' => array());
 
         error_log('+ '.print_r($pPage, true));
@@ -1430,7 +1441,6 @@ class adminPages {
         if (is_array($pages)) {
             foreach ($pages as $page) {
 
-
                 Core\Kryn::deleteCache('page_' . $page['id']);
 
                 $page = self::__pageModify($page, $pPage);
@@ -1442,10 +1452,12 @@ class adminPages {
 
             }
         }
+
         return $res;
     }
 
-    public static function __pageModify($page, $pPage) {
+    public static function __pageModify($page, $pPage)
+    {
         if ($page['type'] == 0) {
             $del = '';
             if ($pPage['realurl'] != '')
@@ -1463,15 +1475,16 @@ class adminPages {
             }
 
             $page['prealurl'] = $page['link'];
-        } else if ($page['type'] != 3) { //no deposit
+        } elseif ($page['type'] != 3) { //no deposit
             //ignore the hiarchie-item
             $page['realurl'] = $pPage['realurl'];
         }
+
         return $page;
     }
 
-    public static function getPage($pRsn, $pLock = false) {
-
+    public static function getPage($pRsn, $pLock = false)
+    {
         $pRsn = $pRsn + 0;
 
         $res = self::getPageByRsn($pRsn);
@@ -1502,5 +1515,3 @@ class adminPages {
         json($res);
     }
 }
-
-?>

@@ -4,10 +4,10 @@ namespace Users;
 
 use RestService\Server;
 
-class AdminController extends Server {
-    
-    public function run($pEntryPoint){
-
+class AdminController extends Server
+{
+    public function run($pEntryPoint)
+    {
         $this->addGetRoute('acl/search', 'getSearch');
         $this->addGetRoute('acl', 'loadAcl');
         $this->addPostRoute('acl', 'saveAcl');
@@ -17,8 +17,8 @@ class AdminController extends Server {
 
     }
 
-    public function test(){
-
+    public function test()
+    {
         var_dump(\Core\Kryn::getAdminClient()->getSession());
 
         exit;
@@ -28,13 +28,13 @@ class AdminController extends Server {
     /**
      * Gets all rules from given type and id;
      *
-     * @param int $pType
-     * @param int $pId
-     * @param bool $pAsCount
+     * @param  int       $pType
+     * @param  int       $pId
+     * @param  bool      $pAsCount
      * @return array|int
      */
-    public function loadAcl($pType, $pId, $pAsCount = false){
-
+    public function loadAcl($pType, $pId, $pAsCount = false)
+    {
         $pType = ($pType == 'user') ? 0:1;
 
         $where = 'target_type = '.($pType+0);
@@ -52,16 +52,15 @@ class AdminController extends Server {
     /**
      * Saves the given rules.
      *
-     * @param int  $pTargetId
-     * @param int  $pTargetType
-     * @param array $pRules
+     * @param  int   $pTargetId
+     * @param  int   $pTargetType
+     * @param  array $pRules
      * @return bool
      */
-    public function saveAcl($pTargetId, $pTargetType, $pRules){
-
+    public function saveAcl($pTargetId, $pTargetType, $pRules)
+    {
         $pTargetId += 0;
         $pTargetType += 0;
-
 
         dbDelete('system_acl', array(
             'target_type' => $pTargetType,
@@ -71,7 +70,7 @@ class AdminController extends Server {
         if (count($pRules) == 0) return true;
 
         $i = 1;
-        foreach ($pRules as $rule){
+        foreach ($pRules as $rule) {
 
             unset($rule['id']);
             $rule['prio'] = $i;
@@ -90,9 +89,9 @@ class AdminController extends Server {
      * @param $pItems
      * @param $pType
      */
-    public static function setAclCount(&$pItems, $pType){
-
-        foreach ($pItems as &$item){
+    public static function setAclCount(&$pItems, $pType)
+    {
+        foreach ($pItems as &$item) {
 
             $item['ruleCount'] = self::load($pType, $item['id'], true);
 
@@ -100,8 +99,8 @@ class AdminController extends Server {
 
     }
 
-    public static function load($pType, $pId, $pAsCount = false){
-
+    public static function load($pType, $pId, $pAsCount = false)
+    {
         $where = 'target_type = '.($pType+0);
         $where .= ' AND target_id = '.($pId+0);
 
@@ -119,15 +118,15 @@ class AdminController extends Server {
      *
      * @return array array('users' => array, 'groups' => array())
      */
-    public function getSearch(){
-
+    public function getSearch()
+    {
         $q = getArgv('q', 1);
         $q = str_replace("*", "%", $q);
 
         $userFilter = array();
         $groupFilter = array();
 
-        if ($q){
+        if ($q) {
             $userFilter = array(
                 array('username', 'like', "$q%"), 'OR',
                 array('first_name', 'like', "$q%"), 'OR',

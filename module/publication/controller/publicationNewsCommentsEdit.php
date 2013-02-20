@@ -1,7 +1,7 @@
 <?php
 
-class publicationNewsCommentsEdit extends adminWindowEdit {
-
+class publicationNewsCommentsEdit extends adminWindowEdit
+{
     public $table = 'publication_comments';
 
     public $primary = 'id';
@@ -11,7 +11,6 @@ class publicationNewsCommentsEdit extends adminWindowEdit {
     public $multiDomain = 0;
 
     public $versioning = 0;
-
 
     public $fields = array (
         '__general__' => array (
@@ -47,4 +46,3 @@ class publicationNewsCommentsEdit extends adminWindowEdit {
       );
 
 }
- ?>

@@ -1,7 +1,7 @@
 <?php
 
-class publicationNewsCommentsAdd extends windowAdd {
-
+class publicationNewsCommentsAdd extends windowAdd
+{
     public $table = 'publication_comments';
     public $primary = array('id');
 
@@ -33,5 +33,3 @@ class publicationNewsCommentsAdd extends windowAdd {
         )
     );
 }
-
-?>

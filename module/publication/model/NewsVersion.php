@@ -4,7 +4,6 @@ namespace Publication;
 
 use Publication\om\BaseNewsVersion;
 
-
 /**
  * Skeleton subclass for representing a row from the 'kryn_publication_news_version' table.
  *

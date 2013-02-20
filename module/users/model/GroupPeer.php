@@ -4,11 +4,10 @@ namespace Users;
 
 use Users\om\BaseGroupPeer;
 
-
 /**
  * Skeleton subclass for performing query and update operations on the 'kryn_system_group' table.
  *
- * 
+ *
  *
  * You should add additional methods to this class to meet the
  * application requirements.  This class will only be generated as
@@ -16,6 +15,6 @@ use Users\om\BaseGroupPeer;
  *
  * @package    propel.generator.Users
  */
-class GroupPeer extends BaseGroupPeer {
-
+class GroupPeer extends BaseGroupPeer
+{
 } // GroupPeer

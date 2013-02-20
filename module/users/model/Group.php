@@ -4,11 +4,10 @@ namespace Users;
 
 use Users\om\BaseGroup;
 
-
 /**
  * Skeleton subclass for representing a row from the 'kryn_system_group' table.
  *
- * 
+ *
  *
  * You should add additional methods to this class to meet the
  * application requirements.  This class will only be generated as
@@ -16,6 +15,6 @@ use Users\om\BaseGroup;
  *
  * @package    propel.generator.Users
  */
-class Group extends BaseGroup {
-
+class Group extends BaseGroup
+{
 } // Group

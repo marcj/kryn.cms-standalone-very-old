@@ -1,7 +1,7 @@
 <?php
 
-class usersAdminGroupAdd extends windowAdd {
-
+class usersAdminGroupAdd extends windowAdd
+{
     public $table = 'system_groups';
 
     public $fields = array(
@@ -17,5 +17,3 @@ class usersAdminGroupAdd extends windowAdd {
     );
 
 }
-
-?>

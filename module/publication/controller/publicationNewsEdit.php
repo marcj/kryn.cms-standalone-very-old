@@ -1,7 +1,7 @@
 <?php
 
-class publicationNewsEdit extends adminWindowEdit {
-
+class publicationNewsEdit extends adminWindowEdit
+{
     public $object = 'news';
 
     public $workspace = '0';
@@ -12,16 +12,16 @@ class publicationNewsEdit extends adminWindowEdit {
 
     public $versioning = '1';
 
-
-    public function saveItem() {
-
+    public function saveItem()
+    {
         $res = parent::saveItem();
         kryn::invalidateCache('publicationNewsList');
 
         return $res;
     }
 
-    public function getUrl($pItem, $pPluginValues, $pPageRsn) {
+    public function getUrl($pItem, $pPluginValues, $pPageRsn)
+    {
         return kryn::toModRewrite($pItem['title']) . '/' . $pItem['id'];
     }
 
@@ -134,4 +134,3 @@ class publicationNewsEdit extends adminWindowEdit {
       );
 
 }
- ?>

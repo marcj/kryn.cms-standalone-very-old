@@ -10,10 +10,10 @@
  *
  */
 
-
-class adminWidgets {
-
-    public static function init() {
+class adminWidgets
+{
+    public static function init()
+    {
         switch (getArgv(3)) {
             case 'getWidgets':
                 json(self::getWidgets(getArgv('category')));
@@ -32,8 +32,8 @@ class adminWidgets {
         }
     }
 
-    public static function getPage() {
-
+    public static function getPage()
+    {
         $ext = getArgv('extension');
         $widgetCode = getArgv('widget');
 
@@ -43,7 +43,6 @@ class adminWidgets {
             $perPage = $widget['itemsPerPage'] ? $widget['itemsPerPage'] : 15;
 
             $page = getArgv('page') + 0;
-
 
             $from = ($perPage * $page) - $perPage;
             $count = $perPage;
@@ -91,7 +90,6 @@ class adminWidgets {
                             $columnValue = date('d M H:i:s', $columnValue);
                     }
 
-
                     $item[] = $columnValue;
 
                     $idNr++;
@@ -108,12 +106,12 @@ class adminWidgets {
         if ($widget['method'] && kryn::$modules[$ext] && method_exists(kryn::$modules[$ext], $widget['method']))
             return kryn::$modules[$ext]->$widget['method']();
 
-
         return $return;
 
     }
 
-    public static function getWidgets($pCategory) {
+    public static function getWidgets($pCategory)
+    {
         global $user;
 
         $res = array();
@@ -140,8 +138,8 @@ class adminWidgets {
 
     }
 
-    public static function getWidgetInfo() {
-
+    public static function getWidgetInfo()
+    {
         $module = getArgv('module');
         $widget = getArgv('widget');
         $widgets = kryn::$configs[$module]['widgets'];
@@ -151,8 +149,8 @@ class adminWidgets {
         json($res);
     }
 
-    public static function getAll() {
-
+    public static function getAll()
+    {
         foreach (kryn::$configs as $key => $config) {
             if (count($config['widgets']) > 0)
                 $widgets[$key] = array($module, $config['widgets']);
@@ -162,13 +160,15 @@ class adminWidgets {
         json($res);
     }
 
-    public static function loadAll() {
+    public static function loadAll()
+    {
         global $user;
         $widgets = json_decode($user->user['widgets'], true);
         json($widgets);
     }
 
-    public static function saveAll() {
+    public static function saveAll()
+    {
         global $user;
         $id = $user->user_id;
         #        $widgets = json_decode( $_POST['widgets'], true );
@@ -177,8 +177,8 @@ class adminWidgets {
         json(true);
     }
 
-    public static function load() {
-
+    public static function load()
+    {
         $module = getArgv('module');
         $widget = getArgv('widget');
 
@@ -188,5 +188,3 @@ class adminWidgets {
     }
 
 }
-
-?>

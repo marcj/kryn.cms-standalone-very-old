@@ -1,14 +1,15 @@
 <?php
 
-class publicationNewsAdd extends windowAdd {
-
+class publicationNewsAdd extends windowAdd
+{
     //public $table = 'publication_news';
     public $object = 'news';
 
     //public $primary = array('id');
     //public $multiLanguage = true;
 
-    public function saveItem() {
+    public function saveItem()
+    {
         parent::saveItem();
         kryn::invalidateCache('publicationNewsList');
     }
@@ -77,5 +78,3 @@ class publicationNewsAdd extends windowAdd {
         )
     );
 }
-
-?>

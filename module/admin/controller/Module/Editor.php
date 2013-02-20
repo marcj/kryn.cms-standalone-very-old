@@ -6,13 +6,15 @@ use Core\Kryn;
 use Core\SystemFile;
 use Admin\Module\Manager;
 
-class Editor {
-
-    public function getConfig($pName){
+class Editor
+{
+    public function getConfig($pName)
+    {
         return Manager::loadInfo($pName);
     }
 
-    public function setConfig($pName, $pConfig){
+    public function setConfig($pName, $pConfig)
+    {
         Manager::prepareName($pName);
 
         $json = json_format(json_encode($pConfig));
@@ -22,56 +24,55 @@ class Editor {
         if ($pName != 'core')
             $path = PATH_MODULE . "$pName/config.json";
 
-
-        if (!file_exists($path) && !touch($path)){
+        if (!file_exists($path) && !touch($path)) {
             throw new \FileNotWritableException(tf('Can not create %s for module %s.', $path ,$pName));
         }
 
-        if (!is_writeable($path)){
+        if (!is_writeable($path)) {
             throw new \FileNotWritableException(tf('The config file %s for module %s is not writeable.', $path ,$pName));
         }
 
         return file_put_contents($path, $json);
     }
 
-    public function getLanguage($pName, $pLang = null){
-
+    public function getLanguage($pName, $pLang = null)
+    {
         Manager::prepareName($pName);
 
         return \Core\Lang::getLanguage($pName, $pLang);
 
     }
 
-    public function saveLanguage($pName, $pLangs, $pLang = null){
-
+    public function saveLanguage($pName, $pLangs, $pLang = null)
+    {
         Manager::prepareName($pName);
 
         return \Core\Lang::saveLanguage($pName, $pLang, $pLangs);
 
     }
 
-    public function getExtractedLanguage($pName){
-
+    public function getExtractedLanguage($pName)
+    {
         Manager::prepareName($pName);
 
         return \Core\Lang::extractLanguage($pName);
 
     }
 
-    public static function getWindows($pName) {
+    public static function getWindows($pName)
+    {
         Manager::prepareName($pName);
-
 
         $classes   = find(\Core\Kryn::getModuleDir($pName) . '/*', true);
         $windows   = array();
         $whiteList = array('\Admin\ObjectCrud');
 
-        foreach ($classes as $class){
+        foreach ($classes as $class) {
 
             $content = SystemFile::getContent($class);
 
-            if (preg_match('/class[\s\t]+([a-zA-Z0-9_]+)[\s\t]+extends[\s\t]+([a-zA-Z0-9_\\\\]*)[\s\t\n]*{/', $content, $matches)){
-                if (in_array($matches[2], $whiteList)){
+            if (preg_match('/class[\s\t]+([a-zA-Z0-9_]+)[\s\t]+extends[\s\t]+([a-zA-Z0-9_\\\\]*)[\s\t\n]*{/', $content, $matches)) {
+                if (in_array($matches[2], $whiteList)) {
 
                     $clazz = $matches[1];
 
@@ -91,8 +92,8 @@ class Editor {
         return $windows;
     }
 
-
-    public function getPlugins($pName) {
+    public function getPlugins($pName)
+    {
         Manager::prepareName($pName);
 
         $config = $this->getConfig($pName);
@@ -102,7 +103,8 @@ class Editor {
         return $config['plugins'];
     }
 
-    public function savePlugins($pName) {
+    public function savePlugins($pName)
+    {
         Manager::prepareName($pName);
 
         $config = $this->getConfig($pName);
@@ -113,15 +115,16 @@ class Editor {
         return $this->setConfig($pName, $config);
     }
 
-
-
-    public function getObjects($pName) {
+    public function getObjects($pName)
+    {
         Manager::prepareName($pName);
         $config = $this->getConfig($pName);
+
         return $config['objects'];
     }
 
-    public function saveObjects($pName) {
+    public function saveObjects($pName)
+    {
         Manager::prepareName($pName);
 
         $config = $this->getConfig($pName);
@@ -132,13 +135,13 @@ class Editor {
         return $this->setConfig($pName, $config);
     }
 
-
-    public function getModel($pName){
+    public function getModel($pName)
+    {
         Manager::prepareName($pName);
 
         $path = \Core\Kryn::getModuleDir($pName).'model.xml';
 
-        if (!file_exists($path)){
+        if (!file_exists($path)) {
             throw new \FileNotExistException(tf('The config file %s for %s does not exist.', $path ,$pName));
         }
 
@@ -146,16 +149,17 @@ class Editor {
 
     }
 
-    public function saveModel($pName, $pModel){
+    public function saveModel($pName, $pModel)
+    {
         Manager::prepareName($pName);
 
         $path = \Core\Kryn::getModuleDir($pName).'model.xml';
 
-        if (!is_writable($path)){
+        if (!is_writable($path)) {
             throw new \FileNotWritableException(tf('The model file %s for %s is not writable.', $path ,$pName));
         }
 
-        if (!@file_put_contents($path, $pModel)){
+        if (!@file_put_contents($path, $pModel)) {
             throw new \FileIOErrorException(tf('Can not write model file %s for %s.', $path ,$pName));
         }
 
@@ -164,13 +168,13 @@ class Editor {
     }
 
     /**
-     * @param string $pObject
-     * @param string $pFieldKey
-     * @param array $pField
-     * @param xml $pTable
-     * @param xml $pDatabase
-     * @param xml $pRefColumn
-     * @param string $pModuleKey
+     * @param  string     $pObject
+     * @param  string     $pFieldKey
+     * @param  array      $pField
+     * @param  xml        $pTable
+     * @param  xml        $pDatabase
+     * @param  xml        $pRefColumn
+     * @param  string     $pModuleKey
      * @return array|bool
      */
     public function getColumnFromField($pObject, $pFieldKey, $pField, &$pTable, &$pDatabase, &$pRefColumn = null,
@@ -183,7 +187,7 @@ class Editor {
 
         $object = \Core\Object::getDefinition($pObject);
 
-        switch(strtolower($pField['type'])){
+        switch (strtolower($pField['type'])) {
 
             case 'textarea':
             case 'wysiwyg':
@@ -230,7 +234,7 @@ class Editor {
 
             case 'select':
 
-                if ($pField['multi']){
+                if ($pField['multi']) {
                     $column['type'] = 'LONGVARCHAR';
                 } else {
                     $column['type'] = 'VARCHAR';
@@ -264,8 +268,8 @@ class Editor {
 
             case 'custom':
 
-                if ($pField['column']){
-                    foreach ($pField['column'] as $k => $v){
+                if ($pField['column']) {
+                    foreach ($pField['column'] as $k => $v) {
                         $column[$k] = $v;
                     }
                 }
@@ -291,7 +295,7 @@ class Editor {
                 if ($pField['objectRelationName'])
                     $relationName = $pField['objectRelationName'];
 
-                if ($pField['objectRelation'] == 'nTo1'){
+                if ($pField['objectRelation'] == 'nTo1') {
 
                     $leftPrimaries  = \Core\Object::getPrimaryList($pObject);
                     $rightPrimaries = \Core\Object::getPrimaries($pField['object']);
@@ -301,7 +305,6 @@ class Editor {
                     if (!$foreignObject['table'])
                         continue;
 
-
                     $foreigns = $pTable->xpath('foreign-key[@foreignTable=\''.$foreignObject['table'].'\']');
                     if ($foreigns) $foreignKey = current($foreigns);
                     else $foreignKey = $pTable->addChild('foreign-key');
@@ -309,7 +312,7 @@ class Editor {
                     $foreignKey['phpName'] = $relationName;
                     $foreignKey['foreignTable'] = $foreignObject['table'];
 
-                    if (count($rightPrimaries) == 1){
+                    if (count($rightPrimaries) == 1) {
 
                         $references = $pTable->xpath('reference[@local=\''.$pFieldKey.'\']');
                         if ($references) $reference = current($references);
@@ -321,7 +324,7 @@ class Editor {
                     } else {
 
                         //add left primary keys
-                        foreach ($rightPrimaries as $key => $def){
+                        foreach ($rightPrimaries as $key => $def) {
                             $references = $pTable->xpath('reference[@local=\''.$pFieldKey.'_'.$key.'\']');
                             if ($references) $reference = current($references);
                             else $reference = $foreignKey->addChild('reference');
@@ -359,7 +362,7 @@ class Editor {
 
                     //left columns
                     $leftPrimaries = \Core\Object::getPrimaries($pObject);
-                    foreach ($leftPrimaries as $key => $primary){
+                    foreach ($leftPrimaries as $key => $primary) {
 
                         $name = strtolower(\Core\Object::getName($pObject)).'_'.$key;
                         $cols = $relationTable->xpath('column[@name=\''.$name.'\']');
@@ -376,7 +379,7 @@ class Editor {
 
                     //right columns
                     $rightPrimaries = \Core\Object::getPrimaries($pField['object']);
-                    foreach ($rightPrimaries as $key => $primary){
+                    foreach ($rightPrimaries as $key => $primary) {
 
                         $name = camelcase2Underscore(\Core\Object::getName($pField['object'])).'_'.$key;
                         $foreignKeys[$foreignObject['table']][$key] = $name;
@@ -392,7 +395,7 @@ class Editor {
                     }
 
                     //foreign keys
-                    foreach ($foreignKeys as $table => $keys){
+                    foreach ($foreignKeys as $table => $keys) {
 
                         $foreigns = $relationTable->xpath('foreign-key[@foreignTable=\''.$table.'\']');
                         if ($foreigns) $foreignKey = current($foreigns);
@@ -400,13 +403,13 @@ class Editor {
 
                         $foreignKey['foreignTable'] = $table;
 
-                        if ($table == $foreignObject['table']){
+                        if ($table == $foreignObject['table']) {
                             $foreignKey['phpName'] = ucfirst($pFieldKey);
                         } else {
                             $foreignKey['phpName'] = ucfirst($pFieldKey).\Core\Object::getName($pObject);
                         }
 
-                        if ($object['workspace']){
+                        if ($object['workspace']) {
                             $references = $foreignKey->xpath('reference[@local=\'workspace_id\']');
                             if ($references) $reference = current($references);
                             else $reference = $foreignKey->addChild('reference');
@@ -414,7 +417,7 @@ class Editor {
                             $reference['foreign'] = 'workspace_id';
                         }
 
-                        foreach ($keys as $k => $v){
+                        foreach ($keys as $k => $v) {
 
                             $references = $foreignKey->xpath('reference[@local=\''.$v.'\']');
                             if ($references) $reference = current($references);
@@ -427,19 +430,18 @@ class Editor {
                     }
 
                     //workspace behavior if $pObject is workspaced
-                    if ($object['workspace']){
+                    if ($object['workspace']) {
 
                         $behaviors = $relationTable->xpath('behavior[@name=\'workspace\']');
                         if ($behaviors) $behavior = current($behaviors);
                         else $behavior = $relationTable->addChild('behavior');
                         $behavior['name'] = 'workspace';
                     }
-                    
+
                     $vendors = $relationTable->xpath('vendor[@type=\'mysql\']');
                     if ($vendors) $vendor = current($vendors);
                     else $vendor = $relationTable->addChild('vendor');
                     $vendor['type'] = 'mysql';
-
 
                     $params = $vendor->xpath('parameter[@name=\'Charset\']');
                     if ($params) $param = current($params);
@@ -470,21 +472,21 @@ class Editor {
         return $columns;
     }
 
-    public function setModelFromObjects($pName){
-
+    public function setModelFromObjects($pName)
+    {
         Manager::prepareName($pName);
         $config = $this->getConfig($pName);
 
         $result = array();
-        foreach ($config['objects'] as $objectKey => $def){
+        foreach ($config['objects'] as $objectKey => $def) {
             $result[$objectKey] = $this->setModelFromObject($pName, $objectKey);
         }
 
         return $result;
     }
 
-    public function setModelFromObject($pName, $pObject){
-
+    public function setModelFromObject($pName, $pObject)
+    {
         Manager::prepareName($pName);
         $config = $this->getConfig($pName);
 
@@ -500,12 +502,11 @@ class Editor {
 
         if (!is_writable($path))
             throw new \FileNotWritableException(tf('The model file %s for %s is not writable.', $path ,$pName));
-        
 
-        if (file_exists($path) && filesize($path)){
+        if (file_exists($path) && filesize($path)) {
             $xml = @simplexml_load_file($path);
 
-            if ($xml === false){
+            if ($xml === false) {
                 $errors = libxml_get_errors();
                 throw new \Exception(tf('Parse error in %s: %s', $path, json_format($errors)));
             }
@@ -527,13 +528,13 @@ class Editor {
 
         $columnsDefined = array();
 
-        foreach ($object['fields'] as $fieldKey => $field){
+        foreach ($object['fields'] as $fieldKey => $field) {
 
             $columns = $this->getColumnFromField(ucfirst($pName).'\\'.$pObject, $fieldKey, $field, $objectTable, $xml, $null, $pName);
 
             if (!$columns) continue;
 
-            foreach ($columns as $key => $column){
+            foreach ($columns as $key => $column) {
                 //column exist?
                 $eColumns = $objectTable->xpath('column[@name =\''.$key.'\']');
 
@@ -547,14 +548,14 @@ class Editor {
                 $newCol['name'] = $key;
                 $columnsDefined[] = $key;
 
-                foreach ($column as $k => $v){
+                foreach ($column as $k => $v) {
                     $newCol[$k] = $v;
                 }
             }
 
         }
 
-        if ($object['workspace']){
+        if ($object['workspace']) {
             $behaviors = $objectTable->xpath('behavior[@name=\'workspace\']');
             if ($behaviors) $behavior = current($behaviors);
             else $behavior = $objectTable->addChild('behavior');
@@ -573,7 +574,6 @@ class Editor {
         $param['name'] = 'Charset';
         $param['value'] = 'utf8';
 
-
         $dom = new \DOMDocument;
         $dom->preserveWhiteSpace = false;
         $dom->loadXML($xml->asXML());
@@ -584,8 +584,8 @@ class Editor {
 
     }
 
-
-    public function saveGeneral($pName) {
+    public function saveGeneral($pName)
+    {
         Manager::prepareName($pName);
 
         $config = $this->getConfig($pName);
@@ -606,8 +606,8 @@ class Editor {
         return $this->setConfig($pName, $config);
     }
 
-
-    public function saveEntryPoints($pName, $pEntryPoints){
+    public function saveEntryPoints($pName, $pEntryPoints)
+    {
         Manager::prepareName($pName);
 
         $config = $this->getConfig($pName);
@@ -616,8 +616,8 @@ class Editor {
         return $this->setConfig($pName, $config);
     }
 
-    public function saveWindowDefinition($pClass){
-
+    public function saveWindowDefinition($pClass)
+    {
         if (substr($pClass, 0, 1) != '\\')
             $pClass = '\\'.$pClass;
 
@@ -647,24 +647,24 @@ class Editor {
             $this->addVar($sourcecode, 'fields', $fields);
 
         $listing = getArgv('list');
-        foreach ($listing as $listVarName => $listVar){
+        foreach ($listing as $listVarName => $listVar) {
             $this->addVar($sourcecode, $listVarName, $listVar);
         }
 
         $add = getArgv('add');
-        foreach ($add as $varName => $var){
+        foreach ($add as $varName => $var) {
             $this->addVar($sourcecode, $varName, $var);
         }
 
         $general = getArgv('general');
         $blacklist = array('class', 'file');
-        foreach ($general as $varName => $var){
+        foreach ($general as $varName => $var) {
             if (array_search($varName, $blacklist) !== false) continue;
             $this->addVar($sourcecode, $varName, $var);
         }
 
         $methods = getArgv('methods');
-        foreach ($methods as $name => $source){
+        foreach ($methods as $name => $source) {
             $this->addMethod($sourcecode, $source);
         }
 
@@ -678,14 +678,14 @@ class Editor {
 
     }
 
-    public function addMethod(&$pSourceCode, $pSource){
-
+    public function addMethod(&$pSourceCode, $pSource)
+    {
         $pSourceCode .= substr($pSource, 6, -4)."\n";
 
     }
 
-    public function addVar(&$pSourceCode, $pName, $pVar, $pVisibility = 'public', $pStatic = false){
-
+    public function addVar(&$pSourceCode, $pName, $pVar, $pVisibility = 'public', $pStatic = false)
+    {
         $val = var_export(self::toVar($pVar), true);
 
         if (is_array($pVar))
@@ -698,16 +698,16 @@ class Editor {
 
     }
 
-    public function toVar($pValue){
+    public function toVar($pValue)
+    {
         if ($pValue == 'true')   return true;
         if ($pValue == 'false')  return false;
         if (is_numeric($pValue)) return $pValue+0;
         return $pValue;
     }
 
-
-    public function getWindowDefinition($pClass){
-
+    public function getWindowDefinition($pClass)
+    {
         if (substr($pClass, 0, 1) != '\\')
             $pClass = '\\'.$pClass;
 
@@ -740,12 +740,12 @@ class Editor {
 
         $methods = $reflection->getMethods();
 
-        foreach ($methods as $method){
-            if ($method->class == $pClass){
+        foreach ($methods as $method) {
+            if ($method->class == $pClass) {
 
                 $code = '';
                 if ($code) $code = "    $code\n";
-                for ($i = $method->getStartLine()-1; $i < $method->getEndLine(); $i++){
+                for ($i = $method->getStartLine()-1; $i < $method->getEndLine(); $i++) {
                     $code .= $content[$i]."\n";
                 }
 
@@ -756,7 +756,7 @@ class Editor {
             }
         }
 
-        if (getArgv('parentClass')){
+        if (getArgv('parentClass')) {
             $parentClass = getArgv('parentClass', 2);
         }
 
@@ -775,8 +775,8 @@ class Editor {
      * @param $pMethods
      * @throws \ClassNotFoundException
      */
-    public static function extractParentClassInformation($pParentClass, &$pMethods){
-
+    public static function extractParentClassInformation($pParentClass, &$pMethods)
+    {
         if (!class_exists($pParentClass)) throw new \ClassNotFoundException();
 
         $reflection = new \ReflectionClass($pParentClass);
@@ -786,13 +786,13 @@ class Editor {
         $parentReflection = new \ReflectionClass($pParentClass);
 
         $methods = $parentReflection->getMethods();
-        foreach ($methods as $method){
+        foreach ($methods as $method) {
             if ($pMethods[$method->name]) continue;
 
-            if ($method->class == $pParentClass){
+            if ($method->class == $pParentClass) {
 
                 $code = '';
-                for ($i = $method->getStartLine()-1; $i < $method->getEndLine(); $i++){
+                for ($i = $method->getStartLine()-1; $i < $method->getEndLine(); $i++) {
 
                     $code .= $parentContent[$i]."\n";
                     if (strpos($parentContent[$i], '{'))
@@ -809,7 +809,7 @@ class Editor {
 
         $parent = $parentReflection->getParentClass();
 
-        if ($parent){
+        if ($parent) {
             self::extractParentClassInformation($parent->name, $pMethods);
         }
 
@@ -826,12 +826,12 @@ class Editor {
      * @return bool
      * @throws \FileAlreadyExistException
      */
-    public function newWindow($pClass, $pModule, $pForce = false){
-
+    public function newWindow($pClass, $pModule, $pForce = false)
+    {
         if (substr($pClass, 0, 1) != '\\')
             $pClass = '\\'.$pClass;
 
-        if (class_exists($pClass) && !$pForce){
+        if (class_exists($pClass) && !$pForce) {
             $reflection = new \ReflectionClass($pClass);
             throw new \FileAlreadyExistException(tf('Class already exist in %s', $reflection->getFileName()));
         }
@@ -839,7 +839,7 @@ class Editor {
         $actualPath = str_replace('\\', '/', substr($pClass, 1)).'.class.php';
         $actualPath = \Core\Kryn::getModuleDir($pModule).'controller/'.$actualPath;
 
-        if (file_exists($actualPath) && !$pForce){
+        if (file_exists($actualPath) && !$pForce) {
             throw new \FileAlreadyExistException(tf('File already exist, %s', $actualPath));
         }
 
@@ -864,9 +864,5 @@ class Editor {
 
         return SystemFile::setContent($actualPath, $sourcecode);
     }
-
-
-
-
 
 }

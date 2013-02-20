@@ -4,7 +4,6 @@ namespace Test;
 
 use Test\om\BaseItemCategoryVersion;
 
-
 /**
  * Skeleton subclass for representing a row from the 'kryn_test_item_category_version' table.
  *

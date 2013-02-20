@@ -14,25 +14,24 @@ namespace Admin;
 
 use \Core\Kryn;
 use \Core\Object;
-use \Core\Render;
 
-class AdminController {
-
+class AdminController
+{
     /**
      * Checks the access to the administration URLs and redirect to administration login if no access.
-     * 
+     *
      * @internal
      * @static
      */
-    public static function checkAccess($pUrl) {
-
+    public static function checkAccess($pUrl)
+    {
         return true;
 
-        if (substr($pUrl, 0, 9) == 'admin/ui/'){
+        if (substr($pUrl, 0, 9) == 'admin/ui/') {
             return true;
         }
 
-        if ($pUrl == 'admin/login'){
+        if ($pUrl == 'admin/login') {
             return true;
         }
 
@@ -42,17 +41,17 @@ class AdminController {
         //    throw new \AccessDeniedException(tf('Access denied.'));
     }
 
-    public function exceptionHandler($pException){
+    public function exceptionHandler($pException)
+    {
         if (get_class($pException) != 'AccessDeniedException')
             \Core\Utils::exceptionHandler($pException);
     }
 
-
-    public function run() {
-
+    public function run()
+    {
         @header('Expires:');
 
-        if (Kryn::$config['displayDetailedRestErrors']){
+        if (Kryn::$config['displayDetailedRestErrors']) {
             $exceptionHandler = array($this, 'exceptionHandler');
             $debugMode = true;
         }
@@ -65,7 +64,7 @@ class AdminController {
         $blackListForEntryPoints = array('backend', 'login', 'logged-in', 'logout', 'ui', 'system', 'file', 'object',
                                          'object-by-url');
 
-        if (array_search(getArgv(1), $blackListForEntryPoints) === false){
+        if (array_search(getArgv(1), $blackListForEntryPoints) === false) {
 
             $url =  substr($url, strlen('/admin/'));
             $entryPoint = Utils::getEntryPoint($url);
@@ -75,13 +74,13 @@ class AdminController {
                 //is window entry point?
                 $objectWindowTypes = array('list', 'edit', 'add', 'combine');
 
-                if (in_array($entryPoint['type'], $objectWindowTypes)){
+                if (in_array($entryPoint['type'], $objectWindowTypes)) {
                     $epc = new ObjectCrudController(($entryPoint['_module'] == 'admin' && getArgv(2) != 'admin' ? '': 'admin/') . $entryPoint['_url']);
                     $epc->setExceptionHandler($exceptionHandler);
                     $epc->setDebugMode($debugMode);
                     $epc->setEntryPoint($entryPoint);
                     die($epc->run());
-                } else if ($entryPoint['type'] == 'store'){
+                } elseif ($entryPoint['type'] == 'store') {
 
                     $clazz = $entryPoint['class'];
                     if (!$clazz) throw new \ClassNotFoundException(sprintf('The property `class` is not defined in entry point `%s`', $entryPoint['_url']));
@@ -96,11 +95,11 @@ class AdminController {
             }
         }
 
-        if (Kryn::isActiveModule(getArgv(2)) && getArgv(2) != 'admin'){
+        if (Kryn::isActiveModule(getArgv(2)) && getArgv(2) != 'admin') {
 
             $clazz = '\\'.ucfirst(getArgv(2)).'\\AdminController';
 
-            if (get_parent_class($clazz) == 'RestService\Server'){
+            if (get_parent_class($clazz) == 'RestService\Server') {
                 $obj = new $clazz('admin/'.getArgv(2));
                 $obj->setExceptionHandler($exceptionHandler);
                 $obj->setDebugMode($debugMode);
@@ -112,7 +111,7 @@ class AdminController {
 
         } else {
 
-            if (getArgv(1) == 'admin' && getArgv(2) == 'object'){
+            if (getArgv(1) == 'admin' && getArgv(2) == 'object') {
 
                 $entryPoint = array(
                     '_url' => 'object/'.getArgv(3).'/',
@@ -192,7 +191,6 @@ class AdminController {
 
                 //->addGetRoute('editor', 'getKEditor')
 
-
                 ->addSubController('', '\Admin\Object\Controller')
 
                     ->addGetRoute('objects', 'getItemsByUrl')
@@ -233,11 +231,8 @@ class AdminController {
                         ->addGetRoute('deactivate', 'deactivate')
                     ->done()
 
-
-
                     ->addSubController('languages', '\Admin\Languages')
                     ->done()
-
 
                     //admin/system/orm
                     ->addSubController('orm', '\Admin\ORM')
@@ -246,7 +241,6 @@ class AdminController {
                         ->addGetRoute('update', 'updateScheme')
                         ->addGetRoute('check', 'checkScheme')
                     ->done()
-
 
                     //admin/system/module/editor
                     ->addSubController('module/editor', '\Admin\Module\Editor')
@@ -276,7 +270,6 @@ class AdminController {
                         ->addPostRoute('general', 'saveGeneral')
                         ->addPostRoute('entryPoints', 'saveEntryPoints')
 
-
                     ->done()
 
                 ->done()
@@ -294,7 +287,8 @@ class AdminController {
         }
     }
 
-    public function getContentTemplate($pTemplate){
+    public function getContentTemplate($pTemplate)
+    {
         $pTemplate = str_replace('..', '', $pTemplate);
 
         $html = file_get_contents(tPath($pTemplate));
@@ -304,8 +298,8 @@ class AdminController {
         return $html;
     }
 
-    public static function addSessionScripts(){
-
+    public static function addSessionScripts()
+    {
         $response = Kryn::getResponse();
 
         $client = Kryn::getAdminClient();
@@ -317,7 +311,7 @@ class AdminController {
         $session['sessionid'] = $client->getToken();
         $session['tokenid'] = $client->getTokenId();
         $session['lang'] = $client->getSession()->getLanguage();
-        if ($client->getUserId()){
+        if ($client->getUserId()) {
             $session['username'] = $client->getUser()->getUsername();
             $session['lastlogin'] = $client->getUser()->getLastlogin();
         }
@@ -326,8 +320,8 @@ class AdminController {
         $response->addJs($css);
     }
 
-    public static function handleKEditor(){
-
+    public static function handleKEditor()
+    {
         self::addMainResources();
         self::addSessionScripts();
         $response = Kryn::getResponse();
@@ -343,8 +337,8 @@ class AdminController {
 
     }
 
-    public static function addMainResources(){
-
+    public static function addMainResources()
+    {
         $response = Kryn::getResponse();
 
         $response->addJs('window._path = window._baseUrl = '.json_encode(Kryn::getBaseUrl()));
@@ -372,8 +366,10 @@ class AdminController {
         $response->setResourceCompression(false);
     }
 
-    public function loginUser($pUsername, $pPassword){
+    public function loginUser($pUsername, $pPassword)
+    {
         $status = Kryn::getAdminClient()->login($pUsername, $pPassword);
+
         return !$status ? false :
             array(
                 'token' => Kryn::getAdminClient()->getToken(),
@@ -382,18 +378,20 @@ class AdminController {
             );
     }
 
-    public function loggedIn(){
+    public function loggedIn()
+    {
         return Kryn::getAdminClient()->getUserId() > 0;
     }
 
-    public function logoutUser(){
+    public function logoutUser()
+    {
         Kryn::getAdminClient()->logout();
+
         return true;
     }
 
-
-    public function searchAdmin($pQuery) {
-
+    public function searchAdmin($pQuery)
+    {
         $res = array();
 
         $lang = getArgv('lang');
@@ -443,20 +441,19 @@ class AdminController {
         return $res;
     }
 
-
-    public function loadCss() {
+    public function loadCss()
+    {
         return Utils::loadCss();
     }
 
-    public static function showLogin() {
-
+    public static function showLogin()
+    {
         self::addMainResources();
 
         $response = Kryn::getResponse();
         $response->addJsFile('admin/js/ka/Select.js');
         $response->addJsFile('admin/js/ka/Checkbox.js');
         self::addSessionScripts();
-
 
         $response->addJs("
         CKEDITOR.disableAutoInline = true;

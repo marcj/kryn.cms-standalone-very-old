@@ -8,22 +8,23 @@ use RestService\Server;
  * RestController for the entry points which are from type store or framework window.
  *
  */
-class ObjectCrudController extends Server {
-
+class ObjectCrudController extends Server
+{
     public $entryPoint;
 
-    public function exceptionHandler($pException){
+    public function exceptionHandler($pException)
+    {
         if (get_class($pException) != 'AccessDeniedException')
             \Core\Utils::exceptionHandler($pException);
     }
 
-    public function setEntryPoint($pEntryPoint){
+    public function setEntryPoint($pEntryPoint)
+    {
         $this->entryPoint = $pEntryPoint;
     }
 
-    public function run(){
-
-
+    public function run()
+    {
         if ($this->entryPoint['type'] == 'store') {
 
             if (!$this->entryPoint['class']) {
@@ -36,7 +37,7 @@ class ObjectCrudController extends Server {
 
             try {
                 $this->send($obj->handle($this->entryPoint));
-            } catch (Exception $e){
+            } catch (Exception $e) {
                 $this->sendError('AdminStoreException', array('exception' => $e->getMessage(), 'entryPoint' => $this->entryPoint));
             }
         } else {
@@ -73,12 +74,13 @@ class ObjectCrudController extends Server {
         }
     }
 
-
-    public function getVersion($pPk, $pId){
+    public function getVersion($pPk, $pId)
+    {
         //todo
     }
 
-    public function getVersions($pPk){
+    public function getVersions($pPk)
+    {
         //todo
     }
 
@@ -87,61 +89,61 @@ class ObjectCrudController extends Server {
      *
      * @return integer
      */
-    public function getCount(){
+    public function getCount()
+    {
         $obj = $this->getObj();
 
         return $obj->getCount();
     }
 
-
-    public function moveItem($pPk, $pTargetPk, $pPosition = 'first', $pTargetObjectKey = ''){
-
+    public function moveItem($pPk, $pTargetPk, $pPosition = 'first', $pTargetObjectKey = '')
+    {
         $obj = $this->getObj();
+
         return $obj->moveItem($pPk, $pTargetPk, $pPosition, $pTargetObjectKey);
 
     }
 
-
-
-    public function getRoots(){
-
+    public function getRoots()
+    {
         $obj = $this->getObj();
+
         return $obj->getRoots();
     }
 
-
-    public function getRoot($pScope = null){
-
+    public function getRoot($pScope = null)
+    {
         $obj = $this->getObj();
+
         return $obj->getRoot($pScope);
     }
 
-
-    public function getParent($pPk){
-
+    public function getParent($pPk)
+    {
         $obj = $this->getObj();
+
         return $obj->getParent($pPk);
     }
 
-    public function getParents($pPk){
-
+    public function getParents($pPk)
+    {
         $obj = $this->getObj();
+
         return $obj->getParents($pPk);
     }
-
 
     /**
      * Translate the label/title item of $fields.
      *
      * @param $pFields
      */
-    public static function translateFields(&$pFields){
-
-        if (is_array($pFields)){
-            foreach ($pFields as &$field){
+    public static function translateFields(&$pFields)
+    {
+        if (is_array($pFields)) {
+            foreach ($pFields as &$field) {
                 self::translateFields($field);
             }
-        } else if (is_string($pFields) && substr($pFields,0,2) == '[[' && substr($pFields,-2) == ']]'){
+        } elseif (is_string($pFields) && substr($pFields,0,2) == '[[' && substr($pFields,-2) == ']]') {
                 $pFields  = t(substr($pFields, 2, -2));
         }
 
@@ -150,24 +152,25 @@ class ObjectCrudController extends Server {
     /**
      * Proxy method for REST DELETE to remove().
      *
-     * @param string $pObject
+     * @param  string $pObject
      * @return mixed
      */
-    public function removeItem($pObject = null){
-
+    public function removeItem($pObject = null)
+    {
         $obj = $this->getObj();
         $pk = \Core\Object::parsePk($obj->getObject(), $pObject);
+
         return $obj->remove($pk[0]);
     }
 
     /**
      * Proxy method for REST PUT to update().
      *
-     * @param null $pObject
+     * @param  null  $pObject
      * @return mixed
      */
-    public function updateItem($pObject = null){
-
+    public function updateItem($pObject = null)
+    {
         $obj = $this->getObj();
 
         $pk = \Core\Object::parsePk($obj->getObject(), $pObject);
@@ -178,11 +181,11 @@ class ObjectCrudController extends Server {
     /**
      * Proxy method for REST PATCH to patch().
      *
-     * @param null $pObject
+     * @param  null  $pObject
      * @return mixed
      */
-    public function patchItem($pObject = null){
-
+    public function patchItem($pObject = null)
+    {
         $obj = $this->getObj();
 
         $pk = \Core\Object::parsePk($obj->getObject(), $pObject);
@@ -195,9 +198,10 @@ class ObjectCrudController extends Server {
      *
      * @return mixed
      */
-    public function addItem(){
-
+    public function addItem()
+    {
         $obj = $this->getObj();
+
         return $obj->add();
     }
 
@@ -206,31 +210,33 @@ class ObjectCrudController extends Server {
      *
      * @return mixed
      */
-    public function addMultipleItem(){
-
+    public function addMultipleItem()
+    {
         $obj = $this->getObj();
+
         return $obj->addMultiple();
     }
 
     /**
      * Proxy method for REST GET to getItem/getItems/getPosition.
      *
-     * @param string $pObject
-     * @param int $pLimit
-     * @param int $pOffset
-     * @param int $pGetPosition
+     * @param  string $pObject
+     * @param  int    $pLimit
+     * @param  int    $pOffset
+     * @param  int    $pGetPosition
      * @return mixed
      */
-    public function getItems($pUrl = null, $_ = null, $pLimit = null, $pOffset = null, $pGetPosition = null){
-
+    public function getItems($pUrl = null, $_ = null, $pLimit = null, $pOffset = null, $pGetPosition = null)
+    {
         $obj = $this->getObj();
 
-        if ($pGetPosition !== null){
+        if ($pGetPosition !== null) {
             return $obj->getPosition($pGetPosition);
         }
 
-        if ($pUrl !== null){
+        if ($pUrl !== null) {
             $pk = \Core\Object::parsePk($obj->getObject(), $pUrl);
+
             return $obj->getItem($pk[0]);
         } else {
             return $obj->getItems($_, $pLimit, $pOffset);
@@ -250,11 +256,12 @@ class ObjectCrudController extends Server {
         $obj = $this->getObj();
 
         $pk = \Core\Object::normalizePkString($obj->getObject(), $pPk);
+
         return $obj->getBranchItems($pk, $_, $pFields, $pScope, $pDepth, $pLimit, $pOffset);
     }
 
-    public function getBranchChildrenCount($pPk = null, $pScope = null, $_ = null){
-
+    public function getBranchChildrenCount($pPk = null, $pScope = null, $_ = null)
+    {
         $obj = $this->getObj();
 
         if ($pPk)
@@ -264,9 +271,8 @@ class ObjectCrudController extends Server {
 
     }
 
-
-    public function getItem($pPk, $pFields = null){
-
+    public function getItem($pPk, $pFields = null)
+    {
         $obj = $this->getObj();
 
         $primaryKeys = \Core\Object::parsePk($obj->getObject(), $pPk);
@@ -274,10 +280,11 @@ class ObjectCrudController extends Server {
         if (count($primaryKeys) == 1)
             return $obj->getItem($primaryKeys[0], $pFields);
         else {
-            foreach ($primaryKeys as $primaryKey){
+            foreach ($primaryKeys as $primaryKey) {
                 if ($item = $obj->getItem($primaryKey, $pFields))
                     $items[] = $item;
             }
+
             return $items;
         }
     }
@@ -287,14 +294,14 @@ class ObjectCrudController extends Server {
      *
      * @return mixed
      */
-    public function getInfo(){
-
+    public function getInfo()
+    {
         $obj = $this->getObj();
         $info = $obj->getInfo();
         $info['_isClassDefinition'] = true;
+
         return $info;
     }
-
 
     /**
      * Returns the class object, depended on the current entryPoint.
@@ -302,17 +309,18 @@ class ObjectCrudController extends Server {
      * @return \Admin\ObjectCrud
      * @throws \Exception
      */
-    public function getObj() {
-
+    public function getObj()
+    {
         if ($this->obj) return $this->obj;
 
         $class = $this->entryPoint['class'];
 
-        if (class_exists($class)){
+        if (class_exists($class)) {
             $obj = new $class($this->entryPoint);
         } else {
             throw new \Exception(tf('Class %s not found', $class));
         }
+
         return $obj;
 
     }
@@ -320,9 +328,9 @@ class ObjectCrudController extends Server {
     /**
      * @param \Admin\ObjectCrud $pObj
      */
-    public function setObj($pObj){
+    public function setObj($pObj)
+    {
         $this->obj = $pObj;
     }
-
 
 }

@@ -4,11 +4,10 @@ namespace Admin;
 
 use Core\Kryn;
 
-class UIAssets {
-
-
-    public function getPossibleLangs() {
-
+class UIAssets
+{
+    public function getPossibleLangs()
+    {
         $files = Kryn::readFolder(PATH_MODULE . 'admin/lang/', false);
         $where = "code = 'en' ";
         foreach ($files as $file)
@@ -22,9 +21,8 @@ class UIAssets {
         exit;
     }
 
-
-    public function getLanguagePluralForm($pLang){
-
+    public function getLanguagePluralForm($pLang)
+    {
         $lang = esc($pLang, 2);
         header('Content-Type: text/javascript');
         print "/* Kryn plural function */\n";
@@ -34,8 +32,8 @@ class UIAssets {
         exit;
     }
 
-    public function getLanguage($pLang) {
-
+    public function getLanguage($pLang)
+    {
         $lang = esc($pLang, 2);
 
         if (!Kryn::isValidLanguage($lang))
@@ -55,6 +53,7 @@ class UIAssets {
             exit;
         } else {
             Kryn::$lang['mootools'] = json_decode(tFetch('admin/mootools-locale.tpl'), true);
+
             return Kryn::$lang;
         }
     }
