@@ -20,7 +20,7 @@ spl_autoload_register(function($pClass){
     $fullClazz = str_replace('\\', '/', $pClass).'.class.php';
     $fullClazzWC = str_replace('\\', '/', $pClass).'.php';
 
-    $clazz = substr($fullClazz, strlen($extension)+1);
+    $clazz = substr($fullClazzWC, strlen($extension)+1);
 
     if (file_exists($file = PATH.(($extension == 'core')?PATH_CORE:PATH_MODULE . $extension).'/controller/'.$clazz)){
         include($file);
