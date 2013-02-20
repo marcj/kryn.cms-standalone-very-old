@@ -1,7 +1,7 @@
 Kryn.cms
 ========
 
-An enterprise open-source Content-Management-System and Content-Management-Framework with a full RESTful API
+A enterprise open-source Content-Management-System and Content-Management-Framework with a full RESTful API
 written in PHP and JavaScript using Symfony Components, Mootools and other rock-solid libraries.
 
 We're in development. This means, there are still a _lot_ of issues in this product (not even an Alpha) and it's not everything implemented yet.
