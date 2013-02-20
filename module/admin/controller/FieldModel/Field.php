@@ -1,10 +1,9 @@
 <?php
 
-
 namespace Admin\Model;
 
-abstract class Field {
-
+abstract class Field
+{
     /**
      *
      * $pOptions is a array which can contain following options. All options are optional.
@@ -16,12 +15,11 @@ abstract class Field {
      *
      *
      * @abstract
-     * @param bool|array  $pPrimaryKey
-     * @param bool|array  $pOptions
+     * @param bool|array $pPrimaryKey
+     * @param bool|array $pOptions
      *
      * @return array
      */
     abstract public function getItem($pPrimaryKey, $pOptions = false);
-
 
 }

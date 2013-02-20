@@ -4,7 +4,6 @@ namespace Test;
 
 use Test\om\BaseItemQuery;
 
-
 /**
  * Skeleton subclass for performing query and update operations on the 'kryn_test_item' table.
  *

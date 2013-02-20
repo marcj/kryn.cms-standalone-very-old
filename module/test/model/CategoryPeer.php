@@ -4,7 +4,6 @@ namespace Test;
 
 use Test\om\BaseCategoryPeer;
 
-
 /**
  * Skeleton subclass for performing query and update operations on the 'kryn_test_item_category_relation' table.
  *

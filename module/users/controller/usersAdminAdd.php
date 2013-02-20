@@ -1,29 +1,29 @@
 <?php
 
-class usersAdminAdd extends windowAdd {
-
+class usersAdminAdd extends windowAdd
+{
     public $object = 'user';
     public $checkUsage = true; //default on
 
     public $primary = array('id');
-    
+
     public $tabLayouts = array(
         'General' => '<table width="100%"><tr>
-        	<td width="110">
-        		 <div style="height: 100px; margin:5px" id="picture"></div>
-        	</td>
-        	<td>
-        		<div id="name"></div>
-        		<div style="clear: both"></div>
-        		<div id="lastname"></div>
-        		<div style="clear: both"></div>
-        	</td>
+            <td width="110">
+                 <div style="height: 100px; margin:5px" id="picture"></div>
+            </td>
+            <td>
+                <div id="name"></div>
+                <div style="clear: both"></div>
+                <div id="lastname"></div>
+                <div style="clear: both"></div>
+            </td>
         </tr><tr>
-        	<td colspan="2" style="padding: 10px;">
-        		<table width="100%">
-        			<tbody id="default"></tbody>
-        		</table>
-        	</td>
+            <td colspan="2" style="padding: 10px;">
+                <table width="100%">
+                    <tbody id="default"></tbody>
+                </table>
+            </td>
         </tr></table>'
     );
 
@@ -41,7 +41,7 @@ class usersAdminAdd extends windowAdd {
                 'small' => 1,
                 'type' => 'text'
             ),
-        	'last_name' => array(
+            'last_name' => array(
                 'label' => 'Last name',
                 'target' => 'lastname',
                 'small' => 1,
@@ -83,7 +83,7 @@ class usersAdminAdd extends windowAdd {
                 'tableitem' => true,
                 'type' => 'text'
             ),
-            
+
         ),
         'Account' => array(
             'username' => array(
@@ -132,23 +132,26 @@ class usersAdminAdd extends windowAdd {
         )
     );
 
-    public function userBgValue($pPrimary, $pItem){
+    public function userBgValue($pPrimary, $pItem)
+    {
         $id = $pPrimary['id'];
         $user = dbTableFetch('system_user', 1, "id = $id");
         $settings = unserialize($user['settings']);
+
         return $settings['userBg'];
     }
 
-    public function saveUserBg(){
+    public function saveUserBg()
+    {
         global $user;
         $settings = $user->user['settings'];
         $settings['userBg'] = getArgv('userBg', 1);
         $settings = serialize( $settings );
         dbUpdate( 'system_user', array('id' => $this->last), array('settings' => $settings) );
     }
-    
-    public function savePasswd( &$pRow ){
-        
+
+    public function savePasswd( &$pRow )
+    {
         $salt = krynAuth::getSalt();
         $passwd = krynAuth::getHashedPassword( getArgv('passwd'), $salt );
         $pRow['passwd'] = $passwd;
@@ -157,5 +160,3 @@ class usersAdminAdd extends windowAdd {
     }
 
 }
-
-?>

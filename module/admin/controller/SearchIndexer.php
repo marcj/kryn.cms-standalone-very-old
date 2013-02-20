@@ -2,11 +2,11 @@
 
 namespace Admin;
 
-class SearchIndexer {
-
-    public static function init() {
-
-        require_once('core/krynSearch.class.php');
+class SearchIndexer
+{
+    public static function init()
+    {
+        require_once 'core/krynSearch.class.php';
 
         switch (getArgv(4)) {
 
@@ -22,7 +22,6 @@ class SearchIndexer {
             case 'getIndexedPages4AllDomains':
                 json(self::getIndexedPages4AllDomains());
 
-
             case 'clearIndex' :
                 json(krynSearch::clearSearchIndex());
                 break;
@@ -33,19 +32,17 @@ class SearchIndexer {
             case 'getSearchIndexOverview' :
                 json(krynSearch::getSearchIndexOverview(getArgv('page_id') + 0));
                 break;
-            /*    
+            /*
             case 'getFullSiteIndexUrls' :
                //krynSearch::initSearchFromBackend($_REQUEST['domain_id']+0);
                 json(krynSearch::getFullSiteIndexUrls($_REQUEST['domain_id']+0));
             break;
-            
+
             case 'getUnindexSitePercent' :
                 //krynSearch::initSearchFromBackend($_REQUEST['domain_id']+0);
                 json(krynSearch::getUnindexSitePercent($_REQUEST['domain_id']+0));
-            break;    
-                
-            
-            
+            break;
+
             case 'getWaitlist' :
                     json(krynSearch::getWaitlist());
             break;
@@ -55,11 +52,6 @@ class SearchIndexer {
             case 'pushPageTree':
                 json(krynSearch::pushPageTree());
             break;
-
-
-
-
-
 
             case 'hasPermissionCheck':
                 json(array('hasPermission' => krynSearch::checkAutoCrawlPermission()));
@@ -73,21 +65,21 @@ class SearchIndexer {
         exit();
     }
 
-    public static function getIndexedPages4AllDomains() {
-
+    public static function getIndexedPages4AllDomains()
+    {
         $items = dbExfetch('
-        	SELECT max(d.domain) as domain, max(d.lang) as lang, count(s.domain_id)+0 as indexedcount
-        	FROM %pfx%system_domains d
-        	LEFT OUTER JOIN %pfx%system_search s ON (s.domain_id = d.id AND s.mdate > 0 AND (blacklist IS NULL OR blacklist = 0) )
-        	
-        	GROUP BY d.id
+            SELECT max(d.domain) as domain, max(d.lang) as lang, count(s.domain_id)+0 as indexedcount
+            FROM %pfx%system_domains d
+            LEFT OUTER JOIN %pfx%system_search s ON (s.domain_id = d.id AND s.mdate > 0 AND (blacklist IS NULL OR blacklist = 0) )
+
+            GROUP BY d.id
         ', -1);
 
         return $items;
     }
 
-    public static function getNewUnindexedPages() {
-
+    public static function getNewUnindexedPages()
+    {
         $res['access'] = self::hasPermission();
         if ($res['access'] == false) return $res;
 
@@ -99,13 +91,11 @@ class SearchIndexer {
 
         $res['pages'] = array();
 
-
         require_once(PATH_MODULE . 'admin/adminPages.class.php');
 
         while ($row = dbFetch($dres)) {
 
             $res['pages'][] = $row;
-
 
             $urls = kryn::getCache('systemUrls-' . $row['domain_id']);
             if (!$urls) {
@@ -120,20 +110,23 @@ class SearchIndexer {
         return $res;
     }
 
-    public static function getWaitlist() {
+    public static function getWaitlist()
+    {
         $res['access'] = self::hasPermission();
         if ($res['access'] == false) return $res;
 
         $blacklistTimeout = time() - krynSearch::$blacklistTimeout;
 
         $res['pages'] = dbExfetch('
-        	SELECT s.url, d.domain, d.master, d.lang, d.path FROM %pfx%system_search s, %pfx%system_domains d WHERE
-        	d.id = s.domain_id AND s.mdate = 0 AND (s.blacklist IS NULL OR  s.blacklist < ' . $blacklistTimeout . ' )'
+            SELECT s.url, d.domain, d.master, d.lang, d.path FROM %pfx%system_search s, %pfx%system_domains d WHERE
+            d.id = s.domain_id AND s.mdate = 0 AND (s.blacklist IS NULL OR  s.blacklist < ' . $blacklistTimeout . ' )'
             , -1);
+
         return $res;
     }
 
-    public static function getIndex() {
+    public static function getIndex()
+    {
         $res['access'] = self::hasPermission();
         if ($res['access'] == false) return $res;
 
@@ -141,8 +134,8 @@ class SearchIndexer {
         $nextCheckTimeout = time() - krynSearch::$minWaitTimeTillNextCrawl;
 
         $res['pages'] = dbExfetch('
-        	SELECT s.url, d.domain, d.master, d.lang, d.path FROM %pfx%system_search s, %pfx%system_domains d WHERE
-        	d.id = s.domain_id AND s.mdate < ' . $nextCheckTimeout . '  AND (s.blacklist IS NULL OR  s.blacklist < ' .
+            SELECT s.url, d.domain, d.master, d.lang, d.path FROM %pfx%system_search s, %pfx%system_domains d WHERE
+            d.id = s.domain_id AND s.mdate < ' . $nextCheckTimeout . '  AND (s.blacklist IS NULL OR  s.blacklist < ' .
                                   $blacklistTimeout . ' )'
             , -1);
 
@@ -154,7 +147,8 @@ class SearchIndexer {
      * Set us as new crawler when old crawler is expired and/or update the crawler-time.
      */
 
-    public static function hasPermission() {
+    public static function hasPermission()
+    {
         global $currentCrawler;
 
         $timeout = 2 * 60;
@@ -170,11 +164,10 @@ class SearchIndexer {
             $crawler['time'] = time();
             $php = "<?php \n" . '$currentCrawler = ' . var_export($crawler, true) . "; \n?>";
             kryn::fileWrite(PATH_MODULE . "admin/crawler.php", $php);
+
             return true;
         }
 
         return false;
     }
 }
-
-?>

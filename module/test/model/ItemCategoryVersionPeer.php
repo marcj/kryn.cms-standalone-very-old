@@ -4,7 +4,6 @@ namespace Test;
 
 use Test\om\BaseItemCategoryVersionPeer;
 
-
 /**
  * Skeleton subclass for performing query and update operations on the 'kryn_test_item_category_version' table.
  *

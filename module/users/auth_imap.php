@@ -1,21 +1,19 @@
 <?php
 
+class auth_imap extends krynAuth
+{
+    public function checkCredentials( $pLogin, $pPassword )
+    {
+        if ( function_exists('imap_open') ) {
 
-class auth_imap extends krynAuth {
-
-
-    public function checkCredentials( $pLogin, $pPassword ){
-    
-        if( function_exists('imap_open') ){
-        
             $host = $this->config['auth_params']['server'];
             $port = $this->config['auth_params']['port'];
-            
+
             $string = '{'.$host.':'.$port.'';
-            
+
             if( $this->config['auth_params']['ssl'] )
                 $string .= '/ssl';
-                
+
             if( $this->config['auth_params']['novalidate-cert'] )
                 $string .= '/novalidate-cert';
 
@@ -25,11 +23,12 @@ class auth_imap extends krynAuth {
                 $string .= '/notls';
 
             $string .= '}';
-                
+
             $imap = imap_open($string, $pLogin, $pPassword, OP_HALFOPEN);
 
-            if( $imap ){
+            if ($imap) {
                 imap_close( $imap );
+
                 return true;
             }
         } else {
@@ -39,6 +38,3 @@ class auth_imap extends krynAuth {
         return false;
     }
 }
-
-
-?>

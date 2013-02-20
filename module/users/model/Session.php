@@ -7,7 +7,7 @@ use Users\om\BaseSession;
 /**
  * Skeleton subclass for representing a row from the 'kryn_system_session' table.
  *
- * 
+ *
  *
  * You should add additional methods to this class to meet the
  * application requirements.  This class will only be generated as
@@ -15,15 +15,17 @@ use Users\om\BaseSession;
  *
  * @package    propel.generator.kryn
  */
-class Session extends BaseSession {
-
+class Session extends BaseSession
+{
     private $isStoredInDatabase = true;
 
-    public function setIsStoredInDatabase($isStoredInDatabase) {
+    public function setIsStoredInDatabase($isStoredInDatabase)
+    {
         $this->isStoredInDatabase = $isStoredInDatabase;
     }
 
-    public function getIsStoredInDatabase() {
+    public function getIsStoredInDatabase()
+    {
         return $this->isStoredInDatabase;
     }
 
@@ -35,14 +37,15 @@ class Session extends BaseSession {
      * method.  This method wraps all precipitate database operations in a
      * single transaction.
      *
-     * @param      PropelPDO $con
+     * @param  PropelPDO       $con
      * @return int             The number of rows affected by this insert/update and any referring fk objects' save() operations.
      * @throws PropelException
      * @throws Exception
      * @see        doSave()
      */
-    public function save(\PropelPDO $con = null){
-        if ($this->getIsStoredInDatabase()){
+    public function save(\PropelPDO $con = null)
+    {
+        if ($this->getIsStoredInDatabase()) {
             parent::save($con);
         }
     }
@@ -53,11 +56,12 @@ class Session extends BaseSession {
      *
      * @return User
      */
-    public function getUser(PropelPDO $con = null, $doQuery = true){
+    public function getUser(PropelPDO $con = null, $doQuery = true)
+    {
         $user = parent::getUser();
-        if (!$user){
+        if (!$user) {
 
-            if (!$this->user_guest){
+            if (!$this->user_guest) {
                 $this->user_guest = new User();
                 $this->user_guest->setId(0);
                 $this->user_guest->setUsername('Guest');

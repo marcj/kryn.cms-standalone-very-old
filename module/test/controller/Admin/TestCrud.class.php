@@ -1,18 +1,18 @@
 <?php
 
 namespace Test\Admin;
- 
-class TestCrud extends \Admin\ObjectCrud {
 
+class TestCrud extends \Admin\ObjectCrud
+{
     public $fields = array (
-  '__Gazzo__' => 
+  '__Gazzo__' =>
   array (
     'label' => 'Gazzo',
     'type' => 'tab',
     'key' => '__Gazzo__',
-    'children' => 
+    'children' =>
     array (
-      'name' => 
+      'name' =>
       array (
         'key' => 'name',
         'label' => 'Name',
@@ -23,13 +23,13 @@ class TestCrud extends \Admin\ObjectCrud {
 );
 
     public $columns = array (
-  'id' => 
+  'id' =>
   array (
     'label' => '#',
     'type' => 'text',
     'width' => '100',
   ),
-  'name' => 
+  'name' =>
   array (
     'label' => 'Name',
     'type' => 'text',
@@ -41,7 +41,7 @@ class TestCrud extends \Admin\ObjectCrud {
     public $itemsPerPage = 10;
 
     public $order = array (
-  0 => 
+  0 =>
   array (
     'field' => 'name',
     'direction' => 'asc',
@@ -77,6 +77,5 @@ class TestCrud extends \Admin\ObjectCrud {
     public $multiDomain = false;
 
     public $versioning = true;
-
 
 }

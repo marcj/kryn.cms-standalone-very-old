@@ -1,6 +1,5 @@
 <?php
 
-
 /*
  * This file is part of Kryn.cms.
  *
@@ -15,11 +14,10 @@ namespace Admin;
 
 use Core\Kryn;
 
-
-class Pages {
-
-    public static function init() {
-
+class Unassigned_Pages
+{
+    public static function init()
+    {
         switch (getArgv(3)) {
             case 'domain':
                 return self::domain();
@@ -61,6 +59,7 @@ class Pages {
             case 'getVersion':
                 $id = getArgv('id') + 0;
                 $version = getArgv('version') + 0;
+
                 return json(self::getVersion($id, $version));
             /*case 'addVersion':
         return self::addVersion( getArgv('id')+0, getArgv('name',true) );*/
@@ -83,7 +82,8 @@ class Pages {
         }
     }
 /*
-    public static function setHide($pRsn, $pVisible) {
+    public static function setHide($pRsn, $pVisible)
+    {
         $pRsn += 0;
         $pVisible += 0;
 
@@ -91,8 +91,8 @@ class Pages {
             dbUpdate('system_page', 'id = ' . $pRsn, array('visible' => $pVisible));
     }
 
-    public static function getPageInfo($pRsn) {
-
+    public static function getPageInfo($pRsn)
+    {
         $pRsn += 0;
         $page = dbTableFetch('system_page', "id = $pRsn", 1);
         $page['_parents'] = Kryn::getPageParents($pRsn);
@@ -104,21 +104,23 @@ class Pages {
 
     }
 
-    public static function getAliases($pRsn) {
+    public static function getAliases($pRsn)
+    {
         $pRsn = $pRsn + 0;
 
         $items = dbTableFetch('system_page_alias', 'to_page_id = ' . $pRsn, -1);
         json($items);
     }
 
-    public static function deleteAlias($pRsn) {
+    public static function deleteAlias($pRsn)
+    {
         $pRsn = $pRsn + 0;
 
         dbDelete('system_page_alias', 'id = ' . $pRsn);
     }
 
-    public static function setLive($pVersion) {
-
+    public static function setLive($pVersion)
+    {
         $pVersion = $pVersion + 0;
         $version = dbTableFetch('system_page_version', 1, 'id = ' . $pVersion);
 
@@ -133,14 +135,16 @@ class Pages {
 
             dbUpdate('system_page_version', array('page_id' => $version['page_id']), array('active' => 0));
             dbUpdate('system_page_version', array('id' => $version['id']), array('active' => 1));
+
             return 1;
         }
+
         return 0;
 
     }
 
-    public static function paste() {
-
+    public static function paste()
+    {
         $domain = getArgv('to_domain') == 1 ? true : false;
         if (getArgv('type') == 'pageCopy') {
             self::copyPage(getArgv('page'), getArgv('to'), $domain, getArgv('pos'));
@@ -168,7 +172,8 @@ class Pages {
 
     }
 
-    public static function copyPage($pFrom, $pTo, $pToDomain, $pPos, $pWithSubpages = false, $pWithoutThisPage = false) {
+    public static function copyPage($pFrom, $pTo, $pToDomain, $pPos, $pWithSubpages = false, $pWithoutThisPage = false)
+    {
         global $user;
 
         $pFrom += 0;
@@ -237,7 +242,7 @@ class Pages {
                     if ($end + 0 > 0) {
                         if ($newCount < $end + 1)
                             $newCount = $end + 1; //$newPage['title'] .= ' #'.($end+1);
-                    } else if ($end == '') { //equal title
+                    } elseif ($end == '') { //equal title
                         if ($newCount == 0)
                             $newCount = 1; //$newPage['title'] .= ' #1';
                     }
@@ -260,7 +265,7 @@ class Pages {
                     $end = substr($sibling['url'], strlen($newPage['url']));
                     if ($end + 0 > 0) {
                         $newPage['url'] .= '_' . ($end + 1);
-                    } else if ($end == '') { //equal title
+                    } elseif ($end == '') { //equal title
                         $newPage['url'] .= '_1';
                     }
                 }
@@ -324,7 +329,6 @@ class Pages {
             }
         }
 
-
         //copy subpages
         if ($pWithSubpages) {
             if (count($childs) > 0) {
@@ -337,7 +341,8 @@ class Pages {
         return $lastId;
     }
 
-    public static function domain() {
+    public static function domain()
+    {
         switch (getArgv(4)) {
             case 'add':
                 return self::addDomain();
@@ -352,7 +357,8 @@ class Pages {
         }
     }
 
-    public static function getDomainMaster() {
+    public static function getDomainMaster()
+    {
         $id = getArgv('id') + 0;
         if (!Kryn::checkPageAcl($id, 'domainLanguageMaster', 'd')) {
             json(array('error' => 'access_denied'));
@@ -363,12 +369,12 @@ class Pages {
         json($res);
     }
 
-    public static function saveDomain() {
+    public static function saveDomain()
+    {
         $id = getArgv('id') + 0;
 
         $dbUpdate = array();
         $canChangeMaster = false;
-
 
         if (Kryn::checkPageAcl($id, 'domainName', 'd')) {
             $dbUpdate[] = 'domain';
@@ -399,7 +405,6 @@ class Pages {
             $dbUpdate[] = 'email';
         }
 
-
         if (Kryn::checkPageAcl($id, 'themeProperties', 'd')) {
             $dbUpdate[] = 'themeproperties';
         }
@@ -413,7 +418,6 @@ class Pages {
             $dbUpdate[] = 'alias';
             $dbUpdate[] = 'redirect';
         }
-
 
         if (Kryn::checkPageAcl($id, 'phpLocale', 'd')) {
             $dbUpdate[] = 'phplocale';
@@ -447,9 +451,8 @@ class Pages {
         json($domain);
     }
 
-    public static function getDomain() {
-
-
+    public static function getDomain()
+    {
         $id = getArgv('id') + 0;
 
         if (!Kryn::checkPageAcl($id, 'showDomain', 'd')) {
@@ -460,9 +463,9 @@ class Pages {
         json($res);
     }
 
-    public static function delDomain() {
+    public static function delDomain()
+    {
         $domain = getArgv('id') + 0;
-
 
         if (!Kryn::checkPageAcl($domain, 'deleteDomain', 'd')) {
             json(array('error' => 'access_denied'));
@@ -474,8 +477,8 @@ class Pages {
         json(true);
     }
 
-    public static function addDomain() {
-
+    public static function addDomain()
+    {
         if (!Kryn::checkUrlAccess('admin/pages/addDomains'))
             json(array('error' => 'access_denied'));
         ;
@@ -507,14 +510,15 @@ class Pages {
         return $res;
     }
 
-    public static function getUrl($pRsn) {
+    public static function getUrl($pRsn)
+    {
         $pRsn = $pRsn + 0;
 
         json(Kryn::getPagePath($pRsn));
     }
 
-    public static function deletePage($pPage, $pNoCacheRefresh = false) {
-
+    public static function deletePage($pPage, $pNoCacheRefresh = false)
+    {
         $pPage = $pPage + 0;
 
         if (!Kryn::checkPageAcl($pPage, 'deletePages')) {
@@ -543,7 +547,8 @@ class Pages {
         }
     }
 
-    public static function getDomains($pLanguage) {
+    public static function getDomains($pLanguage)
+    {
         $where = " 1=1 ";
         if ($pLanguage != "")
             $where = "lang = '$pLanguage'";
@@ -560,8 +565,8 @@ class Pages {
         json($result);
     }
 
-
-    public static function getTemplate($pTemplate) {
+    public static function getTemplate($pTemplate)
+    {
         global $cfg;
 
         Kryn::resetJs();
@@ -606,7 +611,7 @@ class Pages {
             'MooEditable.Table.css'
         );
 
-        //foreach( $js as $t ){
+        //foreach ($js as $t) {
         //    Kryn::addHeader( '<script type="text/javascript" src="'.'http://'.getArgv('domain').$domainPath.
         //        'inc/lib/mooeditable/Source/MooEditable/'.$t.'"></script>');
         //}
@@ -616,7 +621,6 @@ class Pages {
                 '<link rel="stylesheet" type="text/css" href="' . 'http://' . getArgv('domain') . $domainPath .
                 'inc/lib/mooeditable/Assets/MooEditable/' . $t . '" />');
         }
-
 
         $id = getArgv('id') + 0;
         $page = dbTableFetch('system_page', 1, "id = $id");
@@ -660,8 +664,8 @@ class Pages {
         exit;
     }
 
-    public static function getVersion($pPageRsn, $pVersion) {
-
+    public static function getVersion($pPageRsn, $pVersion)
+    {
         $pPageRsn = $pPageRsn + 0;
 
         if (!Kryn::checkPageAcl($pPageRsn, 'versions')) {
@@ -679,12 +683,13 @@ class Pages {
                 $contents[$cont['box_id']][] = $cont;
             }
         }
+
         return $contents;
     }
 
-    public static function getVersions() {
+    public static function getVersions()
+    {
         $id = getArgv('id') + 0;
-
 
         if (!Kryn::checkPageAcl($id, 'versions')) {
             json(array('error' => 'access_denied'));
@@ -696,14 +701,16 @@ class Pages {
         json($res);
     }
 
-    public static function addNotice($pRsn) {
+    public static function addNotice($pRsn)
+    {
         global $user;
         dbInsert('system_page_notices', array('page_id' => $pRsn, 'user_id' => $user->user_id, 'content',
             'created' => time()));
         json(true);
     }
 
-    public static function getNotices($pRsn) {
+    public static function getNotices($pRsn)
+    {
         $res['notices'] = dbExfetch('SELECT n.*, u.username
             FROM '.pfx.'system_page_notices n, '.pfx.'system_user u
             WHERE u.id = n.user_id AND page_id = ' . $pRsn . ' ORDER BY id', DB_FETCH_ALL);
@@ -711,7 +718,8 @@ class Pages {
         json($res);
     }
 
-    public static function getTreeDomain($pDomainRsn) {
+    public static function getTreeDomain($pDomainRsn)
+    {
         $pDomainRsn = $pDomainRsn + 0;
 
         $viewAllPages = (getArgv('viewAllPages') == 1) ? true : false;
@@ -741,7 +749,8 @@ class Pages {
         json($domain);
     }
 
-    public static function getTree($pPageRsn) {
+    public static function getTree($pPageRsn)
+    {
         $pPageRsn += 0;
 
         if ($pPageRsn == 0) return array();
@@ -775,6 +784,7 @@ class Pages {
                     unset($item);
                 }
             }
+
             return $items;
 
         } else {
@@ -782,7 +792,8 @@ class Pages {
         }
     }
 
-    public static function fixPageDomainRsn($pPageRsn, $pDomainRsn) {
+    public static function fixPageDomainRsn($pPageRsn, $pDomainRsn)
+    {
         $pPageRsn += 0;
 
         dbUpdate('system_page', 'pid = ' . $pPageRsn, array('domain_id' => $pDomainRsn));
@@ -795,7 +806,4 @@ class Pages {
     }
 */
 
-
 }
-
-?>

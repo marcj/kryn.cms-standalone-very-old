@@ -4,11 +4,10 @@ namespace Publication;
 
 use Publication\om\BaseNewsQuery;
 
-
 /**
  * Skeleton subclass for performing query and update operations on the 'kryn_publication_news' table.
  *
- * 
+ *
  *
  * You should add additional methods to this class to meet the
  * application requirements.  This class will only be generated as
@@ -16,6 +15,6 @@ use Publication\om\BaseNewsQuery;
  *
  * @package    propel.generator.Publication
  */
-class NewsQuery extends BaseNewsQuery {
-
+class NewsQuery extends BaseNewsQuery
+{
 } // NewsQuery

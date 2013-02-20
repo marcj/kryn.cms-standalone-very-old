@@ -1,28 +1,35 @@
 <?php
 
-class publication extends krynModule {
-    public static function newsDetailFixed($pConf) {
+class publication extends krynModule
+{
+    public static function newsDetailFixed($pConf)
+    {
         $_REQUEST['e2'] = $pConf['news_id'];
         require_once(PATH_MODULE . 'publication/publicationNews.class.php');
+
         return publicationNews::itemDetail($pConf);
     }
 
-    public static function newsList($pConf) {
+    public static function newsList($pConf)
+    {
         // Check if RSS is requested
         if ($pConf['enableRss'] && getArgv('publication_rss') + 0 == 1)
             self::rssList($pConf); // rssList calls die(), no return needed
 
         require_once(PATH_MODULE . 'publication/publicationNews.class.php');
+
         return publicationNews::itemList($pConf);
     }
 
-    public static function newsDetail($pConf) {
+    public static function newsDetail($pConf)
+    {
         require_once(PATH_MODULE . 'publication/publicationNews.class.php');
+
         return publicationNews::itemDetail($pConf);
     }
 
-    public function categoryList($pConf) {
-
+    public function categoryList($pConf)
+    {
         $categories = implode($pConf['category_id'], ",");
         tAssign('pConf', $pConf);
 
@@ -54,6 +61,7 @@ class publication extends krynModule {
                 ));
             }
             kryn::deleteCache($cacheKey);
+
             return self::categoryList($pConf);
         }
 
@@ -63,13 +71,11 @@ class publication extends krynModule {
 
     }
 
-
-    public static function rssList($pConf) {
+    public static function rssList($pConf)
+    {
         require_once(PATH_MODULE . 'publication/publicationNews.class.php');
+
         return publicationNews::rssList($pConf);
     }
 
 }
-
-
-?>

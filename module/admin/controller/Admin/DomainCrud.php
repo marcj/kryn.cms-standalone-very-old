@@ -1,9 +1,9 @@
 <?php
 
 namespace Admin\Admin;
- 
-class DomainCrud extends \Admin\ObjectCrud {
 
+class DomainCrud extends \Admin\ObjectCrud
+{
     public $fields = array (
   '__General__' => array (
     'label' => 'General',
@@ -52,6 +52,5 @@ class DomainCrud extends \Admin\ObjectCrud {
     public $multiDomain = false;
 
     public $versioning = false;
-
 
 }

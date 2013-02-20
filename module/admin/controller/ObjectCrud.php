@@ -5,9 +5,8 @@ namespace Admin;
 use \Core\Kryn;
 use \Core\Object;
 
-class ObjectCrud {
-
-
+class ObjectCrud
+{
     /**
      * Defines the table which should be accessed.
      * This variable has to be set by any subclass.
@@ -60,7 +59,7 @@ class ObjectCrud {
      *     'id' => 1234,
      *     'subId' => 5678
      * )
-     * 
+     *
      * @var array
      * @see getPrimaryKey()
      */
@@ -115,7 +114,6 @@ class ObjectCrud {
      */
     public $orderByDirection = 'ASC';
 
-
     /**
      * Default order
      *
@@ -141,7 +139,6 @@ class ObjectCrud {
      * @var array
      */
     public $filter = array();
-
 
     /**
      * Defines the icon for the add button. Relative to media/ or #className for vector images
@@ -171,11 +168,10 @@ class ObjectCrud {
      */
     public $removeIconItem = '#icon-remove-3';
 
-
     /**
      * The system opens this entrypoint when clicking on the add newt_button(left, top, text)n.
      * Default is <current>/.
-     * 
+     *
      * Relative or absolute paths are allowed.
      * Empty means current entrypoint.
       *
@@ -204,7 +200,6 @@ class ObjectCrud {
      */
     public $allowCustomSelectFields = false;
 
-
     public $nestedRootEdit = false;
     public $nestedRootAdd = false;
     public $nestedAddWithPositionSelection = true;
@@ -231,9 +226,6 @@ class ObjectCrud {
 
     public $addMultipleFixedFields = array();
 
-
-
-
     /**
      * Defines whether the remove/delete button should be displayed
      * Also on each row the Delete-Button and the checkboxes.
@@ -247,7 +239,6 @@ class ObjectCrud {
      * @var boolean
      */
     public $edit = false;
-
 
     public $nestedMoveable = true;
 
@@ -294,7 +285,7 @@ class ObjectCrud {
 
     /**
      * Flatten list of fields.
-     * 
+     *
      * @var array
      */
     public $_fields = array();
@@ -304,7 +295,6 @@ class ObjectCrud {
      * @var boolean
      */
     public $permissionCheck = true;
-
 
     /**
      * If the object is a nested set, then you should switch this property to true.
@@ -316,25 +306,25 @@ class ObjectCrud {
     /**
      * Constructor
      */
-    public function __construct($pEntryPoint = null, $pWithoutObjectCheck = false) {
-
+    public function __construct($pEntryPoint = null, $pWithoutObjectCheck = false)
+    {
         $this->entryPoint = $pEntryPoint;
 
         $this->initialize($pWithoutObjectCheck = false);
     }
 
-    public function initialize($pWithoutObjectCheck = false){
-
+    public function initialize($pWithoutObjectCheck = false)
+    {
         $this->objectDefinition = \Core\Object::getDefinition($this->getObject());
-        if (!$this->objectDefinition && $this->getObject() && !$pWithoutObjectCheck){
+        if (!$this->objectDefinition && $this->getObject() && !$pWithoutObjectCheck) {
             throw new \ObjectNotFoundException("Can not find object '".$this->getObject()."'");
         }
 
         $this->table = $this->objectDefinition['table'];
         $this->primary = array();
 
-        foreach ($this->objectDefinition['fields'] as $key => &$field){
-            if($field['primaryKey']){
+        foreach ($this->objectDefinition['fields'] as $key => &$field) {
+            if ($field['primaryKey']) {
                 $this->primary[] = $key;
             }
         }
@@ -343,22 +333,22 @@ class ObjectCrud {
             $this->titleField = $this->objectDefinition['label'];
 
         //resolve shortcuts
-        if ($this->fields){
+        if ($this->fields) {
             $this->prepareFieldDefinition($this->fields);
             ObjectCrudController::translateFields($this->fields);
         }
 
-        if ($this->columns){
+        if ($this->columns) {
             $this->prepareFieldDefinition($this->columns);
             ObjectCrudController::translateFields($this->columns);
         }
 
-        if ($this->addMultipleFields){
+        if ($this->addMultipleFields) {
             $this->prepareFieldDefinition($this->addMultipleFields);
             ObjectCrudController::translateFields($this->addMultipleFields);
         }
 
-        if ($this->addMultipleFixedFields){
+        if ($this->addMultipleFixedFields) {
             $this->prepareFieldDefinition($this->addMultipleFixedFields);
             ObjectCrudController::translateFields($this->addMultipleFixedFields);
         }
@@ -367,14 +357,14 @@ class ObjectCrud {
         if (count($this->fields) > 0 )
             $this->prepareFieldItem($this->fields);
 
-        if (is_string($this->primary)){
+        if (is_string($this->primary)) {
             $this->primary = explode(',', str_replace(' ', '', $this->primary));
         }
 
         if (getArgv('order'))
             $this->setOrder(getArgv('order'));
 
-        if (!$this->order || count($this->order) == 0){
+        if (!$this->order || count($this->order) == 0) {
 
             /* compatibility */
             $this->orderByDirection = (strtolower($this->orderByDirection) == 'asc') ? 'asc' : 'desc';
@@ -383,14 +373,14 @@ class ObjectCrud {
 
         }
 
-        if ((!$this->order || count($this->order) == 0) && $this->columns){
+        if ((!$this->order || count($this->order) == 0) && $this->columns) {
             $this->order[key($this->columns)] = 'asc';
         }
 
         //normalize order array
-        if (count($this->order) > 0 && is_numeric(key($this->order))){
+        if (count($this->order) > 0 && is_numeric(key($this->order))) {
             $newOrder = array();
-            foreach ($this->order as $order){
+            foreach ($this->order as $order) {
                 $newOrder[$order['field']] = $order['direction'];
             }
             $this->order = $newOrder;
@@ -410,7 +400,6 @@ class ObjectCrud {
                     $fieldKey = $key;
                 }
 
-
                 //$this->prepareFieldItem($field);
                 $this->filterFields[$fieldKey] = $field;
             }
@@ -421,20 +410,20 @@ class ObjectCrud {
 
     }
 
-    public function translate(&$pField){
-
+    public function translate(&$pField)
+    {
         if (is_string($pField) && substr($pField, 0, 2) == '[[' && substr($pField, -2) == ']]')
             $pField = t(substr($pField, 2, -2));
 
     }
 
-    public function getInfo(){
-
+    public function getInfo()
+    {
         $vars = get_object_vars($this);
         $blacklist = array('objectDefinition', 'entryPoint');
         $result = array();
 
-        foreach ($vars as $var => $val){
+        foreach ($vars as $var => $val) {
             if (in_array($var, $blacklist)) continue;
             $method = 'get'.ucfirst($var);
             if (method_exists($this, $method))
@@ -451,11 +440,11 @@ class ObjectCrud {
      *
      * @param $pFields
      */
-    public function prepareFieldDefinition(&$pFields){
-
+    public function prepareFieldDefinition(&$pFields)
+    {
         $i = 0;
-        foreach ($pFields as $key => $field){
-            if (is_numeric($key)){
+        foreach ($pFields as $key => $field) {
+            if (is_numeric($key)) {
 
                 $newItem = $this->objectDefinition['fields'][lcfirst($field)];
                 if (!$newItem['label']) $newItem['label'] = $field;
@@ -471,8 +460,7 @@ class ObjectCrud {
             $i++;
         }
 
-
-        foreach ($pFields as $key => &$field){
+        foreach ($pFields as $key => &$field) {
 
             if (!is_array($field)) continue;
 
@@ -497,8 +485,8 @@ class ObjectCrud {
      * @param array $pFields
      * @param bool  $pKey
      */
-    public function prepareFieldItem(&$pFields, $pKey = false) {
-
+    public function prepareFieldItem(&$pFields, $pKey = false)
+    {
         if (is_array($pFields) && !is_string($pFields['type']) && !is_string($pFields['label'])) {
             foreach ($pFields as $key => &$field) {
                 $this->prepareFieldItem($field, $key);
@@ -509,10 +497,11 @@ class ObjectCrud {
 
             if ($pFields['needAccess'] && !Kryn::checkUrlAccess($pFields['needAccess'])) {
                 $pFields = null;
+
                 return;
             }*/
 
-            if(substr($pKey,0,2) != '__' && substr($pKey, -2) != '__'){
+            if (substr($pKey,0,2) != '__' && substr($pKey, -2) != '__') {
 
                 $this->_fields[$pKey] = $pFields;
 
@@ -521,10 +510,10 @@ class ObjectCrud {
 
                         $def = Object::getDefinition($pFields['object']);
                         $def = $def['fields'][$pFields['field']];
-                        if ($def){
+                        if ($def) {
                             unset($pFields['object']);
                             unset($pFields['field']);
-                            foreach ($def as $k => $v){
+                            foreach ($def as $k => $v) {
                                 $pFields[$k] = $v;
                             }
                             unset($pFields['primaryKey']);
@@ -562,26 +551,25 @@ class ObjectCrud {
 
             if (is_array($pFields['children']))
                 $this->prepareFieldItem($pFields['children']);
-            
+
         }
     }
 
-
-    public function getDefaultFieldList(){
-
+    public function getDefaultFieldList()
+    {
         $fields = array();
 
-        foreach ($this->_fields as $key => $field){
-            if (!$field['customValue'] && !$field['startEmpty']){
+        foreach ($this->_fields as $key => $field) {
+            if (!$field['customValue'] && !$field['startEmpty']) {
                 $fields[] = $key;
             }
         }
+
         return $fields;
     }
 
-
-    public function getPosition($pPk){
-
+    public function getPosition($pPk)
+    {
         /*$obj = \Core\Object::getClass($this->object);
         $primaryKey = $obj->normalizePrimaryKey($pPk);
 
@@ -598,18 +586,18 @@ class ObjectCrud {
 
         $position = 0;
 
-        if (count($primaryKey) == 1){
+        if (count($primaryKey) == 1) {
             $singlePrimaryKey = key($primaryKey);
             $singlePrimaryValue = current($primaryKey);
         }
 
-        foreach ($items as $item){
+        foreach ($items as $item) {
 
-            if ($singlePrimaryKey){
+            if ($singlePrimaryKey) {
                 if ($item[$singlePrimaryKey] == $singlePrimaryValue) break;
             } else {
                 $isItem = true;
-                foreach ($primaryKey as $prim => $val){
+                foreach ($primaryKey as $prim => $val) {
                     if ($item[$prim] != $val) $isItem = false;
                 }
                 if ($isItem) break;
@@ -631,13 +619,13 @@ class ObjectCrud {
      *       'pages' => $maxPages
      *   );
      *
-     * @param array $pFilter
-     * @param int $pLimit
-     * @param int $pOffset
+     * @param  array $pFilter
+     * @param  int   $pLimit
+     * @param  int   $pOffset
      * @return array
      */
-    public function getItems($pFilter = null, $pLimit = null, $pOffset = null) {
-
+    public function getItems($pFilter = null, $pLimit = null, $pOffset = null)
+    {
         $options   = array();
         $options['permissionCheck'] = $this->getPermissionCheck();
         $options['offset'] = $pOffset;
@@ -655,10 +643,10 @@ class ObjectCrud {
         if ($pFilter)
             $condition = self::buildFilter($pFilter);
 
-        if ($this->getMultiLanguage()){
+        if ($this->getMultiLanguage()) {
 
             //does the object have a lang field?
-            if ($this->objectDefinition['fields']['lang']){
+            if ($this->objectDefinition['fields']['lang']) {
 
                 //add language condition
                 $langCondition = array(
@@ -678,54 +666,54 @@ class ObjectCrud {
         return $items;
     }
 
-
-
     /**
-     * @param array $pFilter
+     * @param  array      $pFilter
      * @return array|null
      */
-    public static function buildFilter($pFilter){
+    public static function buildFilter($pFilter)
+    {
         $condition = null;
 
-        if (is_array($pFilter)){
+        if (is_array($pFilter)) {
             //build condition query
             $condition = array();
-            foreach ($pFilter as $k => $v){
+            foreach ($pFilter as $k => $v) {
                 if ($condition) $condition[] = 'and';
 
                 $k = camelcase2Underscore(substr($k, 1));
 
-                if (strpos($v, '*') !== false){
+                if (strpos($v, '*') !== false) {
                     $condition[] = array($k, 'LIKE', str_replace('*', '%', $v));
                 } else {
                     $condition[] = array($k, '=', $v);
                 }
             }
         }
+
         return $condition;
     }
 
     /**
      *
      *
-     * @param string $pFields
+     * @param  string $pFields
      * @return array
      */
-    public function getTreeFields($pFields = null){
-
+    public function getTreeFields($pFields = null)
+    {
         //use default fields from object definition
         $definition = $this->objectDefinition;
         $fields = array();
 
-        if ($pFields && $this->getAllowCustomSelectFields()){
-            if (is_array($pFields)){
+        if ($pFields && $this->getAllowCustomSelectFields()) {
+            if (is_array($pFields)) {
                 $fields = $pFields;
             } else {
                 $fields = explode(',', trim(preg_replace('/[^a-zA-Z0-9_,]/', '', $pFields)));
             }
         }
 
-        if ($definition && !$fields){
+        if ($definition && !$fields) {
 
             if ($definition['treeFields'])
                 $fields = explode(',', trim(preg_replace('/[^a-zA-Z0-9_,]/', '', $definition['treeFields'])));
@@ -745,17 +733,17 @@ class ObjectCrud {
     /**
      * Returns items per branch.
      *
-     * @param mixed $pPk
-     * @param array $pFilter
-     * @param mixed $pFields
-     * @param mixed $pScope
-     * @param int   $pDepth
-     * @param int   $pLimit
-     * @param int   $pOffset
+     * @param  mixed $pPk
+     * @param  array $pFilter
+     * @param  mixed $pFields
+     * @param  mixed $pScope
+     * @param  int   $pDepth
+     * @param  int   $pLimit
+     * @param  int   $pOffset
      * @return mixed
      */
-    public function getBranchItems($pPk = null, $pFilter = null, $pFields = null, $pScope = null, $pDepth = 1, $pLimit = null, $pOffset = null) {
-
+    public function getBranchItems($pPk = null, $pFilter = null, $pFields = null, $pScope = null, $pDepth = 1, $pLimit = null, $pOffset = null)
+    {
         $options = array();
         $options['permissionCheck'] = $this->getPermissionCheck();
         $options['offset'] = $pOffset;
@@ -763,7 +751,7 @@ class ObjectCrud {
 
         $condition = $this->getCondition();
 
-        if ($pFilter){
+        if ($pFilter) {
             if ($condition)
                 $condition = array($condition, 'AND', self::buildFilter($pFilter));
             else
@@ -780,11 +768,10 @@ class ObjectCrud {
 
         $options['fields'] += $this->getTreeFields();
 
-
-        if ($this->getMultiLanguage()){
+        if ($this->getMultiLanguage()) {
 
             //does the object have a lang field?
-            if ($this->objectDefinition['fields']['lang']){
+            if ($this->objectDefinition['fields']['lang']) {
 
                 //add language condition
                 $langCondition = array(
@@ -804,21 +791,19 @@ class ObjectCrud {
         return $items;
     }
 
-
-
     /**
      * Returns items count per branch.
      *
-     * @param mixed $pPk
-     * @param mixed $pScope
-     * @param array $pFilter
+     * @param  mixed $pPk
+     * @param  mixed $pScope
+     * @param  array $pFilter
      * @return array
      */
-    public function getBranchChildrenCount($pPk = null, $pScope = null, $pFilter = null){
-
+    public function getBranchChildrenCount($pPk = null, $pScope = null, $pFilter = null)
+    {
         $condition = $this->getCondition();
 
-        if ($pFilter){
+        if ($pFilter) {
             if ($condition)
                 $condition = array($condition, 'AND', self::buildFilter($pFilter));
             else
@@ -837,15 +822,16 @@ class ObjectCrud {
 
     }
 
-    public function getCount(){
-
+    public function getCount()
+    {
         $options['permissionCheck'] = $this->getPermissionCheck();
+
         return \Core\Object::getCount($this->object);
 
     }
 
-    public function getParent($pPk){
-
+    public function getParent($pPk)
+    {
         $options = array('permissionCheck' => $this->getPermissionCheck());
         $primaryKey = Object::normalizePkString($this->object, $pPk);
 
@@ -853,8 +839,8 @@ class ObjectCrud {
 
     }
 
-    public function getParents($pPk){
-
+    public function getParents($pPk)
+    {
         $options = array('permissionCheck' => $this->getPermissionCheck());
         $primaryKey = Object::normalizePkString($this->object, $pPk);
 
@@ -862,8 +848,8 @@ class ObjectCrud {
 
     }
 
-    public function moveItem($pPk, $pTargetPk, $pPosition = 'first', $pTargetObjectKey = ''){
-
+    public function moveItem($pPk, $pTargetPk, $pPosition = 'first', $pTargetObjectKey = '')
+    {
         $options = array('permissionCheck' => $this->getPermissionCheck());
 
         $pTargetPk = \Core\Object::normalizePkString($pTargetObjectKey ? $pTargetObjectKey : $this->getObject(), $pTargetPk);
@@ -871,55 +857,53 @@ class ObjectCrud {
         return \Core\Object::move($this->getObject(), $pPk, $pTargetPk, $pPosition, $pTargetObjectKey, $options);
     }
 
-
-    public function getRoots(){
-
+    public function getRoots()
+    {
         $options['permissionCheck'] = $this->getPermissionCheck();
+
         return \Core\Object::getRoots($this->object, $options);
 
     }
 
-    public function getRoot($pScope = null){
-
+    public function getRoot($pScope = null)
+    {
         $options['permissionCheck'] = $this->getPermissionCheck();
 
         return \Core\Object::getRoot($this->object, $pScope, $options);
 
     }
 
-
     /**
      * Here you can define additional conditions for all operations (edit/listing).
      *
      * See phpDoc of global function dbConditionToSql for more details of the array structure of the result.
-     * 
+     *
      * @return array condition definition
      */
-    public function getCondition(){
-
+    public function getCondition()
+    {
     }
-
 
     /**
      * Here you can define additional conditions for edit operations.
      *
      * See phpDoc of global function dbConditionToSql for more details.
-     * 
+     *
      * @return array condition definition
      */
-    public function getCustomEditCondition(){
-
+    public function getCustomEditCondition()
+    {
     }
 
     /**
      * Here you can define additional conditions for listing operations.
      *
      * See phpDoc of global function dbConditionToSql for more details.
-     * 
+     *
      * @return array condition definition
      */
-    public function getCustomListingCondition(){
-
+    public function getCustomListingCondition()
+    {
     }
 
     /**
@@ -931,7 +915,7 @@ class ObjectCrud {
      *   array(
      *    'id' => 1234
      *   )
-     * 
+     *
      * If multiple primary keys:
      *   array(
      *    'id' => 1234
@@ -939,16 +923,16 @@ class ObjectCrud {
      *   )
      *
      * Use dbPrimaryKeyToCondition() to convert it to a full condition definition.
-     * 
+     *
      * @param  array $pPk
      * @return array
      */
-    public function getItem($pPk, $pFields = null) {
-
+    public function getItem($pPk, $pFields = null)
+    {
         $this->primaryKey = $pPk;
 
-        if ($pFields && $this->getAllowCustomSelectFields()){
-            if (is_array($pFields)){
+        if ($pFields && $this->getAllowCustomSelectFields()) {
+            if (is_array($pFields)) {
                 $fields = $pFields;
             } else {
                 $fields = explode(',', trim(preg_replace('/[^a-zA-Z0-9_\.\-,]/', '', $pFields)));
@@ -957,7 +941,7 @@ class ObjectCrud {
 
         $options['fields'] = $fields;
 
-        if ($options['fields'] === null){
+        if ($options['fields'] === null) {
             $options['fields'] = $this->getDefaultFieldList();
         }
 
@@ -966,9 +950,9 @@ class ObjectCrud {
         $item = \Core\Object::get($this->object, $pPk, $options);
 
         //add custom values
-        foreach ($this->_fields as $key => $field){
+        foreach ($this->_fields as $key => $field) {
 
-            if ($field['customValue'] && method_exists($this, $method = $field['customValue'])){
+            if ($field['customValue'] && method_exists($this, $method = $field['customValue'])) {
                 $item[$key] = $this->$method($field, $key);
             }
 
@@ -983,7 +967,6 @@ class ObjectCrud {
 
         return $item;
     }
-
 
     /**
      *
@@ -1014,8 +997,8 @@ class ObjectCrud {
      *
      * @return array|mixed
      */
-    public function addMultiple(){
-
+    public function addMultiple()
+    {
         $inserted = array();
 
         $fixedFields = $this->getAddMultipleFixedFields();
@@ -1034,14 +1017,14 @@ class ObjectCrud {
         if ($position == 'first' || $position == 'next')
             $items = array_reverse($_REQUEST['_items']);
 
-        foreach ($items as $item){
+        foreach ($items as $item) {
 
             $data = $fixedData;
             $data += $this->collectData($fields, $item);
 
             try {
                 $inserted = $this->add($data, getArgv('_pk'), $position, getArgv('_targetObjectKey'));
-            } catch(\Exception $e){
+            } catch (\Exception $e) {
                 var_dump($e);
                 exit;
                 $inserted[] = array('_error' => $e);
@@ -1058,14 +1041,14 @@ class ObjectCrud {
      *
      * Data is passed as POST.
      *
-     * @param array      $pData
-     * @param array      $pPk
-     * @param string     $pPosition  If nested set. `first` (child), `last` (child), `prev` (sibling), `next` (sibling)
-     * @param int|string $pTargetObjectKey
-     * @return mixed False if some went wrong or a array with the new primary keys.
+     * @param  array      $pData
+     * @param  array      $pPk
+     * @param  string     $pPosition        If nested set. `first` (child), `last` (child), `prev` (sibling), `next` (sibling)
+     * @param  int|string $pTargetObjectKey
+     * @return mixed      False if some went wrong or a array with the new primary keys.
      */
-    public function add($pData = null, $pPk = null, $pPosition = null, $pTargetObjectKey = null){
-
+    public function add($pData = null, $pPk = null, $pPosition = null, $pTargetObjectKey = null)
+    {
         //collect values
         if ($pData)
             $data = $pData;
@@ -1081,7 +1064,7 @@ class ObjectCrud {
         );
 
         //handle customPostSave
-        foreach ($this->_fields as $key => $field){
+        foreach ($this->_fields as $key => $field) {
             if ($field['customPostSave'] && method_exists($this, $method = $field['customPostSave']))
                 $this->$method($field, $key);
         }
@@ -1094,9 +1077,11 @@ class ObjectCrud {
      * @param $pPk
      * @return bool
      */
-    public function remove($pPk){
+    public function remove($pPk)
+    {
         $this->primaryKey = $pPk;
         $options['permissionCheck'] = $this->getPermissionCheck();
+
         return \Core\Object::remove($this->object, $pPk, $options);
     }
 
@@ -1104,12 +1089,12 @@ class ObjectCrud {
     /**
      * Updates a object entry. This means, all fields which are not defined will be saved as NULL.
      *
-     * @param array $pPk
+     * @param  array                        $pPk
      * @return bool
      * @throws \ObjectItemNotFoundException
      */
-    public function update($pPk){
-
+    public function update($pPk)
+    {
         $this->primaryKey = $pPk;
 
         $options['fields'] = '';
@@ -1119,7 +1104,7 @@ class ObjectCrud {
         $data = $this->collectData();
 
         //check against additionally our own custom condition
-        if ($condition = $this->getCondition()){
+        if ($condition = $this->getCondition()) {
             $item = \Core\Object::get($this->getObject(), $pPk, $options);
             if (!\Core\Object::satisfy($item, $condition)) return null;
         }
@@ -1134,12 +1119,12 @@ class ObjectCrud {
      * Patches a object entry. This means, only defined fields will be saved. Fields which are not defined will
      * not be overwritten.
      *
-     * @param array $pPk
+     * @param  array                        $pPk
      * @return bool
      * @throws \ObjectItemNotFoundException
      */
-    public function patch($pPk){
-
+    public function patch($pPk)
+    {
         $this->primaryKey = $pPk;
 
         $options['fields'] = '';
@@ -1149,7 +1134,7 @@ class ObjectCrud {
         $data = $this->collectData();
 
         //check against additionally our own custom condition
-        if ($condition = $this->getCondition()){
+        if ($condition = $this->getCondition()) {
             $item = \Core\Object::get($this->getObject(), $pPk, $options);
             if (!\Core\Object::satisfy($item, $condition)) return null;
         }
@@ -1164,13 +1149,13 @@ class ObjectCrud {
      * Collects all data from GET/POST that has to be saved.
      * Iterates only through all defined fields in $fields.
      *
-     * @param mixed $pFields The fields definition. If empty we use $this->fields.
-     * @param mixed $pData Is used if a field is not defined through _POST or _GET
+     * @param  mixed                        $pFields The fields definition. If empty we use $this->fields.
+     * @param  mixed                        $pData   Is used if a field is not defined through _POST or _GET
      * @return array
      * @throws \FieldCanNotBeEmptyException
      */
-    public function collectData($pFields = null, $pData = null){
-
+    public function collectData($pFields = null, $pData = null)
+    {
         $data = array();
 
         if ($pFields)
@@ -1178,16 +1163,16 @@ class ObjectCrud {
         else
             $fields =& $this->_fields;
 
-        foreach ($fields as $key => $field){
+        foreach ($fields as $key => $field) {
             if ($field['noSave']) continue;
 
             $data[$key] = $pData ? $pData[$key] :($_POST[$key]?:$_GET[$key]);
 
-            if ($field['customValue'] && method_exists($this, $method = $field['customValue'])){
+            if ($field['customValue'] && method_exists($this, $method = $field['customValue'])) {
                 $data[$key] = $this->$method($field, $key);
             }
 
-            if ($field['customSave'] && method_exists($this, $method = $field['customValue'])){
+            if ($field['customSave'] && method_exists($this, $method = $field['customValue'])) {
                 $this->$method($field, $key);
                 continue;
             }
@@ -1223,8 +1208,8 @@ class ObjectCrud {
      *
      * @return array
      */
-    function prepareRow(&$pItem) {
-
+    public function prepareRow(&$pItem)
+    {
         $visible = true;
         $editable = $this->edit;
         $deleteable = $this->remove;
@@ -1237,148 +1222,168 @@ class ObjectCrud {
     /**
      * @return array
      */
-    public function getPrimaryKey(){
+    public function getPrimaryKey()
+    {
         return $this->primaryKey;
     }
-
 
     /**
      * @return bool
      */
-    public function getPermissionCheck(){
+    public function getPermissionCheck()
+    {
         return $this->permissionCheck;
     }
 
     /**
      * @param boolean $add
      */
-    public function setAdd($add){
+    public function setAdd($add)
+    {
         $this->add = $add;
     }
 
     /**
      * @return boolean
      */
-    public function getAdd(){
+    public function getAdd()
+    {
         return $this->add;
     }
 
     /**
      * @param string $addEntrypoint
      */
-    public function setAddEntrypoint($addEntrypoint){
+    public function setAddEntrypoint($addEntrypoint)
+    {
         $this->addEntrypoint = $addEntrypoint;
     }
 
     /**
      * @return string
      */
-    public function getAddEntrypoint(){
+    public function getAddEntrypoint()
+    {
         return $this->addEntrypoint;
     }
 
     /**
      * @param string $addIcon
      */
-    public function setAddIcon($addIcon){
+    public function setAddIcon($addIcon)
+    {
         $this->addIcon = $addIcon;
     }
 
     /**
      * @return string
      */
-    public function getAddIcon(){
+    public function getAddIcon()
+    {
         return $this->addIcon;
     }
 
     /**
      * @param string $customOrderBy
      */
-    public function setCustomOrderBy($customOrderBy){
+    public function setCustomOrderBy($customOrderBy)
+    {
         $this->customOrderBy = $customOrderBy;
     }
 
     /**
      * @return string
      */
-    public function getCustomOrderBy(){
+    public function getCustomOrderBy()
+    {
         return $this->customOrderBy;
     }
 
     /**
      * @param string $customOrderByDirection
      */
-    public function setCustomOrderByDirection($customOrderByDirection){
+    public function setCustomOrderByDirection($customOrderByDirection)
+    {
         $this->customOrderByDirection = $customOrderByDirection;
     }
 
     /**
      * @return string
      */
-    public function getCustomOrderByDirection(){
+    public function getCustomOrderByDirection()
+    {
         return $this->customOrderByDirection;
     }
 
     /**
      * @param boolean $domainDepended
      */
-    public function setDomainDepended($domainDepended){
+    public function setDomainDepended($domainDepended)
+    {
         $this->domainDepended = $domainDepended;
     }
 
     /**
      * @return boolean
      */
-    public function getDomainDepended(){
+    public function getDomainDepended()
+    {
         return $this->domainDepended;
     }
 
     /**
      * @param boolean $edit
      */
-    public function setEdit($edit){
+    public function setEdit($edit)
+    {
         $this->edit = $edit;
     }
 
     /**
      * @return boolean
      */
-    public function getEdit(){
+    public function getEdit()
+    {
         return $this->edit;
     }
 
     /**
      * @param string $editEntrypoint
      */
-    public function setEditEntrypoint($editEntrypoint){
+    public function setEditEntrypoint($editEntrypoint)
+    {
         $this->editEntrypoint = $editEntrypoint;
     }
 
     /**
      * @return string
      */
-    public function getEditEntrypoint(){
+    public function getEditEntrypoint()
+    {
         return $this->editEntrypoint;
     }
 
     /**
      * @param string $editIcon
      */
-    public function setEditIcon($editIcon){
+    public function setEditIcon($editIcon)
+    {
         $this->editIcon = $editIcon;
     }
 
     /**
      * @return string
      */
-    public function getEditIcon(){
+    public function getEditIcon()
+    {
         return $this->editIcon;
     }
 
     /**
      * @param array $fields
      */
-    public function setFields($fields){
+    public function setFields($fields)
+    {
         $this->fields = $fields;
         $this->_fields = array();
         $this->prepareFieldItem($this->fields);
@@ -1387,354 +1392,418 @@ class ObjectCrud {
     /**
      * @return array
      */
-    public function getFields(){
+    public function getFields()
+    {
         return $this->fields;
     }
 
     /**
      * @param array $filter
      */
-    public function setFilter($filter){
+    public function setFilter($filter)
+    {
         $this->filter = $filter;
     }
 
     /**
      * @param array $columns
      */
-    public function setColumns($columns){
+    public function setColumns($columns)
+    {
         $this->columns = $columns;
     }
 
     /**
      * @return array
      */
-    public function getColumns(){
+    public function getColumns()
+    {
         return $this->columns;
     }
-
 
     /**
      * @return array
      */
-    public function getFilter(){
+    public function getFilter()
+    {
         return $this->filter;
     }
 
     /**
      * @param int $defaultLimit
      */
-    public function setDefaultLimit($defaultLimit){
+    public function setDefaultLimit($defaultLimit)
+    {
         $this->defaultLimit = $defaultLimit;
     }
 
     /**
      * @return int
      */
-    public function getDefaultLimit(){
+    public function getDefaultLimit()
+    {
         return $this->defaultLimit;
     }
 
     /**
      * @param boolean $multiLanguage
      */
-    public function setMultiLanguage($multiLanguage){
+    public function setMultiLanguage($multiLanguage)
+    {
         $this->multiLanguage = $multiLanguage;
     }
 
     /**
      * @return boolean
      */
-    public function getMultiLanguage(){
+    public function getMultiLanguage()
+    {
         return $this->multiLanguage;
     }
 
     /**
      * @param string $object
      */
-    public function setObject($object){
+    public function setObject($object)
+    {
         $this->object = $object;
     }
 
     /**
      * @return string
      */
-    public function getObject(){
+    public function getObject()
+    {
         return $this->object;
     }
 
     /**
      * @param array $objectDefinition
      */
-    public function setObjectDefinition($objectDefinition){
+    public function setObjectDefinition($objectDefinition)
+    {
         $this->objectDefinition = $objectDefinition;
     }
 
     /**
      * @return array
      */
-    public function getObjectDefinition(){
+    public function getObjectDefinition()
+    {
         return $this->objectDefinition;
     }
 
     /**
      * @param array $order
      */
-    public function setOrder($order){
+    public function setOrder($order)
+    {
         $this->order = $order;
     }
 
     /**
      * @return array
      */
-    public function getOrder(){
+    public function getOrder()
+    {
         return $this->order;
     }
 
     /**
      * @param boolean $remove
      */
-    public function setRemove($remove){
+    public function setRemove($remove)
+    {
         $this->remove = $remove;
     }
 
     /**
      * @return boolean
      */
-    public function getRemove(){
+    public function getRemove()
+    {
         return $this->remove;
     }
 
     /**
      * @param string $removeIcon
      */
-    public function setRemoveIcon($removeIcon){
+    public function setRemoveIcon($removeIcon)
+    {
         $this->removeIcon = $removeIcon;
     }
 
     /**
      * @return string
      */
-    public function getRemoveIcon(){
+    public function getRemoveIcon()
+    {
         return $this->removeIcon;
     }
 
     /**
      * @param string $removeIconItem
      */
-    public function setRemoveIconItem($removeIconItem){
+    public function setRemoveIconItem($removeIconItem)
+    {
         $this->removeIconItem = $removeIconItem;
     }
 
     /**
      * @return string
      */
-    public function getRemoveIconItem(){
+    public function getRemoveIconItem()
+    {
         return $this->removeIconItem;
     }
 
     /**
      * @param string $table
      */
-    public function setTable($table){
+    public function setTable($table)
+    {
         $this->table = $table;
     }
 
     /**
      * @return string
      */
-    public function getTable(){
+    public function getTable()
+    {
         return $this->table;
     }
 
     /**
      * @param boolean $workspace
      */
-    public function setWorkspace($workspace){
+    public function setWorkspace($workspace)
+    {
         $this->workspace = $workspace;
     }
 
     /**
      * @return boolean
      */
-    public function getWorkspace(){
+    public function getWorkspace()
+    {
         return $this->workspace;
     }
 
-    public function setFilterFields($filterFields){
+    public function setFilterFields($filterFields)
+    {
         $this->filterFields = $filterFields;
     }
 
-    public function getFilterFields(){
+    public function getFilterFields()
+    {
         return $this->filterFields;
     }
 
-    public function setItemLayout($itemLayout){
+    public function setItemLayout($itemLayout)
+    {
         $this->itemLayout = $itemLayout;
     }
 
-    public function getItemLayout(){
+    public function getItemLayout()
+    {
         return $this->itemLayout;
     }
 
     /**
      * @param array $primary
      */
-    public function setPrimary($primary){
+    public function setPrimary($primary)
+    {
         $this->primary = $primary;
     }
 
     /**
      * @return array
      */
-    public function getPrimary(){
+    public function getPrimary()
+    {
         return $this->primary;
     }
 
     /**
      * @param array|null $entryPoint
      */
-    public function setEntryPoint($entryPoint){
+    public function setEntryPoint($entryPoint)
+    {
         $this->entryPoint = $entryPoint;
     }
 
     /**
      * @return array|null
      */
-    public function getEntryPoint(){
+    public function getEntryPoint()
+    {
         return $this->entryPoint;
     }
 
     /**
      * @param boolean $asNested
      */
-    public function setAsNested($asNested){
+    public function setAsNested($asNested)
+    {
         $this->asNested = $asNested;
     }
 
     /**
      * @return boolean
      */
-    public function getAsNested(){
+    public function getAsNested()
+    {
         return $this->asNested;
     }
 
-    public function setNestedMove($nestedMove){
+    public function setNestedMove($nestedMove)
+    {
         $this->nestedMove = $nestedMove;
     }
 
-    public function getNestedMove(){
+    public function getNestedMove()
+    {
         return $this->nestedMove;
     }
 
-    public function setNestedRootAdd($nestedRootAdd){
+    public function setNestedRootAdd($nestedRootAdd)
+    {
         $this->nestedRootAdd = $nestedRootAdd;
     }
 
-    public function getNestedRootAdd(){
+    public function getNestedRootAdd()
+    {
         return $this->nestedRootAdd;
     }
 
-    public function setNestedRootAddEntrypoint($nestedRootAddEntrypoint){
+    public function setNestedRootAddEntrypoint($nestedRootAddEntrypoint)
+    {
         $this->nestedRootAddEntrypoint = $nestedRootAddEntrypoint;
     }
 
-    public function getNestedRootAddEntrypoint(){
+    public function getNestedRootAddEntrypoint()
+    {
         return $this->nestedRootAddEntrypoint;
     }
 
-    public function setNestedRootAddIcon($nestedRootAddIcon){
+    public function setNestedRootAddIcon($nestedRootAddIcon)
+    {
         $this->nestedRootAddIcon = $nestedRootAddIcon;
     }
 
-    public function getNestedRootAddIcon(){
+    public function getNestedRootAddIcon()
+    {
         return $this->nestedRootAddIcon;
     }
 
-    public function setNestedRootAddLabel($nestedRootAddLabel){
+    public function setNestedRootAddLabel($nestedRootAddLabel)
+    {
         $this->nestedRootAddLabel = $nestedRootAddLabel;
     }
 
-    public function getNestedRootAddLabel(){
+    public function getNestedRootAddLabel()
+    {
         return $this->nestedRootAddLabel;
     }
 
-    public function setNestedRootEdit($nestedRootEdit){
+    public function setNestedRootEdit($nestedRootEdit)
+    {
         $this->nestedRootEdit = $nestedRootEdit;
     }
 
-    public function getNestedRootEdit(){
+    public function getNestedRootEdit()
+    {
         return $this->nestedRootEdit;
     }
 
-    public function setNestedRootEditEntrypoint($nestedRootEditEntrypoint){
+    public function setNestedRootEditEntrypoint($nestedRootEditEntrypoint)
+    {
         $this->nestedRootEditEntrypoint = $nestedRootEditEntrypoint;
     }
 
-    public function getNestedRootEditEntrypoint(){
+    public function getNestedRootEditEntrypoint()
+    {
         return $this->nestedRootEditEntrypoint;
     }
 
-    public function setNestedRootRemove($nestedRootRemove){
+    public function setNestedRootRemove($nestedRootRemove)
+    {
         $this->nestedRootRemove = $nestedRootRemove;
     }
 
-    public function getNestedRootRemove(){
+    public function getNestedRootRemove()
+    {
         return $this->nestedRootRemove;
     }
 
-    public function setNestedRootRemoveEntrypoint($nestedRootRemoveEntrypoint){
+    public function setNestedRootRemoveEntrypoint($nestedRootRemoveEntrypoint)
+    {
         $this->nestedRootRemoveEntrypoint = $nestedRootRemoveEntrypoint;
     }
 
-    public function getNestedRootRemoveEntrypoint(){
+    public function getNestedRootRemoveEntrypoint()
+    {
         return $this->nestedRootRemoveEntrypoint;
     }
 
-    public function setNestedMoveable($nestedMoveable){
+    public function setNestedMoveable($nestedMoveable)
+    {
         $this->nestedMoveable = $nestedMoveable;
     }
 
-    public function getNestedMoveable(){
+    public function getNestedMoveable()
+    {
         return $this->nestedMoveable;
     }
 
-    public function setNestedAddWithPositionSelection($nestedAddWithPositionSelection){
+    public function setNestedAddWithPositionSelection($nestedAddWithPositionSelection)
+    {
         $this->nestedAddWithPositionSelection = $nestedAddWithPositionSelection;
     }
 
-    public function getNestedAddWithPositionSelection(){
+    public function getNestedAddWithPositionSelection()
+    {
         return $this->nestedAddWithPositionSelection;
     }
 
-    public function setAddLabel($addLabel){
+    public function setAddLabel($addLabel)
+    {
         $this->addLabel = $addLabel;
     }
 
-    public function getAddLabel(){
+    public function getAddLabel()
+    {
         return $this->addLabel;
     }
 
-    public function setRemoveEntrypoint($removeEntrypoint){
+    public function setRemoveEntrypoint($removeEntrypoint)
+    {
         $this->removeEntrypoint = $removeEntrypoint;
     }
 
-    public function getRemoveEntrypoint(){
+    public function getRemoveEntrypoint()
+    {
         return $this->removeEntrypoint;
     }
 
-    public function setAddMultiple($addMultiple){
+    public function setAddMultiple($addMultiple)
+    {
         $this->addMultiple = $addMultiple;
     }
 
-    public function getAddMultiple(){
+    public function getAddMultiple()
+    {
         return $this->addMultiple;
     }
 
-    public function setAddMultipleFieldContainerWidth($addMultipleFieldContainerWidth){
+    public function setAddMultipleFieldContainerWidth($addMultipleFieldContainerWidth)
+    {
         $this->addMultipleFieldContainerWidth = $addMultipleFieldContainerWidth;
     }
 
-    public function getAddMultipleFieldContainerWidth(){
+    public function getAddMultipleFieldContainerWidth()
+    {
         return $this->addMultipleFieldContainerWidth;
     }
 
@@ -1748,29 +1817,30 @@ class ObjectCrud {
         return $this->addMultipleFields;
     }
 
-    public function setAddMultipleFixedFields($addMultipleFixedFields){
+    public function setAddMultipleFixedFields($addMultipleFixedFields)
+    {
         $this->addMultipleFixedFields = $addMultipleFixedFields;
     }
 
-    public function getAddMultipleFixedFields(){
+    public function getAddMultipleFixedFields()
+    {
         return $this->addMultipleFixedFields;
     }
 
     /**
      * @param boolean $allowCustomSelectFields
      */
-    public function setAllowCustomSelectFields($allowCustomSelectFields){
+    public function setAllowCustomSelectFields($allowCustomSelectFields)
+    {
         $this->allowCustomSelectFields = $allowCustomSelectFields;
     }
 
     /**
      * @return boolean
      */
-    public function getAllowCustomSelectFields(){
+    public function getAllowCustomSelectFields()
+    {
         return $this->allowCustomSelectFields;
     }
-    
-    
-    
 
 }

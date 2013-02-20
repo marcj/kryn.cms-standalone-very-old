@@ -1,7 +1,7 @@
 <?php
 
-class publicationNewsCatsList extends windowList {
-
+class publicationNewsCatsList extends windowList
+{
     public $table = 'publication_news_category';
     public $itemsPerPage = 20;
     public $orderBy = 'title';
@@ -23,5 +23,3 @@ class publicationNewsCatsList extends windowList {
     );
 
 }
-
-?>

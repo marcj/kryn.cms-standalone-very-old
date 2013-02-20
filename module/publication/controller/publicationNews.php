@@ -1,16 +1,15 @@
 <?php
 
-class publicationNews {
-
-    public static function itemDetail($pConf) {
+class publicationNews
+{
+    public static function itemDetail($pConf)
+    {
         global $user, $client;
-
 
         $replaceTitle = $pConf['replaceTitle'] + 0 == 1;
         $categoryRsn = $pConf['category_id'];
         $allowComments = $pConf['allowComments'] + 0;
         $template = $pConf['template'];
-
 
         $id = getArgv('e2') + 0;
 
@@ -157,27 +156,27 @@ class publicationNews {
                 }
 
                 tAssign('news', $news);
-            }
-            else
+            } else
                 tAssign('isNews', false); // Not found (or not visible)
-        }
-        else
+        } else
             tAssign('isNews', false); // Not a valid news item
 
         // Assign config and load template
         tAssign('pConf', $pConf);
         kryn::addCss("publication/news/css/detail/$template.css");
+
         return tFetch("publication/news/detail/$template.tpl");
     }
 
-    public static function updateCommentsCount($pNewsRsn) {
+    public static function updateCommentsCount($pNewsRsn)
+    {
         $comments =
             dbExfetch('SELECT count(*) as comcount FROM %pfx%publication_comments WHERE parent_id = ' . $pNewsRsn);
         dbUpdate('publication_news', array('id' => $pNewsRsn), array('commentscount' => $comments['comcount']));
     }
 
-    public static function itemList($pConf) {
-
+    public static function itemList($pConf)
+    {
         // Get important variables from config
         $categoryRsn = $pConf['category_id'];
         $itemsPerPage = $pConf['itemsPerPage'] + 0;
@@ -213,7 +212,6 @@ class publicationNews {
                 tAssign('category_title', $category['title']);
             }
 
-
         }
 
         // Get current page
@@ -243,11 +241,11 @@ class publicationNews {
 
                 kryn::addCss($cached['css']);
                 kryn::addJs($cached['js']);
+
                 return $cached['html'];
                 return;
             }
         }
-
 
         $list =& kryn::getCache($cacheKey);
 
@@ -314,13 +312,12 @@ class publicationNews {
                 ));
             }
             kryn::deleteCache($cacheKey);
+
             return self::itemList($pConf);
         }
 
-
         // Process news items
-        foreach ($list as &$news)
-        {
+        foreach ($list as &$news) {
             // Retrieve content of news
             $json = json_decode($news['content'], true);
             if ($json && $json['contents'] && file_exists(PATH_MEDIA . $json['template'])) {
@@ -350,7 +347,6 @@ class publicationNews {
 
         $res = tFetch("publication/news/list/$template.tpl");
 
-
         if (kryn::$domainProperties['publication']['cache'] !== 0) {
 
             kryn::setCache($cacheKey . '-full', array(
@@ -364,7 +360,8 @@ class publicationNews {
         return $res;
     }
 
-    public static function rssList($pConf) {
+    public static function rssList($pConf)
+    {
         // Fetch important vars from conf var
         $categoryRsn = $pConf['category_id'];
         $itemsPerPage = $pConf['itemsPerPage'] + 0; // Make sure it's set
@@ -383,15 +380,15 @@ class publicationNews {
         $now = time();
         $sql = "
             SELECT
-                n.*, 
+                n.*,
                 c.title as category_title,
                 c.url as category_url
             FROM
-                %pfx%publication_news n, 
-                %pfx%publication_news_category c 
+                %pfx%publication_news n,
+                %pfx%publication_news_category c
             WHERE
                     1=1
-                $whereCategories 
+                $whereCategories
                 AND n.deactivate = 0
                 AND n.category_id = c.id
                 AND (n.releaseAt = 0 OR n.releaseAt <= $now)
@@ -405,8 +402,7 @@ class publicationNews {
         tAssign('hasItems', $hasItems); // Tells template if the query failed or not
 
         if ($hasItems) {
-            foreach ($list as $index => $item)
-            {
+            foreach ($list as $index => $item) {
                 $list[$index]['title'] = strip_tags(html_entity_decode($item['title'], ENT_NOQUOTES, 'UTF-8'));
 
                 $json = json_decode($item['intro'], true);
@@ -441,5 +437,3 @@ class publicationNews {
     }
 
 }
-
-?>

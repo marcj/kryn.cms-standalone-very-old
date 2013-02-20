@@ -1,15 +1,15 @@
 <?php
 
-
-class adminBackup {
-
+class adminBackup
+{
     public static $infos = array();
 
-    public static function init() {
+    public static function init()
+    {
         global $config_backups;
 
         if (file_exists('inc/config_backups.php'))
-            include('inc/config_backups.php');
+            include 'inc/config_backups.php';
 
         switch (getArgv(4)) {
             case 'list':
@@ -36,13 +36,13 @@ class adminBackup {
         }
     }
 
-    public static function extractInfos($pFile) {
-
+    public static function extractInfos($pFile)
+    {
         $zip = str_replace('..', '', $pFile);
 
         if (!file_exists($zip)) return array('error' => 'file_does_not_exists');
 
-        include_once('File/Archive.php');
+        include_once 'File/Archive.php';
         File_Archive::setOption('zipCompressionLevel', 9);
 
         $source = File_Archive::read($zip . '/', null, -1);
@@ -87,7 +87,8 @@ class adminBackup {
         json($infos);
     }
 
-    public static function sendBackup($pId, $pFile) {
+    public static function sendBackup($pId, $pFile)
+    {
         global $config_backups;
 
         $path = '';
@@ -117,7 +118,8 @@ class adminBackup {
 
     }
 
-    public static function state($pBackupId) {
+    public static function state($pBackupId)
+    {
         global $config_backups;
 
         if (!$config_backups[$pBackupId]) return 'not_found';
@@ -128,7 +130,8 @@ class adminBackup {
         return $state;
     }
 
-    public static function removeItem($pId) {
+    public static function removeItem($pId)
+    {
         global $config_backups;
 
         $path = $config_backups[$pId]['_path'];
@@ -144,8 +147,8 @@ class adminBackup {
         return true;
     }
 
-
-    public static function saveItem($pId) {
+    public static function saveItem($pId)
+    {
         global $config_backups;
 
         if (!$config_backups)
@@ -175,7 +178,8 @@ class adminBackup {
         return true;
     }
 
-    public static function addItem() {
+    public static function addItem()
+    {
         global $config_backups;
 
         if (!$config_backups)
@@ -191,6 +195,7 @@ class adminBackup {
 
         if (!file_exists($path)) {
             klog('backup', _('Add backup failed. Can not create folder:') . ' ' . $path);
+
             return false;
         }
 
@@ -218,7 +223,8 @@ class adminBackup {
         return true;
     }
 
-    public static function getItems() {
+    public static function getItems()
+    {
         global $config_backups;
 
         if (!$config_backups)
@@ -240,8 +246,8 @@ class adminBackup {
         return $config_backups;
     }
 
-    public static function getTempFolder() {
-
+    public static function getTempFolder()
+    {
         $path = realpath(self::_getTempFolder());
         if (substr($path, -1) != '/')
             return $path . '/';
@@ -249,7 +255,8 @@ class adminBackup {
         return $path;
     }
 
-    public static function _getTempFolder() {
+    public static function _getTempFolder()
+    {
         global $cfg;
 
         if ($cfg['backup_generation_path'])
@@ -258,7 +265,8 @@ class adminBackup {
         return kryn::getTempFolder();
     }
 
-    public static function startBackup($pBackupCode, $pNoAsync = false) {
+    public static function startBackup($pBackupCode, $pNoAsync = false)
+    {
         global $config_backups, $cfg;
 
         $definitions = $config_backups[$pBackupCode];
@@ -287,6 +295,7 @@ class adminBackup {
             if ($state == 'preparing') {
                 klog('backup', _l('Can not start the backup process through popen() caused by a undefined error.'));
                 kryn::fileWrite($path . '_step', 'error');
+
                 return false;
             }
 
@@ -295,21 +304,22 @@ class adminBackup {
         } else {
             kryn::fileWrite($path . '_step', 'error');
             klog('backup', _l('Can not start the backup process through popen() caused by php functions restriction.'));
+
             return false;
         }
 
     }
 
-    public static function doBackup($pBackupCode) {
+    public static function doBackup($pBackupCode)
+    {
         global $config_backups;
 
         if (file_exists('inc/config_backups.php'))
-            require_once('inc/config_backups.php');
+            require_once 'inc/config_backups.php';
 
         $definitions = $config_backups[$pBackupCode];
 
         $path = $definitions['_path'];
-
 
         //print_r($definitions);
         //print 'start: ' . $pBackupCode . ': ' . $path . "\n";
@@ -317,8 +327,9 @@ class adminBackup {
 
         mkdirr($path);
 
-        if (!is_dir($path)){
+        if (!is_dir($path)) {
             klog('core', $path.' is not writeable. Can not save backup archive.');
+
             return;
         }
         kryn::fileWrite($path . '_step', 'start');
@@ -333,7 +344,7 @@ class adminBackup {
         @mkdir($path . '/domains');
         @mkdir($path . '/nodes');
 
-        include_once('File/Archive.php');
+        include_once 'File/Archive.php';
         File_Archive::setOption('zipCompressionLevel', 9);
 
         adminBackup::$infos = array();
@@ -347,7 +358,7 @@ class adminBackup {
                 self::exportWebsite($path, $domain['id']);
             }
 
-        } else if ($definitions['pages'] == 'choose') {
+        } elseif ($definitions['pages'] == 'choose') {
 
             foreach ($definitions['pages_domains'] as $domainRsn) {
 
@@ -366,7 +377,6 @@ class adminBackup {
             }
 
         }
-
 
         //files
         $fileReads = array();
@@ -396,7 +406,7 @@ class adminBackup {
                 }
             }
 
-        } else if ($definitions['files'] == 'choose') {
+        } elseif ($definitions['files'] == 'choose') {
 
             kryn::fileWrite($path . '_step', 'gatherFiles');
 
@@ -436,7 +446,6 @@ class adminBackup {
             }
         }
 
-
         //extensions
         require_once(PATH_MODULE . 'admin/adminModule.class.php');
         if ($definitions['extensions'] == 'all') {
@@ -450,7 +459,7 @@ class adminBackup {
                 rename($file, $path . '/extensions/' . basename($file));
 
             }
-        } else if ($definitions['extensions'] == 'choose') {
+        } elseif ($definitions['extensions'] == 'choose') {
             @mkdir($path . '/extensions/');
 
             foreach ($definitions['extensions_choose'] as $extension) {
@@ -458,7 +467,6 @@ class adminBackup {
                 rename($file, $path . '/extensions/' . basename($file));
             }
         }
-
 
         //extensions tables
         if ($definitions['extensions_data'] == 'all') {
@@ -490,55 +498,55 @@ class adminBackup {
 
             }
 
-        } else if ($definitions['extensions_data'] == 'choose') {
+        } elseif ($definitions['extensions_data'] == 'choose') {
             @mkdir($path . '/extensions_data/');
 
         }
 
         //system
         /* part of kryn.cms 1.1
-        if( $definitions['system'] == '1' ){
-        
+        if ($definitions['system'] == '1') {
+
             $files = array('index.php', '.htaccess', 'cronjob.php', 'LICENSE', 'README');
             $dirs = array(
                 'inc/kryn/', 'inc/lib/codemirror/', 'inc/lib/mooeditable/', 'inc/lib/pear/', 'inc/lib/smarty/',
                 'inc/template/admin/', 'inc/template/kryn/', 'inc/template/users', 'inc/template/css/', 'inc/template/js',
                 PATH_MODULE.'admin/', PATH_MODULE.'users/'
             );
-            
+
             //copy files
-            foreach( $files as $file ){
+            foreach ($files as $file) {
                 copy( $file, $path.'/'.$file );
             }
-            
+
             //copy folders
-            foreach( $dirs as $dir ){
+            foreach ($dirs as $dir) {
                 copyr( $dir, $path.'/'.$dir );
             }
-            
+
             @mkdir( $path.'/fileversions' );
             copy( 'fileversions/.htaccess', $path.'/fileversions/.htaccess' );
-            
+
             //find and copy installer.
             $rootFiles = find('*', false);
-            foreach( $rootFiles as $file ){
+            foreach ($rootFiles as $file) {
                 $content = kryn::fileRead( $file );
-                if( strpos( $content, '<title>Kryn.cms installation</title>') !== false ){
+                if ( strpos( $content, '<title>Kryn.cms installation</title>') !== false ) {
                     copy( $file, $path.'/install.php' );
                 }
             }
-            
+
             //export tables
             $exts = array('admin', 'users');
             $tables = array(
                 'system_user', 'system_modules', 'system_langs', 'system_groups', 'system_groupaccess',
                 'system_acl'
             );
-            
-            foreach( $tables as $table ){
+
+            foreach ($tables as $table) {
                 $file = $path.'/system_data/'.$table.'.json';
                 $contents = dbTableFetch( $table );
-                if( $contents ){
+                if ($contents) {
                     kryn::fileWrite( $file, json_encode($contents) );
                 }
             }
@@ -555,7 +563,7 @@ class adminBackup {
 
         /*$files = find($path.'/*');
 
-        foreach( $files as $file ){
+        foreach ($files as $file) {
             $reads[] = File_Archive::read($file, str_replace($path, $subfolder, $file));
         }
 
@@ -565,17 +573,18 @@ class adminBackup {
         @mkdir($path . '_zips');
         $zipPath = $path . '_zips/' . $zipFile;
 
-        if (!@touch($zipPath)){
+        if (!@touch($zipPath)) {
             klog('core', $path.'_zips is not writeable. Can not save backup archive.');
+
             return;
         }
 
-        if (class_exists('ZipArchive')){
+        if (class_exists('ZipArchive')) {
             $zip = new ZipArchive();
             $zip->open($zipPath, ZIPARCHIVE::CREATE);
             $files = find($path.'/*');
             foreach ($files as $file)
-                if (!is_dir($file)){
+                if (!is_dir($file)) {
                     $zip->addFile($file, str_replace($path, '', $file));
                 }
             $zip->close();
@@ -614,8 +623,8 @@ class adminBackup {
         return true;
     }
 
-    public static function getNextFileId($pPath, $pExt = '.json') {
-
+    public static function getNextFileId($pPath, $pExt = '.json')
+    {
         $found = false;
         $curId = 0;
         do {
@@ -630,8 +639,8 @@ class adminBackup {
         return $curId;
     }
 
-    public static function exportWebsite($pPath, $pDomainRsn) {
-
+    public static function exportWebsite($pPath, $pDomainRsn)
+    {
         $pDomainRsn += 0;
         $domain = dbTableFetch('system_domains', 'id = ' . $pDomainRsn, 1);
 
@@ -656,15 +665,14 @@ class adminBackup {
 
     }
 
-    public static function exportNode($pPath, $pNodeRsn) {
-
+    public static function exportNode($pPath, $pNodeRsn)
+    {
         $pNodeRsn = $pNodeRsn + 0;
         $node = dbTableFetch('system_page', ' id = ' . $pNodeRsn, 1);
 
         $pageCounter = 0;
 
         $node['childs'] = self::exportTree($pNodeRsn, null, null, $pageCounter);
-
 
         adminBackup::$infos['nodes'][] = array(
             'title' => $node['title'],
@@ -676,8 +684,8 @@ class adminBackup {
 
     }
 
-    public static function exportTree($pNodeRsn, $pDomainRsn = false, $pAndAllVersions = false, &$pPageCounter) {
-
+    public static function exportTree($pNodeRsn, $pDomainRsn = false, $pAndAllVersions = false, &$pPageCounter)
+    {
         $pNodeRsn += 0;
         $pagesRes = dbExec("SELECT * FROM %pfx%system_page WHERE pid = $pNodeRsn " .
                            ($pDomainRsn ? ' AND domain_id = ' . $pDomainRsn : ''));
@@ -688,7 +696,7 @@ class adminBackup {
             $pPageCounter++;
 
             $contentRes = dbExec("SELECT c.* FROM %pfx%system_contents c, %pfx%system_page_version v
-                    WHERE 
+                    WHERE
                     c.page_id = " . $row['id'] . "
                     AND v.active = 1
                     AND c.version_id = v.id");
@@ -716,5 +724,3 @@ class adminBackup {
     }
 
 }
-
-?>

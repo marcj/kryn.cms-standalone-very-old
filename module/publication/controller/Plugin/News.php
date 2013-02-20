@@ -6,27 +6,26 @@ use Publication\NewsQuery;
 use Core\Controller;
 use Core\Kryn;
 
-class News extends Controller {
-
+class News extends Controller
+{
     /**
      * News listing
      *
-     * @param array $options
-     * @param int   $page
+     * @param  array  $options
+     * @param  int    $page
      * @return string
      */
-    public function listing(array $options, $page = 1){
-
+    public function listing(array $options, $page = 1)
+    {
         $page     = (int) $page ?: 1;
         $cacheKey = 'publication/news/list/'.$page;
         $view     = 'publication/news/list/'.$options['template'];
 
-        return $this->renderFullCached($cacheKey, $view, function() use ($page, $options){
+        return $this->renderFullCached($cacheKey, $view, function() use ($page, $options) {
 
             $paginate = NewsQuery::create()->paginate($page, $options['itemsPerPage'] ?: 10);
 
-
-            if ($page > $paginate->getLastPage()){
+            if ($page > $paginate->getLastPage()) {
                 return null;
                 //because if we return here NULL the `renderFullCached` function returns NULL as well,
                 //and this means that we say to the HTTPKernel 'we (this route) are not responsible' for the current request.
@@ -38,7 +37,7 @@ class News extends Controller {
                 ->getResults()
                 ->toArray(null, null, \BasePeer::TYPE_STUDLYPHPNAME);
 
-            foreach ($items as &$item){
+            foreach ($items as &$item) {
                 $item['url'] = ($options['detailPage'] ? Kryn::getPageUrl($options['detailPage']) : '') . $item['uri'];
             }
 

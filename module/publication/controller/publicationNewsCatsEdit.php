@@ -1,7 +1,7 @@
 <?php
 
-class publicationNewsCatsEdit extends windowEdit {
-
+class publicationNewsCatsEdit extends windowEdit
+{
     public $table = 'publication_news_category';
 
     public $primary = array('id');
@@ -20,14 +20,14 @@ class publicationNewsCatsEdit extends windowEdit {
         )
     );
 
-    public function toModRewrite($p) {
+    public function toModRewrite($p)
+    {
         return kryn::toModRewrite(getArgv('title'));
     }
 
-    public function saveItem() {
+    public function saveItem()
+    {
         parent::saveItem();
         kryn::invalidateCache('publicationCategoryList');
     }
 }
-
-?>

@@ -1,7 +1,7 @@
 <?php
 
-class publicationNewsComments extends adminWindowList {
-
+class publicationNewsComments extends adminWindowList
+{
     public $table = 'publication_comments';
 
     public $primary = 'id';
@@ -13,22 +13,22 @@ class publicationNewsComments extends adminWindowList {
     public $versioning = 0;
 
     public $columns = array (
-  'owner_username' => 
+  'owner_username' =>
   array (
     'label' => 'Name',
     'type' => 'text',
   ),
-  'email' => 
+  'email' =>
   array (
     'label' => 'E-Mail',
     'type' => 'text',
   ),
-  'ip' => 
+  'ip' =>
   array (
     'label' => 'IP',
     'type' => 'text',
   ),
-  'created' => 
+  'created' =>
   array (
     'label' => 'Created',
     'type' => 'datetime',
@@ -38,7 +38,7 @@ class publicationNewsComments extends adminWindowList {
     public $itemsPerPage = 20;
 
     public $order = array (
-  0 => 
+  0 =>
   array (
     'field' => 'created',
     'direction' => 'asc',
@@ -49,7 +49,6 @@ class publicationNewsComments extends adminWindowList {
   0 => 'owner_username',
   1 => 'email',
 );
-
 
     public $addEntrypoint = '';
 
@@ -62,7 +61,7 @@ class publicationNewsComments extends adminWindowList {
     public $remove = 1;
 
     public $itemActions = array (
-  0 => 
+  0 =>
   array (
     'entrypoint' => 'admin/test/ficker$%,,df/Fg',
     'label' => 'Test',
@@ -72,9 +71,8 @@ class publicationNewsComments extends adminWindowList {
 
     public $export = 0;
 
-
-    function deleteItem() {
-
+    public function deleteItem()
+    {
         $id = $_POST['item']['id'] + 0;
 
         $comment = dbExfetch('SELECT * FROM %pfx%publication_comments WHERE id = ' . $id);
@@ -86,7 +84,8 @@ class publicationNewsComments extends adminWindowList {
         dbUpdate('publication_news', array('id' => $comment['parent_id']), array('commentscount' => $comments['comcount']));
     }
 
-    function removeSelected() {
+    public function removeSelected()
+    {
         // Get selected items
         $selection = json_decode(getArgv('selected'), 1);
 
@@ -111,8 +110,7 @@ class publicationNewsComments extends adminWindowList {
             return true; // TODO: [Ferdi] Something went wrong, but should we be concerned?
 
         // Update each parent
-        foreach ($res as $parent)
-        {
+        foreach ($res as $parent) {
             $pid = $parent['parent_id'];
             $comments =
                 dbExfetch("SELECT COUNT(*) as commCount FROM %pfx%publication_comments WHERE parent_id=$pid", 1);
@@ -122,4 +120,3 @@ class publicationNewsComments extends adminWindowList {
         return true;
     }
 }
- ?>

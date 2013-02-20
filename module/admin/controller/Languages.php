@@ -2,18 +2,18 @@
 
 namespace Admin;
 
-class Languages {
-
-    public function __construct($pRestServer){
-
+class Languages
+{
+    public function __construct($pRestServer)
+    {
         $pRestServer
             //->addGetRoute('all-languages', 'getLanguageOverview')
             ->addGetRoute('overview', 'getOverviewExtract');
 
     }
 
-    public function getOverviewExtract($pModule, $pLang){
-
+    public function getOverviewExtract($pModule, $pLang)
+    {
         if( !$pModule || !$pLang) return array();
 
         $extract = \Core\Lang::extractLanguage( $pModule );
@@ -22,7 +22,7 @@ class Languages {
         $p100 = count($extract);
         $cTranslated = 0;
 
-        foreach( $extract as $id => $translation ){
+        foreach ($extract as $id => $translation) {
             if( $translated['translations'][$id] && $translated['translations'][$id] != '' ) $cTranslated++;
         }
 
@@ -33,8 +33,8 @@ class Languages {
 
     }
 
-    public function getAllLanguages($pLang = 'en') {
-
+    public function getAllLanguages($pLang = 'en')
+    {
         if ($pLang == '') $pLang = 'en';
 
         $res = array();
@@ -59,5 +59,3 @@ class Languages {
     }
 
 }
-
-?>

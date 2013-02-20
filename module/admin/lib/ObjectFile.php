@@ -4,36 +4,35 @@ namespace Admin;
 
 use Core\MediaFile;
 
-class ObjectFile extends \Core\ORM\Propel {
-
+class ObjectFile extends \Core\ORM\Propel
+{
     /**
      * {@inheritDoc}
      *
      * Same as parent method, except:
      * If we get the PK as path we convert it to internal ID.
      */
-    public function primaryStringToArray($pPrimaryKey){
-
+    public function primaryStringToArray($pPrimaryKey)
+    {
         if ($pPrimaryKey === '') return false;
         $groups = explode(',', $pPrimaryKey);
 
         $result = array();
 
-
-        foreach ($groups as $group){
+        foreach ($groups as $group) {
 
             $item = array();
             $primaryGroups = explode(',', $group);
 
-            foreach ($primaryGroups as $pos => $value){
+            foreach ($primaryGroups as $pos => $value) {
 
-                if ($ePos = strpos($value, '=')){
+                if ($ePos = strpos($value, '=')) {
                     $key = substr($value, 0, $ePos);
                     $value = substr($value, $ePos+1);
                     if (!in_array($key, $this->primaryKeys)) continue;
-                } else if (!$this->primaryKeys[$pos]) continue;
+                } elseif (!$this->primaryKeys[$pos]) continue;
 
-                if (!is_numeric($value)){
+                if (!is_numeric($value)) {
                     $file = MediaFile::getFile(rawurldecode($value));
                     if ($file)
                         $value = $file['id'];
@@ -57,8 +56,9 @@ class ObjectFile extends \Core\ORM\Propel {
      *
      * @param $pPrimaryKey
      */
-    public function mapPrimaryKey(&$pPrimaryKey){
-        if (!is_numeric($pPrimaryKey['id'])){
+    public function mapPrimaryKey(&$pPrimaryKey)
+    {
+        if (!is_numeric($pPrimaryKey['id'])) {
             $file = MediaFile::getFile(urldecode($pPrimaryKey['id']));
             $pPrimaryKey['id'] = $file['id'];
         }
@@ -67,35 +67,37 @@ class ObjectFile extends \Core\ORM\Propel {
     /**
      * {@inheritDoc}
      */
-    public function remove($pPrimaryKey){
-
+    public function remove($pPrimaryKey)
+    {
         $this->mapPrimaryKey($pPrimaryKey);
 
         parent::remove($pPrimaryKey);
 
         $path = MediaFile::getPath($pPrimaryKey['id']);
+
         return MediaFile::remove($path);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function add($pValues, $pBranchPk = false, $pMode = 'into', $pScope = 0){
-
+    public function add($pValues, $pBranchPk = false, $pMode = 'into', $pScope = 0)
+    {
         if ($pBranchPk)
             $parentPath = is_numeric($pBranchPk['id'])? MediaFile::getPath($pBranchPk['id']) : $pBranchPk['id'];
 
         $path = $parentPath ? $parentPath . $pValues['name'] : $pValues['name'];
 
         MediaFile::setContent($path, $pValues['content']);
+
         return parent::add($pValues, $pBranchPk, $pMode, $pScope);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function update($pPrimaryKey, $pValues){
-
+    public function update($pPrimaryKey, $pValues)
+    {
         $this->mapPrimaryKey($pPrimaryKey);
 
         $path = is_numeric($pPrimaryKey['id'])? MediaFile::getPath($pPrimaryKey['id']) : $pPrimaryKey['id'];
@@ -107,40 +109,39 @@ class ObjectFile extends \Core\ORM\Propel {
     /**
      * {@inheritDoc}
      */
-    public function getItem($pPrimaryKey, $pOptions = null){
-
+    public function getItem($pPrimaryKey, $pOptions = null)
+    {
         if ($pPrimaryKey)
             $path = is_numeric($pPrimaryKey['id'])? MediaFile::getPath($pPrimaryKey['id']) : $pPrimaryKey['id'];
         else
             $path = '/';
 
         if (!$path) return;
-
         return MediaFile::getFile($path);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getItems($pCondition = null, $pOptions = null){
-
+    public function getItems($pCondition = null, $pOptions = null)
+    {
         $items = parent::getItems($pCondition, $pOptions);
 
         $result = array();
-        foreach ($items as $item){
+        foreach ($items as $item) {
             $file = MediaFile::getFile($item['path']);
             if ($file)
                 $result[] = $file;
         }
+
         return $result;
     }
-
 
     /**
      * {@inheritDoc}
      */
-    public function getBranch($pPk = null, $pCondition = null, $pDepth = 1, $pScope = null, $pOptions = null){
-
+    public function getBranch($pPk = null, $pCondition = null, $pDepth = 1, $pScope = null, $pOptions = null)
+    {
         if ($pPk)
             $path = is_numeric($pPk['id'])?
                 MediaFile::getPath($pPk['id']) : $pPk['id'];
@@ -156,17 +157,17 @@ class ObjectFile extends \Core\ORM\Propel {
         $limit = $pOptions['limit'];
         $result = array();
 
-        foreach($files as $file){
+        foreach ($files as $file) {
             if ($pCondition && !\Core\Object::satisfy($file, $pCondition)) continue;
 
             $c++;
             if ($offset && $offset >= $c) continue;
             if ($limit && $limit < $c) continue;
 
-            if ($pDepth > 0){
+            if ($pDepth > 0) {
                 $children = self::getBranch(array('id' => $file['path']), $pCondition, $pDepth-1);
                 $file['_childrenCount'] = count($children);
-                if ($pDepth > 1 && $file['type'] == 'dir'){
+                if ($pDepth > 1 && $file['type'] == 'dir') {
                     $file['_children'] = $children;
                 }
             }
@@ -175,7 +176,5 @@ class ObjectFile extends \Core\ORM\Propel {
 
         return $result;
     }
-
-
 
 }

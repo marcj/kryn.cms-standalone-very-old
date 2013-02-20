@@ -5,32 +5,33 @@ namespace Admin;
 use Core\MediaFile;
 use Core\Permission;
 
-class File {
-
-    public function getFiles($pPath){
-
+class File
+{
+    public function getFiles($pPath)
+    {
         //todo, check read access
 
         $files = MediaFile::getFiles($pPath);
-        foreach ($files as &$file){
+        foreach ($files as &$file) {
             $file['writeAccess'] = Permission::checkUpdate('file', $file['id']);
         }
+
         return $files;
     }
 
-
-    public function getFile($pPath){
-
+    public function getFile($pPath)
+    {
         //todo, check read access
 
         $file = MediaFile::getFile($pPath);
         $file['writeAccess'] = Permission::checkUpdate('file', $file['id']);
+
         return $file;
 
     }
 
-    public function getThumbnail($pPath){
-
+    public function getThumbnail($pPath)
+    {
         //todo, check read access
 
         $image = MediaFile::getThumbnail($pPath, '50x50');

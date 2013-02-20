@@ -12,7 +12,6 @@
 
 Namespace Users;
 
-class Controller extends \Core\Controller {
-
+class Controller extends \Core\Controller
+{
 }
-?>

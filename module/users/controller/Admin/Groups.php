@@ -1,17 +1,17 @@
 <?php
 
 namespace Users\Admin;
- 
-class Groups extends \Admin\ObjectCrud {
 
+class Groups extends \Admin\ObjectCrud
+{
     public $fields = array (
-  '__General__' => 
+  '__General__' =>
   array (
     'label' => 'General',
     'type' => 'tab',
-    'children' => 
+    'children' =>
     array (
-      'name' => 
+      'name' =>
       array (
         'key' => 'name',
         'label' => 'Name',
@@ -28,12 +28,12 @@ class Groups extends \Admin\ObjectCrud {
 );
 
     public $columns = array (
-  'name' => 
+  'name' =>
   array (
     'type' => 'text',
     'label' => 'Name',
   ),
-  'description' => 
+  'description' =>
   array (
     'type' => 'text',
     'label' => '!!No title defined!!',
@@ -80,6 +80,5 @@ class Groups extends \Admin\ObjectCrud {
     public $multiDomain = false;
 
     public $versioning = false;
-
 
 }

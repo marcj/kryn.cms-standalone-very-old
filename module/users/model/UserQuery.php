@@ -4,11 +4,10 @@ namespace Users;
 
 use Users\om\BaseUserQuery;
 
-
 /**
  * Skeleton subclass for performing query and update operations on the 'kryn_system_user' table.
  *
- * 
+ *
  *
  * You should add additional methods to this class to meet the
  * application requirements.  This class will only be generated as
@@ -16,6 +15,6 @@ use Users\om\BaseUserQuery;
  *
  * @package    propel.generator.Users
  */
-class UserQuery extends BaseUserQuery {
-
+class UserQuery extends BaseUserQuery
+{
 } // UserQuery

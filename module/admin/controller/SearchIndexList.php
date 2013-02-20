@@ -2,7 +2,8 @@
 
 namespace Admin;
 
-class SearchIndexList extends windowList {
+class SearchIndexList extends windowList
+{
     public $table = 'system_search';
     public $itemsPerPage = 20;
     public $orderBy = 'domain_id';
@@ -17,7 +18,6 @@ class SearchIndexList extends windowList {
     public $edit = false;
     public $remove = false;
 
-
     public $modifier = 'addDomainLanguage';
 
     public $primary = array('url', 'domain_id');
@@ -25,7 +25,6 @@ class SearchIndexList extends windowList {
     /*public $itemActions = array(
         array('Set this url on the blacklist', 'admin/images/icons/cross.png', 'admin/system/searchBlacklist/addPage'),
     );*/
-
 
     public $columns = array(
         'url' => array(
@@ -51,21 +50,20 @@ class SearchIndexList extends windowList {
         )
     );
 
-    public function addDomainLanguage($pItem) {
+    public function addDomainLanguage($pItem)
+    {
         $pItem['values']['domain_id__label'] =
             $pItem['values']['domain_id__label'] . " ( " . $pItem['values']['lang'] . " )";
 
         return $pItem;
     }
 
-
-    function filterSql() {
+    public function filterSql()
+    {
         $res = parent::filterSql();
         $res .= " AND " . pfx . $this->table . ".mdate > 0 ";
+
         return $res;
     }
 
-
 }
-
-?>

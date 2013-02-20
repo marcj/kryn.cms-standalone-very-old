@@ -2,8 +2,8 @@
 
 namespace Publication\Admin;
 
-class NewsList extends \Admin\ObjectCrud {
-
+class NewsList extends \Admin\ObjectCrud
+{
     public $object = 'news';
 
     public $order = array(

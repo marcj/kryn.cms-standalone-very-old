@@ -1,11 +1,9 @@
 <?php
 
-
-class adminStoreExtensions extends adminStore {
-
-
-    public function getItem($pId) {
-
+class adminStoreExtensions extends adminStore
+{
+    public function getItem($pId)
+    {
         $res = array();
         $config = kryn::$configs[$pId];
 
@@ -19,8 +17,8 @@ class adminStoreExtensions extends adminStore {
         return $res;
     }
 
-    public function getItems($pFrom = 0, $pCount = 0) {
-
+    public function getItems($pFrom = 0, $pCount = 0)
+    {
         global $client;
 
         $res = array();
@@ -28,13 +26,11 @@ class adminStoreExtensions extends adminStore {
 
         $search = strtolower(getArgv('search', 1));
 
-
         foreach (kryn::$configs as $extId => $config) {
 
             $title = $config['title'][$lang];
             if (!$title)
                 $title = $config['title']['en'];
-
 
             if ($search && strtolower(substr($title, 0, strlen($search))) != $search)
                 continue;
@@ -46,5 +42,3 @@ class adminStoreExtensions extends adminStore {
     }
 
 }
-
-?>

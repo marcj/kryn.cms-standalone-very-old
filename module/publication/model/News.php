@@ -4,11 +4,10 @@ namespace Publication;
 
 use Publication\om\BaseNews;
 
-
 /**
  * Skeleton subclass for representing a row from the 'kryn_publication_news' table.
  *
- * 
+ *
  *
  * You should add additional methods to this class to meet the
  * application requirements.  This class will only be generated as
@@ -16,6 +15,6 @@ use Publication\om\BaseNews;
  *
  * @package    propel.generator.Publication
  */
-class News extends BaseNews {
-
+class News extends BaseNews
+{
 } // News

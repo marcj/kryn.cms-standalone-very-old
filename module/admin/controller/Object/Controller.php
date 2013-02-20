@@ -9,42 +9,40 @@ use Core\Object;
  *
  * Proxy class for \Core\Object
  */
-class Controller {
-
+class Controller
+{
     /**
      * General object items output. /admin/object?uri=...
      *
-     * @param string $pUrl
-     * @param string $pFields
+     * @param  string                   $pUrl
+     * @param  string                   $pFields
      * @return array|bool
      * @throws \ObjectNotFoundException
      */
-    public function getItemPerUrl($pUrl, $pFields = null){
-
+    public function getItemPerUrl($pUrl, $pFields = null)
+    {
         list($objectKey, $object_id) = \Core\Object::parseUrl($pUrl);
 
         $definition = \Core\Object::getDefinition($objectKey);
         if (!$definition) throw new \ObjectNotFoundException(tf('Object %s does not exists.', $objectKey));
-
         return \Core\Object::get($objectKey, $object_id[0], array('fields' => $pFields, 'permissionCheck' => true));
     }
-
 
     /**
      * Object items output for user interface field.  /admin/backend/field-object?uri=...
      *
-     * @param string $pUrl
-     * @param string $pFields
+     * @param  string                   $pUrl
+     * @param  string                   $pFields
      * @return array|bool
      * @throws \ObjectNotFoundException
      * @throws \ClassNotFoundException
      */
-    public function getFieldItem($pObjectKey, $pPk, $pFields = null){
-
+    public function getFieldItem($pObjectKey, $pPk, $pFields = null)
+    {
         $definition = \Core\Object::getDefinition($pObjectKey);
         if (!$definition) throw new \ObjectNotFoundException(tf('Object %s does not exists.', $pObjectKey));
 
-        if ($definition['chooserFieldDataModel'] != 'custom'){
+        if ($definition['chooserFieldDataModel'] != 'custom') {
             return \Core\Object::get($pObjectKey, $pPk);
         } else {
 
@@ -56,31 +54,28 @@ class Controller {
         }
     }
 
-
-
     /**
      * General object items output. /admin/objects?uri=...
      *
-     * @param string $pUrl
-     * @param string $pFields
-     * @param bool   $pReturnKey Returns the list as a hash with the primary key as index. key=implode(',',rawurlencode($keys))
-     * @param bool   $pReturnKeyAsRequested. Returns the list as a hash with the requested id as key.
+     * @param  string                   $pUrl
+     * @param  string                   $pFields
+     * @param  bool                     $pReturnKey             Returns the list as a hash with the primary key as index. key=implode(',',rawurlencode($keys))
+     * @param  bool                     $pReturnKeyAsRequested. Returns the list as a hash with the requested id as key.
      * @return array
      * @throws \Exception
      * @throws \ClassNotFoundException
      * @throws \ObjectNotFoundException
      */
-    public function getItemsByUrl($pUrl, $pFields = null, $pReturnKey = true, $pReturnKeyAsRequested = false){
-
+    public function getItemsByUrl($pUrl, $pFields = null, $pReturnKey = true, $pReturnKeyAsRequested = false)
+    {
         list($objectKey, $objectIds, $params) = \Core\Object::parseUrl($pUrl);
         //check if we got an id
-        if ($objectIds[0] === ''){
+        if ($objectIds[0] === '') {
             throw new \Exception(tf('No id given in uri %s.', $pUrl));
         }
 
         $definition = \Core\Object::getDefinition($objectKey);
         if (!$definition) throw new \ObjectNotFoundException(tf('Object %s can not be found.', $objectKey));
-
 
         $options['fields'] = $pFields;
         $options['permissionCheck'] = true;
@@ -89,7 +84,7 @@ class Controller {
         if (count($objectIds) == 1)
             $items[] = \Core\Object::get($objectKey, $objectIds[0], $options);
         else {
-            foreach ($objectIds as $primaryKey){
+            foreach ($objectIds as $primaryKey) {
                 if ($item = \Core\Object::get($objectKey, $primaryKey, $options))
                     $items[] = $item;
             }
@@ -98,18 +93,18 @@ class Controller {
         if ($pReturnKey || $pReturnKeyAsRequested) {
 
             $res = array();
-            if ($pReturnKeyAsRequested){
+            if ($pReturnKeyAsRequested) {
 
                 //map requetsed id to real ids
                 $requestedIds = explode('/', \Core\Object::getCroppedObjectId($pUrl));
                 $map = array();
-                foreach ($requestedIds as $id){
+                foreach ($requestedIds as $id) {
                     $pk = \Core\Object::parsePk($objectKey, $id);
                     $map[\Core\Object::getObjectUrlId($objectKey, $pk[0])+''] = $id;
                 }
 
-                if (is_array($items)){
-                    foreach ($items as &$item){
+                if (is_array($items)) {
+                    foreach ($items as &$item) {
                         $pk = \Core\Object::getObjectUrlId($objectKey, $item);
                         $res[$map[$pk+'']] = $item;
                     }
@@ -121,12 +116,12 @@ class Controller {
                 $c = count($primaryKeys);
                 $firstPK = key($primaryKeys);
 
-                if (is_array($items)){
-                    foreach ($items as &$item){
+                if (is_array($items)) {
+                    foreach ($items as &$item) {
 
-                        if ($c > 1){
+                        if ($c > 1) {
                             $keys = array();
-                            foreach($primaryKeys as $key => &$field){
+                            foreach ($primaryKeys as $key => &$field) {
                                 $keys[] = rawurlencode($item[$key]);
                             }
                             $res[ implode(',', $keys) ] = $item;
@@ -142,8 +137,6 @@ class Controller {
             return $items;
         }
     }
-
-
 
     /**
      * Object items output for user interface field. /admin/backend/field-objects?uri=...
@@ -181,7 +174,7 @@ class Controller {
 
         $condition = \Admin\ObjectCrud::buildFilter($_);
 
-        if ($definition['fieldDataModel'] == 'custom'){
+        if ($definition['fieldDataModel'] == 'custom') {
 
             $class = $definition['fieldDataModelClass'];
             if (!class_exists($class)) throw new \ClassNotFoundException(tf('The class %s can not be found.', $class));
@@ -203,12 +196,12 @@ class Controller {
             $firstPK = key($primaryKeys);
 
             $res = array();
-            if (is_array($items)){
-                foreach ($items as &$item){
+            if (is_array($items)) {
+                foreach ($items as &$item) {
 
-                    if ($c > 1){
+                    if ($c > 1) {
                         $keys = array();
-                        foreach($primaryKeys as $key => &$field){
+                        foreach ($primaryKeys as $key => &$field) {
                             $keys[] = rawurlencode($item[$key]);
                         }
                         $res[ implode(',', $keys) ] = $item;
@@ -224,7 +217,6 @@ class Controller {
         }
     }
 
-
     /**
      * Object items output for user interface chooser window/browser. /admin/backend/browser-objects/<objectKey>
      *
@@ -235,10 +227,10 @@ class Controller {
      * @param string $pFields
      * @param bool   $pReturnHash Returns the list as a hash with the primary key as index.
      *
-     * @param int    $pLimit
-     * @param int    $pOffset
-     * @param array  $pOrder
-     * @param mixed  $_
+     * @param int   $pLimit
+     * @param int   $pOffset
+     * @param array $pOrder
+     * @param mixed $_
      *
      * @return array
      * @throws \ObjectNotFoundException
@@ -266,7 +258,7 @@ class Controller {
 
         $condition = \Admin\ObjectCrud::buildFilter($_);
 
-        if ($definition['browserDataModel'] == 'custom'){
+        if ($definition['browserDataModel'] == 'custom') {
 
             $class = $definition['browserDataModelClass'];
             if (!class_exists($class)) throw new \ClassNotFoundException(tf('The class %s can not be found.', $class));
@@ -288,12 +280,12 @@ class Controller {
             $firstPK = key($primaryKeys);
 
             $res = array();
-            if (is_array($items)){
-                foreach ($items as &$item){
+            if (is_array($items)) {
+                foreach ($items as &$item) {
 
-                    if ($c > 1){
+                    if ($c > 1) {
                         $keys = array();
-                        foreach($primaryKeys as $key => &$field){
+                        foreach ($primaryKeys as $key => &$field) {
                             $keys[] = rawurlencode($item[$key]);
                         }
                         $res[ implode(',', $keys) ] = $item;
@@ -309,8 +301,8 @@ class Controller {
         }
     }
 
-    public function getBrowserItemsCount($pObjectKey,$_ = null){
-
+    public function getBrowserItemsCount($pObjectKey,$_ = null)
+    {
         $definition = \Core\Object::getDefinition($pObjectKey);
         if (!$definition) throw new \ObjectNotFoundException(tf('Object %s can not be found.', $pObjectKey));
 
@@ -325,7 +317,7 @@ class Controller {
 
         $condition = \Admin\ObjectCrud::buildFilter($_);
 
-        if ($definition['browserDataModel'] == 'custom'){
+        if ($definition['browserDataModel'] == 'custom') {
 
             $class = $definition['browserDataModelClass'];
             if (!class_exists($class)) throw new \ClassNotFoundException(tf('The class %s can not be found.', $class));

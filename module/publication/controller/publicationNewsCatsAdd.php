@@ -1,7 +1,7 @@
 <?php
 
-class publicationNewsCatsAdd extends windowAdd {
-
+class publicationNewsCatsAdd extends windowAdd
+{
     public $table = 'publication_news_category';
 
     public $primary = array('id');
@@ -20,14 +20,14 @@ class publicationNewsCatsAdd extends windowAdd {
         )
     );
 
-    public function toModRewrite($p) {
+    public function toModRewrite($p)
+    {
         return kryn::toModRewrite(getArgv('title'));
     }
 
-    public function saveItem() {
+    public function saveItem()
+    {
         parent::saveItem();
         kryn::invalidateCache('publicationCategoryList');
     }
 }
-
-?>

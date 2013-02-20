@@ -1,9 +1,9 @@
 <?php
 
 namespace Publication\Admin;
- 
-class NewsCrud extends \Admin\ObjectCrud {
 
+class NewsCrud extends \Admin\ObjectCrud
+{
     public $fields = array (
   '__General__' => array (
     'label' => 'General',
@@ -121,6 +121,5 @@ class NewsCrud extends \Admin\ObjectCrud {
     public $multiDomain = false;
 
     public $versioning = false;
-
 
 }

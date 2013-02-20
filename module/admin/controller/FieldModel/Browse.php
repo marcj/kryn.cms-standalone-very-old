@@ -1,10 +1,9 @@
 <?php
 
-
 namespace Admin\Model;
 
-abstract class Browse {
-
+abstract class Browse
+{
     /**
      *
      * $pOptions is a array which can contain following options. All options are optional.
@@ -27,10 +26,9 @@ abstract class Browse {
      *
      *
      * @abstract
-     * @param array  $pCondition
-     * @param array  $pOptions
+     * @param array $pCondition
+     * @param array $pOptions
      */
     abstract public function getItems($pCondition = null, $pOptions = null);
-
 
 }

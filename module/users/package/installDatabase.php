@@ -34,12 +34,10 @@ $id = $groupAdmin->getId();
 dbUpdate('system_group', array('id' => $id), array('id' => 1));
 $groupAdmin->setId(1);
 
-
 $groupUsers = new Group();
 $groupUsers->setName('Users');
 $groupUsers->setDescription('Registered user');
 $groupUsers->save();
-
 
 $admin = new User();
 $admin->setUsername('admin');

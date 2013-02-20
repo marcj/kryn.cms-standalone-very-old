@@ -10,10 +10,10 @@
  *
  */
 
-
-class adminPlugins {
-
-    function init() {
+class adminPlugins
+{
+    public function init()
+    {
         switch (getArgv(4)) {
             case 'get':
                 return self::get(getArgv('module'), getArgv('plugin'));
@@ -25,7 +25,8 @@ class adminPlugins {
         json("adminPlugins::init::invalid-param");
     }
 
-    public static function preview($pContent) {
+    public static function preview($pContent)
+    {
         global $user;
 
         $temp = explode('::', $pContent);
@@ -69,9 +70,8 @@ class adminPlugins {
         json($res);
     }
 
-    public static function get($pModule, $pPlugin) {
-
-
+    public static function get($pModule, $pPlugin)
+    {
         $config = kryn::$configs[$pModule];
         $plugin = $config['plugins'][$pPlugin];
 
@@ -81,8 +81,8 @@ class adminPlugins {
         json($plugin);
     }
 
-
-    public static function preparePlugin(&$pFields, $pModuleObj) {
+    public static function preparePlugin(&$pFields, $pModuleObj)
+    {
         if (count($pFields) > 0) {
             foreach ($pFields as &$field) {
 
@@ -92,7 +92,7 @@ class adminPlugins {
 
                         $field['tableItems'] = $field['items'];
 
-                    } else if (!empty($field['eval'])) {
+                    } elseif (!empty($field['eval'])) {
                         $field['tableItems'] = eval($field['eval']);
 
                     } elseif (isset($field['table']) && isset($field['table_label']) && isset($field['table_id'])) {
@@ -103,7 +103,7 @@ class adminPlugins {
                     } elseif (!empty($field['sql'])) {
                         $field['tableItems'] = dbExfetch($field['sql'], DB_FETCH_ALL);
 
-                    } else if ($field['method']) {
+                    } elseif ($field['method']) {
                         $nam = $field['method'];
                         if (method_exists($pModuleObj, $nam)) {
                             $field['tableItems'] = $pModuleObj->$nam($field);
@@ -147,5 +147,3 @@ class adminPlugins {
     }
 
 }
-
-?>
