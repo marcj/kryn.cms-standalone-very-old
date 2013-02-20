@@ -7,10 +7,10 @@ use Test\Item;
 
 use Core\Object;
 
-class ApiTest extends TestCaseWithCore {
-
-    public function testPkApi(){
-
+class ApiTest extends TestCaseWithCore
+{
+    public function testPkApi()
+    {
         $pk = Object::normalizePk('Test\Item', 24);
         $this->assertEquals(array('id' => 24), $pk);
 
@@ -22,7 +22,6 @@ class ApiTest extends TestCaseWithCore {
 
         $pk = Object::normalizePkString('Test\Item', 24);
         $this->assertEquals(array('id' => 24), $pk);
-
 
         $pk = Object::normalizePkString('Test\Item2', '24');
         $this->assertEquals(array('id' => 24, 'id2' => null), $pk);
@@ -36,7 +35,6 @@ class ApiTest extends TestCaseWithCore {
         $pk = Object::normalizePkString('Test\Item2', '24%2C33,5');
         $this->assertEquals(array('id' => '24,33', 'id2' => 5), $pk);
 
-
         $pk = Object::normalizePkString('Test\Item2', '24,5/44,5');
         $this->assertEquals(array('id' => 24, 'id2' => 5), $pk);
 
@@ -45,7 +43,6 @@ class ApiTest extends TestCaseWithCore {
 
         $pk = Object::normalizePk('Test\Item2', array(24, 2));
         $this->assertEquals(array('id' => 24, 'id2' => 2), $pk);
-
 
         $pk = Object::getObjectUrlId('Test\Item', '25,asd24/');
         $this->assertEquals('25%2Casd24%2F', $pk);
@@ -61,9 +58,8 @@ class ApiTest extends TestCaseWithCore {
 
     }
 
-    public function testCondition(){
-
-
+    public function testCondition()
+    {
         $item1 = new Item;
         $item1->setTitle('Item Condition 1 Hi');
         $item1->save();
@@ -71,7 +67,6 @@ class ApiTest extends TestCaseWithCore {
         $item2 = new Item;
         $item2->setTitle('Item Condition 2 Hi');
         $item2->save();
-
 
         $condition1 = array(
             array('id', '=', $item1->getId())

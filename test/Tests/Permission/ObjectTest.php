@@ -12,11 +12,10 @@ use Core\Permission;
 use Users\Group;
 use Users\User;
 
-class ObjectTest extends TestCaseWithCore {
-
-
-    public function testRulesWithFields(){
-
+class ObjectTest extends TestCaseWithCore
+{
+    public function testRulesWithFields()
+    {
         ItemQuery::create()->deleteAll();
         TestQuery::create()->deleteAll();
         Permission::removeObjectRules('Test\\Item');
@@ -53,16 +52,12 @@ class ObjectTest extends TestCaseWithCore {
         $this->assertFalse(Permission::checkUpdate('Test\\Item', array('oneCategory' => $cat2->getCatid()), Permission::USER, $user->getId()));
         $this->assertTrue(Permission::checkUpdate('Test\\Item', array('oneCategory' => $cat1->getCatid()), Permission::USER, $user->getId()));
 
-
-
         Permission::removeObjectRules('Test\\Item');
         $fields = array('oneCategory' => array(array('access' => false, 'condition' => array(array('name', '=', 'Nein')))));
         Permission::setObjectUpdate('Test\\Item', Permission::USER, $user->getId(), true, $fields);
 
         $this->assertTrue(Permission::checkUpdate('Test\\Item', array('oneCategory' => $cat2->getCatid()), Permission::USER, $user->getId()));
         $this->assertFalse(Permission::checkUpdate('Test\\Item', array('oneCategory' => $cat1->getCatid()), Permission::USER, $user->getId()));
-
-
 
         Permission::removeObjectRules('Test\\Item');
 
@@ -74,9 +69,6 @@ class ObjectTest extends TestCaseWithCore {
         $this->assertFalse(Permission::checkUpdate('Test\\Item', array('title' => 'peter 2'), Permission::USER, $user->getId()));
         $this->assertFalse(Permission::checkUpdate('Test\\Item', array('title' => 'peter asdad'), Permission::USER, $user->getId()));
 
-
-
-
         Permission::removeObjectRules('Test\\Item');
 
         $fields = array('title' => array(array('access' => false, 'condition' => array(array('title', '=', 'peter')))));
@@ -86,12 +78,10 @@ class ObjectTest extends TestCaseWithCore {
         $this->assertFalse(Permission::checkUpdate('Test\\Item', array('title' => 'peter'), Permission::USER, $user->getId()));
         $this->assertTrue(Permission::checkUpdate('Test\\Item', array('title' => 'peter2'), Permission::USER, $user->getId()));
 
-
     }
 
-
-    public function texxstObjectGeneral(){
-
+    public function texxstObjectGeneral()
+    {
         ItemQuery::create()->deleteAll();
         TestQuery::create()->deleteAll();
         Permission::removeObjectRules('Test\\Item');
@@ -141,18 +131,15 @@ class ObjectTest extends TestCaseWithCore {
         $this->assertFalse(Permission::checkList('Test\\Item', $item2->getId(), Permission::GROUP, $group->getId()),
             'testGroup does not have access to item2 anymore.');
 
-
         $acl = Permission::setObjectListExact('Test\\Item', $item2->getId(), Permission::USER, $user->getId(), true);
         $this->assertTrue(Permission::checkList('Test\\Item', $item2->getId(), Permission::USER, $user->getId()),
             'testUser got access through a rule for only him.');
-
 
         $acl->setAccess(false);
         $acl->save();
         Permission::clearCache();
         $this->assertFalse(Permission::checkList('Test\\Item', $item2->getId(), Permission::USER, $user->getId()),
             'testUser got no-access through a rule for only him.');
-
 
         //access to every item
         $acl = Permission::setObjectList('Test\\Item', Permission::GROUP, $group->getId(), true);
@@ -163,7 +150,6 @@ class ObjectTest extends TestCaseWithCore {
         $this->assertTrue(Permission::checkList('Test\\Item', $item2->getId(), Permission::GROUP, $group->getId()),
             'testGroup has now access to all items.');
 
-
         //remove the acl item that gives access to anything.
         $acl->delete();
         Permission::clearCache();
@@ -173,7 +159,6 @@ class ObjectTest extends TestCaseWithCore {
             'testGroup has no access anymore to all items (item1).');
         $this->assertFalse(Permission::checkList('Test\\Item', $item2->getId(), Permission::GROUP, $group->getId()),
             'testGroup has no access anymore to all items (item2).');
-
 
         //check checkListCondition
         Permission::setObjectListCondition('Test\\Item', array(array('id', '>', $item1->getId())), Permission::GROUP, $group->getId(), true);

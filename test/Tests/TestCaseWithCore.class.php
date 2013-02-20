@@ -9,26 +9,27 @@ namespace Tests;
  * This uninstalls (removes config.php as well) in tearDown().
  *
  */
-class TestCaseWithCore extends \PHPUnit_Framework_TestCase {
-
+class TestCaseWithCore extends \PHPUnit_Framework_TestCase
+{
     public $currentDir = '';
 
-    public function run(\PHPUnit_Framework_TestResult $result = NULL){
-
+    public function run(\PHPUnit_Framework_TestResult $result = NULL)
+    {
         $this->currentDir = getcwd();
 
         if ($result === NULL) {
             $result = $this->createResult();
         }
-        if (!$this->bootUp++){
+        if (!$this->bootUp++) {
             try {
 
-                if (!file_exists('config.php')){
+                if (!file_exists('config.php')) {
                     Manager::freshInstallation();
                 }
                 Manager::bootupCore();
-            } catch (\Exception $ex){
+            } catch (\Exception $ex) {
                 $result->addError($this, $ex, 0);
+
                 return $result;
             }
         }

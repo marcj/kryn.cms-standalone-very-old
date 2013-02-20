@@ -6,11 +6,10 @@ use Tests\TestCaseWithCore;
 use \Core\Object;
 use \Core\WorkspaceManager;
 
-
-class WorkspacesTest extends TestCaseWithCore {
-
-    public function testDifferentWorkspaces(){
-
+class WorkspacesTest extends TestCaseWithCore
+{
+    public function testDifferentWorkspaces()
+    {
         Object::clear('Publication\\News');
 
         WorkspaceManager::setCurrent(0);
@@ -20,7 +19,6 @@ class WorkspacesTest extends TestCaseWithCore {
         Object::add('Publication\\News', array(
             'title' => 'News 2 in workspace live'
         ));
-
 
         WorkspaceManager::setCurrent(1);
         Object::add('Publication\\News', array(
@@ -33,8 +31,6 @@ class WorkspacesTest extends TestCaseWithCore {
             'title' => 'News 3 in workspace one'
         ));
 
-
-
         //anything inserted and selecting works correctly?
         WorkspaceManager::setCurrent(0);
         $count = Object::getCount('Publication\\News');
@@ -43,8 +39,6 @@ class WorkspacesTest extends TestCaseWithCore {
         WorkspaceManager::setCurrent(1);
         $count = Object::getCount('Publication\\News');
         $this->assertEquals(3, $count);
-
-
 
         //anything inserted and selecting works correctly, also through propel directly?
         WorkspaceManager::setCurrent(0);
@@ -55,18 +49,17 @@ class WorkspacesTest extends TestCaseWithCore {
         $count = \Publication\NewsQuery::create()->count();
         $this->assertEquals(3, $count);
 
-
     }
 
-    public function testThroughCoreObjectWrapper(){
-
+    public function testThroughCoreObjectWrapper()
+    {
         Object::clear('Publication\\News');
         $count = Object::getCount('Publication\\News');
         $this->assertEquals(0, $count);
 
         $id11 = 0;
 
-        for ($i=1; $i<=50;$i++){
+        for ($i=1; $i<=50;$i++) {
             $pk = Object::add('Publication\\News', array(
                 'title' => 'News '.$i,
                 'intro' => str_repeat('L', $i)
@@ -109,8 +102,8 @@ class WorkspacesTest extends TestCaseWithCore {
 
     }
 
-    public function testThroughPropelObjects(){
-
+    public function testThroughPropelObjects()
+    {
         \Publication\NewsQuery::create()->deleteAll();
         \Publication\NewsVersionQuery::create()->deleteAll();
 
@@ -119,7 +112,7 @@ class WorkspacesTest extends TestCaseWithCore {
 
         $id = 0;
 
-        for ($i=1; $i<=50;$i++){
+        for ($i=1; $i<=50;$i++) {
 
             $object = new \Publication\News;
             $object->setTitle('News '.$i);
