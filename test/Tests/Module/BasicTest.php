@@ -4,10 +4,10 @@ namespace Tests\Module;
 
 use Tests\TestCaseWithCore;
 
-class BasicTest extends TestCaseWithCore {
-
-    public function testGeneral(){
-
+class BasicTest extends TestCaseWithCore
+{
+    public function testGeneral()
+    {
         $active = \Core\Kryn::isActiveModule('core');
         $this->assertTrue($active);
 
@@ -25,9 +25,7 @@ class BasicTest extends TestCaseWithCore {
 
         $this->assertTrue(is_writable(\Core\Kryn::getTempFolder()));
 
-
         $this->assertInstanceOf('Test\\Test', new \Test\Test());
-
 
     }
 

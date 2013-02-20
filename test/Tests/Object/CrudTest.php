@@ -4,10 +4,10 @@ namespace Tests\Object;
 
 use Tests\TestCaseWithCore;
 
-class CreateTest extends TestCaseWithCore {
-
-    public function testObject(){
-
+class CreateTest extends TestCaseWithCore
+{
+    public function testObject()
+    {
         \Core\Object::clear('Test\\Test');
 
         //check empty

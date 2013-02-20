@@ -6,16 +6,13 @@ use Tests\TestCaseWithCore;
 use \Core\Object;
 use \Core\WorkspaceManager;
 
-use Test\Item;
 use Test\ItemQuery;
-use Test\ItemCategory;
 use Test\ItemCategoryQuery;
 
-
-class WorkspaceObjectRelationTest extends TestCaseWithCore {
-
-    public function testThroughPropel(){
-
+class WorkspaceObjectRelationTest extends TestCaseWithCore
+{
+    public function testThroughPropel()
+    {
         WorkspaceManager::setCurrent(0);
 
         ItemQuery::create()->deleteAll();

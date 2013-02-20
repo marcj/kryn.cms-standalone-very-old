@@ -8,22 +8,22 @@ use Test\ItemQuery;
 
 use \Tests\Manager;
 
-class BasicTest extends RestTestCase {
-
-    public function setUp(){
-
+class BasicTest extends RestTestCase
+{
+    public function setUp()
+    {
         parent::setUp();
 
         //login as admin
         $loggedIn = $this->restCall('/admin/logged-in');
 
-        if (!$loggedIn || !$loggedIn['data']){
+        if (!$loggedIn || !$loggedIn['data']) {
             Manager::get('/admin/login?username=admin&password=admin');
         }
     }
 
-    public function testBasics(){
-
+    public function testBasics()
+    {
         $loggedIn = $this->restCall('/admin/logged-in');
         $this->assertTrue($loggedIn['data'], 'we are logged in.');
 
@@ -37,8 +37,8 @@ class BasicTest extends RestTestCase {
 
     }
 
-    public function testListing(){
-
+    public function testListing()
+    {
         $response = $this->restCall('/admin/object/Core.Node');
 
         $this->assertEquals(200, $response['status']);
@@ -65,18 +65,15 @@ class BasicTest extends RestTestCase {
         $this->assertEquals(200, $response['status']);
         $this->assertEquals(2, count($response['data']));
 
-
         $response = $this->restCall('/admin/object/Test.Item/'.$id2);
 
         $this->assertEquals(200, $response['status']);
         $this->assertEquals($id2, $response['data']['id']);
 
-
     }
 
-
-    public function testUpdating(){
-
+    public function testUpdating()
+    {
         ItemQuery::create()->deleteAll();
 
         $item1 = new Item();
@@ -100,9 +97,8 @@ class BasicTest extends RestTestCase {
 
     }
 
-    public function testDelete(){
-
-
+    public function testDelete()
+    {
         ItemQuery::create()->deleteAll();
 
         $item1 = new Item();
@@ -112,7 +108,6 @@ class BasicTest extends RestTestCase {
 
         $response = $this->restCall('/admin/object/Test.Item/'.$id);
         $this->assertEquals('Item 1', $response['data']['title']);
-
 
         $response = $this->restCall('/admin/object/Test.Item/'.$id, 'DELETE');
 
@@ -124,8 +119,8 @@ class BasicTest extends RestTestCase {
         $this->assertNull($response['data']);
     }
 
-    public function testAdd(){
-
+    public function testAdd()
+    {
         ItemQuery::create()->deleteAll();
 
         $item1 = new Item();
@@ -135,7 +130,6 @@ class BasicTest extends RestTestCase {
 
         $response = $this->restCall('/admin/object/Test.Item/'.$id);
         $this->assertEquals('Item 1', $response['data']['title']);
-
 
         $response = $this->restCall('/admin/object/Test.Item', 'POST',
         array(
@@ -148,7 +142,6 @@ class BasicTest extends RestTestCase {
         //did we really inserted it?
         $response = $this->restCall('/admin/object/Test.Item/'.$response['data']['id']);
         $this->assertEquals($id+1, $response['data']['id']+0);
-
 
     }
 
