@@ -4,11 +4,10 @@ namespace Core;
 
 use Core\om\BaseFrameworkVersion;
 
-
 /**
  * Skeleton subclass for representing a row from the 'kryn_system_framework_version' table.
  *
- * 
+ *
  *
  * You should add additional methods to this class to meet the
  * application requirements.  This class will only be generated as
@@ -16,6 +15,6 @@ use Core\om\BaseFrameworkVersion;
  *
  * @package    propel.generator.kryn
  */
-class FrameworkVersion extends BaseFrameworkVersion {
-
+class FrameworkVersion extends BaseFrameworkVersion
+{
 } // FrameworkVersion

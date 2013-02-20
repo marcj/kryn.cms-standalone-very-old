@@ -4,11 +4,10 @@ namespace Core;
 
 use Core\om\BaseFile;
 
-
 /**
  * Skeleton subclass for representing a row from the 'kryn_system_file' table.
  *
- * 
+ *
  *
  * You should add additional methods to this class to meet the
  * application requirements.  This class will only be generated as
@@ -16,6 +15,6 @@ use Core\om\BaseFile;
  *
  * @package    propel.generator.kryn
  */
-class File extends BaseFile {
-
+class File extends BaseFile
+{
 } // File

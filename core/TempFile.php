@@ -21,8 +21,8 @@ namespace Core;
  * Does not support external mount points.
  *
  */
-class TempFile extends MediaFile {
-
+class TempFile extends MediaFile
+{
     public static $fsObjects = array();
 
 
@@ -33,7 +33,7 @@ class TempFile extends MediaFile {
     //we do not support mounts outside of media/.
     public static $checkMounts = false;
 
-	/**
+    /**
      *
      * Returns the instance of the local file layer.
      *
@@ -41,8 +41,8 @@ class TempFile extends MediaFile {
      * @param  string $pPath
      * @return object
      */
-    public static function getLayer($pPath = null){
-
+    public static function getLayer($pPath = null)
+    {
         $class = '\Core\FAL\Local';
         $params['root'] = Kryn::getTempFolder();
 
@@ -53,15 +53,18 @@ class TempFile extends MediaFile {
         return static::$fsObjects[$class];
     }
 
-    public static function getPath($pPath){
+    public static function getPath($pPath)
+    {
         throw new \Exception(t('getPath on TempFile is not possible. Use Core\File::getPath'));
     }
 
-    public static function getUrl($pPath){
+    public static function getUrl($pPath)
+    {
         throw new \Exception(t('getUrl on TempFile is not possible. Use Core\File::getUrl'));
     }
 
-    public static function getTrashFiles(){
+    public static function getTrashFiles()
+    {
         throw new \Exception(t('getTrashFiles on TempFile is not possible. Use Core\File::getTrashFiles'));
     }
 

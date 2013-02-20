@@ -1,6 +1,5 @@
 <?php
 
-
 /*
  * This file is part of Kryn.cms.
  *
@@ -11,14 +10,13 @@
  *
  */
 
-
 /**
  * Global misc functions
  * @author MArc Schmidt <marc@Kryn.org>
  */
 
-
-function resizeImageCached($pPath, $pResolution, $pThumb = false, $pFixSide = false) {
+function resizeImageCached($pPath, $pResolution, $pThumb = false, $pFixSide = false)
+{
     global $cfg;
 
     $pathPrefix = PATH_MEDIA;
@@ -39,8 +37,8 @@ function resizeImageCached($pPath, $pResolution, $pThumb = false, $pFixSide = fa
     return $cachepath;
 }
 
-
-function underscore2Camelcase($pValue){
+function underscore2Camelcase($pValue)
+{
   $ex = explode('_', $pValue);
 
   $return = '';
@@ -51,7 +49,8 @@ function underscore2Camelcase($pValue){
   return $return;
 }
 
-function camelcase2Underscore($pValue){
+function camelcase2Underscore($pValue)
+{
     return strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', $pValue));
 }
 
@@ -62,13 +61,16 @@ function camelcase2Underscore($pValue){
  *
  * @return string Unescaped string
  */
-function unesc($p) {
+function unesc($p)
+{
     $p = str_replace("\'", "'", $p);
+
     return $p;
 }
 
 
-function copyr($source, $dest) {
+function copyr($source, $dest)
+{
     if (is_file($source)) {
         return copy($source, $dest);
     }
@@ -77,6 +79,7 @@ function copyr($source, $dest) {
     }
     if (is_link($source)) {
         $link_dest = readlink($source);
+
         return @symlink($link_dest, $dest);
     }
     $dir = dir($source);
@@ -91,10 +94,12 @@ function copyr($source, $dest) {
         }
         $dir->close();
     }
+
     return true;
 }
 
-function readFolder($pPath) {
+function readFolder($pPath)
+{
     //$pPath must end with /
 
     $res = array();
@@ -111,11 +116,12 @@ function readFolder($pPath) {
         }
         closedir($h);
     }
+
     return $res;
 }
 
-function find($pPath, $pRecursive = true) {
-
+function find($pPath, $pRecursive = true)
+{
     $res = array();
     $items = glob($pPath);
     if (is_array($items)) {
@@ -139,8 +145,8 @@ function find($pPath, $pRecursive = true) {
  *
  * @return string Indented version of the original JSON string.
  */
-function json_format($json) {
-
+function json_format($json)
+{
     if (!is_string($json)) $json = json_encode($json);
 
     $result      = '';
@@ -162,13 +168,13 @@ function json_format($json) {
 
             // If this character is the end of an element,
             // output a new line and indent the next line.
-        } else if(($char == '}' || $char == ']') && $outOfQuotes) {
+        } elseif (($char == '}' || $char == ']') && $outOfQuotes) {
             $result .= $newLine;
             $pos --;
             for ($j=0; $j<$pos; $j++) {
                 $result .= $indentStr;
             }
-        } else if ($char == ':' && $outOfQuotes){
+        } elseif ($char == ':' && $outOfQuotes) {
             $char .= ' ';
         }
 
@@ -195,13 +201,16 @@ function json_format($json) {
 }
 
 
-function mkdirr($pathname, $mode = 0775) {
+function mkdirr($pathname, $mode = 0775)
+{
     is_dir(dirname($pathname)) || mkdirr(dirname($pathname), $mode);
+
     return is_dir($pathname) || @mkdir($pathname, $mode);
 }
 
 
-function delDir($dirName) {
+function delDir($dirName)
+{
     if (empty($dirName)) {
         return;
     }
@@ -235,8 +244,8 @@ function delDir($dirName) {
  * @return string returns the request result
 
  */
-function wget($pUrl, $pToFile = false, $pPostFiles = false) {
-
+function wget($pUrl, $pToFile = false, $pPostFiles = false)
+{
     $parsedurl = @parse_url($pUrl);
     if (empty($parsedurl['host'])) return false;
     $host = $parsedurl['host'];
@@ -252,7 +261,7 @@ function wget($pUrl, $pToFile = false, $pPostFiles = false) {
     if (!$fp)
         return false;
 
-    srand((double)microtime() * 1000000);
+    srand((double) microtime() * 1000000);
     $boundary = "---------------------------" . substr(md5(rand(0, 32000)), 0, 10);
     $data = "--$boundary";
 
@@ -313,6 +322,7 @@ Content-Type: application/x-www-form-urlencoded\r\n\r\n";
         preg_match('~Location: (?P<location>\S+)~', $header, $match);
         $result = wget($match['location'], $pToFile);
     } elseif ($status >= 400) { // Any error
+
         return array('status' => $status, 'content' => $result);
     }
 
@@ -364,13 +374,15 @@ function &array_merge_recursive_distinct(array &$array1, &$array2 = null) {
 
 if (!function_exists('mime_content_type')) {
 
-    function mime_content_type($pPath) {
+    function mime_content_type($pPath)
+    {
         if (mime_content_type_for_name($pPath)) {
             return mime_content_type_for_name($pPath);
         } elseif (function_exists('finfo_open')) {
             $finfo = finfo_open(FILEINFO_MIME);
             $mimetype = finfo_file($finfo, $pPath);
             finfo_close($finfo);
+
             return $mimetype;
         } else {
             return 'application/octet-stream';
@@ -379,7 +391,8 @@ if (!function_exists('mime_content_type')) {
 
 }
 
-function mime_content_type_for_name($pPath){
+function mime_content_type_for_name($pPath)
+{
     $mime_types = array(
 
         'txt' => 'text/plain',
@@ -430,8 +443,8 @@ function mime_content_type_for_name($pPath){
     return false;
 }
 
-function clearfolder($pFolder) {
-
+function clearfolder($pFolder)
+{
     $items = find($pFolder, false);
     foreach ($items as $item) {
         if (is_dir($item))
@@ -456,9 +469,9 @@ function clearfolder($pFolder) {
  *
  * @static
 */
-function resizeImage($pSource, $pTarget, $pResolution, $pThumb = false, $pFixSide = '') {
-
-    if (is_resource($pSource)){
+function resizeImage($pSource, $pTarget, $pResolution, $pThumb = false, $pFixSide = '')
+{
+    if (is_resource($pSource)) {
         $oriWidth = imagesx($pSource);
         $oriHeight = imagesy($pSource);
         $img = $pSource;
@@ -560,13 +573,9 @@ function resizeImage($pSource, $pTarget, $pResolution, $pThumb = false, $pFixSid
             imagesavealpha($newImage, true);
         }
 
-
         if ($pTarget === true) return $newImage;
         $imagesave($newImage, $pTarget);
 
     }
 
 }
-
-
-?>

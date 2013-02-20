@@ -8,7 +8,7 @@ namespace Core;
  */
 
 //composer's vendor autoload
-include('vendor/autoload.php');
+include 'vendor/autoload.php';
 
 //init auto-loader for module folder.
 spl_autoload_register(function($pClass){
@@ -22,28 +22,33 @@ spl_autoload_register(function($pClass){
 
     $clazz = substr($fullClazzWC, strlen($extension)+1);
 
-    if (file_exists($file = PATH.(($extension == 'core')?PATH_CORE:PATH_MODULE . $extension).'/controller/'.$clazz)){
+    if (file_exists($file = PATH.(($extension == 'core')?PATH_CORE:PATH_MODULE . $extension).'/controller/'.$clazz)) {
         include($file);
+
         return true;
     }
 
-    if (file_exists($file = PATH.(($extension == 'core')?PATH_CORE:PATH_MODULE . $extension).'/lib/'.$clazz)){
+    if (file_exists($file = PATH.(($extension == 'core')?PATH_CORE:PATH_MODULE . $extension).'/lib/'.$clazz)) {
         include($file);
+
         return true;
     }
 
-    if (file_exists($file = PATH.(($extension == 'core')?PATH_CORE:PATH_MODULE . $extension).'/'.$clazz)){
+    if (file_exists($file = PATH.(($extension == 'core')?PATH_CORE:PATH_MODULE . $extension).'/'.$clazz)) {
         include($file);
+
         return true;
     }
 
-    if (file_exists($file = PATH.'lib/'.$fullClazz)){
+    if (file_exists($file = PATH.'lib/'.$fullClazz)) {
         include($file);
+
         return true;
     }
 
-    if (file_exists($file = PATH.'lib/'.$fullClazzWC)){
+    if (file_exists($file = PATH.'lib/'.$fullClazzWC)) {
         include($file);
+
         return true;
     }
 
@@ -57,8 +62,9 @@ spl_autoload_register(function ($pClass) {
     $ext = strtolower(substr($pClass, 0, $sPos = strpos($pClass, '\\')));
     $clazz = substr($pClass, $sPos+1);
 
-    if (file_exists($clazz = PATH.Kryn::getModuleDir($ext).'model/'.$clazz.'.php')){
+    if (file_exists($clazz = PATH.Kryn::getModuleDir($ext).'model/'.$clazz.'.php')) {
         include $clazz;
+
         return true;
     }
 
@@ -74,8 +80,9 @@ spl_autoload_register(function($pClass) {
         $pClass = substr($pClass, 1);
     $pClass = str_replace('\\', '/', $pClass);
 
-    if (file_exists($propelClasses.$pClass.'.php')){
+    if (file_exists($propelClasses.$pClass.'.php')) {
         include $propelClasses.$pClass.'.php';
+
         return true;
     }
 });

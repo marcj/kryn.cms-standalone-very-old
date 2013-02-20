@@ -4,8 +4,8 @@ namespace Core;
 
 use Symfony\Component\HttpFoundation\Request;
 
-class PluginResponse extends PageResponse {
-
+class PluginResponse extends PageResponse
+{
     /**
      * @var Request
      */
@@ -15,7 +15,8 @@ class PluginResponse extends PageResponse {
      *
      * @param Request $request
      */
-    public function setControllerRequest(Request $request){
+    public function setControllerRequest(Request $request)
+    {
         $this->controllerRequest = $request;
     }
 
@@ -23,7 +24,8 @@ class PluginResponse extends PageResponse {
      *
      * @return Request
      */
-    public function getControllerRequest(){
+    public function getControllerRequest()
+    {
         return $this->controllerRequest;
     }
 

@@ -16,11 +16,10 @@ namespace Core;
  * krynLanguage - a class that handles .po files
  */
 
-class Lang {
-
-
-    public static function getLanguage($pModuleName, $pLang) {
-
+class Lang
+{
+    public static function getLanguage($pModuleName, $pLang)
+    {
         $res = self::parsePo($pModuleName, $pLang);
 
         $pluralForm = self::getPluralForm($pLang);
@@ -28,17 +27,19 @@ class Lang {
 
         $res['pluralCount'] = intval($match[1]);
         $res['pluralForm'] = $pluralForm;
+
         return $res;
 
         /*
         $path = PATH_MODULE.''.$pModuleName.'/lang/'.$pLang.'.json';
         //load old method: json
-        if( file_exists($path) ){
+        if ( file_exists($path) ) {
             $json = Kryn::fileRead( PATH_MODULE.''.$pModuleName.'/lang/'.$pLang.'.json' );
             $res = json_decode($json,true);
         } else {
             $res = array();
         }
+
         return array(
             'translations' => $res,
             'pluralCount' => 2
@@ -46,7 +47,8 @@ class Lang {
         */
     }
 
-    public static function getPluralForm($pLang) {
+    public static function getPluralForm($pLang)
+    {
         //csv based on (c) http://translate.sourceforge.net/wiki/l10n/pluralforms
 
         $fh = fopen(PATH_MODULE . 'admin/package/gettext-plural-forms.csv', 'r');
@@ -55,26 +57,27 @@ class Lang {
         while (($buffer = fgetcsv($fh, 1000)) !== false) {
             if ($buffer[0] == $pLang) {
                 fclose($fh);
+
                 return $buffer[2];
             }
         }
 
     }
 
-    public static function toPoString($pString) {
-
+    public static function toPoString($pString)
+    {
         $res  = '"';
         $res .= preg_replace('/([^\\\\])"/', '$1\"', str_replace("\n", '\n"' . "\n" . '"', $pString));
         $res .= '"';
+
         return $res;
     }
 
-    public static function parsePo($pModuleName, $pLang) {
-
+    public static function parsePo($pModuleName, $pLang)
+    {
         $file = PATH_MODULE . $pModuleName . '/lang/' . $pLang . '.po';
         if ($pModuleName == 'Kryn')
             $file = PATH_MODULE.'lang/' . $pLang . '.po';
-
 
         $res = array('header' => array(), 'translations' => array());
         if (!file_exists($file)) return $res;
@@ -82,7 +85,6 @@ class Lang {
         $fh = fopen($file, 'r');
 
         while (($buffer = fgets($fh)) !== false) {
-
 
             if (preg_match('/^msgctxt "(((\\\\.)|[^"])*)"/', $buffer, $match)) {
                 $lastWasPlural = false;
@@ -147,8 +149,8 @@ class Lang {
 
     }
 
-    public static function saveLanguage($pModuleName, $pLang, $pLangs) {
-
+    public static function saveLanguage($pModuleName, $pLang, $pLangs)
+    {
         Kryn::clearLanguageCache($pLang);
         $file = PATH_MODULE . $pModuleName . '/lang/' . $pLang . '.po';
         if ($pModuleName == 'Kryn')
@@ -229,12 +231,13 @@ msgstr ""
         fclose($fh);
 
         Kryn::clearLanguageCache($pLang);
+
         return true;
 
     }
 
-    public static function extractLanguage($pModuleName) {
-
+    public static function extractLanguage($pModuleName)
+    {
         $GLOBALS['moduleTempLangs'] = array();
 
         $mod = $pModuleName;
@@ -283,14 +286,16 @@ msgstr ""
         return $GLOBALS['moduleTempLangs'];
     }
 
-    public static function extractFrameworkFields($pFields) {
+    public static function extractFrameworkFields($pFields)
+    {
         foreach ($pFields as $field) {
             $GLOBALS['moduleTempLangs'][$field['label']] = $field['label'];
             $GLOBALS['moduleTempLangs'][$field['desc']] = $field['desc'];
         }
     }
 
-    public static function extractAdmin($pAdmin) {
+    public static function extractAdmin($pAdmin)
+    {
         if (is_array($pAdmin)) {
             foreach ($pAdmin as $key => $value) {
                 if ($value['title'])
@@ -305,8 +310,8 @@ msgstr ""
         }
     }
 
-    public static function evalString($p){
-
+    public static function evalString($p)
+    {
         $p = str_replace('\n', "\n", $p);
         $p = str_replace('\\\\', "\\", $p);
         $p = str_replace('\"', "\"", $p);
@@ -321,9 +326,9 @@ msgstr ""
      * @params string $pFile
      */
 
-    public static function extractFile($pFile) {
+    public static function extractFile($pFile)
+    {
         $content = file_get_contents($pFile);
-
 
         $regex = array(
 
@@ -342,20 +347,17 @@ msgstr ""
             //tc("context", "translation")
             '/[\s\(\)\.]tc\(\s*"(((\\\\.)|[^"])*)"\s*,\s*"(((\\\\.)|[^"])*)"\s*\)/' => '[\Core\Lang::evalString($p[1]."\004".$p[4])] = true',
 
-
             // t("singular", "plural", $count, "context"
             '/[\s\(\)\.]t\(\s*"(((\\\\.)|[^"])*)"\s*,\s*"(((\\\\.)|[^"])*)"\s*,[^,]*,\s*"(((\\\\.)|[^"])*)"\s*\)/' => '[\Core\Lang::evalString($p[7]."\004".$p[1])] = array($p[1], $p[4])',
 
             // t('singular', 'plural', *, 'context'
             "/[\s\(\)\.]t\(\s*'(((\\\\.)|[^'])*)'\s*,\s*'(((\\\\.)|[^'])*)'\s*,[^,]*,\s*'(((\\\\.)|[^'])*)'\s*\)/" => '[$p[7]."\004".$p[1]] = array($p[1], $p[4])',
 
-
             // t("singular", "plural", $count)
             '/[\s\(\)\.]t\(\s*"(((\\\\.)|[^"])*)"\s*,\s*"(((\\\\.)|[^"])*)"\s*,[^\)]*\)/' => '[\Core\Lang::evalString($p[1])] = array($p[1], $p[4])',
 
             // t('singular', 'plural', $count)
             "/[\s\(\)\.]t\(\s*'(((\\\\.)|[^'])*)'\s*,\s*'(((\\\\.)|[^'])*)'\s*,[^\)]*\)/" => '[$p[1]] = array($p[1], $p[4])',
-
 
             //{t "singular" "plural" $count}
             '/\{t\s+"(((\\\\.)|[^"])*)"\s+"(((\\\\.)|[^"])*)"\s+[^\}"]*\s*\}/' => '[\Core\Lang::evalString($p[1])] = array($p[1], $p[4])',
@@ -369,8 +371,8 @@ msgstr ""
         );
         //$GLOBALS['moduleTempLangs'][$pFile] = true;
 
-        foreach ($regex as $k => $val){
-            if (is_numeric($k)){
+        foreach ($regex as $k => $val) {
+            if (is_numeric($k)) {
                 $ex = $val;
                 $fn = '$GLOBALS[\'moduleTempLangs\'][$p[2]] = true; return "";';
             } else {
@@ -388,7 +390,8 @@ msgstr ""
         }
     }
 
-    public static function readDirectory($pPath) {
+    public static function readDirectory($pPath)
+    {
         $h = opendir($pPath);
         while ($file = readdir($h)) {
             if ($file == '.' || $file == '..' || $file == '.svn') continue;
@@ -400,7 +403,4 @@ msgstr ""
         }
     }
 
-
 }
-
-?>

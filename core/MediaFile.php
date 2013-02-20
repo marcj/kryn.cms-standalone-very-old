@@ -21,16 +21,14 @@ namespace Core;
  * This class resolves all mount points inside media/.
  *
  */
-class MediaFile {
-
-
+class MediaFile
+{
     /**
      * Caches all objects of active file layers (magic folders)
      *
      * @var array
      */
     public static $fsObjects = array();
-
 
     /**
      * Whether this class checks against the object 'file' and appends
@@ -39,7 +37,6 @@ class MediaFile {
      * @var bool
      */
     public static $checkObject = true;
-
 
     /**
      * Whether this class checks for file mount.
@@ -56,12 +53,11 @@ class MediaFile {
      * @param  string $pPath
      * @return object
      */
-    public static function getLayer($pPath){
-
+    public static function getLayer($pPath)
+    {
         $class = 'Core\FAL\Local';
         $params['root'] = PATH.PATH_MEDIA;
         $mountName = '';
-
 
         if ($pPath != '/') {
 
@@ -90,7 +86,6 @@ class MediaFile {
 
     }
 
-
     /**
      * Removes the name of the mount point from the proper layer.
      * Also removes '..' and replaces '//' => '/'
@@ -101,8 +96,8 @@ class MediaFile {
      * @param  string $pPath
      * @return string
      */
-    public static function normalizePath($pPath){
-
+    public static function normalizePath($pPath)
+    {
         $fs = static::getLayer($pPath);
         $pPath = substr($pPath, strlen($fs->getMountPoint()));
 
@@ -118,7 +113,6 @@ class MediaFile {
         return $pPath;
     }
 
-
     /**
      * Removes unusual chars in file names.
      *
@@ -126,118 +120,120 @@ class MediaFile {
      * @param  string $pName
      * @return string
      */
-    public static function normalizeName($pName){
+    public static function normalizeName($pName)
+    {
         $s = array('ä', 'ö', 'ü', 'ß');
         $r = array('ae', 'oe', 'ue', 'ss');
         $name = @str_replace($s, $r, $pName);
         $name = @preg_replace('/[^a-zA-Z0-9\.\_\(\)]/', "-", $name);
         $name = @preg_replace('/--+/', '-', $name);
+
         return $name;
     }
-
 
     /**
      * Gets the content of a file.
      *
      * @static
-     * @param string $pPath
+     * @param  string      $pPath
      * @return bool|string
      */
-    public static function getContent($pPath){
-
+    public static function getContent($pPath)
+    {
         $fs = static::getLayer($pPath);
+
         return $fs->getContent(static::normalizePath($pPath));
 
     }
-
 
     /**
      * Sets the content of a file.
      *
      * Creates the file if not exist. Created also the full folder path if
      * the they doesnt exist.
-     * 
+     *
      * @static
-     * @param string $pPath
-     * @param string $pContent
+     * @param  string $pPath
+     * @param  string $pContent
      * @return bool
      */
-    public static function setContent($pPath, $pContent){
-
+    public static function setContent($pPath, $pContent)
+    {
         $fs = static::getLayer($pPath);
+
         return $fs->setContent(static::normalizePath($pPath), $pContent);
 
     }
-
 
     /**
      * Checks if a file exists.
      *
      * @static
-     * @param string $pPath
+     * @param  string $pPath
      * @return bool
      */
-    public static function exists($pPath){
-
+    public static function exists($pPath)
+    {
         $fs = static::getLayer($pPath);
+
         return $fs->fileExists(static::normalizePath($pPath));
 
     }
 
-
     /**
      * Creates a file with default permissions.
      * Creates also the full folder path if the they doesnt exist.
-     * 
+     *
      * @static
-     * @param string $pPath
+     * @param  string $pPath
      * @return bool
      */
-    public static function createFile($pPath, $pContent){
-
+    public static function createFile($pPath, $pContent)
+    {
         $fs = static::getLayer($pPath);
+
         return $fs->createFile(static::normalizePath($pPath), $pContent);
 
     }
 
-
     /**
      * Creates a folder with default permissions.
      * Creates also the full folder path if the they doesnt exist.
-     * 
+     *
      * @static
-     * @param string $pPath
+     * @param  string $pPath
      * @return bool
      */
-    public static function createFolder($pPath){
-
+    public static function createFolder($pPath)
+    {
         $fs = static::getLayer($pPath);
+
         return $fs->createFolder(static::normalizePath($pPath));
 
     }
 
     /**
      * Removes a file/folder.
-     * 
+     *
      * @static
      * @param string $pPath
-     * 
+     *
      * @return bool
      */
-    public static function remove($pPath){
-
+    public static function remove($pPath)
+    {
         $fs = static::getLayer($pPath);
+
         return $fs->remove(static::normalizePath($pPath));
 
     }
 
- 
     /**
      * Return information for a file/folder.
      *
      * The result contains following information:
      *  [path(relative), name, type(dir|file), ctime(unixtimestamp), mtime(unixtimestamp), size(bytes)]
-     *  
+     *
      *  array(
      *    path => path to this file/folder for usage in the administration and modules. Not the full http path. No trailing slash!
      *    name => basename(path)
@@ -249,22 +245,22 @@ class MediaFile {
      *
      * @static
      * @param string $pPath
-     * 
+     *
      * @return int|bool|array Return false if the file doenst exist,
      *                        return 2 if the webserver does not have access
      *                        or return array with the information.
      */
-    public static function getFile($pPath){
-
+    public static function getFile($pPath)
+    {
         $fs = static::getLayer($pPath);
         $path = static::normalizePath($pPath);
 
         $file = $fs->getFile($path);
         if (!$file) return null;
 
-        if (static::$checkObject){
+        if (static::$checkObject) {
             $item = FileQuery::create()->filterByPath($pPath)->orderById()->findOne();
-            if (!$item){
+            if (!$item) {
                 //insert
                 $item = new File();
                 $item->setPath($pPath);
@@ -281,12 +277,11 @@ class MediaFile {
         return $file;
     }
 
-
     /**
      * List directory contents.
-     * 
+     *
      * Same as in getFile() but in a list.
-     * 
+     *
      *  array(
      *    array(
      *      path => path to the file/folder for usage in the administration and modules. Not the full http path. No trailing slash!
@@ -301,21 +296,20 @@ class MediaFile {
      *
      * @static
      * @param string $pPath
-     * 
+     *
      * @return int|bool|array Return false if the file doenst exist,
      *                        return -1 if the webserver does not have access
      *                        or return array with the information.
      */
-    public static function getFiles($pPath){
-
-
+    public static function getFiles($pPath)
+    {
         //$access = krynAcl::check(3, $pPath, 'read', true);
         //if (!$access) return false;
 
         $fs = static::getLayer($pPath);
         $path = static::normalizePath($pPath);
 
-        if ($pPath == '/trash'){
+        if ($pPath == '/trash') {
             return static::getTrashFiles();
         }
 
@@ -324,14 +318,14 @@ class MediaFile {
 
         if (count($items) == 0) return array();
 
-        if (static::$checkMounts){
+        if (static::$checkMounts) {
             if ($fs->getMountPoint())
                 foreach ($items as &$file)
                     $file['path'] = $fs->getMountPoint().$file['path'];
 
-            if($pPath == '/'){
+            if ($pPath == '/') {
                 if (is_array(Kryn::$config['mounts'])) {
-                    foreach (Kryn::$config['mounts'] as $folder => &$config ){
+                    foreach (Kryn::$config['mounts'] as $folder => &$config) {
                         $magic = array(
                             'path'  => '/'.$folder,
                             'mount' => true,
@@ -349,11 +343,10 @@ class MediaFile {
 
         uksort($items, "strnatcasecmp");
 
-
-        if (static::$checkObject){
+        if (static::$checkObject) {
             $where = array();
             $vals  = array();
-            foreach($items as &$file){
+            foreach ($items as &$file) {
                 $vals[]  = $file['path'];
                 $where[] = 'path = ?';
             }
@@ -362,17 +355,17 @@ class MediaFile {
             $res = dbQuery($sql, $vals);
             $path2id = array();
 
-            while ($row = dbFetch($res)){
+            while ($row = dbFetch($res)) {
                 $path2id[$row['path']] = $row['id'];
             }
 
-            foreach($items as &$file){
+            foreach ($items as &$file) {
 
                 //todo, create new option 'show hidden files' in user settings and depend on that
                 //we'll show files with a dot at the beginning.
 
                 //$file['object_id'] = Object
-                if (!$path2id[$file['path']]){
+                if (!$path2id[$file['path']]) {
                     $id = dbInsert('system_file', array('path' => $file['path'], 'hash' => $fs->getMd5($path)));
                     $file['id'] = $id;
                 } else {
@@ -390,11 +383,13 @@ class MediaFile {
      * Returns the file count inside $pFolderPath
      *
      * @static
-     * @param string $pFolderPath
+     * @param  string $pFolderPath
      * @return mixed
      */
-    public static function getCount($pFolderPath){
+    public static function getCount($pFolderPath)
+    {
         $fs = static::getLayer($pFolderPath);
+
         return $fs->getCount(static::normalizePath($pFolderPath));
     }
 
@@ -404,11 +399,12 @@ class MediaFile {
      * If the source is a folder, it copies recursivly.
      *
      * @static
-     * @param string $pPathSource
-     * @param string $pPathTarget
+     * @param  string $pPathSource
+     * @param  string $pPathTarget
      * @return bool
      */
-    public static function copy($pFrom, $pTo){
+    public static function copy($pFrom, $pTo)
+    {
         //TODO, move the code from adminFilemanager::paste() to here
 
     }
@@ -418,11 +414,12 @@ class MediaFile {
      * Moves a file to new destinaton.
      *
      * @static
-     * @param string $pPathSource
-     * @param string $pPathTarget
+     * @param  string $pPathSource
+     * @param  string $pPathTarget
      * @return bool
      */
-    public static function move($pFrom, $pTo){
+    public static function move($pFrom, $pTo)
+    {
         //TODO, move the code from adminFilemanager::paste() to here
 
     }
@@ -430,15 +427,16 @@ class MediaFile {
 
     /**
      * Searchs files in a path by a regex pattern.
-     * 
+     *
      * @static
      * @param  string  $pPath
      * @param  string  $pPattern      Preg regex
      * @param  integer $pDepth        Maximum depth. -1 for unlimited.
      * @param  integer $pCurrentDepth Internal
-     * @return array                  Files array
+     * @return array   Files array
      */
-    public static function search($pFrom, $pTo){
+    public static function search($pFrom, $pTo)
+    {
         //TODO, move the code from adminFilemanager::search() to here
 
     }
@@ -453,7 +451,8 @@ class MediaFile {
      * @param  string $pPath
      * @return string
      */
-    public static function getUrl($pPath){
+    public static function getUrl($pPath)
+    {
         $fs = static::getLayer($pPath);
         $url = $fs->getPublicUrl(static::normalizePath($pPath));
 
@@ -473,8 +472,8 @@ class MediaFile {
      * @param  integer|string $pId String for backward compatibility
      * @return string
      */
-    public static function getPath($pId){
-
+    public static function getPath($pId)
+    {
         if (!is_numeric($pId))
             return PATH_MEDIA.$pId;
 
@@ -489,8 +488,8 @@ class MediaFile {
 
     /**
      * List trash contents.
-     * 
-     * 
+     *
+     *
      *  array(
      *    array(
      *      path => path to the file/folder
@@ -503,16 +502,16 @@ class MediaFile {
      *      original_path => original path before the deletion
      *    )
      *  )
-     * 
+     *
      * @static
      *
      * @return int|bool|array Return false if the file doenst exist,
      *                        return 2 if the webserver does not have access
      *                        or return array with the information.
      */
-    public static function getTrashFiles(){
-
-        if (!static::$checkObject){
+    public static function getTrashFiles()
+    {
+        if (!static::$checkObject) {
             return false;
         }
 
@@ -556,8 +555,8 @@ class MediaFile {
      * @param      $pResolution
      * @param bool $pQuadratic
      */
-    public static function getThumbnail($pPath, $pResolution, $pQuadratic = false){
-
+    public static function getThumbnail($pPath, $pResolution, $pQuadratic = false)
+    {
         $fs = static::getLayer($pPath);
 
         $content = $fs->getContent(static::normalizePath($pPath));
@@ -610,6 +609,5 @@ class MediaFile {
         return $thumbImage;
 
     }
-
 
 }

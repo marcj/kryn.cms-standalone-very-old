@@ -4,26 +4,23 @@ namespace Core\FAL;
 
 use Core\Kryn;
 
-
 /**
  * Local file layer for the local file system.
- * 
+ *
  */
-class Local extends FALAbstract {
-
+class Local extends FALAbstract
+{
     /**
      * Current root folder.
      * @var string
      */
     private $root = PATH_MEDIA;
 
-
     /**
      * Default permission modes for directories.
      * @var integer
      */
     public $dirMode  = 0700;
-
 
     /**
      * Default permission modes for files.
@@ -44,7 +41,8 @@ class Local extends FALAbstract {
      */
     public $groupName = '';
 
-    public function getFullPath($pPath){
+    public function getFullPath($pPath)
+    {
         $root = $this->getRoot();
 
         if (substr($root, -1) != '/')
@@ -56,37 +54,36 @@ class Local extends FALAbstract {
         return $root . $pPath;
     }
 
-
     /**
      * Sets file permissions on file/folder recursively.
      *
-     * @param  string $pPath
+     * @param  string                           $pPath
      * @throws \FileOperationPermittedException
      * @return bool
      */
-    public function setPermission($pPath){
-
+    public function setPermission($pPath)
+    {
         $path = $this->getFullPath($pPath);
 
         if (!file_exists($path)) return false;
 
         if ($this->groupName)
-            if (!chgrp($path, $this->groupName)){
+            if (!chgrp($path, $this->groupName)) {
                 throw new \FileOperationPermittedException(tf('Operation to chgrp the file %s to %s is permitted.', $path, $this->groupName));
             }
 
-        if (is_dir($path)){
+        if (is_dir($path)) {
 
             if (!chmod($path, $this->dirMode))
                 throw new \FileOperationPermittedException(tf('Operation to chmod the folder %s to %o is permitted.', $path, $this->dirMode));
 
             $sub = find($path.'/*', false);
-            if (is_array($sub)){
-                foreach ($sub as $path){
+            if (is_array($sub)) {
+                foreach ($sub as $path) {
                     $this->setPermission(substr($path, 0, strlen($this->getRoot())));
                 }
             }
-        } else if (is_file($path)){
+        } elseif (is_file($path)) {
             if (!chmod($path, $this->fileMode))
                 throw new \FileOperationPermittedException(tf('Operation to chmod the file %s to %o is permitted.', $path, $this->fileMode));
         }
@@ -95,29 +92,28 @@ class Local extends FALAbstract {
 
     }
 
-
     /**
      * Loads and converts the configuration in Core\Kryn::$config (./config.php)
      * to appropriate modes.
      *
      */
-    public function loadConfig(){
-
+    public function loadConfig()
+    {
         $this->fileMode = 600;
         $this->dirMode  = 700;
 
-        if (Kryn::$config['fileGroupPermission'] == 'rw'){
+        if (Kryn::$config['fileGroupPermission'] == 'rw') {
             $this->fileMode += 60;
             $this->dirMode  += 70;
-        } else if (Kryn::$config['fileGroupPermission'] == 'r'){
+        } elseif (Kryn::$config['fileGroupPermission'] == 'r') {
             $this->fileMode += 40;
             $this->dirMode  += 50;
         }
 
-        if (Kryn::$config['fileEveryonePermission'] == 'rw'){
+        if (Kryn::$config['fileEveryonePermission'] == 'rw') {
             $this->fileMode += 6;
             $this->dirMode  += 7;
-        } else if (Kryn::$config['fileEveryonePermission'] == 'r'){
+        } elseif (Kryn::$config['fileEveryonePermission'] == 'r') {
             $this->fileMode += 4;
             $this->dirMode  += 5;
         }
@@ -128,12 +124,11 @@ class Local extends FALAbstract {
         $this->changeMode = (Kryn::$config['fileNoChangeMode']+0 == 0); //if fileNoChangeMode=false, changeMode will be true
     }
 
-
     /**
-     * {@inheritDoc} 
+     * {@inheritDoc}
      */
-    public function __construct($pMountPoint, $pParams = null){
-
+    public function __construct($pMountPoint, $pParams = null)
+    {
         parent::__construct($pMountPoint, $pParams);
         if ($pParams && $pParams['root']) $this->setRoot($pParams['root']);
 
@@ -144,7 +139,8 @@ class Local extends FALAbstract {
      * Gets current root folder for this local layer.
      * @param string $pRoot
      */
-    public function setRoot($pRoot){
+    public function setRoot($pRoot)
+    {
         $this->root = $pRoot;
     }
 
@@ -152,22 +148,23 @@ class Local extends FALAbstract {
      * Sets current root folder for this local layer.
      * @return string
      */
-    public function getRoot(){
+    public function getRoot()
+    {
         return $this->root;
     }
 
     /**
-     * {@inheritDoc} 
+     * {@inheritDoc}
      */
-    public function createFile($pPath, $pContent = false) {
-
+    public function createFile($pPath, $pContent = false)
+    {
         $path = $this->getFullPath($pPath);
 
         if (!file_exists(dirname($path)))
             $this->createFolder(dirname($pPath));
 
-        if (!file_exists($path)){
-            if (($res = file_put_contents($path, $pContent) === false)){
+        if (!file_exists($path)) {
+            if (($res = file_put_contents($path, $pContent) === false)) {
                 if (is_writable(dirname($path)))
                     throw new \FileIOException(tf('Can not create file %s', $path));
                 else
@@ -176,21 +173,20 @@ class Local extends FALAbstract {
             $this->setPermission($pPath);
         }
 
-
         return $res === false ? false : true;
     }
 
     /**
-     * @param string $pPath The full absolute path
+     * @param  string                           $pPath The full absolute path
      * @return bool
      * @throws \FileOperationPermittedException
      * @throws \FileIOException
      */
-    private function _createFolder($pPath){
-
+    private function _createFolder($pPath)
+    {
         is_dir(dirname($pPath)) or $this->_createFolder(dirname($pPath));
 
-        if (!is_dir($pPath)){
+        if (!is_dir($pPath)) {
             if (!@mkdir($pPath))
                 throw new \FileIOException(tf('Can not create folder %s.', $pPath));
 
@@ -206,10 +202,10 @@ class Local extends FALAbstract {
     }
 
     /**
-     * {@inheritDoc} 
+     * {@inheritDoc}
      */
-    public function createFolder($pPath) {
-
+    public function createFolder($pPath)
+    {
         if (!file_exists($path = $this->getFullPath($pPath)))
             return $this->_createFolder($path);
 
@@ -219,8 +215,8 @@ class Local extends FALAbstract {
     /**
      * {@inheritDoc}
      */
-    public function setContent($pPath, $pContent) {
-
+    public function setContent($pPath, $pContent)
+    {
         $path = $this->getFullPath($pPath);
 
         if (!file_exists($path) )
@@ -237,12 +233,11 @@ class Local extends FALAbstract {
         return $res === false?false:true;
     }
 
-
     /**
-     * {@inheritDoc} 
+     * {@inheritDoc}
      */
-    public function getFiles($pPath){
-
+    public function getFiles($pPath)
+    {
         if (substr($pPath,0,1) != '/')
             $pPath = '/'.$pPath;
 
@@ -269,7 +264,7 @@ class Local extends FALAbstract {
             $item['name'] = $file;
 
             $item['type'] = (is_dir($path)) ? 'dir' : 'file';
-            if ($item['type'] == 'file'){
+            if ($item['type'] == 'file') {
                 $info = pathinfo($file);
                 $item['extension'] = $info['extension'];
             } else {
@@ -286,12 +281,13 @@ class Local extends FALAbstract {
     }
 
     /**
-     * {@inheritDoc} 
+     * {@inheritDoc}
      */
-    public function getFile($pPath){
-
+    public function getFile($pPath)
+    {
         $pPath = $this->getRoot().$pPath;
         if(!file_exists($pPath))
+
             return false;
 
         if (!is_readable($pPath)) return -1;
@@ -306,7 +302,7 @@ class Local extends FALAbstract {
         $mtime = filemtime($pPath);
 
         $item['type'] = (is_dir($pPath)) ? 'dir' : 'file';
-        if ($item['type'] == 'file'){
+        if ($item['type'] == 'file') {
             $info = pathinfo($pPath);
             $extension = $info['extension'];
         } else {
@@ -325,10 +321,10 @@ class Local extends FALAbstract {
     }
 
     /**
-     * {@inheritDoc} 
+     * {@inheritDoc}
      */
-    public function getSize($pPath){
-
+    public function getSize($pPath)
+    {
         $size = 0;
         $fileCount = 0;
         $folderCount = 0;
@@ -345,7 +341,7 @@ class Local extends FALAbstract {
                         $size += $result['size'];
                         $fileCount += $result['fileCount'];
                         $folderCount += $result['folderCount'];
-                    } else if (is_file($nextPath)) {
+                    } elseif (is_file($nextPath)) {
                         $size += filesize($nextPath);
                         $fileCount++;
                     }
@@ -353,6 +349,7 @@ class Local extends FALAbstract {
             }
         }
         closedir($h);
+
         return array(
             'size' => $size,
             'fileCount' => $fileCount,
@@ -363,45 +360,49 @@ class Local extends FALAbstract {
     /**
      * {@inheritDoc}
      */
-    public function fileExists($pPath){
+    public function fileExists($pPath)
+    {
         return file_exists($this->getRoot().$pPath);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getCount($pFolderPath){
+    public function getCount($pFolderPath)
+    {
         return count(glob($this->getRoot().$pFolderPath.'/*'));
     }
 
     /**
-     * {@inheritDoc} 
+     * {@inheritDoc}
      */
-    public function copy($pPathSource, $pPathTarget){
+    public function copy($pPathSource, $pPathTarget)
+    {
         if (!file_exists($this->getRoot().$pPathSource)) return false;
         return copyr($this->getRoot().$pPathSource, $this->getRoot().$pPathTarget);
     }
 
     /**
-     * {@inheritDoc} 
+     * {@inheritDoc}
      */
-    public function move($pPathSource, $pPathTarget){
-
+    public function move($pPathSource, $pPathTarget)
+    {
         return rename($this->getRoot().$pPathSource, $this->getRoot().$pPathTarget);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getMd5($pPath){
+    public function getMd5($pPath)
+    {
         return md5_file($this->getRoot().$pPath);
     }
 
     /**
-     * {@inheritDoc} 
+     * {@inheritDoc}
      */
-    public function getContent($pPath){
-
+    public function getContent($pPath)
+    {
         $pPath = $this->getRoot().$pPath;
 
         if (!file_exists($pPath)) return false;
@@ -419,20 +420,20 @@ class Local extends FALAbstract {
     }
 
     /**
-     * {@inheritDoc} 
+     * {@inheritDoc}
      */
-    public function search($pPath, $pPattern, $pDepth = -1, $pCurrentDepth = 1){
-
+    public function search($pPath, $pPattern, $pDepth = -1, $pCurrentDepth = 1)
+    {
         $result = array();
         $files = $this->getFiles($pPath);
 
         $q = str_replace('/', '\/', $pPattern);
 
-        foreach ($files as $file){
-            if (preg_match('/^'.$q.'/i', $file['name'], $match) !== 0){
+        foreach ($files as $file) {
+            if (preg_match('/^'.$q.'/i', $file['name'], $match) !== 0) {
                 $result[] = $file;
             }
-            if ($file['type'] == 'dir' && ($pDepth == -1 || $pCurrentDepth < $pDepth)){
+            if ($file['type'] == 'dir' && ($pDepth == -1 || $pCurrentDepth < $pDepth)) {
                 $newPath = $pPath . ($pPath=='/'?'':'/') . $file['name'];
                 $more = $this->search($newPath, $pPattern, $pDepth, $pCurrentDepth+1);
                 if (is_array($more))
@@ -444,32 +445,33 @@ class Local extends FALAbstract {
     }
 
     /**
-     * {@inheritDoc} 
+     * {@inheritDoc}
      */
-    public function getPublicUrl($pPath){
+    public function getPublicUrl($pPath)
+    {
         return '/'.$this->getRoot().$pPath;
     }
 
     /**
-     * {@inheritDoc} 
+     * {@inheritDoc}
      */
-    public function remove($pPath){
-
+    public function remove($pPath)
+    {
         $path = $this->getRoot().$pPath;
 
         if (is_dir($path)) {
             delDir($path);
-        } else if (is_file($path)){
+        } elseif (is_file($path)) {
             unlink($path);
         }
 
     }
 
     /**
-     * {@inheritDoc} 
+     * {@inheritDoc}
      */
-    public function getPublicAccess($pPath){
-
+    public function getPublicAccess($pPath)
+    {
         $path = $this->getRoot().$pPath;
 
         if (!file_exists($path)) return false;
@@ -498,14 +500,15 @@ class Local extends FALAbstract {
                 }
             }
         }
+
         return -1;
     }
 
     /**
-     * {@inheritDoc} 
+     * {@inheritDoc}
      */
-    public function setPublicAccess($pPath, $pAccess = false){
-
+    public function setPublicAccess($pPath, $pAccess = false)
+    {
         $path = $this->getRoot().$pPath;
 
         if (!is_dir($path) == 'file') {
@@ -516,6 +519,7 @@ class Local extends FALAbstract {
 
         if (!file_exists($htaccess) && !touch($htaccess)) {
             klog('files', t('Can not set the file access, because the system can not create the .htaccess file'));
+
             return false;
         }
 
@@ -541,5 +545,3 @@ class Local extends FALAbstract {
         return true;
     }
 }
-
-?>

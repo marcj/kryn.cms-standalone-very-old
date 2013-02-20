@@ -1,6 +1,6 @@
 <?php
-function smarty_modifier_childactive($string){
-
+function smarty_modifier_childactive($string)
+{
     if( is_numeric( $string ) )
         $rsn = $string;
     else
@@ -10,9 +10,9 @@ function smarty_modifier_childactive($string){
 
     $url = kryn::pageUrl( kryn::$page['rsn'], false, true );
     $purl = kryn::pageUrl( $rsn, false, true );
-    
+
     $pos = strpos( $url, $purl );
-    if( $url == '/' || $purl == '/' || $pos === false){
+    if ($url == '/' || $purl == '/' || $pos === false) {
         return false;
     } else {
         return true;

@@ -8,13 +8,12 @@ use \Symfony\Component\HttpFoundation\Response;
  * This is the response, we use to generate the basic html skeleton.
  * Ths actual body content comes from Core\PageController.
  */
-class PageResponse extends Response {
-
+class PageResponse extends Response
+{
     /**
      * @var string
      */
     public $docType = 'html5';
-
 
     /**
      * @var array
@@ -84,7 +83,8 @@ class PageResponse extends Response {
     /**
      * Constructor
      */
-    public function __construct($content = '', $status = 200, $headers = array()){
+    public function __construct($content = '', $status = 200, $headers = array())
+    {
         $this->setDocType($this->getDocType());
         parent::__construct($content, $status, $headers);
     }
@@ -94,7 +94,8 @@ class PageResponse extends Response {
      *
      * @param string $endTag
      */
-    public function setEndTag($endTag) {
+    public function setEndTag($endTag)
+    {
         $this->endTag = $endTag;
     }
 
@@ -103,50 +104,58 @@ class PageResponse extends Response {
      *
      * @return string
      */
-    public function getEndTag() {
+    public function getEndTag()
+    {
         return $this->endTag;
     }
 
-    public function setDomainHandling($pDomainHandling){
+    public function setDomainHandling($pDomainHandling)
+    {
         $this->domainHandling = $pDomainHandling;
     }
 
-    public function getDomainHandling(){
+    public function getDomainHandling()
+    {
         return $this->domainHandling;
     }
 
-    public function setResourceCompression($resourceCompression) {
+    public function setResourceCompression($resourceCompression)
+    {
         $this->resourceCompression = $resourceCompression;
     }
 
-    public function getResourceCompression() {
+    public function getResourceCompression()
+    {
         return $this->resourceCompression;
     }
 
-    public function addCssFile($pPath, $pType  = 'text/css'){
+    public function addCssFile($pPath, $pType  = 'text/css')
+    {
         $insert = array('path' => $pPath, 'type' => $pType);
         if (array_search($insert, $this->css) === false)
             $this->css[] = $insert;
     }
 
-    public function addCss($pContent, $pType  = 'text/css'){
+    public function addCss($pContent, $pType  = 'text/css')
+    {
         $insert = array('content' => $pContent, 'type' => $pType);
         if (array_search($insert, $this->css) === false)
             $this->css[] = $insert;
     }
 
-    public function addJsFile($pPath, $pPosition = 'top', $pType = 'text/javascript'){
+    public function addJsFile($pPath, $pPosition = 'top', $pType = 'text/javascript')
+    {
         $insert = array('path' => $pPath, 'position' => $pPosition, 'type' => $pType);
         if (array_search($insert, $this->js) === false)
             $this->js[] = $insert;
     }
 
-    public function addJs($pContent, $pPosition = 'top', $pType = 'text/javascript'){
+    public function addJs($pContent, $pPosition = 'top', $pType = 'text/javascript')
+    {
         $insert = array('content' => $pContent, 'position' => $pPosition, 'type' => $pType);
         if (array_search($insert, $this->js) === false)
             $this->js[] = $insert;
     }
-
 
     /**
      * Builds the HTML skeleton, sends all HTTP headers and the HTTP body.
@@ -155,8 +164,8 @@ class PageResponse extends Response {
      *
      * @return Response
      */
-    public function send(){
-
+    public function send()
+    {
         //build html skeleton
         $header = '';
         $this->prepare(Kryn::getRequest());
@@ -176,8 +185,8 @@ class PageResponse extends Response {
         return parent::send();
     }
 
-    public function buildHtml(){
-
+    public function buildHtml()
+    {
         $body    = $this->buildBody();
 
         $header  = $this->getTitleTag();
@@ -212,19 +221,16 @@ class PageResponse extends Response {
         $html = Kryn::parseObjectUrls($html);
         Kryn::removeSearchBlocks($html);
 
-
-
         return $html;
     }
-
 
     /**
      * Builds the html body of the current page.
      *
      * @return string
      */
-    public function buildBody(){
-
+    public function buildBody()
+    {
         $page   = Kryn::getPage();
         if (!$page) return '';
 
@@ -265,7 +271,8 @@ class PageResponse extends Response {
      *
      * @return string
      */
-    public function getContentTypeTag(){
+    public function getContentTypeTag()
+    {
         return sprintf('<meta http-equiv="content-type" content="text/html; charset=%s">'.chr(10), $this->getCharset());
     }
 
@@ -275,7 +282,8 @@ class PageResponse extends Response {
      *
      * @return string
      */
-    public function getDocType(){
+    public function getDocType()
+    {
         return $this->docType;
     }
 
@@ -290,7 +298,8 @@ class PageResponse extends Response {
      *
      * @param $pDocType The key of PageResponse::$docTypeDeclarations
      */
-    public function setDocType($pDocType){
+    public function setDocType($pDocType)
+    {
         $this->docType = $pDocType;
         $this->setEndTag(((strpos(strtolower($this->docType), 'xhtml') !== false) ? '/>' : '>')."\n");
     }
@@ -300,7 +309,8 @@ class PageResponse extends Response {
      *
      * @return mixed
      */
-    public function getDocTypeDeclaration(){
+    public function getDocTypeDeclaration()
+    {
         return self::$docTypeDeclarations[$this->docType];
     }
 
@@ -309,7 +319,8 @@ class PageResponse extends Response {
      *
      * @return string
      */
-    public function getHtmlTag(){
+    public function getHtmlTag()
+    {
         return $this->htmlTag;
     }
 
@@ -318,7 +329,8 @@ class PageResponse extends Response {
      *
      * @param string $pHtmlTag
      */
-    public function setHtmlTag($pHtmlTag){
+    public function setHtmlTag($pHtmlTag)
+    {
         $this->htmlTag = $pHtmlTag;
     }
 
@@ -327,7 +339,8 @@ class PageResponse extends Response {
      *
      * @return string
      */
-    public function getBaseHrefTag(){
+    public function getBaseHrefTag()
+    {
         return sprintf('<base href="%s" %s', Kryn::getBaseUrl(), $this->getEndTag());
     }
 
@@ -336,7 +349,8 @@ class PageResponse extends Response {
      *
      * @return string
      */
-    public function getMetaLanguageTag(){
+    public function getMetaLanguageTag()
+    {
         if ($this->getDomainHandling())
             return sprintf('<meta name="DC.language" content="%s" %s', Kryn::$domain->getLang(), $this->getEndTag());
     }
@@ -346,11 +360,12 @@ class PageResponse extends Response {
      *
      * @return string
      */
-    public function getTitleTag(){
-        if ($this->getDomainHandling()){
+    public function getTitleTag()
+    {
+        if ($this->getDomainHandling()) {
             $title = Kryn::$domain->getTitleFormat();
 
-            if (Kryn::$page){
+            if (Kryn::$page) {
                 $title = str_replace(
                     array(
                          '%title'
@@ -372,7 +387,8 @@ class PageResponse extends Response {
      *
      * @param string $pTitle
      */
-    public function setTitle($pTitle){
+    public function setTitle($pTitle)
+    {
         $this->title = $pTitle;
     }
 
@@ -381,21 +397,22 @@ class PageResponse extends Response {
      *
      * @return string
      */
-    public function getTitle(){
+    public function getTitle()
+    {
         return $this->title;
     }
-
 
     /**
      * Compares two PageResponses and returns the difference as array/
      *
-     * @param PageResponse $pResponse
+     * @param  PageResponse $pResponse
      * @return array
      */
-    public function diff(PageResponse $pResponse){
+    public function diff(PageResponse $pResponse)
+    {
         $diff = array();
 
-        foreach ($this as $key => $value){
+        foreach ($this as $key => $value) {
             $getter = 'get'.ucfirst($key);
 
             if (!is_callable(array($this, $getter))) continue;
@@ -403,9 +420,9 @@ class PageResponse extends Response {
             $particular = null;
             $other      = $pResponse->$getter();
 
-            if (is_array($value)){
+            if (is_array($value)) {
                 $particular = $this->arrayDiff($value, $other);
-            } else if ($value != $other){
+            } elseif ($value != $other) {
                 $particular = $other;
             }
 
@@ -417,17 +434,19 @@ class PageResponse extends Response {
     }
 
     /**
-     * @param array $p1
-     * @param arry $p2
+     * @param  array $p1
+     * @param  arry  $p2
      * @return array
      */
-    public function arrayDiff($p1, $p2){
+    public function arrayDiff($p1, $p2)
+    {
         $diff = array();
-        foreach ($p2 as $v){
-            if (array_search($v, $p1) === false){
+        foreach ($p2 as $v) {
+            if (array_search($v, $p1) === false) {
                 $diff[] = $v;
             }
         }
+
         return $diff;
     }
 
@@ -436,9 +455,10 @@ class PageResponse extends Response {
      *
      * @param array $diff
      */
-    public function patch(array $diff){
-        foreach ($diff as $key => $value){
-            if (is_array($value) && is_array($this->$key)){
+    public function patch(array $diff)
+    {
+        foreach ($diff as $key => $value) {
+            if (is_array($value) && is_array($this->$key)) {
                 $this->$key = array_merge($this->$key, $value);
             } else {
                 $this->$key = $value;
@@ -449,54 +469,62 @@ class PageResponse extends Response {
     /**
      * @param \Symfony\Component\HttpFoundation\ResponseHeaderBag $headers
      */
-    public function setHeaders($headers) {
+    public function setHeaders($headers)
+    {
         $this->headers = $headers;
     }
 
     /**
      * @return \Symfony\Component\HttpFoundation\ResponseHeaderBag
      */
-    public function getHeaders() {
+    public function getHeaders()
+    {
         return $this->headers;
     }
 
     /**
      * @param array $css
      */
-    public function setCss($css) {
+    public function setCss($css)
+    {
         $this->css = $css;
     }
 
     /**
      * @return array
      */
-    public function getCss() {
+    public function getCss()
+    {
         return $this->css;
     }
 
     /**
      * @param array $js
      */
-    public function setJs($js) {
+    public function setJs($js)
+    {
         $this->js = $js;
     }
 
     /**
      * @return array
      */
-    public function getJs() {
+    public function getJs()
+    {
         return $this->js;
     }
 
     /**
      *
      *
-     * @param PluginResponse $pResponse
+     * @param  PluginResponse $pResponse
      * @return PageResponse
      */
-    public function setPluginResponse(PluginResponse $pResponse){
+    public function setPluginResponse(PluginResponse $pResponse)
+    {
         $param =& $pResponse->getControllerRequest()->attributes->get('_route_params');
         $this->pluginResponse[$param['_content']->getId()] = $pResponse;
+
         return $this;
     }
 
@@ -505,31 +533,30 @@ class PageResponse extends Response {
      *
      * @param integer|Content $pContent
      */
-    public function getPluginResponse($pContent){
+    public function getPluginResponse($pContent)
+    {
         $id = $pContent;
-        if ($pContent instanceof Content){
+        if ($pContent instanceof Content) {
             $id = $pContent->getId();
         }
 
         return $this->pluginResponse[$id];
     }
 
-
-
     /**
      * Returns all <link> tags based on the attached css files.
      *
      * @return string
      */
-    public function getCssTags(){
-
+    public function getCssTags()
+    {
         $result = '';
 
         if ($this->getResourceCompression()) {
 
             $cssCode = '';
             foreach ($this->css as $css) {
-                if ($css['path']){
+                if ($css['path']) {
                     $file = $css['path'];
                     $file = (substr($file,0,1) != '/' ? PATH_MEDIA . $file : substr($file, 1));
 
@@ -553,7 +580,7 @@ class PageResponse extends Response {
             if (!file_exists(PATH . $cssCachedFile)) {
                 foreach ($this->css as $css) {
 
-                    if ($css['path']){
+                    if ($css['path']) {
                         $file = $css['path'];
                         $file = (substr($file,0,1) != '/' ? PATH_MEDIA . $file : substr($file, 1));
 
@@ -578,7 +605,7 @@ class PageResponse extends Response {
 
             foreach ($this->css as $css) {
 
-                if ($css['path']){
+                if ($css['path']) {
                     $file = $css['path'];
 
                     if (strpos($file, "http://") !== false) {
@@ -602,15 +629,14 @@ class PageResponse extends Response {
 
     }
 
-
     /**
      * Generates the <script> tags based on all attached js files/scripts.
      *
-     * @param string $pPosition
+     * @param  string $pPosition
      * @return string
      */
-    public function getScriptTags($pPosition = 'top'){
-
+    public function getScriptTags($pPosition = 'top')
+    {
         $result = '';
 
         if ($this->getResourceCompression()) {
@@ -654,7 +680,7 @@ class PageResponse extends Response {
 
                 if ($js['position'] != $pPosition) continue;
 
-                if ($js['path']){
+                if ($js['path']) {
                     $file = $js['path'];
                     $file = (substr($file,0,1) != '/' ? PATH_MEDIA . $file : substr($file, 1));
 
@@ -677,6 +703,5 @@ class PageResponse extends Response {
         return $result;
 
     }
-
 
 }

@@ -4,11 +4,10 @@ namespace Core;
 
 use Core\om\BaseContentQuery;
 
-
 /**
  * Skeleton subclass for performing query and update operations on the 'kryn_system_content' table.
  *
- * 
+ *
  *
  * You should add additional methods to this class to meet the
  * application requirements.  This class will only be generated as
@@ -16,6 +15,6 @@ use Core\om\BaseContentQuery;
  *
  * @package    propel.generator.Core
  */
-class ContentQuery extends BaseContentQuery {
-
+class ContentQuery extends BaseContentQuery
+{
 } // ContentQuery

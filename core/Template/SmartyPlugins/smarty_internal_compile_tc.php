@@ -12,12 +12,13 @@
 /**
  * Smarty Internal Plugin Compile Level Class
  */
-class Smarty_Internal_Compile_Tc extends Smarty_Internal_CompileBase {
-
+class Smarty_Internal_Compile_Tc extends Smarty_Internal_CompileBase
+{
     public $shorttag_order = array('context', 'msg');
     public $required_attributes = array('context', 'msg');
 
-    public function compile($args, $compiler){
+    public function compile($args, $compiler)
+    {
         $this->compiler = $compiler;
 
         // check and get attributes

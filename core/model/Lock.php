@@ -4,11 +4,10 @@ namespace Core;
 
 use Core\om\BaseLock;
 
-
 /**
  * Skeleton subclass for representing a row from the 'kryn_system_lock' table.
  *
- * 
+ *
  *
  * You should add additional methods to this class to meet the
  * application requirements.  This class will only be generated as
@@ -16,6 +15,6 @@ use Core\om\BaseLock;
  *
  * @package    propel.generator.kryn
  */
-class Lock extends BaseLock {
-
+class Lock extends BaseLock
+{
 } // Lock

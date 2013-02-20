@@ -3,13 +3,11 @@
 namespace Core;
 
 use Core\om\BaseNode;
-use Symfony\Component\Routing\RouteCollection;
-use Symfony\Component\Routing\Route;
 
 /**
  * Skeleton subclass for representing a row from the 'kryn_system_node' table.
  *
- * 
+ *
  *
  * You should add additional methods to this class to meet the
  * application requirements.  This class will only be generated as
@@ -17,17 +15,17 @@ use Symfony\Component\Routing\Route;
  *
  * @package    propel.generator.Core
  */
-class Node extends BaseNode {
-
+class Node extends BaseNode
+{
     /**
      * Same as getChildren but returns only visible pages and non-folder nodes
      *
-     * @param boolean $pWithFolders
+     * @param  boolean                 $pWithFolders
      * @return \PropelObjectCollection
      */
-    public function getLinks($pWithFolders = false){
-
-        if ($this->collNestedGetLinks === null){
+    public function getLinks($pWithFolders = false)
+    {
+        if ($this->collNestedGetLinks === null) {
 
             $types = $pWithFolders ? array(0,1,2) : array(0,1);
             $this->collNestedGetLinks = NodeQuery::create()
@@ -37,18 +35,19 @@ class Node extends BaseNode {
                 ->orderByBranch()
                 ->find();
         }
+
         return $this->collNestedGetLinks;
     }
-
 
     /**
      * Does the current node has (valid) sub links?
      *
      * @return bool
      */
-    public function hasLinks(){
-
+    public function hasLinks()
+    {
         $links = $this->getLinks();
+
         return count($links)!==0;
 
     }
@@ -58,16 +57,16 @@ class Node extends BaseNode {
      *
      * @return mixed
      */
-    public function getParents(){
-
-        if (!$this->parents_cached){
+    public function getParents()
+    {
+        if (!$this->parents_cached) {
 
             $this->parents_cached = array();
 
             $ancestors = $this->getAncestors();
-            foreach ($ancestors as $parent){
+            foreach ($ancestors as $parent) {
 
-                if ($parent->getType() !== null && $parent->getType() < 2){ //exclude root node
+                if ($parent->getType() !== null && $parent->getType() < 2) { //exclude root node
                     $this->parents_cached[] = $parent;
                 }
 
@@ -76,7 +75,6 @@ class Node extends BaseNode {
 
         return $this->parents_cached;
     }
-
 
     /**
      * Generates a path to the current page.
@@ -89,8 +87,8 @@ class Node extends BaseNode {
      *
      * @return string
      */
-    public function getPath($pDelimiter = ' » '){
-
+    public function getPath($pDelimiter = ' » ')
+    {
         $parents = $this->getParents();
 
         $path = $this->getDomain()->getDomain();
@@ -115,15 +113,15 @@ class Node extends BaseNode {
      * @return string|void
      * @static
      */
-    public static function getUrl($pPage, $pForceFullUrl = false){
-
+    public static function getUrl($pPage, $pForceFullUrl = false)
+    {
         $id       = $pPage instanceof Node ? $pPage->getId() : $pPage+0;
         $domainId = $pPage instanceof Node ? $pPage->getDomainId() : Kryn::getDomainOfPage($pPage+0);
 
         $urls =& Kryn::getCachedPageToUrl($domainId);
         $url  = $urls[$id];
 
-        if ($pForceFullUrl || !Kryn::$domain || $domainId != Kryn::$domain->getId()){
+        if ($pForceFullUrl || !Kryn::$domain || $domainId != Kryn::$domain->getId()) {
             $domain = Kryn::$domain ?: Kryn::getDomain($domainId);
 
             $domainName = $domain->getRealDomain();
@@ -152,23 +150,23 @@ class Node extends BaseNode {
      *
      * @return bool
      */
-    public function isActive(){
-
+    public function isActive()
+    {
         if( $this->getId() == \Core\Kryn::$page->getId() ) return true;
 
         $url  = self::getUrl(\Core\Kryn::$page);
         $purl = self::getUrl($this);
 
-        if ($url && $purl){
+        if ($url && $purl) {
             $pos = strpos( $url, $purl );
-            if( $url == '/' || $pos != 0  || $pos === false){
+            if ($url == '/' || $pos != 0  || $pos === false) {
                 return false;
             } else {
                 return true;
             }
         }
+
         return false;
     }
-
 
 } // Node

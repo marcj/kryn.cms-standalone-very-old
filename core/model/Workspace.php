@@ -4,7 +4,6 @@ namespace Core;
 
 use Core\om\BaseWorkspace;
 
-
 /**
  * Skeleton subclass for representing a row from the 'kryn_system_workspace' table.
  *

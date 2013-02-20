@@ -8,17 +8,17 @@ namespace Core;
  *
  */
 
-class Properties {
-
+class Properties
+{
     /**
      * @var array
      */
 
     public $data = array();
 
-    public function __construct($pData){
-
-        if (is_string($pData)){
+    public function __construct($pData)
+    {
+        if (is_string($pData)) {
             $this->data = json_decode($pData, true);
         } else {
             $this->data = $pData;
@@ -31,23 +31,24 @@ class Properties {
      *
      * @return array
      */
-    public function toArray(){
+    public function toArray()
+    {
         return $this->data;
     }
 
     /**
      * Gets the value of $pPath
      *
-     * @param string $pPath slash delimited string
+     * @param  string $pPath slash delimited string
      * @return mixed
      */
-    public function getByPath($pPath){
-
+    public function getByPath($pPath)
+    {
         $path = explode('/', $pPath);
 
         $data = $this->data;
 
-        foreach ($path as $node){
+        foreach ($path as $node) {
             if (!$data[$node]) return false;
             $data = $data[$node];
         }
@@ -56,29 +57,27 @@ class Properties {
 
     }
 
-
     /**
      * Sets the value of $pPath
      *
      * @param string $pPath slash delimited string
-     * @param mixed $pData
+     * @param mixed  $pData
      */
-    public function setByPath($pPath, $pData){
-
+    public function setByPath($pPath, $pData)
+    {
         $path = explode('/', $pPath);
 
         $data =& $this->data;
 
-        foreach ($path as $node){
+        foreach ($path as $node) {
             if (!$data[$node]) $data[$node] = array();
             $data =& $data[$node];
         }
 
-        if ($data){
+        if ($data) {
             $data = $pData;
         }
 
     }
-
 
 }

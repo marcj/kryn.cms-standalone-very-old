@@ -2,11 +2,10 @@
 
 namespace Core\Cache;
 
-use Core\Kryn;
 use Core\Event;
 
-class PHPSessions implements CacheInterface {
-
+class PHPSessions implements CacheInterface
+{
     private $tokenId;
     private $token;
 
@@ -15,7 +14,8 @@ class PHPSessions implements CacheInterface {
     /**
      * {@inheritdoc}
      */
-    public function __construct($pConfig){
+    public function __construct($pConfig)
+    {
         $this->config = $pConfig;
         $this->startSession();
 
@@ -27,16 +27,17 @@ class PHPSessions implements CacheInterface {
     /**
      * {@inheritdoc}
      */
-    public function testConfig($pConfig){
+    public function testConfig($pConfig)
+    {
         return true;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function startSession($pNewSession = null){
-
-        if ($this->config['ClientInstance']){
+    public function startSession($pNewSession = null)
+    {
+        if ($this->config['ClientInstance']) {
             $this->tokenId = $this->config['ClientInstance']->getTokenId();
             $this->token = $this->config['ClientInstance']->getToken();
         } else
@@ -54,21 +55,24 @@ class PHPSessions implements CacheInterface {
     /**
      * {@inheritdoc}
      */
-    public function get($pKey){
+    public function get($pKey)
+    {
         return $_SESSION[$pKey];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function set($pKey, $pValue, $pTimeout = null){
+    public function set($pKey, $pValue, $pTimeout = null)
+    {
         return ($_SESSION[$pKey] = $pValue) ? true : false;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function delete($pKey){
+    public function delete($pKey)
+    {
         unset($_SESSION[$pKey]);
     }
 }

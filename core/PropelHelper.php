@@ -2,18 +2,18 @@
 
 namespace Core;
 
-class PropelHelper {
-
+class PropelHelper
+{
     public static $objectsToExtension = array();
     public static $classDefinition = array();
 
     private static $tempFolder = '';
 
-    public static function init(){
-
+    public static function init()
+    {
         try {
             $result = self::fullGenerator();
-        } catch(\Exception $e){
+        } catch (\Exception $e) {
             self::cleanup();
             Kryn::internalError('Propel initialization Error', is_array($e)?print_r($e,true):$e);
             throw $e;
@@ -24,8 +24,8 @@ class PropelHelper {
         return $result;
     }
 
-    public static function getTempFolder(){
-
+    public static function getTempFolder()
+    {
         if (self::$tempFolder) return self::$tempFolder;
 
         self::$tempFolder = Kryn::getTempFolder();
@@ -33,8 +33,8 @@ class PropelHelper {
         return self::$tempFolder;
     }
 
-    public static function callGen($pCmd){
-
+    public static function callGen($pCmd)
+    {
         $errors = self::checkModelXml();
         if ($errors)
             return array('errors' => $errors);
@@ -43,7 +43,7 @@ class PropelHelper {
         self::writeBuildPorperties();
         self::collectSchemas();
 
-        switch($pCmd){
+        switch ($pCmd) {
             case 'models':
                 $result = self::generateClasses(); break;
             case 'update':
@@ -56,19 +56,20 @@ class PropelHelper {
         return $result;
     }
 
-    public static function cleanup(){
-
+    public static function cleanup()
+    {
         $tmp = self::getTempFolder();
         delDir($tmp . 'propel');
 
     }
 
-    public static function checkModelXml(){
-        foreach (Kryn::$extensions as $extension){
+    public static function checkModelXml()
+    {
+        foreach (Kryn::$extensions as $extension) {
 
             if ($extension == 'kryn') continue;
 
-            if (file_exists($schema = \Core\Kryn::getModuleDir($extension).'model.xml')){
+            if (file_exists($schema = \Core\Kryn::getModuleDir($extension).'model.xml')) {
 
                 simplexml_load_file($schema);
                 if ($errors = libxml_get_errors())
@@ -80,8 +81,8 @@ class PropelHelper {
         return $errors;
     }
 
-    public static function fullGenerator(){
-
+    public static function fullGenerator()
+    {
         self::writeXmlConfig();
         self::writeBuildPorperties();
         self::collectSchemas();
@@ -98,11 +99,11 @@ class PropelHelper {
         return $content;
     }
 
-    public static function generateClasses(){
-
+    public static function generateClasses()
+    {
         $tmp = self::getTempFolder();
 
-        if (!file_exists($tmp . 'propel/runtime-conf.xml')){
+        if (!file_exists($tmp . 'propel/runtime-conf.xml')) {
             self::writeXmlConfig();
             self::writeBuildPorperties();
             self::collectSchemas();
@@ -110,8 +111,7 @@ class PropelHelper {
 
         $content = self::execute('om');
 
-
-        if (is_array($content)){
+        if (is_array($content)) {
             throw new \Exception("Propel generateClasses failed: \n". $content[0]);
         }
         $content .= self::moveClasses();
@@ -120,21 +120,20 @@ class PropelHelper {
     }
 
     /*
-    public static function collectObjectToExtension(){
-
-
+    public static function collectObjectToExtension()
+    {
         self::$objectsToExtension = array();
-        foreach (Kryn::$extensions as $extension){
+        foreach (Kryn::$extensions as $extension) {
 
             if ($extension == 'kryn') continue;
 
-            if (file_exists($schema = \Core\Kryn::getModuleDir($extension).'model.xml')){
+            if (file_exists($schema = \Core\Kryn::getModuleDir($extension).'model.xml')) {
 
                 $tables = simplexml_load_file ($schema);
 
-                foreach ($tables->table as $table){
+                foreach ($tables->table as $table) {
                     $attributes = $table->attributes();
-                    $clazz = (string)$attributes['phpName'];
+                    $clazz = (string) $attributes['phpName'];
 
                     self::$objectsToExtension[$clazz] = $extension;
 
@@ -145,15 +144,15 @@ class PropelHelper {
     }
 */
 
-    public static function moveClasses(){
-
+    public static function moveClasses()
+    {
         $tmp = self::getTempFolder();
 
         $result = '';
 
         Kryn::$extensions = array_unique(Kryn::$extensions);
 
-        foreach (Kryn::$extensions as $extension){
+        foreach (Kryn::$extensions as $extension) {
 
             $targetDir = $tmp.'propel-classes/'.ucfirst($extension);
             $source = $tmp.'propel/build/classes/'.ucfirst($extension);
@@ -165,7 +164,7 @@ class PropelHelper {
 
             //$result .= ' $FILES COUNT '.count($files)."\n";
             //$result .= " WHAT ".(is_dir($targetDir)+0)."\n";
-            foreach ($files as $file){
+            foreach ($files as $file) {
 
                 $target  = \Core\Kryn::getModuleDir($extension).'model/'.basename($file);
 
@@ -183,19 +182,18 @@ class PropelHelper {
             }
 
             $file = $source.'/om';
-            if (is_dir($file)){
+            if (is_dir($file)) {
                 $target = $tmp.'propel-classes/'.ucfirst($extension).'/om';
                 copyr($file, $target);
                 $result .= "[move][$extension] OM folder moved ".basename($file)." to $target\n";
             }
 
             $file = $source.'/map';
-            if (is_dir($file)){
+            if (is_dir($file)) {
                 $target = $tmp.'propel-classes/'.ucfirst($extension).'/map';
                 copyr($file, $target);
                 $result .= "[move][$extension] MAP folder moved ".basename($file)." to $target\n";
             }
-
 
         }
 
@@ -206,11 +204,11 @@ class PropelHelper {
     /**
      * Returns a array of propel config's value. We do not save it as .php file, instead
      * we create it dynamicaly out of our own config.php.
-     * 
+     *
      * @return array The config array for Propel::init() (only in kryn's version of propel, no official)
      */
-    public static function getConfig(){
-        
+    public static function getConfig()
+    {
         $adapter = Kryn::$config['database']['type'];
         if ($adapter == 'postgresql') $adapter = 'pgsql';
 
@@ -238,15 +236,14 @@ class PropelHelper {
         );
         $config['datasources']['default'] = 'kryn';
 
-
         return $config;
     }
 
-    public static function getDsn($pDriver){
-
+    public static function getDsn($pDriver)
+    {
         $dsn = strtolower($pDriver);
 
-        if ($dsn == 'sqlite'){
+        if ($dsn == 'sqlite') {
             $file = Kryn::$config['database']['name'];
             if (substr($file, 0, 1) != '/')
                 $file = PATH.$file;
@@ -259,9 +256,8 @@ class PropelHelper {
         return $dsn;
     }
 
-
-    public static function writeXmlConfig(){
-
+    public static function writeXmlConfig()
+    {
         $tmp = self::getTempFolder();
 
         if (!mkdirr($folder = $tmp.'propel/build/conf/'))
@@ -287,7 +283,7 @@ class PropelHelper {
                         <option id="ATTR_PERSISTENT">'.$persistent.'</option>
                     </options>';
 
-        if (Kryn::$config['database']['type'] == 'mysql'){
+        if (Kryn::$config['database']['type'] == 'mysql') {
             $xml .= '
                     <attributes>
                         <option id="ATTR_EMULATE_PREPARES">true</option>
@@ -304,9 +300,10 @@ class PropelHelper {
         </datasources>
     </propel>
 </config>';
-    
+
         file_put_contents($tmp . 'propel/runtime-conf.xml', $xml);
         file_put_contents($tmp . 'propel/buildtime-conf.xml', $xml);
+
         return true;
     }
 
@@ -318,19 +315,19 @@ class PropelHelper {
      *
      * This function inits the Propel class.
      *
-     * @param bool $pWithDrop
+     * @param  bool       $pWithDrop
      * @return string
      * @throws \Exception
      */
-    public static function updateSchema($pWithDrop = false){
-
+    public static function updateSchema($pWithDrop = false)
+    {
         $sql = self::getSqlDiff($pWithDrop);
 
-        if (is_array($sql)){
+        if (is_array($sql)) {
             throw new \Exception("Propel updateSchema failed: \n". $sql[0]);
         }
 
-        if (!$sql){
+        if (!$sql) {
             return "Schema up 2 date.";
         }
 
@@ -340,10 +337,10 @@ class PropelHelper {
 
         dbBegin();
         try {
-            foreach ($sql as $query){
+            foreach ($sql as $query) {
                 dbExec($query);
             }
-        } catch (\PDOException $e){
+        } catch (\PDOException $e) {
             dbRollback();
             throw new \PDOException($e->getMessage().' in SQL: '.$query);
         }
@@ -353,25 +350,25 @@ class PropelHelper {
     }
 
 
-    public static function collectSchemas(){
-
+    public static function collectSchemas()
+    {
         $tmp = self::getTempFolder();
 
         $currentSchemas = find($tmp.'propel/*.schema.xml');
-        foreach ($currentSchemas as $file){
+        foreach ($currentSchemas as $file) {
             unlink($file);
         }
 
         $schemeData = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n  <database name=\"kryn\" basePeer=\"\\Core\\PropelBasePeer\" defaultIdMethod=\"native\"\n";
 
-        foreach (Kryn::$extensions as $extension){
+        foreach (Kryn::$extensions as $extension) {
 
-            if (file_exists($schema = \Core\Kryn::getModuleDir($extension).'model.xml')){
+            if (file_exists($schema = \Core\Kryn::getModuleDir($extension).'model.xml')) {
 
                 $tables = simplexml_load_file($schema);
                 $newSchema = $schemeData.' namespace="'.ucfirst($extension).'">';
 
-                foreach ($tables->table as $table){
+                foreach ($tables->table as $table) {
                     $newSchema .= $table->asXML()."\n    ";
                 }
 
@@ -390,17 +387,17 @@ class PropelHelper {
     }
 
 
-    public static function getSqlDiff(){
-
+    public static function getSqlDiff()
+    {
         $tmp = self::getTempFolder();
 
-        if (!file_exists($tmp . 'propel/runtime-conf.xml')){
+        if (!file_exists($tmp . 'propel/runtime-conf.xml')) {
             self::writeXmlConfig();
             self::writeBuildPorperties();
             self::collectSchemas();
         }
 
-        if (!\Propel::isInit()){
+        if (!\Propel::isInit()) {
             \Propel::setConfiguration(self::getConfig());
             \Propel::initialize();
         }
@@ -439,8 +436,8 @@ class PropelHelper {
         $sql = $sql['kryn'];
         unlink($lastMigrationFile);
 
-        if (is_array($protectTables = \Core\Kryn::$config['database']['protectTables'])){
-            foreach ($protectTables as $table){
+        if (is_array($protectTables = \Core\Kryn::$config['database']['protectTables'])) {
+            foreach ($protectTables as $table) {
                 $table = str_replace('%pfx%', pfx, $table);
                 $sql = preg_replace('/^DROP TABLE (IF EXISTS|) '.$table.'(\n|\s)(.*)\n+/im', '', $sql);
             }
@@ -451,8 +448,8 @@ class PropelHelper {
 
     }
 
-    public static function execute(){
-
+    public static function execute()
+    {
         $chdir = getcwd();
         chdir('vendor/propel/propel1/generator/');
 
@@ -507,11 +504,11 @@ class PropelHelper {
         rewind($outStreamS);
         $content = stream_get_contents($outStreamS);
 
-        if (strpos($content, "BUILD FINISHED") !== false && strpos($content, "Aborting.") === false){
+        if (strpos($content, "BUILD FINISHED") !== false && strpos($content, "Aborting.") === false) {
             preg_match_all('/\[((propel[a-zA-Z-_]*)|phingcall)\] .*/', $content, $matches);
             $result  = "\nCommand successfully: $cmd\n";
             $result .= '<div style="color: gray;">';
-            foreach ($matches[0] as $match){
+            foreach ($matches[0] as $match) {
                 $result .= $match."\n";
             }
 
@@ -521,8 +518,8 @@ class PropelHelper {
         }
     }
 
-    public static function writeBuildPorperties(){
-
+    public static function writeBuildPorperties()
+    {
         $tmp = self::getTempFolder();
 
         if (!mkdirr($folder = $tmp . 'propel/'))
@@ -554,8 +551,5 @@ propel.behavior.workspace.class = lib.WorkspaceBehavior
         file_put_contents($tmp . 'propel/build.properties', $properties)?true:false;
 
     }
-
-
-
 
 }

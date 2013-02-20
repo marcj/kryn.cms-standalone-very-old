@@ -4,7 +4,6 @@ namespace Core;
 
 use Core\om\BaseWorkspaceQuery;
 
-
 /**
  * Skeleton subclass for performing query and update operations on the 'kryn_system_workspace' table.
  *

@@ -4,11 +4,10 @@ namespace Core;
 
 use Core\om\BaseNodeAlias;
 
-
 /**
  * Skeleton subclass for representing a row from the 'kryn_system_node_alias' table.
  *
- * 
+ *
  *
  * You should add additional methods to this class to meet the
  * application requirements.  This class will only be generated as
@@ -16,6 +15,6 @@ use Core\om\BaseNodeAlias;
  *
  * @package    propel.generator.Core
  */
-class NodeAlias extends BaseNodeAlias {
-
+class NodeAlias extends BaseNodeAlias
+{
 } // NodeAlias

@@ -25,7 +25,7 @@ if ($_SERVER['SERVER_NAME'])
 $domain = new Domain();
 $domain->setDomain($domainName);
 
-if ($_SERVER['REQUEST_URI']){
+if ($_SERVER['REQUEST_URI']) {
     $path = dirname($_SERVER['REQUEST_URI']);
     if( substr($path, 0, -1) != '/' ) $path .= '/';
     $path = str_replace("//", "/", $path);
@@ -47,7 +47,6 @@ $root->setDomainId($domain->getId());
 $root->makeRoot();
 $root->setTitle('root');
 $root->save();
-
 
 //setup live workspace
 WorkspaceQuery::create()->deleteAll();
@@ -147,18 +146,14 @@ $Nodes = array(
 
 );
 
-
-
-
-
-if (!function_exists(__NAMESPACE__.'\installNodes')){
+if (!function_exists(__NAMESPACE__.'\installNodes')) {
     /**
      * @static
-     * @param Node $pNode
+     * @param Node  $pNode
      * @param array $pChildren
      */
-    function installNodes($pNode, $pChildren){
-
+    function installNodes($pNode, $pChildren)
+    {
         /*
         * 0: type
         * 1: Title
@@ -169,7 +164,7 @@ if (!function_exists(__NAMESPACE__.'\installNodes')){
         * 6: children
         * 7: visible
         */
-        foreach ($pChildren as $Node){
+        foreach ($pChildren as $Node) {
             $oNode = new Node();
             $oNode->setDomainId($pNode->getDomainId());
             $oNode->setType($Node[0]);
@@ -192,7 +187,7 @@ if (!function_exists(__NAMESPACE__.'\installNodes')){
             if ($Node[5])
                 installContents($oNode, $Node[5]);
 
-            if ($Node[6]){
+            if ($Node[6]) {
                 installNodes($oNode, $Node[6]);
             }
         }
@@ -200,15 +195,14 @@ if (!function_exists(__NAMESPACE__.'\installNodes')){
     }
 }
 
-
-if (!function_exists(__NAMESPACE__.'\installContents')){
+if (!function_exists(__NAMESPACE__.'\installContents')) {
     /**
      * @static
-     * @param Node $pNode
+     * @param Node  $pNode
      * @param array $pBoxedContents
      */
-    function installContents($pNode, $pBoxedContents){
-
+    function installContents($pNode, $pBoxedContents)
+    {
         if (!is_array($pBoxedContents)) return;
 
         /**
@@ -218,8 +212,8 @@ if (!function_exists(__NAMESPACE__.'\installContents')){
          * 3: content
          *
          */
-        foreach ($pBoxedContents as $boxId => $contents){
-            foreach ($contents as $content){
+        foreach ($pBoxedContents as $boxId => $contents) {
+            foreach ($contents as $content) {
 
                 $oContent = new Content();
 
@@ -237,10 +231,6 @@ if (!function_exists(__NAMESPACE__.'\installContents')){
     }
 }
 
-
-
-
-
 /*
 * 0: type
 * 1: Title
@@ -251,7 +241,7 @@ if (!function_exists(__NAMESPACE__.'\installContents')){
 * 6: children
 * 7: visible
 */
-foreach ($Nodes as $Node){
+foreach ($Nodes as $Node) {
 
     $oNode = new Node();
 
@@ -274,7 +264,7 @@ foreach ($Nodes as $Node){
     if ($Node[5])
         installContents($oNode, $Node[5]);
 
-    if ($Node[6]){
+    if ($Node[6]) {
         installNodes($oNode, $Node[6]);
     }
 }
@@ -292,7 +282,6 @@ if ($h) {
 }
 
 dbUpdate('system_langs', array('code' => 'en'), array('visible' => 1));
-
 
 //search footer id
 $footerNavi = NodeQuery::create()->findOneByTitle('Footer Navigation');

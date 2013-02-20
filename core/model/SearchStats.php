@@ -4,11 +4,10 @@ namespace Core;
 
 use Core\om\BaseSearchStats;
 
-
 /**
  * Skeleton subclass for representing a row from the 'kryn_system_search_stats' table.
  *
- * 
+ *
  *
  * You should add additional methods to this class to meet the
  * application requirements.  This class will only be generated as
@@ -16,6 +15,6 @@ use Core\om\BaseSearchStats;
  *
  * @package    propel.generator.kryn
  */
-class SearchStats extends BaseSearchStats {
-
+class SearchStats extends BaseSearchStats
+{
 } // SearchStats

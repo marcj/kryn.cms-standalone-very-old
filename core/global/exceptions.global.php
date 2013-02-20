@@ -1,6 +1,5 @@
 <?php
 
-
 class ModuleNotFoundException extends Exception {}
 
 class ObjectNotFoundException extends Exception {}

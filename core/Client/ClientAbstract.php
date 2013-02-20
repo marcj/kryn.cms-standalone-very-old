@@ -17,10 +17,10 @@ use Users\Session;
  * Client class.
  *
  * Handles authentification and sessions.
- * 
+ *
  */
-abstract class ClientAbstract {
-
+abstract class ClientAbstract
+{
     /**
      * The auth token. (which is basically stored as cookie on the client side)
      */
@@ -79,8 +79,8 @@ abstract class ClientAbstract {
      *
      * @see $config
      */
-    function __construct($pConfig = array(), $pStore = array()) {
-
+    public function __construct($pConfig = array(), $pStore = array())
+    {
         $this->config = array_merge($this->config, $pConfig);
         $this->config['store'] = $pStore;
 
@@ -103,8 +103,8 @@ abstract class ClientAbstract {
 
     }
 
-    public function start() {
-
+    public function start()
+    {
         Kryn::getLogger()->addDebug('Start session tracking: sessionid='.$this->getToken().' - '.Kryn::getRequestedPath());
         $this->session = $this->fetchSession();
 
@@ -141,26 +141,26 @@ abstract class ClientAbstract {
     /**
      * @param boolean $started
      */
-    public function setStarted($started) {
+    public function setStarted($started)
+    {
         $this->started = $started;
     }
 
     /**
      * @return boolean
      */
-    public function getStarted() {
+    public function getStarted()
+    {
         return $this->started;
     }
-
-
 
     /**
      * Updates the time and refreshed-counter of a session,
      * and updates the cookie timeout on the client side.
-     * 
+     *
      */
-    public function updateSession() {
-
+    public function updateSession()
+    {
         $this->getSession()->setTime(time());
         $this->getSession()->setRefreshed( $this->session->getRefreshed()+1 );
         $this->getSession()->setPage(Kryn::getRequestedPath(true));
@@ -173,8 +173,8 @@ abstract class ClientAbstract {
     /**
      * Handles the input (login/logout) of the client.
      */
-    public function handleClientLoginLogout() {
-
+    public function handleClientLoginLogout()
+    {
         if (getArgv($this->config['loginTrigger'])) {
 
             $login = getArgv('username');
@@ -230,13 +230,15 @@ abstract class ClientAbstract {
      *
      * @return \Users\User
      */
-    public function getUser(){
+    public function getUser()
+    {
         if (!$this->getStarted()) $this->start();
         if (!$this->getSession()->getUserId()) return null;
 
-        if (null === $this->user){
+        if (null === $this->user) {
             $this->user = Kryn::getPropelCacheObject('Users\\User', $this->getSession()->getUserId());
         }
+
         return $this->user;
     }
 
@@ -245,7 +247,8 @@ abstract class ClientAbstract {
      *
      * @return int
      */
-    public function getUserId(){
+    public function getUserId()
+    {
         if (!$this->getStarted()) $this->start();
         return $this->getSession()->getUserId();
     }
@@ -257,25 +260,27 @@ abstract class ClientAbstract {
      * @param $pPassword
      * @return bool
      */
-    protected function internalLogin($pLogin, $pPassword) {
+    protected function internalLogin($pLogin, $pPassword)
+    {
         $krynUsers = new \Core\Client\KrynUsers(array('store' => array('class' => 'database')));
 
         $state = $krynUsers->checkCredentials($pLogin, $pPassword);
+
         return $state;
     }
 
     /**
      * Check credentials and set user_id to the session.
-     * 
-     * @param string $pLogin
-     * @param string $pPassword
+     *
+     * @param  string $pLogin
+     * @param  string $pPassword
      * @return bool
      */
-    public function login($pLogin, $pPassword) {
-
+    public function login($pLogin, $pPassword)
+    {
         if (!$this->getStarted()) $this->start();
 
-        if (!$this->config['noDelay']){
+        if (!$this->config['noDelay']) {
             // sleep(1);
         }
 
@@ -297,16 +302,16 @@ abstract class ClientAbstract {
     /**
      * If the user has not been found in the system_user table, we've created it and
      * maybe this class want to map some groups to this new user.
-     * 
+     *
      * Don't forget to clear the cache after updating.
      *
      * The default of this function searches 'default_group' in the auth_params
      * and maps the user automatically to the defined groups.
-     * 
+     *
      * 'defaultGroups' => array(
      *    array('login' => 'LoginOrRegex', 'group' => 'group_id')
      * );
-     * 
+     *
      * You can perfectly use the following ka.Field definition in your client properties:
      *
      *    "defaultGroup": {
@@ -328,12 +333,12 @@ abstract class ClientAbstract {
      *            }
      *        }
      *    }
-     *    
+     *
      *
      * @param User $pUser The newly created user.
      */
-    public function firstLogin($pUser) {
-
+    public function firstLogin($pUser)
+    {
         if (is_array($this->config['defaultGroup'])) {
             foreach ($this->config['defaultGroup'] as $item) {
 
@@ -348,7 +353,6 @@ abstract class ClientAbstract {
 
     }
 
-
     /**
      * Setter for current user
      *
@@ -357,14 +361,14 @@ abstract class ClientAbstract {
      * @return \Core\Client\ClientAbstract $this
      * @throws \Exception
      */
-    public function setUser($pUserId = null) {
-
+    public function setUser($pUserId = null)
+    {
         if (!$this->getStarted()) $this->start();
 
-        if ($pUserId !== null){
+        if ($pUserId !== null) {
             $user = \Users\UserQuery::create()->findPk($pUserId);
 
-            if (!$user){
+            if (!$user) {
                 throw new \Exception('User not found '.$pUserId);
             }
 
@@ -376,35 +380,36 @@ abstract class ClientAbstract {
         return $this;
     }
 
-
     /**
      * Change the user_id in the session object to 0. Means: is logged out then
      */
-    public function logout() {
+    public function logout()
+    {
         if (!$this->getStarted()) $this->start();
         $this->setUser();
     }
 
     /**
      * Removes all expired sessions.
-     * 
+     *
      */
-    public function removeExpiredSessions() {
-        if ($this->config['store']['class'] == 'database'){
+    public function removeExpiredSessions()
+    {
+        if ($this->config['store']['class'] == 'database') {
             //todo
         }
     }
 
     /**
      * When the scripts ends, we need to sync the session data to the backend.
-     * 
+     *
      */
-    public function syncStore() {
-
+    public function syncStore()
+    {
         if (!$this->getStarted()) return;
 
-        if ($this->hasSession()){
-            if ($this->config['store']['class'] == 'database'){
+        if ($this->hasSession()) {
+            if ($this->config['store']['class'] == 'database') {
                 $this->getSession()->save();
                 Kryn::setPropelCacheObject('\Users\Session', $this->getSession()->getId(), $this->getSession());
             } else {
@@ -416,11 +421,11 @@ abstract class ClientAbstract {
     /**
      * Create new session in the backend and stores the newly created session id
      * into $this->token. Also set cookie.
-     * 
+     *
      * @return bool|Session The session object
      */
-    public function createSession() {
-
+    public function createSession()
+    {
         for ($i = 1; $i <= 25; $i++) {
             $session = $this->createSessionById($this->generateSessionId());
 
@@ -445,15 +450,14 @@ abstract class ClientAbstract {
 
     }
 
-
     /**
      * Creates a Session object and store it in the current backend.
      * @param $pId
      * @return bool|\Users\Session Returns false, if something went wrong otherwise a Session object.
      * @throws \Exception
      */
-    public function createSessionById($pId){
-
+    public function createSessionById($pId)
+    {
         $cacheKey = $this->tokenId . '_' . $pId;
 
         //this is a critical section, since between checking whether a session exists
@@ -478,49 +482,57 @@ abstract class ClientAbstract {
         if (!$this->config['noIPStorage'])
             $session->setIp($_SERVER['X-Forwarded-For'] ?: $_SERVER['REMOTE_ADDR']);
 
-        if ($this->config['store']['class'] == 'database'){
+        if ($this->config['store']['class'] == 'database') {
             try {
                 $session->save();
-            } catch (\Exception $e){
+            } catch (\Exception $e) {
                 Utils::appRelease('ClientCreateSession');
                 throw $e;
+
                 return false;
             }
         } else {
-            if (!$this->store->set($cacheKey, $session->exportTo('JSON'), $this->config['timeout'])){
+            if (!$this->store->set($cacheKey, $session->exportTo('JSON'), $this->config['timeout'])) {
                 Utils::appRelease('ClientCreateSession');
+
                 return false;
             }
         }
 
         Utils::appRelease('ClientCreateSession');
+
         return $session;
     }
 
     /**
      * Defined whether or not the class should process the client login/logout.
      *
-     * @param boolean $pEnabled
+     * @param  boolean        $pEnabled
      * @return ClientAbstract $this
      */
-    public function setAutoLoginLogout($pEnabled){
+    public function setAutoLoginLogout($pEnabled)
+    {
         $this->config['autoLoginLogout'] = $pEnabled;
+
         return $this;
     }
 
     /**
      * @return bool
      */
-    public function getToken(){
+    public function getToken()
+    {
         if (!$this->token)
             $this->token = $this->getClientToken();
+
         return $this->token;
     }
 
     /**
      * @return string
      */
-    public function getTokenId(){
+    public function getTokenId()
+    {
         return $this->tokenId;
     }
 
@@ -531,7 +543,8 @@ abstract class ClientAbstract {
      *
      * @return ClientAbstract
      */
-    public function setToken($pToken){
+    public function setToken($pToken)
+    {
         if ($this->token != $pToken) $changed = true;
 
         $this->token = $pToken;
@@ -546,33 +559,36 @@ abstract class ClientAbstract {
      * @param $pTokenId
      * @return ClientAbstract
      */
-    public function setTokenId($pTokenId){
+    public function setTokenId($pTokenId)
+    {
         $this->tokenId = $pTokenId;
+
         return $this;
     }
 
     /**
      * Generates a new token/session id.
-     * 
+     *
      * @return string The session id
      */
-    public function generateSessionId() {
+    public function generateSessionId()
+    {
         return md5(microtime(true) . mt_rand() . mt_rand(50, 60 * 100));
     }
 
     /**
      * Tries to load a session based on current token or pToken from the cache or database backend.
-     * @param string $pToken
+     * @param  string       $pToken
      * @return bool|Session false if the session does not exist, and Session object, if found.
      */
-    protected function fetchSession($pToken = null) {
-
+    protected function fetchSession($pToken = null)
+    {
         $token = $this->token;
         if ($pToken) $token = $pToken;
 
         if (!$token) return false;
 
-        if ($this->config['store']['class'] == 'database'){
+        if ($this->config['store']['class'] == 'database') {
             return $this->loadSessionDatabase($token);
         } else {
             return $this->loadSessionCache($token);
@@ -586,8 +602,8 @@ abstract class ClientAbstract {
      * @param $pToken
      * @return \BaseObject|bool false if the session does not exist, and Session object, if found.
      */
-    protected function loadSessionDatabase($pToken) {
-
+    protected function loadSessionDatabase($pToken)
+    {
         $session = \Users\SessionQuery::create()->findOneById($pToken);
 
         if (!$session) return false;
@@ -595,6 +611,7 @@ abstract class ClientAbstract {
         if ($session->getTime() + $this->config['timeout'] < time()) {
             Kryn::removePropelCacheObject('\Users\Session', $pToken);
             $session->delete();
+
             return false;
         }
 
@@ -606,8 +623,8 @@ abstract class ClientAbstract {
      * @param $pToken
      * @return bool|\Users\Session false if the session does not exist, and Session object, if found.
      */
-    public function loadSessionCache($pToken) {
-
+    public function loadSessionCache($pToken)
+    {
         $cacheKey = $this->tokenId.'_'.$pToken;
         $sessionData = $this->store->get($cacheKey);
         if (!$sessionData) return false;
@@ -619,6 +636,7 @@ abstract class ClientAbstract {
 
         if ($session && $session->getTime() + $this->config['timeout'] < time()) {
             $this->store->delete($cacheKey);
+
             return false;
         }
 
@@ -631,12 +649,11 @@ abstract class ClientAbstract {
      *
      * @return string
      */
-    public function getClientToken() {
-
+    public function getClientToken()
+    {
         if ($_COOKIE[$this->tokenId]) return $_COOKIE[$this->tokenId];
         if ($_GET[$this->tokenId]) return $_GET[$this->tokenId];
         if ($_POST[$this->tokenId]) return $_POST[$this->tokenId];
-
         return false;
     }
 
@@ -654,11 +671,11 @@ abstract class ClientAbstract {
     /**
      * Generates a salt for a hashed password
      *
-     * @param int $pLenth
+     * @param  int   $pLenth
      * @return tring ascii
      */
-    public static function getSalt($pLength = 64) {
-
+    public static function getSalt($pLength = 64)
+    {
         $salt = str_repeat('0', $pLength);
 
         for ($i = 0; $i < $pLength; $i++) {
@@ -674,27 +691,29 @@ abstract class ClientAbstract {
      * @param  string $pString
      * @return binary
      */
-    public static function injectConfigPasswdHash($pString){
+    public static function injectConfigPasswdHash($pString)
+    {
         $result = '';
         $len  = mb_strlen($pString);
         $clen = mb_strlen(Kryn::$config['passwdHashKey']);
 
-        for($i = 0; $i < $len; $i++){
+        for ($i = 0; $i < $len; $i++) {
             $s = hexdec(bin2hex(mb_substr($pString, $i, 1)));
             $j = $i;
             while ($j > $clen) $j -= $clen+1; //CR
             $c = hexdec(bin2hex(mb_substr(Kryn::$config['passwdHashKey'], $j, 1)));
             $result .= pack("H*", $s+$c);
         }
+
         return $result;
     }
 
     /**
      * Returns a hashed password with salt.
-     * 
+     *
      */
-    public static function getHashedPassword($pPassword, $pSalt) {
-
+    public static function getHashedPassword($pPassword, $pSalt)
+    {
         $hash = hash('sha512', ($pPassword . $pSalt) . $pSalt).hash('sha512', $pSalt.($pPassword . $pSalt.$pPassword));
 
         for ($i = 0; $i < 501; $i++) {
@@ -707,44 +726,50 @@ abstract class ClientAbstract {
     }
 
     /**
-     * @param string $loginTrigger
-     * @return Auth $this
+     * @param  string $loginTrigger
+     * @return Auth   $this
      */
-    public function setLoginTrigger($loginTrigger){
+    public function setLoginTrigger($loginTrigger)
+    {
         $this->config['loginTrigger'] = $loginTrigger;
+
         return $this;
     }
 
     /**
      * @return string
      */
-    public function getLoginTrigger(){
+    public function getLoginTrigger()
+    {
         return $this->config['loginTrigger'];
     }
 
     /**
-     * @param string $logoutTrigger
+     * @param  string                      $logoutTrigger
      * @return \Core\Client\ClientAbstract $this
      */
-    public function setLogoutTrigger($logoutTrigger){
+    public function setLogoutTrigger($logoutTrigger)
+    {
         $this->config['logoutTrigger'] = $logoutTrigger;
+
         return $this;
     }
 
     /**
      * @return string
      */
-    public function getLogoutTrigger(){
+    public function getLogoutTrigger()
+    {
         return $this->config['logoutTrigger'];
     }
 
     /**
      * @param Session $session
      */
-    public function setSession($session){
+    public function setSession($session)
+    {
         $this->session = $session;
     }
-
 
     /**
      * Returns true if a session has already been loaded or
@@ -752,8 +777,8 @@ abstract class ClientAbstract {
      *
      * @return bool
      */
-    public function hasSession(){
-
+    public function hasSession()
+    {
         if (!$this->session && $this->getToken())
             $this->session = $this->fetchSession();
 
@@ -769,8 +794,8 @@ abstract class ClientAbstract {
      *
      * @return Session
      */
-    public function getSession(){
-
+    public function getSession()
+    {
         if (!$this->session)
             $this->session = $this->fetchSession();
 
@@ -783,31 +808,33 @@ abstract class ClientAbstract {
     /**
      * @param array $config
      */
-    public function setConfig($config){
+    public function setConfig($config)
+    {
         $this->config = $config;
     }
 
     /**
      * @return array
      */
-    public function getConfig(){
+    public function getConfig()
+    {
         return $this->config;
     }
 
     /**
      * @param $store
      */
-    public function setStore($store){
+    public function setStore($store)
+    {
         $this->store = $store;
     }
 
     /**
      * @return \Core\Cache\Controller
      */
-    public function getStore(){
+    public function getStore()
+    {
         return $this->store;
     }
 
-
 }
-

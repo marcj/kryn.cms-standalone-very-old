@@ -1,15 +1,14 @@
 <?php
 
-
-class adminFS_AWS_S3 extends adminFS {
-
+class adminFS_AWS_S3 extends adminFS
+{
     private $config = array();
 
     private $aws;
 
-    function __construct($pParams){
-
-        require_once('inc/lib/amazonSdk/sdk.class.php');
+    public function __construct($pParams)
+    {
+        require_once 'inc/lib/amazonSdk/sdk.class.php';
         $this->config = $pParams;
 
         $credentials = array();
@@ -27,58 +26,63 @@ class adminFS_AWS_S3 extends adminFS {
         ));
     }
 
-    public function fileExists($pPath){
+    public function fileExists($pPath)
+    {
         return $this->aws->if_object_exists($this->config['bucket'], substr($pPath,1)) ||
                $this->aws->if_object_exists($this->config['bucket'], substr($pPath,1).'/');
     }
 
-    public function createFolder($pPath){
+    public function createFolder($pPath)
+    {
         $response = $this->aws->create_object($this->config['bucket'], substr($pPath,1).'/', array(
             'acl' => AmazonS3::ACL_PUBLIC
         ));
+
         return $response->isOk();
     }
 
-    public function createFile($pPath, $pContent = null){
-
+    public function createFile($pPath, $pContent = null)
+    {
         $response = $this->aws->create_object($this->config['bucket'], substr($pPath,1), array(
             'acl' => AmazonS3::ACL_PUBLIC,
             'body' => $pContent,
             'contentType' => mime_content_type_for_name($pPath)
         ));
+
         return $response->isOk();
     }
 
-    public function setContent($pPath, $pContent) {
+    public function setContent($pPath, $pContent)
+    {
         $response = $this->aws->create_object($this->config['bucket'], substr($pPath,1), array(
             'acl' => AmazonS3::ACL_PUBLIC,
             'body' => $pContent,
             'contentType' => mime_content_type_for_name($pPath)
         ));
+
         return $response->isOk();
     }
 
-
-    public function deleteFile($pPath){
-
+    public function deleteFile($pPath)
+    {
         //delete subfiles
         $response2 = $this->aws->delete_all_objects($this->config['bucket'], '/^'.preg_quote(substr($pPath,1), '/').'\/.*/');
 
         //delete file
         $response = $this->aws->delete_all_objects($this->config['bucket'], '/^'.preg_quote(substr($pPath,1), '/').'/');
+
         return $response || $response2;
     }
 
-
-    public function move($pPathSource, $pPathTarget){
-
+    public function move($pPathSource, $pPathTarget)
+    {
         //do we have subfiles ?
         $response = $this->aws->get_object_list($this->config['bucket'], array(
             'pcre' => '/^'.preg_quote(substr($pPathSource,1), '/').'\/.*/'
         ));
 
-        if (is_array($response) && count($response) > 0){
-            foreach($response as $file){
+        if (is_array($response) && count($response) > 0) {
+            foreach ($response as $file) {
 
                 $newFile = substr($pPathTarget.'/'.substr($file, strlen($pPathSource)), 1);
                 $this->aws->copy_object(
@@ -94,7 +98,7 @@ class adminFS_AWS_S3 extends adminFS {
             }
 
             $files2Delete = array();
-            foreach($response as $file){
+            foreach ($response as $file) {
                 $files2Delete[] = array('key' => $file);
             }
 
@@ -117,15 +121,15 @@ class adminFS_AWS_S3 extends adminFS {
         return true;
     }
 
-    public function copy($pPathSource, $pPathTarget){
-
+    public function copy($pPathSource, $pPathTarget)
+    {
         //do we have subfiles ?
         $response = $this->aws->get_object_list($this->config['bucket'], array(
             'pcre' => '/^'.preg_quote(substr($pPathSource,1), '/').'\/.*/'
         ));
 
-        if (is_array($response) && count($response) > 0){
-            foreach($response as $file){
+        if (is_array($response) && count($response) > 0) {
+            foreach ($response as $file) {
 
                 $newFile = substr($pPathTarget.'/'.substr($file, strlen($pPathSource)), 1);
                 $this->aws->copy_object(
@@ -156,9 +160,8 @@ class adminFS_AWS_S3 extends adminFS {
         return true;
     }
 
-
-    public function getPublicUrl($pPath){
-
+    public function getPublicUrl($pPath)
+    {
         //todo, handle amazon's cloudfront
         //todo, handle https (need an option)
 
@@ -169,16 +172,18 @@ class adminFS_AWS_S3 extends adminFS {
         return $this->aws->get_object_url($this->config['bucket'], substr($pPath,1));
     }
 
-    public function getContent($pPath){
+    public function getContent($pPath)
+    {
         $response = $this->aws->get_object($this->config['bucket'], substr($pPath,1));
+
         return $response->body;
     }
 
-    public function getFile($pPath){
-
+    public function getFile($pPath)
+    {
         $response = $this->aws->get_object_metadata($this->config['bucket'], substr($pPath,1));
 
-        if ($response){
+        if ($response) {
             return array(
                 'name'  => basename($response['Key']),
                 'type'  => 'file',
@@ -189,7 +194,7 @@ class adminFS_AWS_S3 extends adminFS {
         }
 
         $response = $this->aws->get_object_metadata($this->config['bucket'], substr($pPath,1).'/');
-        if ($response){
+        if ($response) {
             return array(
                 'name'  => basename($response['Key']),
                 'type'  => 'dir',
@@ -198,11 +203,12 @@ class adminFS_AWS_S3 extends adminFS {
                 'mtime' => strtotime($response['LastModified'])
             );
         }
+
         return false;
     }
 
-    public function getFiles($pPath){
-
+    public function getFiles($pPath)
+    {
         $items = array();
         $opts = array(
             'delimiter' => '/'
@@ -213,27 +219,27 @@ class adminFS_AWS_S3 extends adminFS {
 
         $response = $this->aws->list_objects($this->config['bucket'], $opts);
 
-        foreach($response->body->Contents as $file){
-            $name = (string)$file->Key;
+        foreach ($response->body->Contents as $file) {
+            $name = (string) $file->Key;
 
             if ($name == $opts['prefix']) continue;
 
             if ($opts['prefix'])
-                $name = substr((string)$file->Key,strlen($opts['prefix']));
+                $name = substr((string) $file->Key,strlen($opts['prefix']));
 
             $items[] = array(
                 'name'  => $name,
                 'type'  => 'file',
                 'path'  => $pPath.($pPath=='/'?'':'/').$name,
-                'size'  => (string)$file->Size,
-                'mtime' => strtotime((string)$file->LastModified)
+                'size'  => (string) $file->Size,
+                'mtime' => strtotime((string) $file->LastModified)
             );
         }
 
-        if ($response->body->CommonPrefixes){
+        if ($response->body->CommonPrefixes) {
             //we maybe got subfolder
-            foreach($response->body->CommonPrefixes as $file){
-                $name = substr((string)$file->Prefix,strlen($opts['prefix']),-1);
+            foreach ($response->body->CommonPrefixes as $file) {
+                $name = substr((string) $file->Prefix,strlen($opts['prefix']),-1);
 
                 $items[] = array(
                     'name'  => $name,
@@ -248,8 +254,8 @@ class adminFS_AWS_S3 extends adminFS {
         return $items;
     }
 
-    public function getPublicAccess($pPath){
-
+    public function getPublicAccess($pPath)
+    {
         $response = $this->aws->get_object_metadata($this->config['bucket'], substr($pPath,1));
         if (!is_array($response['ACL'])) return -1;
 
@@ -261,13 +267,11 @@ class adminFS_AWS_S3 extends adminFS {
         return false;
     }
 
-    public function setPublicAccess($pPath, $pAccess){
+    public function setPublicAccess($pPath, $pAccess)
+    {
         $response = $this->aws->set_object_acl($this->config['bucket'], substr($pPath,1), $pAccess?AmazonS3::ACL_PUBLIC:AmazonS3::ACL_PRIVATE);
+
         return $response->isOK();
     }
 
-
 }
-
-
-?>

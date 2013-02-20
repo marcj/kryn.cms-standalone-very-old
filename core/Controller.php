@@ -6,10 +6,10 @@ namespace Core;
  * Controller class for controllers.
  *
  * Provides view methods, if you want to handle coped view data.
- * 
+ *
  */
-class Controller {
-
+class Controller
+{
     /**
      * View data.
      *
@@ -24,56 +24,60 @@ class Controller {
      */
     private $lastCheckedCacheKey = '';
 
-	/**
-	 * Assign data to a variable inside this controller.
-	 * This data is used in $this->render() if you don't pass a data array.
-	 *
-	 * @param string $pKey
-	 * @param mixed  $pValue
-	 */
-	public function assign($pKey, $pValue){
+    /**
+     * Assign data to a variable inside this controller.
+     * This data is used in $this->render() if you don't pass a data array.
+     *
+     * @param string $pKey
+     * @param mixed  $pValue
+     */
+    public function assign($pKey, $pValue)
+    {
         $this->viewData[$pKey] = $pValue;
-	}
+    }
 
-	/**
+    /**
      * Assign data by reference to a variable inside this controller.
      * This data is used in $this->render() if you don't pass a data array.
-	 *
-	 * @param string $pKey
-	 * @param mixed &$pValue
-	 */
-	public function assignByRef($pKey, &$pValue){
+     *
+     * @param string $pKey
+     * @param mixed &$pValue
+     */
+    public function assignByRef($pKey, &$pValue)
+    {
         $this->viewData[$pKey] = $pValue;
-	}
+    }
 
 
-	/**
-	 * Returns true if the specified name has a value assigned.
-	 *
-	 * @param string $pKey
-	 * @return bool
-	 */
-	public function assigned($pKey) {
+    /**
+     * Returns true if the specified name has a value assigned.
+     *
+     * @param  string $pKey
+     * @return bool
+     */
+    public function assigned($pKey)
+    {
         return $this->viewData[$pKey] !== null;
-	}
+    }
 
 
-	/**
-	 * Clears all assigned data.
-	 * 
-	 */
-	public function clearAllAssign(){
+    /**
+     * Clears all assigned data.
+     *
+     */
+    public function clearAllAssign()
+    {
         $this->viewData = array();
-	}
+    }
 
 
-	/**
-	 * Returns the rendered view output.
-	 *
-	 * If you've extended your main controller with this controller,
-	 * then $pView will be prefixed with the current module key,
-	 * so that the views of <moduleKey>/views/ will be loaded primarily.
-	 * If the view does not exists there, it tries to load the view from root.
+    /**
+     * Returns the rendered view output.
+     *
+     * If you've extended your main controller with this controller,
+     * then $pView will be prefixed with the current module key,
+     * so that the views of <moduleKey>/views/ will be loaded primarily.
+     * If the view does not exists there, it tries to load the view from root.
      *
      * Meaning both is a valid view:
      *   publication/news/list/default.tpl
@@ -87,49 +91,52 @@ class Controller {
      *    plugin1/default.smarty.tpl    -> smarty
      *    plugin1/default.twig.tpl      -> twig
      *    plugin1/default.html          -> none
-	 *
-	 * @param  string $pView
-	 * @param  array  $pData Use this data instead of the data assigned through $this->assign()
-	 * @return string
-	 */
-    public function render($pView, $pData = null){
-		
-		$clazz = get_class($this);
-		if (($pos = strpos($clazz, '\\')) !== false) {
-			$namespace = substr($clazz, 0, $pos);
-			$clazz = substr($clazz, $pos+1);
-			if (Kryn::isActiveModule($namespace) && $clazz == 'Controller'){
-				$view = tPath($namespace.'/'.$pView);	
-			}
-		}
+     *
+     * @param  string $pView
+     * @param  array  $pData Use this data instead of the data assigned through $this->assign()
+     * @return string
+     */
+    public function render($pView, $pData = null)
+    {
+        $clazz = get_class($this);
+        if (($pos = strpos($clazz, '\\')) !== false) {
+            $namespace = substr($clazz, 0, $pos);
+            $clazz = substr($clazz, $pos+1);
+            if (Kryn::isActiveModule($namespace) && $clazz == 'Controller') {
+                $view = tPath($namespace.'/'.$pView);
+            }
+        }
 
         $view = str_replace('..', '', $view);
 
         //todo, detect the file extension and load the appropriate template engine.
-		if (!file_exists($view)){
-			$view = tPath($pView);
-		}
+        if (!file_exists($view)) {
+            $view = tPath($pView);
+        }
         if (!Kryn::$smarty)
             tInit();
 
-		$tpl = Kryn::$smarty->createTemplate($view, $pData?$pData:$this->viewData);
-		$html = $tpl->fetch();
+        $tpl = Kryn::$smarty->createTemplate($view, $pData?$pData:$this->viewData);
+        $html = $tpl->fetch();
 
         return Kryn::translate($html);
-	}
+    }
 
-    public function getFileMTime($pView){
+    public function getFileMTime($pView)
+    {
         $view = tPath($pView);
+
         return filemtime($view);
     }
 
     /**
      * Returns whether this cache is valid(exists) or not.
      *
-     * @param string $pCacheKey
+     * @param  string  $pCacheKey
      * @return boolean
      */
-    public function isValidCache($pCacheKey){
+    public function isValidCache($pCacheKey)
+    {
         return Kryn::getDistributedCache($pCacheKey) !== null;
     }
 
@@ -147,23 +154,23 @@ class Controller {
      * Note: The $pData callable is only called if the cache needs to regenerate.
      * If the callable $pData returns NULL, then this will return NULL, too.
      *
-     * @param string          $pCacheKey
-     * @param string          $pView
-     * @param array|callable  $pData Pass the data as array or a data provider function.
+     * @param string         $pCacheKey
+     * @param string         $pView
+     * @param array|callable $pData     Pass the data as array or a data provider function.
      *
      * @see method `render` to get more information.
      *
      * @return string
      */
-    public function renderCached($pCacheKey, $pView, $pData = null){
-
+    public function renderCached($pCacheKey, $pView, $pData = null)
+    {
         $cache = Kryn::getDistributedCache($pCacheKey);
         $mTime = $this->getFileMTime($pView);
 
-        if (!$cache || !$cache['data'] || !is_array($cache) || $mTime != $cache['fileMTime']){
+        if (!$cache || !$cache['data'] || !is_array($cache) || $mTime != $cache['fileMTime']) {
 
             $data = $pData;
-            if (is_callable($pData)){
+            if (is_callable($pData)) {
                 $data = call_user_func($pData, $pView);
                 if ($data === null) return null;
             }
@@ -179,7 +186,6 @@ class Controller {
         return $this->render($pView, $cache['data']);
 
     }
-
 
     /**
      * Returns a rendered view. If we find html behind the given cache
@@ -197,25 +203,25 @@ class Controller {
      * If the callable $pData returns NULL, then this will return NULL, too, without entering
      * the actual rendering process.
      *
-     * @param string          $pCacheKey
-     * @param string          $pView
-     * @param array|callable  $pData Pass the data as array or a data provider function.
+     * @param string         $pCacheKey
+     * @param string         $pView
+     * @param array|callable $pData     Pass the data as array or a data provider function.
      *
      * @see method `render` to get more information.
      *
      * @return string
      */
-    public function renderFullCached($pCacheKey, $pView, $pData = null){
-
+    public function renderFullCached($pCacheKey, $pView, $pData = null)
+    {
         $cache = Kryn::getDistributedCache($pCacheKey);
         $mTime = $this->getFileMTime($pView);
 
-        if (!$cache || !$cache['content'] || !is_array($cache) || $mTime != $cache['fileMTime']){
+        if (!$cache || !$cache['content'] || !is_array($cache) || $mTime != $cache['fileMTime']) {
 
             $oldResponse = clone Kryn::getResponse();
 
             $data = $pData;
-            if (is_callable($pData)){
+            if (is_callable($pData)) {
                 $data = call_user_func($pData, $pView);
                 if ($data === null) return null;
             }
@@ -240,4 +246,4 @@ class Controller {
         return $cache['content'];
     }
 
-} 
+}

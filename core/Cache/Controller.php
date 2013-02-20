@@ -15,15 +15,14 @@ namespace Core\Cache;
 /**
  * Cache controller
  */
-class Controller {
-
+class Controller
+{
     /**
      * Contains the current class instance.
-     * 
+     *
      * @type Object
      */
     public $instance;
-
 
     /**
      * All gets/sets will be cached in this array for faster access
@@ -50,7 +49,6 @@ class Controller {
      */
     public $withInvalidationChecks = true;
 
-
     /**
      * The class name.
      *
@@ -61,8 +59,8 @@ class Controller {
     /**
      * Constructor.
      *
-     * @param string  $pClass                   The class of the cache service.
-     * @param array   $pConfig                  Contains config values.
+     * @param string $pClass  The class of the cache service.
+     * @param array  $pConfig Contains config values.
      *                                          memcached and redis: array(
      *                                              'servers' => array(
      *                                                  array('ip' => '12.12.12.12', 'port' => 6379
@@ -70,16 +68,16 @@ class Controller {
      *                                              )
      *                                            )
      *                                          files: array('files_path' => '<path to store the cached files')
-     * @param bool    $pWithInvalidationChecks  Activates the invalidating mechanism
+     * @param bool $pWithInvalidationChecks Activates the invalidating mechanism
      *
      * @throws \Exception
      */
-    function __construct($pClass = '\Core\Cache\File', $pConfig = array(), $pWithInvalidationChecks = true) {
-
+    public function __construct($pClass = '\Core\Cache\File', $pConfig = array(), $pWithInvalidationChecks = true)
+    {
         $this->withInvalidationChecks = $pWithInvalidationChecks;
         $this->class = $pClass;
 
-        if (class_exists($pClass)){
+        if (class_exists($pClass)) {
             $this->instance = new $pClass($pConfig);
         } else {
             throw new \Exception(tf('The class `%s` does not exist.', $pClass));
@@ -90,20 +88,20 @@ class Controller {
     /**
      * @return string
      */
-    public function getClass() {
+    public function getClass()
+    {
         return $this->class;
     }
 
-
     /**
      * Detects the fastest available cache on current machine.
-     * 
+     *
      * @return string
      */
-    public static function getFastestCacheClass(){
-
+    public static function getFastestCacheClass()
+    {
         $class = '\Core\Cache\\';
-        
+
         if (function_exists('apc_store'))
             return $class.'Apc';
 
@@ -126,7 +124,7 @@ class Controller {
      */
     public function &get($pKey, $pWithoutValidationCheck = false) {
 
-        if (!$this->cache[$pKey]){
+        if (!$this->cache[$pKey]) {
             $this->cache[$pKey] = $this->instance->get($pKey);
         }
 
@@ -141,6 +139,7 @@ class Controller {
                     || $this->cache[$pKey]['timeout'] < microtime(true)) {
                     return null;
                 }
+
                 return $this->cache[$pKey]['value'];
             }
 
@@ -175,13 +174,13 @@ class Controller {
     /**
      * Returns the invalidation time.
      *
-     * @param string $pKey
+     * @param  string $pKey
      * @return string
      */
-    public function getInvalidate($pKey) {
+    public function getInvalidate($pKey)
+    {
         return $this->get('invalidate-'.$pKey, true);
     }
-
 
     /**
      * Marks a code as invalidate until $pTime.
@@ -189,8 +188,10 @@ class Controller {
      * @param string   $pKey
      * @param bool|int $pTime
      */
-    public function invalidate($pKey, $pTime = null) {
+    public function invalidate($pKey, $pTime = null)
+    {
         $this->cache['invalidate-'.$pKey] = $pTime;
+
         return $this->instance->set('invalidate-'.$pKey, $pTime, 99999999, true);
     }
 
@@ -198,16 +199,16 @@ class Controller {
      * Stores data to the specified cache-key.
      *
      * If you want to save php class objects, you should serialize it before.
-     * 
-     * @param string   $pKey
-     * @param mixed    $pValue
-     * @param int      $pTimeout In seconds. Default is one hour
-     * @param bool     $pWithoutValidationData
+     *
+     * @param string $pKey
+     * @param mixed  $pValue
+     * @param int    $pTimeout               In seconds. Default is one hour
+     * @param bool   $pWithoutValidationData
      *
      * @return boolean
      */
-    public function set($pKey, $pValue, $pTimeout = 3600, $pWithoutValidationData = false) {
-
+    public function set($pKey, $pValue, $pTimeout = 3600, $pWithoutValidationData = false)
+    {
         if (!$pKey) return false;
 
         if (!$pTimeout)
@@ -229,13 +230,13 @@ class Controller {
     /**
      * Deletes the cache for specified cache-key.
      *
-     * @param string $pKey
+     * @param  string $pKey
      * @return bool
      */
-    public function delete($pKey) {
+    public function delete($pKey)
+    {
         unset($this->cache[$pKey]);
+
         return $this->instance->delete($pKey);
     }
 }
-
-?>

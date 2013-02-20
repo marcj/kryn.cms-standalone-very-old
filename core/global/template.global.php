@@ -1,6 +1,5 @@
 <?php
 
-
 /*
  * This file is part of Kryn.cms.
  *
@@ -10,7 +9,6 @@
  * LICENSE file, that was distributed with this source code.
  *
  */
-
 
 /**
  * Global template functions
@@ -25,7 +23,8 @@
  * @param type $pName
  * @param type $pVal
  */
-function tAssign($pName, $pVal) {
+function tAssign($pName, $pVal)
+{
     tInit();
     Core\Kryn::$smarty->assign($pName, $pVal);
 }
@@ -37,7 +36,8 @@ function tAssign($pName, $pVal) {
  * @param type $pName
  * @param type $pVal
  */
-function tAssignRef($pName, &$pVal) {
+function tAssignRef($pName, &$pVal)
+{
     tInit();
     Core\Kryn::$smarty->assignByRef($pName, $pVal);
 }
@@ -48,8 +48,10 @@ function tAssignRef($pName, &$pVal) {
  * @param $pName
  * @return bool
  */
-function tAssigned($pName) {
+function tAssigned($pName)
+{
     tInit();
+
     return Core\Kryn::$smarty->getTemplateVars($pName) !== null;
 }
 
@@ -60,11 +62,12 @@ function tAssigned($pName) {
  * @param $pPath <module>/<template_file_in_views>
  * @return mixed
  */
-function tFetch($pPath) {
-
+function tFetch($pPath)
+{
     tInit();
 
     $path = tPath($pPath);
+
     return Core\Kryn::translate(Core\Kryn::$smarty->fetch($path));
 }
 
@@ -74,10 +77,12 @@ function tFetch($pPath) {
  * @param $pPath
  * @return string
  */
-function tPath($pPath){
+function tPath($pPath)
+{
     $pos = strpos($pPath, '/');
     $file = substr($pPath, $pos+1);
     $module = substr($pPath, 0, $pos);
+
     return (($module == 'kryn' || $module == 'core')? PATH_CORE : PATH_MODULE . $module . '/') . 'view/' . $file;
 }
 
@@ -87,19 +92,21 @@ function tPath($pPath){
  * @param $pPath
  * @return int
  */
-function tModTime($pPath){
+function tModTime($pPath)
+{
     $path = tPath($pPath);
+
     return file_exists($path) ? filemtime($path): false;
 }
 
 /**
  * Initialize the Smarty object to $tpl
  */
-function tInit(){
+function tInit()
+{
+    if (!Core\Kryn::$smarty) {
 
-    if (!Core\Kryn::$smarty){
-
-        include('lib/smarty/Smarty.class.php');
+        include 'lib/smarty/Smarty.class.php';
 
         Core\Kryn::$smarty = new Smarty();
         Core\Kryn::$smarty->template_dir = './';
@@ -107,8 +114,8 @@ function tInit(){
         Core\Kryn::$smarty->registerClass('Navigation', 'Core\Navigation');
         Core\Kryn::$smarty->addPluginsDir('./core/Template/SmartyPlugins');
 
-        include('core/Template/SmartyPlugins/smarty_internal_compile_tc.php');
-        include('core/Template/SmartyPlugins/smarty_internal_compile_t.php');
+        include 'core/Template/SmartyPlugins/smarty_internal_compile_tc.php';
+        include 'core/Template/SmartyPlugins/smarty_internal_compile_t.php';
         Core\Kryn::$smarty->loadPlugin('Smarty_Internal_Compile_Tc');
         Core\Kryn::$smarty->loadPlugin('Smarty_Internal_Compile_T');
 
