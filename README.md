@@ -26,10 +26,10 @@ Features
  - Based on Propel ORM (Propel supports MySQL, PostgreSQL, SQLite, MSSQL, and Oracle), http://www.propelorm.org
  - Advanced, fast and fresh administration interface (powered by mootools, yay!)
  - The administration API is completely abstracted through a RESTful JSON API
- - File abstraction layer (for mounts with external cloud storage), CDN
+ - File abstraction layer (for mounts with external storages [s3, ftp, dropbox, etc]), CDN
  - Dynamic template engines, use the engine you want. (Smarty, Twig and plain PHP are shipped)
  - i18n using `getText` (with all of its features [e.g. including plural support, contexts]) compatible .po files
- - High-Performance through several cache layers
+ - High-Performance through several cache layers 
  - Session storage through several layers (distributed sessions supported)
  - Easy to extend through a fancy extension editor, completely modulized
  - CRUD window generator, without writing one line of code
