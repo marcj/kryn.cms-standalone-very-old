@@ -2,18 +2,28 @@
 
 namespace Admin;
 
-use Core\MediaFile;
+use Core\WebFile;
 use Core\Permission;
 
 class File
 {
     public function getFiles($pPath)
     {
-        //todo, check read access
 
-        $files = MediaFile::getFiles($pPath);
-        foreach ($files as &$file) {
-            $file['writeAccess'] = Permission::checkUpdate('file', $file['id']);
+        if (!self::getFile($pPath)) return;
+
+        //todo, create new option 'show hidden files' in user settings and depend on that
+        $showHiddenFiles = false;
+
+        $blacklistedFiles = array('/index.php' => 1, '/install.php' => 1);
+
+        $files = WebFile::getFiles($pPath);
+        foreach ($files as $key => &$file) {
+            if (isset($blacklistedFiles[$file['path']]) | (!$showHiddenFiles && substr($file['path'], 0, 2) == '/.')) {
+                unset($files[$key]);
+            } else {
+                $file['writeAccess'] = Permission::checkUpdate('Core\\File', array('id' => $file['id']));
+            }
         }
 
         return $files;
@@ -21,10 +31,11 @@ class File
 
     public function getFile($pPath)
     {
-        //todo, check read access
 
-        $file = MediaFile::getFile($pPath);
-        $file['writeAccess'] = Permission::checkUpdate('file', $file['id']);
+        $file = WebFile::getFile($pPath);
+        if (!Permission::checkListExact('Core\\File', array('id' => $file['id']))) return;
+
+        $file['writeAccess'] = Permission::checkUpdate('Core\\File', $file['id']);
 
         return $file;
 
@@ -32,9 +43,10 @@ class File
 
     public function getThumbnail($pPath)
     {
-        //todo, check read access
 
-        $image = MediaFile::getThumbnail($pPath, '50x50');
+        if (!self::getFile($pPath)) return;
+
+        $image = WebFile::getThumbnail($pPath, '50x50');
 
         $expires = 3600;
         header("Pragma: public");

@@ -10,7 +10,7 @@
  *
  */
 
-namespace Core;
+namespace core;
 
 /**
  * Navigation class

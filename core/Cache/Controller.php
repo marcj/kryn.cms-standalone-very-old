@@ -10,7 +10,7 @@
 *
 */
 
-namespace Core\Cache;
+namespace core\Cache;
 
 /**
  * Cache controller

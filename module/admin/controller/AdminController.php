@@ -331,8 +331,8 @@ class AdminController
 
         $response->addJs('ka.adminInterface = new ka.AdminInterface({frontPage: true});', 'bottom');
 
-        $response->addCssFile('/admin/css/style.css');
-        $response->addJsFile('/admin/backend/js/script.js', 'bottom');
+        $response->addCssFile('admin/css/style.css');
+        $response->addJsFile('admin/backend/js/script.js', 'bottom');
         $response->addJs('window.editor = new ka.Editor(null, {nodePk: '.Kryn::$page->getId().'});', 'bottom');
 
     }
@@ -351,15 +351,16 @@ class AdminController
 
         $response->addJsFile('admin/js/ka.js');
         $response->addJsFile('admin/js/ka/AdminInterface.js');
-        $response->addJsFile('/lib/codemirror/lib/codemirror.js');
-        $response->addJsFile('/lib/codemirror/lib/util/loadmode.js');
-        $response->addCssFile('/lib/codemirror/lib/codemirror.css');
 
-        $response->addJsFile('/vendor/krynlabs/ckeditor/ckeditor.js');
+        $response->addJsFile('core/codemirror/lib/codemirror.js');
+        $response->addJsFile('core/codemirror/addon/mode/loadmode.js');
+        $response->addCssFile('core/codemirror/lib/codemirror.css');
 
-        $response->addJsFile('/admin/ui/possibleLangs?noCache=978699877');
-        $response->addJsFile('/admin/ui/language?lang=en&javascript=1');
-        $response->addJsFile('/admin/ui/languagePluralForm?lang=en');
+        $response->addJsFile('core/ckeditor/ckeditor.js');
+
+        $response->addJsFile('admin/ui/possibleLangs?noCache=978699877');
+        $response->addJsFile('admin/ui/language?lang=en&javascript=1');
+        $response->addJsFile('admin/ui/languagePluralForm?lang=en');
 
         $response->addCssFile('admin/icons/style.css');
 
@@ -457,7 +458,7 @@ class AdminController
 
         $response->addJs("
         CKEDITOR.disableAutoInline = true;
-        CodeMirror.modeURL = 'lib/codemirror/mode/%N/%N.js';
+        CodeMirror.modeURL = 'core/codemirror/mode/%N/%N.js';
         var loaded = 0;
         window.addEvent('domready', function(){
             if (loaded++ > 0)

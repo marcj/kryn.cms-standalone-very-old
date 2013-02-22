@@ -20,8 +20,8 @@ class BasicTest extends TestCaseWithCore
         $active = \Core\Kryn::isActiveModule('test');
         $this->assertTrue($active);
 
-        $this->assertTrue(is_dir('media/cache'));
-        $this->assertTrue(is_writable('media/cache'));
+        $this->assertTrue(is_dir('web/cache'));
+        $this->assertTrue(is_writable('web/cache'));
 
         $this->assertTrue(is_writable(\Core\Kryn::getTempFolder()));
 

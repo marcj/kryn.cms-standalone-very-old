@@ -50,7 +50,7 @@ class Manager
     {
         self::setupConfig($pConfigFile);
         $cfg = self::$config['config'];
-        $cfg['displayErrors'] = false;
+        $cfg['displayErrors'] = true;
 
         if (file_exists('config.php'))
             self::uninstall();
@@ -95,6 +95,7 @@ class Manager
         $cookieFile = \Core\Kryn::getTempFolder().'cookies.txt';
         touch($cookieFile);
         curl_setopt($ch, CURLOPT_COOKIEJAR, $cookieFile);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_COOKIEFILE, $cookieFile);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array("X-Requested-With: XMLHttpRequest"));
 
@@ -173,7 +174,7 @@ class Manager
         require 'core/bootstrap.php';
 
         \Core\TempFile::createFolder('./');
-        \Core\MediaFile::createFolder('cache/');
+        \Core\WebFile::createFolder('cache/');
 
         require 'core/bootstrap.startup.php';
         @ini_set('display_errors', 1);

@@ -1,6 +1,6 @@
 <?php
 
-namespace Core\Cache;
+namespace core\Cache;
 
 use Core\Event;
 

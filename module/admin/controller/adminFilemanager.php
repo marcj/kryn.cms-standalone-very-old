@@ -717,7 +717,7 @@ class adminFilemanager
         $item = dbTableFetch('system_files_log', 1, "id = " . ($pRsn + 0));
         if ($item['id'] > 0) {
 
-            $nPath = str_replace(PATH_MEDIA, '', $item['path']);
+            $nPath = str_replace(PATH_WEB, '', $item['path']);
             $toDir = dirname($nPath);
 
             $access = krynAcl::checkWrite('file', '/' . $toDir);
@@ -730,7 +730,7 @@ class adminFilemanager
                 self::addVersion($item['path']);
             }
 
-            $content = kryn::fileRead(PATH_MEDIA."/trash/" . $item['id']);
+            $content = kryn::fileRead(PATH_WEB."/trash/" . $item['id']);
             krynFile::setContent($item['path'], $content);
 
             dbDelete('system_files_log', "id = " . $item['id']);
@@ -760,7 +760,7 @@ class adminFilemanager
 
 
         if (!krynAcl::checkWrite('file', $pPath)) return array('error'=>'access_denied');
-        $path = PATH_MEDIA.$pPath;
+        $path = PATH_WEB.$pPath;
 
         if (substr($pPath,0,7) == '/trash/') {
 
@@ -837,7 +837,7 @@ class adminFilemanager
                         //we need to move a folder from one file layer to another.
                         if ($oldFs->magicFolderName == '') {
                             //just directly upload the stuff
-                            self::copyFolder(PATH_MEDIA.$oldFile, $newPath);
+                            self::copyFolder(PATH_WEB.$oldFile, $newPath);
                         } else {
                             //we need to copy all files down to our local hdd temporarily
                             $temp = kryn::createTempFolder();

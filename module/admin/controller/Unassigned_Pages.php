@@ -576,7 +576,7 @@ class Unassigned_Pages
 
         $domainPath = str_replace('\\', '/', str_replace('\\\\\\\\', '\\', urldecode(getArgv('path'))));
         //        $url = 'http://'.getArgv('domain').str_replace('\\','/',str_replace('\\\\\\\\','\\',urldecode(getArgv('path'))));
-        $path = 'http://' . $domain . $domainPath . PATH_MEDIA;
+        $path = 'http://' . $domain . $domainPath . PATH_WEB;
 
         Kryn::addJs($path . 'Kryn/mootools-core.js');
         Kryn::addJs($path . 'Kryn/mootools-more.js');
@@ -647,7 +647,7 @@ class Unassigned_Pages
         if ($domain['path'] != '') {
             tAssign('path', $domain['path']);
             $cfg['path'] = $domain['path'];
-            $cfg['templatepath'] = $domain['path'] . PATH_MEDIA;
+            $cfg['templatepath'] = $domain['path'] . PATH_WEB;
             tAssign('cfg', $cfg);
             tAssign('_path', $domain['path']);
         }

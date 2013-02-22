@@ -8,7 +8,7 @@ namespace Core;
  */
 
 //composer's vendor autoload
-include 'vendor/autoload.php';
+include __DIR__.'/../vendor/autoload.php';
 
 //init auto-loader for module folder.
 spl_autoload_register(function($pClass){

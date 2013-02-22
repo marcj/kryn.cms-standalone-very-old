@@ -1,6 +1,6 @@
 <?php
 
-namespace Core;
+namespace core;
 
 use \Symfony\Component\HttpFoundation\Response;
 
@@ -558,10 +558,10 @@ class PageResponse extends Response
             foreach ($this->css as $css) {
                 if ($css['path']) {
                     $file = $css['path'];
-                    $file = (substr($file,0,1) != '/' ? PATH_MEDIA . $file : substr($file, 1));
+                    $file = (substr($file,0,1) != '/' ? $file : substr($file, 1));
 
                     if (strpos($file, "http://") !== false) {
-                        $result .= sprintf('<link rel="stylesheet" type="text/css" href="%s" %s', $css, $this->getEndTag());
+                        $result .= sprintf('<link rel="stylesheet" type="text/css" href="%s" %s', $file, $this->getEndTag());
                     } else {
                         //local
                         if (file_exists(PATH . $file) && $mtime = @filemtime(PATH . $file)) {
@@ -573,23 +573,23 @@ class PageResponse extends Response
 
             $cssmd5 = md5($cssCode);
 
-            $cssCachedFile = PATH_MEDIA_CACHE . 'cachedCss_' . $cssmd5 . '.css';
+            $cssCachedFile = 'cachedCss_' . $cssmd5 . '.css';
 
             $cssContent = '';
 
-            if (!file_exists(PATH . $cssCachedFile)) {
+            if (true || !file_exists(PATH_WEB_CACHE . $cssCachedFile)) {
                 foreach ($this->css as $css) {
 
                     if ($css['path']) {
                         $file = $css['path'];
-                        $file = (substr($file,0,1) != '/' ? PATH_MEDIA . $file : substr($file, 1));
+                        $file = (substr($file,0,1) != '/' ? $file : substr($file, 1));
 
-                        if (file_exists($file)) {
+                        if (file_exists(PATH_WEB . $file)) {
                             $cssContent .= "/* $file: */\n\n";
-                            $temp = file_get_contents($file) . "\n\n\n";
+                            $temp = file_get_contents(PATH_WEB . $file) . "\n\n\n";
 
                             //replace relative urls to absolute
-                            $mypath = '../../'.dirname($file);
+                            $mypath = '../'.dirname($file);
                             $temp = preg_replace('/url\(\n*\'/', 'url("' . $mypath . '/', $temp);
                             $temp = preg_replace('/url\(\n*"/', 'url("' . $mypath . '/', $temp);
                             $temp = preg_replace('/url\(\n*/', 'url(' . $mypath . '/', $temp);
@@ -598,9 +598,9 @@ class PageResponse extends Response
                         }
                     }
                 }
-                file_put_contents($cssCachedFile, $cssContent);
+                file_put_contents(PATH_WEB_CACHE . $cssCachedFile, $cssContent);
             }
-            $result .= sprintf('<link rel="stylesheet" type="text/css" href="%s" %s', $cssCachedFile, $this->getEndTag());
+            $result .= sprintf('<link rel="stylesheet" type="text/css" href="cache/%s" %s', $cssCachedFile, $this->getEndTag());
         } else {
 
             foreach ($this->css as $css) {
@@ -612,7 +612,7 @@ class PageResponse extends Response
                         $result .= sprintf('<link rel="stylesheet" type="text/css" href="%s" %s', $file, $this->getEndTag());
                     } else {
 
-                        $file = (substr($file,0,1) != '/' ? PATH_MEDIA . $file : substr($file, 1));
+                        $file = (substr($file,0,1) != '/' ? $file : substr($file, 1));
 
                         $mtime = @filemtime(PATH . $file);
 
@@ -649,32 +649,33 @@ class PageResponse extends Response
                     $result .= '<script type="text/javascript" src="' . $js['path'] . '" ></script>' . "\n";
                 } else {
                     //local
-                    $file = PATH_MEDIA . $js['path'];
-                    if (file_exists(PATH . $file) && $mtime = @filemtime(PATH . $file)) {
+                    $file = $js['path'];
+                    if (file_exists(PATH_WEB .  $file) && $mtime = @filemtime(PATH_WEB . $file)) {
                         $jsCode .= $file . '_' . $mtime;
                     }
                 }
             }
+
             $jsmd5 = md5($jsCode);
-            $jsCachedFile = PATH_MEDIA_CACHE . 'cachedJs_' . $jsmd5 . '.js';
+            $jsCachedFile = 'cachedJs_' . $jsmd5 . '.js';
             $jsContent = '';
 
-            if (!file_exists(PATH . $jsCachedFile)) {
+            if (!file_exists(PATH_WEB_CACHE . $jsCachedFile)) {
 
                 foreach ($this->js as $js) {
 
                     if ($js['position'] != $pPosition) continue;
 
-                    $file = PATH_MEDIA . $js['path'];
-                    if (file_exists( $file)) {
+                    $file = $js['path'];
+                    if (file_exists( PATH_WEB . $file)) {
                         $jsContent .= "/* file: $file: */\n\n";
-                        $jsContent .= file_get_contents($file) . "\n\n\n";
+                        $jsContent .= file_get_contents(PATH_WEB . $file) . "\n\n\n";
                     }
                 }
-                file_put_contents($jsCachedFile, $jsContent);
+                file_put_contents(PATH_WEB_CACHE . $jsCachedFile, $jsContent);
             }
 
-            $result .= '<script type="text/javascript" src="' . $jsCachedFile . '" ></script>' . "\n";
+            $result .= '<script type="text/javascript" src="cache/' . $jsCachedFile . '" ></script>' . "\n";
         } else {
             foreach ($this->js as $js) {
 
@@ -682,12 +683,12 @@ class PageResponse extends Response
 
                 if ($js['path']) {
                     $file = $js['path'];
-                    $file = (substr($file,0,1) != '/' ? PATH_MEDIA . $file : substr($file, 1));
+                    $file = (substr($file,0,1) != '/' ? $file : substr($file, 1));
 
                     if (strpos($file, "http://") !== false) {
                         $result .= sprintf('<script type="%s" src="%s"></script>'.chr(10), $js['type'], $file);
                     } else {
-                        $mtime = @filemtime(PATH . $file);
+                        $mtime = @filemtime(PATH_WEB .  $file);
 
                         $result .= sprintf(
                             '<script type="%s" src="%s"></script>'.chr(10), $js['type'],

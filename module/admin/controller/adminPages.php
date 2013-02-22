@@ -614,7 +614,7 @@ class adminPages
 
         $domainPath = str_replace('\\', '/', str_replace('\\\\\\\\', '\\', urldecode(getArgv('path'))));
         //        $url = 'http://'.getArgv('domain').str_replace('\\','/',str_replace('\\\\\\\\','\\',urldecode(getArgv('path'))));
-        $path = 'http://' . $domain . $domainPath . PATH_MEDIA;
+        $path = 'http://' . $domain . $domainPath . PATH_WEB;
 
         Core\Kryn::addJs($path . 'Core\Kryn/mootools-core.js');
         Core\Kryn::addJs($path . 'Core\Kryn/mootools-more.js');
@@ -685,7 +685,7 @@ class adminPages
         if ($domain['path'] != '') {
             tAssign('path', $domain['path']);
             $cfg['path'] = $domain['path'];
-            $cfg['templatepath'] = $domain['path'] . PATH_MEDIA;
+            $cfg['templatepath'] = $domain['path'] . PATH_WEB;
             tAssign('cfg', $cfg);
             tAssign('_path', $domain['path']);
         }
@@ -847,7 +847,7 @@ class adminPages
 
         if (count($pngs) > 0)
             foreach ($pngs as $png) {
-                $res .= '<img src="' . $cfg['path'] . PATH_MEDIA . '/admin/images/icons/' . $png . '_.png" />';
+                $res .= '<img src="' . $cfg['path'] . PATH_WEB . '/admin/images/icons/' . $png . '_.png" />';
             }
 
         return $res;
@@ -1302,28 +1302,28 @@ class adminPages
         if (Core\Kryn::checkPageAcl($id, 'resources')) {
             if (getArgv('getType') == 0 || getArgv('getType') == 3) { //page or deposit
 
-                if (!file_exists(PATH_MEDIA.'css/_pages/')) {
-                    klog('autofix', PATH_MEDIA.'css/_pages/ doesnt exists, create it.');
-                    @mkdir(PATH_MEDIA.'css/_pages');
+                if (!file_exists(PATH_WEB.'css/_pages/')) {
+                    klog('autofix', PATH_WEB.'css/_pages/ doesnt exists, create it.');
+                    @mkdir(PATH_WEB.'css/_pages');
                 }
 
-                if (!file_exists(PATH_MEDIA.'js/_pages/')) {
-                    klog('autofix', PATH_MEDIA.'js/_pages/ doesnt exists, create it.');
-                    @mkdir(PATH_MEDIA.'js/_pages');
+                if (!file_exists(PATH_WEB.'js/_pages/')) {
+                    klog('autofix', PATH_WEB.'js/_pages/ doesnt exists, create it.');
+                    @mkdir(PATH_WEB.'js/_pages');
                 }
 
                 if (Core\Kryn::checkPageAcl($id, 'css')) {
                     if (getArgv('resourcesCss') != '')
-                        Core\Kryn::fileWrite(PATH_MEDIA."css/_pages/$id.css", getArgv('resourcesCss'));
-                    else if (file_exists(PATH_MEDIA."css/_pages/$id.css"))
-                        @unlink(PATH_MEDIA."css/_pages/$id.css");
+                        Core\Kryn::fileWrite(PATH_WEB."css/_pages/$id.css", getArgv('resourcesCss'));
+                    else if (file_exists(PATH_WEB."css/_pages/$id.css"))
+                        @unlink(PATH_WEB."css/_pages/$id.css");
                 }
 
                 if (Core\Kryn::checkPageAcl($id, 'js')) {
                     if (getArgv('resourcesJs') != '')
-                        Core\Kryn::fileWrite(PATH_MEDIA."js/_pages/$id.js", getArgv('resourcesJs'));
+                        Core\Kryn::fileWrite(PATH_WEB."js/_pages/$id.js", getArgv('resourcesJs'));
                     else
-                        @unlink(PATH_MEDIA."js/_pages/$id.js");
+                        @unlink(PATH_WEB."js/_pages/$id.js");
                 }
             }
         }
@@ -1488,8 +1488,8 @@ class adminPages
         $pRsn = $pRsn + 0;
 
         $res = self::getPageByRsn($pRsn);
-        //$res['resourcesCss'] = Core\Kryn::readFile(PATH_MEDIA."css/_pages/$pRsn.css");
-        //$res['resourcesJs'] = Core\Kryn::readFile(PATH_MEDIA."js/_pages/$pRsn.js");
+        //$res['resourcesCss'] = Core\Kryn::readFile(PATH_WEB."css/_pages/$pRsn.css");
+        //$res['resourcesJs'] = Core\Kryn::readFile(PATH_WEB."js/_pages/$pRsn.js");
 
         $curVersion = dbTableFetch('system_page_version', 1, "page_id = $pRsn AND active = 1");
         if (!$curVersion['id'] > 0) {

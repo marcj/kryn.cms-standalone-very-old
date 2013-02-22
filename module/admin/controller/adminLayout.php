@@ -22,7 +22,7 @@ class adminLayout
     public static function save($pFile)
     {
         $file = str_replace("..", "", $pFile);
-        kryn::fileWrite(PATH_MEDIA.$file, getArgv('content'));
+        kryn::fileWrite(PATH_WEB.$file, getArgv('content'));
 
         return true;
     }
@@ -38,7 +38,7 @@ class adminLayout
                             if ($layout == $pFile) {
                                 $res['title'] = $title;
                                 $res['path'] = $layout;
-                                $res['content'] = kryn::fileRead(PATH_MEDIA . $layout);
+                                $res['content'] = kryn::fileRead(PATH_WEB . $layout);
                             }
                         }
                     }
@@ -116,7 +116,7 @@ class adminLayout
 
         $css = array();
         foreach (kryn::$cssFiles as $file => $v) {
-            if (file_exists(PATH . PATH_MEDIA . $file) && $mtime = @filemtime(PATH . PATH_MEDIA . $file))
+            if (file_exists(PATH . PATH_WEB . $file) && $mtime = @filemtime(PATH . PATH_WEB . $file))
                 $css[] = $file . '?modified=' . $mtime;
         }
         $res['css'] = $css;

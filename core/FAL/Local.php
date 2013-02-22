@@ -1,6 +1,6 @@
 <?php
 
-namespace Core\FAL;
+namespace core\FAL;
 
 use Core\Kryn;
 
@@ -14,7 +14,7 @@ class Local extends FALAbstract
      * Current root folder.
      * @var string
      */
-    private $root = PATH_MEDIA;
+    private $root = PATH_WEB;
 
     /**
      * Default permission modes for directories.

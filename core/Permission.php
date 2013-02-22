@@ -10,7 +10,7 @@
  *
  */
 
-namespace Core;
+namespace core;
 
 use Users\User;
 
@@ -298,7 +298,12 @@ class Permission
 
     }
 
-    public static function checkList($pObjectKey, $pObjectId, $pTargetType = null, $pTargetId = null,
+    public static function checkList($pObjectKey, $pTargetType = null, $pTargetId = null,
+                                     $pRootHasAccess = false){
+        return self::check($pObjectKey, null, null, self::LISTING, $pTargetType, $pTargetId, $pRootHasAccess);
+    }
+
+    public static function checkListExact($pObjectKey, $pObjectId, $pTargetType = null, $pTargetId = null,
                                      $pRootHasAccess = false){
         return self::check($pObjectKey, $pObjectId, null, self::LISTING, $pTargetType, $pTargetId, $pRootHasAccess);
     }

@@ -12,10 +12,10 @@
 
 /**
  * Index.php
- * 
- * 
+ *
+ *
  * @author MArc Schmidt <marc@kryn.org>
- * 
+ *
  */
 
 if (php_sapi_name() !== 'cli') exit;
@@ -26,8 +26,8 @@ $_SERVER['HTTP_ACCEPT'] = 'xml';
 
 $_GET['__url'] = 'admin/'.$argv[1];
 
-require('core/bootstrap.php');
-require('core/bootstrap.startup.php');
+require 'core/bootstrap.php';
+require 'core/bootstrap.startup.php';
 
 /*
 * initialize administration controller
@@ -40,6 +40,3 @@ Core\Kryn::$admin = (getArgv(1) == 'admin');
 * Start backend controller
 */
 Core\Kryn::$modules['admin']->run();
-
-
-?>

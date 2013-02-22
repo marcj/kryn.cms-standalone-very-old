@@ -383,11 +383,11 @@ class adminBackup
         if ($definitions['files'] == 'all') {
 
             $blacklist = array(
-                PATH_MEDIA.'admin/', PATH_MEDIA.'js/', PATH_MEDIA.'css/', PATH_MEDIA.'kryn/',
-                PATH_MEDIA.'users/'
+                PATH_WEB.'admin/', PATH_WEB.'js/', PATH_WEB.'css/', PATH_WEB.'kryn/',
+                PATH_WEB.'users/'
             );
             foreach (kryn::$extensions as $extension)
-                $blacklist[] = PATH_MEDIA . $extension . '/';
+                $blacklist[] = PATH_WEB . $extension . '/';
 
             kryn::fileWrite($path . '_step', 'gatherFiles');
 
@@ -398,10 +398,10 @@ class adminBackup
                         $subfiles = find($file . '/*');
                         foreach ($subfiles as $subfile) {
                             $fileReads[] =
-                                File_Archive::read($subfile, str_replace(PATH_MEDIA, 'files/', $subfile));
+                                File_Archive::read($subfile, str_replace(PATH_WEB, 'files/', $subfile));
                         }
                     } else {
-                        $fileReads[] = File_Archive::read($file, str_replace(PATH_MEDIA, 'files/', $file));
+                        $fileReads[] = File_Archive::read($file, str_replace(PATH_WEB, 'files/', $file));
                     }
                 }
             }
@@ -416,15 +416,15 @@ class adminBackup
 
                 if ($myPath == '/')
                     $myPath = '';
-                else if (is_dir(PATH_MEDIA . $myPath) && substr($myPath, -1) != '/')
+                else if (is_dir(PATH_WEB . $myPath) && substr($myPath, -1) != '/')
                     $myPath .= '/';
 
-                if (!is_dir(PATH_MEDIA . $myPath)) {
-                    $fileReads[] = File_Archive::read(PATH_MEDIA . $myPath, 'files/' . PATH_MEDIA . $myPath);
+                if (!is_dir(PATH_WEB . $myPath)) {
+                    $fileReads[] = File_Archive::read(PATH_WEB . $myPath, 'files/' . PATH_WEB . $myPath);
                 } else {
-                    $files = find(PATH_MEDIA . $myPath . '*');
+                    $files = find(PATH_WEB . $myPath . '*');
                     foreach ($files as $file) {
-                        $fileReads[] = File_Archive::read($file, str_replace(PATH_MEDIA, 'files/', $file));
+                        $fileReads[] = File_Archive::read($file, str_replace(PATH_WEB, 'files/', $file));
                     }
                 }
             }

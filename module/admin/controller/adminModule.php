@@ -593,13 +593,13 @@ class $pClassName extends $pClass {
 
         if ($res['status'] == 'ok') {
             @mkdir(PATH_MODULE . "$pName");
-            @mkdir(PATH_MEDIA.$pName);
+            @mkdir(PATH_WEB.$pName);
             $config = array(
                 'version' => '0.0.1',
                 'owner' => $cfg['communityId'],
                 'community' => 0,
                 'category' => 0,
-                'writableFiles' => PATH_MEDIA . $pName . '/*',
+                'writableFiles' => PATH_WEB . $pName . '/*',
                 'title' => array(
                     'en' => 'Enter here a title for ' . $pName
                 ),
@@ -853,7 +853,7 @@ class $pClassName extends $pClass {
             copyr(PATH_MODULE . '' . $pModuleName, $temp . PATH_MODULE . $pModuleName);
         }
 
-        $template = PATH_MEDIA . $pModuleName;
+        $template = PATH_WEB . $pModuleName;
         if (file_exists($template)) {
             mkdirr($temp . $template);
             copyr($template, $temp . $template);
@@ -1029,7 +1029,7 @@ class $pClassName extends $pClass {
         if ($pName != 'kryn')
             $files[PATH_MODULE . '' . $pName . '/'] = readFolder(PATH_MODULE . '' . $pName . '/');
 
-        $files[PATH_MEDIA . $pName . '/'] = readFolder(PATH_MEDIA . $pName . '/');
+        $files[PATH_WEB . $pName . '/'] = readFolder(PATH_WEB . $pName . '/');
 
         $res['files'] = $files;
         json($res);
@@ -1144,8 +1144,8 @@ class $pClassName extends $pClass {
 
         //local zip
         if (($pType !== false && $pType != "0") && ($pType !== true && $pType != "1")) {
-            if (file_exists(PATH_MEDIA . $pType)) {
-                $pType = PATH_MEDIA . $pType;
+            if (file_exists(PATH_WEB . $pType)) {
+                $pType = PATH_WEB . $pType;
             }
             $zipFile = $pType;
             $bname = basename($pType);
@@ -1179,8 +1179,8 @@ class $pClassName extends $pClass {
 
             //if locale
             if ($pType == false) {
-                if (is_dir(PATH_MEDIA."$pModuleName/_screenshots")) {
-                    $config['screenshots'] = Core\Kryn::readFolder(PATH_MEDIA."$pModuleName/_screenshots");
+                if (is_dir(PATH_WEB."$pModuleName/_screenshots")) {
+                    $config['screenshots'] = Core\Kryn::readFolder(PATH_WEB."$pModuleName/_screenshots");
                 }
             }
 
@@ -1545,7 +1545,7 @@ function deinstall($pName, $pLinks = array())
 
    dbDelete('system_modules',"`name` = '".strtolower($pName)."'");
    delDir(PATH_MODULE."$pName/");
-   delDir(PATH_MEDIA.$pName/");
+   delDir(PATH_WEB.$pName/");
    json(1);
 }
     */

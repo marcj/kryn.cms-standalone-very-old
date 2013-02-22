@@ -10,7 +10,7 @@
  *
  */
 
-namespace Core;
+namespace core;
 
 use Symfony\Component\EventDispatcher\GenericEvent;
 
@@ -323,7 +323,7 @@ class Render
                     $data['content'] = substr($data['content'], 1);
 
                 $file = str_replace('..', '', $data['content']);
-                if (file_exists(PATH . PATH_MEDIA . $file)) {
+                if (file_exists(PATH . PATH_WEB . $file)) {
                     $data['content'] = tFetch($file);
                 }
                 break;

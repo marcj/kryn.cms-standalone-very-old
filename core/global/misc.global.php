@@ -19,7 +19,7 @@ function resizeImageCached($pPath, $pResolution, $pThumb = false, $pFixSide = fa
 {
     global $cfg;
 
-    $pathPrefix = PATH_MEDIA;
+    $pathPrefix = PATH_WEB;
     if(strpos($pPath, '/') === 0)
         $pathPrefix = '';
 
@@ -27,7 +27,7 @@ function resizeImageCached($pPath, $pResolution, $pThumb = false, $pFixSide = fa
 
     $mdate = filemtime($path);
 
-    $cachepath = PATH_MEDIA_CACHE . '/' . Kryn::toModRewrite($path) . Kryn::toModRewrite($pResolution) . $mdate .
+    $cachepath = PATH_WEB_CACHE . '/' . Kryn::toModRewrite($path) . Kryn::toModRewrite($pResolution) . $mdate .
                  basename($pPath);
 
     if (!file_exists($cachepath)) {
@@ -69,19 +69,26 @@ function unesc($p)
 }
 
 
-function copyr($source, $dest)
+function copyr($source, $dest, $overwrite = true)
 {
     if (is_file($source)) {
-        return copy($source, $dest);
+        if ($overwrite || !is_file($dest)) {
+            copy($source, $dest);
+        }
+
+        return;
     }
+
     if (!is_dir($dest)) {
         mkdir($dest, 0777, true);
-    }
-    if (is_link($source)) {
+    } elseif (is_link($source)) {
         $link_dest = readlink($source);
 
-        return @symlink($link_dest, $dest);
+        @symlink($link_dest, $dest);
+
+        return;
     }
+
     $dir = dir($source);
     if ($dir) {
         while (false !== $entry = $dir->read()) {
@@ -94,8 +101,6 @@ function copyr($source, $dest)
         }
         $dir->close();
     }
-
-    return true;
 }
 
 function readFolder($pPath)

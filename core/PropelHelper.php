@@ -1,6 +1,6 @@
 <?php
 
-namespace Core;
+namespace core;
 
 class PropelHelper
 {
@@ -476,10 +476,10 @@ class PropelHelper
 
         try {
             /* Setup Phing environment */
-            \Phing::startup();
-
             \Phing::setOutputStream($outStream);
             \Phing::setErrorStream($outStream);
+
+            \Phing::startup();
 
             // Set phing.home property to the value from environment
             // (this may be NULL, but that's not a big problem.)

@@ -139,7 +139,7 @@ class publicationNews
 
                 // Retrieve content of news
                 $json = json_decode($news['content'], true);
-                if ($json && $json['contents'] && file_exists(PATH_MEDIA . $json['template'])) {
+                if ($json && $json['contents'] && file_exists(PATH_WEB . $json['template'])) {
                     $oldContents = kryn::$contents;
                     kryn::$contents = $json['contents'];
                     $news['content'] = tFetch($json['template']);
@@ -148,7 +148,7 @@ class publicationNews
 
                 // Retrieve intro of news
                 $json = json_decode($news['intro'], true);
-                if ($json && $json['contents'] && file_exists(PATH_MEDIA . $json['template'])) {
+                if ($json && $json['contents'] && file_exists(PATH_WEB . $json['template'])) {
                     $oldContents = kryn::$contents;
                     kryn::$contents = $json['contents'];
                     $news['intro'] = tFetch($json['template']);
@@ -320,7 +320,7 @@ class publicationNews
         foreach ($list as &$news) {
             // Retrieve content of news
             $json = json_decode($news['content'], true);
-            if ($json && $json['contents'] && file_exists(PATH_MEDIA . $json['template'])) {
+            if ($json && $json['contents'] && file_exists(PATH_WEB . $json['template'])) {
                 $oldContents = kryn::$contents;
                 kryn::$contents = $json['contents'];
                 $news['content'] = tFetch($json['template']);
@@ -329,7 +329,7 @@ class publicationNews
 
             // Retrieve intro of news
             $json = json_decode($news['intro'], true);
-            if ($json && $json['contents'] && file_exists(PATH_MEDIA . $json['template'])) {
+            if ($json && $json['contents'] && file_exists(PATH_WEB . $json['template'])) {
                 $oldContents = kryn::$contents;
                 kryn::$contents = $json['contents'];
                 $news['intro'] = tFetch($json['template']);
@@ -406,7 +406,7 @@ class publicationNews
                 $list[$index]['title'] = strip_tags(html_entity_decode($item['title'], ENT_NOQUOTES, 'UTF-8'));
 
                 $json = json_decode($item['intro'], true);
-                if ($json && $json['contents'] && file_exists(PATH_MEDIA . $json['template'])) {
+                if ($json && $json['contents'] && file_exists(PATH_WEB . $json['template'])) {
                     $oldContents = kryn::$contents;
                     kryn::$contents = $json['contents'];
                     $item['intro'] = tFetch($json['template']);

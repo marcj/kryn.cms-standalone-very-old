@@ -180,8 +180,8 @@ class Manager
 
         //local zip
         if (($pType !== false && $pType != "0") && ($pType !== true && $pType != "1")) {
-            if (file_exists(PATH_MEDIA . $pType)) {
-                $pType = PATH_MEDIA . $pType;
+            if (file_exists(PATH_WEB . $pType)) {
+                $pType = PATH_WEB . $pType;
             }
             $zipFile = $pType;
             $bname = basename($pType);
@@ -216,8 +216,8 @@ class Manager
 
             //if locale
             if ($pType == false) {
-                if (is_dir(PATH_MEDIA."$pModuleName/_screenshots")) {
-                    $config['screenshots'] = Kryn::readFolder(PATH_MEDIA."$pModuleName/_screenshots");
+                if (is_dir(PATH_WEB."$pModuleName/_screenshots")) {
+                    $config['screenshots'] = Kryn::readFolder(PATH_WEB."$pModuleName/_screenshots");
                 }
             }
 

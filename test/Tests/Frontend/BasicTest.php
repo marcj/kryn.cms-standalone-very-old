@@ -9,9 +9,9 @@ class BasicTest extends TestCaseWithFreshInstallation
 {
     public function setUp()
     {
-        $response = Manager::get('/README.md');
+        $response = Manager::get('/core/data.test');
 
-        if (strpos($response['content'], 'Kryn.cms') === false) {
+        if (strpos($response['content'], 'OK') === false) {
             $this->markTestSkipped('Is looks like the DOMAIN or http server is not correctly configured. Skipped.');
         }
 

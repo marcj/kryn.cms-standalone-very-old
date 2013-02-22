@@ -479,7 +479,7 @@
         tAssign('content', $content);
 
         $content['template'] = str_replace('..', '', $content['template']);
-        $tpl = Kryn::fileRead(PATH_MEDIA . $content['template']);
+        $tpl = Kryn::fileRead(PATH_WEB . $content['template']);
 
         $tpl =
             str_replace('{$content.title}', '<span class="ka-layoutelement-content-title">{$content.title}</span>', $tpl);

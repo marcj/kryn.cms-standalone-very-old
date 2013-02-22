@@ -1,6 +1,6 @@
 <?php
 
-namespace Core\Client;
+namespace core\Client;
 
 use Core\Kryn;
 

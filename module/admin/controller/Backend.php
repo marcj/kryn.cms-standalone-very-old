@@ -76,9 +76,9 @@ class Backend
         $code = getArgv('code', 2);
 
         if ($module == 'admin')
-            $file = "media/admin/js/$code.js";
+            $file = "web/admin/js/$code.js";
         else
-            $file = "media/$module/admin/js/$code.js";
+            $file = "web/$module/admin/js/$code.js";
 
         header('Content-Type: text/javascript');
 

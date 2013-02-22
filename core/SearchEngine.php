@@ -6,7 +6,7 @@
  * @author Kryn.labs <info@krynlabs.com>
  */
 
-namespace Core;
+namespace core;
 
 /**
  * Search class

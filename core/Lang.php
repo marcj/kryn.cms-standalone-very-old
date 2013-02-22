@@ -10,7 +10,7 @@
  *
  */
 
-namespace Core;
+namespace core;
 
 /**
  * krynLanguage - a class that handles .po files
@@ -246,10 +246,10 @@ msgstr ""
 
             $config = 'inc/Kryn/config.json';
             self::readDirectory(PHP_CORE);
-            self::readDirectory(PATH_MEDIA.'Kryn');
+            self::readDirectory(PATH_WEB.'Kryn');
         } else {
             self::readDirectory(PATH_MODULE . $mod);
-            self::readDirectory(PATH_MEDIA . $mod);
+            self::readDirectory(PATH_WEB . $mod);
             $config = PATH_MODULE . '' . $mod . '/config.json';
         }
 

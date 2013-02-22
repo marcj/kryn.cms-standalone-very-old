@@ -10,7 +10,7 @@
  *
  */
 
-namespace Core;
+namespace core;
 
 /**
  * SystemFile
@@ -21,11 +21,11 @@ namespace Core;
  * Does not support external mount points.
  *
  */
-class SystemFile extends MediaFile
+class SystemFile extends WebFile
 {
     public static $fsObjects = array();
 
-    //not permission check, since file object is only for media/ folder, so for MediaFile:: class.
+    //not permission check, since file object is only for media/ folder, so for WebFile:: class.
     public static $checkObject = false;
 
     //we do not support mounts outside of media/.

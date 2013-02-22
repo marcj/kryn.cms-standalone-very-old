@@ -1,9 +1,6 @@
 .DS_Store
-
-.idea
-
-/media/cache
-
+/web/cache
 /config.php
-
 /vendor
+/.idea
+/composer.lock

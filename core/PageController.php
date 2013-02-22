@@ -1,6 +1,6 @@
 <?php
 
-namespace Core;
+namespace core;
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;

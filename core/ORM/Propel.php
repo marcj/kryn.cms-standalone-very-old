@@ -1,6 +1,6 @@
 <?php
 
-namespace Core\ORM;
+namespace core\ORM;
 
 use \Core\Object;
 

@@ -1113,7 +1113,7 @@ class Kryn
         }
 
         if (!TempFile::exists('core_gettext_plural_fn_' . $pLang . '.php') ||
-            !MediaFile::exists('cache/core_gettext_plural_fn_' . $pLang . '.js')) {
+            !WebFile::exists('cache/core_gettext_plural_fn_' . $pLang . '.js')) {
 
             //write gettext_plural_fn_<langKey> so that we dont need to use eval()
             $pos = strpos(Kryn::$lang['__plural'], 'plural=');
@@ -1127,7 +1127,7 @@ class Kryn
             $code = "function gettext_plural_fn_$pLang(n){\n";
             $code .= "    return " . $pluralForm . ";\n";
             $code .= "}";
-            MediaFile::setContent('cache/core_gettext_plural_fn_' . $pLang . '.js', $code);
+            WebFile::setContent('cache/core_gettext_plural_fn_' . $pLang . '.js', $code);
 
         }
 
@@ -1656,6 +1656,16 @@ class Kryn
      */
     public static function handleRequest()
     {
+
+        //Initialize the client objects for backend and frontend.
+        Kryn::initClient();
+
+        if (self::isAdmin()) {
+            Kryn::$modules['admin'] = new \Admin\AdminController();
+
+            return Kryn::$modules['admin']->run();
+        }
+
         $kernel     = self::getHttpKernel();
         $request    = self::getRequest();
         $dispatcher = self::getEventDispatcher();

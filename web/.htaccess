@@ -1,0 +1,18 @@
+DirectoryIndex index.php
+
+<IfModule mod_php5.c>
+    php_flag magic_quotes_gpc Off
+</IfModule>
+
+<IfModule !mod_php5.c>
+   <IfModule mod_env.c>
+      SetEnv MAGIC_QUOTES 0
+   </IfModule>
+</IfModule>
+
+RewriteEngine On
+#RewriteBase /
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_URI} !^/index\.php
+RewriteRule (.+) index.php [E=PORT:%{SERVER_PORT},L,QSA]
