@@ -10,7 +10,6 @@ We're in development. This means, there are still a _lot_ of issues in this prod
 [![Build Status](https://travis-ci.org/KrynLabs/Kryn.cms.png?branch=propel1.6)](https://travis-ci.org/KrynLabs/Kryn.cms)
 
 
-
 Installation
 ------------
 
@@ -74,7 +73,6 @@ web freak. :-) (marc@kryn.org)
 
 PHPUnit
 --------
-
 
  You have several environment variables to adjust the config in the test suite.
 
