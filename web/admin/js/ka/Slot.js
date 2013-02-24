@@ -1,5 +1,6 @@
 ka.Slot = new Class({
 
+    Binds: ['fireChange'],
     Implements: [Options, Events],
 
     options: {
@@ -55,6 +56,10 @@ ka.Slot = new Class({
         this.addActions();
     },
 
+    fireChange: function(){
+        this.fireEvent('change');
+    },
+
     loadContents: function(){
 
         this.lastRq = new Request.JSON({url: _path+'admin/object/Core.Content', noCache: true,
@@ -70,22 +75,28 @@ ka.Slot = new Class({
         Array.each(pResponse.data, function(content){
             this.addContent(content)
         }.bind(this));
+
+        this.oldValue = this.getValue();
     },
 
     toElement: function(){
         return this.slot;
     },
 
+    hasChanges: function(){
+        return JSON.encode(this.oldValue) != JSON.encode(this.getValue());
+    },
 
     getValue: function(){
 
         var contents = [];
         var data;
 
-        this.slot.getChildren('.ka-content').each(function(content){
+        this.slot.getChildren('.ka-content').each(function(content, idx){
             if (!content.kaContentInstance) return;
             data = content.kaContentInstance.getValue();
-            data.boxId = this.slotParams.id;
+            data.boxId  = this.slotParams.id;
+            data.sortableId = idx;
             contents.push(data);
         }.bind(this));
 
@@ -115,6 +126,7 @@ ka.Slot = new Class({
         }
 
         var content = new ka.Content(pContent, this);
+        content.addEvent('change', this.fireChange);
 
         if (pFocus)
             content.focus();
