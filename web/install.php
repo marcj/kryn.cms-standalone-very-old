@@ -511,12 +511,12 @@ function step5Done($pMsg)
 }
 
     //prepare
-    public function step5_1()
+    function step5_1()
     {
         try {
 
             \Core\TempFile::createFolder('./');
-            \Core\MediaFile::createFolder('cache/');
+            \Core\WebFile::createFolder('cache/');
 
             \Core\PropelHelper::cleanup();
 
@@ -533,7 +533,7 @@ function step5Done($pMsg)
     }
 
     //Install core modules
-    public function step5_2()
+    function step5_2()
     {
         global $modules;
 
@@ -552,7 +552,7 @@ function step5Done($pMsg)
     }
 
     //Update ORM
-    public function step5_3()
+    function step5_3()
     {
         \Core\TempFile::remove('propel');
 
@@ -571,7 +571,7 @@ function step5Done($pMsg)
     }
 
     //execute installDatabase
-    public function step5_4()
+    function step5_4()
     {
         global $modules;
 
@@ -588,7 +588,7 @@ function step5Done($pMsg)
     }
 
     //Install modules
-    public function step5_5()
+    function step5_5()
     {
         $manager = new \Admin\Module\Manager;
 
@@ -604,7 +604,7 @@ function step5Done($pMsg)
     }
 
     //Update ORM
-    public function step5_6()
+    function step5_6()
     {
         \Core\TempFile::remove('propel');
 
@@ -619,7 +619,7 @@ function step5Done($pMsg)
     }
 
     //Execute module database-scripts
-    public function step5_7()
+    function step5_7()
     {
         global $modules;
 
@@ -637,7 +637,7 @@ function step5Done($pMsg)
     }
 
     //cleanup
-    public function step5_8()
+    function step5_8()
     {
         \Core\PropelHelper::cleanup();
 
@@ -654,7 +654,7 @@ function step5Done($pMsg)
     }
 
     //debug
-    public function step5_9()
+    function step5_9()
     {
         \Core\TempFile::remove('propel');
 
@@ -677,7 +677,7 @@ function step5Done($pMsg)
         step5Done(true);
     }
 
-    public function step5Init()
+    function step5Init()
     {
         if (!file_exists('config.php')) {
             die('Config.php not found. Please open install.php without arguments again.');
