@@ -150,7 +150,6 @@ ka.ContentTypes.Text = new Class({
 
     },
 
-
     createLayout: function(){
 
         this.outer = new Element('div', {
@@ -164,9 +163,28 @@ ka.ContentTypes.Text = new Class({
 
 
         var config = this.getEditorConfig();
+        this.checkChange = this.checkChange.bind(this);
+        this.editorReady = this.editorReady.bind(this);
 
         this.editor = CKEDITOR.inline(this.main, config);
-        this.editor.on('instanceReady', this.editorReady.bind(this));
+
+        this.editor.on('instanceReady', this.editorReady);
+        this.editor.on('change', this.checkChange);
+        this.editor.on('blur', this.checkChange);
+        this.editor.on('focus', this.checkChange);
+        this.editor.on('key', this.checkChange);
+        this.editor.on('paste', this.checkChange);
+        this.editor.on('execCommand', this.checkChange);
+        this.main.addEvent('keyup', this.checkChange);
+
+    },
+
+    checkChange: function(){
+
+        if (this.ready){
+            if (this.oldData != this.editor.getData())
+                this.contentInstance.fireChange();
+        }
 
     },
 
@@ -232,8 +250,8 @@ ka.ContentTypes.Text = new Class({
         this.ready = true;
         if (this.value){
             this.editor.setData(this.value);
+            this.oldData = this.editor.getData();
         }
-        //this.main.inject(this.fieldInstance.fieldPanel);
     }
 
 });

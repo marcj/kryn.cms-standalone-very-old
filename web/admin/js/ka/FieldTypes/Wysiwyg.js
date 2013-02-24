@@ -164,8 +164,26 @@ ka.FieldTypes.Wysiwyg = new Class({
         var config = this.getEditorConfig();
 
         this.editor = CKEDITOR.replace(this.main, config);
+        this.checkChange = this.checkChange.bind(this);
+        this.editorReady = this.editorReady.bind(this);
 
-        this.editor.on('instanceReady', this.editorReady.bind(this));
+        this.editor.on('instanceReady', this.editorReady);
+        this.editor.on('change', this.checkChange);
+        this.editor.on('blur', this.checkChange);
+        this.editor.on('focus', this.checkChange);
+        this.editor.on('key', this.checkChange);
+        this.editor.on('paste', this.checkChange);
+        this.editor.on('execCommand', this.checkChange);
+        this.main.addEvent('keyup', this.checkChange);
+
+    },
+
+    checkChange: function(){
+
+        if (this.ready){
+            if (this.oldData != this.editor.getData())
+                this.fieldInstance.fireChange();
+        }
 
     },
 
@@ -222,8 +240,10 @@ ka.FieldTypes.Wysiwyg = new Class({
 
     setValue: function(pValue){
         this.value = pValue;
-        if (this.ready)
+        if (this.ready){
             this.editor.setData(this.value);
+            this.oldValue = this.editor.getData();
+        }
     },
 
     getValue: function(){
