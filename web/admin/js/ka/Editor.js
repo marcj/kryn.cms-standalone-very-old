@@ -1,6 +1,6 @@
 ka.Editor = new Class({
 
-    Binds: ['onOver', 'onOut', 'contentMouseDown', 'contentSidebarMouseDown'],
+    Binds: ['onOver', 'onOut', 'contentMouseDown', 'contentSidebarMouseDown', 'checkChange'],
     Implements: [Options, Events],
 
     options: {
@@ -65,7 +65,8 @@ ka.Editor = new Class({
 
         this.startDragNDrop(pEvent, content, clone, function(pTarget){
             content.inject(pTarget, 'after');
-        }
+            this.checkChange();
+        }.bind(this)
         );
     },
 
@@ -95,6 +96,7 @@ ka.Editor = new Class({
             var newContent = slot.addContent({type: pElement.kaContentType}, true);
             document.id(newContent).inject(pTarget, 'after');
             removeBg(pTarget);
+            this.checkChange();
         }.bind(this));
 
         this.lastDrag.addEvent('enter', function(element, droppable){
@@ -273,8 +275,6 @@ ka.Editor = new Class({
         .addEvent('click', function(){ this.togglePreview(); }.bind(this))
         .inject(this.sidebar);
 
-        this.highlightSave();
-
         Object.each(ka.ContentTypes, function(content, type){
             this.addContentTypeIcon(type, content);
         }.bind(this));
@@ -375,13 +375,20 @@ ka.Editor = new Class({
 
     highlightSave: function(pHighlight){
 
-        if (!pHighlight && this.lastTimer) return clearInterval(this.lastTimer);
+        if (!pHighlight && this.lastTimer){
+            clearInterval(this.lastTimer);
+            delete this.lastTimer;
+            this.saveBtn.tween('color', '#ffffff');
+            return;
+        } else if (this.lastTimer){
+            return;
+        }
 
         this.timerIdx = 0;
 
         this.lastTimer = (function(){
             if (++this.timerIdx%2){
-                this.saveBtn.tween('color', '#66ACF3');
+                this.saveBtn.tween('color', '#2A8AEC');
             } else {
                 this.saveBtn.tween('color', '#ffffff');
             }
@@ -432,9 +439,31 @@ ka.Editor = new Class({
 
     },
 
+    hasChanges: function(){
+
+        this.slots = this.container.getElements('.ka-slot');
+
+        var hasChanges = false;
+
+        Array.each(this.slots, function(slot){
+            if (slot.kaSlotInstance){
+                hasChanges |= slot.kaSlotInstance.hasChanges();
+            }
+        });
+
+        return hasChanges;
+    },
+
+    checkChange: function(){
+
+        this.highlightSave(this.hasChanges());
+
+    },
+
     initSlot: function(pDomSlot){
 
         pDomSlot.slotInstance = new ka.Slot(pDomSlot, this.options, this);
+        pDomSlot.slotInstance.addEvent('change', this.checkChange);
 
     }
 

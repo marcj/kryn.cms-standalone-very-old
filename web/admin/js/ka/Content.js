@@ -41,9 +41,7 @@ ka.Content = new Class({
     },
 
     fireChange: function(){
-
-
-
+        this.fireEvent('change');
     },
 
     addActionBarItems: function(){
@@ -112,6 +110,7 @@ ka.Content = new Class({
     },
 
     getValue: function(){
+
         if (this.contentObject){
             this.value.content = this.contentObject.getValue();
         }
@@ -120,6 +119,8 @@ ka.Content = new Class({
     },
 
     setValue: function(pValue){
+
+        this.value = pValue;
 
         if (!this.currentType || pValue.type != this.currentType || !this.currentTemplate ||
             this.currentTemplate != pValue.template){
@@ -144,8 +145,8 @@ ka.Content = new Class({
             this.currentType = pValue.type;
         }
 
-        this.value = pValue;
         this.contentObject.setValue(pValue.content);
+        this.contentObject.addEvent('change', this.fireChange);
 
     }
 
