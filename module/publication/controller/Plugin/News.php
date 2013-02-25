@@ -23,7 +23,7 @@ class News extends Controller
 
         return $this->renderFullCached($cacheKey, $view, function() use ($page, $options) {
 
-            $paginate = NewsQuery::create()->paginate($page, $options['itemsPerPage'] ?: 10);
+            $paginate = NewsQuery::create()->orderByReleaseDate()->paginate($page, $options['itemsPerPage'] ?: 10);
 
             if ($page > $paginate->getLastPage()) {
                 return null;
@@ -33,7 +33,7 @@ class News extends Controller
                 //and starts a new SUB_REQUEST. Maybe another route is here that handles this request.
             }
 
-            $items    = $paginate
+            $items = $paginate
                 ->getResults()
                 ->toArray(null, null, \BasePeer::TYPE_STUDLYPHPNAME);
 

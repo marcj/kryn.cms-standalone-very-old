@@ -30,7 +30,7 @@
 
         <h2><a class="publicationNewsListDefaultItemLink" href="{$item.url}" >{$item.title}</a></h2>
         <div class="publicationNewsListDefaultItemDate">at
-        <a>{$item.releasedate|date_format:"%B %d, %Y"}</a></div>
+        <a>{$item.releaseDate|date_format:"%B %d, %Y"}</a></div>
         {* %H:%M *}
 
         <div class="publicationNewsListDefaultItemIntro">

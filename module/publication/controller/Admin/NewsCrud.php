@@ -25,13 +25,14 @@ class NewsCrud extends \Admin\ObjectCrud
         'type' => 'text',
         'label' => 'Tags',
       ),
-      'releasedate' => array (
+      'releaseDate' => array (
         'type' => 'datetime',
-        'label' => 'News date',
+        'label' => 'Actual news date',
       ),
-      'releaseat' => array (
+      'releaseAt' => array (
         'type' => 'datetime',
         'label' => 'Release at',
+        'desc' => '[[Let it empty to release it immediately.]]'
       ),
       'deactivate' => array (
         'type' => 'checkbox',
@@ -73,14 +74,14 @@ class NewsCrud extends \Admin\ObjectCrud
     'type' => 'text',
     'label' => 'Title',
   ),
-  'releasedate' => array (
+  'releaseDate' => array (
     'type' => 'datetime',
     'label' => 'Date',
   ),
 );
 
     public $itemLayout = '<h2>{title}</h2>
-{if releasedate}<div class="sub">{releasedate}</div>{/if}';
+{if releaseDate}<div class="sub">{releaseDate}</div>{/if}';
 
     public $defaultLimit = 15;
 

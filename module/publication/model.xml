@@ -8,8 +8,8 @@
     <column name="lang" type="VARCHAR" size="3"/>
     <column name="intro" type="LONGVARCHAR"/>
     <column name="content" type="LONGVARCHAR"/>
-    <column name="releaseat" type="BIGINT"/>
-    <column name="releasedate" type="BIGINT"/>
+    <column name="release_at" type="BIGINT"/>
+    <column name="release_date" type="BIGINT"/>
     <column name="deactivate" type="BOOLEAN"/>
     <column name="deactivatecomments" type="BOOLEAN"/>
     <column name="commentscount" type="INTEGER"/>

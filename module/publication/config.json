@@ -354,13 +354,13 @@
                     "primaryKey": 0,
                     "empty": 1
                 },
-                "releaseat": {
+                "releaseAt": {
                     "label": "[[Release at]]",
                     "type": "datetime",
                     "desc": "[[Let it empty to release it now]]"
                 },
-                "releasedate": {
-                    "label": "[[News date]]",
+                "releaseDate": {
+                    "label": "[[Actual news date]]",
                     "type": "datetime",
                     "required": true
                 },
