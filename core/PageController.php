@@ -59,7 +59,7 @@ class PageController extends Controller
             $contents = ContentQuery::create()
                 ->filterByNodeId($pPageId)
                 ->filterByBoxId($pSlotId)
-                ->orderBySortableId()
+                ->orderByRank()
                 ->find();
 
             $cache['data']    = serialize($contents);
