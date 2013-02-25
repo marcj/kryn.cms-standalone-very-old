@@ -2168,13 +2168,14 @@ class Kryn
     }
 
     /**
-     * Sets a cache on a (perhaps) distributed cache or local cache.
-     * Depends on the system settings.
+     * Sets a distributed cache.
      *
      * This may be a distributed cache controller. If you want to make
      * sure, that your cache is known distributed over several Kryn.cms
      * installations and is at the same time very fast, then you should use
-     * `setDistributedCache`.
+     * `setDistributedCache`. But if you have a huge amount of data to cache
+     * you're probably better with this method, since the `setDistributedCache`
+     * uses `APC` or another high-performance local caching and its very limited in RAM.
      *
      * @param  string  $pKey
      * @param  string  $pValue    Only simple data types. Serialize your value if you have objects/arrays.
@@ -2193,7 +2194,8 @@ class Kryn
     /**
      * Marks a code as invalidate beginning at $pTime.
      * This is the distributed cache controller. Use it if you want
-     * to invalidate caches on a distributed backend.
+     * to invalidate caches on a distributed backend (use by `setCache()`
+     * and `setDistributedCache()`.
      *
      * You don't have to define the full key, instead you can pass only a part of the key.
      * This means, if you have following caches defined:
@@ -2206,12 +2208,13 @@ class Kryn
      *
      * you can mark all listing caches as invalid by calling
      *   - invalidateCache('news/list');
-     * or to mark all caches as invalid which starts with `news/` you can call:
+     *
+     * or mark all caches as invalid which starts with `news/` you can call:
      *   - invalidateCache('news');
      *
      *
      * The invalidation mechanism explodes the key by / and checks all levels whether they're marked
-     * as invalid or not.
+     * as invalid (through a microsecond timestamp) or not.
      *
      * Default is $pTime is `mark all caches as invalid which are older than CURRENT`.
      *
