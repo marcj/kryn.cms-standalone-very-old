@@ -202,21 +202,21 @@ class Controller
      *
      * @param string $pKey
      * @param mixed  $pValue
-     * @param int    $pTimeout               In seconds. Default is one hour
+     * @param int    $pLifeTime               In seconds. Default is one hour
      * @param bool   $pWithoutValidationData
      *
      * @return boolean
      */
-    public function set($pKey, $pValue, $pTimeout = 3600, $pWithoutValidationData = false)
+    public function set($pKey, $pValue, $pLifeTime = 3600, $pWithoutValidationData = false)
     {
         if (!$pKey) return false;
 
-        if (!$pTimeout)
-            $pTimeout = 3600;
+        if (!$pLifeTime)
+            $pLifeTime = 3600;
 
         if ($this->withInvalidationChecks && !$pWithoutValidationData) {
             $pValue = array(
-                'timeout' => microtime(true)+$pTimeout,
+                'timeout' => microtime(true)+$pLifeTime,
                 'time' => microtime(true),
                 'value' => $pValue
             );
@@ -224,7 +224,7 @@ class Controller
 
         $this->cache[$pKey] = $pValue;
 
-        return $this->instance->set($pKey, $pValue, $pTimeout);
+        return $this->instance->set($pKey, $pValue, $pLifeTime);
     }
 
     /**
