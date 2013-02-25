@@ -86,9 +86,9 @@ PHPUnit
 
 Examples:
 
-    DOMAIN=ilee PORT=80 ./phpunit.phar test/Tests/REST/BasicTest.php
-    DOMAIN=localhost PORT=80 ./phpunit.phar test/
-    DOMAIN=localhost PORT=80 DB_PW='@#$TKKAFS' ./phpunit.phar test/
+    ./phpunit.phar
+    DOMAIN=localhost PORT=80 ./phpunit.phar
+    DOMAIN=localhost PORT=80 DB_PW='@#$TKKAFS' ./phpunit.phar test/Tests/Object/ApiTest.php
 
 The test suite installs automatically Kryn.cms with the credentials above if `./config.php` does not exist.
 Don't forget to run `composer install` first.
