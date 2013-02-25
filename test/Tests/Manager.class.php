@@ -50,7 +50,6 @@ class Manager
     {
         self::setupConfig($pConfigFile);
         $cfg = self::$config['config'];
-        $cfg['displayErrors'] = true;
 
         if (file_exists('config.php'))
             self::uninstall();
@@ -154,12 +153,7 @@ class Manager
         \Core\PropelHelper::updateSchema();
 
         \Core\SystemFile::remove('config.php');
-
         self::cleanup();
-
-        \Core\PropelHelper::cleanup();
-
-        \Admin\Utils::clearCache();
 
     }
 
@@ -222,9 +216,9 @@ class Manager
 
     public static function bootupCore()
     {
-        if (file_exists('config.php')) {
-            $cfg = include 'config.php';
-        } else throw new \Exception('Kryn.cms not installed. (config.php not found)');
+        if (!file_exists('config.php')) {
+            throw new \Exception('Kryn.cms not installed. (config.php not found)');
+        }
 
         $cfg = include 'config.php';
         $cfg['displayErrors'] = false;
@@ -243,11 +237,9 @@ class Manager
     {
         //load all configs
         \Core\Kryn::loadModuleConfigs();
-
         \Core\Object::cleanup();
-
         \Admin\Utils::clearCache();
-
+        \Core\PropelHelper::cleanup();
         \Core\Kryn::cleanup();
 
     }

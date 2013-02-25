@@ -36,6 +36,8 @@ class TestCaseWithCore extends \PHPUnit_Framework_TestCase
 
         $result = parent::run($result);
 
+        \Admin\Utils::clearCache();
+
         return $result;
 
     }
