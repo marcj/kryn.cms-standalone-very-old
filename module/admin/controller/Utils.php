@@ -14,7 +14,7 @@ class Utils
         \Core\WebFile::remove('cache');
         \Core\WebFile::createFolder('cache');
 
-        foreach (Kryn::$configs as $extKey => $config) {
+        foreach (Kryn::$extensions as $extKey) {
             self::clearModuleCache($extKey);
         }
 
