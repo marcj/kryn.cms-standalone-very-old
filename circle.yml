@@ -1,6 +1,8 @@
-
-#checkout:
-#  post:
+checkout:
+  post:
+    # Composer
+    - wget http://getcomposer.org/composer.phar
+    - php composer.phar install
 #    - ./test/script/setup-apache-2-4.sh
 #    - ./test/build/apache2/bin/apachectl -k start
 
