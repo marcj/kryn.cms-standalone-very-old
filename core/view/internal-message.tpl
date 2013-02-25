@@ -35,11 +35,11 @@
 </head>
 <body>
 <div id="error">
-    <img src="media/core/images/logo_white.png" />
+    <img src="core/images/logo_white.png" />
     <h2>{$title}</h2>
     <div class="msg">{$msg}
     </div>
 </div>
-<script type="text/javascript" src="media/core/js/bgNoise.js"></script>
+<script type="text/javascript" src="core/js/bgNoise.js"></script>
 </body>
 </html>
