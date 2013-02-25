@@ -53,7 +53,7 @@ Screenshot
 
 [More Screenshots](https://github.com/KrynLabs/Kryn.cms/blob/propel1.6/docu/screenshots.markdown)
 
-More information and screenshots:
+More information:
 https://www.facebook.com/kryncms
 
 
