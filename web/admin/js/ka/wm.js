@@ -177,7 +177,8 @@ ka.wm = {
                 if (menuItem) {
                     menuItem.object.addClass('ka-main-menu-active');
                 } else {
-                    ka.adminInterface.addTempLink(win);
+                    var item = ka.adminInterface.addTempLink(win);
+                    item.addClass('ka-main-menu-active');
                 }
             }
 

@@ -1165,8 +1165,11 @@ ka.AdminInterface = new Class({
             text: pWin.getTitle()
         }).inject(this.mainLinks, 'top');
 
+        mlink.activeWindowInformationContainer = new Element('div', {
+            'class': 'ka-main-menu-item-active-window-information-container'
+        }).inject(mlink);
 
-
+        return mlink;
     },
 
     addAdminLink: function (pLink, pCode, pExtCode) {
@@ -1217,22 +1220,19 @@ ka.AdminInterface = new Class({
                 }.bind(this))
             }
 
-            Object.each(item.children, function (subitem, subcode) {
+            sublink.activeWindowInformationContainer = new Element('div', {
+                'class': 'ka-main-menu-item-active-window-information-container'
+            }).inject(sublink);
 
-                if (!subitem.isLink) return;
-
-                var subsublink = new Element('a', {
-                    html: subitem.title,
-                    'class': 'ka-module-item-sub'
-                }).inject(menu);
-
-                if (subitem.type) {
-                    subsublink.addClass('ka-module-items-activated');
-                    subsublink.addEvent('click', function () {
-                        ka.wm.openWindow(pExtCode + '/' + pCode + '/' + code + '/' + subcode, pLink);
-                    }.bind(this))
-                }
-            }.bind(this));
+            this._links[ pExtCode + '/' + pCode+'/'+code ] = {
+                level: 'sub',
+                object: sublink,
+                link: item,
+                module: pExtCode,
+                code: pCode+'/'+code,
+                path: pExtCode + '/' + pCode+'/'+code,
+                title: item.title
+            };
 
         }.bind(this));
 
@@ -1251,8 +1251,8 @@ ka.AdminInterface = new Class({
                 src: _path+ 'admin/images/ka-mainmenu-item-tree_minus.png'
             }).inject(childOpener);
 
-            childOpener.addEvent('click', function(){
-
+            childOpener.addEvent('click', function(e){
+                e.stopPropagation();
                 if (menu.getStyle('display') != 'block'){
                     menu.setStyle('display', 'block');
                 } else {
