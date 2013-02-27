@@ -56,7 +56,6 @@ Screenshot
 More information:
 https://www.facebook.com/kryncms
 
-
 Contribution
 ------------
 
@@ -90,5 +89,5 @@ Examples:
     DOMAIN=localhost PORT=80 ./phpunit.phar
     DOMAIN=localhost PORT=80 DB_PW='@#$TKKAFS' ./phpunit.phar test/Tests/Object/ApiTest.php
 
-The test suite installs automatically Kryn.cms with the credentials above if `./config.php` does not exist.
+The test suite installs automatically Kryn.cms with the configuration above if `./config.php` does not exist.
 Don't forget to run `composer install` first.
