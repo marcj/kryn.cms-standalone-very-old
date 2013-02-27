@@ -77,6 +77,7 @@ class AdminController
                 if (in_array($entryPoint['type'], $objectWindowTypes)) {
                     $epc = new ObjectCrudController(($entryPoint['_module'] == 'admin' && getArgv(2) != 'admin' ? '': 'admin/') . $entryPoint['_url']);
                     $epc->setExceptionHandler($exceptionHandler);
+                    $epc->getClient()->setUrl(substr(Kryn::getRequest()->getPathInfo(), 1));
                     $epc->setDebugMode($debugMode);
                     $epc->setEntryPoint($entryPoint);
                     die($epc->run());
@@ -101,6 +102,7 @@ class AdminController
 
             if (get_parent_class($clazz) == 'RestService\Server') {
                 $obj = new $clazz('admin/'.getArgv(2));
+                $obj->getClient()->setUrl(substr(Kryn::getRequest()->getPathInfo(), 1));
                 $obj->setExceptionHandler($exceptionHandler);
                 $obj->setDebugMode($debugMode);
             } else {
@@ -351,6 +353,8 @@ class AdminController
 
         $response->addJsFile('admin/js/ka.js');
         $response->addJsFile('admin/js/ka/AdminInterface.js');
+        $response->addJsFile('admin/js/ka/Button.js');
+        $response->addJsFile('admin/js/mootools-extras/String.sprintf.js');
 
         $response->addJsFile('core/codemirror/lib/codemirror.js');
         $response->addJsFile('core/codemirror/addon/mode/loadmode.js');
@@ -414,7 +418,7 @@ class AdminController
             if (!file_exists($helpFile)) continue;
             if (count($helps) > 10) continue;
 
-            $json = json_decode(Kryn::fileRead($helpFile), 1);
+            $json = json_decode(file_get_contents($helpFile), 1);
             if (is_array($json) && count($json) > 0) {
                 foreach ($json as $help) {
 

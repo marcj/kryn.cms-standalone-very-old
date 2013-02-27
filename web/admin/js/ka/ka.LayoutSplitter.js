@@ -83,7 +83,7 @@ ka.LayoutSplitter = new Class({
 
                 newWidth = newHeight = newY = newX = null;
 
-                max = $('desktop').getSize();
+                max = ka.adminInterface.getDesktop().getSize();
             },
             onDrag: function(pElement){
 

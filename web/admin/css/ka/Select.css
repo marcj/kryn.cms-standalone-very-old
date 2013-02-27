@@ -55,11 +55,6 @@
 }
 
 
-.kwindow-win-titleGroups .ka-Select-box {
-    border: 1px solid #999;
-    box-shadow: 0px 1px 0px #bbb;
-}
-
 .ka-Select-box:active,
 .ka-Select-box-focus,
 .ka-Select-box:active > .ka-Select-arrow,
@@ -83,11 +78,6 @@
 
 .ka-Select-box-focus {
     border: 1px solid #3E9BCB;
-}
-
-.kwindow-win-titleGroups .ka-Select-box,
-.kwindow-win-titleGroups .ka-Select-box-active {
-    border: 1px solid #888;
 }
 
 .ka-Select-box-title {

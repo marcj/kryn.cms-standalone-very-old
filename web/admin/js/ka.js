@@ -87,6 +87,9 @@ ka.translate = function(pMsg, pPlural, pCount, pContext) {
 window.tf = function(){
     var args = Array.from(arguments);
     var text = args.shift();
+    if (typeOf(text) != 'string')
+        throw 'First argument has to be a string.';
+
     return text.sprintf.apply(text, args);
 }
 
@@ -787,10 +790,6 @@ ka.getExtensionTitle = function(pKey){
 
     var config = ka.settings.configs[pKey];
     if (!config) return false;
-
-    if (typeOf(config.title) != 'string'){
-        return config.title[window._session.lang] || config.title['en'];
-    }
 
     return config.title;
 }

@@ -204,7 +204,7 @@ class ObjectCrud
     public $nestedRootAdd = false;
     public $nestedAddWithPositionSelection = true;
     public $nestedRootAddIcon = '#icon-plus-2';
-    public $nestedRootAddLabel = '[[Add root]]';
+    public $nestedRootAddLabel = '[[Root]]';
     public $nestedRootRemove = false;
 
     public $nestedRootEditEntrypoint = 'root/';

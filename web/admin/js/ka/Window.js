@@ -34,14 +34,14 @@ ka.Window = new Class({
         this.active = true;
         this.isOpen = true;
 
-        this.createWin();
-
         if (pEntryPoint) {
 
             this.loadContent();
 
             this.closeBind = this.close.bind(this, true);
             this.addHotkey('esc', false, false, this.closeBind);
+        } else {
+            this.createWin();
         }
     },
 
@@ -79,24 +79,6 @@ ka.Window = new Class({
             this.removeInlineContainer();
         }
         this.children = null;
-    },
-
-    //drops a icon-link to desktop which links to this window
-    dropLink: function () {
-
-        var title = this.getFullTitle();
-
-        if (title.length > 25) {
-            title = title.substr();
-        }
-
-        var icon = {
-            title: title,
-            params: this.params,
-            entryPoint: this.getEntryPoint()
-        };
-        ka.adminInterface.getDesktop().addIcon(icon);
-        ka.adminInterface.getDesktop().save();
     },
 
     onResizeComplete: function () {
@@ -635,7 +617,7 @@ ka.Window = new Class({
 
     maximize: function (pDontRenew) {
 
-        if (document.body.hasClass('ka-no-desktop')) return;
+        if (this.inline || this.isPage()) return;
 
         if (this.maximized) {
             this.borderDragger.attach();
@@ -678,6 +660,9 @@ ka.Window = new Class({
     },
 
     saveDimension: function () {
+
+        if (this.inline || this.isPage()) return;
+
         var pos = this.border.getCoordinates(this.border.getParent());
 
         if (!ka.settings['user']['windows']) ka.settings['user']['windows'] = {};
@@ -696,15 +681,7 @@ ka.Window = new Class({
 
     loadDimensions: function () {
 
-        if (document.body.hasClass('ka-no-desktop')){
-            this.border.setStyle('top', 0);
-            this.border.setStyle('left', 0);
-            this.border.setStyle('width', '100%');
-            this.border.setStyle('height', '100%');
-            return;
-        }
-
-        if (this.inline) return;
+        if (this.inline || this.isPage()) return;
 
         this.border.setStyle('top', 20);
         this.border.setStyle('left', 40);
@@ -759,9 +736,7 @@ ka.Window = new Class({
 
     checkDimensions: function () {
 
-        if (document.body.hasClass('ka-no-desktop')) return;
-
-        if (this.inline) return;
+        if (this.inline || this.isPage()) return;
         if (this.maximized) return;
 
         var desktopSize = ka.adminInterface.desktopContainer.getSize();
@@ -923,6 +898,10 @@ ka.Window = new Class({
         return this.entryPoint;
     },
 
+    getEntryPointDefinition: function(){
+        return this.entryPointDefinition;
+    },
+
     getModule: function(){
         if (!this.module){
             if (this.getEntryPoint().indexOf('/') > 0){
@@ -934,11 +913,26 @@ ka.Window = new Class({
         return this.module;
     },
 
+    isPage: function(){
+        return this.isPageStyle;
+    },
+
     loadContent: function () {
 
-        this.getContentContainer().empty();
+        if (this.getContentContainer())
+            this.getContentContainer().empty();
 
         this.entryPointDefinition = ka.entrypoint.get(this.getEntryPoint());
+
+        if (true || this.entryPointDefinition.page){
+            this.isPageStyle = true;
+        }
+
+        this.createWin();
+
+        if (this.isPage()){
+            this.border.addClass('ka-window-page-style');
+        }
 
         if (this.entryPointDefinition.multi === false || this.entryPointDefinition.multi === 0) {
             var win = ka.wm.checkOpen(this.getEntryPoint(), this.id);
@@ -977,7 +971,7 @@ ka.Window = new Class({
 
         }.bind(this));
 
-        if (!this.inline) {
+        if (!this.inline && !this.isPage()) {
             this.createResizer();
         }
 
@@ -988,7 +982,6 @@ ka.Window = new Class({
             style: 'text-align: center; padding: 15px; color: gray',
             text: t('Loading content ...')
         }).inject(this.content);
-
 
         if (this.entryPointDefinition.type == 'iframe') {
             this.content.empty();
@@ -1121,12 +1114,12 @@ ka.Window = new Class({
             }
         }.bind(this)).inject(document.hiddenElement).store('win', this);
 
-
         if (ka.settings.user.css3Shadow && ka.settings.user.css3Shadow == 1) {
 
             this.border.addClass('kwindow-border-shadow');
 
-        } else if (!this.inline) {
+        } else if (!this.inline && !this.isPage()) {
+
             new Element('div', {
                 'class': 'kwindow-shadow-bottom'
             }).inject(this.border);
@@ -1148,25 +1141,24 @@ ka.Window = new Class({
             new Element('div', {
                 'class': 'kwindow-shadow-top-left'
             }).inject(this.border);
-        }
 
-        this.border.getElements('div').each(function (mydiv) {
-            if (mydiv.get('class').search('-shadow-') > 0) {
-                mydiv.addEvent('mouseover', function () {
-                    this.mouseOnShadow = true;
-                }.bind(this));
-                mydiv.addEvent('mouseout', function () {
-                    this.mouseOnShadow = false;
-                }.bind(this));
-            }
-        }.bind(this));
+            this.border.getElements('div').each(function (mydiv) {
+                if (mydiv.get('class').search('-shadow-') > 0) {
+                    mydiv.addEvent('mouseover', function () {
+                        this.mouseOnShadow = true;
+                    }.bind(this));
+                    mydiv.addEvent('mouseout', function () {
+                        this.mouseOnShadow = false;
+                    }.bind(this));
+                }
+            }.bind(this));
+        }
 
         this.win = this.border;
 
         this.title = new Element('div', {
             'class': 'kwindow-win-title'
         }).addEvent('dblclick', function () {
-            if (document.body.hasClass('ka-no-desktop')) return;
 
             if (this.entryPointDefinition && this.entryPointDefinition.noMaximize !== true) {
                 this.maximize();
@@ -1278,9 +1270,8 @@ ka.Window = new Class({
     },
 
     extendHead: function () {
-        this.getTitleContaner().setStyle('height', 51);
+        this.border.addClass('ka-window-extend-head');
         this.getTitleContaner().addClass('kwindow-win-title-extended');
-        this.getContentContainer().setStyle('top', 53);
     },
 
     addTabGroup: function () {
@@ -1328,22 +1319,11 @@ ka.Window = new Class({
             'class': 'kwindow-win-titleBar'
         }).inject(this.win);
 
-        this.linker = new Element('a', {
-            'class': 'ka-kwindow-titleactions icon-link-5',
-            style: 'position: absolute; left: 2px; top: 6px; text-decoration: none;',
-            href: 'javascript:;',
-            title: t('Create a shortcut to the desktop')
-        }).addEvent('click', this.dropLink.bind(this)).inject(this.win);
-
-//        this.minimizer = new Element('img', {
-//            'class': 'kwindow-win-titleBarIcon ka-kwindow-titleactions',
-//        }).addEvent('click', this.minimize.bind(this)).inject(this.titleBar)
-
-        this.maximizer = new Element('div', {
-            'class': 'kwindow-win-titleBarIcon icon-expand-4'
-        }).addEvent('click', this.maximize.bind(this)).inject(this.titleBar);
-        //icon-views
-        //icon-shrink
+        if (!this.isPage()){
+            this.maximizer = new Element('div', {
+                'class': 'kwindow-win-titleBarIcon icon-expand-4'
+            }).addEvent('click', this.maximize.bind(this)).inject(this.titleBar);
+        }
 
         this.closer = new Element('div', {
             'class': 'kwindow-win-titleBarIcon icon-cancel-4'

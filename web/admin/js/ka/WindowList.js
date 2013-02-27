@@ -565,6 +565,7 @@ ka.WindowList = new Class({
         if (this.classProperties.add || this.classProperties.remove || this.classProperties.custom ||
             (this.classProperties.asNested && (this.classProperties.nestedRootAdd))) {
             this.actionsNavi = new ka.ButtonGroup(pGroupContainer);
+            document.id(this.actionsNavi).addClass('ka-window-list-buttonGroup');
         }
 
         if (this.actionsNavi) {

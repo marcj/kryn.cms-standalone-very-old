@@ -17,14 +17,41 @@
     background-color: #aaa;
 }
 
-.ka-with-desktop .kwindow-border {
+.ka-window-extend-head .kwindow-win-title {
+    height: 60px;
+}
+
+.ka-window-extend-head .kwindow-win-content {
+    top: 62px;
+}
+
+.ka-window-page-style {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: auto;
+    height: auto;
+    border: 0px;
+    background-color: transparent;
+    -moz-border-radius: 0;
+}
+
+.ka-window-page-style .kwindow-win-title {
+    background: none;
+    background-color: #e2e7eb;
+    -moz-border-radius: 0;
+}
+
+.kwindow-border {
     -moz-border-radius: 4px;
     -moz-border-radius-bottomleft: 0px;
     -moz-border-radius-bottomright: 0px;
 }
 
 
-.ka-with-desktop .kwindow-border-maximized {
+.kwindow-border-maximized {
     -moz-border-radius: 0px;
 }
 
@@ -42,7 +69,7 @@
 }
 
 
-.ka-with-desktop .kwindow-border-shadow {
+.kwindow-border-shadow {
     -moz-box-shadow: 0 8px 3em #888;
     -webkit-box-shadow: 0 8px 3em #888;
     box-shadow: 0 8px 3em #888;
@@ -53,7 +80,7 @@
     -moz-border-radius-bottomright: 4px;
 }
 
-.ka-with-desktop .kwindow-shadow-bottom {
+.kwindow-shadow-bottom {
     position: absolute;
     bottom: -41px;
     background-image: url(../../images/kwindow-shadow-bottom.png);
@@ -63,7 +90,7 @@
     right: 30px;
 }
 
-.ka-with-desktop .kwindow-shadow-left {
+.kwindow-shadow-left {
     position: absolute;
     bottom: 25px;
     left: -31px;
@@ -73,7 +100,7 @@
     top: 70px;
 }
 
-.ka-with-desktop .kwindow-shadow-right {
+.kwindow-shadow-right {
     position: absolute;
     bottom: 25px;
     right: -31px;
@@ -83,8 +110,8 @@
     top: 70px;
 }
 
-.ka-with-desktop .kwindow-shadow-top-right,
-.ka-with-desktop .kwindow-shadow-top-left {
+.kwindow-shadow-top-right,
+.kwindow-shadow-top-left {
     position: absolute;
     background-image: url(../../images/kwindow-shadow-top-lr.png);
     background-repeat: no-repeat;
@@ -93,17 +120,17 @@
     height: 70px;
 }
 
-.ka-with-desktop .kwindow-shadow-top-left {
+.kwindow-shadow-top-left {
     left: -31px;
 }
 
-.ka-with-desktop .kwindow-shadow-top-right {
+.kwindow-shadow-top-right {
     right: -31px;
     background-position: -35px 0px;
 }
 
-.ka-with-desktop .kwindow-shadow-bottom-left,
-.ka-with-desktop .kwindow-shadow-bottom-right {
+.kwindow-shadow-bottom-left,
+.kwindow-shadow-bottom-right {
     position: absolute;
     bottom: -41px;
     background-image: url(../../images/kwindow-shadow-bottom-lr.png);
@@ -112,16 +139,16 @@
     height: 66px;
 }
 
-.ka-with-desktop .kwindow-shadow-bottom-left {
+.kwindow-shadow-bottom-left {
     left: -39px;
 }
 
-.ka-with-desktop .kwindow-shadow-bottom-right {
+.kwindow-shadow-bottom-right {
     right: -40px;
     background-position: -119px 0px;
 }
 
-.ka-with-desktop .kwindow-win-trans {
+.kwindow-win-trans {
     left: 0px;
     right: 0px;
     top: 0px;
@@ -149,7 +176,7 @@
     border-top: 1px solid #EBEBEB;
 
     /*border-top: 1px solid #DDD; produces a strange rendering bug in chrome. wait for the new interface design*/
-    border-bottom: 1px solid #585858;
+    border-bottom: 1px solid #A3A3A3;
 
     background: #cfcfcf; /* Old browsers */
     /* IE9 SVG, needs conditional override of 'filter' to 'none' */
@@ -168,25 +195,16 @@
     text-shadow: 0 1px 0 #CECECE;
 }
 
-.ka-with-desktop .kwindow-win-title,
-.ka-with-desktop .kwindow-win-title-inaktive {
+.kwindow-win-title,
+.kwindow-win-title-inaktive {
     -moz-border-radius-topleft: 4px;
     -moz-border-radius-topright: 4px;
 }
 
-.ka-with-desktop .kwindow-border-maximized .kwindow-win-title,
-.ka-with-desktop .kwindow-border-maximized .kwindow-win-title-inaktive {
+.kwindow-border-maximized .kwindow-win-title,
+.kwindow-border-maximized .kwindow-win-title-inaktive {
     -moz-border-radius-topleft: 0px;
     -moz-border-radius-topright: 0px;
-}
-
-.ka-no-desktop .kwindow-border,
-.ka-no-desktop .kwindow-win-title {
-    border-top: 0px;
-}
-
-.ka-no-desktop .ka-kwindow-titleactions {
-    display: none;
 }
 
 .ka-kwindow-inFront {
@@ -242,7 +260,7 @@
 .kwindow-win-titleGroups {
       display: block;
       position: absolute;
-      top: 25px;
+      top: 29px;
       left: 0px;
       right: 0px;
       min-height: 27px;
@@ -400,9 +418,10 @@ h3.kryn-headline {
 }
 
 .ka-kwindow-titlepath {
-    padding-left: 10px;
     position: relative;
     top: 1px;
+    color: #5e5e5e;
+    text-shadow: 0 1px 0 #F8F8F8;
 }
 
 .ka-kwindow-titlepath img {

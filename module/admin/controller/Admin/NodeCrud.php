@@ -72,11 +72,13 @@ class NodeCrud extends \Admin\ObjectCrud
 
     public $addIcon = '#icon-plus-5';
 
-    public $addLabel = 'Add node';
+    public $addLabel = '[[Node]]';
 
     public $add = true;
 
     public $editIcon = '#icon-pencil-8';
+
+    public $nestedRootAddLabel = '[[Domain]]';
 
     public $edit = true;
 

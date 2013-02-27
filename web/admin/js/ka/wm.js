@@ -14,6 +14,8 @@ ka.wm = {
     events: {},
     zIndex: 1000,
 
+    activeWindowInformation: [],
+
     openWindow: function (pEntryPoint, pLink, pParentWindowId, pParams, pInline) {
 
         if (pLink && pLink.onlyOnce && this.checkOpen(pEntryPoint)) {
@@ -116,51 +118,6 @@ ka.wm = {
         ka.wm.updateWindowBar();
     },
 
-    newListBar: function (pWindow) {
-        pWindow.setBarButton(bar);
-        var bar = new Element('a', {
-            'class': 'ka-tabGroup-item gradient wm-bar-item',
-            title: pWindow.getFullTitle()
-        });
-
-        pWindow.setBarButton(bar);
-
-        bar.addEvent('click', function () {
-
-            if (pWindow.isOpen && pWindow.inFront) {
-                if (!document.body.hasClass('ka-no-desktop'))
-                    pWindow.minimize();
-            } else if (!pWindow.inFront || !pWindow.isOpen) {
-                pWindow.toFront();
-            }
-        });
-        shortTitle = pWindow.getFullTitle();
-
-        if (shortTitle.length > 22) {
-            shortTitle = shortTitle.substr(0, 19) + '...';
-        }
-
-        if (shortTitle == ''){
-            bar.setStyle('display', 'none');
-        }
-
-        bar.set('text', shortTitle);
-
-
-        if (document.body.hasClass('ka-no-desktop')){
-            new Element('span', {
-                'class': 'wm-bar-item-closer'
-            })
-            .addEvent('click', function(e){
-                e.stopPropagation();
-                pWindow.close(true);
-            })
-            .inject(bar);
-        }
-
-        return bar;
-    },
-
     close: function (pWindow) {
 
         var parent = pWindow.getParentId();
@@ -208,35 +165,50 @@ ka.wm = {
 
     updateWindowBar: function () {
 
-       ka.adminInterface.windowList.getChildren().destroy();
+        ka.wm.removeActiveWindowInformation();
 
-        var c = 0;
-        Object.each(ka.wm.windows, function (win, winId) {
-
+        Object.each(ka.wm.windows, function (win) {
             if (win.getParentId()) return;
+            ka.wm.addActiveWindowInformation(win);
 
-            var item = ka.wm.newListBar(win);
-            item.inject(ka.adminInterface.windowList);
+            if (win.isInFront()){
 
-            c++;
-
-            if (win.isInFront()) {
-                item.addClass('wm-bar-item-active');
-            } else {
-                item.removeClass('wm-bar-item-active');
+                var menuItem = ka.adminInterface.getMenuItem(win.getEntryPoint());
+                if (menuItem) {
+                    menuItem.object.addClass('ka-main-menu-active');
+                } else {
+                    ka.adminInterface.addTempLink(win);
+                }
             }
 
         });
 
-        if (c > 1 || document.body.hasClass('ka-no-desktop')) {
-            ka.adminInterface.windowList.setStyle('display', 'block');
-            if (!document.body.hasClass('ka-no-desktop'))
-                ka.adminInterface.desktopContainer.setStyle('bottom', 27);
-        } else {
-            ka.adminInterface.windowList.setStyle('display', 'none');
-            ka.adminInterface.desktopContainer.setStyle('bottom', 0);
-        }
 
+    },
+
+    removeActiveWindowInformation: function(){
+
+        ka.adminInterface.mainLinks.getElements('a').removeClass('ka-main-menu-active');
+
+        Array.each(ka.wm.activeWindowInformation, function(entryPoint){
+            var menuItem = ka.adminInterface.getMenuItem(entryPoint);
+            menuItem.object.knob.destroy();
+            delete menuItem.object.knob;
+        });
+        ka.wm.activeWindowInformation = [];
+    },
+
+    addActiveWindowInformation: function(pWin){
+        var menuItem = ka.adminInterface.getMenuItem(pWin.getEntryPoint());
+
+        if (menuItem && !menuItem.object.knob){
+            menuItem.object.knob = new Element('span', {
+                html: '&bullet;',
+                'class': 'ka-main-menu-item-active-window-information-item'
+            }).inject(menuItem.object.activeWindowInformationContainer);
+
+            ka.wm.activeWindowInformation.push(pWin.getEntryPoint());
+        }
     },
 
     checkOpen: function (pEntryPoint, pInstanceId, pParams) {

@@ -1,6 +1,17 @@
 ka.ButtonGroup = new Class({
-    initialize: function (pParent) {
+
+    Implements: [Events, Options],
+
+
+    options: {
+        onlyIcons: false
+    },
+
+    initialize: function (pParent, pOptions) {
+
+        this.setOptions(pOptions);
         this.buttons = [];
+
         this.box = new Element('div', {
             'class': 'kwindow-win-buttonGroup'
         }).inject(pParent);
@@ -35,58 +46,7 @@ ka.ButtonGroup = new Class({
     },
 
     rerender: function () {
-        var c = 1;
-        var extraWidth = 0;
-        this.boxWrapper.getChildren().each(function (button) {
-
-            if (!button.retrieve('visible')) return;
-
-            if (button.getElement('select')) {
-                extraWidth += button.getElement('select').getSize().x - 28;
-            }
-
-            var myclass = 'kwindow-win-buttonWrapper';
-
-            if (button.get('class').indexOf('buttonHover') >= 0) {
-                myclass += ' buttonHover';
-            }
-
-            if (c == 1) {
-                myclass += ' kwindow-win-buttonWrapperFirst';
-            }
-
-            button.set('class', myclass);
-            button.store('oriClass', myclass);
-
-            lastButton = button;
-            c++;
-        }.bind(this));
-
-        /*var lastButton = null;
-         this.boxWrapper.getElements('a').each(function(b){
-         if( b.retrieve('visible') == true )
-         lastButton = b;
-         });
-
-         if( lastButton ){*/
-        lastButton.set('class', lastButton.get('class') + ' kwindow-win-buttonWrapperLast');
-        lastButton.store('oriClass', lastButton.get('class'));
-        //}
-        //c--;
-
-        this.boxWrapper.setStyle('width', (c * 32) + extraWidth -1);
-
-        c--;
-        this.box.setStyle('width', (c * 29) + extraWidth -1);
-
-        //        var width = (Browser.Engine.trident)?:this.box.
-        var width = this.boxWrapper.offsetWidth + 0;
-        this.box.setStyle('display', 'block');
-
-        if (width > 0) {
-            this.boxWrapper.setStyle('width', width - 3);
-        }
-
+        return;
     },
 
     addButton: function (pTitle, pIcon, pOnClick) {
@@ -95,6 +55,13 @@ ka.ButtonGroup = new Class({
             'class': 'kwindow-win-buttonWrapper',
             href: 'javascript:;'
         }).inject(this.boxWrapper);
+
+        if (typeOf(pTitle) == 'string') {
+            wrapper.set(this.options.onlyIcons ? 'title' : 'text', pTitle);
+        } else if (pTitle && pTitle.inject) {
+            pTitle.inject(wrapper);
+            wrapper.setStyle('padding', '3px 0px');
+        }
 
         var imgWrapper = new Element('span').inject( wrapper );
 
@@ -105,15 +72,8 @@ ka.ButtonGroup = new Class({
                 new Element('img', {
                     src: pIcon,
                     height: 14
-                }).inject( imgWrapper );
+                }).inject(imgWrapper, 'top');
             }
-        }
-
-        if (typeOf(pTitle) == 'string') {
-            wrapper.set('title', pTitle);
-        } else if (pTitle && pTitle.inject) {
-            pTitle.inject(wrapper);
-            wrapper.setStyle('padding', '3px 0px');
         }
 
         if (pOnClick) {

@@ -1,4 +1,3 @@
-
 ka.AdminInterface = new Class({
 
     Implements: [Events, Options],
@@ -33,19 +32,9 @@ ka.AdminInterface = new Class({
 
         this.createLayout();
 
-        if (this.options.frontPage){
-            document.body.addClass('ka-with-desktop');
-        } else {
+        if (!this.options.frontPage){
             this.renderLogin();
         }
-
-        this.searchInput.addEvent('keyup', function (e) {
-            if (this.value != '') {
-                this.doMiniSearch(this.value);
-            } else {
-                this.hideMiniSearch();
-            }
-        }.bind(this));
     },
 
     createLayout: function(){
@@ -61,20 +50,32 @@ ka.AdminInterface = new Class({
         }
 
         this.header = new Element('div', {
-            'class': 'ka-header ka-admin'
+            'class': 'ka-main-menu ka-admin'
         }).inject(this.border);
 
         this.headerInner = new Element('div', {
-            'class': 'ka-header-inner gradient'
+            'class': 'ka-main-menu-inner gradient'
         }).inject(this.header);
 
         this.headerInner.setStyle('top', -50);
         this.headerInner.setStyle('display', 'none');
 
-        this.headerRight = new Element('div', {
-            'class': 'ka-header-right'
+        this.userNameBtn = new Element('a', {
+            'class': 'ka-main-menu-login-name',
+            href: 'javascript: ;'
         }).inject(this.headerInner);
 
+        this.headerRight = new Element('div', {
+            'class': 'ka-main-menu-additional'
+        }).inject(this.headerInner);
+
+        this.mainLinks = new Element('div',{
+            'class': 'ka-mainLinks'
+        }).inject(this.headerInner);
+
+        this.openFrontendBtnContainer = new Element('div', {
+            'class': 'ka-iconbar-item'
+        }).inject(this.headerRight);
 
         this.openFrontendBtn = new Element('a', {
             'class': 'icon-eye',
@@ -82,26 +83,7 @@ ka.AdminInterface = new Class({
             href: 'javascript: ;'
         })
         .addEvent('click', function(){ ka.openFrontend(); })
-        .inject(this.headerRight);
-
-        this.userNameBtn = new Element('a', {
-            'class': 'icon-user-2',
-            href: 'javascript: ;'
-        }).inject(this.headerRight);
-
-        this.searchContainer = new Element('div', {
-            'class': 'ka-search'
-        }).inject(this.headerRight);
-
-        this.searchIcon = new Element('img', {
-            'class': 'ka-search-query-icon',
-            src: 'admin/images/icon-search-loupe.png'
-        }).inject(this.searchContainer);
-
-        this.searchInput = new Element('input', {
-            'class': 'ka-input ka-search-query',
-            type: 'text'
-        }).inject(this.searchContainer);
+        .inject(this.openFrontendBtnContainer);
 
         this.headerIconBar = new Element('div', {
             'class': 'ka-iconbar-item'
@@ -131,11 +113,6 @@ ka.AdminInterface = new Class({
         .addEvent('click', function(){ ka.clearCache(); } )
         .inject(this.headerIconBar);
 
-
-        this.mainLinks = new Element('div',{
-            'class': 'ka-mainLinks'
-        }).inject(this.headerInner);
-
         if (this.options.frontPage){
             this.desktopContainer = document.body;
         } else {
@@ -143,10 +120,6 @@ ka.AdminInterface = new Class({
                 'class': 'ka-desktop ka-admin'
             }).inject(this.border);
         }
-
-        this.windowList = new Element('div', {
-            'class': 'ka-windowList ka-admin'
-        }).inject(this.border);
 
     },
 
@@ -171,20 +144,12 @@ ka.AdminInterface = new Class({
         //this.buildClipboardMenu();
         //this.buildUploadMenu();
 
-        if (!this.options.frontPage){
-            if (!document.body.hasClass('ka-no-desktop')){
-
-                if (!this.desktop)
-                    this.desktop = new ka.Desktop(this.desktopContainer);
-
-                this.desktop.load();
-            }
-        } else {
+        if (this.options.frontPage){
             document.body.addClass('ka-frontpage-backend');
         }
 
         if (!this.helpsystem)
-            this.helpsystem = new ka.Helpsystem(this.desktopContainer);
+            this.helpsystem = new ka.Helpsystem(document.body);
 
         if (this._iconSessionCounterDiv) {
             this._iconSessionCounterDiv.destroy();
@@ -197,7 +162,38 @@ ka.AdminInterface = new Class({
         this._iconSessionCounter = new Element('span', {text: 0}).inject(this._iconSessionCounterDiv);
 
         window.addEvent('resize', this.checkMainBarWidth.bind(this));
-        this.buildUserMenu();
+
+        if (!this.searchContainer) {
+
+
+            this.searchContainerPadding = new Element('div', {
+                'class': 'ka-search-padding'
+            }).inject(this.headerRight);
+
+            this.searchContainer = new Element('div', {
+                'class': 'ka-search'
+            }).inject(this.headerRight);
+
+            this.searchInput = new ka.Field({
+                type: 'text',
+                noWrapper: true
+            }, this.searchContainer);
+
+            document.id(this.searchInput).addClass('ka-search-input');
+
+            this.searchInput.addEvent('change', function() {
+                if (this.searchInput.getValue() != '') {
+                    this.doMiniSearch(this.searchInput.getValue());
+                } else {
+                    this.hideMiniSearch();
+                }
+            }.bind(this));
+
+            this.searchIcon = new Element('img', {
+                'class': 'ka-search-query-icon',
+                src: 'admin/images/icon-search-loupe.png'
+            }).inject(this.searchContainer);
+        }
 
         window.fireEvent('init');
 
@@ -276,42 +272,9 @@ ka.AdminInterface = new Class({
         }
     },
 
-
-    buildUserMenu: function(){
-        if (this.userMenu) this.userMenu.destroy();
-
-        this.userMenu = new Element('div', {
-            'class': 'bar-dock-menu-style',
-            style: 'right: 36px;'
-        }).inject(this.border)
-
-        new Element('a', {
-            text: t('Edit me')
-        })
-            .addEvent('click', function(){
-                ka.wm.open('users/users/editMe', {values: {id: window._user_id}});
-            })
-            .inject(this.userMenu);
-
-        new Element('a', {
-            text: t('Logout')
-        })
-        .addEvent('click', function(){
-            this.logout();
-        }.bind(this))
-        .inject(this.userMenu);
-
-        var xoffset = this.userMenu.getSize().x;
-        xoffset -= this.userNameBtn.getSize().x;
-        xoffset *= -1;
-
-        this.makeMenu(this.userNameBtn, this.userMenu, true, {y: 46, x: xoffset+2});
-    },
-
     doMiniSearch: function () {
 
         if (!this._miniSearchPane) {
-            this.searchInput.set('class', 'text mini-search-active');
 
             this._miniSearchPane = new Element('div', {
                 'class': 'ka-mini-search'
@@ -324,7 +287,7 @@ ka.AdminInterface = new Class({
                 src: _path + 'admin/images/ka-tooltip-loading.gif'
             }).inject(this._miniSearchLoader);
             new Element('span', {
-                html: _('Searching ...')
+                html: '<br/>'+t('Searching ...')
             }).inject(this._miniSearchLoader);
             this._miniSearchResults = new Element('div', {'class': 'ka-mini-search-results'}).inject(this._miniSearchPane);
 
@@ -332,7 +295,6 @@ ka.AdminInterface = new Class({
 
         this._miniSearchLoader.setStyle('display', 'block');
         this._miniSearchResults.set('html', '');
-
 
         if (this._lastTimer) clearTimeout(this._lastTimer);
         this._lastTimer = this._miniSearch.delay(500, this);
@@ -344,7 +306,7 @@ ka.AdminInterface = new Class({
         new Request.JSON({url: _path + 'admin/backend/search', noCache: 1, onComplete: function (pResponse) {
             this._miniSearchLoader.setStyle('display', 'none');
             this._renderMiniSearchResults(pResponse.data);
-        }.bind(this)}).get({q: this.searchInput.value, lang: window._session.lang});
+        }.bind(this)}).get({q: this.searchInput.getValue(), lang: window._session.lang});
 
     },
 
@@ -374,7 +336,7 @@ ka.AdminInterface = new Class({
                 }.bind(this));
             }.bind(this));
         } else {
-            new Element('span', {html: t('No results') }).inject(this._miniSearchResults);
+            new Element('span', {html: '<br/>'+t('No results') }).inject(this._miniSearchResults);
         }
 
     },
@@ -383,7 +345,6 @@ ka.AdminInterface = new Class({
     hideMiniSearch: function () {
         if (this._miniSearchPane) {
             this._miniSearchPane.destroy();
-            this.searchInput.set('class', 'text');
             this._miniSearchPane = false;
         }
     },
@@ -404,6 +365,10 @@ ka.AdminInterface = new Class({
 
     endLoading: function () {
         this._loader.tween('opacity', 0);
+    },
+
+    getDesktop: function(){
+        return this.desktopContainer;
     },
 
     startLoading: function () {
@@ -537,26 +502,6 @@ ka.AdminInterface = new Class({
 
         this.loginLangSelection.setValue(window._session.lang);
 
-        this.loginDesktopMode = new Element('div', {
-            'class': 'ka-login-desktopMode'
-        }).inject(form);
-
-        this.loginDesktopModeText = new Element('div', {
-            'class': 'ka-login-desktopMode-text',
-            text: t('Desktop mode')
-        }).inject(this.loginDesktopMode)
-
-        this.loginViewSelection = new ka.Checkbox();
-        document.id(this.loginViewSelection).inject(this.loginDesktopMode);
-        document.id(this.loginViewSelection).addClass('ka-login-checkbox-login');
-
-        //TODO, autodetect here mobile browsers
-        if (Cookie.read('kryn_deactivate_desktop_mode') == "1") {
-            this.loginViewSelection.setValue(0);
-        } else {
-            this.loginViewSelection.setValue(1);
-        }
-
         this.loginMessage = new Element('div', {
             'class': 'loginMessage'
         }).inject(middle);
@@ -635,7 +580,6 @@ ka.AdminInterface = new Class({
     },
 
     reloadLogin: function () {
-        this.loginDesktopModeText.set('text', t('Desktop mode'));
 
         if (this.loginName.value == '' || this.loginName.retrieve('value') == this.loginName.value)
             this.loginName.value = t('Username');
@@ -678,9 +622,6 @@ ka.AdminInterface = new Class({
             new Request({url: _path + 'admin/logout', noCache: 1}).get();
         }
 
-        if (this.desktop)
-            this.desktop.clear();
-
         if (this.loader) {
             this.loader.destroy();
         }
@@ -688,8 +629,7 @@ ka.AdminInterface = new Class({
         this.loginMessage.set('html', '');
         this.login.setStyle('display', 'block');
 
-        [this.loginDesktopMode, this.loginMessage,
-            this.loginViewSelection, this.loginLangSelection]
+        [this.loginMessage, this.loginLangSelection]
             .each(function(i){document.id(i).setStyle('display', 'block')});
 
         this.loginLoadingBar.destroy();
@@ -729,7 +669,32 @@ ka.AdminInterface = new Class({
         window._session.sessionid = pResponse.token;
         window._user_id = pResponse.userId;
 
-        this.userNameBtn.set('text', window._session.username);
+        if (this.logoutButton) {
+            this.logoutButton.destroy();
+            delete this.logoutButton;
+        }
+
+        if (this.editMeButton) {
+            this.editMeButton.destroy();
+            delete this.editMeButton;
+        }
+
+        this.userNameBtn.set('text', tf('Logged in as %s', window._session.username));
+
+        this.editMeButton = new ka.Button(t('Edit me'))
+            .addEvent('click', function(){
+                ka.wm.open('users/users/editMe', {values: {id: window._user_id}});
+            })
+            .inject(this.userNameBtn, 'after');
+
+        this.logoutButton = new ka.Button(t('Logout'))
+            .addEvent('click', function(){
+                this.logout();
+            }.bind(this))
+            .inject(this.userNameBtn, 'after');
+
+
+
         this.userNameBtn.onclick = function () {
             ka.wm.open('users/profile', {values: {id: pResponse.userId}});
         }
@@ -767,22 +732,7 @@ ka.AdminInterface = new Class({
 
     loadBackend: function () {
 
-        logger('loadBackend');
-
-        if (this.loginViewSelection.getValue() == 0){
-
-            Cookie.write('kryn_deactivate_desktop_mode', '1');
-            document.body.addClass('ka-no-desktop');
-            document.body.removeClass('ka-with-desktop');
-        } else {
-
-            Cookie.write('kryn_deactivate_desktop_mode', '0');
-            document.body.removeClass('ka-no-desktop');
-            document.body.addClass('ka-with-desktop');
-        }
-
-        [this.loginDesktopMode, this.loginMessage,
-            this.loginViewSelection, this.loginLangSelection]
+        [this.loginMessage, this.loginLangSelection]
             .each(function(i){document.id(i).setStyle('display', 'none')});
 
         this.loginLoadingBar = new Element('div', {
@@ -823,10 +773,6 @@ ka.AdminInterface = new Class({
             new Asset.javascript(_path + 'admin/backend/js/script.js');
         }).delay(500, this);
 
-    },
-
-    getDesktop: function(){
-        return this.desktop;
     },
 
     loaderDone: function () {
@@ -899,123 +845,6 @@ ka.AdminInterface = new Class({
             })
 
         });
-
-    },
-
-    createModuleMenu: function () {
-        if (this._moduleMenu) {
-            this._moduleMenu.destroy();
-        }
-
-        this._moduleMenu = new Element('div', {
-            'class': 'ka-module-menu',
-            style: 'left: -250px;'
-        })
-        .addEvent('mouseover', this.toggleModuleMenuIn.bind(this, true))
-        .addEvent('mouseout', this.toggleModuleMenuOut).inject(document.body);
-
-        this._moduleMenu.set('tween', {transition: Fx.Transitions.Quart.easeOut});
-
-        this.moduleToggler = new Element('div', {
-            'class': 'ka-module-toggler'
-        }).addEvent('click',
-            function () {
-                this.toggleModuleMenuIn();
-            }).inject(this._moduleMenu);
-
-        new Element('img', {
-            src: _path + _('admin/images/extensions-text.png')
-        }).addEvent('click', this.toggleModuleMenuIn).inject(this.moduleToggler);
-
-        new Element('div', {
-            html: _('Extensions'),
-            style: 'padding-left: 15px; color: white; font-weight: bold; padding-top: 4px;'
-        }).inject(this._moduleMenu);
-
-        this.moduleItems = new Element('div', {
-            'class': 'ka-module-items'
-        }).inject(this._moduleMenu);
-
-
-        this.moduleItemsScrollerContainer = new Element('div', {
-            'class': 'ka-module-items-scroller-container'
-        }).inject(this._moduleMenu);
-
-        this.moduleItemsScroller = new Element('div', {
-            'class': 'ka-module-items-scroller'
-        }).inject(this.moduleItemsScrollerContainer);
-        //}).inject( this._moduleMenu );
-
-        //window.addEvent('resize', this.updateModuleItemsScrollerSize);
-
-
-        this.moduleItemsScroller.addEvent('mousedown', function () {
-            this.moduleItemsScrollerDown = true;
-        });
-
-        this.moduleItems.addEvent('mousewheel', function (e) {
-
-            var newPos = this.moduleItemsScrollSlider.step;
-
-            if (e.wheel > 0) {
-                //up
-                newPos--;
-            } else if (e.wheel < 0) {
-                //down
-                newPos++;
-            }
-            if (newPos > this.moduleItemsScrollSlider.max) {
-                newPos = this.moduleItemsScrollSlider.max;
-            }
-
-            if (newPos < this.moduleItemsScrollSlider.min) {
-                newPos = this.moduleItemsScrollSlider.min;
-            }
-
-            this.moduleItemsScrollSlider.set(newPos);
-
-        });
-        this.toggleModuleMenuOut(true);
-    },
-
-    updateModuleItemsScrollerSize: function () {
-
-        var completeSize = this.moduleItems.getScrollSize();
-        var size = this.moduleItems.getSize();
-
-        var diffHeight = completeSize.y - size.y;
-
-        if (diffHeight > 12) {
-            this.moduleItemsScroller.setStyle('display', 'block');
-
-            var proz = Math.ceil(diffHeight / (completeSize.y / 100));
-
-            var newDiffHeight = (proz / 100) * size.y;
-
-            var scrollBarHeight = size.y - newDiffHeight;
-
-            this.moduleItemsScroller.setStyle('height', scrollBarHeight);
-
-            //if( this.moduleItemsScrollSlider )
-            //	this.moduleItemsScrollSlider.deattach();
-
-            this.moduleItemsScrollSlider = new Slider(this.moduleItemsScrollerContainer, this.moduleItemsScroller, {
-                wheel: true,
-                mode: 'vertical',
-                steps: 25,
-                onChange: function (pPos) {
-                    var scrollTop = ((pPos * 4) / 100) * diffHeight;
-                    this.moduleItems.scrollTo(0, scrollTop);
-                },
-                onComplete: function () {
-                    this.moduleItemsScrollerDown = false;
-                }
-            });
-            this.moduleItemsScrollSlider.set(0);
-        } else {
-            this.moduleItemsScroller.setStyle('display', 'none');
-            this.moduleItems.scrollTo(0, 0);
-        }
 
     },
 
@@ -1095,6 +924,10 @@ ka.AdminInterface = new Class({
 
             var mlinks = res.data;
 
+            new Element('div', {
+                'class': 'ka-main-menu-splitter'
+            }).inject(this.mainLinks, 'before');
+
             Object.each(mlinks['admin'], function (item, pCode) {
                 this.addAdminLink(item, pCode, 'admin');
             }.bind(this));
@@ -1102,6 +935,7 @@ ka.AdminInterface = new Class({
             delete mlinks['admin'];
 
             if (mlinks['users']) {
+                this.addAdminHeadline('users');
                 Object.each(mlinks['users'], function (item, pCode) {
                     this.addAdminLink(item, pCode, 'users');
                 }.bind(this));
@@ -1111,6 +945,7 @@ ka.AdminInterface = new Class({
             Object.each(ka.settings.configs, function (config, extKey) {
                 if (!mlinks[extKey]) return;
 
+                this.addAdminHeadline(extKey);
                 Object.each(mlinks[extKey], function (item, pCode) {
                     this.addAdminLink(item, pCode, extKey);
                 }.bind(this));
@@ -1307,48 +1142,61 @@ ka.AdminInterface = new Class({
         //this.additionalMainMenu, this.additionalMainMenuContainer, true, {y: 80});
     },
 
+
+    addAdminHeadline: function(pExtKey){
+        var config = ka.settings.configs[pExtKey];
+        if (config) {
+
+            new Element('div', {
+                'class': 'ka-main-menu-splitter'
+            }).inject(this.mainLinks);
+
+            new Element('h2', {
+                'class': 'ka-main-menu-headline',
+                text: config.title,
+                title: config.desc ? config.desc : ''
+            }).inject(this.mainLinks);
+        }
+    },
+
+    addTempLink: function(pWin){
+
+        var mlink = new Element('a', {
+            text: pWin.getTitle()
+        }).inject(this.mainLinks, 'top');
+
+
+
+    },
+
     addAdminLink: function (pLink, pCode, pExtCode) {
 
         var mlink = false;
 
         if (!pLink.isLink) return;
 
-        if (pCode == 'system') {
+        mlink = new Element('a', {
+            text: pLink.title
+        }).inject(this.mainLinks);
 
-            mlink = new Element('a', {
-                title: pLink.title,
-                text: ' ',
-                'class': 'bar-dock-logo first gradient'
-            });
+        mlink.activeWindowInformationContainer = new Element('div', {
+            'class': 'ka-main-menu-item-active-window-information-container'
+        }).inject(mlink);
 
-            new Element('img', {
-                src: _path + 'admin/images/dock-logo-icon.png'
-            }).inject(mlink);
-
-        } else {
-
-            mlink = new Element('a', {
-                text: pLink.title
-            });
-
-            if (pLink.icon) {
-                if (pLink.icon.substr(0,1) == '#'){
-                    mlink.addClass(pLink.icon.substr(1));
-                } else {
-                    mlink.addClass('ka-mainmenubar-item-hasIcon');
-                    new Element('img', {
-                        src: _path + pLink.icon
-                    }).inject(mlink);
-                }
+        if (pLink.icon) {
+            if (pLink.icon.substr(0,1) == '#'){
+                mlink.addClass(pLink.icon.substr(1));
+            } else {
+                mlink.addClass('ka-mainmenubar-item-hasIcon');
+                new Element('img', {
+                    src: _path + pLink.icon
+                }).inject(mlink);
             }
         }
 
         var menu = new Element('div', {
-            'class': 'bar-dock-menu bar-dock-menu-style',
-            styles: {
-                display: 'none'
-            }
-        });
+            'class': 'ka-menu-item-children'
+        }).inject(this.mainLinks);
 
         var hasActiveChilds = false;
 
@@ -1393,100 +1241,27 @@ ka.AdminInterface = new Class({
         } else {
             var childOpener;
 
-            if (pCode != 'system') {
-                mlink.addClass('ka-menu-item-hasChilds');
+            mlink.addClass('ka-menu-item-hasChilds');
 
-                childOpener = new Element('a', {
-                    'class': 'ka-menu-item-childopener'
-                }).inject(mlink);
+            childOpener = new Element('a', {
+                'class': 'ka-menu-item-childopener'
+            }).inject(mlink);
 
-                new Element('img', {
-                    src: _path+ 'admin/images/ka-mainmenu-item-tree_minus.png'
-                })
-                    .addEvent('mouseover',  function () {
-                        childOpener.fireEvent('mouseover');
-                    })
-                    .addEvent('mousemove',  function () {
-                        childOpener.fireEvent('mouseover');
-                    })
-                    .inject(childOpener);
+            new Element('img', {
+                src: _path+ 'admin/images/ka-mainmenu-item-tree_minus.png'
+            }).inject(childOpener);
 
+            childOpener.addEvent('click', function(){
 
-                childOpener.addEvent('click',function (e) {
-                    e.stopPropagation();
-                });
-            } else {
-                childOpener = mlink;
-            }
-
-            childOpener.addEvent('mousemove', function (e) {
-                childOpener.fireEvent('mouseover');
-            });
-
-            childOpener.addEvent('mouseover', function (e) {
-
-                if (e)
-                    e.stopPropagation();
-
-                if (this.lastVisibleDockMenu && this.lastVisibleDockMenu != menu)
-                    this.lastVisibleDockMenu.setStyle('display', 'none');
-
-                childOpener.store('allowToDisappear', false);
-
-                //find position
-                var position = mlink.getPosition(this.border);
-                var size = mlink.getSize();
-                menu.setStyle('left', position.x-1);
-                menu.setStyle('top', 48);
-                menu.removeClass('ka-menu-withRightTopBorderRadius');
-
-                var addMenuBar = mlink.getParent('.ka-mainlink-additionalmenubar-container');
-
-                menu.removeEvents('mouseover');
-                menu.removeEvents('mouseout');
-
-                if (addMenuBar){
-                    addMenuBar.removeClass('ka-mainlink-additionalmenubar-container-withoutBottomRightBorderRadius')
-
-                    menu.setStyle('left', position.x+size.x);
-                    menu.setStyle('top', position.y);
-                    menu.addClass('ka-menu-withRightTopBorderRadius');
+                if (menu.getStyle('display') != 'block'){
                     menu.setStyle('display', 'block');
-
-                    if (menu.getPosition().y+menu.getSize().y > addMenuBar.getPosition().y+addMenuBar.getSize().y)
-                        addMenuBar.addClass('ka-mainlink-additionalmenubar-container-withoutBottomRightBorderRadius');
-
-                    menu.addEvent('mouseover', function(){
-                        addMenuBar.store('this.makeMenu.canHide', false);
-                    });
-
-                    menu.addEvent('mouseout', function(){
-                        addMenuBar.fireEvent('mouseout');
-                    });
-
-                    childOpener.addEvent('mouseover', function(){
-                        addMenuBar.store('this.makeMenu.canHide', false);
-                    });
+                } else {
+                    menu.setStyle('display', 'none');
                 }
 
-                menu.addEvent('mouseover', function () {
-                    childOpener.store('allowToDisappear', false);
-                }).addEvent('mouseout', function () {
-                    childOpener.fireEvent('mouseout');
-                }).inject(this.header, 'before');
+            });
 
-                menu.setStyle('display', 'block');
-                this.lastVisibleDockMenu = menu;
 
-            }.bind(this)).addEvent('mouseout', function () {
-
-                childOpener.store('allowToDisappear', true);
-                (function () {
-                    if (childOpener.retrieve('allowToDisappear') == true) {
-                        menu.setStyle('display', 'none');
-                    }
-                }).delay(250);
-            }.bind(this));
         }
 
         this._links[ pExtCode + '/' + pCode ] = {
@@ -1499,13 +1274,16 @@ ka.AdminInterface = new Class({
             title: pLink.title
         };
 
-        mlink.inject(this.mainLinks);
         pLink.module = pExtCode;
         pLink.code = pCode;
         mlink.store('link', pLink);
         this.linkClick(mlink);
 
 
+    },
+
+    getMenuItem: function(pEntryPoint){
+        return this._links[pEntryPoint];
     },
 
 
@@ -1761,11 +1539,10 @@ ka.AdminInterface = new Class({
             'class': 'ka-searchcontext-bottom'
         }).inject(this.openSearchContextLast);
 
-        new ka.Button(_('Indexed pages')).addEvent('click',
+        new ka.Button(t('Indexed pages')).addEvent('click',
             function () {
                 ka.wm.open('admin/system/searchIndexerList');
             }).inject(this.openSearchContextBottom);
-
 
         this.openSearchContextClearIndex = new ka.Button(_('Clear index')).addEvent('click',
             function () {

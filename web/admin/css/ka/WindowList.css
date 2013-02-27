@@ -24,6 +24,10 @@
     overflow-y: scroll;
 }
 
+.ka-window-list-buttonGroup {
+    margin-left: 0px;
+}
+
 /*
 .ka-list-head > table th {
     line-height: 19px;

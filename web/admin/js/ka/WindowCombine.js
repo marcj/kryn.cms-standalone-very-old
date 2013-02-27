@@ -13,7 +13,7 @@ ka.WindowCombine = new Class({
 
         this.mainLayout = new ka.Layout(this.win.content, {
             layout: [{
-                columns: [260, null]
+                columns: [300, null]
             }],
             splitter: [
                 [1, 1, 'right']

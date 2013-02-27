@@ -111,11 +111,179 @@
         }
     },
     "entryPoints": {
+        "backend": {
+            "title": "[[Backend access]]",
+            "isLink": false,
+            "children": {
+                "chooser": {
+                    "title": "[[Chooser]]",
+                    "type": "custom",
+                    "isLink": false,
+                    "multi": true,
+                    "minWidth": 600,
+                    "minHeight": 300,
+                    "children": [
+                        
+                    ]
+                },
+                "stores": {
+                    "title": "[[Stores]]",
+                    "isLink": false,
+                    "children": {
+                        "languages": {
+                            "table_key": "code",
+                            "table_label": "title",
+                            "table": "system_langs",
+                            "type": "store",
+                            "isLink": false,
+                            "children": [
+                                
+                            ],
+                            "title": ""
+                        },
+                        "extensions": {
+                            "class": "adminStoreExtensions",
+                            "type": "store",
+                            "isLink": false,
+                            "children": [
+                                
+                            ],
+                            "title": ""
+                        }
+                    },
+                    "type": "acl"
+                }
+            },
+            "type": "acl"
+        },
+        "dashboard": {
+            "title": "[[Dashboard]]",
+            "type": "custom",
+            "icon": "#icon-chart-5",
+            "isLink": true,
+            "multi": true,
+            "children": [
+                
+            ]
+        },
+        "nodes": {
+            "title": "[[Pages]]",
+            "class": "Admin\\Admin\\NodeCrud",
+            "type": "combine",
+            "icon": "#icon-screen-2",
+            "isLink": true,
+            "multi": true,
+            "minWidth": 850,
+            "minHeight": 450,
+            "children": {
+                "addDialog": {
+                    "title": "[[Add pages]]",
+                    "type": "custom",
+                    "isLink": false,
+                    "multi": true,
+                    "children": [
+                        
+                    ]
+                },
+                "addDomains": {
+                    "title": "[[Add domains]]",
+                    "type": "custom",
+                    "isLink": false,
+                    "multi": true,
+                    "children": [
+                        
+                    ]
+                },
+                "bigEditor": {
+                    "title": "WYSIWYG-Editor",
+                    "type": "custom",
+                    "isLink": false,
+                    "multi": true,
+                    "children": [
+                        
+                    ]
+                },
+                "root": {
+                    "title": "[[Domain]]",
+                    "class": "\\Admin\\Admin\\DomainCrud",
+                    "type": "combine",
+                    "isLink": false,
+                    "multi": false
+                }
+            }
+        },
+        "files": {
+            "title": "[[Files]]",
+            "type": "custom",
+            "icon": "#icon-folder-5",
+            "isLink": true,
+            "multi": true,
+            "minWidth": 700,
+            "minHeight": 350,
+            "children": {
+                "edit": {
+                    "title": "[[File edit]]",
+                    "type": "custom",
+                    "isLink": false,
+                    "multi": true,
+                    "children": [
+                        
+                    ]
+                },
+                "diff": {
+                    "title": "[[File diff]]",
+                    "type": "custom",
+                    "isLink": false,
+                    "multi": true,
+                    "children": [
+                        
+                    ]
+                },
+                "systemfiles": {
+                    "title": "[[System files]]",
+                    "isLink": false,
+                    "children": [
+                        
+                    ],
+                    "type": "acl"
+                },
+                "properties": {
+                    "title": "[[Properties]]",
+                    "type": "custom",
+                    "isLink": false,
+                    "multi": true,
+                    "children": [
+                        
+                    ]
+                }
+            }
+        },
+        "help": {
+            "title": "[[Help]]",
+            "type": "custom",
+            "isLink": false,
+            "multi": true,
+            "children": [
+                
+            ]
+        },
+        "stores": {
+            "type": "acl",
+            "title": "[[Data Stores[[",
+            "children": {
+                "layout": {
+                    "title": "[[Layouts]]",
+                    "class": "\\Admin\\Stores\\Layout",
+                    "type": "store"
+                }
+            }
+        },
         "system": {
             "title": "[[System]]",
             "type": "custom",
             "isLink": true,
             "multi": true,
+            "icon": "#icon-cog-4",
             "fixedWidth": 300,
             "fixedHeight": 200,
             "children": {
@@ -289,173 +457,6 @@
                         }
                     },
                     "type": "acl"
-                }
-            }
-        },
-        "backend": {
-            "title": "[[Backend access]]",
-            "isLink": false,
-            "children": {
-                "chooser": {
-                    "title": "[[Chooser]]",
-                    "type": "custom",
-                    "isLink": false,
-                    "multi": true,
-                    "minWidth": 600,
-                    "minHeight": 300,
-                    "children": [
-                        
-                    ]
-                },
-                "stores": {
-                    "title": "[[Stores]]",
-                    "isLink": false,
-                    "children": {
-                        "languages": {
-                            "table_key": "code",
-                            "table_label": "title",
-                            "table": "system_langs",
-                            "type": "store",
-                            "isLink": false,
-                            "children": [
-                                
-                            ],
-                            "title": ""
-                        },
-                        "extensions": {
-                            "class": "adminStoreExtensions",
-                            "type": "store",
-                            "isLink": false,
-                            "children": [
-                                
-                            ],
-                            "title": ""
-                        }
-                    },
-                    "type": "acl"
-                }
-            },
-            "type": "acl"
-        },
-        "overview": {
-            "title": "[[Dashboard]]",
-            "type": "custom",
-            "icon": "#icon-home-5",
-            "isLink": true,
-            "multi": true,
-            "children": [
-                
-            ]
-        },
-        "nodes": {
-            "title": "[[Pages]]",
-            "class": "Admin\\Admin\\NodeCrud",
-            "type": "combine",
-            "icon": "#icon-screen-2",
-            "isLink": true,
-            "multi": true,
-            "minWidth": 850,
-            "minHeight": 450,
-            "children": {
-                "addDialog": {
-                    "title": "[[Add pages]]",
-                    "type": "custom",
-                    "isLink": false,
-                    "multi": true,
-                    "children": [
-                        
-                    ]
-                },
-                "addDomains": {
-                    "title": "[[Add domains]]",
-                    "type": "custom",
-                    "isLink": false,
-                    "multi": true,
-                    "children": [
-                        
-                    ]
-                },
-                "bigEditor": {
-                    "title": "WYSIWYG-Editor",
-                    "type": "custom",
-                    "isLink": false,
-                    "multi": true,
-                    "children": [
-                        
-                    ]
-                },
-                "root": {
-                    "title": "[[Domain]]",
-                    "class": "\\Admin\\Admin\\DomainCrud",
-                    "type": "combine",
-                    "isLink": false,
-                    "multi": false
-                }
-            }
-        },
-        "files": {
-            "title": "[[Files]]",
-            "type": "custom",
-            "icon": "#icon-folder",
-            "isLink": true,
-            "multi": true,
-            "minWidth": 700,
-            "minHeight": 350,
-            "children": {
-                "edit": {
-                    "title": "[[File edit]]",
-                    "type": "custom",
-                    "isLink": false,
-                    "multi": true,
-                    "children": [
-                        
-                    ]
-                },
-                "diff": {
-                    "title": "[[File diff]]",
-                    "type": "custom",
-                    "isLink": false,
-                    "multi": true,
-                    "children": [
-                        
-                    ]
-                },
-                "systemfiles": {
-                    "title": "[[System files]]",
-                    "isLink": false,
-                    "children": [
-                        
-                    ],
-                    "type": "acl"
-                },
-                "properties": {
-                    "title": "[[Properties]]",
-                    "type": "custom",
-                    "isLink": false,
-                    "multi": true,
-                    "children": [
-                        
-                    ]
-                }
-            }
-        },
-        "help": {
-            "title": "[[Help]]",
-            "type": "custom",
-            "isLink": false,
-            "multi": true,
-            "children": [
-                
-            ]
-        },
-        "stores": {
-            "type": "acl",
-            "title": "[[Data Stores[[",
-            "children": {
-                "layout": {
-                    "title": "[[Layouts]]",
-                    "class": "\\Admin\\Stores\\Layout",
-                    "type": "store"
                 }
             }
         }

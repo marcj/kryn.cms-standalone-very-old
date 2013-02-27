@@ -1,5 +1,5 @@
 {
-    "title": "Kryn.cms User",
+    "title": "User management",
     "desc": "Users, Groups, Permission Management, Internal Messaging System, Chat.",
     "system": true,
     "version": "0.10.0",
@@ -361,7 +361,7 @@
             "title": "[[Users]]",
             "class": "\\Users\\Admin\\User",
             "type": "combine",
-            "icon": "#icon-users-2",
+            "icon": "#icon-user-9",
             "isLink": true,
             "multi": false,
             "minWidth": 700,
@@ -412,48 +412,50 @@
                             "type": "acl"
                         }
                     }
-                },
-                "groups": {
-                    "title": "[[Groups]]",
-                    "class": "\\Users\\Admin\\Groups",
-                    "type": "combine",
-                    "isLink": true,
-                    "multi": false,
-                    "children": {
-                        "edit": {
-                            "title": "[[Group edit]]",
-                            "class": "\\Users\\Admin\\Groups",
-                            "type": "edit",
-                            "isLink": false,
-                            "multi": false,
-                            "fixedWidth": 475,
-                            "fixedHeight": 200
-                        },
-                        "add": {
-                            "title": "[[Group add]]",
-                            "class": "\\Users\\Admin\\Groups",
-                            "type": "add",
-                            "isLink": false,
-                            "multi": false,
-                            "fixedWidth": 375,
-                            "fixedHeight": 200
-                        }
-                    }
-                },
-                "acl": {
-                    "title": "[[Access management]]",
-                    "type": "custom",
-                    "isLink": true,
-                    "multi": false,
-                    "minWidth": 870,
-                    "minHeight": 500,
-                    "defaultWidth": 870,
-                    "defaultHeight": 500,
-                    "children": [
-                        
-                    ]
                 }
             }
+        },
+        "groups": {
+            "title": "[[Groups]]",
+            "class": "\\Users\\Admin\\Groups",
+            "type": "combine",
+            "icon": "#icon-users-2",
+            "isLink": true,
+            "multi": false,
+            "children": {
+                "edit": {
+                    "title": "[[Group edit]]",
+                    "class": "\\Users\\Admin\\Groups",
+                    "type": "edit",
+                    "isLink": false,
+                    "multi": false,
+                    "fixedWidth": 475,
+                    "fixedHeight": 200
+                },
+                "add": {
+                    "title": "[[Group add]]",
+                    "class": "\\Users\\Admin\\Groups",
+                    "type": "add",
+                    "isLink": false,
+                    "multi": false,
+                    "fixedWidth": 375,
+                    "fixedHeight": 200
+                }
+            }
+        },
+        "acl": {
+            "title": "[[Access management]]",
+            "type": "custom",
+            "isLink": true,
+            "icon": "#icon-key-4",
+            "multi": false,
+            "minWidth": 870,
+            "minHeight": 500,
+            "defaultWidth": 870,
+            "defaultHeight": 500,
+            "children": [
+
+            ]
         }
     },
     "plugins": {

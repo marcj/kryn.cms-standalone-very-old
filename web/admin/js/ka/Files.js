@@ -717,27 +717,29 @@ ka.Files = new Class({
         }
     },
 
-    addButtonGroup: function(){
-        return this.win.addButtonGroup();
-    },
-
-    _createLayout: function () {
+    _createLayout: function() {
 
         if (!this.options.useWindowHeader){
 
             this.header = new Element('div', {
-                style: 'position: absolute; top: 6px; left: 0px; height: 30px; right: 0px;'
+                style: 'position: absolute; top: 6px; left: 0px; height: 50px; right: 0px;'
             }).inject(this.container);
-
-            this.addButtonGroup = function () {
-                return new ka.ButtonGroup(this.header);
-            }.bind(this);
 
         } else {
             this.header = this.win.titleGroups;
+            this.win.extendHead();
+            this.win.border.addClass('ka-window-extend-head-files');
         }
 
-        var boxNavi = this.addButtonGroup();
+        this.headerLayout = new ka.Layout(this.header, {
+            layout: [{
+                columns: [null, 300, 150]
+            }]
+        });
+
+        var actionsContainer = this.headerLayout.getCell(1, 1);
+
+        var boxNavi = new ka.ButtonGroup(actionsContainer, {onlyIcons: true});
 
         var toLeft = new Element('img', {
             src: _path + 'admin/images/admin-files-toLeft.png'
@@ -750,12 +752,12 @@ ka.Files = new Class({
             this.goHistory('right');
         }.bind(this));
 
-        this.upBtn = boxNavi.addButton(_('Up'), '#icon-arrow-up-14', this.up.bind(this));
+        this.upBtn = boxNavi.addButton(t('Up'), '#icon-arrow-up-14', this.up.bind(this));
         this.upBtn.fileObj = this;
 
         boxNavi.addButton(t('Refresh'), '#icon-reload-CW', this.reload.bind(this));
 
-        var boxAction = this.addButtonGroup();
+        var boxAction = new ka.ButtonGroup(actionsContainer);
         this.boxAction = boxAction;
         boxAction.addButton(t('New file'), '#icon-file-add', this.newFile.bind(this));
         boxAction.addButton(t('New directory'), '#icon-folder-4', this.newFolder.bind(this));
@@ -765,7 +767,7 @@ ka.Files = new Class({
         this.upBtn.addClass('admin-files-droppables');
 
         //view types
-        var boxTypes = this.addButtonGroup();
+        var boxTypes = new ka.ButtonGroup(actionsContainer, {onlyIcons: true});
         this.typeButtons = new Hash();
 
         this.typeButtons['icon'] = boxTypes.addButton(t('Icon view'), '#icon-grid-2', this.setListType.bind(this, 'icon', null, null));
@@ -778,47 +780,45 @@ ka.Files = new Class({
             btn.store('oriClass', btn.get('class'));
         });
 
-        var userGrp = this.addButtonGroup();
-        this.userFilesBtn = userGrp.addButton(_('Hide system files'), _path + 'admin/images/icons/folder_brick.png', this.toggleUserMode.bind(this));
+        var userGrp = new ka.ButtonGroup(actionsContainer, {onlyIcons: true});
+        this.userFilesBtn = userGrp.addButton(t('Hide system files'), _path + 'admin/images/icons/folder_brick.png', this.toggleUserMode.bind(this));
         this.userFilesBtn.setPressed(this.options.onlyUserDefined);
 
         //address
 
-        var adressPos = new Element('div', {'class': 'admin-files-actionBar-addressPos'}).inject(this.header);
-        this.address = new Element('input', {
-            'class': 'admin-files-actionBar-address',
-            value: '/'
-        }).addEvent('mousedown',
-            function (e) {
-                e.stopPropagation();
-            }).addEvent('keyup', function (e) {
+        var addressContainer = this.headerLayout.getCell(1, 2);
+
+        this.address = new ka.Field({
+            type: 'text',
+            noWrapper: true
+        }, addressContainer);
+        document.id(this.address).setStyle('margin', '0 5px');
+
+        this.address.getFieldObject().input.addEvent('mousedown', function(e){
             if (e.key == 'enter') {
                 this.loadPath(this.address.value);
             }
-        }.bind(this))
-        .inject(adressPos);
+        }.bind(this));
 
-        this.searchInput = new Element('input', {
-            'class': 'admin-files-actionBar-search'
-        })
-        .addEvent('keydown', function (e) {
-            if (e.key == 'esc'){
-                e.stop();
-                e.stopPropagation();
+
+        var searchContainer = this.headerLayout.getCell(1, 3);
+
+        this.search = new ka.Field({
+            type: 'text',
+            noWrapper: true
+        }, searchContainer);
+        document.id(this.search).setStyle('margin', '0 5px');
+
+        this.search.getFieldObject().input.addEvent('mousedown', function(e){
+            if (e.key == 'enter') {
+                this.startSearch();
             }
-        }.bind(this))
-            .addEvent('keyup', function (e) {
-            this.startSearch();
-
-        }.bind(this))
-        .addEvent('mousedown', function (e) {
-            e.stopPropagation();
-        }).inject(this.header);
+        }.bind(this));
 
         new Element('img', {
             src: _path+ 'admin/images/icon-search-loupe.png',
-            style: 'position: absolute; right: 108px; top: 6px'
-        }).inject(this.searchInput, 'after');
+            style: 'position: absolute; right: 10px; top: 6px'
+        }).inject(this.search, 'after');
 
         this.fileContainer = new Element('div', {
             'class': 'admin-files-droppables admin-files-fileContainer'
@@ -2836,10 +2836,10 @@ ka.Files = new Class({
             clearTimeout(this._searchTimer);
         }
 
-        if (this.searchInput.value == "") {
+        if (this.searchInput.getValue() == "") {
             this.closeSearch();
         } else {
-            this._searchTimer = this._search.delay(300, this, this.searchInput.value);
+            this._searchTimer = this._search.delay(300, this, this.searchInput.getValue());
         }
 
     },

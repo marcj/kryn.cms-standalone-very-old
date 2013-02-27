@@ -1,4 +1,4 @@
-var users_users_acl = new Class({
+var users_acl = new Class({
 
     groupDivs: {},
     userDivs: {},
@@ -1350,7 +1350,7 @@ var users_users_acl = new Class({
                     var div = new Element('div', {
                         'class': 'ka-list-combine-item'
                     })
-                    .addEvent('click', this.loadRules.bind(this, 'user', item, false))
+                    .addEvent('click', this.loadRules.bind(this, ['user', item, false]))
                     .inject(this.left);
 
                     this.userDivs[item.id] = div;
@@ -1408,7 +1408,7 @@ var users_users_acl = new Class({
                     var div = new Element('div', {
                         'class': 'ka-list-combine-item'
                     })
-                    .addEvent('click', this.loadRules.bind(this, 'group', item, false))
+                    .addEvent('click', this.loadRules.bind(this, ['group', item, false]))
                     .inject(this.left);
 
                     this.groupDivs[item.id] = div;

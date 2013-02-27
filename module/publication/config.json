@@ -23,37 +23,36 @@
             "isLink": true,
             "multi": true,
             "minWidth": 800,
-            "minHeight": 460,
+            "minHeight": 460
+        },
+        "category": {
+            "title": "[[Categories]]",
+            "class": "\\Publication\\Admin\\NewsCategoryCrud",
+            "type": "combine",
+            "icon": "#icon-drawer-3",
+            "isLink": true,
+            "multi": true,
+            "children": [
+
+            ]
+        },
+        "comments": {
+            "title": "[[Comments]]",
+            "class": "publicationNewsComments",
+            "type": "list",
+            "icon": "#icon-comments-2",
+            "isLink": true,
+            "multi": true,
             "children": {
-                "category": {
-                    "title": "[[Category]]",
-                    "class": "\\Publication\\Admin\\NewsCategoryCrud",
-                    "type": "combine",
-                    "icon": "",
-                    "isLink": true,
+                "edit": {
+                    "title": "[[Edit]]",
+                    "class": "publicationNewsCommentsEdit",
+                    "type": "edit",
+                    "isLink": false,
                     "multi": true,
                     "children": [
-                        
+
                     ]
-                },
-                "comments": {
-                    "title": "[[Comments]]",
-                    "class": "publicationNewsComments",
-                    "type": "list",
-                    "isLink": true,
-                    "multi": true,
-                    "children": {
-                        "edit": {
-                            "title": "[[Edit]]",
-                            "class": "publicationNewsCommentsEdit",
-                            "type": "edit",
-                            "isLink": false,
-                            "multi": true,
-                            "children": [
-                                
-                            ]
-                        }
-                    }
                 }
             }
         }
