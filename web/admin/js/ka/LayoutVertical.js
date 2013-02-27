@@ -75,7 +75,7 @@ ka.LayoutVertical = new Class({
                 this.table = this.container;
             } else {
                 this.table = new Element('table', {cellpadding: 0}).inject(this.container);
-                this.table.setStyle('table-layout', 'fixed');
+                //this.table.setStyle('table-layout', 'fixed');
             }
             this.table.setStyles({
                 width: '100%',

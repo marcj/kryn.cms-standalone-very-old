@@ -15,7 +15,7 @@
 }
 
 .ka-objectTree-top-dummy {
-    height: 20px;
+    height: 26px;
 }
 
 .ka-objectTree-pages {
@@ -37,8 +37,8 @@
 .ka-objectTree-drag-box {
     position: relative;
     display: block;
-    line-height: 20px;
-    height: 19px;
+    line-height: 26px;
+    height: 26px;
     padding: 1px;
     color: #444;
     cursor: default;

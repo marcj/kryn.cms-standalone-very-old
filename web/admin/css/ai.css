@@ -74,7 +74,7 @@ span.selectable span, div.selectable div {
 }
 
 body.ka-frontpage-backend {
-    margin-top: 48px;
+    margin-left: 220px;
 }
 
 .ka-editor {
@@ -106,7 +106,6 @@ body.ka-frontpage-backend {
 }
 
 .ka-frontpage-backend div.ka-main-menu {
-    box-shadow: 3px 0px 2px black;
     position: fixed;
 }
 
@@ -168,7 +167,7 @@ a.ka-menu-item-childopener:link {
 
     position: absolute;
     right: 0px;
-    top: 0px;
+    top: 6px;
     height: 41px;
     width: 18px;
     border-right: 0px;

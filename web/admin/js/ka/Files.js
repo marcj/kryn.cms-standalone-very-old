@@ -733,11 +733,13 @@ ka.Files = new Class({
 
         this.headerLayout = new ka.Layout(this.header, {
             layout: [{
-                columns: [null, 300, 150]
+                columns: [50, null, 150]
             }]
         });
 
         var actionsContainer = this.headerLayout.getCell(1, 1);
+
+        actionsContainer.setStyle('white-space',  'nowrap');
 
         var boxNavi = new ka.ButtonGroup(actionsContainer, {onlyIcons: true});
 
@@ -790,13 +792,14 @@ ka.Files = new Class({
 
         this.address = new ka.Field({
             type: 'text',
+            inputHeight: 26,
             noWrapper: true
         }, addressContainer);
         document.id(this.address).setStyle('margin', '0 5px');
 
         this.address.getFieldObject().input.addEvent('mousedown', function(e){
             if (e.key == 'enter') {
-                this.loadPath(this.address.value);
+                this.loadPath(this.address.getValue());
             }
         }.bind(this));
 
@@ -805,6 +808,7 @@ ka.Files = new Class({
 
         this.search = new ka.Field({
             type: 'text',
+            inputHeight: 26,
             noWrapper: true
         }, searchContainer);
         document.id(this.search).setStyle('margin', '0 5px');
@@ -817,7 +821,7 @@ ka.Files = new Class({
 
         new Element('img', {
             src: _path+ 'admin/images/icon-search-loupe.png',
-            style: 'position: absolute; right: 10px; top: 6px'
+            style: 'position: absolute; right: 12px; top: 9px;'
         }).inject(this.search, 'after');
 
         this.fileContainer = new Element('div', {
@@ -1255,7 +1259,7 @@ ka.Files = new Class({
 
             this.fileContainer.store('file', this.currentFile);
 
-            this.address.value = this.current;
+            this.address.setValue(this.current);
 
             this.render(pResponse.data);
 
@@ -2946,11 +2950,10 @@ ka.Files = new Class({
 
             }.bind(this));
         } else {
-            this.searchPaneContent.set('html', _('No files found.'));
+            this.searchPaneContent.set('html', t('No files found.'));
         }
 
     },
-
 
     closeSearch: function () {
         if (this.lastqrq) {

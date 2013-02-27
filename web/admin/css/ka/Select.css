@@ -20,9 +20,9 @@
     position: relative;
 
     overflow: hidden;
-    height: 20px;
+    height: 24px;
     display: inline-block;
-    line-height: 20px;
+    line-height: 24px;
 
     vertical-align: top;
     min-width: 40px;

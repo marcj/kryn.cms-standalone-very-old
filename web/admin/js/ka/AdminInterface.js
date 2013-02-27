@@ -114,13 +114,19 @@ ka.AdminInterface = new Class({
         .inject(this.headerIconBar);
 
         if (this.options.frontPage){
-            this.desktopContainer = document.body;
+            this.desktopContainer = new Element('div', {
+                'class': 'ka-desktop ka-admin'
+            }).inject(document.body);
         } else {
             this.desktopContainer = new Element('div', {
                 'class': 'ka-desktop ka-admin'
             }).inject(this.border);
         }
 
+    },
+
+    isFrontPage: function(){
+        return this.options.frontPage;
     },
 
     clearCache: function () {

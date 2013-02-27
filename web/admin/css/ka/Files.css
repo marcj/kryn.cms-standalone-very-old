@@ -380,6 +380,7 @@ table.ka-files-search-table tr:hover td {
 }
 
 .admin-files-listtype-miniatur .admin-files-item .admin-files-item-icon {
-    font-size: 63px;
-    height: 72px;
+    font-size: 200px;
+    height: 200px;
+    width: 230px;
 }

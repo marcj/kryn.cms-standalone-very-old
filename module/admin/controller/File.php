@@ -41,12 +41,12 @@ class File
 
     }
 
-    public function getThumbnail($pPath)
+    public function getThumbnail($pPath, $pWidth = 50, $pHeight = 50)
     {
 
         if (!self::getFile($pPath)) return;
 
-        $image = WebFile::getThumbnail($pPath, '50x50');
+        $image = WebFile::getThumbnail($pPath, ($pWidth&&$pHeight) ? $pWidth.'x'.$pHeight : '50x50');
 
         $expires = 3600;
         header("Pragma: public");

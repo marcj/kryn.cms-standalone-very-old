@@ -27,10 +27,6 @@ ka.WindowCombine = new Class({
 
         this.mainLeft.setStyle('background-color', '#fafafa');
 
-        this.treeContainer = new Element('div', {
-            'class': 'ka-windowCombine-treeContainer ka-objectTree-container'
-        }).inject(this.mainLeft);
-
         this.mainRight = this.mainLayout.getCell(1,2);
         this.mainRight.set('class', 'ka-list-combine-right');
 
@@ -46,13 +42,18 @@ ka.WindowCombine = new Class({
         if (this.classProperties.asNested){
 
             //load ka.objectTree
+
+            this.treeContainer = new Element('div', {
+                'class': 'ka-windowCombine-treeContainer ka-objectTree-container'
+            }).inject(this.mainLeft);
+
             this.renderLayoutNested(this.treeContainer);
 
         } else {
             //classic list
 
             this.mainLeftTop = new Element('div', {
-                style: 'position: absolute; left: 0px; padding: 5px 6px; top: 0px; height: 20px; right: 6px; border-bottom: 1px solid gray;',
+                style: 'position: absolute; left: 0px; padding: 5px 6px; top: 0px; height: 25px; right: 6px; border-bottom: 1px solid gray;',
                 'class': 'ka-list-combine-left-top'
             }).inject(this.mainLeft);
 
@@ -75,7 +76,7 @@ ka.WindowCombine = new Class({
             }).inject(this.mainLeft);
 
             this.mainLeftItems = new Element('div', {
-                style: 'position: absolute; left: 0px; top: 31px; bottom: 0px; right: 6px; overflow: auto;'
+                style: 'position: absolute; left: 0px; top: 36px; bottom: 0px; right: 6px; overflow: auto;'
             }).addEvent('scroll', this.checkScrollPosition.bind(this, true)).inject(this.mainLeft);
 
             this.mainLeftDeleter = new Element('div', {
@@ -689,7 +690,7 @@ ka.WindowCombine = new Class({
             this.searchIcon.addClass('ka-list-combine-searchicon-active');
             this.mainLeftSearch.tween('height', this.searchPaneHeight);
             this.mainLeftSearch.setStyle('border-bottom', '1px solid silver');
-            this.mainLeftItems.tween('top', 31 + this.searchPaneHeight + 1);
+            this.mainLeftItems.tween('top', 36 + this.searchPaneHeight + 1);
             this.searchOpened = true;
             this.doSearch();
         } else {
@@ -702,7 +703,7 @@ ka.WindowCombine = new Class({
                 this.checkScrollPosition();
             }.bind(this));
 
-            this.mainLeftItems.tween('top', 31);
+            this.mainLeftItems.tween('top', 36);
             this.searchOpened = false;
             this.reload();
         }

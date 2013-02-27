@@ -42,7 +42,7 @@ ka.ButtonGroup = new Class({
     },
 
     show: function () {
-        this.box.setStyle('display', 'block');
+        this.box.setStyle('display', 'inline-block');
     },
 
     rerender: function () {
@@ -52,7 +52,7 @@ ka.ButtonGroup = new Class({
     addButton: function (pTitle, pIcon, pOnClick) {
 
         var wrapper = new Element('a', {
-            'class': 'kwindow-win-buttonWrapper',
+            'class': 'ka-buttonGroup-item',
             href: 'javascript:;'
         }).inject(this.boxWrapper);
 
@@ -63,16 +63,15 @@ ka.ButtonGroup = new Class({
             wrapper.setStyle('padding', '3px 0px');
         }
 
-        var imgWrapper = new Element('span').inject( wrapper );
-
         if (typeOf(pIcon) == 'string'){
             if (pIcon.substr(0,1) == '#'){
-                imgWrapper.addClass(pIcon.substr(1));
+                wrapper.addClass('ka-buttonGroup-item-with-icon');
+                wrapper.addClass(pIcon.substr(1));
             } else {
                 new Element('img', {
                     src: pIcon,
                     height: 14
-                }).inject(imgWrapper, 'top');
+                }).inject(wrapper, 'top');
             }
         }
 

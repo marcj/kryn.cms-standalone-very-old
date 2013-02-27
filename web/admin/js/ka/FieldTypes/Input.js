@@ -54,7 +54,7 @@ ka.FieldTypes.Input = ka.FieldTypes.Text = new Class({
         this.input = new Element('input', {
             'class': 'ka-input',
             styles: {
-                'height': this.options.inputHeight
+                'height': this.options.inputHeight ? parseInt(this.options.inputHeight)-2 : null
             },
             maxLength: this.options.maxLength
         }).inject(this.innerWrapper);
