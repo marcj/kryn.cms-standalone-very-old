@@ -15,6 +15,7 @@ ka.wm = {
     zIndex: 1000,
 
     activeWindowInformation: [],
+    tempItems: {},
 
     openWindow: function (pEntryPoint, pLink, pParentWindowId, pParams, pInline) {
 
@@ -126,6 +127,10 @@ ka.wm = {
             parent.removeChildren();
         }
 
+        if (ka.wm.tempItems[pWindow.getEntryPoint()]) {
+            delete ka.wm.tempItems[pWindow.getEntryPoint()];
+        }
+
         delete ka.wm.windows[pWindow.id];
 
         if (parent){
@@ -176,14 +181,17 @@ ka.wm = {
                 var menuItem = ka.adminInterface.getMenuItem(win.getEntryPoint());
                 if (menuItem) {
                     menuItem.object.addClass('ka-main-menu-active');
-                } else {
+                } else if (!ka.wm.tempItems[win.getEntryPoint()]){
                     var item = ka.adminInterface.addTempLink(win);
                     item.addClass('ka-main-menu-active');
+                    ka.wm.tempItems[win.getEntryPoint()] = item;
+                } if (menuItem = ka.wm.tempItems[win.getEntryPoint()]){
+                    menuItem.set('text', win.getTitle());
+                    menuItem.addClass('ka-main-menu-active');
                 }
             }
 
         });
-
 
     },
 

@@ -1591,8 +1591,6 @@ var admin_system_module_editWindow = new Class({
         });
 
         win.closer.removeEvents('click');
-        //win.minimizer.removeEvents('click');
-        win.linker.destroy();
 
         return win;
     },
