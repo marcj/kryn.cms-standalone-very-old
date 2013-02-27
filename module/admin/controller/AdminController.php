@@ -368,6 +368,8 @@ class AdminController
 
         $response->addCssFile('admin/icons/style.css');
 
+        $response->addHeader('<meta name="viewport" content="width=device-width" >');
+
         $response->setResourceCompression(false);
     }
 

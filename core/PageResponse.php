@@ -71,6 +71,13 @@ class PageResponse extends Response
     private $title;
 
     /**
+     * All additional html>head elements.
+     *
+     * @var array
+     */
+    private $header = array();
+
+    /**
      * @var bool
      */
     private $domainHandling = true;
@@ -109,26 +116,44 @@ class PageResponse extends Response
         return $this->endTag;
     }
 
+    /**
+     * @param boolean $pDomainHandling
+     */
     public function setDomainHandling($pDomainHandling)
     {
         $this->domainHandling = $pDomainHandling;
     }
 
+    /**
+     * @return bool
+     */
     public function getDomainHandling()
     {
         return $this->domainHandling;
     }
 
+    /**
+     * @param boolea $resourceCompression
+     */
     public function setResourceCompression($resourceCompression)
     {
         $this->resourceCompression = $resourceCompression;
     }
 
+    /**
+     * @return bool
+     */
     public function getResourceCompression()
     {
         return $this->resourceCompression;
     }
 
+    /**
+     * Adds a css file to the page.
+     *
+     * @param string $pPath
+     * @param string $pType
+     */
     public function addCssFile($pPath, $pType  = 'text/css')
     {
         $insert = array('path' => $pPath, 'type' => $pType);
@@ -136,6 +161,12 @@ class PageResponse extends Response
             $this->css[] = $insert;
     }
 
+    /**
+     * Adds css source to the page.
+     *
+     * @param string $pContent
+     * @param string $pType
+     */
     public function addCss($pContent, $pType  = 'text/css')
     {
         $insert = array('content' => $pContent, 'type' => $pType);
@@ -143,6 +174,13 @@ class PageResponse extends Response
             $this->css[] = $insert;
     }
 
+    /**
+     * Adds a javascript file to the page.
+     *
+     * @param string $pPath
+     * @param string $pPosition
+     * @param string $pType
+     */
     public function addJsFile($pPath, $pPosition = 'top', $pType = 'text/javascript')
     {
         $insert = array('path' => $pPath, 'position' => $pPosition, 'type' => $pType);
@@ -150,11 +188,27 @@ class PageResponse extends Response
             $this->js[] = $insert;
     }
 
+    /**
+     * Adds javascript source to the page.
+     *
+     * @param string $pContent
+     * @param string $pPosition
+     * @param string $pType
+     */
     public function addJs($pContent, $pPosition = 'top', $pType = 'text/javascript')
     {
         $insert = array('content' => $pContent, 'position' => $pPosition, 'type' => $pType);
         if (array_search($insert, $this->js) === false)
             $this->js[] = $insert;
+    }
+
+    /**
+     * Adds a additionally HTML header element.
+     *
+     * @param string $pContent
+     */
+    public function addHeader($pContent){
+        $this->header[] = $pContent;
     }
 
     /**
@@ -166,14 +220,12 @@ class PageResponse extends Response
      */
     public function send()
     {
-        //build html skeleton
-        $header = '';
         $this->prepare(Kryn::getRequest());
 
-        $html = $this->buildHtml();
-
-        $this->setContent($html);
         $this->setCharset('UTF-8');
+
+        $html = $this->buildHtml();
+        $this->setContent($html);
 
         Kryn::getEventDispatcher()->dispatch('core.page-response-send-pre');
 
@@ -193,6 +245,8 @@ class PageResponse extends Response
         $header .= $this->getBaseHrefTag();
         $header .= $this->getContentTypeTag();
         $header .= $this->getMetaLanguageTag();
+
+        $header .= $this->getAdditionalHeaderTags();
 
         $header .= $this->getCssTags();
         //$header .= $this->getCssContent();
@@ -274,6 +328,13 @@ class PageResponse extends Response
     public function getContentTypeTag()
     {
         return sprintf('<meta http-equiv="content-type" content="text/html; charset=%s">'.chr(10), $this->getCharset());
+    }
+
+    /**
+     * Returns all additional html header elements.
+     */
+    public function getAdditionalHeaderTags(){
+        return implode("\n    ", $this->header)."\n";
     }
 
     /**
