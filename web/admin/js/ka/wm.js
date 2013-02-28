@@ -127,8 +127,9 @@ ka.wm = {
             parent.removeChildren();
         }
 
-        if (ka.wm.tempItems[pWindow.getEntryPoint()]) {
-            delete ka.wm.tempItems[pWindow.getEntryPoint()];
+        if (ka.wm.tempItems[pWindow.getId()]) {
+            ka.wm.tempItems[pWindow.getId()].destroy();
+            delete ka.wm.tempItems[pWindow.getId()];
         }
 
         delete ka.wm.windows[pWindow.id];
@@ -179,25 +180,38 @@ ka.wm = {
             if (win.isInFront()){
 
                 var menuItem = ka.adminInterface.getMenuItem(win.getEntryPoint());
+
                 if (menuItem) {
-                    menuItem.object.addClass('ka-main-menu-active');
-                } else if (!ka.wm.tempItems[win.getEntryPoint()]){
+                    menuItem.object.addClass('ka-main-menu-item-active');
+                } else if (!ka.wm.tempItems[win.getId()]){
                     var item = ka.adminInterface.addTempLink(win);
-                    item.addClass('ka-main-menu-active');
-                    ka.wm.tempItems[win.getEntryPoint()] = item;
-                } if (menuItem = ka.wm.tempItems[win.getEntryPoint()]){
-                    menuItem.set('text', win.getTitle());
-                    menuItem.addClass('ka-main-menu-active');
+                    item.addClass('ka-main-menu-item-active');
+                    ka.wm.tempItems[win.getId()] = item;
+                } if (menuItem = ka.wm.tempItems[win.getId()]){
+                    menuItem.set('text', win.getEntryPointDefinition().title+' » '+win.getTitle());
+                    menuItem.addClass('ka-main-menu-item-active');
                 }
             }
 
         });
 
+        var children = ka.adminInterface.mainTempLinks.getChildren('.ka-main-menu-item');
+        if (children.length > 0) {
+            if (!ka.wm.tempLinksSplitter) {
+                ka.wm.tempLinksSplitter = new Element('div',{
+                    'class': 'ka-main-menu-splitter'
+                }).inject(ka.adminInterface.mainTempLinks, 'after');
+            }
+        } else if (ka.wm.tempLinksSplitter) {
+            ka.wm.tempLinksSplitter.destroy();
+            delete ka.wm.tempLinksSplitter;
+        }
+
     },
 
     removeActiveWindowInformation: function(){
 
-        ka.adminInterface.mainLinks.getElements('a').removeClass('ka-main-menu-active');
+        ka.adminInterface.mainLinks.getElements('a').removeClass('ka-main-menu-item-active');
 
         Array.each(ka.wm.activeWindowInformation, function(entryPoint){
             var menuItem = ka.adminInterface.getMenuItem(entryPoint);
