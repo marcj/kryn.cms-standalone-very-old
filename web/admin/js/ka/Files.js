@@ -83,7 +83,6 @@ ka.Files = new Class({
             this.cancelUploads();
         }.bind(this));
 
-
         this.loadRoot();
     },
 
@@ -688,7 +687,7 @@ ka.Files = new Class({
 
     newUploadBtn: function () {
 
-        this.uploadBtn = this.boxAction.addButton(_('Upload file'), '#icon-upload-7');
+        this.uploadBtn = this.boxAction.addButton(t('Upload'), '#icon-upload-7');
 
         if (!window.FormData) {
             this.uploadBtn.addEvent('mousedown', function (e) {
@@ -761,8 +760,8 @@ ka.Files = new Class({
 
         var boxAction = new ka.ButtonGroup(actionsContainer);
         this.boxAction = boxAction;
-        boxAction.addButton(t('New file'), '#icon-file-add', this.newFile.bind(this));
-        boxAction.addButton(t('New directory'), '#icon-folder-4', this.newFolder.bind(this));
+        boxAction.addButton(t('File'), '#icon-file-add', this.newFile.bind(this));
+        boxAction.addButton(t('Folder'), '#icon-folder-4', this.newFolder.bind(this));
 
         this.newUploadBtn();
 
@@ -825,7 +824,7 @@ ka.Files = new Class({
         }).inject(this.search, 'after');
 
         this.fileContainer = new Element('div', {
-            'class': 'admin-files-droppables admin-files-fileContainer'
+            'class': 'admin-files-droppables admin-files-fileContainer ka-scrolling'
         }).addEvent('mousedown', function (pEvent) {
             this.checkMouseDown(pEvent);
         }.bind(this)).addEvent('mouseup', function (pEvent) {
@@ -844,6 +843,13 @@ ka.Files = new Class({
         }.bind(this)).addEvent('mousemove', function (pEvent) {
             this.checkMouseMove(pEvent);
         }.bind(this)).inject(this.container);
+
+        if (ka.mobile){
+            this.fileContainer.addEvent('click', function (pEvent) {
+                this.checkMouseDblClick(pEvent);
+                this.closeSearch();
+            }.bind(this))
+        }
 
         this.fileContainer.addEvent('scroll', this.loadImagesInViewPort.bind(this));
 
@@ -1059,7 +1065,7 @@ ka.Files = new Class({
     loadPath: function (pPath, pCallback) {
 
         if (pPath.substr(0, 7) == '/trash/' && pPath.length >= 7) {
-            this.win._alert(_('You cannot open a file in the trash folder. To view this file, press right click and choose recover.'));
+            this.win._alert(t('You cannot open a file in the trash folder. To view this file, press right click and choose recover.'));
             return;
         }
 
@@ -1164,7 +1170,7 @@ ka.Files = new Class({
             e.stop()
         }).addEvent('click', this.loadPath.bind(this, pFile.path)).inject(this.infos);
 
-        item.store('file', pFile);
+        item.fileItem = pFile;
         item.fileObj = this;
     },
 
@@ -1180,8 +1186,8 @@ ka.Files = new Class({
         if (pPath.substr(0, 1) != '/')
             pPath = '/'+pPath;
 
-        this.loader.show();
 
+        this.loader.show();
         this.currentFile = this.path2File[pPath];
         if (!this.currentFile) {
 
@@ -1257,8 +1263,6 @@ ka.Files = new Class({
 
             this.setTitle();
 
-            this.fileContainer.store('file', this.currentFile);
-
             this.address.setValue(this.current);
 
             this.render(pResponse.data);
@@ -1269,7 +1273,7 @@ ka.Files = new Class({
 
             this.loader.hide();
 
-            this.upBtn.store('file', {type: 'dir', path: this.getUpPath()});
+            this.upBtn.fileItem = {type: 'dir', path: this.getUpPath()};
 
             if (typeOf(pCallback) == 'function') {
                 pCallback();
@@ -1319,9 +1323,7 @@ ka.Files = new Class({
         this.fileContainer.removeClass('admin-files-listtype-miniatur');
         this.fileContainer.removeClass('admin-files-listtype-detail');
 
-
         this.fileContainer.addClass('admin-files-listtype-'+this.listType);
-
 
         if (this.listType == 'icon' || this.listType == 'miniatur') {
             this.renderIcons(this.files2View);
@@ -1368,10 +1370,10 @@ ka.Files = new Class({
                 var image = _path+'admin/file/thumbnail/?' + Object.toQueryString({
                     path: file.readyToLoadImage.path,
                     mtime: file.readyToLoadImage.mtime,
-                    width: file.imageContainer.getSize().x,
-                    height: file.imageContainer.getSize().y
+                    width: file.imageContainer.getSize().x-20,
+                    height: file.imageContainer.getSize().y-20
                 });
-                file.imageContainer.setStyle('background-image', 'url('+image+')');
+                file.image.set('src', image);
 
                 file.imageLoaded = true;
 
@@ -1402,7 +1404,7 @@ ka.Files = new Class({
         }
 
         if (item) {
-            file = item.retrieve('file');
+            file = item.fileItem;
         }
 
         if (file && file.type == 'dir' && file.path != '/trash' && file.path != '/' && !item.hasClass('admin-files-fileContainer') && file.writeaccess) {
@@ -1467,7 +1469,7 @@ ka.Files = new Class({
         }
 
         if (item) {
-            file = item.retrieve('file');
+            file = item.fileItem;
             item.removeClass('admin-files-item-selected');
         }
 
@@ -1690,7 +1692,9 @@ ka.Files = new Class({
             selection.removeAllRanges();
         }).delay(40);
 
-        this.inputTrigger.focus();
+        if (!ka.mobile) {
+            this.inputTrigger.focus();
+        }
 
         if (!item.hasClass('admin-files-item')) {
             item = item.getParent('.admin-files-item');
@@ -1703,7 +1707,7 @@ ka.Files = new Class({
         pEvent.preventDefault();
 
         if (item) {
-            file = item.retrieve('file');
+            file = item.fileItem;
             this.lastClickedItem = item;
         } else {
             delete this.lastClickedItem;
@@ -1747,7 +1751,7 @@ ka.Files = new Class({
 
         if (!item) return;
 
-        var file = item.retrieve('file');
+        var file = item.fileItem;
 
         if (file) {
             if (file.type == 'file' && this.options.selection && !this.options.selectionOnlyFolders) {
@@ -1842,7 +1846,7 @@ ka.Files = new Class({
 
         }
 
-        var file = item.retrieve('file');
+        var file = item.fileItem;
 
         if (!item.hasClass('admin-files-item-selected')) {
 
@@ -1859,7 +1863,7 @@ ka.Files = new Class({
 
     selectItem: function (pItem) {
 
-        var file = pItem.retrieve('file');
+        var file = pItem.fileItem;
         if (file && file.path != '/trash') {
 
             if (this.options.onlyLocal == 1 && file.magic) return false;
@@ -1885,7 +1889,7 @@ ka.Files = new Class({
         var res = {};
 
         this.fileContainer.getElements('.admin-files-item-selected').each(function (item) {
-            var file = item.retrieve('file');
+            var file = item.fileItem;
             res[ file.path ] = file;
         });
 
@@ -1896,7 +1900,7 @@ ka.Files = new Class({
         var res = [];
 
         this.fileContainer.getElements('.admin-files-item-selected').each(function (item) {
-            var file = item.retrieve('file');
+            var file = item.fileItem;
             res.include(file);
         });
 
@@ -1912,7 +1916,7 @@ ka.Files = new Class({
         var res = {};
 
         this.fileContainer.getElements('.admin-files-item-selected').each(function (item) {
-            var file = item.retrieve('file');
+            var file = item.fileItem;
             res[ file.path ] = item;
         });
 
@@ -1926,7 +1930,7 @@ ka.Files = new Class({
         }
         if (!this.previewDiv) return;
 
-        var file = this.lastClickedItem.retrieve('file'), image;
+        var file = this.lastClickedItem.fileItem, image;
         var img;
 
         if (this.__images.contains(file.path.substr(file.path.lastIndexOf('.')).toLowerCase())) {
@@ -2012,7 +2016,9 @@ ka.Files = new Class({
 
             var item, file, image;
 
-            this.inputTrigger.focus();
+            if (!ka.mobile) {
+                this.inputTrigger.focus();
+            }
 
             pEvent.preventDefault();
 
@@ -2038,13 +2044,15 @@ ka.Files = new Class({
                 handle: this.previewDivResizer
             });
 
-            this.previewDiv.addEvent('mouseup', function () {
-                this.inputTrigger.focus();
-            }.bind(this));
+            if (!ka.mobile) {
+                this.previewDiv.addEvent('mouseup', function () {
+                    this.inputTrigger.focus();
+                }.bind(this));
 
-            this.previewDiv.addEvent('mousedown', function () {
-                this.inputTrigger.focus();
-            }.bind(this));
+                this.previewDiv.addEvent('mousedown', function () {
+                    this.inputTrigger.focus();
+                }.bind(this));
+            }
 
             new Element('img', {
                 src: _path + 'admin/images/loading.gif',
@@ -2146,7 +2154,7 @@ ka.Files = new Class({
                 item = selectedItem;
             });
 
-            moveFiles.include(item.retrieve('file').path);
+            moveFiles.include(item.fileItem.path);
 
             container = item.clone();
             container.removeClass('admin-files-item-selected')
@@ -2177,7 +2185,7 @@ ka.Files = new Class({
             Object.each(selectedItems, function (item) {
 
                 draggedItems.include(item);
-                moveFiles.include(item.retrieve('file').path);
+                moveFiles.include(item.fileItem.path);
 
                 var clone = item.clone().setStyles({
                     position: 'absolute',
@@ -2259,7 +2267,7 @@ ka.Files = new Class({
                     clearTimeout(this.activeAutoDirOpenerTimeout);
                 }
 
-                var file = droppable.retrieve('file');
+                var file = droppable.fileItem;
                 if (!file || pFromDir == file.path || file.path == '/trash') return;
                 if (file.type == 'file' || pFilePaths.contains(file.path)) return;
 
@@ -2288,7 +2296,7 @@ ka.Files = new Class({
                         droppable = droppable.getParent();
                     }
 
-                    var file = droppable.retrieve('file');
+                    var file = droppable.fileItem;
                     if (!file){
                         return;
                     }
@@ -2406,7 +2414,7 @@ ka.Files = new Class({
         this.detailTable.setValues(rows);
 
         this.detailTable.tableBody.getElements('tr').each(function (tr, id) {
-            tr.store('file', this.files2View[id]);
+            tr.fileItem = this.files2View[id];
             tr.fileObj = this;
             tr.getElements('td').addClass('admin-files-droppables');
         }.bind(this));
@@ -2492,7 +2500,7 @@ ka.Files = new Class({
 
             new Element('div', {
                 'class': 'admin-files-seperator',
-                html: _('User defined')
+                html: t('User defined')
             }).inject(this.fileContainer);
 
             files.each(function (item) {
@@ -2551,14 +2559,26 @@ ka.Files = new Class({
             'class': 'admin-files-item-icon '+(fileIconClass?fileIconClass:'')
         }).inject(base);
 
+        if (fileIcon) {
+            base.image = new Element('img').inject(base.imageContainer);
+        }
+
         if (fileIcon){
             base.readyToLoadImage = fileIcon;
         }
 
-        new Element('div', {
+        var title = new Element('div', {
             'class': 'admin-files-item-title',
             'text': (pFile.path == '/trash') ? t('Trash') : this.escTitle(pFile.name, base.getSize().x)
         }).inject(base);
+
+
+        if (fileIcon && pFile.dimensions) {
+            new Element('div', {
+                'class': 'admin-files-item-title-dimensions',
+                text: pFile.dimensions.width+' x '+pFile.dimensions.height
+            }).inject(title, 'top');
+        }
 
         if (this.options.selectionValue) {
             if (typeOf(this.options.selectionValue) == 'string' &&
@@ -2569,7 +2589,7 @@ ka.Files = new Class({
             }
         }
 
-        base.store('file', pFile);
+        base.fileItem = pFile;
         return base;
     },
 
@@ -2626,7 +2646,9 @@ ka.Files = new Class({
             'class': 'admin-files-context'
         }).inject(this.win.border);
 
-        this.inputTrigger.focus();
+        if (!ka.mobile) {
+            this.inputTrigger.focus();
+        }
 
         if (pFile.path.substr(0, 6) == '/trash') {
             //pressed on a item in the trash folder

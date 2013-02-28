@@ -70,7 +70,7 @@ ka.AdminInterface = new Class({
         }).inject(this.headerInner);
 
         this.mainLinks = new Element('div',{
-            'class': 'ka-mainLinks'
+            'class': 'ka-mainLinks ka-scrolling'
         }).inject(this.headerInner);
 
         this.openFrontendBtnContainer = new Element('div', {

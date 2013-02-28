@@ -279,7 +279,7 @@ class AdminController
                 ->addSubController('file', '\Admin\File')
                     ->addGetRoute('', 'getFiles')
                     ->addGetRoute('single', 'getFile')
-                    ->addGetRoute('thumbnail', 'getThumbnail')
+                    ->addGetRoute('thumbnail', 'showThumbnail')
                 ->done()
 
             ->run();
@@ -368,7 +368,8 @@ class AdminController
 
         $response->addCssFile('admin/icons/style.css');
 
-        $response->addHeader('<meta name="viewport" content="width=1150" >');
+        $response->addHeader('<meta name="viewport" content="initial-scale=1.0" >');
+        $response->addHeader('<meta name="apple-mobile-web-app-capable" content="yes">');
 
         $response->setResourceCompression(false);
     }

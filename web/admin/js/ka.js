@@ -19,7 +19,6 @@ PATH_WEB = PATH;
  */
 window._ = function (p) {
     return t(p);
-    //return _kml2html(p);
 };
 
 if (typeOf(ka.langs) != 'object') this.langs = {};
@@ -32,10 +31,15 @@ window.logger = function(){
     }
 };
 
-document.addEvent('touchmove', function (event) {
-    event.preventDefault();
-});
-
+ka.mobile = (false
+ || navigator.userAgent.match(/Android/i)
+ || navigator.userAgent.match(/iPhone/i)
+ || navigator.userAgent.match(/webOS/i)
+ || navigator.userAgent.match(/iPad/i)
+ || navigator.userAgent.match(/iPod/i)
+ || navigator.userAgent.match(/BlackBerry/i)
+ || navigator.userAgent.match(/Windows Phone/i)
+);
 
 /**
  * Opens the frontend in a new tab.

@@ -15,6 +15,15 @@ body.hide-scrollbar {
     overflow: hidden;
 }
 
+.ka-scrolling {
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.ka-scrolling * {
+    -webkit-transform: translateZ(0);
+}
+
 .ka-admin div,
 .ka-admin span {
     -webkit-user-select: none;

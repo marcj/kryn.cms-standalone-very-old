@@ -34,14 +34,14 @@ ka.Window = new Class({
         this.active = true;
         this.isOpen = true;
 
+        this.createWin();
+
         if (pEntryPoint) {
 
             this.loadContent();
 
             this.closeBind = this.close.bind(this, true);
             this.addHotkey('esc', false, false, this.closeBind);
-        } else {
-            this.createWin();
         }
     },
 
@@ -617,7 +617,7 @@ ka.Window = new Class({
 
     maximize: function (pDontRenew) {
 
-        if (this.inline || this.isPage()) return;
+        if (this.inline || this.isPopup()) return;
 
         if (this.maximized) {
             this.borderDragger.attach();
@@ -661,7 +661,7 @@ ka.Window = new Class({
 
     saveDimension: function () {
 
-        if (this.inline || this.isPage()) return;
+        if (this.inline || this.isPopup()) return;
 
         var pos = this.border.getCoordinates(this.border.getParent());
 
@@ -681,7 +681,7 @@ ka.Window = new Class({
 
     loadDimensions: function () {
 
-        if (this.inline || this.isPage()) return;
+        if (this.inline || this.isPopup()) return;
 
         this.border.setStyle('top', 20);
         this.border.setStyle('left', 40);
@@ -736,7 +736,7 @@ ka.Window = new Class({
 
     checkDimensions: function () {
 
-        if (this.inline || this.isPage()) return;
+        if (this.inline || this.isPopup()) return;
         if (this.maximized) return;
 
         var desktopSize = ka.adminInterface.desktopContainer.getSize();
@@ -913,8 +913,8 @@ ka.Window = new Class({
         return this.module;
     },
 
-    isPage: function(){
-        return this.isPageStyle;
+    isPopup: function(){
+        return this.isPopup;
     },
 
     loadContent: function () {
@@ -923,16 +923,6 @@ ka.Window = new Class({
             this.getContentContainer().empty();
 
         this.entryPointDefinition = ka.entrypoint.get(this.getEntryPoint());
-
-        if (true || this.entryPointDefinition.page){
-            this.isPageStyle = true;
-        }
-
-        this.createWin();
-
-        if (this.isPage()){
-            this.border.addClass('ka-window-page-style');
-        }
 
         if (this.entryPointDefinition.multi === false || this.entryPointDefinition.multi === 0) {
             var win = ka.wm.checkOpen(this.getEntryPoint(), this.id);
@@ -971,7 +961,7 @@ ka.Window = new Class({
 
         }.bind(this));
 
-        if (!this.inline && !this.isPage()) {
+        if (!this.inline && !this.isPopup()) {
             this.createResizer();
         }
 
@@ -1118,7 +1108,7 @@ ka.Window = new Class({
 
             this.border.addClass('kwindow-border-shadow');
 
-        } else if (!this.inline && !this.isPage()) {
+        } else if (!this.inline && !this.isPopup()) {
 
             new Element('div', {
                 'class': 'kwindow-shadow-bottom'
@@ -1319,7 +1309,7 @@ ka.Window = new Class({
             'class': 'kwindow-win-titleBar'
         }).inject(this.win);
 
-        if (!this.isPage()){
+        if (!this.isPopup()){
             this.maximizer = new Element('div', {
                 'class': 'kwindow-win-titleBarIcon icon-expand-4'
             }).addEvent('click', this.maximize.bind(this)).inject(this.titleBar);

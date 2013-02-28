@@ -28,8 +28,8 @@
   <table name="system_content" phpName="Content" idMethod="native">
     <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true"/>
     <column name="node_id" type="INTEGER" />
-    <column name="box_id" type="INTEGER" required="false"/>
-    <column name="sortable_id" type="VARCHAR" size="32" required="false"/>
+    <column name="box_id" type="INTEGER" />
+    <column name="sort" type="INTEGER"/>
     <column name="title" type="VARCHAR" size="255" required="false"/>
     <column name="content" type="LONGVARCHAR" required="false"/>
     <column name="template" type="VARCHAR" size="64" required="false"/>
@@ -40,6 +40,7 @@
     <column name="access_to" type="INTEGER" required="false"/>
     <column name="access_from_groups" type="VARCHAR" size="32" required="false"/>
     <column name="unsearchable" type="INTEGER" required="false"/>
+    <column name="workspace_id" type="INTEGER"/>
     <index>
       <index-column name="box_id"/>
     </index>
@@ -52,9 +53,11 @@
     <foreign-key foreignTable="system_node" onDelete="cascade">
       <reference local="node_id" foreign="id"/>
     </foreign-key>
+    <behavior name="workspace" />
     <behavior name="sortable">
+      <parameter name="rank_column" value="sort" />
       <parameter name="use_scope" value="true"/>
-      <parameter name="scope_column" value="sortable_id"/>
+      <parameter name="scope_column" value="box_id"/>
     </behavior>
     <vendor type="mysql">
       <parameter name="Charset" value="utf8"/>

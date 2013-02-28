@@ -10,7 +10,7 @@
  *
  */
 
-namespace core;
+namespace Core;
 
 /**
  * File
@@ -540,11 +540,53 @@ class WebFile
     }
 
     /**
-     * @param      $pPath
-     * @param      $pResolution
-     * @param bool $pQuadratic
+     * Resize a image and returns it's object.
+     *
+     * @param string  $pPath
+     * @param integer $pWidth
+     * @param int     $pHeight
+     *
+     * @return \PHPImageWorkshop\Core\ImageWorkshopLayer
      */
-    public static function getThumbnail($pPath, $pResolution, $pQuadratic = false)
+    public static function getResizeMax($pPath, $pWidth, $pHeight){
+
+        $content = \Core\WebFile::getContent($pPath);
+        if (!$content) {
+            return null;
+        }
+
+        $image = \PHPImageWorkshop\ImageWorkshop::initFromString($content);
+
+        $width  = $image->getWidth();
+        $height = $image->getHeight();
+
+        if ($width > $height) {
+            $newWidth  = $pWidth;
+        } else {
+            $newHeight = $pHeight;
+        }
+
+        $image->resizeInPixel($newWidth, $newHeight, true);
+
+        if ($image->getHeight() > $pHeight){
+            $image->resizeInPixel(null, $pHeight, true);
+        }
+        if ($image->getWidth() > $pWidth){
+            $image->resizeInPixel($pWidth, null, true);
+        }
+
+        return $image;
+    }
+
+    /**
+     *
+     *
+     * @param string $pPath
+     * @param string $pResolution <width>x<height>
+     * @param bool   $pResize
+     * @return resource
+     */
+    public static function getThumbnail($pPath, $pResolution, $pResize = false)
     {
         $fs = static::getLayer($pPath);
 
@@ -560,7 +602,10 @@ class WebFile
         $thumbImage = imagecreatetruecolor($thumbWidth, $thumbHeight);
         imagealphablending($thumbImage, false);
 
-        if ($thumbWidth >= $oriWidth && $thumbHeight > $oriHeight) return $image;
+        imagealphablending($image, false);
+        imagesavealpha($image, true);
+
+        if (!$pResize && $thumbWidth >= $oriWidth && $thumbHeight > $oriHeight) return $image;
 
         if ($oriWidth > $oriHeight) {
 

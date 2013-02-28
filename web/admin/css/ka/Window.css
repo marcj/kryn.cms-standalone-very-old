@@ -1,5 +1,4 @@
 .kwindow-win {
-    -moz-border-radius: 4px;
     position: absolute;
     left: 0px;
     right: 0px;
@@ -9,12 +8,14 @@
 
 .kwindow-border {
     position: absolute;
-    width: 400px;
-    height: 300px;
-    left: 50px;
-    top: 0px;
-    border: 1px solid #868686;
-    background-color: #aaa;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: auto;
+    height: auto;
+    border: 0px;
+    background-color: #eee;
 }
 
 .ka-window-extend-head .kwindow-win-title {
@@ -23,36 +24,6 @@
 
 .ka-window-extend-head .kwindow-win-content {
     top: 62px;
-}
-
-.ka-window-page-style {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: auto;
-    height: auto;
-    border: 0px;
-    background-color: transparent;
-    -moz-border-radius: 0;
-}
-
-.ka-window-page-style .kwindow-win-title {
-    background: none;
-    background-color: #e2e7eb;
-    -moz-border-radius: 0;
-}
-
-.kwindow-border {
-    -moz-border-radius: 4px;
-    -moz-border-radius-bottomleft: 0px;
-    -moz-border-radius-bottomright: 0px;
-}
-
-
-.kwindow-border-maximized {
-    -moz-border-radius: 0px;
 }
 
 .kwindow-border-inline {
@@ -68,16 +39,8 @@
     top: 0px;
 }
 
-
 .kwindow-border-shadow {
-    -moz-box-shadow: 0 8px 3em #888;
-    -webkit-box-shadow: 0 8px 3em #888;
     box-shadow: 0 8px 3em #888;
-}
-
-.ka-kwindow-overlay {
-    -moz-border-radius-bottomleft: 4px;
-    -moz-border-radius-bottomright: 4px;
 }
 
 .kwindow-shadow-bottom {
@@ -154,7 +117,6 @@
     top: 0px;
     bottom: 0px;
     background-color: #aaa;
-    -moz-border-radius: 5px;
 }
 
 .kwindow-win-printer {
@@ -166,6 +128,7 @@
 
 .kwindow-win-title,
 .kwindow-win-title-inaktive {
+
     min-height: 22px;
     line-height: 20px;
     vertical-align: middle;
@@ -178,33 +141,12 @@
     /*border-top: 1px solid #DDD; produces a strange rendering bug in chrome. wait for the new interface design*/
     border-bottom: 1px solid #A3A3A3;
 
-    background: #cfcfcf; /* Old browsers */
-    /* IE9 SVG, needs conditional override of 'filter' to 'none' */
-    background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2NmY2ZjZiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiM5OTk5OTkiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
-    background: -moz-linear-gradient(top,  #cfcfcf 0%, #999999 100%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#cfcfcf), color-stop(100%,#999999)); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top,  #cfcfcf 0%,#999999 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top,  #cfcfcf 0%,#999999 100%); /* Opera 11.10+ */
-    background: -ms-linear-gradient(top,  #cfcfcf 0%,#999999 100%); /* IE10+ */
-    background: linear-gradient(to bottom,  #cfcfcf 0%,#999999 100%); /* W3C */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cfcfcf', endColorstr='#999999',GradientType=0 ); /* IE6-8 */
-
+    background: none;
+    background-color: #e2e7eb;
 
     position: relative;
     cursor: default;
     text-shadow: 0 1px 0 #CECECE;
-}
-
-.kwindow-win-title,
-.kwindow-win-title-inaktive {
-    -moz-border-radius-topleft: 4px;
-    -moz-border-radius-topright: 4px;
-}
-
-.kwindow-border-maximized .kwindow-win-title,
-.kwindow-border-maximized .kwindow-win-title-inaktive {
-    -moz-border-radius-topleft: 0px;
-    -moz-border-radius-topright: 0px;
 }
 
 .ka-kwindow-inFront {
@@ -231,7 +173,6 @@
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#dbdbdb', endColorstr='#b5b5b5',GradientType=0 ); /* IE6-8 */
     border-top: 1px solid silver;
 
-
     text-align: right;
     padding-right: 9px;
 }
@@ -241,21 +182,6 @@
 .kwindow-win-buttonBar::before {
     content: "\a0";
 }
-
-
-/*
-.kwindow-win-title-extended {
-
-    background: #cecece;
-    background: -moz-linear-gradient(top,  #c2c2c2 0%, #888 100%);
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#c2c2c2), color-stop(100%,#888));
-    background: -webkit-linear-gradient(top,  #c2c2c2 0%,#888 100%);
-    background: -o-linear-gradient(top,  #c2c2c2 0%,#888 100%);
-    background: -ms-linear-gradient(top,  #c2c2c2 0%,#888 100%);
-    background: linear-gradient(top,  #c2c2c2 0%,#888 100%);
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#c2c2c2', endColorstr='#888',GradientType=0 );
-}
-*/
 
 .kwindow-win-titleGroups {
       display: block;
@@ -298,8 +224,6 @@
     background-repeat: no-repeat;
     background-position: right bottom;
     border-top: 1px solid #777;
-    -moz-border-radius-bottomleft: 4px;
-    -moz-border-radius-bottomright: 4px;
     padding-left: 6px;
     color: #444;
     line-height: 18px;

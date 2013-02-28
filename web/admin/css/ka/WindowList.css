@@ -22,6 +22,7 @@
     background-color: #f9f9f9;
     overflow-x: hidden;
     overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
 }
 
 .ka-window-list-buttonGroup {
@@ -69,6 +70,7 @@ div.ka-windowCombine-treeContainer {
     bottom: 0px;
     right: 6px;
     overflow: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 div.ka-windowCombine-list-actions {
@@ -208,6 +210,7 @@ div.ka-windowCombine-list-actions {
     top: 0;
     bottom: 0;
     overflow: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 
@@ -299,6 +302,7 @@ a.ka-list-search-button-active:link {
     left: 0px;
     width: 100%;
     overflow: auto;
+    -webkit-overflow-scrolling: touch;
     height: 1px;
 }
 
@@ -398,6 +402,7 @@ a.ka-list-search-button-active:link {
     height: 0px; 
     right: 6px;
     overflow: auto;
+    -webkit-overflow-scrolling: touch;
     background-image: url(../../images/ka-list-combine-searchpane-bg.png);
     background-repeat: repeat-x;
     background-position: left bottom;

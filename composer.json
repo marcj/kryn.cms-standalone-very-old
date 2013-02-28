@@ -41,7 +41,7 @@
         }
     ],
     "require": {
-        "php": ">=5.3.0",
+        "php": ">=5.3.2",
         "twig/twig": ">=1.12",
         "smarty/smarty": ">=v3.1",
         "marcj/php-rest-service": "dev-master",
@@ -53,6 +53,7 @@
         "symfony/routing": ">=v2.1.7",
         "symfony/console": ">=v2.1",
         "marijnh/CodeMirror": ">=3.1",
+        "sybio/image-workshop": "dev-master",
         "ckeditor/ckeditor": "dev-master"
     }
 }

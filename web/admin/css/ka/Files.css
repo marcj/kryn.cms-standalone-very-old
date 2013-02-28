@@ -18,69 +18,6 @@
     height: 16px;
 }
 
-.admin-files-actionBar-address {
-
-    padding-right: 8px;
-
-    height: 16px;
-
-    padding: 3px;
-    padding-top: 2px;
-    font-size: 11px;
-    width: 100%;
-    color: #444;
-
-    -moz-border-radius: 5px;
-    box-shadow: 0px 1px 0px #aaa;
-    border: 1px solid #818181;
-
-    background: #e8e8e8; /* Old browsers */
-    background: -moz-linear-gradient(top,  #e8e8e8 0%, #f4f4f4 58%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#e8e8e8), color-stop(58%,#f4f4f4)); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top,  #e8e8e8 0%,#f4f4f4 58%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top,  #e8e8e8 0%,#f4f4f4 58%); /* Opera 11.10+ */
-    background: -ms-linear-gradient(top,  #e8e8e8 0%,#f4f4f4 58%); /* IE10+ */
-    background: linear-gradient(top,  #e8e8e8 0%,#f4f4f4 58%); /* W3C */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e8e8e8', endColorstr='#f4f4f4',GradientType=0 ); /* IE6-9 */
-
-}
-
-.admin-files-actionBar-search {
-
-    position: absolute;
-    right: 15px;
-    width: 86px;
-    top: 0px;
-    -moz-border-radius: 5px;
-    box-shadow: 0px 1px 0px #aaa;
-    display: block;
-
-    border: 1px solid #818181;
-
-    padding-right: 23px;
-
-    height: 16px;
-    padding: 3px;
-    padding-top: 2px;
-    padding-left: 19px;
-
-    font-size: 11px;
-    color: gray;
-
-    background: #e8e8e8; /* Old browsers */
-    background: -moz-linear-gradient(top,  #e8e8e8 0%, #f4f4f4 58%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#e8e8e8), color-stop(58%,#f4f4f4)); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top,  #e8e8e8 0%,#f4f4f4 58%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top,  #e8e8e8 0%,#f4f4f4 58%); /* Opera 11.10+ */
-    background: -ms-linear-gradient(top,  #e8e8e8 0%,#f4f4f4 58%); /* IE10+ */
-    background: linear-gradient(top,  #e8e8e8 0%,#f4f4f4 58%); /* W3C */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e8e8e8', endColorstr='#f4f4f4',GradientType=0 ); /* IE6-9 */
-
-}
-
-
-/* files */
-
 .admin-files-fileContainer {
     background-color: white;
     position: absolute;
@@ -88,7 +25,6 @@
     right: 0px;
     left: 141px;
     bottom: 0px;
-    overflow: auto;
     cursor: default;
     padding: 2px;
 }
@@ -121,7 +57,6 @@
     padding: 15px;
 }
 
-
 .admin-files-preview img {
     margin-top: 10px;
     max-height: 100%;
@@ -136,6 +71,7 @@
     width: 140px;
     background-color: #f4f4f4;
     overflow: auto;
+    -webkit-overflow-scrolling: touch;
     border-right: 1px solid #ddd;
 }
 
@@ -254,16 +190,18 @@
 
 /* files items */
 .admin-files-item {
-    float: left;
-    min-width: 87px;
-    margin: 0px 10px 24px 10px;
+    display: inline-block;
+    min-width: 150px;
+    margin: 15px 5px;
     position: relative;
     text-align: center;
     cursor: default;
+    vertical-align: middle;
 }
 
-.admin-files-item div {
-    margin-top: 10px;
+.admin-files-item-title-dimensions {
+    color: #0055aa;
+    font-size: 11px;
 }
 
 .admin-files-item:hover div.admin-files-item-title,
@@ -272,7 +210,7 @@
     color: #333;
 }
 
-.admin-files-item div {
+.admin-files-item-title {
     position: relative;
     color: #444;
     padding: 0px 4px 1px 4px;
@@ -281,6 +219,8 @@
     border-radius: 4px;
     cursor: default;
     white-space: pre;
+    margin-top: 10px;
+    font-size: 12px;
 }
 
 .admin-files-selector {
@@ -313,15 +253,12 @@
     border: 1px solid silver;
     height: 70px;
     background-color: #eee;
-    float: left;
+    display: inline-block;
     margin: 10px;
     margin-bottom: 25px;
     position: relative;
     background-position: center center;
     background-repeat: no-repeat;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
-    border-radius: 5px;
 }
 
 .admin-files-fileContainer .ka-Table-hover > div > .ka-Table-body > tr.admin-files-item-selected:hover > td,
@@ -352,12 +289,10 @@
     padding: 0px 2px 0px 2px;
 }
 
-
 .admin-file-uploadtable td {
     border-bottom: 1px dashed silver;
     padding: 6px;
 }
-
 
 table.ka-files-search-table td {
     border-bottom: 1px solid #d3d3d3;
@@ -380,7 +315,17 @@ table.ka-files-search-table tr:hover td {
 }
 
 .admin-files-listtype-miniatur .admin-files-item .admin-files-item-icon {
-    font-size: 200px;
-    height: 200px;
-    width: 230px;
+    font-size: 150px;
+    height: 160px;
+    width: 190px;
+    line-height: 160px;
+    vertical-align: middle;
+}
+
+.admin-files-item-icon img {
+    box-shadow: 0 2px 11px #979797;
+    vertical-align: middle;
+    padding: 5px;
+    top: -7px;
+    position: relative;
 }
