@@ -452,15 +452,9 @@ ka.AdminInterface = new Class({
 
         this.loginName = new Element('input', {
             name: 'loginName',
-            value: t('Username'),
             'class': 'ka-login-input-username',
-            type: 'text'
-        }).addEvent('focus',function (e) {
-            if (this.value == t('Username'))
-                this.value = '';
-        }).addEvent('blur',function (e) {
-            if (this.value == '')
-                    this.value = t('Username');
+            type: 'text',
+            placeholder: t('Username')
         })
         .addEvent('keyup',function (e) {
             if (e.key == 'enter') {
@@ -473,7 +467,8 @@ ka.AdminInterface = new Class({
         this.loginPw = new Element('input', {
             name: 'loginPw',
             type: 'password',
-            'class': 'ka-login-input-passwd'
+            'class': 'ka-login-input-passwd',
+            placeholder: t('Password')
         }).addEvent('keyup', function (e) {
             if (e.key == 'enter') {
                 this.doLogin();
