@@ -3,7 +3,7 @@ var admin_system_module_edit = new Class({
     initialize: function (pWin) {
         this.win = pWin;
         this.mod = this.win.params.name;
-        this.win.setTitle(this.mod + ' - ' + this.win.getTitle());
+        this.win.setTitle(this.mod);
         this._createLayout();
     },
 
@@ -29,7 +29,7 @@ var admin_system_module_edit = new Class({
         this.panes = {};
         Object.each(this.buttons, function (button, id) {
             this.panes[id] = new Element('div', {
-                'class': 'admin-system-modules-edit-pane'
+                'class': 'admin-system-modules-edit-pane ka-scrolling'
             }).inject(this.win.content);
         }.bind(this));
 

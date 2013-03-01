@@ -73,6 +73,10 @@ ka.AdminInterface = new Class({
             'class': 'ka-mainLinks ka-scrolling'
         }).inject(this.headerInner);
 
+        this.mainTempLinks = new Element('div', {
+
+        }).inject(this.mainLinks);
+
         this.openFrontendBtnContainer = new Element('div', {
             'class': 'ka-iconbar-item'
         }).inject(this.headerRight);
@@ -913,7 +917,11 @@ ka.AdminInterface = new Class({
 
         this.lastLoadMenuReq = new Request.JSON({url: _path + 'admin/backend/menus', noCache: true, onComplete: function (res) {
 
+            this.mainTempLinks.dispose();
             this.mainLinks.empty();
+            this.mainTempLinks.inject(this.mainLinks);
+            delete ka.wm.tempLinksSplitter;
+
             if (this.additionalMainMenu) {
                 this.additionalMainMenu.destroy();
                 this.additionalMainMenuContainer.destroy();
@@ -1163,11 +1171,28 @@ ka.AdminInterface = new Class({
     addTempLink: function(pWin){
 
         var mlink = new Element('a', {
-            text: pWin.getTitle()
-        }).inject(this.mainLinks, 'top');
+            text: (this.entryPoint ? this.entryPoint.title:'')+' » '+pWin.getTitle(),
+            'class': 'ka-main-menu-item'
+        }).inject(this.mainTempLinks, 'top');
+
+        var entryPoint = pWin.getEntryPointDefinition();
+
+        if (entryPoint.icon) {
+            mlink.addClass('ka-main-menu-item-hasIcon');
+            if (entryPoint.icon.substr(0,1) == '#'){
+                mlink.addClass(entryPoint.icon.substr(1));
+            } else {
+                mlink.addClass('ka-main-menu-item-hasImageAsIcon');
+                new Element('img', {
+                    src: _path + entryPoint.icon
+                }).inject(mlink, 'top');
+            }
+        } else {
+            mlink.addClass('ka-main-menu-item-hasNoIcon');
+        }
 
         mlink.activeWindowInformationContainer = new Element('div', {
-            'class': 'ka-main-menu-item-active-window-information-container'
+            'class': 'ka-main-menu-item-window-information-container'
         }).inject(mlink);
 
         return mlink;
@@ -1180,22 +1205,26 @@ ka.AdminInterface = new Class({
         if (!pLink.isLink) return;
 
         mlink = new Element('a', {
-            text: pLink.title
+            text: pLink.title,
+            'class': 'ka-main-menu-item'
         }).inject(this.mainLinks);
 
         mlink.activeWindowInformationContainer = new Element('div', {
-            'class': 'ka-main-menu-item-active-window-information-container'
+            'class': 'ka-main-menu-item-window-information-container'
         }).inject(mlink);
 
         if (pLink.icon) {
+            mlink.addClass('ka-main-menu-item-hasIcon');
             if (pLink.icon.substr(0,1) == '#'){
                 mlink.addClass(pLink.icon.substr(1));
             } else {
-                mlink.addClass('ka-mainmenubar-item-hasIcon');
+                mlink.addClass('ka-main-menu-item-hasImageAsIcon');
                 new Element('img', {
                     src: _path + pLink.icon
-                }).inject(mlink);
+                }).inject(mlink, 'top');
             }
+        } else {
+            mlink.addClass('ka-main-menu-item-hasNoIcon');
         }
 
         var menu = new Element('div', {
@@ -1210,8 +1239,8 @@ ka.AdminInterface = new Class({
 
             hasActiveChilds = true;
             var sublink = new Element('a', {
-                html: item.title,
-                'class': 'ka-module-items-deactivated'
+                text: item.title,
+                'class': 'ka-main-menu-item ka-module-items-deactivated'
             }).inject(menu);
 
             if (item.type) {
@@ -1221,8 +1250,22 @@ ka.AdminInterface = new Class({
                 }.bind(this))
             }
 
+            if (item.icon) {
+                sublink.addClass('ka-main-menu-item-hasIcon');
+                if (item.icon.substr(0,1) == '#'){
+                    sublink.addClass(item.icon.substr(1));
+                } else {
+                    sublink.addClass('ka-main-menu-item-hasImageAsIcon');
+                    new Element('img', {
+                        src: _path + item.icon
+                    }).inject(sublink, 'top');
+                }
+            } else {
+                sublink.addClass('ka-main-menu-item-hasNoIcon');
+            }
+
             sublink.activeWindowInformationContainer = new Element('div', {
-                'class': 'ka-main-menu-item-active-window-information-container'
+                'class': 'ka-main-menu-item-window-information-container'
             }).inject(sublink);
 
             this._links[ pExtCode + '/' + pCode+'/'+code ] = {
@@ -1253,7 +1296,7 @@ ka.AdminInterface = new Class({
             }).inject(childOpener);
 
             childOpener.addEvent('click', function(e){
-                e.stopPropagation();
+                e.stop();
                 if (menu.getStyle('display') != 'block'){
                     menu.setStyle('display', 'block');
                 } else {
@@ -1357,20 +1400,6 @@ ka.AdminInterface = new Class({
 
         var pos = {x: 0, y: 0};
         var corner = false;
-
-        /*if( pLink.level == 'main' ){
-         var div = new Element('div', {
-         'class': 'ka-linkcontext-main'
-         }).inject( document.body );
-
-         pos = pLink.object.getPosition();
-         var size = pLink.object.getSize();
-
-         div.setStyle('left', pos.x);
-         //div.setStyle('width', size.x);
-         }
-         if( pLink.level == 'sub' ){
-         */
 
         var parent = pLink.object.getParent('.ka-module-menu');
         if (!parent) {

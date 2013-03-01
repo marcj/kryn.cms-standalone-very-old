@@ -260,8 +260,8 @@ ka.ObjectTree = new Class({
 
         window.addEvent('mouseup', this.destroyContext.bind(this));
 
-        this.main.addEvent('click:relay(.ka-objectTree-item)', this.onClick.bind(this));
         this.main.addEvent('click:relay(.ka-objectTree-item-toggler)', this.onTogglerClick.bind(this));
+        this.main.addEvent('click:relay(.ka-objectTree-item)', this.onClick.bind(this));
         this.main.addEvent('mousedown', this.onMousedown.bind(this));
     },
 
@@ -512,6 +512,7 @@ ka.ObjectTree = new Class({
     onMousedown: function (e) {
 
 
+        if (e.target && e.target.hasClass('ka-objectTree-item-toggler')) return;
         if (this.options.moveable && e.target){
 
             var el = e.target;
@@ -540,9 +541,10 @@ ka.ObjectTree = new Class({
 
     onClick: function (e, clicked) {
 
+        if (e.target && e.target.hasClass('ka-objectTree-item-toggler')) return;
+
         if (this.inDragMode) return;
         this.activePress = false;
-
 
         var item = clicked.objectEntry;
 

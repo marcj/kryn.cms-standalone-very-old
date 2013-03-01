@@ -527,7 +527,7 @@ class Kryn
     /**
      * Adds a new crumb to the breadcrumb array.
      *
-     * @param \Page $pPage
+     * @param Page $pPage
      *
      * @static
      */

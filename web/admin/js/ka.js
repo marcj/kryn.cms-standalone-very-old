@@ -1,22 +1,18 @@
 if (typeof ka == 'undefined') window.ka = {};
 
 ka.clipboard = {};
-ka.settings = {};
+ka.settings  = {};
 
-ka.performance = false;
+ka.performance  = false;
 ka.streamParams = {};
 
 ka.uploads = {};
-ka._links = {};
+ka._links  = {};
 
 PATH     = _path;
 PATH_WEB = PATH;
 
 
-/**
- * @deprecated Use t() instead
- * @param string p
- */
 window._ = function (p) {
     return t(p);
 };

@@ -1,8 +1,6 @@
 ka.Window = new Class({
     Implements: Events,
 
-    Binds: ['saveDimension'],
-
     id     : 0,
     /*
     module : '',
@@ -439,9 +437,12 @@ ka.Window = new Class({
     },
 
     parseTitle: function (pHtml) {
-
         pHtml = pHtml.replace('<img', ' » <img');
-        return pHtml.stripTags();
+        pHtml = pHtml.stripTags();
+        if (pHtml.indexOf('»') !== false) {
+            pHtml = pHtml.substr(3);
+        }
+        return pHtml;
     },
 
     getTitle: function () {
@@ -481,8 +482,8 @@ ka.Window = new Class({
         new Element('span', {
             text: pText
         }).inject(this.titleAdditional);
-        ka.wm.updateWindowBar();
 
+        ka.wm.updateWindowBar();
     },
 
     toFront: function(pOnlyZIndex) {
@@ -554,7 +555,6 @@ ka.Window = new Class({
 
     },
 
-
     _highlight: function () {
         [this.title, this.bottom].each(function (item) {
             item.set('tween', {duration: 50, onComplete: function () {
@@ -565,7 +565,6 @@ ka.Window = new Class({
     },
 
     highlight: function () {
-
 
         (function () {
             this._highlight();
@@ -659,147 +658,6 @@ ka.Window = new Class({
         this.fireEvent('resize');
     },
 
-    saveDimension: function () {
-
-        if (this.inline || this.isPopup()) return;
-
-        var pos = this.border.getCoordinates(this.border.getParent());
-
-        if (!ka.settings['user']['windows']) ka.settings['user']['windows'] = {};
-
-        if (this.maximized && this.oldDimension) {
-            pos = this.oldDimension;
-            pos.maximized = true;
-        }
-        pos.width = pos.width - 2;
-        pos.height = pos.height - 2;
-
-        ka.settings['user']['windows'][this.getEntryPoint()] = pos;
-
-        ka.saveUserSettings();
-    },
-
-    loadDimensions: function () {
-
-        if (this.inline || this.isPopup()) return;
-
-        this.border.setStyle('top', 20);
-        this.border.setStyle('left', 40);
-        this.border.setStyle('width', 500);
-        this.border.setStyle('height', 320);
-
-        var windows = ka.settings['user']['windows'];
-
-        if (!windows)
-            windows = {};
-
-        var pos = windows[this.getEntryPoint()];
-
-        if (pos && pos.width > 50) {
-
-            this.border.setStyles(pos);
-            if (pos.maximized) {
-                this.maximize(true);
-            }
-
-        } else if (this.entryPointDefinition) {
-            if (this.entryPointDefinition.defaultWidth > 0) {
-                this.border.setStyle('width', this.entryPointDefinition.defaultWidth);
-            }
-            if (this.entryPointDefinition.defaultHeight > 0) {
-                this.border.setStyle('height', this.entryPointDefinition.defaultHeight);
-            }
-        }
-
-        if (this.entryPointDefinition){
-            if (this.entryPointDefinition.fixedWidth > 0 || this.entryPointDefinition.fixedHeight > 0) {
-                if (this.entryPointDefinition.fixedWidth > 0) {
-                    this.border.setStyle('width', this.entryPointDefinition.fixedWidth);
-                }
-                if (this.entryPointDefinition.fixedHeight > 0) {
-                    this.border.setStyle('height', this.entryPointDefinition.fixedHeight);
-                }
-
-                Object.each(this.sizer, function(sizer){
-                    sizer.setStyle('display', 'none');
-                });
-                this.bottom.setStyle('background-image', 'none');
-            }
-        }
-
-        if (this.entryPointDefinition) {
-            //check dimensions if to big/small
-            this.checkDimensions();
-        }
-
-    },
-
-    checkDimensions: function () {
-
-        if (this.inline || this.isPopup()) return;
-        if (this.maximized) return;
-
-        var desktopSize = ka.adminInterface.desktopContainer.getSize();
-        var borderSize = this.border.getSize();
-        var borderPosition = {y: this.border.getStyle('top').toInt(), x: this.border.getStyle('left').toInt()};
-
-        var newY = false;
-        var newHeight = false;
-
-        if (this.entryPointDefinition.minWidth && borderSize.x < this.entryPointDefinition.minWidth) {
-            this.border.setStyle('width', this.entryPointDefinition.minWidth);
-            borderSize.x = this.entryPointDefinition.minWidth;
-        }
-        if (this.entryPointDefinition.minWidth && borderSize.y < this.entryPointDefinition.minHeight) {
-            this.border.setStyle('height', this.entryPointDefinition.minHeight);
-            borderSize.y = this.entryPointDefinition.minHeight;
-        }
-
-
-        var newX = false;
-        var newWidth = false;
-
-        if (borderSize.y + borderPosition.y > desktopSize.y) {
-            var diff = (borderSize.y + borderPosition.y) - desktopSize.y;
-            if (diff < borderPosition.y) {
-                newY = borderPosition.y - diff - 1;
-            } else {
-                newY = 5;
-                newHeight = desktopSize.y - 10;
-            }
-            if (newY)
-                newY = 0;
-        }
-
-        if (borderSize.x + borderPosition.x > desktopSize.x) {
-            var diff = (borderSize.x + borderPosition.x) - desktopSize.x;
-            if (diff < borderPosition.x) {
-                newX = borderPosition.x - diff - 1;
-            } else {
-                newX = 5;
-                newWidth = desktopSize.x - 10;
-            }
-        }
-
-        if (borderPosition.y < 0)
-            newY = 0;
-
-        if (borderPosition.x < 0)
-            newX = 0;
-
-        if (newY !== false) this.border.setStyle('top', newY);
-        if (newX !== false) this.border.setStyle('left', newX);
-
-        if (newHeight) this.border.setStyle('height', newHeight);
-        if (newWidth) this.border.setStyle('width', newWidth);
-
-        if (this.border.getSize().y < 150) {
-            this.border.setStyle('height', 150);
-        }
-
-
-    },
-
     close: function (pInternal) {
 
         //search for dialogs
@@ -840,7 +698,6 @@ ka.Window = new Class({
             if (this.getEntryPoint() == 'users/users/edit/') {
                 ka.loadSettings();
             }
-            this.saveDimension();
 
             this.border.getElements('a.kwindow-win-buttonWrapper').each(function (button) {
                 if (button.toolTip && button.toolTip.main) {
@@ -896,6 +753,10 @@ ka.Window = new Class({
 
     getEntryPoint: function(){
         return this.entryPoint;
+    },
+
+    getId: function(){
+        return this.id;
     },
 
     getEntryPointDefinition: function(){
@@ -1011,7 +872,6 @@ ka.Window = new Class({
             this.printer.addEvent('click', this.print.bind(this));
         }
 
-        this.loadDimensions();
     },
 
     updateInlinePosition: function () {
@@ -1208,7 +1068,6 @@ ka.Window = new Class({
                 ka.wm.fireEvent('move');
                 this.fireEvent('move');
 
-                this.saveDimension();
             }.bind(this),
             onCancel: function () {
 
@@ -1248,7 +1107,6 @@ ka.Window = new Class({
             this.border.inject(ka.adminInterface.desktopContainer);
         }
 
-        this.loadDimensions();
     },
 
     setStatusText: function (pVal) {
@@ -1436,10 +1294,7 @@ ka.Window = new Class({
                     if (newHeight !== null)
                         pElement.setStyle('height', newHeight);
 
-                },
-                onComplete: function(){
-                    this.saveDimension();
-                }.bind(this)
+                }
 
             };
 

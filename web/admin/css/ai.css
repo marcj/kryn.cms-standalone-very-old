@@ -1,6 +1,6 @@
 .ka-admin, .ka-normalize {
     font-family: "Lucida Grande", "DejaVu Sans", "Bitstream Vera Sans", "Segoe UI", "Tahoma", sans-serif;
-    font-size: 11px;
+    font-size: 12px;
     margin: 0px;
     padding: 0px;
     line-height: normal;
@@ -135,7 +135,7 @@ div.ka-main-menu-additional img.arrowUp:hover {
     position: absolute;
     left: 0;
     right: 0;
-    top: 56px;
+    top: 62px;
     bottom: 60px;
     overflow: auto;
 }
@@ -145,14 +145,13 @@ div.ka-main-menu-additional img.arrowUp:hover {
     display: none;
 }
 
-.ka-mainLinks a:before {
+a.ka-main-menu-item:before {
     padding-right: 10px;
     font-size: 12px;
 }
 
-.ka-mainLinks a,
-.ka-mainLinks a:link,
-.ka-mainlink-additionalmenubar {
+a.ka-main-menu-item,
+a.ka-main-menu-item:link {
     line-height: 16px;
     padding: 8px 24px;
     color: #003366;
@@ -165,23 +164,21 @@ div.ka-main-menu-additional img.arrowUp:hover {
     font-size: 12px;
 }
 
-
-div.ka-mainlink-additionalmenubar {
-    line-height: 30px;
-    height: 30px;
-}
-
 a.ka-menu-item-childopener,
 a.ka-menu-item-childopener:link {
-
     position: absolute;
-    right: 0px;
-    top: 6px;
-    height: 41px;
+    right: 0;
+    top: 0;
+    bottom: 0;
     width: 18px;
     border-right: 0px;
     padding: 0px;
+    line-height: 32px;
+    text-align: center;
+}
 
+a.ka-menu-item-childopener:hover {
+    background-color: #C7C7C7;
 }
 
 .ka-main-menu a.ka-menu-item-hasChilds,
@@ -191,38 +188,16 @@ a.ka-menu-item-childopener:link {
 
 
 div.ka-mainLinks a.ka-menu-item-childopener img,
-div.ka-mainLinks a.ka-menu-item-childopener:link img,
-div.ka-mainlink-additionalmenubar-container a.ka-menu-item-childopener img,
-div.ka-mainlink-additionalmenubar-container a.ka-menu-item-childopener:link img {
+div.ka-mainLinks a.ka-menu-item-childopener:link img {
     vertical-align: middle;
 }
 
-.ka-main-menu .ka-mainlink-additionalmenubar,
-.ka-main-menu .ka-mainlink-additionalmenubar:link {
-    padding: 0px 3px;
-}
-
-.ka-main-menu .ka-mainmenubar-item-hasIcon {
+.ka-main-menu .ka-main-menu-item-hasImageAsIcon {
     padding-left: 28px;
 }
 
-
-div.ka-mainlink-additionalmenubar a,
-div.ka-mainlink-additionalmenubar a:link {
-	color: white;
-	padding: 0px 7px;
-}
-
-div.ka-mainlink-additionalmenubar-container {
-	position: absolute;
-	left: 0px;
-	top: 0px;
-    -moz-border-radius-bottomleft: 5px;
-    -moz-border-radius-bottomright: 5px;
-    -webkit-border-bottom-left-radius: 5px;
-    -webkit-border-bottom-right-radius: 5px;
-    border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px;
+.ka-main-menu .ka-main-menu-item-hasNoIcon {
+    padding-left: 45px;
 }
 
 .ka-menu-withRightTopBorderRadius {
@@ -239,23 +214,10 @@ div.ka-mainLinks a.bar-dock-logo {
 
 .ka-main-menu-login-name {
     text-decoration: none;
-    padding: 5px;
+    padding: 8px 5px;
     padding-top: 8px;
     display: block;
     font-weight: bold;
-}
-
-div.ka-mainlink-additionalmenubar-container-withoutBottomRightBorderRadius {
-    -moz-border-radius-bottomright: 0px;
-    -webkit-border-bottom-right-radius: 0px;
-    border-bottom-right-radius: 0px;
-}
-
-
-div.ka-mainlink-additionalmenubar-container a img {
-	position: absolute;
-	left: 2px;
-	top: 3px;
 }
 
 .bar-dock-logo-menu-submenu {
@@ -295,24 +257,13 @@ div.ka-mainlink-additionalmenubar-container a img {
     margin: 6px 0;
 }
 
-.ka-mainLinks a:hover,
-.ka-main-menu-additional > a:hover,
-div.ka-mainlink-additionalmenubar-container > a:hover {
+a.ka-main-menu-item:hover {
     background-color: #F8F8F8;
 }
 
-.ka-mainLinks a:active,
-.ka-main-menu-additional > a:active,
-div.ka-mainlink-additionalmenubar-container > a:active {
+a.ka-main-menu-item:active {
     font-weight: bold;
 
-}
-
-.ka-main-menu-additional > a,
-.ka-main-menu-additional > a:link {
-    border-right: 0px;
-    border-left: 1px solid #313131;
-    float: right;
 }
 
 .ka-main-menu-additional .icon-eye {
@@ -324,7 +275,7 @@ div.ka-mainlink-additionalmenubar-container > a:active {
 }
 
 
-.ka-main-menu-item-active-window-information-container {
+.ka-main-menu-item-window-information-container {
     position: absolute;
     left: 0;
     text-align: center;
@@ -335,15 +286,16 @@ div.ka-mainlink-additionalmenubar-container > a:active {
     line-height: 14px;
 }
 
-.ka-mainLinks a.ka-main-menu-active,
-.ka-mainLinks a.ka-main-menu-active:before,
-.ka-mainLinks a.ka-main-menu-active:hover {
+a.ka-main-menu-item-active,
+a.ka-main-menu-item-active:link,
+.ka-main-menu a.ka-main-menu-item-active:before,
+a.ka-main-menu-item-active:hover {
     background-color: #2F8CBD;
     color: white;
     text-shadow: 0 1px 0 #444;
 }
 
-.ka-main-menu-item-active-window-information-item {
+.ka-main-menu-item-window-information-item {
     font-weight: normal;
     font-size: 12px;
 }
