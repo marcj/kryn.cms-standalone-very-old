@@ -1015,6 +1015,11 @@ ka.Window = new Class({
             }
         }.bind(this)).inject(this.win);
 
+        this.addEvent('resize', function(){
+            ka.generateNoise(this.title, 0.1);
+        }.bind(this));
+        this.fireEvent('resize');
+
         this.titlePath = new Element('span', {'class': 'ka-kwindow-titlepath'}).inject(this.title);
         this.titleText = new Element('span').inject(this.titlePath);
 

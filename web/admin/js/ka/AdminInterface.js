@@ -53,6 +53,12 @@ ka.AdminInterface = new Class({
             'class': 'ka-main-menu ka-admin'
         }).inject(this.border);
 
+
+        window.addEvent('resize', function(){
+            ka.generateNoise(this.header, 0.1);
+        }.bind(this));
+        window.fireEvent('resize');
+
         this.headerInner = new Element('div', {
             'class': 'ka-main-menu-inner gradient'
         }).inject(this.header);

@@ -1231,6 +1231,42 @@ initWysiwyg = function (pElement, pOptions) {
 
     return new MooEditable(document.id(pElement), options);
 }
+
+/**
+ *
+ * @param {Element} element
+ * @param {Number} opacity
+ */
+ka.generateNoise = function(element, opacity) {
+    if (!"getContent" in document.createElement('canvas')) return false;
+
+    var
+        canvas = document.createElement("canvas")
+      , c2d = canvas.getContext("2d")
+      , x
+      , y
+      , r
+      , g
+      , b
+      , opacity = opacity || .2;
+
+    canvas.width = canvas.height = 100;
+
+
+    for (x = 0; x < canvas.width; x++) {
+        for (y = 0; y < canvas.height; y++) {
+            r = Math.floor( Math.random() * 80 );
+            g = Math.floor( Math.random() * 80 );
+            b = Math.floor( Math.random() * 80 );
+
+            c2d.fillStyle = "rgba(" + r + "," + g + "," + b + "," + opacity + ")";
+            c2d.fillRect(x, y, 1, 1);
+        }
+    }
+
+    element.style.backgroundImage = "url(" + canvas.toDataURL("image/png") + ")";
+}
+
 /*
  initSmallTiny
  initTiny
