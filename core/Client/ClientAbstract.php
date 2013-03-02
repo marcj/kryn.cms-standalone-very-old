@@ -518,6 +518,8 @@ abstract class ClientAbstract
     }
 
     /**
+     * The actual value of the token.
+     *
      * @return bool
      */
     public function getToken()
@@ -529,6 +531,8 @@ abstract class ClientAbstract
     }
 
     /**
+     * The name of the token.
+     *
      * @return string
      */
     public function getTokenId()
