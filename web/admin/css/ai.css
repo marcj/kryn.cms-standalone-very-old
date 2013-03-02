@@ -17,11 +17,14 @@ body.hide-scrollbar {
 
 .ka-scrolling {
     overflow: auto;
+    position: relative;
     -webkit-overflow-scrolling: touch;
+    -webkit-backface-visibility: hidden;
+    -webkit-perspective: 1000;
 }
 
-.ka-scrolling * {
-    -webkit-transform: translateZ(0);
+.ka-scrolling > * {
+    -webkit-transform: translateZ(0px);
 }
 
 .ka-admin div,

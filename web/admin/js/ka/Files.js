@@ -905,11 +905,11 @@ ka.Files = new Class({
 
     setListType: function (pType, noReload, pSetIconZoom) {
 
-        this.typeButtons.each(function (btn) {
-            btn.set('class', btn.retrieve('oriClass'));
+        this.typeButtons.each(function(item){
+            item.setPressed(false);
         });
         var b = this.typeButtons[pType];
-        b.set('class', b.get('class') + ' buttonHover');
+        b.setPressed(true);
 
         this.listType = pType;
 

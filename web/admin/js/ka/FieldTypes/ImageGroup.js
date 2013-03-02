@@ -22,9 +22,9 @@ ka.FieldTypes.ImageGroup = new Class({
 
     setValue: function(pValue){
         Object.each(this.imageGroupImages, function (button, tvalue) {
-            button.removeClass('buttonHover');
+            button.removeClass('ka-buttonGroup-item');
             if (pValue == tvalue) {
-                button.addClass('buttonHover');
+                button.addClass('ka-buttonGroup-item');
             }
         });
     },
@@ -32,7 +32,7 @@ ka.FieldTypes.ImageGroup = new Class({
     getValue: function(){
         var value = null;
         Object.each(this.imageGroupImages, function (button, tvalue) {
-            if (button.hasClass('buttonHover')) {
+            if (button.hasClass('ka-buttonGroup-item')) {
                 value = tvalue;
             }
         });

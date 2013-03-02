@@ -1023,8 +1023,6 @@ ka.Window = new Class({
 
         this.titleGroups = new Element('div', {
             'class': 'kwindow-win-titleGroups'
-        }).addEvent('mousedown', function (e) {
-            //e.stopPropagation();
         }).inject(this.win);
 
         this.createTitleBar();
@@ -1033,7 +1031,7 @@ ka.Window = new Class({
             'class': 'kwindow-win-bottom'
         }).inject(this.win);
 
-
+/*
         this.borderDragger = this.border.makeDraggable({
             handle: [this.title, this.titleGroups],
             //presentDefault: true,
@@ -1078,9 +1076,7 @@ ka.Window = new Class({
                 }
             }.bind(this)
         });
-        this.title.addEvent('mousedown', this.border.fireEvent.bind(this.border, 'mousedown'));
-        this.titleGroups.addEvent('mousedown', this.border.fireEvent.bind(this.border, 'mousedown'));
-
+*/
         if (this.inline) {
             this.title.setStyle('display', 'none');
             this.titleGroups.setStyle('display', 'none');

@@ -1125,7 +1125,9 @@ ka.WindowCombine = new Class({
 
         }
 
-        this.inputTrigger.focus();
+        if (!ka.mobile) {
+            this.inputTrigger.focus();
+        }
 
     },
 
@@ -1200,7 +1202,9 @@ ka.WindowCombine = new Class({
 
         }
 
-        this.inputTrigger.focus();
+        if (!ka.mobile) {
+            this.inputTrigger.focus();
+        }
 
     },
 

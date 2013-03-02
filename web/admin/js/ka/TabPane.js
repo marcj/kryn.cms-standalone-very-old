@@ -17,7 +17,7 @@ ka.TabPane = new Class({
             new Element('div', {style: 'clear: both'}).inject(this.box);
         }
 
-        this.paneBox = new Element('div', {'class': 'kwindow-win-tabPane-pane'}).inject(this.box);
+        this.paneBox = new Element('div', {'class': 'kwindow-win-tabPane-pane ka-scrolling'}).inject(this.box);
 
         if (pFull && !pUseThisAsWindowHeader){
             this.buttonGroup = new ka.SmallTabGroup(this.box);
