@@ -114,7 +114,11 @@ ka.WindowEdit = new Class({
     },
 
     getEntryPoint: function(){
-        return this.win.getEntryPoint();
+        var restPoint = this.win.getEntryPoint();
+        if (restPoint.substr(restPoint.length-1) == '/'){
+            restPoint = restPoint.substr(0, restPoint.length-1);
+        }
+        return restPoint;
     },
 
     load: function () {
@@ -178,6 +182,8 @@ ka.WindowEdit = new Class({
     },
 
     setValue: function(pValue){
+
+        pValue = pValue || {};
 
         this.fieldForm.setValue(pValue);
 

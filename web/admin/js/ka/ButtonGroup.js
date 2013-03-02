@@ -106,13 +106,11 @@ ka.ButtonGroup = new Class({
             _this.rerender();
         }
 
-        wrapper.store('oriClass', wrapper.get('class'));
-
         wrapper.setPressed = function (pPressed) {
             if (pPressed) {
-                wrapper.set('class', wrapper.retrieve('oriClass') + ' buttonHover');
+                wrapper.addClass('ka-buttonGroup-item-active');
             } else {
-                wrapper.set('class', wrapper.retrieve('oriClass'));
+                wrapper.removeClass('ka-buttonGroup-item-active');
             }
         }
 

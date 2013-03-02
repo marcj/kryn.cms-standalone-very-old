@@ -74,7 +74,7 @@ ka.AdminInterface = new Class({
         }).inject(this.headerInner);
 
         this.mainTempLinks = new Element('div', {
-
+            'class': 'ka-mainTempLinks'
         }).inject(this.mainLinks);
 
         this.openFrontendBtnContainer = new Element('div', {
@@ -170,8 +170,6 @@ ka.AdminInterface = new Class({
         }).inject(this.headerRight);
 
         this._iconSessionCounter = new Element('span', {text: 0}).inject(this._iconSessionCounterDiv);
-
-        window.addEvent('resize', this.checkMainBarWidth.bind(this));
 
         if (!this.searchContainer) {
 
@@ -963,9 +961,6 @@ ka.AdminInterface = new Class({
 
             this.needMainMenuWidth = false;
 
-            //this.updateModuleItemsScrollerSize();
-            this.checkMainBarWidth();
-
             this.headerInner.setStyle('display', 'block');
             if (document.referrer.search('_kryn_editor=1') === -1){
                 this.headerInner.set('tween', {transition: Fx.Transitions.Bounce.easeOut});
@@ -976,135 +971,6 @@ ka.AdminInterface = new Class({
 
 
         }.bind(this)}).get();
-    },
-
-    checkMainBarWidth: function () {
-
-        var windowSize = window.getSize().x;
-        if (windowSize < 500) {
-            if (!this.toSmallWindowBlocker) {
-                this.toSmallWindowBlocker = new Element('div', {
-                    'style': 'position: absolute; left: 0px; right: 0px; top: 0px; bottom: 0px; z-index: 600000000; background-color: white;'
-                }).inject(document.body);
-                var t = new Element('table', {style: 'width: 100%; height: 100%'}).inject(this.toSmallWindowBlocker);
-                var tr = new Element('tr').inject(t);
-                var td = new Element('td', {
-                    align: 'center', valign: 'center',
-                    text: _('Your browser window is too small.')
-                }).inject(tr);
-            }
-        } else if (this.toSmallWindowBlocker) {
-            this.toSmallWindowBlocker.destroy();
-            this.toSmallWindowBlocker = null;
-        }
-
-        var iconbar = this.headerIconBar;
-        var menubar = this.mainLinks;
-        var header = this.header;
-
-        var menubarSize = menubar.getSize();
-        var iconbarSize = iconbar.getSize();
-        var headerSize = header.getSize();
-        //var searchBoxWidth = 263;
-        var searchBoxWidth = 221;
-
-
-        if (this.additionalMainMenu) {
-            searchBoxWidth += this.additionalMainMenu.getSize().x;
-        }
-
-        var curWidth = menubarSize.x + iconbarSize.x + searchBoxWidth;
-
-        if (!this.needMainMenuWidth) {
-            //first run, read all children widths
-
-            if (!this.mainMenuItems) {
-                this.mainMenuItems = menubar.getChildren('a');
-            }
-
-            this.mainMenuItems.each(function (menuitem, index) {
-                if (index == 0) return;
-                menuitem.store('width', menuitem.getSize().x);
-            });
-        }
-
-
-        //if( curWidth > headerSize.x ){
-
-        var childrens = menubar.getChildren('a');
-
-        var fullsize = 0;
-        var addMenuWidth = 50;
-
-        //diff is the free space we have to display menuitems
-        var diff = ((menubarSize.x + iconbarSize.x + searchBoxWidth) - headerSize.x);
-
-        //availWidth is now the availWidth we have for the menuitems
-        //var availWidth = menubarSize.x - diff - addMenuWidth;
-        var availWidth = window.getSize().x - (this.headerIconBar.getSize().x + 60);
-
-        if (!this.needMainMenuWidth) {
-            this.needMainMenuWidth = availWidth;
-        }
-
-        this.removedMainMenuItems = [];
-
-        this.mainMenuItems.each(function (menuitem, index) {
-            if (index == 0) return;
-
-            var width = menuitem.retrieve('width');
-            fullsize += width;
-
-            if (fullsize < availWidth) {
-                //we have place for this item
-                //check if this menuitem is in the additional menu bar or in origin
-                if (menuitem.retrieve('inAdditionalMenuBar') == true) {
-                    menuitem.inject(menubar);
-                    menuitem.store('inAdditionalMenuBar', false);
-                }
-            } else {
-                //we have no place for this menuitem
-                this.removedMainMenuItems.include(menuitem);
-            }
-        }.bind(this));
-
-
-        if (this.removedMainMenuItems.length > 0) {
-
-            if (!this.additionalMainMenu) {
-                this.additionalMainMenu = new Element('a', {
-                    'class': 'ka-mainlink-additionalmenubar',
-                    style: 'width: 17px; cursor: default;'
-                }).inject(menubar);
-
-                new Element('img', {
-                    src: _path + 'admin/images/ka-menu-additional.png',
-                    style: 'width: 11px; height: 12px; left: 6px; top: 8px;'
-                }).inject(this.additionalMainMenu);
-
-                this.additionalMainMenuContainer = new Element('div', {
-                    'class': 'ka-mainlink-additionalmenubar-container bar-dock-menu-style',
-                    style: 'display: none'
-                }).inject(this.border);
-
-                this.makeMenu(this.additionalMainMenu, this.additionalMainMenuContainer, true, {y: 48, x: -1});
-            }
-
-            this.removedMainMenuItems.each(function (menuitem) {
-                menuitem.inject(this.additionalMainMenuContainer);
-                menuitem.store('inAdditionalMenuBar', true);
-            }.bind(this));
-
-            this.additionalMainMenu.inject(menubar);
-        } else {
-
-            if (this.additionalMainMenu) {
-                this.additionalMainMenu.destroy();
-                this.additionalMainMenuContainer.destroy();
-                this.additionalMainMenu = null;
-            }
-
-        }
     },
 
     makeMenu: function (pToggler, pMenu, pCalPosition, pOffset) {

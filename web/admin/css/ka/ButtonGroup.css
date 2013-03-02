@@ -55,27 +55,19 @@
 
 .ka-buttonGroup-item img {
     vertical-align: middle;
-}
-
-
-.ka-buttonGroup-item span img {
-    line-height: 16px;
-    vertical-align: middle;
+    opacity: 0.5;
 }
 
 .ka-admin a.ka-buttonGroup-item:hover {
     color: #222;
 }
 
-.ka-buttonGroup-item:active + .ka-buttonGroup-item,
-.kwindow-win-buttonGroup .buttonHover + .ka-buttonGroup-item {
-    border-left: 0px;
-}
-
 .ka-admin a.ka-buttonGroup-item:active,
-.ka-admin a.ka-buttonGroup-item:link.buttonHover {
-
+.ka-admin a.ka-buttonGroup-item-active,
+.ka-admin a.ka-buttonGroup-item-active:link {
     color: #000;
-
 }
 
+.ka-admin a.ka-buttonGroup-item-active img {
+    opacity: 1;
+}
