@@ -1,13 +1,19 @@
-.ka-input-wrapper,
+.ka-Input-text,
 input.text {
 
-    border: 1px solid #bbb;
     color: #444;
     font-size: 12px;
+    line-height: 26px;
+
+    height: 26px;
+    width: 100%;
+
     margin: 0;
+    padding: 0;
 
     text-indent: 4px;
 
+    border: 1px solid #bbb;
     box-shadow: 0px 1px 0px #f9f9f9;
     border: 1px solid #bbb;
     -moz-border-radius: 3px;
@@ -15,7 +21,6 @@ input.text {
     border-radius: 3px;
 
     background: #f6f6f6;
-    background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSI4JSIgc3RvcC1jb2xvcj0iI2Y2ZjZmNiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9Ijg3JSIgc3RvcC1jb2xvcj0iI2ZmZmZmZiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgPC9saW5lYXJHcmFkaWVudD4KICA8cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSJ1cmwoI2dyYWQtdWNnZy1nZW5lcmF0ZWQpIiAvPgo8L3N2Zz4=);
     background: -moz-linear-gradient(top,  #f6f6f6 8%, #ffffff 87%);
     background: -webkit-gradient(linear, left top, left bottom, color-stop(8%,#f6f6f6), color-stop(87%,#ffffff));
     background: -webkit-linear-gradient(top,  #f6f6f6 8%,#ffffff 87%);
@@ -24,35 +29,25 @@ input.text {
     background: linear-gradient(to bottom,  #f6f6f6 8%,#ffffff 87%);
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f6f6f6', endColorstr='#ffffff',GradientType=0 );
 
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+
+}
+
+.ka-Input-text:focus,
+input.text:focus {
+    border-color: rgba(47, 140, 189, 0.8);
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(47, 140, 189, 0.6);
+    -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(47, 140, 189, 0.6);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(47, 140, 189, 0.6);
+    outline: 0;
 }
 
 .ka-input-wrapper {
     text-indent: 0;
     overflow: hidden;
 }
-
-.ka-input-inner-wrapper {
-    position: relative;
-    margin: 1px;
-    margin-left: 4px;
-}
-
-.ka-input-inner-wrapper > .ka-input {
-    width: 100%;
-    padding: 0px;
-    height: 22px;
-    line-height: 22px;
-    border: 0px;
-    background-color: transparent;
-
-    -moz-border-radius: 0px;
-    -webkit-border-radius: 0px;
-    border-radius: 0px;
-    box-shadow: 0px;
-
-    text-indent: 0px;
-}
-
 
 .ka-field-disabled {
     color: #333;
