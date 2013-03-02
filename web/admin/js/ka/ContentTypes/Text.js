@@ -117,12 +117,12 @@ ka.ContentTypes.Text = new Class({
             standard: {
                 toolbar: [
                     ['Bold','Italic', 'Underline','Strike'],
+                    ['Styles','Format','Font','FontSize'],
+                    ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock', 'Blockquote'],
+                    '/',
                     ['Undo','Redo'],
                     ['NumberedList','BulletedList','-','Outdent','Indent'],
                     ['Link','Unlink','Anchor'],
-                    ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock', 'Blockquote'],
-                    '/',
-                    ['Styles','Format','Font','FontSize'],
                     ['Image','Flash','Table','HorizontalRule','Smiley'],
                     [ 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord']
                 ]
