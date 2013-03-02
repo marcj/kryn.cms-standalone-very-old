@@ -19,6 +19,13 @@ window._ = function (p) {
 
 if (typeOf(ka.langs) != 'object') this.langs = {};
 
+/**
+ * Prints all kind of stuff into console.log.
+ * Detects if `console` exists and ignores the call
+ * if not.
+ *
+ * @params {*}
+ */
 window.logger = function(){
     if (typeOf(console) != "undefined") {
         var args = arguments;
@@ -27,6 +34,10 @@ window.logger = function(){
     }
 };
 
+/**
+ * Is true if the current browser has a mobile user agent.
+ * @type {Boolean}
+ */
 ka.mobile = (false
  || navigator.userAgent.match(/Android/i)
  || navigator.userAgent.match(/iPhone/i)
@@ -686,7 +697,7 @@ ka.getObjectFieldLabel = function(pValue, pField, pFieldId, pObjectKey, pRelatio
     if (!fields) throw 'Object not found '+pObjectKey;
 
     var fieldId = pFieldId;
-    if (pFieldId.indexOf('.') > 0){
+    if (typeOf(pFieldId) == 'string' && pFieldId.indexOf('.') > 0){
         fieldId = pFieldId.split('.')[0];
     }
 

@@ -996,10 +996,9 @@ ka.WindowCombine = new Class({
 
         this.needSelection = true;
 
-        if (!this.win.params)
-            this.win.params = {};
-
-        this.win.params.selected = pResponse.data;
+        this.win.setParameter({
+            selected: ka.getObjectUrlId(this.classProperties.object, pResponse.data)
+        });
 
         if (this.classProperties.asNested){
 
@@ -1235,9 +1234,14 @@ ka.WindowCombine = new Class({
             this.languageSelect.setValue(this.win.params.list.language);
         }
 
-        if (this.win.params && this.win.params.list) {
+        if (this.win.params && this.win.params.list && this.win.params.list.orderBy) {
             this.sortField = this.win.params.list.orderBy;
             this.sortDirection = this.win.params.list.orderByDirection;
+        } else if (this.win.params && this.win.params.list && this.win.params.list.order){
+            Object.each(this.win.params.list.order, function(order, field){
+                this.sortField = field;
+                this.sortDirection = order;
+            }.bind(this));
         }
 
         if (this.classProperties.asNested){
@@ -1274,17 +1278,23 @@ ka.WindowCombine = new Class({
             type = 'add';
         }
 
-        this.win.params = {
+        var list = {};
+        list.order = this.order;
+
+        if (this.languageSelect){
+            list.language = this.languageSelect.getValue()
+        }
+        var params = {
             type: type,
-            selected: selected,
-            list: {
-                orderBy: this.sortField,
-                filter: this.searchEnable,
-                language: (this.languageSelect) ? this.languageSelect.getValue(): false,
-                filterVals: (this.searchEnable) ? this.getSearchVals() : '',
-                orderByDirection: this.sortDirection
-            }
+            list: list
         };
+
+        if (selected){
+            params.selected = selected;
+        }
+
+
+        this.win.setParameter(params);
 
         this.setTitle();
     },
@@ -1340,7 +1350,7 @@ ka.WindowCombine = new Class({
 
             var position = response.data;
 
-            if (position > 0) {
+            if (typeOf(position) == 'number') {
                 var range = (this.classProperties.itemsPerPage) ? this.classProperties.itemsPerPage : 5;
 
                 var from = position;

@@ -1,9 +1,4 @@
 /* ka window.manager */
-
-window.addEvent('resize', function () {
-    ka.wm.checkDimensionsAndSendResize();
-});
-
 ka.wm = {
 
     windows: {},
@@ -19,31 +14,11 @@ ka.wm = {
 
     openWindow: function (pEntryPoint, pLink, pParentWindowId, pParams, pInline) {
 
-        if (pLink && pLink.onlyOnce && this.checkOpen(pEntryPoint)) {
+        if (this.checkOpen(pEntryPoint)) {
             return this.toFront(pEntryPoint);
         }
+
         return ka.wm.loadWindow(pEntryPoint, pLink, pParentWindowId, pParams, pInline);
-    },
-
-    checkDimensionsAndSendResize: function () {
-        if (ka.wm.goDimensionsCheck) {
-            clearTimeout(ka.wm.goDimensionsCheck);
-        }
-
-        ka.wm.goDimensionsCheck = (function(){
-            try {
-                ka.wm._checkDimensions();
-            } catch(e){
-                logger('checkDimensions failed.');
-            }
-        }).delay(300);
-    },
-
-    _checkDimensions: function () {
-        Object.each(ka.wm.windows, function (win) {
-            win.checkDimensions();
-            win.fireEvent('resize');
-        });
     },
 
     addEvent: function (pEv, pFunc) {
@@ -117,6 +92,7 @@ ka.wm = {
             ka.wm.getWindow(pParentWindowId).setChildren(ka.wm.windows[instance]);
         }
         ka.wm.updateWindowBar();
+        ka.wm.reloadHashtag();
     },
 
     close: function (pWindow) {
@@ -141,6 +117,7 @@ ka.wm = {
         }
 
         ka.wm.updateWindowBar();
+        ka.wm.reloadHashtag();
     },
 
     bringLastWindow2Front: function(){
@@ -207,6 +184,46 @@ ka.wm = {
             delete ka.wm.tempLinksSplitter;
         }
 
+    },
+
+    reloadHashtag: function(pForce){
+
+        var hash = '';
+
+        Object.each(ka.wm.windows, function (win) {
+            if (win.isInFront()){
+                hash = win.getEntryPoint()+( win.getParameter() ? '!'+JSON.encode(win.getParameter()) : '' );
+            }
+        });
+
+        if (hash != window.location.hash){
+            window.location.hash = hash;
+        }
+
+    },
+
+    handleHashtag: function(){
+
+        if (ka.wm.hashHandled && !pForce) return;
+
+        ka.wm.hashHandled = true;
+
+        if (window.location.hash){
+
+            var first = window.location.hash.indexOf('!');
+            var entryPoint = window.location.hash.substr(1);
+            var parameters = null;
+            if (first !== -1){
+                entryPoint = entryPoint.substr(0, first-1);
+
+                parameters = window.location.hash.substr(first+1);
+                if (parameters){
+                    parameters = JSON.decode(parameters);
+                }
+            }
+
+            ka.wm.open(entryPoint, parameters);
+        }
     },
 
     removeActiveWindowInformation: function(){

@@ -15,6 +15,7 @@ ka.Window = new Class({
     params : {},
 
     children: null,
+    params: '',
 
     initialize: function (pEntryPoint, pLink, pInstanceId, pParameter, pInline, pParentId) {
         this.params = pParameter;
@@ -43,8 +44,21 @@ ka.Window = new Class({
         }
     },
 
+    /**
+     *
+     * @return {*}
+     */
     getParameter: function(){
         return this.params;
+    },
+
+    /**
+     *
+     * @param {*} pParameter
+     */
+    setParameter: function(pParameter){
+        this.params = pParameter;
+        ka.wm.reloadHashtag();
     },
 
     getParentId: function(){
@@ -784,6 +798,11 @@ ka.Window = new Class({
             this.getContentContainer().empty();
 
         this.entryPointDefinition = ka.entrypoint.get(this.getEntryPoint());
+
+        if (!this.entryPointDefinition){
+            this.win.alert(tf('Entry point `%s` not found.', this.getEntryPoint()));
+            return;
+        }
 
         if (this.entryPointDefinition.multi === false || this.entryPointDefinition.multi === 0) {
             var win = ka.wm.checkOpen(this.getEntryPoint(), this.id);

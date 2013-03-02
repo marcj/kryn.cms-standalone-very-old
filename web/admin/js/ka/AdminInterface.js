@@ -157,9 +157,6 @@ ka.AdminInterface = new Class({
      */
     renderBackend: function () {
 
-        //this.buildClipboardMenu();
-        //this.buildUploadMenu();
-
         if (this.options.frontPage){
             document.body.addClass('ka-frontpage-backend');
         }
@@ -392,8 +389,6 @@ ka.AdminInterface = new Class({
     },
 
     renderLogin: function () {
-
-        logger('!renderLogin');
 
         this.login = new Element('div', {
             'class': 'ka-login ka-admin'
@@ -958,8 +953,6 @@ ka.AdminInterface = new Class({
 
             }.bind(this));
 
-            this.needMainMenuWidth = false;
-
             this.headerInner.setStyle('display', 'block');
             if (document.referrer.search('_kryn_editor=1') === -1){
                 this.headerInner.set('tween', {transition: Fx.Transitions.Bounce.easeOut});
@@ -967,6 +960,8 @@ ka.AdminInterface = new Class({
             } else {
                 this.headerInner.setStyle('top', 0);
             }
+
+            ka.wm.handleHashtag();
 
 
         }.bind(this)}).get();
