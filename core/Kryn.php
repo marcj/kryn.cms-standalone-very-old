@@ -653,7 +653,7 @@ class Kryn
                                 if ($field['objectRelation'] == ORM\ORMAbstract::MANY_TO_ONE) {
                                     $objectName = Object::getName($field['object']);
                                     $module     = strtolower(Object::getModule($field['object']));
-                                    $fieldName  = $field['objectRelationName'] ?: lcfirst($objectKey);
+                                    $fieldName  = $field['objectRefRelationName'] ?: lcfirst($objectKey);
                                     Kryn::$configs[$module]['objects'][$objectName]['fields'][$fieldName] = array(
                                         'virtual' => true,
                                         'label' => 'Auto Object relation ('.ORM\ORMAbstract::MANY_TO_ONE.')',
