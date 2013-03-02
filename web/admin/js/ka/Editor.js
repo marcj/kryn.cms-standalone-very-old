@@ -245,7 +245,9 @@ ka.Editor = new Class({
     adjustAnchors: function(){
 
         this.container.getElements('a').each(function(a){
-            a.href = a.href + ((a.href.indexOf('?') > 0) ? '&' : '?') + '_kryn_editor=1';
+            if (a.href) {
+                a.href = a.href + ((a.href.indexOf('?') > 0) ? '&' : '?') + '_kryn_editor=1';
+            }
         });
 
     },
