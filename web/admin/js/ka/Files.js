@@ -49,6 +49,8 @@ ka.Files = new Class({
     rootFile: {},
     path2File: {},
 
+    sidebarFiles: {},
+
     container: false,
     win: false,
 
@@ -278,7 +280,9 @@ ka.Files = new Class({
 
         var overwrite = (pFile.post.overwrite == 1) ? 1 : 0;
 
-        new Request.JSON({url: _path + 'admin/files/prepareUpload', noCache: 1, onComplete: function (res) {
+        new Request.JSON({url: _path + 'admin/file/upload/prepare', noCache: 1, onComplete: function (pResponse) {
+
+            var res = pResponse.data;
 
             if (res.renamed) {
                 if (this.uploadTrs[ pFile.id ].rename) {
@@ -301,9 +305,9 @@ ka.Files = new Class({
 
                 this.uploadTrs[ pFile.id ].needAction = true;
 
-                new ka.Button(_('Rename')).addEvent('click', function () {
+                new ka.Button(t('Rename')).addEvent('click', function () {
 
-                    this.win._prompt(_('New filename'), name, function (res) {
+                    this.win._prompt(t('New filename'), name, function (res) {
 
                         if (res) {
 
@@ -351,7 +355,7 @@ ka.Files = new Class({
 
             }
 
-        }.bind(this)}).get({path: pFile.post.path, name: name, overwrite: overwrite });
+        }.bind(this)}).post({path: pFile.post.path, name: name, overwrite: overwrite });
 
     },
 
@@ -465,7 +469,7 @@ ka.Files = new Class({
                 }).inject(document.id(this.fileUploadCancelBtn), 'before');
                 (function () {
                     this.cancelUploads();
-                }.bind(this)).delay(4000);
+                }.bind(this)).delay(500);
             }
         } else if (all == loaded) {
             this.fileUploadCancelBtn.setText(_('Close'));
@@ -657,7 +661,7 @@ ka.Files = new Class({
     initSWFUpload: function () {
 
         ka.uploads[this.win.id] = new SWFUpload({
-            upload_url: _path + "admin/files/upload/?" + window._session.tokenid + "=" + window._session.sessionid,
+            upload_url: _path + "admin/file/upload/?" + window._session.tokenid + "=" + window._session.sessionid,
             file_post_name: "file",
             flash_url: _path + "admin/swfupload.swf",
             file_upload_limit: "500",
@@ -791,7 +795,6 @@ ka.Files = new Class({
 
         this.address = new ka.Field({
             type: 'text',
-            inputHeight: 26,
             noWrapper: true
         }, addressContainer);
         document.id(this.address).setStyle('margin', '0 5px');
@@ -807,7 +810,6 @@ ka.Files = new Class({
 
         this.search = new ka.Field({
             type: 'text',
-            inputHeight: 26,
             noWrapper: true
         }, searchContainer);
         document.id(this.search).setStyle('margin', '0 5px');
@@ -820,7 +822,7 @@ ka.Files = new Class({
 
         new Element('img', {
             src: _path+ 'admin/images/icon-search-loupe.png',
-            style: 'position: absolute; right: 12px; top: 9px;'
+            style: 'position: absolute; right: 12px; top: 8px;'
         }).inject(this.search, 'after');
 
         this.fileContainer = new Element('div', {
@@ -940,7 +942,7 @@ ka.Files = new Class({
 
         this.win._prompt(_('File name'), '', function (name) {
             if (!name) return;
-            new Request.JSON({url: _path + 'admin/files/createFile', onComplete: function (res) {
+            new Request.JSON({url: _path + 'admin/file', onComplete: function (res) {
                 this.reload();
             }.bind(this)}).post({path: this.current+'/'+name});
         }.bind(this));
@@ -948,14 +950,14 @@ ka.Files = new Class({
 
     newFolder: function () {
 
-        if (this.currentFile.writeaccess == false) {
-            this.win._alert(_('Access denied'));
+        if (this.currentFile.writeAccess == false) {
+            this.win.alert(t('Access denied'));
             return;
         }
 
-        this.win._prompt(_('Folder name'), '', function (name) {
+        this.win._prompt(t('Folder name'), '', function(name){
             if (!name) return;
-            new Request.JSON({url: _path + 'admin/files/createFolder/', onComplete: function (res) {
+            new Request.JSON({url: _path + 'admin/file/folder', onComplete: function (res) {
                 this.reload();
             }.bind(this)}).post({path: this.current+'/'+name});
         }.bind(this));
@@ -970,7 +972,7 @@ ka.Files = new Class({
 
     move: function( pPath, pNewPath, pOverwrite ){
 
-        new Request.JSON({url: _path + 'admin/files/moveFile', onComplete: function(res){
+        new Request.JSON({url: _path + 'admin/file/move', onComplete: function(res){
             if(res.file_exists == 1){
                 this.win._confirm(_('The new filename already exists. Overwrite?'), function(answer){
                     if(answer) this.move(pPath, pNewPath, true);
@@ -991,9 +993,9 @@ ka.Files = new Class({
             if (!res) return;
             Object.each(selectedFiles, function (item) {
 
-                new Request.JSON({url: _path + 'admin/files/deleteFile', noCache: 1, onComplete: function (res) {
+                new Request.JSON({url: _path + 'admin/file', noCache: 1, onComplete: function (res) {
                     this.reload();
-                }.bind(this)}).get({path: item.path});
+                }.bind(this)}).delete({path: item.path});
 
             }.bind(this));
 
@@ -1029,7 +1031,7 @@ ka.Files = new Class({
 
     moveFiles: function (pFilePaths, pTargetDirectory, pOverwrite, pCallback) {
 
-        new Request.JSON({url: _path + 'admin/files/paste', noCache: 1, onComplete: function (res) {
+        new Request.JSON({url: _path + 'admin/file/paste', noCache: 1, onComplete: function (res) {
             if (res.exist) {
                 this.win._confirm(_('One or more files already exist. Overwrite ?'), function (p) {
 
@@ -1049,7 +1051,7 @@ ka.Files = new Class({
 
     copyFiles: function (pFilePaths, pTargetDirectory, pOverwrite) {
 
-        new Request.JSON({url: _path + 'admin/files/paste', noCache: 1, onComplete: function (res) {
+        new Request.JSON({url: _path + 'admin/file/paste', noCache: 1, onComplete: function (res) {
             if (res.exist) {
                 this.win._confirm(_('One or more files already exist. Overwrite ?'), function (p) {
                     if (!p)return;
@@ -1168,10 +1170,13 @@ ka.Files = new Class({
             'class': 'admin-files-droppables '+icon
         }).addEvent('mousedown', function (e) {
             e.stop()
-        }).addEvent('click', this.loadPath.bind(this, pFile.path)).inject(this.infos);
+        }).addEvent('click', this.loadPath.bind(this, pFile.path))
+        .inject(this.infos);
 
         item.fileItem = pFile;
         item.fileObj = this;
+
+        this.sidebarFiles[pFile.path] = item;
     },
 
     load: function (pPath, pCallback) {
@@ -1220,7 +1225,7 @@ ka.Files = new Class({
                     if (this.currentFile.type == 'dir'){
                         this.load(pPath);
                     } else if (this.currentFile.type == 'file') {
-                        ka.wm.openWindow('admin/files/edit', null, null, {file: {path: pPath}});
+                        ka.wm.openWindow('admin/file/edit', null, null, {file: {path: pPath}});
                     }
                 }
 
@@ -1269,6 +1274,12 @@ ka.Files = new Class({
 
             if (this.current == '/' && this.options.withSidebar) {
                 this.renderInfos(pResponse.data);
+            }
+
+            this.infos.getChildren().removeClass('admin-files-item-selected');
+
+            if (this.sidebarFiles[this.current]){
+                this.sidebarFiles[this.current].addClass('admin-files-item-selected');
             }
 
             this.loader.hide();
@@ -1526,7 +1537,7 @@ ka.Files = new Class({
 
             file.post[window._session.tokenid] = window._session.sessionid;
 
-            xhr.open("POST", _path + "admin/files/upload/?" + Object.toQueryString(file.post), true);
+            xhr.open("POST", _path + "admin/file/upload/?" + Object.toQueryString(file.post), true);
 
             var formData = new FormData();
             formData.append('file', file);
@@ -1764,7 +1775,7 @@ ka.Files = new Class({
                         this.win._alert(_('You cannot open a file in the trash folder. To view this file, press right click and choose recover.'));
                         return;
                     }
-                    ka.wm.openWindow('admin/files/edit', null, null, {file: file});
+                    ka.wm.openWindow('admin/file/edit', null, null, {file: file});
                 } else
                     this.loadPath(file.path);
             }
@@ -1934,7 +1945,7 @@ ka.Files = new Class({
         var img;
 
         if (this.__images.contains(file.path.substr(file.path.lastIndexOf('.')).toLowerCase())) {
-            image = _path + 'admin/files/preview?' + Object.toQueryString({path: file.path, mtime:file.mtime});
+            image = _path + 'admin/file/preview?' + Object.toQueryString({path: file.path, mtime:file.mtime});
             Asset.image(image, {
                 onLoad: function () {
 
@@ -2616,7 +2627,7 @@ ka.Files = new Class({
         this.win._confirm(_('This file will be moved to: %s').replace('%s', '<br/><br/>' + pFile['original_path'] + '<br/><br/>') + _('Are you really sure?'), function (res) {
             if (res) {
 
-                new Request.JSON({url: _path + 'admin/files/recover', noCache: 1, onComplete: function () {
+                new Request.JSON({url: _path + 'admin/file/recover', noCache: 1, onComplete: function () {
                     this.reload();
                 }.bind(this)}).post({id: pFile.original_id});
 
@@ -2678,7 +2689,7 @@ ka.Files = new Class({
             var openExternal = new Element('a', {
                 html: _('Open external'),
                 target: '_blank',
-                href: _path+'admin/files/redirect?'+Object.toQueryString({path:pFile.path, noCache: (new Date()).getTime()})
+                href: _path+'admin/file/redirect?'+Object.toQueryString({path:pFile.path, noCache: (new Date()).getTime()})
             }).inject(this.context)
 
 
@@ -2723,7 +2734,7 @@ ka.Files = new Class({
                 html: _('Properties')
             }).addEvent('click',
                 function () {
-                    ka.wm.open('admin/files/properties', pFile);
+                    ka.wm.open('admin/file/properties', pFile);
                 }).inject(this.context);
 
         }
@@ -2800,7 +2811,7 @@ ka.Files = new Class({
 
     _duplicate: function(pFile, pName) {
 
-        new Request.JSON({url: _path + 'admin/files/duplicateFile/', onComplete: function (res) {
+        new Request.JSON({url: _path + 'admin/file/duplicate', onComplete: function (res) {
             if(res.file_exists){
                 this.win._confirm(_('The new filename already exists. Overwrite?'), function(answer){
                     if(answer) this._duplicate(pPath, pName, 1);
@@ -2814,7 +2825,7 @@ ka.Files = new Class({
 
     newversion: function (pFile) {
 
-        new Request.JSON({url: _path + 'admin/files/addVersion/', onComplete: function (res) {
+        new Request.JSON({url: _path + 'admin/file/version', onComplete: function (res) {
             ka.helpsystem.newBubble(_('New version created'), pFile.path, 3000);
         }.bind(this)}).post({path: pFile.path});
 
@@ -2903,11 +2914,11 @@ ka.Files = new Class({
         }
 
         this.searchPaneTitle.set('html', _('Searching ...'));
-        this.lastqrq = new Request.JSON({url: _path + 'admin/files/search', noCache: 1, onComplete: function (res) {
+        this.lastqrq = new Request.JSON({url: _path + 'admin/file/search', noCache: 1, onComplete: function (res) {
 
             this.showSearchEntries(res);
 
-        }.bind(this)}).post({q: pQ, path: this.current});
+        }.bind(this)}).get({q: pQ, path: this.current});
 
     },
 
@@ -2966,7 +2977,7 @@ ka.Files = new Class({
                     if (file.type == 'dir')
                         this.loadPath(file.path);
                     else
-                        ka.wm.openWindow('admin/files/edit', null, null, {file: file});
+                        ka.wm.openWindow('admin/file/edit', null, null, {file: file});
                 }.bind(this));
 
 

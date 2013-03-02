@@ -278,8 +278,15 @@ class AdminController
 
                 ->addSubController('file', '\Admin\File')
                     ->addGetRoute('', 'getFiles')
+
+                    ->addPostRoute('', 'createFile')
+                    ->addDeleteRoute('', 'deleteFile')
+                    ->addPostRoute('folder', 'createFolder')
+
                     ->addGetRoute('single', 'getFile')
                     ->addGetRoute('thumbnail', 'showThumbnail')
+                    ->addPostRoute('upload', 'doUpload')
+                    ->addPostRoute('upload/prepare', 'prepareUpload')
                 ->done()
 
             ->run();

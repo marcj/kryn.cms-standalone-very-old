@@ -469,7 +469,7 @@ class WebFile
             return PATH_WEB.$pId;
 
         //page bases caching here
-        $sql = 'SELECT id, path FROM '.pfx.'system_file WHERE id = '.($pId+0);
+        $sql = 'SELECT id, path FROM '.pfx.'system_file WHERE id = ' . ($pId+0);
         $item = dbExfetch($sql);
 
         return $item['path'];

@@ -24,6 +24,8 @@ class NoFieldWritePermission extends Exception {}
 class EntryPathNotFoundException extends Exception {}
 
 class FileNotExistException extends Exception {}
+class FileUploadException extends Exception {}
+
 
 class FileIOException extends Exception {}
 class FileNotWritableException extends Exception {}
