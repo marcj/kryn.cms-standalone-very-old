@@ -150,7 +150,15 @@ ka.wm = {
 
         ka.wm.removeActiveWindowInformation();
 
+        var atLeastOneActive = false;
+
+        if (ka.adminInterface.frontendLink) {
+            ka.adminInterface.frontendLink.removeClass('ka-main-menu-item-active');
+        }
+        document.body.removeClass('hide-scrollbar');
+
         Object.each(ka.wm.windows, function (win) {
+
             if (win.getParentId()) return;
             ka.wm.addActiveWindowInformation(win);
 
@@ -158,6 +166,7 @@ ka.wm = {
 
                 var menuItem = ka.adminInterface.getMenuItem(win.getEntryPoint());
 
+                atLeastOneActive = true;
                 if (menuItem) {
                     menuItem.object.addClass('ka-main-menu-item-active');
                 } else if (!ka.wm.tempItems[win.getId()]){
@@ -172,6 +181,20 @@ ka.wm = {
 
         });
 
+        if (atLeastOneActive && ka.adminInterface.options.frontPage){
+            document.body.addClass('hide-scrollbar');
+        }
+
+        if (!atLeastOneActive && ka.adminInterface.options.frontPage) {
+            ka.adminInterface.frontendLink.addClass('ka-main-menu-item-active');
+        }
+
+        ka.wm.checkTempLinkSplitter();
+
+    },
+
+    checkTempLinkSplitter: function(){
+
         var children = ka.adminInterface.mainTempLinks.getChildren('.ka-main-menu-item');
         if (children.length > 0) {
             if (!ka.wm.tempLinksSplitter) {
@@ -183,7 +206,6 @@ ka.wm = {
             ka.wm.tempLinksSplitter.destroy();
             delete ka.wm.tempLinksSplitter;
         }
-
     },
 
     reloadHashtag: function(pForce){

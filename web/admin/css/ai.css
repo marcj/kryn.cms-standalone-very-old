@@ -106,7 +106,7 @@ body.ka-frontpage-backend {
     z-index: 110000;
     position: absolute;
     left: 0px;
-    bottom: 0px;
+    height: 100%;
     text-align: left;
     width: 220px;
     top: 0px;
@@ -115,10 +115,6 @@ body.ka-frontpage-backend {
     box-shadow: inset -1px 0 2px #C2C2C4;
     background-color: #DDE2E6;
     overflow: auto;
-}
-
-.ka-frontpage-backend div.ka-main-menu {
-    position: fixed;
 }
 
 .ka-main-menu-additional {
@@ -130,6 +126,14 @@ body.ka-frontpage-backend {
     overflow: hidden;
 }
 
+.ka-main-menu-top {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 50px;
+}
+
 div.ka-main-menu-additional img.arrowUp:hover {
     background-color: #399bc7;
 }
@@ -139,6 +143,7 @@ div.ka-main-menu-additional img.arrowUp:hover {
     left: 0;
     right: 0;
     top: 62px;
+    padding-top: 8px;
     bottom: 60px;
     overflow: auto;
 }

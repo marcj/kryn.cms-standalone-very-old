@@ -18,6 +18,10 @@
     background-color: #eee;
 }
 
+.ka-frontpage-backend .kwindow-border {
+    left: 221px;
+}
+
 .ka-window-extend-head .kwindow-win-title {
     height: 60px;
 }
@@ -352,7 +356,7 @@ h3.kryn-headline {
     position: relative;
     top: 1px;
     color: #5e5e5e;
-    text-shadow: 0 1px 0 #F8F8F8;
+    text-shadow: 0 1px 0 #E9E9E9;
 }
 
 .ka-kwindow-titlepath img {

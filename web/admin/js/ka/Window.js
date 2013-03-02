@@ -329,7 +329,7 @@ ka.Window = new Class({
                 }
                 if (pCallback) main.removeEvent('close', closeEvent);
                 main.close();
-                if (pCallback) pCallback(true);
+                if (pCallback) pCallback(res);
             }.bind(this)).inject(main.bottom);
         }
 
@@ -350,7 +350,9 @@ ka.Window = new Class({
                 if (e.key == 'enter') {
                     e.stopPropagation();
                     e.stop();
-                    ok.fireEvent('click');
+                    if (ok) {
+                        ok.fireEvent('click');
+                    }
                 }
             });
         }
