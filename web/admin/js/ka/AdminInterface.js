@@ -464,8 +464,6 @@ ka.AdminInterface = new Class({
             }
         }.bind(this)).inject(form);
 
-        this.loginName.store('value', t('Username'));
-
         this.loginPw = new Element('input', {
             name: 'loginPw',
             type: 'password',
@@ -583,11 +581,6 @@ ka.AdminInterface = new Class({
     },
 
     reloadLogin: function () {
-
-        if (this.loginName.value == '' || this.loginName.retrieve('value') == this.loginName.value)
-            this.loginName.value = t('Username');
-
-        this.loginName.store('value', t('Username'));
     },
 
     doLogin: function () {
