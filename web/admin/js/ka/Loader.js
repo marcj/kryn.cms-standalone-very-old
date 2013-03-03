@@ -39,7 +39,7 @@ ka.Loader = new Class({
                 styles: {
                     opacity: 0.8
                 }
-            });
+            }).inject(this.main ? this.main : pContainer);
         }
 
         this.loadingTable = new Element('table', {
@@ -94,7 +94,13 @@ ka.Loader = new Class({
         this.continueAnimation();
     },
 
+    getLoader: function(){
+        return this.loader
+    },
+
     continueAnimation: function(){
+
+        if (!this.toElement()) return;
 
         if (this.toElement().getStyle('display') == 'none') return;
 
@@ -121,6 +127,9 @@ ka.Loader = new Class({
     },
 
     destroy: function () {
+
+        this.hide();
+
         if (this.toElement()) {
             this.toElement().destroy();
         }
@@ -141,6 +150,7 @@ ka.Loader = new Class({
     },
 
     show: function () {
+
         this.toElement().setStyle('display', this.toElement().get('tag') == 'table' ? 'table' : 'block');
 
         if (this.transBg) {
@@ -153,11 +163,11 @@ ka.Loader = new Class({
 
     hide: function () {
 
-        this.toElement().setStyle('display', 'none');
-
         if (this.lastAnimationTimer) {
             clearTimeout(this.lastAnimationTimer);
         }
+
+        this.toElement().setStyle('display', 'none');
 
         if (this.transBg) {
             this.transBg.setStyle('display', 'none');

@@ -30,15 +30,6 @@ ka.WindowCombine = new Class({
         this.mainRight = this.mainLayout.getCell(1,2);
         this.mainRight.set('class', 'ka-list-combine-right');
 
-        this.inputTrigger = new Element('input').inject(document.hiddenElement);
-
-        this.inputTrigger.addEvent('focus', function () {
-            this.ready2ChangeThroughKeyboard = true;
-        }.bind(this));
-        this.inputTrigger.addEvent('blur', function () {
-            this.ready2ChangeThroughKeyboard = false;
-        }.bind(this));
-
         if (this.classProperties.asNested){
 
             //load ka.objectTree
@@ -1124,10 +1115,6 @@ ka.WindowCombine = new Class({
 
         }
 
-        if (!ka.mobile) {
-            this.inputTrigger.focus();
-        }
-
     },
 
     loadRootItem: function (pItem) {
@@ -1199,10 +1186,6 @@ ka.WindowCombine = new Class({
                 this.setActiveItem(pItem);
             }
 
-        }
-
-        if (!ka.mobile) {
-            this.inputTrigger.focus();
         }
 
     },

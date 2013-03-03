@@ -19,7 +19,7 @@ var admin_system_module_view = new Class({
         }
 
 
-        this.loading = new ka.Loader().inject(this.win.content);
+        this.loading = new ka.Loader(this.win.content);
         this.loading.show();
 
         new Request.JSON({url: _path + 'admin/system/module/getInstallInfo/', noCache: 1, onComplete: function (res) {
@@ -280,7 +280,7 @@ var admin_system_module_view = new Class({
         this.win.setTitle(_('Install extension'));
         this.installMode = true;
 
-        this.loading = new ka.Loader().inject(this.win.content);
+        this.loading = new ka.Loader(this.win.content);
         ;
         this.loading.show();
 
@@ -324,7 +324,7 @@ var admin_system_module_view = new Class({
         this.win.content.empty();
         //this.boxNavi.destroy();
 
-        this.loading = new ka.Loader().inject(this.win.content);
+        this.loading = new ka.Loader(this.win.content);
         this.loading.show();
 
         new Request.JSON({url: _path + 'admin/system/module/installModule/', noCache: 1, onComplete: function (res) {
@@ -359,7 +359,7 @@ var admin_system_module_view = new Class({
 
         this.isUpdate = true;
 
-        this.loading = new ka.Loader().inject(this.win.content);
+        this.loading = new ka.Loader(this.win.content);
         this.loading.show();
 
         new Request.JSON({url: _path + 'admin/system/module/getPrepareInstall/', noCache: 1, onComplete: function (res) {
@@ -925,7 +925,7 @@ var admin_system_module_view = new Class({
     renderRemove: function () {
         //this.boxNavi.destroy();
         this.win.content.empty();
-        this.loader = new ka.Loader().inject(this.win.content);
+        this.loader = new ka.Loader(this.win.content);
         this.loader.show();
         this._renderRemove();
     },

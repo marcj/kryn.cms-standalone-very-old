@@ -24,7 +24,7 @@ var admin_system_module = new Class({
             'class': 'admin-system-module-pane'
         }).inject(this.win.content);
 
-        this.loader = new ka.Loader().inject(this.win.content);
+        this.loader = new ka.Loader(this.win.content);
 
 
         /* installed */

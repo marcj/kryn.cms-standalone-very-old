@@ -222,7 +222,7 @@ ka.WindowList = new Class({
     },
 
     renderLoader: function () {
-        this.loader = new ka.Loader().inject(this.main);
+        this.loader = new ka.Loader(this.main);
     },
 
     renderMultilanguage: function () {

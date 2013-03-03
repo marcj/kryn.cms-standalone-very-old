@@ -187,7 +187,10 @@ ka.Window = new Class({
             if (this.loadingFx)
                 delete this.loadingFx;
 
-            this.loadingObj = new ka.Loader(null, true).inject(this.border);
+            this.loadingObj = new ka.Loader(this.border, {
+                overlay: true,
+                absolute: true
+            });
 
             var div = new Element('div', {
                 'class': 'ka-kwindow-loader-content gradient',
@@ -195,13 +198,14 @@ ka.Window = new Class({
             }).inject(this.loadingObj.td);
 
 
-            this.loadingObj.main.setStyles({'top': 25});
+            document.id(this.loadingObj).setStyles({'top': 25});
             this.loadingObj.transBg.setStyles({'top': 25});
 
-            this.loadingObj.main.setStyles(pOffset);
+            document.id(this.loadingObj).setStyles(pOffset);
             this.loadingObj.transBg.setStyles(pOffset);
 
-            this.loadingObj.img.inject(div, 'top');
+            this.loadingObj.getLoader().inject(div, 'top');
+            this.loadingObj.getLoader().setStyle('line-height', 25);
             
             this.loadingObj.transBg.setStyle('opacity', 0.05);
             div.setStyles({
