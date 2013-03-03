@@ -473,10 +473,7 @@ class AdminController
         $response->addJs("
         CKEDITOR.disableAutoInline = true;
         CodeMirror.modeURL = 'core/codemirror/mode/%N/%N.js';
-        var loaded = 0;
         window.addEvent('domready', function(){
-            if (loaded++ > 0)
-                throw 'gazzo';
             ka.adminInterface = new ka.AdminInterface();
         });
         ");
