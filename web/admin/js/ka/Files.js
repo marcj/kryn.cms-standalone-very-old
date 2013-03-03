@@ -545,7 +545,7 @@ ka.Files = new Class({
 
     uploadStart: function (pFile) {
 
-        this.uploadTrs[ pFile.id ].status.set('html', _('Uploading ...'));
+        this.uploadTrs[ pFile.id ].status.set('html', t('Uploading ...'));
 
     },
 
@@ -598,7 +598,7 @@ ka.Files = new Class({
                     try {
                         switch (xhr.status){
                             case 413:
-                                text = t('412: Request Entity Too Large');
+                                text = t('413: Request Entity Too Large');
                                 break;
                         }
                     } catch(e){
