@@ -69,7 +69,9 @@ ka.wm = {
 
     setFrontWindow: function (pWindow) {
         Object.each(ka.wm.windows, function (win, winId) {
-            if (win && pWindow.id != winId) win.inFront = false;
+            if (win && pWindow.id != winId){
+                win.toBack();
+            }
         });
         ka.wm.lastWindow = pWindow;
     },

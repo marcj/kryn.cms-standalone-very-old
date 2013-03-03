@@ -1,4 +1,6 @@
 ka.Window = new Class({
+
+    Binds: ['close'],
     Implements: Events,
 
     id     : 0,
@@ -39,8 +41,11 @@ ka.Window = new Class({
 
             this.loadContent();
 
-            this.closeBind = this.close.bind(this, true);
-            this.addHotkey('esc', false, false, this.closeBind);
+            this.addHotkey('esc', false, false, function(e){
+                (function(){
+                    this.close(true);
+                }).delay(50, this);
+            }.bind(this));
         }
     },
 
@@ -486,6 +491,9 @@ ka.Window = new Class({
 
     toBack: function () {
         this.title.removeClass('ka-kwindow-inFront');
+
+        this.border.setStyle('display', 'none');
+
         this.inFront = false;
     },
 
@@ -512,11 +520,8 @@ ka.Window = new Class({
             this.title.addClass('ka-kwindow-inFront');
             if (this.border.getStyle('display') != 'block') {
                 this.border.setStyles({
-                    'display': 'block',
-                    'opacity': 0
+                    'display': 'block'
                 });
-                this.border.set('tween', {duration: 300});
-                this.border.tween('opacity', 1);
             }
 
             if (this.getParent()){
@@ -536,6 +541,9 @@ ka.Window = new Class({
             ka.wm.setFrontWindow(this);
             this.isOpen = true;
             this.inFront = true;
+
+            this.border.setStyle('display', 'block');
+
             this.deleteOverlay();
             ka.wm.updateWindowBar();
 
@@ -549,9 +557,10 @@ ka.Window = new Class({
 
         if (!this.hotkeyBinds) this.hotkeyBinds = [];
 
-        var bind = function (e) {
-            if (document.activeElement.get('tag') != 'body') return;
-            if (this.inFront && (!this.inOverlayMode)) {
+        var bind = function(e){
+            if (document.activeElement && document.activeElement.get('tag') != 'body') return;
+            if (this.isInFront() && (!this.inOverlayMode)) {
+
                 if (pControlOrMeta && (!e.control && !e.meta)) return;
                 if (pAlt && !e.alt) return;
                 if (e.key == pKey) {
