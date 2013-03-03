@@ -248,7 +248,6 @@ ka.Files = new Class({
 
             this.uploadError(pFile);
 
-
         } else {
 
             if (pFile.html5) {
@@ -469,7 +468,7 @@ ka.Files = new Class({
         if (failed == 0 && all == loaded) {
             if (!this.fileUploadCloseInfo) {
                 this.fileUploadCloseInfo = new Element('span', {
-                    text: _('This dialog closes in few seconds'),
+                    text: t('This dialog closes in few seconds'),
                     style: 'padding-right: 15px; color: gray;'
                 }).inject(document.id(this.fileUploadCancelBtn), 'before');
                 (function () {
@@ -477,7 +476,7 @@ ka.Files = new Class({
                 }.bind(this)).delay(500);
             }
         } else if (all == loaded) {
-            this.fileUploadCancelBtn.setText(_('Close'));
+            this.fileUploadCancelBtn.setText(t('Close'));
         }
 
     },
@@ -578,10 +577,12 @@ ka.Files = new Class({
 
         if (!this.uploadTrs[ pFile.id ]) return;
 
+        var xhr = this.html5UploadXhr[ pFile.id ];
+
         this.uploadTrs[ pFile.id ].deleteTd.destroy();
 
         if (ka.settings.upload_max_filesize && ka.settings.upload_max_filesize < pFile.size) {
-            this.uploadTrs[ pFile.id ].status.set('html', '<span style="color: red">' + _('File size limit exceeded') + '</span>');
+            this.uploadTrs[ pFile.id ].status.set('html', '<span style="color: red">' + t('File size limit exceeded') + '</span>');
             new Element('img', {
                 style: 'position: relative; top: 2px; left: 2px;',
                 src: _path + 'admin/images/icons/error.png',
@@ -591,11 +592,21 @@ ka.Files = new Class({
             if (this.uploadTrs[ pFile.id ].canceled) {
                 this.uploadTrs[ pFile.id ].status.set('html', '<span style="color: red">' + t('Canceled') + '</span>');
             } else {
-                this.uploadTrs[ pFile.id ].status.set('html', '<span style="color: red">' + t('Unknown error') + '</span>');
+                var text =  t('Unknown error');
+                if (xhr){
+                    switch (xhr.status){
+                        case 413:
+                            text = t('412: Request Entity Too Large');
+                            break;
+                    }
+                }
+                this.uploadTrs[ pFile.id ].status.set('html', '<span style="color: red">' + text + '</span>');
+
             }
         }
 
         this.uploadTrs[ pFile.id ].error = true;
+        if (xhr) xhr.abort();
 
         this.uploadAllProgress();
 
@@ -1561,7 +1572,7 @@ ka.Files = new Class({
                 if (xhr.readyState == 4) {
                     if (xhr.status == 200) {
                         this.uploadComplete(file);
-                    } else {
+                    } else if (xhr.status > 0){
                         this.uploadError(file);
                     }
                 }
@@ -1573,7 +1584,7 @@ ka.Files = new Class({
 
             file.post[window._session.tokenid] = window._session.sessionid;
 
-            xhr.open("POST", _path + "admin/file/upload/?" + Object.toQueryString(file.post), true);
+            xhr.open("POST", _path + "admin/file/upload?" + Object.toQueryString(file.post), true);
 
             var formData = new FormData();
             formData.append('file', file);
