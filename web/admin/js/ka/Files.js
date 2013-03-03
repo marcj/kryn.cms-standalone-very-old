@@ -2018,6 +2018,22 @@ ka.Files = new Class({
         });
         var imgElement;
 
+        if (this.previewLoader){
+            this.previewLoader.destroy();
+            delete this.previewLoader;
+        }
+
+        if (this.lastPreviewImage){
+            this.lastPreviewImage.destroy();
+            delete this.lastPreviewImage;
+        }
+
+        this.previewLoader = new ka.Loader(this.previewDiv, {
+            big: true
+        });
+
+        logger('newLoader');
+
         imgElement = Asset.image(image, {
             onLoad: function () {
 
@@ -2027,7 +2043,10 @@ ka.Files = new Class({
                 if (this.previewDiv.getElement('img'))
                     this.previewDiv.getElement('img').destroy();
 
-                img = new Element('img', {
+                this.previewLoader.destroy();
+                delete this.previewLoader;
+
+                this.lastPreviewImage = new Element('img', {
                     src: image,
                     style: 'position: relative;'
                 }).inject(this.previewDiv, 'top');
@@ -2035,7 +2054,7 @@ ka.Files = new Class({
                 [20, 50, 75, 100, 125, 150, 175, 200, 250].each(function(delayMs){
                     (function(){
                         if (!this.previewDiv) return;
-                        img.setStyle('top', this.previewDiv.getSize().y/2-img.getSize().y/2);
+                        this.lastPreviewImage.setStyle('top', this.previewDiv.getSize().y/2-this.lastPreviewImage.getSize().y/2);
                     }).delay(delayMs, this);
                 }.bind(this));
 
@@ -2125,10 +2144,6 @@ ka.Files = new Class({
 
             this.previewDiv.makeDraggable({
                 handle: this.previewDivMover
-            });
-
-            new ka.Loader(this.previewDiv, {
-                big: true
             });
 
             this.updatePreview();
