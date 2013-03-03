@@ -871,9 +871,6 @@ ka.Files = new Class({
 
         this.fileContainer.fileObj = this;
 
-        this.loader = new ka.Loader().inject(this.container);
-        this.loader.setStyle('left', 141);
-
         if (this.options.withSidebar) {
             this.infos = new Element('div', {
                 'class': 'admin-files-infos'
@@ -886,9 +883,21 @@ ka.Files = new Class({
             'class': 'admin-files-status-bar'
         }).inject(this.container);
 
+        this.loaderContainer = new Element('div', {
+            'class': 'admin-files-status-bar-loader'
+        }).inject(this.statusBar);
+
+        this.loader = new ka.Loader(this.loaderContainer, {
+
+        });
+
         this.statusBarSelected = new Element('span').inject(this.statusBar);
 
         this.setListType('icon', true); //TODO retrieve cookie
+    },
+
+    showLoader: function(pVisible){
+        pVisible ? this.loader.show() : this.loader.hide();
     },
 
     updateStatusBar: function(){
@@ -1211,7 +1220,7 @@ ka.Files = new Class({
             pPath = '/'+pPath;
 
 
-        this.loader.show();
+        this.showLoader(true);
         this.currentFile = this.path2File[pPath];
         if (!this.currentFile) {
 
@@ -1219,7 +1228,7 @@ ka.Files = new Class({
             //check first what it is, and the continue;
             this.curRequest = new Request.JSON({url: _path + 'admin/file/single', noCache: 1, onComplete: function (pResponse){
 
-                this.loader.hide();
+                this.showLoader(false);
 
                 if (pResponse.error == 'AccessDeniedException'){
                     //todo, show access denied in a more beauty way.
@@ -1254,7 +1263,7 @@ ka.Files = new Class({
 
         this.curRequest = new Request.JSON({url: _path + 'admin/file', noCache: 1, onComplete: function (pResponse) {
 
-            this.loader.hide();
+            this.showLoader(false);
 
             if (pResponse.error == 'AccessDeniedException'){
                 //todo, show access denied in a more beauty way.
@@ -1305,7 +1314,7 @@ ka.Files = new Class({
                 this.fireSelect();
             }
 
-            this.loader.hide();
+            this.showLoader(false);
 
             this.upBtn.fileItem = {type: 'dir', path: this.getUpPath()};
 
@@ -2118,16 +2127,9 @@ ka.Files = new Class({
                 handle: this.previewDivMover
             });
 
-            /*
-            this.previewDiv.makeResizable({
-                handle: this.previewDivResizer
+            new ka.Loader(this.previewDiv, {
+                big: true
             });
-            */
-
-            new Element('img', {
-                src: _path + 'admin/images/loading.gif',
-                style: 'margin-top: 270px;'
-            }).inject(this.previewDiv);
 
             this.updatePreview();
 

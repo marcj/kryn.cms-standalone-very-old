@@ -23,7 +23,7 @@
     position: absolute;
     top: 0px;
     right: 0px;
-    left: 141px;
+    left: 176px;
     bottom: 25px;
     cursor: default;
     padding: 2px;
@@ -42,6 +42,12 @@
     text-align: center;
     font-size: 11px;
     text-shadow: 0 1px 0 white;
+}
+
+.admin-files-status-bar-loader {
+    position: absolute;
+    right: 5px;
+    top: 3px;
 }
 
 .admin-files-fileContainer-selected {
@@ -89,7 +95,7 @@
     top: 0px;
     left: 0px;
     bottom: 25px;
-    width: 140px;
+    width: 175px;
     background-color: #f4f4f4;
     overflow: auto;
     -webkit-overflow-scrolling: touch;
@@ -98,23 +104,24 @@
 
 .admin-files-infos a {
     display: block;
-    padding: 5px 8px 4px 6px;
-    color: #333;
+    padding-left: 15px;
     cursor: default;
-    cursor: pointer;
     display: block;
 
     -moz-border-radius: 0px;
     -webkit-border-radius: 0px;
     border-radius: 0px;
+
+    line-height: 27px;
+    color: #333;
 }
 
 .admin-files-infos a:before {
-    padding-right: 6px;
+    padding-right: 9px;
     color: #414A53;
     text-shadow: 1px 0 0 white;
     font-size: 16px;
-    vertical-align: text-top;
+    vertical-align: middle;
 }
 
 .admin-files-infos a:hover {
