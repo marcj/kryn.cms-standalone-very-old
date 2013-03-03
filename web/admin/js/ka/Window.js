@@ -327,8 +327,8 @@ ka.Window = new Class({
             }.bind(this)).inject(main.bottom);
 
             ok = new ka.Button(t('OK')).addEvent('keyup', function(e){
-                    e.stopPropagation();
-                    e.stop();
+                e.stopPropagation();
+                e.stop();
             }).addEvent('click', function(e){
                 if (e) {
                     e.stop();
@@ -351,7 +351,8 @@ ka.Window = new Class({
             .addEvent('click', function(e){
                 if (e) e.stop();
                 main.close(true);
-            }.bind(this)).inject(main.bottom);
+            }.bind(this))
+            .inject(main.bottom);
         }
 
         if (pOpts['alert'] != 1 && pOpts['confirm'] != 1) {

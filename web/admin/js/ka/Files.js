@@ -188,6 +188,7 @@ ka.Files = new Class({
 
         var td = new Element('td', {
             width: 20,
+            style: 'color: gray',
             text: '#' + this.uploadFilesCount
         }).inject(tr);
 
@@ -520,7 +521,7 @@ ka.Files = new Class({
         if (this.fileUploadSpeedLastByteSpeed == 0) {
             speed = ' -- KB/s';
         } else {
-            speed = ' ' + ka.bytesToSize(this.fileUploadSpeedLastByteSpeed) + ' KB/s, ' + time;
+            speed = ' ' + ka.bytesToSize(this.fileUploadSpeedLastByteSpeed) + '/s, ' + time;
         }
 
         this.fileUploadDialogAllSpeed.set('html', speed);
@@ -584,13 +585,13 @@ ka.Files = new Class({
             new Element('img', {
                 style: 'position: relative; top: 2px; left: 2px;',
                 src: _path + 'admin/images/icons/error.png',
-                title: _('The file size exceeds the limit allows by upload_max_filesize or post_max_size on your server. Please contact the administrator.')
+                title: t('The file size exceeds the limit allows by upload_max_filesize or post_max_size on your server. Please contact the administrator.')
             }).inject(this.uploadTrs[ pFile.id ].status);
         } else {
             if (this.uploadTrs[ pFile.id ].canceled) {
-                this.uploadTrs[ pFile.id ].status.set('html', '<span style="color: red">' + _('Canceled') + '</span>');
+                this.uploadTrs[ pFile.id ].status.set('html', '<span style="color: red">' + t('Canceled') + '</span>');
             } else {
-                this.uploadTrs[ pFile.id ].status.set('html', '<span style="color: red">' + _('Unknown error') + '</span>');
+                this.uploadTrs[ pFile.id ].status.set('html', '<span style="color: red">' + t('Unknown error') + '</span>');
             }
         }
 

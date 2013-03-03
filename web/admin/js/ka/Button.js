@@ -92,6 +92,10 @@ ka.Button = new Class({
         return this;
     },
 
+    fireEvent: function(pType, pParams){
+        (this.$eventsBackuper || this.main).fireEvent(pType, pParams);
+    },
+
     focus: function () {
         this.main.focus();
     },
