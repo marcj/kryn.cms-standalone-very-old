@@ -558,7 +558,7 @@ ka.Window = new Class({
 
         this.hotkeyBinds.push(bind);
 
-        document.addEvent('keydown', bind);
+        document.body.addEvent('keydown', bind);
 
     },
 
