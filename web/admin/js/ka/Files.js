@@ -848,7 +848,8 @@ ka.Files = new Class({
             this.closeSearch();
         }.bind(this)).addEvent('mousemove', function (pEvent) {
             this.checkMouseMove(pEvent);
-        }.bind(this)).inject(this.container);
+        }.bind(this))
+        .inject(this.container);
 
         if (ka.mobile){
             this.fileContainer.addEvent('click', function (pEvent) {
@@ -888,7 +889,6 @@ ka.Files = new Class({
         }).inject(this.statusBar);
 
         this.loader = new ka.Loader(this.loaderContainer, {
-
         });
 
         this.statusBarSelected = new Element('span').inject(this.statusBar);
@@ -1605,6 +1605,10 @@ ka.Files = new Class({
         var scroll = this.fileContainer.getScroll();
         this.selectorMaxSizePos = this.fileContainer.getScrollSize();
 
+        if (document.activeElement && 'blur' in document.activeElement){
+            document.activeElement.blur();
+        }
+
         if (this.selectorDiv) {
             this.selectorDiv.destroy();
             delete this.selectorDiv;
@@ -1644,6 +1648,8 @@ ka.Files = new Class({
 
         this.selectorDrag = new Drag(this.selectorDiv, {
             style: false,
+            preventDefault: false,
+            stopPropagation: false,
             onDrag: function (pElement, pEvent) {
 
                 scroll = this.fileContainer.getScroll();
@@ -1701,14 +1707,12 @@ ka.Files = new Class({
             }.bind(this),
 
             onComplete: function () {
-
                 this.nextMouseClickIsInvalid = false;
 
                 if (this.selectorDiv) {
                     this.selectorDiv.destroy();
+                    delete this.selectorDiv;
                 }
-
-                delete this.selectorDiv;
             }.bind(this),
 
             onCancel: function () {
@@ -1748,8 +1752,6 @@ ka.Files = new Class({
         if (!item) {
             item = pEvent.target.getParent('tr');
         }
-
-        pEvent.preventDefault();
 
         if (item) {
             file = item.fileItem;
@@ -2016,7 +2018,6 @@ ka.Files = new Class({
             height: size.y,
             mtime:file.mtime
         });
-        var imgElement;
 
         if (this.previewLoader){
             this.previewLoader.destroy();
@@ -2034,7 +2035,7 @@ ka.Files = new Class({
 
         logger('newLoader');
 
-        imgElement = Asset.image(image, {
+        Asset.image(image, {
             onLoad: function () {
 
                 if (!this.previewDiv) return;
