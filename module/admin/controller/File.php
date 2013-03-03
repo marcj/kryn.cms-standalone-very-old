@@ -256,10 +256,16 @@ class File
      * @param int $pWidth
      * @param int $pHeight
      */
-    public function showThumbnail($pPath, $pWidth = 50, $pHeight = 50)
+    public function showPreview($pPath, $pWidth = 50, $pHeight = 50)
     {
         $image = WebFile::getResizeMax($pPath, $pWidth, $pHeight);
+
+        $expires = 3600;
+        header("Pragma: public");
+        header("Cache-Control: maxage=".$expires);
+        header('Expires: ' . gmdate('D, d M Y H:i:s', time()+$expires) . ' GMT');
         header('Content-type: image/png');
+
         imagepng($image->getResult(), null, 8);
         exit;
     }

@@ -284,7 +284,7 @@ class AdminController
                     ->addPostRoute('folder', 'createFolder')
 
                     ->addGetRoute('single', 'getFile')
-                    ->addGetRoute('thumbnail', 'showThumbnail')
+                    ->addGetRoute('preview', 'showPreview')
                     ->addPostRoute('upload', 'doUpload')
                     ->addPostRoute('upload/prepare', 'prepareUpload')
                 ->done()

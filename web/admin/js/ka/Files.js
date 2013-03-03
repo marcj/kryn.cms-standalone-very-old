@@ -1,5 +1,6 @@
 ka.Files = new Class({
 
+    Binds: ['updateStatusBar'],
     Implements: [Options, Events],
 
     historyIndex: 0,
@@ -86,6 +87,9 @@ ka.Files = new Class({
         }.bind(this));
 
         this.loadRoot();
+
+        this.addEvent('select', this.updateStatusBar);
+        this.addEvent('deselect', this.updateStatusBar);
     },
 
     loadRoot: function(){
@@ -151,9 +155,9 @@ ka.Files = new Class({
             });
             this.fileUploadDialog.center();
 
-            this.fileUploadCancelBtn = new ka.Button(_('Cancel')).addEvent('click', this.cancelUploads.bind(this)).inject(this.fileUploadDialog.bottom);
+            this.fileUploadCancelBtn = new ka.Button(t('Cancel')).addEvent('click', this.cancelUploads.bind(this)).inject(this.fileUploadDialog.bottom);
 
-            this.fileUploadMinimizeBtn = new ka.Button(_('Minimize')).addEvent('click', this.minimizeUpload.bind(this)).inject(this.fileUploadDialog.bottom);
+            this.fileUploadMinimizeBtn = new ka.Button(t('Minimize')).addEvent('click', this.minimizeUpload.bind(this)).inject(this.fileUploadDialog.bottom);
 
             var table = new Element('table', {style: 'width: 100%;', 'class': 'admin-file-uploadtable'}).inject(this.fileUploadDialog.content);
             this.fileUploadTBody = new Element('tbody').inject(table);
@@ -176,7 +180,7 @@ ka.Files = new Class({
         }
 
         this.fileUploadMinimizeBtn.show();
-        this.fileUploadCancelBtn.setText(_('Cancel'));
+        this.fileUploadCancelBtn.setText(t('Cancel'));
 
         this.uploadFilesCount++;
 
@@ -198,7 +202,7 @@ ka.Files = new Class({
         }).inject(tr);
 
         tr.status = new Element('td', {
-            text: _('Pending ...'),
+            text: t('Pending ...'),
             width: 150,
             style: 'text-align: center;'
         }).inject(tr);
@@ -859,21 +863,13 @@ ka.Files = new Class({
             this.fileContainer.setStyle('top', 35);
         }
 
-        this.container.addEventListener('dragover', this.checkFileDragOver.bind(this));
-        this.container.addEventListener('dragleave', this.checkFileDragLeave.bind(this));
-        this.container.addEventListener('drop', this.checkFileDrop.bind(this));
+        if (this.container.addEventListener) {
+            this.container.addEventListener('dragover', this.checkFileDragOver.bind(this));
+            this.container.addEventListener('dragleave', this.checkFileDragLeave.bind(this));
+            this.container.addEventListener('drop', this.checkFileDrop.bind(this));
+        }
 
         this.fileContainer.fileObj = this;
-
-        this.inputTrigger = new Element('input', {
-            'class': 'admin-files-preview-input'
-        }).inject(document.hiddenElement);
-
-        this.inputTrigger.addEvent('blur', function () {
-            (function () {
-                this.destroyContext.bind(this);
-            }.bind(this)).delay(100);
-        }.bind(this));
 
         this.loader = new ka.Loader().inject(this.container);
         this.loader.setStyle('left', 141);
@@ -886,7 +882,30 @@ ka.Files = new Class({
             this.fileContainer.setStyle('left', 0);
         }
 
+        this.statusBar = new Element('div', {
+            'class': 'admin-files-status-bar'
+        }).inject(this.container);
+
+        this.statusBarSelected = new Element('span').inject(this.statusBar);
+
         this.setListType('icon', true); //TODO retrieve cookie
+    },
+
+    updateStatusBar: function(){
+
+        var selected = this.getSelectedFilesAsArray();
+        var items = this.fileContainer.getElements('.admin-files-item');
+
+        var text = '';
+
+        if (selected.length > 0){
+            text = tf('%d of %d selected.', selected.length, items.length);
+        } else {
+            text = tf('%d items.', items.length);
+        }
+
+        this.statusBarSelected.set('text', text);
+
     },
 
     toggleUserMode: function () {
@@ -1276,10 +1295,14 @@ ka.Files = new Class({
                 this.renderInfos(pResponse.data);
             }
 
+            this.updateStatusBar();
+
             this.infos.getChildren().removeClass('admin-files-item-selected');
+            this.fireDeselect();
 
             if (this.sidebarFiles[this.current]){
                 this.sidebarFiles[this.current].addClass('admin-files-item-selected');
+                this.fireSelect();
             }
 
             this.loader.hide();
@@ -1378,7 +1401,7 @@ ka.Files = new Class({
 
             if (position.y > 0 && position.y < containerHeight){
 
-                var image = _path+'admin/file/thumbnail/?' + Object.toQueryString({
+                var image = _path+'admin/file/preview?' + Object.toQueryString({
                     path: file.readyToLoadImage.path,
                     mtime: file.readyToLoadImage.mtime,
                     width: file.imageContainer.getSize().x-20,
@@ -1420,6 +1443,7 @@ ka.Files = new Class({
 
         if (file && file.type == 'dir' && file.path != '/trash' && file.path != '/' && !item.hasClass('admin-files-fileContainer') && file.writeaccess) {
             item.addClass('admin-files-item-selected');
+            this.fireSelect();
         } else if (this.currentFile.writeaccess) {
             this.fileContainer.addClass('admin-files-fileContainer-selected');
         }
@@ -1441,6 +1465,7 @@ ka.Files = new Class({
 
         if (item) {
             item.removeClass('admin-files-item-selected');
+            this.fireDeselect();
         }
 
         this.fileContainer.removeClass('admin-files-fileContainer-selected');
@@ -1482,6 +1507,7 @@ ka.Files = new Class({
         if (item) {
             file = item.fileItem;
             item.removeClass('admin-files-item-selected');
+            this.fireDeselect();
         }
 
         if (file && (file.type != 'dir' || file.path == '/trash')) {
@@ -1657,10 +1683,12 @@ ka.Files = new Class({
 
                     } else {
                         item.removeClass('admin-files-item-selected');
+                        this.fireDeselect();
                     }
 
                 }.bind(this));
 
+                this.updateStatusBar();
             }.bind(this),
 
             onComplete: function () {
@@ -1703,9 +1731,6 @@ ka.Files = new Class({
             selection.removeAllRanges();
         }).delay(40);
 
-        if (!ka.mobile) {
-            this.inputTrigger.focus();
-        }
 
         if (!item.hasClass('admin-files-item')) {
             item = item.getParent('.admin-files-item');
@@ -1864,6 +1889,7 @@ ka.Files = new Class({
             this.selectItem(item);
         } else if (pEvent.control || pEvent.meta) {
             item.removeClass('admin-files-item-selected');
+            this.fireDeselect();
         }
 
         if (pEvent.rightClick && file) {
@@ -1934,62 +1960,88 @@ ka.Files = new Class({
         return res;
     },
 
-    updatePreview: function () {
+    closePreview: function(){
 
-        if (!this.lastClickedItem) {
-            this.lastClickedItem = this.fileContainer;
+        if (!this.lastPreviewedItem) return;
+
+        var img      = this.lastPreviewedItem.getElement('img') || this.lastPreviewedItem.getElement('div');
+        var position = img.getPosition(this.container);
+        var size     = img.getSize();
+
+        var onComplete = function(){
+            this.previewDiv.destroy();
+            delete this.previewDiv;
+            this.previewMorph.removeEvents('complete');
+        }.bind(this);
+
+        this.previewMorph.addEvent('complete', onComplete);
+
+        this.previewMorph.start({
+            opacity: 0,
+            width: size.x,
+            height: size.y,
+            top: position.y,
+            left: position.x
+        });
+
+        delete this.lastPreviewedItem;
+    },
+
+    updatePreview: function(){
+
+        if (!this.lastClickedItem && this.lastPreviewedItem) {
+            this.closePreview();
+            return;
         }
         if (!this.previewDiv) return;
+
+        this.lastPreviewedItem = this.lastClickedItem;
 
         var file = this.lastClickedItem.fileItem, image;
         var img;
 
-        if (this.__images.contains(file.path.substr(file.path.lastIndexOf('.')).toLowerCase())) {
-            image = _path + 'admin/file/preview?' + Object.toQueryString({path: file.path, mtime:file.mtime});
-            Asset.image(image, {
-                onLoad: function () {
+        var size = this.previewDivSize;
+        image = _path + 'admin/file/preview?' + Object.toQueryString({
+            path: file.path,
+            width: size.x,
+            height: size.y,
+            mtime:file.mtime
+        });
+        var imgElement;
 
-                    if (this.lastPreviewPath != image) return;
+        imgElement = Asset.image(image, {
+            onLoad: function () {
 
-                    var fn = 'kaFilesUpdatePreviewPosition'+(new Date().getTime())+(Math.random()).toString().substr(2);
+                if (!this.previewDiv) return;
+                if (this.lastPreviewPath != image) return;
 
-                    //window[fn] = function () {
-                    //    logger(this.previewDiv);
-                    //    logger(img);
-                        //this.previewDiv.position({relativeTo: $('border')});
-                    //}.bind(this);
+                if (this.previewDiv.getElement('img'))
+                    this.previewDiv.getElement('img').destroy();
 
-                    if (this.previewDiv.getElement('img'))
-                        this.previewDiv.getElement('img').destroy();
+                img = new Element('img', {
+                    src: image,
+                    style: 'position: relative;'
+                }).inject(this.previewDiv, 'top');
 
-                    img = new Element('img', {
-                        //onLoad: fn+'()',
-                        src: image
-                    }).inject(this.previewDiv);
+                [20, 50, 75, 100, 125, 150, 175, 200, 250].each(function(delayMs){
+                    (function(){
+                        if (!this.previewDiv) return;
+                        img.setStyle('top', this.previewDiv.getSize().y/2-img.getSize().y/2);
+                    }).delay(delayMs, this);
+                }.bind(this));
 
-                    //img.position({relativeTo: this.previewDiv});
-
-                }.bind(this)
-            });
-        } else {
-
-            if (this.previewDiv.getElement('img'))
-                this.previewDiv.getElement('img').destroy();
-
-            if (file.type == 'dir')
-                if (file.magic)
-                    new Element('img', {src: _path+ 'admin/images/file-icon-magic.png'}).inject(this.previewDiv);
-                else
-                    new Element('img', {src: _path+ 'admin/images/file-icon-folder.png'}).inject(this.previewDiv);
-            else
-                new Element('img', {src: _path+ 'admin/images/file-icon-text.png'}).inject(this.previewDiv);
-        }
+            }.bind(this)
+        });
 
         this.lastPreviewPath = image;
 
     },
 
     preview: function (pEvent) {
+
+        if (pEvent && 'stop' in pEvent){
+            pEvent.stop();
+        }
 
         if (pEvent.target && pEvent.target.get('tag') == 'input' && !pEvent.target.hasClass('admin-files-preview-input')) {
             return;
@@ -1998,44 +2050,27 @@ ka.Files = new Class({
         var selectedItems = this.getSelectedItems();
 
         if (this.previewDiv) {
-            this.previewDiv.destroy();
-            delete this.previewDiv;
+            this.closePreview();
             return;
-        }
-
-        if (!this.inputTrigger.setup) {
-
-            this.inputTrigger.setup = true;
-            this.inputTrigger.addEvent('blur', function () {
-                if (this.previewDiv) {
-                    this.previewDiv.destroy();
-                    delete this.previewDiv;
-                }
-            }.bind(this));
-
-            this.inputTrigger.addEvent('keydown', function (e) {
-                if ((e.key == 'space' || e.key == 'esc') && this.previewDiv) {
-                    this.previewDiv.destroy();
-                    delete this.previewDiv;
-                    e.stop();
-                }
-            }.bind(this));
-
         }
 
         if (Object.getLength(selectedItems) > 0) {
 
             var item, file, image;
 
-            if (!ka.mobile) {
-                this.inputTrigger.focus();
-            }
-
             pEvent.preventDefault();
 
+            this.lastPreviewedItem = this.lastClickedItem;
+            file = this.lastClickedItem.fileItem;
+
+            if (!this.__images.contains(file.path.substr(file.path.lastIndexOf('.')).toLowerCase())) {
+                return;
+            }
+
             this.previewDiv = new Element('div', {
-                'class': 'admin-files-preview'
-            }).inject(document.id('desktop'));
+                'class': 'admin-files-preview',
+                style: 'display: none;'
+            }).inject(this.container);
 
             this.previewDivResizer = new Element('div', {
                 style: 'position: absolute;right: -1px;bottom: -1px;width: 9px;'+
@@ -2043,34 +2078,56 @@ ka.Files = new Class({
                        'cursor: se-resize; background-position: 0px 11px;'
             }).inject(this.previewDiv);
 
-            this.previewDivMover = new Element('div',{
-                style: 'position: absolute; left: 5px; top: 5px; right: 5px; bottom: 5px;'
+            var img = this.lastPreviewedItem.getElement('img') || this.lastPreviewedItem.getElement('div');
+            var position = img.getPosition(this.container);
+            var size     = img.getSize();
+
+            this.previewMorph = new Fx.Morph(this.previewDiv, {
+                duration: 200,
+                transition: Fx.Transitions.Quint.easeOut
+            });
+
+            this.previewDiv.setStyles({
+                width: size.x,
+                height: size.y,
+                top: position.y,
+                left: position.x,
+                opacity: 0,
+                display: 'block'
+            });
+
+            var containerSize = this.container.getSize();
+            size.x = containerSize.x - 200;
+            size.y = containerSize.y - 100;
+
+            this.previewDivSize = size;
+
+            this.previewMorph.start({
+                width: size.x,
+                height: size.y,
+                top: (containerSize.y/2)-(size.y/2),
+                left: (containerSize.x/2)-(size.x/2),
+                opacity: 1
+            });
+
+            this.previewDivMover = new Element('div', {
+                'class': 'admin-files-preview-inner'
             }).inject(this.previewDiv);
 
             this.previewDiv.makeDraggable({
                 handle: this.previewDivMover
             });
 
+            /*
             this.previewDiv.makeResizable({
                 handle: this.previewDivResizer
             });
-
-            if (!ka.mobile) {
-                this.previewDiv.addEvent('mouseup', function () {
-                    this.inputTrigger.focus();
-                }.bind(this));
-
-                this.previewDiv.addEvent('mousedown', function () {
-                    this.inputTrigger.focus();
-                }.bind(this));
-            }
+            */
 
             new Element('img', {
                 src: _path + 'admin/images/loading.gif',
                 style: 'margin-top: 270px;'
             }).inject(this.previewDiv);
-
-            this.previewDiv.position();
 
             this.updatePreview();
 
@@ -2079,7 +2136,6 @@ ka.Files = new Class({
 
     fireSelect: function () {
         if (this.options.selection) {
-
             var selectedItems = this.getSelectedItemsAsArray();
             var selectedFiles = this.getSelectedFilesAsArray();
 
@@ -2090,7 +2146,8 @@ ka.Files = new Class({
                 this.options.selectionValue = selectedFiles;
                 this.fireEvent('select', [selectedFiles, selectedItems]);
             }
-
+        } else {
+            this.fireEvent('select');
         }
     },
 
@@ -2145,10 +2202,7 @@ ka.Files = new Class({
             this.selectItem(pItem);
         }
 
-        var desktop = document.id('desktop');
-
-        var selectedItems = this.getSelectedItems();
-
+        var desktop = this.container;
 
         var selectedItems = this.getSelectedItems();
         var container;
@@ -2174,13 +2228,15 @@ ka.Files = new Class({
 
             container.setStyles({
                 opacity: 0.7,
-                left: pEvent.page.x - 34,
-                'top': pEvent.page.y - 75,
+                left: pos.x,
+                'top': pos.y,
                 zIndex: 15000,
                 position: 'absolute'
             }).inject(desktop);
 
         } else if (Object.getLength(selectedItems) > 1) {
+
+            var pos = this.container.getPosition(document.body);
 
             container = new Element('div').setStyles({
                 opacity: 0.7,
@@ -2206,12 +2262,11 @@ ka.Files = new Class({
                     'background-color': 'transparent',
                     margin: 0
                 }).inject(container);
+
                 clone.removeClass('admin-files-item-selected');
                 clone.removeClass('admin-files-droppables');
 
-                if (clone.getElement('div')) {
-                    clone.getElement('div').destroy();
-                }
+                clone.getElement('.admin-files-item-title').destroy();
 
                 if (item.get('tag') == 'tr') {
                     var imgClone = clone.getElement('img').clone();
@@ -2219,10 +2274,12 @@ ka.Files = new Class({
                     imgClone.inject(clone);
                 }
 
-                clone.getElement('img').setStyles({
-                    width: 30,
-                    height: 30
-                });
+                if (clone.getElement('img')){
+                    clone.getElement('img').setStyles({
+                        width: 30,
+                        height: 30
+                    });
+                }
 
                 var i = Math.random();
                 var r = (60 * i) - 30;
@@ -2598,6 +2655,7 @@ ka.Files = new Class({
             } else if (typeOf(this.options.selectionValue) == 'array' && this.options.selectionValue.contains(pFile.path)) {
                 base.addClass('admin-files-item-selected');
             }
+            this.fireSelect();
         }
 
         base.fileItem = pFile;
@@ -2609,17 +2667,33 @@ ka.Files = new Class({
         //TODO, depend on the size
 
         var maxLine = 13;
-        var maxAll = 24;
+        var maxAll = 32;
         if (this.listType == 'miniatur') {
             maxLine = 21;
-            maxAll = 39;
+            maxAll = 42;
         }
-        pTitle = pTitle.substr(0, maxLine) + "\n" + pTitle.substr(maxLine, maxAll);
+
+        return this.smartTrim(pTitle, maxAll);
+
         if (pTitle.length > maxAll) {
             pTitle = pTitle.substr(0, maxAll) + '..';
         }
 
         return pTitle;
+    },
+
+    smartTrim: function(string, maxLength){
+        if (!string) return string;
+        if (maxLength < 1) return string;
+        if (string.length <= maxLength) return string;
+        if (maxLength == 1) return string.substring(0,1) + '...';
+
+        var midPoint = Math.ceil(string.length / 2);
+        var toRemove = string.length - maxLength;
+        var lStrip = Math.ceil(toRemove/2);
+        var rStrip = toRemove - lStrip;
+        return string.substring(0, midPoint-lStrip) + '...' + string.substring(midPoint+rStrip);
+
     },
 
     recover: function (pFile) {
@@ -2656,10 +2730,6 @@ ka.Files = new Class({
         this.context = new Element('div', {
             'class': 'admin-files-context'
         }).inject(this.win.border);
-
-        if (!ka.mobile) {
-            this.inputTrigger.focus();
-        }
 
         if (pFile.path.substr(0, 6) == '/trash') {
             //pressed on a item in the trash folder
@@ -2865,6 +2935,10 @@ ka.Files = new Class({
 
         this.fileContainer.getElements('.admin-files-item-selected').removeClass('admin-files-item-selected');
 
+        this.fireDeselect();
+    },
+
+    fireDeselect: function(){
         this.fireEvent('deselect');
     },
 

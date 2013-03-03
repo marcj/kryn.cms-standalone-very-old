@@ -553,7 +553,6 @@ ka.Window = new Class({
                 if (e.key == pKey) {
                     pCallback(e);
                 }
-
             }
         }.bind(this);
 

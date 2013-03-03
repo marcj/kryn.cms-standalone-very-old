@@ -24,9 +24,24 @@
     top: 0px;
     right: 0px;
     left: 141px;
-    bottom: 0px;
+    bottom: 25px;
     cursor: default;
     padding: 2px;
+}
+
+.admin-files-status-bar {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 24px;
+    border-top: 1px solid #ddd;
+    background-color: #E9E9E9;
+    line-height: 24px;
+    color: gray;
+    text-align: center;
+    font-size: 11px;
+    text-shadow: 0 1px 0 white;
 }
 
 .admin-files-fileContainer-selected {
@@ -51,14 +66,20 @@
     background-color: #333;
     border: 1px solid #111;
     box-shadow: 0px 0px 5px silver;
-    -moz-border-radius: 7px;
-    -webkit-border-radius: 7px;
-    border-radius: 7px;
-    padding: 15px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+}
+
+.admin-files-preview-inner {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
 }
 
 .admin-files-preview img {
-    margin-top: 10px;
     max-height: 100%;
     max-width: 100%;
 }
@@ -67,7 +88,7 @@
     position: absolute;
     top: 0px;
     left: 0px;
-    bottom: 0px;
+    bottom: 25px;
     width: 140px;
     background-color: #f4f4f4;
     overflow: auto;
@@ -190,7 +211,7 @@
 /* files items */
 .admin-files-item {
     display: inline-block;
-    min-width: 150px;
+    width: 120px;
     margin: 15px 5px;
     position: relative;
     text-align: center;
@@ -220,6 +241,7 @@
     white-space: pre;
     margin-top: 10px;
     font-size: 12px;
+    word-wrap: break-word;
 }
 
 .admin-files-selector {
@@ -311,6 +333,10 @@ table.ka-files-search-table tr:hover td {
     /*color: #ECA62D; */
     color: #349BC4;
     text-shadow: 1px 0 0 white;
+}
+
+.admin-files-listtype-miniatur .admin-files-item {
+    width: 190px;
 }
 
 .admin-files-listtype-miniatur .admin-files-item .admin-files-item-icon {
