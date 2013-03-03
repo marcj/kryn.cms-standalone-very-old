@@ -36,6 +36,7 @@
     padding: 3px 7px;
     background-position: center center;
     color: #818181;
+    text-shadow: 0px 1px 0px #F1F1F1;
 }
 
 .ka-buttonGroup-item-with-icon:before {
