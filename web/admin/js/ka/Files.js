@@ -171,7 +171,7 @@ ka.Files = new Class({
             document.id(this.fileUploadDialogProgress).setStyle('left', 9);
 
             this.fileUploadDialogAll = new Element('div', {
-                style: 'position: absolute; left: 155px; top: 6px; color: gray;'
+                style: 'position: absolute; left: 168px; top: 9px; color: gray;'
             }).inject(this.fileUploadDialog.bottom);
 
             this.fileUploadDialogAllText = new Element('span').inject(this.fileUploadDialogAll);
@@ -580,6 +580,7 @@ ka.Files = new Class({
         var xhr = this.html5UploadXhr[ pFile.id ];
 
         this.uploadTrs[ pFile.id ].deleteTd.destroy();
+        if (xhr) xhr.abort();
 
         if (ka.settings.upload_max_filesize && ka.settings.upload_max_filesize < pFile.size) {
             this.uploadTrs[ pFile.id ].status.set('html', '<span style="color: red">' + t('File size limit exceeded') + '</span>');
@@ -594,10 +595,14 @@ ka.Files = new Class({
             } else {
                 var text =  t('Unknown error');
                 if (xhr){
-                    switch (xhr.status){
-                        case 413:
-                            text = t('412: Request Entity Too Large');
-                            break;
+                    try {
+                        switch (xhr.status){
+                            case 413:
+                                text = t('412: Request Entity Too Large');
+                                break;
+                        }
+                    } catch(e){
+
                     }
                 }
                 this.uploadTrs[ pFile.id ].status.set('html', '<span style="color: red">' + text + '</span>');
@@ -606,7 +611,6 @@ ka.Files = new Class({
         }
 
         this.uploadTrs[ pFile.id ].error = true;
-        if (xhr) xhr.abort();
 
         this.uploadAllProgress();
 
