@@ -13,9 +13,9 @@ ka.wm = {
     tempItems: {},
 
     openWindow: function (pEntryPoint, pLink, pParentWindowId, pParams, pInline) {
-
-        if (this.checkOpen(pEntryPoint)) {
-            return this.toFront(pEntryPoint);
+        var win;
+        if (win = this.checkOpen(pEntryPoint)) {
+            return win.toFront();
         }
 
         return ka.wm.loadWindow(pEntryPoint, pLink, pParentWindowId, pParams, pInline);
