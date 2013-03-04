@@ -44,11 +44,6 @@ input.text:focus {
     outline: 0;
 }
 
-.ka-input-wrapper {
-    text-indent: 0;
-    overflow: hidden;
-}
-
 .ka-field-disabled {
     color: #333;
     background: #f1f1f1;

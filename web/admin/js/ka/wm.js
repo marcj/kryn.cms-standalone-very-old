@@ -166,6 +166,9 @@ ka.wm = {
 
             if (win.isInFront()){
 
+                if (win.getEntryPoint() == 'admin/nodes/frontend')
+                    return ka.adminInterface.frontendLink.addClass('ka-main-menu-item-active');
+
                 var menuItem = ka.adminInterface.getMenuItem(win.getEntryPoint());
 
                 atLeastOneActive = true;
@@ -191,23 +194,6 @@ ka.wm = {
             ka.adminInterface.frontendLink.addClass('ka-main-menu-item-active');
         }
 
-        ka.wm.checkTempLinkSplitter();
-
-    },
-
-    checkTempLinkSplitter: function(){
-
-        var children = ka.adminInterface.mainTempLinks.getChildren('.ka-main-menu-item');
-        if (children.length > 0) {
-            if (!ka.wm.tempLinksSplitter) {
-                ka.wm.tempLinksSplitter = new Element('div',{
-                    'class': 'ka-main-menu-splitter'
-                }).inject(ka.adminInterface.mainTempLinks, 'after');
-            }
-        } else if (ka.wm.tempLinksSplitter) {
-            ka.wm.tempLinksSplitter.destroy();
-            delete ka.wm.tempLinksSplitter;
-        }
     },
 
     reloadHashtag: function(pForce){
@@ -226,7 +212,7 @@ ka.wm = {
 
     },
 
-    handleHashtag: function(){
+    handleHashtag: function(pForce){
 
         if (ka.wm.hashHandled && !pForce) return;
 

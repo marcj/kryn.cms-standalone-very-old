@@ -184,6 +184,12 @@
                     "type": "combine",
                     "isLink": false,
                     "multi": false
+                },
+                "frontend": {
+                    "title": "[[Frontend]]",
+                    "type": "custom",
+                    "isLink": false,
+                    "multi": false
                 }
             }
         },

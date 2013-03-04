@@ -16,6 +16,7 @@ ka.Editor = new Class({
 
         this.container = pContainer || document.body;
 
+        logger('penis');
         this.adjustAnchors();
         this.searchSlots();
         this.renderSidebar();
@@ -82,6 +83,7 @@ ka.Editor = new Class({
 
 
         var removeBg = function(pTarget){
+            if (!pTarget) return;
             var slot = pTarget.hasClass('ka-slot') ? pTarget : pTarget.getParent('.ka-slot');
             slot.setStyle('background-color');
         }
@@ -108,10 +110,17 @@ ka.Editor = new Class({
             removeBg(droppable);
         }.bind(this));
 
-        this.lastDrag.addEvent('cancel', function(element, droppable){
+        var cleanUp = function(droppable){
             this.highlightSlots(false);
-            this.highlightSlotsBubbles(false)
+            this.highlightSlotsBubbles(false);
             removeBg(droppable);
+        }.bind(this);
+
+        this.lastDrag.addEvent('cancel', function(element, droppable){
+            cleanUp();
+        }.bind(this));
+        this.lastDrag.addEvent('complete', function(element, droppable){
+            cleanUp();
         }.bind(this));
 
         this.highlightSlots(true);
@@ -170,6 +179,9 @@ ka.Editor = new Class({
                     self.lastPlaceHolder.destroy();
                     delete self.lastPlaceHolder;
                 }
+            },
+            onCancel: function(){
+                clone.destroy();
             },
             onComplete: function(){
                 clone.destroy();
@@ -323,9 +335,12 @@ ka.Editor = new Class({
     },
 
     highlightSlotsBubbles: function(pHighlight){
-        if (!pHighlight && this.lastTimer){
-            this.lastBubbles.invoke('destroy');
-            return clearInterval(this.lastBubbleTimer);
+        if (!pHighlight){
+            if (this.lastBubbles)
+                this.lastBubbles.invoke('destroy');
+            if (this.lastBubbleTimer)
+                clearInterval(this.lastBubbleTimer);
+            return;
         }
 
         this.lastBubbles = [];

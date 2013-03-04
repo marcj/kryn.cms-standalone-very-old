@@ -7,6 +7,10 @@
     text-align: left;
 }
 
+table {
+    border-collapse: separate;
+}
+
 .ka-admin .CodeMirror-gutter {
     z-index: auto;
 }
@@ -83,10 +87,6 @@ span.selectable span, div.selectable div {
     right: 0px;
     top: 0px;
     bottom: 0px;
-}
-
-body.ka-frontpage-backend {
-    margin-left: 220px;
 }
 
 .ka-editor {

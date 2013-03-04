@@ -555,7 +555,7 @@ ka.Field = new Class({
         var win = this.toElement().getParent('.kwindow-border');
         if (!win) return null;
 
-        this.win = win.retrieve('win');
+        this.win = win.windowInstance;
 
         return this.win;
     },

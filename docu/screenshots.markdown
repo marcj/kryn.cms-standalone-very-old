@@ -4,14 +4,17 @@ Screenshots
 General
 -------
 
-Object CRUD Window with File manager
-![Object CRUD Window with File manager](https://raw.github.com/KrynLabs/Kryn.cms/propel1.6/docu/images/admin-browser-screenshot.png)
+Frontend Inline Edit
+![Administration Frontend Edit](https://raw.github.com/KrynLabs/Kryn.cms/propel1.6/docu/images/admin-frontend-edit.png)
+
+File manager
+![Administration File manager](https://raw.github.com/KrynLabs/Kryn.cms/propel1.6/docu/images/admin-files-context-image.png)
+
+CRUD Framework
+![Administration CRUD Framework Window](https://raw.github.com/KrynLabs/Kryn.cms/propel1.6/docu/images/admin-users.png)
 
 Administration login
 ![Administration login](https://raw.github.com/KrynLabs/Kryn.cms/propel1.6/docu/images/admin-login.png)
-
-Files with image thumbnail and context menu
-![Files with image thumbnail and context menu](https://raw.github.com/KrynLabs/Kryn.cms/propel1.6/docu/images/admin-files-context-image.png)
 
 Object chooser
 ![Object chooser](https://raw.github.com/KrynLabs/Kryn.cms/propel1.6/docu/images/admin-object-chooser.png)

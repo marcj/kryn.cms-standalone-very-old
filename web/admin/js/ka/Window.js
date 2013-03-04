@@ -648,7 +648,7 @@ ka.Window = new Class({
         if (this.inline || this.isPopup()) return;
 
         if (this.maximized) {
-            this.borderDragger.attach();
+            //this.borderDragger.attach();
 
             this.border.setStyles(this.oldDimension);
             this.maximizer.removeClass('icon-shrink-3');
@@ -662,7 +662,7 @@ ka.Window = new Class({
 
             this.bottom.set('class', 'kwindow-win-bottom');
         } else {
-            this.borderDragger.detach();
+            //this.borderDragger.detach();
             this.border.addClass('kwindow-border-maximized');
 
             this.oldDimension = this.border.getCoordinates(this.border.getParent());
@@ -996,7 +996,9 @@ ka.Window = new Class({
             if (this.mouseOnShadow != true) {
                 this.toFront();
             }
-        }.bind(this)).inject(document.hiddenElement).store('win', this);
+        }.bind(this));
+
+        this.border.windowInstance = this;
 
         if (ka.settings.user.css3Shadow && ka.settings.user.css3Shadow == 1) {
 

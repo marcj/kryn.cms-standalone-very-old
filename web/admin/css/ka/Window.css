@@ -163,7 +163,7 @@
     left: 0px;
     right: 0px;
     height: 30px;
-    line-height: 28px;
+    line-height: 30px;
 
     background: #dbdbdb; /* Old browsers */
     /* IE9 SVG, needs conditional override of 'filter' to 'none' */
@@ -178,7 +178,7 @@
     border-top: 1px solid silver;
 
     text-align: right;
-    padding-right: 9px;
+    padding-right: 2px;
 }
 
 
@@ -188,14 +188,19 @@
 }
 
 .kwindow-win-titleGroups {
-      display: block;
-      position: absolute;
-      top: 29px;
-      left: 0px;
-      right: 0px;
-      min-height: 27px;
-      height: 27px;
-  }
+    display: block;
+    position: absolute;
+    top: 29px;
+    left: 0px;
+    right: 0px;
+    min-height: 27px;
+    height: 27px;
+}
+
+.kwindow-win-titleGroups > .ka-tabGroup:first-child {
+    margin-left: 5px;
+}
+
 
 .kwindow-win-title-inaktive {
     color: #555;
@@ -247,8 +252,12 @@
 
 .kwindow-win-titleBar {
     position: absolute;
-    top: 4px;
+    top: 2px;
     right: 5px;
+}
+
+.ka-window-extend-head .kwindow-win-titleBar {
+    top: 4px;
 }
 
 .kwindow-win-titleBarIcon {

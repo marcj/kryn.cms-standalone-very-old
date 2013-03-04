@@ -981,7 +981,9 @@ var admin_system_module_edit = new Class({
             title: t('Add children'),
             html: '&#xe109;'
         })
-        .addEvent('click', this.entryPointsAdd.bind(this, '', {}, tr))
+        .addEvent('click', function(){
+            this.entryPointsAdd('', {}, tr);
+        }.bind(this))
         .inject(tdActions);
 
         new Element('a', {

@@ -30,7 +30,7 @@ ka.DatePicker = new Class({
 
         var kwindow = this.input.getParent('.kwindow-border');
         if (kwindow) {
-            kwindow.retrieve('win').addEvent('close', function () {
+            kwindow.windowInstance.addEvent('close', function () {
                 if (this.chooser) {
                     this.chooser.destroy();
                 }

@@ -338,11 +338,11 @@ class AdminController
         $response->addJs('window.currentNode = '.
             json_encode(Kryn::$page->toArray(\BasePeer::TYPE_STUDLYPHPNAME)).';', 'bottom');
 
-        $response->addJs('ka.adminInterface = new ka.AdminInterface({frontPage: true});', 'bottom');
+        $response->addJs('ka = parent.ka;');
+        $response->addJsFile('admin/js/globals.js', 'bottom');
 
         $response->addCssFile('admin/css/style.css');
-        $response->addJsFile('admin/backend/js/script.js', 'bottom');
-        $response->addJs('window.editor = new ka.Editor(null, {nodePk: '.Kryn::$page->getId().'});', 'bottom');
+        $response->addJs('window.editor = new ka.Editor(document.body, {nodePk: '.Kryn::$page->getId().'});', 'bottom');
 
     }
 
@@ -354,32 +354,83 @@ class AdminController
         $response->addJsFile('core/mootools-core.js');
         $response->addJsFile('core/mootools-more.js');
         $response->addJsFile('core/mowla.min.js');
-        $response->addCssFile('admin/icons/style.css');
-        $response->addCssFile('admin/css/ai.css');
-        $response->addCssFile('admin/css/ka.wm.css');
 
-        $response->addJsFile('admin/js/ka.js');
-        $response->addJsFile('admin/js/ka/AdminInterface.js');
-        $response->addJsFile('admin/js/ka/Button.js');
         $response->addJsFile('admin/js/mootools-extras/String.sprintf.js');
-
-        $response->addJsFile('core/codemirror/lib/codemirror.js');
-        $response->addJsFile('core/codemirror/addon/mode/loadmode.js');
-        $response->addCssFile('core/codemirror/lib/codemirror.css');
-
         $response->addJsFile('core/ckeditor/ckeditor.js');
+
+        self::addCssResources();
+
+        $response->addJs("
+        CKEDITOR.disableAutoInline = true;
+        CodeMirror.modeURL = 'core/codemirror/mode/%N/%N.js';
+        ", "bottom");
+
+        $response->setResourceCompression(false);
+    }
+
+    public static function addLanguageResources(){
+        $response = Kryn::getResponse();
 
         $response->addJsFile('admin/ui/possibleLangs?noCache=978699877');
         $response->addJsFile('admin/ui/language?lang=en&javascript=1');
         $response->addJsFile('admin/ui/languagePluralForm?lang=en');
+    }
+
+    public static function addBackendResources(){
+        $response = Kryn::getResponse();
+
+        $response->addJsFile('admin/js/ka.js');
+        $response->addJsFile('admin/js/ka/AdminInterface.js');
+        $response->addJsFile('admin/js/ka/Button.js');
+    }
+
+    public static function addCssResources(){
+
+        $response = Kryn::getResponse();
 
         $response->addCssFile('admin/icons/style.css');
-
+        $response->addCssFile('admin/css/ai.css');
+        $response->addCssFile('admin/css/ka.wm.css');
+        $response->addJsFile('core/codemirror/lib/codemirror.js');
+        $response->addJsFile('core/codemirror/addon/mode/loadmode.js');
+        $response->addCssFile('core/codemirror/lib/codemirror.css');
+        $response->addCssFile('admin/icons/style.css');
         $response->addHeader('<meta name="viewport" content="initial-scale=1.0" >');
         $response->addHeader('<meta name="apple-mobile-web-app-capable" content="yes">');
+    }
+
+    public static function showLogin()
+    {
+        self::addMainResources();
+        self::addBackendResources();
+        self::addLanguageResources();
+
+        $response = Kryn::getResponse();
+        $response->addJsFile('admin/js/globals.js');
+        $response->addJsFile('admin/js/ka/Select.js');
+        $response->addJsFile('admin/js/ka/Checkbox.js');
+        self::addSessionScripts();
+
+        $response->addJs("
+        window.addEvent('domready', function(){
+            ka.adminInterface = new ka.AdminInterface();
+        });
+        ");
 
         $response->setResourceCompression(false);
+        $response->setDomainHandling(false);
+
+        $response->setTitle(Kryn::$config['systemTitle'].' | Kryn.cms Administration');
+
+        $response->addCssFile('admin/css/ai.css');
+        $response->addCssFile('admin/css/ka/Login.css');
+        $response->addCssFile('admin/css/ka/Select.css');
+        $response->addCssFile('admin/css/ka/Checkbox.css');
+
+        $response->send();
+        exit;
     }
+
 
     public function loginUser($pUsername, $pPassword)
     {
@@ -459,37 +510,6 @@ class AdminController
     public function loadCss()
     {
         return Utils::loadCss();
-    }
-
-    public static function showLogin()
-    {
-        self::addMainResources();
-
-        $response = Kryn::getResponse();
-        $response->addJsFile('admin/js/ka/Select.js');
-        $response->addJsFile('admin/js/ka/Checkbox.js');
-        self::addSessionScripts();
-
-        $response->addJs("
-        CKEDITOR.disableAutoInline = true;
-        CodeMirror.modeURL = 'core/codemirror/mode/%N/%N.js';
-        window.addEvent('domready', function(){
-            ka.adminInterface = new ka.AdminInterface();
-        });
-        ");
-
-        $response->setResourceCompression(false);
-        $response->setDomainHandling(false);
-
-        $response->setTitle(Kryn::$config['systemTitle'].' | Kryn.cms Administration');
-
-        $response->addCssFile('admin/css/ai.css');
-        $response->addCssFile('admin/css/ka/Login.css');
-        $response->addCssFile('admin/css/ka/Select.css');
-        $response->addCssFile('admin/css/ka/Checkbox.css');
-
-        $response->send();
-        exit;
     }
 
 }

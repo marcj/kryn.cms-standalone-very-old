@@ -9,18 +9,29 @@
 }
 
 
-tr.ka-field-main > td {
-    border-bottom: 1px dotted #ddd;
+.ka-field-tdtitle,
+.ka-field-inputTd {
+    border-bottom: 1px solid #d7d7d7;
+    border-top: 1px solid #fafafa;
     vertical-align: top;
-    padding: 2px 0;
+    padding: 2px 4px;
+}
+
+table tr:first-child > .ka-field-tdtitle,
+table tr:first-child > .ka-field-inputTd {
+    border-top: 0;
 }
 
 .ka-field-tdtitle {
     padding-top: 4px;
-    padding-left: 2px;
+    padding-left: 5px;
     padding-right: 5px;
     color: #333;
     line-height: 28px;
+}
+
+.ka-field-inputTd {
+    padding-top: 4px;
 }
 
 .ka-field-main-small {

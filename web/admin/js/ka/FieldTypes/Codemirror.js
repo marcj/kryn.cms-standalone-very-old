@@ -58,7 +58,7 @@ ka.FieldTypes.Codemirror = new Class({
         if (this.win){
             this.win.addEvent('resize', refresh);
         } else if (windowInstance){
-            this.win.retrieve('win').addEvent('resize', refresh);
+            this.win.windowInstance.addEvent('resize', refresh);
         }
 
         var tabPane = this.fieldInstance.fieldPanel.getParent('.ka-tabPane-pane');

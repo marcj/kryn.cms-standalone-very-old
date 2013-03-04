@@ -13,7 +13,7 @@ PATH     = _path;
 PATH_WEB = PATH;
 
 
-window._ = function (p) {
+ka._ = function (p) {
     return t(p);
 };
 
@@ -26,7 +26,7 @@ if (typeOf(ka.langs) != 'object') this.langs = {};
  *
  * @params {*}
  */
-window.logger = function(){
+ka.logger = function(){
     if (typeOf(console) != "undefined") {
         var args = arguments;
         if (args.length == 1) args = args[0];
@@ -65,7 +65,7 @@ ka.openFrontend = function () {
  * @param int    pCount   the count for plural
  * @param string pContext the message id of the context (msgctxt)
  */
-window.t = function(pMsg, pPlural, pCount, pContext) {
+ka.t = function(pMsg, pPlural, pCount, pContext) {
     return _kml2html(ka.translate(pMsg, pPlural, pCount, pContext));
 }
 
@@ -95,7 +95,7 @@ ka.translate = function(pMsg, pPlural, pCount, pContext) {
     }
 }
 
-window.tf = function(){
+ka.tf = function(){
     var args = Array.from(arguments);
     var text = args.shift();
     if (typeOf(text) != 'string')
@@ -110,11 +110,11 @@ window.tf = function(){
  * @param string pContext the message id of the context
  * @param string pMsg     message id
  */
-window.tc = function(pContext, pMsg) {
+ka.tc = function(pContext, pMsg) {
     return t(pMsg, null, null, pContext);
 }
 
-window._kml2html = function (pRes) {
+ka._kml2html = function (pRes) {
 
     var kml = ['ka:help'];
     if (pRes) {
@@ -123,7 +123,7 @@ window._kml2html = function (pRes) {
     return pRes;
 }
 
-window.ka.findWindow = function(pElement){
+ka.findWindow = function(pElement){
 
     if (!typeOf(pElement)){
         throw 'ka.findWindow(): pElement is not an element.';
@@ -131,11 +131,11 @@ window.ka.findWindow = function(pElement){
 
     var window = pElement.getParent('.kwindow-border');
 
-    return window?window.retrieve('win'):false;
+    return window?window.windowInstance:false;
 
 }
 
-window.ka.entrypoint = {
+ka.entrypoint = {
 
     open: function(pEntrypoint, pOptions, pSource, pInline, pDependWindowId){
 

@@ -30,6 +30,9 @@
     display: none;
 }
 
+.ka-entryPoint-item:hover td {
+    background-color: #ccc;
+}
 
 .admin-system-modules-show-layoutSettings > .layoutSettings {
     display: block;

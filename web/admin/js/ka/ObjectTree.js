@@ -255,7 +255,7 @@ ka.ObjectTree = new Class({
         }
 
         if (pContainer && pContainer.getParent('.kwindow-border')) {
-            pContainer.getParent('.kwindow-border').retrieve('win').addEvent('close', this.clean.bind(this));
+            pContainer.getParent('.kwindow-border').windowInstance.addEvent('close', this.clean.bind(this));
         }
 
         window.addEvent('mouseup', this.destroyContext.bind(this));

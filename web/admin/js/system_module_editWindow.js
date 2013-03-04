@@ -1573,7 +1573,7 @@ var admin_system_module_editWindow = new Class({
         this.windowPane.empty();
         var win = new ka.Window();
 
-        win.borderDragger.detach();
+        //win.borderDragger.detach();
         document.id(win).inject(this.windowPane);
 
         document.id(win).setStyles({
