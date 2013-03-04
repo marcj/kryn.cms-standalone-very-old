@@ -52,6 +52,7 @@ Screenshot
 ![Administration Frontend Edit](https://raw.github.com/KrynLabs/Kryn.cms/propel1.6/docu/images/admin-frontend-edit.png)
 ![Administration File manager](https://raw.github.com/KrynLabs/Kryn.cms/propel1.6/docu/images/admin-files-context-image.png)
 ![Administration CRUD Framework Window](https://raw.github.com/KrynLabs/Kryn.cms/propel1.6/docu/images/admin-users.png)
+![Administration iPad](https://raw.github.com/KrynLabs/Kryn.cms/propel1.6/docu/images/admin-files-ipad.png)
 
 [More Screenshots](https://github.com/KrynLabs/Kryn.cms/blob/propel1.6/docu/screenshots.markdown)
 
