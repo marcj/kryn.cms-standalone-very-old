@@ -2,12 +2,12 @@ Kryn.cms
 ========
 
 A enterprise open-source Content-Management-System and Content-Management-Framework with a full RESTful API
-written in PHP and JavaScript using Symfony Components, Mootools and other rock-solid libraries.
+written in PHP and JavaScript using Symfony Components, Propel, Mootools and other rock-solid libraries.
 
 We're in development. This means, there are still a _lot_ of issues in this product (not even an Alpha) and it's not everything implemented yet.
 
-[![Build Status](https://drone.io/marcj/Kryn.cms/status.png)](https://drone.io/marcj/Kryn.cms/latest)
-[![Build Status](https://travis-ci.org/KrynLabs/Kryn.cms.png?branch=propel1.6)](https://travis-ci.org/KrynLabs/Kryn.cms)
+[![Build Status Drone.io](https://drone.io/marcj/Kryn.cms/status.png)](https://drone.io/marcj/Kryn.cms/latest)
+[![Build Status Travis](https://travis-ci.org/KrynLabs/Kryn.cms.png?branch=propel1.6)](https://travis-ci.org/KrynLabs/Kryn.cms)
 
 
 Installation
@@ -16,7 +16,7 @@ Installation
 1. Extract the tar/zip-ball or `git clone https://github.com/KrynLabs/Kryn.cms.git`.
 2. Download `composer` through `wget http://getcomposer.org/composer.phar`.
 3. Install vendor libraries with `php composer.phar install`.
-4. Setup a VirtualHost pointing to the `./web/` directory.
+4. Setup a `VirtualHost` pointing to the `./web/` directory.
 5. Open `domain.tld/install.php` in your browser and follow the instruction.
 
 
@@ -71,7 +71,6 @@ Because the product is still in early development, we really need everyone's hel
 No matter if you just got ideas or give us feedback, please just drop your thoughts in the issue tracker above.
 If you're a developer and want to contribute then please contact me. We really do love to meet any new
 web freak. :-) (marc@kryn.org)
-
 
 PHPUnit
 --------
