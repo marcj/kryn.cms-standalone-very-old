@@ -32,7 +32,7 @@ ka.ContentTypes.Plugin = new Class({
 
     openDialog: function(){
 
-        this.dialog = new ka.Dialog(document.body, {
+        this.dialog = new ka.Dialog(this.main.getDocument().body, {
             title: t('Edit plugin'),
             minWidth: '50%',
             minHeight: '50%'
