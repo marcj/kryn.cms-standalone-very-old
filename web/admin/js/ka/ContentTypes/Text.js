@@ -248,6 +248,10 @@ ka.ContentTypes.Text = new Class({
 
     editorReady: function(){
         this.ready = true;
+
+        var toolbar = document.id('cke_'+this.editor.name);
+        toolbar.addClass('kryn_cke_toolbar');
+
         if (this.value){
             this.editor.setData(this.value);
             this.oldData = this.editor.getData();
