@@ -1,6 +1,9 @@
 .DS_Store
-/web/cache
-/config.php
-/vendor
-/.idea
-/composer.lock
+web/cache
+web/bundles
+config.php
+vendor
+.idea
+composer.lock
+src/Core/Resources/public/codemirror
+src/Core/Resources/public/ckeditor

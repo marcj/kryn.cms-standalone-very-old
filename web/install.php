@@ -13,15 +13,15 @@ if (function_exists('mb_internal_encoding'))
   mb_internal_encoding("UTF-8");
 
 chdir(__DIR__.'/../');
-error_reporting(E_CORE_ERROR|E_COMPILE_ERROR|E_RECOVERABLE_ERROR|E_ERROR|E_CORE_ERROR|E_USER_ERROR|E_PARSE);
+error_reporting(E_ALL & ~E_NOTICE);
 
 use Core\Kryn;
 use Core\SystemFile;
 
 $GLOBALS['krynInstaller'] = true;
 if (!defined('PATH')) {
-    define('PATH', realpath(__DIR__.'/../') . '/');
-    define('PATH_CORE', 'core/');
+    define('PATH', realpath(__DIR__ . '/../') . '/');
+    define('PATH_CORE', 'src/Core/');
     define('PATH_MODULE', 'module/');
     define('PATH_WEB', 'web/');
     define('PATH_WEB_CACHE', 'web/cache/');
@@ -29,16 +29,17 @@ if (!defined('PATH')) {
 
 @set_include_path( '.' . PATH_SEPARATOR . PATH . 'lib/pear/' . PATH_SEPARATOR . get_include_path());
 
-require 'core/bootstrap.autoloading.php';
+require 'src/Core/bootstrap.autoloading.php';
 
 if (file_exists('config.php'))
   Kryn::$config = require('config.php');
 
 if (!is_array(Kryn::$config)) Kryn::$config = array();
 
+Kryn::prepareWebSymlinks();
+
 include(PATH_CORE . 'global/misc.global.php');
 include(PATH_CORE . 'global/database.global.php');
-include(PATH_CORE . 'global/template.global.php');
 include(PATH_CORE . 'global/internal.global.php');
 include(PATH_CORE . 'global/framework.global.php');
 include(PATH_CORE . 'global/exceptions.global.php');
@@ -53,18 +54,6 @@ if( $_REQUEST['step'] == 'checkConfig' )
 
 if ($_REQUEST['step'] == '5') {
 
-    spl_autoload_register(function ($pClass) {
-      if (substr($pClass, 0, 1) == '\\')
-        $pClass = substr($pClass, 1);
-      foreach (Kryn::$extensions as $extension) {
-        if (file_exists($clazz = 'module/'.$extension.'/model/'.$pClass.'.php')) {
-            include $clazz;
-
-            return true;
-        }
-      }
-    });
-    $modules = array('admin', 'users');
     step5Init();
 }
 
@@ -75,9 +64,9 @@ header("Content-Type: text/html; charset=utf-8");
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" lang="de" dir="ltr">
   <head>
     <title>Kryn.cms installation</title>
-      <link rel="stylesheet" type="text/css" href="core/css/normalize.css"  />
-      <link rel="stylesheet" type="text/css" href="admin/css/ka/Button.css"  />
-      <link rel="stylesheet" type="text/css" href="admin/css/ka/Input.css"  />
+      <link rel="stylesheet" type="text/css" href="bundles/core/css/normalize.css"  />
+      <link rel="stylesheet" type="text/css" href="bundles/admin/css/ka/Button.css"  />
+      <link rel="stylesheet" type="text/css" href="bundles/admin/css/ka/Input.css"  />
 
       <style type="text/css">
       body {
@@ -243,12 +232,12 @@ header("Content-Type: text/html; charset=utf-8");
       .breaker { clear: both }
 
     </style>
-    <script type="text/javascript" src="core/mootools-core.js"></script>
-    <script type="text/javascript" src="core/mootools-more.js"></script>
-    <link rel="SHORTCUT ICON" href="admin/images/favicon.ico" />
+    <script type="text/javascript" src="bundles/core/mootools-core.js"></script>
+    <script type="text/javascript" src="bundles/core/mootools-more.js"></script>
+    <link rel="SHORTCUT ICON" href="bundles/admin/images/favicon.ico" />
   </head>
   <body>
-    <img class="logo" src="core/images/logo_white.png" />
+    <img class="logo" src="bundles/core/images/logo_white.png" />
     <div class="wrapper">
     <h2 class="main">Installation</h2>
 <?php
@@ -520,7 +509,7 @@ function step5Done($pMsg)
 
             \Core\PropelHelper::cleanup();
 
-            \Core\Kryn::$extensions = array();
+            \Core\Kryn::$bundles = array();
 
             \Core\PropelHelper::updateSchema();
             \Core\PropelHelper::cleanup();
@@ -535,18 +524,15 @@ function step5Done($pMsg)
     //Install core modules
     function step5_2()
     {
-        global $modules;
 
         $manager = new Admin\Module\Manager;
 
-        foreach ($modules as $module) {
-            try {
-                $manager->install('core', true);
-                $manager->install('admin', true);
-                $manager->install('users', true);
-            } catch (Exception $e) {
-                step5Failed($e);
-            }
+        try {
+            $manager->install('CoreBundle', true);
+            $manager->install('AdminBundle', true);
+            $manager->install('UsersBundle', true);
+        } catch (Exception $e) {
+            step5Failed($e);
         }
         step5Done(true);
     }
@@ -557,7 +543,7 @@ function step5Done($pMsg)
         \Core\TempFile::remove('propel');
 
         \Core\Kryn::$config['activeModules'] = array();
-        \Core\Kryn::$extensions = array('core', 'admin', 'users');
+        \Core\Kryn::$bundles = array('Core\\CoreBundle', 'Admin\\AdminBundle', 'Users\\UsersBundle');
 
         try {
             \Core\PropelHelper::generateClasses();
@@ -573,14 +559,13 @@ function step5Done($pMsg)
     //execute installDatabase
     function step5_4()
     {
-        global $modules;
 
         $manager = new Admin\Module\Manager;
 
         try {
-            $manager->installDatabase('core');
-            $manager->installDatabase('admin');
-            $manager->installDatabase('users');
+            $manager->installDatabase('Core\\CoreBundle');
+            $manager->installDatabase('Admin\\AdminBundle');
+            $manager->installDatabase('Users\\UsersBundle');
         } catch (Exception $e) {
             step5Failed($e);
         }
@@ -592,8 +577,8 @@ function step5Done($pMsg)
     {
         $manager = new \Admin\Module\Manager;
 
-        foreach (Kryn::$extensions as $module) {
-            if ($module == 'admin' || $module == 'users' || $module == 'core') continue;
+        foreach (Kryn::$bundles as $module) {
+            if ($module == 'Admin\\AdminBundle' || $module == 'Users\\UsersBundle' || $module == 'Core\\CoreBundle') continue;
             try {
                 $manager->install($module, true);
             } catch (Exception $e) {
@@ -625,7 +610,7 @@ function step5Done($pMsg)
 
         $manager = new \Admin\Module\Manager;
 
-        foreach (Kryn::$extensions as $module) {
+        foreach (Kryn::$bundles as $module) {
             if ($module == 'admin' || $module == 'users' || $module == 'core') continue;
             try {
                 $manager->installDatabase($module);
@@ -699,12 +684,18 @@ function step5Done($pMsg)
                 }
             }
 
-            Kryn::$config['activeModules'] = $modules;
+            $bundles = array();
+            foreach ($_POST['modules'] as $bundle => $active) {
+                if ($active) {
+                    $bundles[] = $bundle;
+                }
+            }
+
+            Kryn::$config['bundles'] = $bundles;
 
             \Core\SystemFile::setContent('config.php', "<?php\nreturn ".var_export(Kryn::$config, true).";\n?>");
         }
-        Kryn::$extensions = array('core', 'admin', 'users');
-        Kryn::$extensions = array_merge(Kryn::$extensions, Kryn::$config['activeModules']);
+        Kryn::$bundles = array_merge(Kryn::$bundles, Kryn::$config['bundles']);
 
         if (file_exists($file = 'propel-config.php')) {
             $propelConfig = include($file);
@@ -1297,7 +1288,7 @@ function step3()
 }
 
 ?>
-    <script type="text/javascript" src="core/js/bgNoise.js"></script>
+    <script type="text/javascript" src="bundles/core/js/bgNoise.js"></script>
     </div>
   </body>
 </html>

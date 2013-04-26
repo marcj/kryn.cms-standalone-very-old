@@ -1,5 +1,5 @@
 {
-    "name": "KrynLabs/Kryn.cms",
+    "name": "krynlabs/kryn.cms",
     "description": "A open-source enterprise Content-Management-System and Content-Management-Framework based on Propel and Symfony components.",
     "keywords": ["CMS", "PHP CMS", "WCMS"],
     "license": "GPL",
@@ -12,7 +12,7 @@
         }
     ],
     "scripts": {
-        "post-update-cmd": "php core/package/composerUpdate.php"
+        "post-update-cmd": "php src/Core/Resources/package/composer.update.php"
     },
     "repositories": [
         {
@@ -40,6 +40,13 @@
             }
         }
     ],
+    "autoload": {
+        "psr-0": {
+            "Core": "src/",
+            "Admin": "src/",
+            "Users": "src/"
+        }
+    },
     "require": {
         "php": ">=5.3.2",
         "twig/twig": ">=1.12",
@@ -54,6 +61,7 @@
         "symfony/console": ">=v2.1",
         "marijnh/CodeMirror": ">=v3.1",
         "sybio/image-workshop": "dev-master",
-        "ckeditor/ckeditor": "dev-master"
+        "ckeditor/ckeditor": "dev-master",
+        "krynlabs/kryn-publication-bundle": "dev-master"
     }
 }

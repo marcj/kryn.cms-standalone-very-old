@@ -1,0 +1,19 @@
+<config>
+    <bundle>
+        <admin>
+            <asset>@AdminBundle/js/ka/ObjectTree.js</asset>
+            <asset>@AdminBundle/js/ka/TabGroup.js</asset>
+            <asset>@AdminBundle/js/ka/WindowEdit.js</asset>
+            <asset>@AdminBundle/js/ka/WindowList.js</asset>
+            <asset>@AdminBundle/js/ka/Select.js</asset>
+            <assets>@AdminBundle/js/ka/*.js</assets>
+            <asset>@AdminBundle/js/ka/FieldTypes/Input.js</asset>
+            <asset>@AdminBundle/js/ka/FieldTypes/Object.js</asset>
+            <asset>@AdminBundle/js/ka/FieldTypes/Select.js</asset>
+            <assets>@AdminBundle/js/ka/FieldTypes/*.js</assets>
+            <assets>@AdminBundle/js/ka/ContentTypes/*.js</assets>
+            <assets>@AdminBundle/js/mootools-extras/*.js</assets>
+            <assets>@AdminBundle/css/ka/*.css</assets>
+        </admin>
+    </bundle>
+</config>

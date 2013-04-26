@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<config>
+    <bundle>
+
+        <theme id="CoreDefaults">
+            <label>Kryn.cms Demo Theme</label>
+            <content>
+                <label>Default</label>
+                <file>@KrynDemoTheme/content_default.tpl</file>
+            </content>
+        </theme>
+
+    </bundle>
+</config>

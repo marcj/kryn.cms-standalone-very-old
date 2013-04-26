@@ -1,4 +1,4 @@
-<phpunit bootstrap="test/bootstrap.php"
+<phpunit bootstrap="tests/bootstrap.php"
          colors="true"
          convertNoticesToExceptions="false"
          convertWarningsToExceptions="false">
@@ -6,7 +6,7 @@
 
     <testsuites>
         <testsuite name="Kryn.cms">
-            <directory>./test/</directory>
+            <directory>./tests/</directory>
         </testsuite>
     </testsuites>
 </phpunit>
