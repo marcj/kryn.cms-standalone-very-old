@@ -1,9 +1,12 @@
 <?php
 
-namespace Admin\Controller;
+namespace Admin;
 
-use \Core\Kryn;
-use \Core\Object;
+use Core\Kryn;
+use Core\Object;
+use Admin\Controller\ObjectCrudController;
+
+use Core\Config\EntryPoint;
 
 class ObjectCrud
 {
@@ -28,9 +31,9 @@ class ObjectCrud
     /**
      * Copy of the object definition
      *
-     * @var array
+     * @var \Core\Config\Object
      */
-    public $objectDefinition = array();
+    public $objectDefinition;
 
     /**
      * Defines your primary fiels as a array.
@@ -306,11 +309,11 @@ class ObjectCrud
     /**
      * Constructor
      */
-    public function __construct($pEntryPoint = null, $pWithoutObjectCheck = false)
+    public function __construct(EntryPoint $entryPoint = null, $withoutObjectCheck = false)
     {
-        $this->entryPoint = $pEntryPoint;
+        $this->entryPoint = $entryPoint;
 
-        $this->initialize($pWithoutObjectCheck = false);
+        $this->initialize($withoutObjectCheck);
     }
 
     public function initialize($pWithoutObjectCheck = false)
@@ -320,17 +323,17 @@ class ObjectCrud
             throw new \ObjectNotFoundException("Can not find object '".$this->getObject()."'");
         }
 
-        $this->table = $this->objectDefinition['table'];
+        $this->table = $this->objectDefinition->getTable();
         $this->primary = array();
 
-        foreach ($this->objectDefinition['fields'] as $key => &$field) {
-            if ($field['primaryKey']) {
+        foreach ($this->objectDefinition->getFields() as $key => $field) {
+            if ($field->isPrimaryKey()) {
                 $this->primary[] = $key;
             }
         }
 
         if (!$this->titleField)
-            $this->titleField = $this->objectDefinition['label'];
+            $this->titleField = $this->objectDefinition->getLabel();
 
         //resolve shortcuts
         if ($this->fields) {
@@ -446,7 +449,12 @@ class ObjectCrud
         foreach ($pFields as $key => $field) {
             if (is_numeric($key)) {
 
-                $newItem = $this->objectDefinition['fields'][lcfirst($field)];
+                $newItem = $this->objectDefinition->getField($field);
+                if ($newItem) {
+                    $newItem = $newItem->toArray();
+                } else {
+                    continue;
+                }
                 if (!$newItem['label']) $newItem['label'] = $field;
 
                 $pFields = array_merge(
@@ -462,13 +470,20 @@ class ObjectCrud
 
         foreach ($pFields as $key => &$field) {
 
-            if (!is_array($field)) continue;
+            if (!is_array($field)){
+                continue;
+            }
 
-            if (!isset($field['label']) && $this->objectDefinition['fields'][$key]['label'])
-                $field['label'] = $this->objectDefinition['fields'][$key]['label'];
+            $oField = $this->objectDefinition->getField($key);
+            if (!$oField) {
+                continue;
+            }
 
-            if (!isset($field['desc']) && $this->objectDefinition['fields'][$key]['desc'])
-                $field['desc'] = $this->objectDefinition['fields'][$key]['desc'];
+            if (!isset($field['label']))
+                $field['label'] = $oField->getLabel();
+
+            if (!isset($field['desc']))
+                $field['desc'] = $oField->getDesc();
 
             if (!isset($field['label']))
                 $field['label'] = '!!No title defined (either object or in objectWindow class!!';
@@ -715,15 +730,15 @@ class ObjectCrud
 
         if ($definition && !$fields) {
 
-            if ($definition['treeFields'])
-                $fields = explode(',', trim(preg_replace('/[^a-zA-Z0-9_,]/', '', $definition['treeFields'])));
+            if ($treeFields = $definition->getTreeFields())
+                $fields = explode(',', trim(preg_replace('/[^a-zA-Z0-9_,]/', '', $treeFields)));
             else
-                $fields = ($definition['defaultSelection']) ? explode(',', trim(preg_replace('/[^a-zA-Z0-9_,]/', '', $definition['defaultSelection']))) : array();
+                $fields = ($definition->getDefaultSelection()) ? explode(',', trim(preg_replace('/[^a-zA-Z0-9_,]/', '', $definition->getDefaultSelection()))) : array();
 
-            $fields[] = $definition['label'];
+            $fields[] = $definition->getFieldLabel();
 
-            if ($definition['treeIcon'])
-                $fields[] = $definition['treeIcon'];
+            if ($definition->getTreeIcon())
+                $fields[] = $definition->getTreeIcon();
         }
 
         return $fields;
@@ -763,7 +778,7 @@ class ObjectCrud
 
         $options['order'] = $this->getOrder();
 
-        $options['fields'] = array_keys($this->getColumns());
+        $options['fields'] = array_keys($this->getColumns() ?: array());
         if (!$options['fields']) $options['fields'] = array();
 
         $options['fields'] += $this->getTreeFields();
@@ -771,7 +786,7 @@ class ObjectCrud
         if ($this->getMultiLanguage()) {
 
             //does the object have a lang field?
-            if ($this->objectDefinition['fields']['lang']) {
+            if ($this->objectDefinition->getfield('lang')) {
 
                 //add language condition
                 $langCondition = array(
@@ -1626,7 +1641,7 @@ class ObjectCrud
     }
 
     /**
-     * @param array|null $entryPoint
+     * @param EntryPoint $entryPoint
      */
     public function setEntryPoint($entryPoint)
     {
@@ -1634,7 +1649,7 @@ class ObjectCrud
     }
 
     /**
-     * @return array|null
+     * @return EntryPoint
      */
     public function getEntryPoint()
     {

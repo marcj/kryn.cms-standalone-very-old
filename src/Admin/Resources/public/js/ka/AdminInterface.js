@@ -53,27 +53,27 @@ ka.AdminInterface = new Class({
             'class': 'ka-main-menu ka-admin'
         }).inject(this.border);
 
-        window.addEvent('resize', function(){
-            ka.generateNoise(this.mainMenu, 0.1);
-        }.bind(this));
-        window.fireEvent('resize');
+        this.mainMenuTopSub = new Element('div', {
+            'class': 'ka-main-menu-top-sub'
+        }).inject(this.border);
 
         this.mainMenuTop = new Element('div', {
             'class': 'ka-main-menu-top'
-        }).inject(this.mainMenu);
+        }).inject(this.border);
+
+        this.mainMenuTopLogo = new Element('img', {
+            'class': 'ka-main-menu-top-logo',
+            src: _path + 'bundles/admin/images/logo.png'
+        }).inject(this.mainMenuTop);
 
         this.userNameBtn = new Element('a', {
             'class': 'ka-main-menu-login-name',
             href: 'javascript: ;'
-        }).inject(this.mainMenuTop);
-
-        new Element('div', {
-            'class': 'ka-main-menu-splitter'
-        }).inject(this.mainMenuTop);
+        }).inject(this.mainMenuTopSub);
 
         this.mainMenuRight = new Element('div', {
             'class': 'ka-main-menu-additional'
-        }).inject(this.mainMenu);
+        }).inject(this.mainMenuTop);
 
         this.mainLinks = new Element('div',{
             'class': 'ka-mainLinks ka-scrolling'
@@ -163,8 +163,6 @@ ka.AdminInterface = new Class({
      * Build the administration interface after login
      */
     renderBackend: function(){
-
-
         if (this.options.frontPage){
             return;
         }
@@ -183,7 +181,7 @@ ka.AdminInterface = new Class({
             'class': 'ka-main-menu-splitter'
         }).inject(this.mainTempLinks);
 
-        this.userNameBtn.set('text', tf('Logged in as %s', window._session.username));
+        this.userNameBtn.set('text', tf('Welcome, %s', window._session.username));
 
         this.editMeButton = new ka.Button(t('Edit me'))
         .addEvent('click', function(){
@@ -201,12 +199,14 @@ ka.AdminInterface = new Class({
             ka.wm.open('users/profile', {values: {id: pResponse.userId}});
         }
 
-        if (!this.helpsystem)
+        if (!this.helpsystem) {
             this.helpsystem = new ka.Helpsystem(document.body);
+        }
 
         if (this._iconSessionCounterDiv) {
             this._iconSessionCounterDiv.destroy();
         }
+
         this._iconSessionCounterDiv = new Element('div', {
             'class': 'ka-iconbar-item icon-users',
             title: t('Visitors')
@@ -215,12 +215,6 @@ ka.AdminInterface = new Class({
         this._iconSessionCounter = new Element('span', {text: 0}).inject(this._iconSessionCounterDiv);
 
         if (!this.searchContainer) {
-
-
-            this.searchContainerPadding = new Element('div', {
-                'class': 'ka-search-padding'
-            }).inject(this.mainMenuRight);
-
             this.searchContainer = new Element('div', {
                 'class': 'ka-search'
             }).inject(this.mainMenuRight);
@@ -1355,7 +1349,7 @@ ka.AdminInterface = new Class({
 
         new Element('img', {
             'class': 'ka-searchcontext-arrow',
-            src: _path + 'admin/images/ka-tooltip-corner-top.png'
+            src: _path + 'bundles/admin/images/ka-tooltip-corner-top.png'
         }).inject(this.openSearchContextLast);
 
         this.openSearchContextContent = new Element('div', {

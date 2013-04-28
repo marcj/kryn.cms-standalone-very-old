@@ -8,9 +8,9 @@ var admin_system_module_publish = new Class({
 
         this.topGroup = this.win.addButtonGroup();
         if (ka.settings.system.communityId > 0) {
-            this.uploadBtn = this.topGroup.addButton(_('Upload this version'), _path + 'admin/images/icons/add.png', this.add.bind(this));
+            this.uploadBtn = this.topGroup.addButton(_('Upload this version'), _path + 'bundles/admin/images/icons/add.png', this.add.bind(this));
         }
-        this.createPkg = this.topGroup.addButton(_('Create package'), _path + 'admin/images/icons/compress.png', this.getPackage.bind(this));
+        this.createPkg = this.topGroup.addButton(_('Create package'), _path + 'bundles/admin/images/icons/compress.png', this.getPackage.bind(this));
 
         this.loadInfo();
         this.downloadUrl = new Element('div', {

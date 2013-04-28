@@ -563,7 +563,7 @@ var admin_system_module_view = new Class({
             }
 
             new Element('img', {
-                src: _path + 'admin/images/icons/' + img + '.png',
+                src: _path + 'bundles/admin/images/icons/' + img + '.png',
                 style: 'position: relative; top: 2px; margin-right: 3px;'
             }).inject(titel, 'top');
 

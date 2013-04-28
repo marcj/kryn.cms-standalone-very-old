@@ -39,7 +39,7 @@ ka.field_multiUpload = new Class({
         this.uploadBtn = new Element('div', {
             'title': this.options.buttontitle,
             'class': 'kwindow-win-buttonWrapper multiUpload-uploadBtnDiv',
-            'style': 'background : transparent url(' + _path + 'admin/images/admin-files-uploadFile.png) center center no-repeat;cursor:pointer;' }).inject(this.parentField.main);
+            'style': 'background : transparent url(' + _path + 'bundles/admin/images/admin-files-uploadFile.png) center center no-repeat;cursor:pointer;' }).inject(this.parentField.main);
 
         new Element('span', { 'id': this.uploadBtnId }).inject(this.uploadBtn);
         new Element('br', { 'style': 'clear:both;'}).inject(this.parentField.main);
@@ -131,7 +131,7 @@ ka.field_multiUpload = new Class({
             'class': 'multiUpload-delBtn'
         }).inject(fileNameDiv, 'bottom');
 
-        new Element('img', { 'src': _path + 'admin/images/icons/cross.png' }).inject(delBtn);
+        new Element('img', { 'src': _path + 'bundles/admin/images/icons/cross.png' }).inject(delBtn);
         delBtn.storeKey = 'UFN' + this.uploadedFileNum;
         delBtn.addEvent('click', function () {
             _this.removeUploadedFile(this.storeKey);

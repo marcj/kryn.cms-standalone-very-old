@@ -282,7 +282,7 @@ var admin_files_properties = new Class({
 
 
         this.addInternAclBtn = new ka.Button(new Element('img', {
-            src: _path + 'admin/images/icons/add.png'
+            src: _path + 'bundles/admin/images/icons/add.png'
         }), null, _('Add new rule')).addEvent('click', this.addRule.bind(this)).inject(p);
 
 
@@ -747,7 +747,7 @@ var files_properties_rule = new Class({
         }).inject(this.tdRead);
 
         this.remover = new Element('img', {
-            src: _path + 'admin/images/icons/delete.png',
+            src: _path + 'bundles/admin/images/icons/delete.png',
             style: 'cursor: pointer',
             title: _('Remove rule')
         }).addEvent('click', this.remove.bind(this)).inject(this.tdRemover);
@@ -794,7 +794,7 @@ var files_properties_rule = new Class({
         new Request.JSON({url: _pathAdmin + 'admin/users/browser/getName', noCache: 1, onComplete: function (res) {
             this.tdLeft.set('text', res.name)
             new Element('img', {
-                src: _path + 'admin/images/icons/' + ( (this.target_type == 1) ? 'group' : 'user') + '.png',
+                src: _path + 'bundles/admin/images/icons/' + ( (this.target_type == 1) ? 'group' : 'user') + '.png',
                 title: (this.target_type == 1) ? _('Group') : _('User'),
                 style: 'position: relative; top: 3px; left: -1px'
             }).inject(this.tdLeft, 'top');

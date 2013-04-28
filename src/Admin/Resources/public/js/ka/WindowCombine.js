@@ -463,7 +463,7 @@ ka.WindowCombine = new Class({
         this.order = {};
         this.order[this.sortField] = this.sortDirection;
 
-        this.lastRequest = new Request.JSON({url: _pathAdmin + 'admin/' + this.getEntryPoint(),
+        this.lastRequest = new Request.JSON({url: _pathAdmin + this.getEntryPoint(),
         noCache: true, onComplete: function (response) {
 
             if (response.error){ 
@@ -546,7 +546,7 @@ ka.WindowCombine = new Class({
 
         if (this.lastCountRequest) this.lastCountRequest.cancel();
 
-        this.lastCountRequest = new Request.JSON({url: _pathAdmin + 'admin/' + this.getEntryPoint()+'/:count',
+        this.lastCountRequest = new Request.JSON({url: _pathAdmin + this.getEntryPoint()+'/:count',
         onComplete: function(response){
 
             this.maxItems = response.data+0;
@@ -606,7 +606,7 @@ ka.WindowCombine = new Class({
     itemLoaderStart: function () {
         this.loadingNewItems = true;
         if (!this.itemLoader) return;
-        this.itemLoader.set('html', '<img src="' + _path + 'admin/images/loading.gif" />' + '<br />' + _('Loading entries ...'));
+        this.itemLoader.set('html', '<img src="' + _path + 'bundles/admin/images/loading.gif" />' + '<br />' + _('Loading entries ...'));
     },
 
     itemLoaderNoItems: function () {
@@ -616,7 +616,7 @@ ka.WindowCombine = new Class({
     prevItemLoaderStart: function () {
         this.loadingNewItems = true;
         if (!this.prevItemLoader) return;
-        this.prevItemLoader.set('html', '<img src="' + _path + 'admin/images/loading.gif" />' + '<br />' + _('Loading entries ...'));
+        this.prevItemLoader.set('html', '<img src="' + _path + 'bundles/admin/images/loading.gif" />' + '<br />' + _('Loading entries ...'));
     },
 
     prevItemLoaderStop: function () {
@@ -1329,7 +1329,7 @@ ka.WindowCombine = new Class({
         this.order = {};
         this.order[this.sortField] = this.sortDirection;
 
-        this.lastRequest = new Request.JSON({url: _pathAdmin + 'admin/' + this.getEntryPoint(), noCache: true, onComplete: function (response) {
+        this.lastRequest = new Request.JSON({url: _pathAdmin + this.getEntryPoint(), noCache: true, onComplete: function (response) {
 
             var position = response.data;
 
@@ -1347,7 +1347,7 @@ ka.WindowCombine = new Class({
                 this.loadItems(from, range);
             } else {
                 this.loadItems(0, 1);
-                this.win.alert(t('Ooops. There was an error in the response of %s').replace('%s', 'GET '+_pathAdmin + 'admin/' + this.getEntryPoint()));
+                this.win.alert(t('Ooops. There was an error in the response of %s').replace('%s', 'GET '+_pathAdmin + this.getEntryPoint()));
             }
 
         }.bind(this)}).get({

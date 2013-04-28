@@ -74,7 +74,13 @@ class Utils
         $config     = Kryn::getConfig($bundleName);
 
         if ($config) {
-            $entryPoint = $config->getEntryPoint($path);
+
+            while (!($entryPoint = $config->getEntryPoint($path))) {
+                if (false === strpos($path, '/')) {
+                    break;
+                }
+                $path = substr($path, 0, strrpos($path, '/'));
+            };
         }
 
         return $entryPoint;

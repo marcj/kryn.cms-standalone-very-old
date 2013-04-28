@@ -47,12 +47,14 @@ class EntryPoint extends Model
 
     public function setupObject()
     {
-        $this->path  = $this->element->attributes->getNamedItem('path')->nodeValue;
-        $this->icon  = $this->element->attributes->getNamedItem('icon')->nodeValue;
-        $this->type  = $this->element->attributes->getNamedItem('type')->nodeValue;
-        $this->link  = (boolean)$this->element->attributes->getNamedItem('link')->nodeValue ? : false;
-        $this->multi = (boolean)$this->element->attributes->getNamedItem('multi')->nodeValue ? : false;
-        $this->label = $this->element->getElementsByTagName('label')->item(0)->nodeValue;
+        $this->setAttributeVar('path');
+        $this->setAttributeVar('type');
+        $this->setAttributeVar('icon');
+        $this->setAttributeVar('multi');
+        $this->setAttributeVar('link');
+
+        $this->setVar('label');
+        $this->setVar('class');
     }
 
     public function setChildren($children)
@@ -102,10 +104,15 @@ class EntryPoint extends Model
     }
 
     /**
+     * @param bool $withBundlePrefix
+     *
      * @return string
      */
-    public function getFullPath()
+    public function getFullPath($withBundlePrefix = false)
     {
+        if ($withBundlePrefix) {
+            $path[] = strtolower($this->getBundleName());
+        }
         $path[] = $this->getPath();
         $instance = $this;
         while ($instance = $instance->getParentInstance()){

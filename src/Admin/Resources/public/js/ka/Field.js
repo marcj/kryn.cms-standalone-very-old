@@ -183,7 +183,7 @@ ka.Field = new Class({
 
             if (this.options.help && this.titleText) {
                 new Element('img', {
-                    src: _path + 'admin/images/icons/help_gray.png',
+                    src: _path + 'bundles/admin/images/icons/help_gray.png',
                     width: 14,
                     style: 'float: right; cursor: pointer; position: relative; top: -1px;',
                     title: _('View help to this field'),

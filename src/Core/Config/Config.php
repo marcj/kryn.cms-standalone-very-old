@@ -39,6 +39,11 @@ class Config extends Model
     protected $bundleName;
 
     /**
+     * @var string
+     */
+    protected $version;
+
+    /**
      * @var array
      */
     protected $instanceRelations = array();
@@ -374,6 +379,15 @@ class Config extends Model
         return $this->objects;
     }
 
+    public function getObjectsArray()
+    {
+        $objects = array();
+        foreach ($this->getObjects() as $object) {
+            $objects[strtolower($object->getId())] = $object->toArray();
+        }
+        return $objects;
+    }
+
     /**
      * @param string $id
      *
@@ -406,5 +420,22 @@ class Config extends Model
 
         return $this->themes;
     }
+
+    /**
+     * @param string $version
+     */
+    public function setVersion($version)
+    {
+        $this->version = $version;
+    }
+
+    /**
+     * @return string
+     */
+    public function getVersion()
+    {
+        return $this->version;
+    }
+
 
 }

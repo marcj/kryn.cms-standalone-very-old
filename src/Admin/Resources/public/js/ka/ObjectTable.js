@@ -93,7 +93,7 @@ ka.ObjectTable = new Class({
         this.absBar.setStyle('bottom', -25);
 
         this.imgToLeft = new Element('img', {
-            src: _path+ 'admin/images/icons/control_back.png'
+            src: _path+ 'bundles/admin/images/icons/control_back.png'
         })
         .addEvent('click', this.pageToLeft.bind(this))
         .inject(this.pagination);
@@ -131,7 +131,7 @@ ka.ObjectTable = new Class({
         }).inject(this.pagination);
 
         this.imgToRight = new Element('img', {
-            src: _path+ 'admin/images/icons/control_play.png'
+            src: _path+ 'bundles/admin/images/icons/control_play.png'
         })
         .addEvent('click', this.pageToRight.bind(this))
         .inject(this.pagination);

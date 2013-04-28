@@ -31,7 +31,7 @@
             </entry-point>
             <entry-point path="nodes" type="combine" icon="#icon-screen-2" link="true" multi="true">
                 <label>Pages</label>
-                <class>Admin\Admin\NodeCrud</class>
+                <class>Admin\Controller\Windows\NodeCrud</class>
                 <children>
                     <entry-point path="add" type="custom" multi="true">
                         <label>Add pages</label>
@@ -42,7 +42,7 @@
                     </entry-point>
                     <entry-point path="root" type="combine">
                         <label>Domain</label>
-                        <class>\Admin\Admin\DomainCrud</class>
+                        <class>\Admin\Controller\Windows\DomainCrud</class>
                     </entry-point>
                     <entry-point path="frontend" type="custom">
                         <label>Frontend</label>

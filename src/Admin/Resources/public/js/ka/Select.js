@@ -65,7 +65,7 @@ ka.Select = new Class({
         store: null, //string
 
         /**
-         * If you pass an object, the REST entry point /admin/object/<object>/ is called and you'll
+         * If you pass an object, the REST entry point kryn/admin/object/<object>/ is called and you'll
          * get as value always an array containing the primary keys.
          *
          * @var {String}
@@ -108,7 +108,7 @@ ka.Select = new Class({
 
         /**
          * Whether to use a branch or not
-         * /admin/object/<object>/<objectBranch>:branch
+         * kryn/admin/object/<object>/<objectBranch>:branch
          *
          * Use true for the root.
          * Define a objectScope, if the target object has multiple roots.
@@ -287,11 +287,8 @@ ka.Select = new Class({
 
         if (this.options.store){
             var storePath = this.options.store;
-            if (storePath.substr(0, 'admin/'.length) == 'admin/'){
-                storePath = storePath.substr('admin/'.length);
-            }
 
-            this.lastRq = new Request.JSON({url: _path+'admin/'+storePath,
+            this.lastRq = new Request.JSON({url: _pathAdmin+storePath,
                 noErrorReporting: ['NoAccessException'],
                 onCancel: function(){
                     pCallback(false);
@@ -877,7 +874,7 @@ ka.Select = new Class({
                 if (this.options.store){
 
                     this.lastLabelRequest = new Request.JSON({
-                        url: _path+'admin/'+this.options.store+'/'+ka.urlEncode(pId),
+                        url: _pathAdmin + this.options.store + '/' + ka.urlEncode(pId),
                         onComplete: function(response){
 
                             if (!response.error){
@@ -896,7 +893,7 @@ ka.Select = new Class({
 
                 } else if (this.options.object){
                     this.lastLabelRequest = new Request.JSON({
-                        url: _path+'admin/object/'+ka.urlEncode(this.options.object)+'/'+ka.urlEncode(pId),
+                        url: _pathAdmin + 'admin/object/' + ka.urlEncode(this.options.object) + '/' + ka.urlEncode(pId),
                         onComplete: function(response){
 
                             if (!response.error){

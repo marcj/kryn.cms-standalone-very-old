@@ -85,13 +85,12 @@ class AdminController
                 $objectWindowTypes = array('list', 'edit', 'add', 'combine');
 
                 if (in_array($entryPoint->getType(), $objectWindowTypes)) {
-                    $epc = new ObjectCrudController(($entryPoint['_module'] == 'admin' && getArgv(2) != 'admin' ? '': 'admin/') . $entryPoint['_url']);
+                    $epc = new ObjectCrudController(Kryn::getAdminPrefix() . '/' . $entryPoint->getFullPath(true));
                     $epc->setExceptionHandler($exceptionHandler);
-                    $epc->getClient()->setUrl(substr(Kryn::getRequest()->getPathInfo(), 1));
                     $epc->setDebugMode($debugMode);
                     $epc->setEntryPoint($entryPoint);
                     die($epc->run());
-                } elseif ($entryPoint['type'] == 'store') {
+                } elseif ($entryPoint->getType() == 'store') {
 
                     $clazz = $entryPoint['class'];
                     if (!$clazz) throw new \ClassNotFoundException(sprintf('The property `class` is not defined in entry point `%s`', $entryPoint['_url']));

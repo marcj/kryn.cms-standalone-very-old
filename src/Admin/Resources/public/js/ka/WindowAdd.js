@@ -124,7 +124,7 @@ ka.WindowAdd = new Class({
             request._targetObjectKey = this.addItemToAdd.objectKey;
         }
 
-        this.lastAddRq = new Request.JSON({url: _pathAdmin + 'admin/' + this.getEntryPoint()+'/:multiple',
+        this.lastAddRq = new Request.JSON({url: _pathAdmin + this.getEntryPoint()+'/:multiple',
             noErrorReporting: ['DuplicateKeysException', 'ObjectItemNotModified'],
             noCache: true, onComplete: function (pResponse) {
 
@@ -407,7 +407,7 @@ ka.WindowAdd = new Class({
 
             this.saveBtn.startTip(t('Adding ...'));
 
-            this.lastSaveRq = new Request.JSON({url: _pathAdmin + 'admin/' + this.getEntryPoint(),
+            this.lastSaveRq = new Request.JSON({url: _pathAdmin + this.getEntryPoint(),
             noErrorReporting: ['DuplicateKeysException', 'ObjectItemNotModified'],
             noCache: true, onComplete: function (res) {
 

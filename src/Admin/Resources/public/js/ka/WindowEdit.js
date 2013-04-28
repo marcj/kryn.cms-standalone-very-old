@@ -125,7 +125,7 @@ ka.WindowEdit = new Class({
 
         this.container.set('html', '<div style="text-align: center; padding: 50px; color: silver">'+t('Loading definition ...')+'</div>');
 
-        new Request.JSON({url: _pathAdmin + 'admin/' + this.getEntryPoint(), noCache: true, onComplete: function(pResponse){
+        new Request.JSON({url: _pathAdmin + this.getEntryPoint(), noCache: true, onComplete: function(pResponse){
 
             if (!pResponse.error && pResponse.data && pResponse.data._isClassDefinition)
                 this.render(pResponse.data);
@@ -162,7 +162,7 @@ ka.WindowEdit = new Class({
 
         this.win.setLoading(true, null, this.container.getCoordinates(this.win));
 
-        this.lastRq = new Request.JSON({url: _pathAdmin + 'admin/' + this.getEntryPoint()+'/'+id,
+        this.lastRq = new Request.JSON({url: _pathAdmin + this.getEntryPoint()+'/'+id,
         noCache: true, onComplete: function (res) {
             this._loadItem(res.data);
         }.bind(this)}).get();
@@ -363,7 +363,7 @@ ka.WindowEdit = new Class({
     loadVersions: function () {
 
         var req = this.generateItemParams();
-        new Request.JSON({url: _pathAdmin + 'admin/' + this.getEntryPoint(), noCache: true, onComplete: function (res) {
+        new Request.JSON({url: _pathAdmin + this.getEntryPoint(), noCache: true, onComplete: function (res) {
 
             if (res && res.data.versions) {
                 this.item.versions = res.data.versions;
@@ -582,7 +582,7 @@ ka.WindowEdit = new Class({
             var object = ka.getObjectUrlId(this.classProperties['object'], this.winParams.item);
             var objectId = '?object='+object;
 
-            this.lastDeleteRq = new Request.JSON({url: _pathAdmin + 'admin/' + this.getEntryPoint() +'/'+objectId,
+            this.lastDeleteRq = new Request.JSON({url: _pathAdmin + this.getEntryPoint() +'/'+objectId,
             onComplete: function(pResponse){
 
                 logger(pResponse);
@@ -726,7 +726,7 @@ ka.WindowEdit = new Class({
             }).inject(document.id(this.topTabGroup));
 
             new Element('img', {
-                src: _path+ 'admin/images/ka.mainmenu-additional.png',
+                src: _path+ 'bundles/admin/images/ka.mainmenu-additional.png',
                 style: 'left: 1px; top: 6px;'
             }).inject(this.tooMuchTabFieldsButton);
 
@@ -773,7 +773,7 @@ ka.WindowEdit = new Class({
                 if (tabButton && !tabButton.isPressed()){
 
                     tabButton.startTip(t('Invalid input!'));
-                    tabButton.toolTip.loader.set('src', _path + 'admin/images/icons/error.png');
+                    tabButton.toolTip.loader.set('src', _path + 'bundles/admin/images/icons/error.png');
                     tabButton.toolTip.loader.setStyle('position', 'relative');
                     tabButton.toolTip.loader.setStyle('top', '-2px');
                     document.id(tabButton.toolTip).setStyle('top', document.id(tabButton.toolTip).getStyle('top').toInt()+2);
@@ -796,7 +796,7 @@ ka.WindowEdit = new Class({
 
                 if (!this.languageTip){
                     this.languageTip = new ka.Tooltip(this.languageSelect, _('Please fill!'), null, null,
-                        _path + 'admin/images/icons/error.png');
+                        _path + 'bundles/admin/images/icons/error.png');
                 }
                 this.languageTip.show();
 
@@ -870,7 +870,7 @@ ka.WindowEdit = new Class({
 
             var objectId = ka.getObjectUrlId(this.classProperties['object'], this.winParams.item);
 
-            this.lastSaveRq = new Request.JSON({url: _pathAdmin + 'admin/' + this.getEntryPoint()+'/'+objectId,
+            this.lastSaveRq = new Request.JSON({url: _pathAdmin + this.getEntryPoint()+'/'+objectId,
             noErrorReporting: ['DuplicateKeysException', 'ObjectItemNotModified'],
             noCache: true, onComplete: function (res) {
 

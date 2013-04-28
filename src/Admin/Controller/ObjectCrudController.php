@@ -3,6 +3,7 @@
 namespace Admin\Controller;
 
 use RestService\Server;
+use Core\Config\EntryPoint;
 
 /**
  * RestController for the entry points which are from type store or framework window.
@@ -10,35 +11,37 @@ use RestService\Server;
  */
 class ObjectCrudController extends Server
 {
+    /**
+     * @var EntryPoint
+     */
     public $entryPoint;
 
-    public function exceptionHandler($pException)
+    public function exceptionHandler($exception)
     {
-        if (get_class($pException) != 'AccessDeniedException')
-            \Core\Utils::exceptionHandler($pException);
+        if (get_class($exception) != 'AccessDeniedException')
+            \Core\Utils::exceptionHandler($exception);
     }
 
-    public function setEntryPoint($pEntryPoint)
+    public function setEntryPoint(EntryPoint $entryPoint)
     {
-        $this->entryPoint = $pEntryPoint;
+        $this->entryPoint = $entryPoint;
     }
 
     public function run()
     {
-        if ($this->entryPoint['type'] == 'store') {
+        if ($this->entryPoint->getType() == 'store') {
 
-            if (!$this->entryPoint['class']) {
+            if (!$this->entryPoint->getClass()) {
                 $obj = new adminStore();
             } else {
-                require_once(PATH_MODULE . '' . $this->entryPoint['_module'] . '/' . $this->entryPoint['class'] . '.class.php');
-                $clazz = $this->entryPoint['class'];
-                $obj = new $clazz();
+                $clazz = $this->entryPoint->getClass();
+                $obj   = new $clazz();
             }
 
             try {
                 $this->send($obj->handle($this->entryPoint));
             } catch (Exception $e) {
-                $this->sendError('AdminStoreException', array('exception' => $e->getMessage(), 'entryPoint' => $this->entryPoint));
+                $this->sendError('AdminStoreException', array('exception' => $e->getMessage(), 'entryPoint' => $this->entryPoint->toArray()));
             }
         } else {
 
@@ -220,7 +223,8 @@ class ObjectCrudController extends Server
     /**
      * Proxy method for REST GET to getItem/getItems/getPosition.
      *
-     * @param  string $pObject
+     * @param  string $pUrl
+     * @param  array  $_
      * @param  int    $pLimit
      * @param  int    $pOffset
      * @param  int    $pGetPosition
@@ -313,7 +317,7 @@ class ObjectCrudController extends Server
     {
         if ($this->obj) return $this->obj;
 
-        $class = $this->entryPoint['class'];
+        $class = $this->entryPoint->getClass();
 
         if (class_exists($class)) {
             $obj = new $class($this->entryPoint);

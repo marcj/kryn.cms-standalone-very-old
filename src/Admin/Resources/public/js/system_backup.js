@@ -265,16 +265,16 @@ var admin_system_backup = new Class({
         }).inject(this.win.content);
 
         this.btnGrp = this.win.addButtonGroup();
-        this.btnNewBackup = this.btnGrp.addButton(_('New Backup'), _path + 'admin/images/icons/add.png', this.add.bind(this));
-        this.btnImport = this.btnGrp.addButton(_('Import'), _path + 'admin/images/icons/database_import.png', this.import.bind(this));
+        this.btnNewBackup = this.btnGrp.addButton(_('New Backup'), _path + 'bundles/admin/images/icons/add.png', this.add.bind(this));
+        this.btnImport = this.btnGrp.addButton(_('Import'), _path + 'bundles/admin/images/icons/database_import.png', this.import.bind(this));
 
 
         this.addGrp = this.win.addButtonGroup();
         this.addGrp.setStyle('margin-left', 130);
-        this.addSaveBtn = this.addGrp.addButton(_('Save'), _path + 'admin/images/button-save.png', this.save.bind(this));
+        this.addSaveBtn = this.addGrp.addButton(_('Save'), _path + 'bundles/admin/images/button-save.png', this.save.bind(this));
 
-        this.addGenerateBtn = this.addGrp.addButton(_('Save and generate'), _path + 'admin/images/button-save-and-publish.png', this.generate.bind(this));
-        this.addDeleteBtn = this.addGrp.addButton(_('Delete'), _path + 'admin/images/icons/delete.png', this.remove.bind(this));
+        this.addGenerateBtn = this.addGrp.addButton(_('Save and generate'), _path + 'bundles/admin/images/button-save-and-publish.png', this.generate.bind(this));
+        this.addDeleteBtn = this.addGrp.addButton(_('Delete'), _path + 'bundles/admin/images/icons/delete.png', this.remove.bind(this));
 
 
         this.addGrp.hide();
@@ -311,7 +311,7 @@ var admin_system_backup = new Class({
         }).inject(this.win.content, 'top');
 
         new Element('img', {
-            src: _path + 'admin/images/icons/error.png',
+            src: _path + 'bundles/admin/images/icons/error.png',
             style: 'margin-right: 3px;',
             align: 'top'
         }).inject(this.notice, 'top');
@@ -442,7 +442,7 @@ var admin_system_backup = new Class({
                 }).inject(h2, 'after');
 
                 new Element('img', {
-                    src: _path + 'admin/images/icons/error.png',
+                    src: _path + 'bundles/admin/images/icons/error.png',
                     style: 'margin-right: 3px;',
                     align: 'top'
                 }).inject(info, 'top');

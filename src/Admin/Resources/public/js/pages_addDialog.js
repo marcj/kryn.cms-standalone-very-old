@@ -151,7 +151,7 @@ var admin_pages_addDialog = new Class({
         this.addInput();
 
         var addImg = new Element('img', {
-            src: _path + 'admin/images/icons/add.png',
+            src: _path + 'bundles/admin/images/icons/add.png',
             style: 'cursor: pointer; position: relative; top: 4px; margin-right: 3px;'
         }).addEvent('click', this.addInput.bind(this)).inject(this.inputPane, 'after');
 

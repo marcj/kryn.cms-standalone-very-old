@@ -312,7 +312,7 @@ var admin_pages = new Class({
             }).inject(tr);
 
             new Element('img', {
-                src: _path + 'admin/images/icons/delete.png',
+                src: _path + 'bundles/admin/images/icons/delete.png',
                 style: 'cursor: pointer;',
                 title: _('Delete this alias')
             }).addEvent('click', function () {
@@ -442,7 +442,7 @@ var admin_pages = new Class({
             this.treeContainer.setStyle('opacity', 0);
             this.tree.setStyle('height', '25px');
             this.treeSizer.setStyle('opacity', 0);
-            this.treeHider.set('src', _path + 'admin/images/pages-tree-bar-arrow-down.jpg');
+            this.treeHider.set('src', _path + 'bundles/admin/images/pages-tree-bar-arrow-down.jpg');
             this.treeBar.addEvent('mouseover', this.hideBarHover.bind(this));
             this.treeBar.addEvent('mouseout', this.hideBarHoverOut.bind(this));
             this.treeSizer.addEvent('mouseover', this.hideBarHover.bind(this));
@@ -468,7 +468,7 @@ var admin_pages = new Class({
             this.treeContainer.setStyle('opacity', 1);
             this.tree.setStyle('height', '100%');
             this.treeSizer.setStyle('opacity', 1);
-            this.treeHider.set('src', _path + 'admin/images/pages-tree-bar-arrow.jpg');
+            this.treeHider.set('src', _path + 'bundles/admin/images/pages-tree-bar-arrow.jpg');
 
             if (this.elementPropertyToolbar.getSize().y > 1) {
                 this.treeContainer.tween('bottom', 221);
@@ -479,10 +479,10 @@ var admin_pages = new Class({
     },
 
     _createLayout: function () {
-        var p = _path + 'admin/images/';
+        var p = _path + 'bundles/admin/images/';
 
         var btnGrp = this.win.addButtonGroup();
-        btnGrp.addButton(_('New domain'), _path + 'admin/images/icons/world_add.png', this.addDomain.bind(this));
+        btnGrp.addButton(_('New domain'), _path + 'bundles/admin/images/icons/world_add.png', this.addDomain.bind(this));
 
 
         this.main = new Element('div', {
@@ -549,13 +549,13 @@ var admin_pages = new Class({
                 position: 'absolute',
                 left: 0, right: 0, 'top': 0, height: 16,
                 cursor: 'pointer',
-                'background-image': 'url(' + _path + 'admin/images/pages-tree-bar-bg.jpg)'
+                'background-image': 'url(' + _path + 'bundles/admin/images/pages-tree-bar-bg.jpg)'
             }
         }).addEvent('click', this.toggleHiderMode.bind(this)).inject(this.tree, 'top');
 
         this.treeHider = new Element('img', {
             style: 'margin-left: 5px;',
-            src: _path + 'admin/images/pages-tree-bar-arrow.jpg'
+            src: _path + 'bundles/admin/images/pages-tree-bar-arrow.jpg'
         }).inject(this.treeBar);
 
 
@@ -1873,10 +1873,10 @@ var admin_pages = new Class({
         this.generalFields['type'] = new ka.Field({label: _('Type'), type: 'imagegroup',
             table_label: 'label', table_key: 'id',
             items: {
-                0: {label: _('Default'), src: _path + 'admin/images/icons/page_green.png'},
-                1: {label: _('Link'), src: _path + 'admin/images/icons/link.png'},
-                2: {label: _('Folder'), src: _path + 'admin/images/icons/folder.png'},
-                3: {label: _('Deposit'), src: _path + 'admin/images/icons/page_white_text.png'}
+                0: {label: _('Default'), src: _path + 'bundles/admin/images/icons/page_green.png'},
+                1: {label: _('Link'), src: _path + 'bundles/admin/images/icons/link.png'},
+                2: {label: _('Folder'), src: _path + 'bundles/admin/images/icons/folder.png'},
+                3: {label: _('Deposit'), src: _path + 'bundles/admin/images/icons/page_white_text.png'}
             }
         }).inject(p);
 
@@ -1944,7 +1944,7 @@ var admin_pages = new Class({
         }).inject(this.metas);
 
         var addMeta = new Element('img', {
-            src: _path + 'admin/images/icons/add.png',
+            src: _path + 'bundles/admin/images/icons/add.png',
             title: _('Add'),
             style: 'cursor: pointer'
         }).addEvent('click', function () {
@@ -2368,7 +2368,7 @@ var admin_pages = new Class({
         }).store('fromBar', true).inject(this.contentItems);
 
         new Element('img', {
-            src: _path + 'admin/images/ka-keditor-elementtypes-item-' + type + '-bg.png'
+            src: _path + 'bundles/admin/images/ka-keditor-elementtypes-item-' + type + '-bg.png'
         }).inject(div);
 
         return div;
@@ -2719,7 +2719,7 @@ var admin_pages = new Class({
         }).inject(div);
 
         new Element('img', {
-            src: _path + 'admin/images/icons/delete.png',
+            src: _path + 'bundles/admin/images/icons/delete.png',
             title: 'Entfernen',
             style: 'cursor: pointer; float: right;'
         }).inject(div);
@@ -2890,7 +2890,7 @@ var admin_pages = new Class({
                 }
 
                 this.versionTable.addRow([
-                    item.id, new Element('img', {src: _path + 'admin/images/icons/' + ((pValues.active == 1) ? 'accept' : 'delete') + '.png'}), item.username, (new Date(item.created * 1000).format('%d.%m.%Y %H:%M')), actions
+                    item.id, new Element('img', {src: _path + 'bundles/admin/images/icons/' + ((pValues.active == 1) ? 'accept' : 'delete') + '.png'}), item.username, (new Date(item.created * 1000).format('%d.%m.%Y %H:%M')), actions
                 ]);
 
             }.bind(this));
@@ -2914,7 +2914,7 @@ var admin_pages = new Class({
         var icon = (pValues.active == 1) ? 'accept' : 'delete';
 
         new Element('td', {
-            html: '<img src="' + _path + 'admin/images/icons/' + icon + '.png" />',
+            html: '<img src="' + _path + 'bundles/admin/images/icons/' + icon + '.png" />',
             width: 50
         }).inject(tr);
 
@@ -3046,7 +3046,7 @@ var admin_pages = new Class({
                     var vUrl = this.getBaseUrl(this.page) + pVal[0].substr(1) + '/';
 
                     res[pKey][4] = '';
-                    res[pKey][4] += '&nbsp;<a href="' + vUrl + '" target="_blank"><img src="' + _path + 'admin/images/icons/eye.png" title="' + _('View this page') + '" /></a>';
+                    res[pKey][4] += '&nbsp;<a href="' + vUrl + '" target="_blank"><img src="' + _path + 'bundles/admin/images/icons/eye.png" title="' + _('View this page') + '" /></a>';
                 }.bind(this));
                 this.sioTable.setValues(res);
 
@@ -3090,7 +3090,7 @@ var admin_pages = new Class({
         }).inject(main);
 
         new Element('img', {
-            src: _path + 'admin/images/icons/delete.png',
+            src: _path + 'bundles/admin/images/icons/delete.png',
             align: 'top',
             title: 'Löschen',
             style: 'cursor: pointer;'

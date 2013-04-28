@@ -460,22 +460,22 @@ class Object
         $pks        = $obj->getPrimaryKeys();
 
         if (!$pOptions['fields']) {
-            if ($obj->definition['defaultSelection'])
-                $pOptions['fields'] = $obj->definition['defaultSelection'];
+            if ($selection = $obj->definition->getDefaultSelection())
+                $pOptions['fields'] = $selection;
             else
                 $pOptions['fields'] = '*';
         }
 
-        if ($pOptions['fields'] != '*' && $obj->definition['limitDataSets']) {
+        if ($pOptions['fields'] != '*' && $limitDataSets = $obj->definition->getLimitDataSets()) {
 
             if (is_string($pOptions['fields']))
                 $pOptions['fields'] = explode(',', trim(str_replace(' ', '', $pOptions['fields'])));
 
-            $extraFields       = dbExtractConditionFields($obj->definition['limitDataSets']);
+            $extraFields       = dbExtractConditionFields($limitDataSets);
             $deleteFieldValues = array();
 
             foreach ($extraFields as $field) {
-                if ($obj->definition['fields'][$field]) {
+                if ($obj->definition->getField($field)) {
                     if (array_search($field, $pOptions['fields']) === false && array_search($field, $pks) === false) {
                         $pOptions['fields'][] = $field;
                         $deleteFieldValues[]  = $field;
@@ -492,8 +492,8 @@ class Object
             if (!self::satisfy($item, $aclCondition)) return false;
         }
 
-        if ($obj->definition['limitDataSets']) {
-            if (!self::satisfy($item, $obj->definition['limitDataSets'])) return false;
+        if ($limitDataSets = $obj->definition->getLimitDataSets()) {
+            if (!self::satisfy($item, $limitDataSets)) return false;
         }
 
         if ($deleteFieldValues) {
@@ -906,11 +906,11 @@ class Object
     {
         $definition = self::getDefinition($pObjectKey);
 
-        if ($definition['nestedRootAsObject'] && $pScope === null) throw new \Exception('No `scope` defined.');
+        if ($definition->getNestedRootAsObject() && $pScope === null) throw new \Exception('No `scope` defined.');
 
-        $pOptions['fields'] = $definition['nestedRootObjectLabelField'];
+        $pOptions['fields'] = $definition->getNestedRootObjectLabelField();
 
-        return self::get($definition['nestedRootObject'], $pScope, $pOptions);
+        return self::get($definition->getNestedRootObject(), $pScope, $pOptions);
     }
 
     /**
@@ -927,13 +927,13 @@ class Object
     {
         $definition = self::getDefinition($pObjectKey);
 
-        if (!$definition['nested']) throw new \Exception('Object is not a nested set.');
+        if (!$definition->isNested()) throw new \Exception('Object is not a nested set.');
 
-        if ($definition['nestedRootObjectLabelField'] && !$pOptions['fields'])
-            $pOptions['fields'] = $definition['nestedRootObjectLabelField'];
+        if ($definition->getNestedRootObjectLabelField() && !$pOptions['fields'])
+            $pOptions['fields'] = $definition->getNestedRootObjectLabelField();
 
-        if ($definition['nestedRootAsObject']) {
-            return self::getList($definition['nestedRootObject'], null, $pOptions);
+        if ($definition->getNestedRootAsObject()) {
+            return self::getList($definition->getNestedRootObject(), null, $pOptions);
         } else {
             $obj = self::getClass($pObjectKey);
 
@@ -976,16 +976,16 @@ class Object
         if ($pPk)
             $pPk = $obj->normalizePrimaryKey($pPk);
 
-        if (!$pPk && $definition['nestedRootAsObject'] && $pScope === null) throw new \Exception('No scope defined.');
+        if (!$pPk && $definition->getNestedRootAsObject() && $pScope === null) throw new \Exception('No scope defined.');
 
         if (!$pOptions['fields']) {
 
             $fields = array();
-            if ($definition['nestedRootObjectLabelField'])
-                $fields[] = $definition['nestedRootObjectLabelField'];
+            if ($rootField = $definition->getNestedRootObjectLabelField())
+                $fields[] = $rootField;
 
-            if ($definition['nestedRootObjectExtraFields']) {
-                $extraFields = explode(',', trim(str_replace(' ', '', $definition['nestedRootObjectExtraFields'])));
+            if ($extraFields = $definition->getNestedRootObjectExtraFields()) {
+                $extraFields = explode(',', trim(str_replace(' ', '', $extraFields)));
                 foreach ($extraFields as $field)
                     $fields[] = $field;
             }
@@ -1022,8 +1022,8 @@ class Object
         $objectDefinition = self::getDefinition($pObjectId);
 
         $primaryFields = array();
-        foreach ($objectDefinition['fields'] as $fieldKey => $field) {
-            if ($field['primaryKey'])
+        foreach ($objectDefinition->getFields() as $fieldKey => $field) {
+            if ($field->isPrimaryKey())
                 $primaryFields[$fieldKey] = $field;
         }
 

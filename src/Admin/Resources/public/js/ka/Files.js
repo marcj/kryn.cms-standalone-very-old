@@ -221,7 +221,7 @@ ka.Files = new Class({
         }).inject(tr);
 
         new Element('img', {
-            src: _path + 'admin/images/icons/delete.png',
+            src: _path + 'bundles/admin/images/icons/delete.png',
             style: 'cursor: pointer;',
             title: _('Cancel upload')
         }).addEvent('click', function () {
@@ -586,7 +586,7 @@ ka.Files = new Class({
             this.uploadTrs[ pFile.id ].status.set('html', '<span style="color: red">' + t('File size limit exceeded') + '</span>');
             new Element('img', {
                 style: 'position: relative; top: 2px; left: 2px;',
-                src: _path + 'admin/images/icons/error.png',
+                src: _path + 'bundles/admin/images/icons/error.png',
                 title: t('The file size exceeds the limit allows by upload_max_filesize or post_max_size on your server. Please contact the administrator.')
             }).inject(this.uploadTrs[ pFile.id ].status);
         } else {
@@ -767,7 +767,7 @@ ka.Files = new Class({
         var boxNavi = new ka.ButtonGroup(actionsContainer, {onlyIcons: true});
 
         var toLeft = new Element('img', {
-            src: _path + 'admin/images/admin-files-toLeft.png'
+            src: _path + 'bundles/admin/images/admin-files-toLeft.png'
         });
         boxNavi.addButton(t('Back'),'#icon-arrow-left-15', function () {
             this.goHistory('left');
@@ -806,7 +806,7 @@ ka.Files = new Class({
         });
 
         var userGrp = new ka.ButtonGroup(actionsContainer, {onlyIcons: true});
-        this.userFilesBtn = userGrp.addButton(t('Hide system files'), _path + 'admin/images/icons/folder_brick.png', this.toggleUserMode.bind(this));
+        this.userFilesBtn = userGrp.addButton(t('Hide system files'), _path + 'bundles/admin/images/icons/folder_brick.png', this.toggleUserMode.bind(this));
         this.userFilesBtn.setPressed(this.options.onlyUserDefined);
 
         //address
@@ -841,7 +841,7 @@ ka.Files = new Class({
         }.bind(this));
 
         new Element('img', {
-            src: _path+ 'admin/images/icon-search-loupe.png',
+            src: _path+ 'bundles/admin/images/icon-search-loupe.png',
             style: 'position: absolute; right: 12px; top: 8px;'
         }).inject(this.search, 'after');
 
@@ -1426,7 +1426,7 @@ ka.Files = new Class({
 
             if (position.y > 0 && position.y < containerHeight){
 
-                var image = _path+'admin/file/preview?' + Object.toQueryString({
+                var image = _pathAdmin + 'admin/file/preview?' + Object.toQueryString({
                     path: file.readyToLoadImage.path,
                     mtime: file.readyToLoadImage.mtime,
                     width: file.imageContainer.getSize().x-20,
@@ -2028,7 +2028,7 @@ ka.Files = new Class({
         var img;
 
         var size = this.previewDivSize;
-        image = _path + 'admin/file/preview?' + Object.toQueryString({
+        image = _pathAdmin + 'admin/file/preview?' + Object.toQueryString({
             path: file.path,
             width: size.x,
             height: size.y,
@@ -2119,7 +2119,7 @@ ka.Files = new Class({
 
             this.previewDivResizer = new Element('div', {
                 style: 'position: absolute;right: -1px;bottom: -1px;width: 9px;'+
-                       'height: 9px; opacity: 0.7; background-image: url(' + _path + 'admin/images/win-bottom-resize.png);'+
+                       'height: 9px; opacity: 0.7; background-image: url(' + _path + 'bundles/admin/images/win-bottom-resize.png);'+
                        'cursor: se-resize; background-position: 0px 11px;'
             }).inject(this.previewDiv);
 
@@ -2470,7 +2470,7 @@ ka.Files = new Class({
 
     renderDetail: function () {
 
-        var pAdmin = _path + 'admin/';
+        var pAdmin = _pathAdmin + 'admin/';
 
         this.detailTable = new ka.Table([
             ['', 20],
@@ -2498,7 +2498,7 @@ ka.Files = new Class({
             }
 
             var image = new Element('img', {
-                src: _path + 'admin/images/ext/' + bg + '-mini.png'
+                src: _path + 'bundles/admin/images/ext/' + bg + '-mini.png'
             });
 
             var size = ka.bytesToSize(file.size);
@@ -2793,7 +2793,8 @@ ka.Files = new Class({
             var openExternal = new Element('a', {
                 html: _('Open external'),
                 target: '_blank',
-                href: _path+'admin/file/redirect?'+Object.toQueryString({path:pFile.path, noCache: (new Date()).getTime()})
+                href: _pathAdmin + 'admin/file/redirect?' +
+                    Object.toQueryString({path: pFile.path, noCache: (new Date()).getTime()})
             }).inject(this.context)
 
 
@@ -3015,7 +3016,7 @@ ka.Files = new Class({
             }).inject(this.searchPane);
         }
 
-        this.searchPaneContent.set('html', '<div style="text-align: center; padding-top: 25px;">' + '<img src="' + _path + 'admin/images/ka-tooltip-loading.gif" /><br />' + _('Searching ...') + '</div>');
+        this.searchPaneContent.set('html', '<div style="text-align: center; padding-top: 25px;">' + '<img src="' + _path + 'bundles/admin/images/ka-tooltip-loading.gif" /><br />' + _('Searching ...') + '</div>');
 
         if (this.lastqrq) {
             this.lastqrq.cancel();
@@ -3065,7 +3066,7 @@ ka.Files = new Class({
                 }
 
                 var image = new Element('img', {
-                    src: _path + 'admin/images/ext/' + bg + '-mini.png'
+                    src: _path + 'bundles/admin/images/ext/' + bg + '-mini.png'
                 }).inject( td );
 
                 var td = new Element('td').inject(tr);

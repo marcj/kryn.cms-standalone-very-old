@@ -24,6 +24,11 @@ class Object extends Model
     protected $desc;
 
     /**
+     * @var string
+     */
+    protected $table;
+
+    /**
      * The class of the object interface. Needs 'dataModel'=true.
      *
      * @var string
@@ -287,7 +292,6 @@ class Object extends Model
         $blacklist = array('id', 'browserOptions', 'treeIconMapping', 'fields', 'limitDataSets');
 
         foreach ($this as $k => $v) {
-
             if (true === in_array($k, $blacklist)) {
                 continue;
             }
@@ -474,11 +478,17 @@ class Object extends Model
         return $this->fieldTemplate;
     }
 
+    /**
+     * @param $fields
+     */
     public function setFields($fields)
     {
         $this->fields = $fields;
     }
 
+    /**
+     * @return Field[]
+     */
     public function getFields()
     {
         if (null === $this->fields) {
@@ -493,6 +503,29 @@ class Object extends Model
         }
 
         return $this->fields;
+    }
+
+    public function getFieldsArray()
+    {
+        $fields = array();
+        foreach ($this->getFields() as $field) {
+            $fields[lcfirst($field->getId())] = $field->toArray();
+        }
+        return $fields;
+    }
+
+    /**
+     * @param $fieldId
+     *
+     * @return Field
+     */
+    public function getField($fieldId)
+    {
+        foreach ($this->getFields() as $field) {
+            if ($field->getId() === $field) {
+                return $field;
+            }
+        }
     }
 
     /**
@@ -1016,6 +1049,22 @@ class Object extends Model
     public function getPublicUrlGenerator()
     {
         return $this->publicUrlGenerator;
+    }
+
+    /**
+     * @param string $table
+     */
+    public function setTable($table)
+    {
+        $this->table = $table;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTable()
+    {
+        return $this->table;
     }
 
 

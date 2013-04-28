@@ -58,7 +58,7 @@ ka.ObjectTree = new Class({
          * The icon of the add-icon
          * @var {String}
          */
-        iconAdd: 'admin/images/icons/add.png',
+        iconAdd: 'bundles/admin/images/icons/add.png',
 
         icon: null,
 
@@ -266,9 +266,7 @@ ka.ObjectTree = new Class({
     },
 
     getUrl: function(){
-
-        return _pathAdmin + 'admin/' + (this.options.entryPoint ? this.options.entryPoint : 'object/' + ka.urlEncode(this.options.objectKey) )+'/';
-
+        return _pathAdmin + (this.options.entryPoint ? this.options.entryPoint : 'object/' + ka.urlEncode(this.options.objectKey) )+'/';
     },
 
     startupWithObjectInfo: function (pId, pCallback) {
@@ -371,6 +369,7 @@ ka.ObjectTree = new Class({
 
 
         var scope = this.options.scope;
+        console.log(this.options.rootObject, scope);
         if (typeOf(scope) == 'object'){
             scope = ka.getObjectUrlId(this.options.rootObject, scope);
         }
@@ -907,7 +906,7 @@ ka.ObjectTree = new Class({
         var item = pA.objectEntry;
 
         var loader = new Element('img', {
-            src: _path + 'admin/images/loading.gif',
+            src: _path + 'bundles/admin/images/loading.gif',
             style: 'position: relative; top: 3px;'
         }).inject(pA.span);
 

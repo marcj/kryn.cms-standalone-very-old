@@ -159,6 +159,7 @@ ka.wm = {
             if (menuItem) {
                 menuItem.object.addClass('ka-main-menu-item-open');
             }
+            menuItem.object.removeClass('ka-main-menu-item-active');
 
             if (win.isInFront()){
 
@@ -190,6 +191,7 @@ ka.wm = {
             ka.adminInterface.frontendLink.addClass('ka-main-menu-item-active');
         }
 
+        ka.wm.reloadHashtag();
     },
 
     reloadHashtag: function(pForce){

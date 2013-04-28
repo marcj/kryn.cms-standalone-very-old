@@ -12,6 +12,9 @@
 
 namespace Core;
 
+use Core\Models\FileQuery;
+use Core\Models\File;
+
 /**
  * File
  *
@@ -51,7 +54,9 @@ class WebFile
      *
      * @static
      * @param  string $pPath
-     * @return object
+     *
+     * @return \Core\FAL\FALAbstract
+     * @throws \ClassNotFoundException
      */
     public static function getLayer($pPath)
     {

@@ -162,7 +162,7 @@ var admin_system_module = new Class({
                     }.bind(this)).inject(actions);
                 }
 
-                var value = [title, '<img title="' + _title + '" src="' + _path + 'admin/images/icons/' + icon + '.png" />', item.version, (item.serverVersion) ? item.serverVersion : _('Local'), actionsStatus, actions];
+                var value = [title, '<img title="' + _title + '" src="' + _path + 'bundles/admin/images/icons/' + icon + '.png" />', item.version, (item.serverVersion) ? item.serverVersion : _('Local'), actionsStatus, actions];
                 values.include(value);
             }.bind(this));
 
@@ -304,7 +304,7 @@ var admin_system_module = new Class({
                     ka.wm.open('admin/system/module/publish', {name: key});
                 }).inject(actions)
 
-            var value = [title + ' <span style="color: gray;">(' + key + ')</span>', '<img title="' + _title + '" src="' + _path + 'admin/images/icons/' + icon + '.png" />', item.version, (!item.owner || item.owner == "") ? _('Local') : item.serverVersion, bActions, actions];
+            var value = [title + ' <span style="color: gray;">(' + key + ')</span>', '<img title="' + _title + '" src="' + _path + 'bundles/admin/images/icons/' + icon + '.png" />', item.version, (!item.owner || item.owner == "") ? _('Local') : item.serverVersion, bActions, actions];
 
             values[table].include(value);
         }.bind(this));
@@ -433,7 +433,7 @@ var admin_system_module = new Class({
     doSearch: function () {
 
         var q = this.searchInput.value;
-        this.mainPane.set('html', '<center><img src="' + _path + 'admin/images/loading.gif" /></center>');
+        this.mainPane.set('html', '<center><img src="' + _path + 'bundles/admin/images/loading.gif" /></center>');
 
         new Request.JSON({url: _pathAdmin + 'admin/system/module/managerSearch', noCache: 1, onComplete: function (res) {
             this.mainPane.set('html', '');
@@ -472,7 +472,7 @@ var admin_system_module = new Class({
         }.bind(this)).inject(this.mainPane);
 
         var content = new Element('div', {
-            html: '<center><img src="' + _path + 'admin/images/loading.gif" /></center>'
+            html: '<center><img src="' + _path + 'bundles/admin/images/loading.gif" /></center>'
         }).inject(this.mainPane);
 
         new Request.JSON({url: _pathAdmin + 'admin/system/module/managerGetCategoryItems', noCache: 1, onComplete: function (res) {
@@ -552,7 +552,7 @@ var admin_system_module = new Class({
 
             var content = new Element('div', {
                 style: 'padding: 4px;',
-                html: '<center><img src="' + _path + 'admin/images/loading.gif" /></center>'
+                html: '<center><img src="' + _path + 'bundles/admin/images/loading.gif" /></center>'
             }).inject(box);
 
             if (this.oldGetbox) {

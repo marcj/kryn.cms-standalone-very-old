@@ -61,7 +61,7 @@ ka.WindowList = new Class({
 
         this.container.set('html', '<div style="text-align: center; padding: 50px; color: silver">'+t('Loading definition ...')+'</div>');
 
-        new Request.JSON({url: _path + 'admin/' + this.win.getEntryPoint(), noCache: true, onComplete: function (res) {
+        new Request.JSON({url: _pathAdmin + this.win.getEntryPoint(), noCache: true, onComplete: function (res) {
 
             if (res.error) return false;
 
@@ -74,7 +74,7 @@ ka.WindowList = new Class({
 
     deleteItem: function (pItem) {
         var _this = this;
-        this.lastRequest = new Request.JSON({url: _path + 'admin/' + this.win.getEntryPoint() + '?cmd=deleteItem', noCache: true, onComplete: function (res) {
+        this.lastRequest = new Request.JSON({url: _pathAdmin + this.win.getEntryPoint() + '?cmd=deleteItem', noCache: true, onComplete: function (res) {
 
             //todo, handle errors
             this.win.softReload();
@@ -116,7 +116,7 @@ ka.WindowList = new Class({
             }
 
             new Element('img', {
-                src: _path + 'admin/images/icons/' + pic,
+                src: _path + 'bundles/admin/images/icons/' + pic,
                 align: 'top'
             }).inject(pItem);
         }
@@ -503,7 +503,7 @@ ka.WindowList = new Class({
             'class': 'ka-list-search-button'
         }).addEvent('click', this.toggleSearch.bind(this)).inject(this.bottom);
 
-        var myPath = _path + 'admin/images/icons/';
+        var myPath = _path + 'bundles/admin/images/icons/';
         this.navi = new Element('div', {
             'class': 'navi'
         }).inject(this.bottom);
@@ -613,11 +613,11 @@ ka.WindowList = new Class({
                 }.bind(this));
                 _
                 this.exportNavi.addButton(this.exportType, '');
-                this.exportNavi.addButton(_('Export'), _path + 'admin/images/icons/table_go.png', this.exportTable.bind(this));
+                this.exportNavi.addButton(_('Export'), _path + 'bundles/admin/images/icons/table_go.png', this.exportTable.bind(this));
             }
 
             if (this.classProperties['import']) {
-                this.exportNavi.addButton(_('Import'), _path + 'admin/images/icons/table_row_insert.png');
+                this.exportNavi.addButton(_('Import'), _path + 'bundles/admin/images/icons/table_row_insert.png');
             }
 
 
@@ -633,7 +633,7 @@ ka.WindowList = new Class({
                     this.loader.show();
                 }
 
-                new Request.JSON({url: _path + 'admin/' + this.win.getEntryPoint() + '?cmd=removeSelected', noCache: 1, onComplete: function (res) {
+                new Request.JSON({url: _pathAdmin + this.win.getEntryPoint() + '?cmd=removeSelected', noCache: 1, onComplete: function (res) {
 
                     //todo, handle errors
                     if (this.loader) {
@@ -680,7 +680,7 @@ ka.WindowList = new Class({
             this.lastExportFrame.destroy();
         }
         this.lastExportForm = new Element('form', {
-            action: _path + 'admin/' + this.win.getEntryPoint() + '?cmd=exportItems&' + params.toQueryString(),
+            action: _pathAdmin + this.win.getEntryPoint() + '?cmd=exportItems&' + params.toQueryString(),
             method: 'post',
             target: 'myExportFrame' + this.win.id
         }).inject(document.hiddenElement);
@@ -783,7 +783,7 @@ ka.WindowList = new Class({
             });
         }
 
-        this.lastRequest = new Request.JSON({url: _path + 'admin/' + this.win.getEntryPoint(),
+        this.lastRequest = new Request.JSON({url: _pathAdmin + this.win.getEntryPoint(),
         noCache: true,
         onComplete: function (res) {
             this.currentPage = pPage;

@@ -404,7 +404,7 @@ ka.Window = new Class({
 
     addTitle: function (pText) {
         new Element('img', {
-            src: _path + 'admin/images/ka-kwindow-title-path.png'
+            src: _path + 'bundles/admin/images/ka-kwindow-title-path.png'
         }).inject(this.titleAdditional);
 
         new Element('span', {
@@ -751,7 +751,7 @@ ka.Window = new Class({
             }).inject(this.titleText, 'before');
 
             new Element('img', {
-                src: _path + 'admin/images/ka-kwindow-title-path.png'
+                src: _path + 'bundles/admin/images/ka-kwindow-title-path.png'
             }).inject(this.titleText, 'before');
         }
 
@@ -764,7 +764,7 @@ ka.Window = new Class({
             }).inject(this.titleText, 'before');
 
             new Element('img', {
-                src: _path + 'admin/images/ka-kwindow-title-path.png'
+                src: _path + 'bundles/admin/images/ka-kwindow-title-path.png'
             }).inject(this.titleText, 'before');
 
 
@@ -820,7 +820,7 @@ ka.Window = new Class({
         if (this.entryPointDefinition.print === true) {
             this.printer = new Element('img', {
                 'class': 'kwindow-win-printer',
-                src: _path + 'admin/images/icons/printer.png'
+                src: _path + 'bundles/admin/images/icons/printer.png'
             }).inject(this.border);
             this.printer.addEvent('click', this.print.bind(this));
         }

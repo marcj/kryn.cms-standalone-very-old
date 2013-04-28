@@ -90,7 +90,7 @@ var admin_system_development_logs = new Class({
         ]);
 
 
-        var myPath = _path + 'admin/images/icons/';
+        var myPath = _path + 'bundles/admin/images/icons/';
 
         this.logsCtrlPrevious = new Element('img', {
             src: myPath + 'control_back.png'

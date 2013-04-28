@@ -123,7 +123,7 @@ ka.Table = new Class({
             }).inject(this.body);
 
             new Element('img', {
-                src: _path + 'admin/images/ka-tooltip-loading.gif'
+                src: _path + 'bundles/admin/images/ka-tooltip-loading.gif'
             }).inject(this.loadingOverlay);
 
             new Element('div', {

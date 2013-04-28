@@ -1120,9 +1120,15 @@ ka.getPrimaryListForObject = function(pObjectKey){
     return result;
 }
 
+/**
+ * Returns the object definition as array.
+ *
+ * @param pObjectKey
+ * @returns {Object}
+ */
 ka.getObjectDefinition = function(pObjectKey){
-
     if (typeOf(pObjectKey) != 'string') throw 'pObjectKey is not a string: '+pObjectKey;
+    pObjectKey = pObjectKey.toLowerCase();
     var module = (""+pObjectKey.split('\\')[0]).toLowerCase();
     var name = pObjectKey.split('\\')[1];
 
@@ -1131,7 +1137,6 @@ ka.getObjectDefinition = function(pObjectKey){
         config._key = pObjectKey;
         return config;
     }
-
 }
 
 

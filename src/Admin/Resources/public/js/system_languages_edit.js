@@ -10,7 +10,7 @@ var admin_system_languages_edit = new Class({
     createLayout: function(){
 
         this.bar = this.win.addButtonGroup();
-        this.saveBtn = this.bar.addButton(_('Save'), _path+'admin/images/button-save.png', this.save.bind(this));
+        this.saveBtn = this.bar.addButton(_('Save'), _path+'bundles/admin/images/button-save.png', this.save.bind(this));
 
         this.languageSelect = new ka.Select();
         this.languageSelect.addEvent('change', this.extractLanguage.bind(this));

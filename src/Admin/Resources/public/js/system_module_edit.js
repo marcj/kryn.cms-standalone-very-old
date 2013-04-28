@@ -230,10 +230,10 @@ var admin_system_module_edit = new Class({
         a.addEvent('click', function(){
             if (propertyPanel.getStyle('display') == 'block'){
                 propertyPanel.setStyle('display', 'none');
-                this.getElement('img').set('src', _path+ 'admin/images/icons/tree_plus.png');
+                this.getElement('img').set('src', _path+ 'bundles/admin/images/icons/tree_plus.png');
             } else {
                 propertyPanel.setStyle('display', 'block');
-                this.getElement('img').set('src', _path+ 'admin/images/icons/tree_minus.png');
+                this.getElement('img').set('src', _path+ 'bundles/admin/images/icons/tree_minus.png');
             }
 
         });
@@ -1351,7 +1351,7 @@ var admin_system_module_edit = new Class({
 
 //
 //        var subAddBtn = new Element('img', {
-//            'src': _path + 'admin/images/icons/add.png',
+//            'src': _path + 'bundles/admin/images/icons/add.png',
 //            title: t('Add Link'),
 //            style: 'cursor: pointer; position: relative; top: 3px; left: 2px;'
 //        }).addEvent('click', function () {
@@ -1737,7 +1737,7 @@ var admin_system_module_edit = new Class({
         var olpp = new Element('ol').inject(publicproperties);
 
         new Element('img', {
-            'src': _path + 'admin/images/icons/add.png',
+            'src': _path + 'bundles/admin/images/icons/add.png',
             title: t('Add public property'),
             style: 'cursor: pointer; position: relative; top: 3px; margin-left: 3px;'
         }).addEvent('click', function () {
@@ -1763,7 +1763,7 @@ var admin_system_module_edit = new Class({
         var ol = new Element('ol').inject(properties);
 
         new Element('img', {
-            'src': _path + 'admin/images/icons/add.png',
+            'src': _path + 'bundles/admin/images/icons/add.png',
             title: t('Add property'),
             style: 'cursor: pointer; position: relative; top: 3px; margin-left: 3px;'
         }).addEvent('click', function () {
@@ -1786,7 +1786,7 @@ var admin_system_module_edit = new Class({
             'class': 'layoutContainerLayout'
         }).inject(p);
         new Element('img', {
-            'src': _path + 'admin/images/icons/add.png',
+            'src': _path + 'bundles/admin/images/icons/add.png',
             title: t('Add layout template'),
             style: 'cursor: pointer; position: relative; top: 3px; margin-left: 3px'
         }).addEvent('click', function () {
@@ -1810,7 +1810,7 @@ var admin_system_module_edit = new Class({
             'class': 'layoutContainerContent'
         }).inject(p);
         new Element('img', {
-            'src': _path + 'admin/images/icons/add.png',
+            'src': _path + 'bundles/admin/images/icons/add.png',
             title: t('Add element template'),
             style: 'cursor: pointer; position: relative; top: 3px; margin-left: 3px'
         }).addEvent('click', function () {
@@ -1832,7 +1832,7 @@ var admin_system_module_edit = new Class({
             'class': 'layoutContainerNavigation'
         }).inject(p);
         new Element('img', {
-            'src': _path + 'admin/images/icons/add.png',
+            'src': _path + 'bundles/admin/images/icons/add.png',
             title: t('Add navigation template'),
             style: 'cursor: pointer; position: relative; top: 3px; margin-left: 3px'
         }).addEvent('click', function () {

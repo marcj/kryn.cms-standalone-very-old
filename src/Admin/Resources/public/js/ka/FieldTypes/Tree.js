@@ -69,7 +69,7 @@ ka.FieldTypes.Tree = new Class({
          * The icon of the add-icon
          * @var {String}
          */
-        iconAdd: 'admin/images/icons/add.png',
+        iconAdd: 'bundles/admin/images/icons/add.png',
 
         icon: null,
 
@@ -195,13 +195,9 @@ ka.FieldTypes.Tree = new Class({
         }
     },
 
-
     getUrl: function(){
-
-        return _path + 'admin/' + (this.options.entryPoint ? this.options.entryPoint : 'object/' + ka.urlEncode(this.options.objectKey) )+'/';
-
+        return _pathAdmin + (this.options.entryPoint ? this.options.entryPoint : 'object/' + ka.urlEncode(this.options.objectKey) )+'/';
     },
-
 
     loadTree: function(pScope){
 

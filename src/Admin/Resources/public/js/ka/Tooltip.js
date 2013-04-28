@@ -12,7 +12,7 @@ ka.Tooltip = new Class({
         this.icon = pIcon;
 
         if (!this.icon)
-            this.icon = _path + 'admin/images/ka-tooltip-loading.gif';
+            this.icon = _path + 'bundles/admin/images/ka-tooltip-loading.gif';
 
         if (pDirection) {
             this.direction = pDirection;

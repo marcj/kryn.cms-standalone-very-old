@@ -259,10 +259,10 @@ class Local extends FALAbstract
             if ($file == '.' || $file == '..') continue;
             $file = $path . $file;
 
-            $item['path'] = $file;
-            $item['name'] = $file;
+            $item['path'] = substr($file, strlen($this->getRoot()) - 1);
+            $item['name'] = basename($file);
 
-            $item['type'] = (is_dir($path)) ? 'dir' : 'file';
+            $item['type'] = (is_dir($file)) ? 'dir' : 'file';
             if ($item['type'] == 'file') {
                 $info = pathinfo($file);
                 $item['extension'] = $info['extension'];
@@ -270,9 +270,9 @@ class Local extends FALAbstract
                 $item['extension'] = 'directory';
             }
 
-            $item['size'] = filesize($path);
-            $item['ctime'] = filectime($path);
-            $item['mtime'] = filemtime($path);
+            $item['size'] = filesize($file);
+            $item['ctime'] = filectime($file);
+            $item['mtime'] = filemtime($file);
             $items[] = $item;
         }
 
@@ -309,7 +309,7 @@ class Local extends FALAbstract
         }
 
         return array(
-            'path'  => str_replace($this->getRoot(), '', $path),
+            'path'  => substr($path, strlen($this->getRoot()) - 1),
             'name'  => $name,
             'type'  => $type,
             'ctime' => $ctime,

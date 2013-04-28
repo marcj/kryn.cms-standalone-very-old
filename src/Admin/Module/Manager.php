@@ -248,13 +248,12 @@ class Manager
         $res['found'] = false;
 
         # add kryn-core
-        $tmodules = Kryn::$configs;
 
-        foreach ($tmodules as $key => $config) {
+        foreach (Kryn::$configs as $key => $config) {
             $version = '0';
             $name = $key;
             $version = wget(Kryn::$config['repoServer'] . "/?version=$name");
-            if ($version && $version != '' && self::versionCompareToServer($config['version'], $version) == '<') {
+            if ($version && $version != '' && self::versionCompareToServer($config->getVersion(), $version['content']) == '<') {
                 $res['found'] = true;
                 $temp = array();
                 $temp['newVersion'] = $version;

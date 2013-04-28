@@ -30,6 +30,35 @@ class Model
         }
     }
 
+    public function getBundleName()
+    {
+        $bundleConfig = $this->getBundleConfig();
+
+        return $bundleConfig ? $bundleConfig->getName() : null;
+    }
+
+    /**
+     * @return Config
+     */
+    public function getBundleConfig()
+    {
+        if (null === $this->config) {
+            if ('bundle' === $this->element->nodeName) {
+                $this->config = $this->getModelInstance($this->element);
+            } else {
+                $parent = $this->element;
+                while (($parent = $parent->parentNode)) {
+                    if ('bundle' === $parent->nodeName) {
+                        $this->config = $this->getModelInstance($parent);
+                        break;
+                    }
+                }
+            }
+        }
+
+        return $this->config;
+    }
+
     /**
      * Initialize the object.
      */
