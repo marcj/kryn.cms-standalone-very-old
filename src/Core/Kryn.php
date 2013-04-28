@@ -1643,7 +1643,7 @@ class Kryn extends Controller
      *
      * @return Config\Config
      */
-    public function getConfig($bundleName)
+    public static function getConfig($bundleName)
     {
         return self::$configs->getConfig($bundleName);
     }
@@ -1651,7 +1651,7 @@ class Kryn extends Controller
     /**
      * @return Config/Configs
      */
-    public function getConfigs()
+    public static function getConfigs()
     {
         return self::$configs;
     }
