@@ -6,6 +6,7 @@ use Core\Kryn;
 
 use Core\Config\Asset;
 use Core\Config\Assets;
+use Core\Permission;
 
 class Backend
 {
@@ -79,9 +80,9 @@ class Backend
         $code = getArgv('code', 2);
 
         if ($module == 'admin')
-            $file = "web/admin/js/$code.js";
+            $file = "web/bundles/admin/js/$code.js";
         else
-            $file = "web/$module/admin/js/$code.js";
+            $file = "web/bundles/$module/admin/js/$code.js";
 
         header('Content-Type: text/javascript');
 
@@ -133,7 +134,7 @@ class Backend
         }
 
         if ($loadKeys == false || in_array('configs', $loadKeys))
-            $res['configs'] = Kryn::$configs->toArray();
+            $res['configs'] = Kryn::getConfigs()->toArray();
 
         if (
             $loadKeys == false || in_array('themes', $loadKeys)
@@ -267,14 +268,24 @@ class Backend
     {
         $entryPoints = array();
 
-        foreach (Kryn::$configs as $bundleName => $bundleConfig) {
+        foreach (Kryn::getConfigs() as $bundleName => $bundleConfig) {
 
             foreach ($bundleConfig->getAllEntryPoints() as $subEntryPoint) {
                 $path = strtolower($bundleConfig->getName(true)) . '/' . $subEntryPoint->getFullPath();
 
-                $entryPoints[$path] = array(
-                    'label' => $subEntryPoint->getLabel()
-                );
+                if (substr_count($path, '/') <= 2) {
+                    if ($subEntryPoint->isLink()) {
+                        //todo, check permissions
+                        $entryPoints[$path] = array(
+                            'label' => $subEntryPoint->getLabel(),
+                            'icon'  => $subEntryPoint->getIcon(),
+                            'fullPath'  => $path,
+                            'path'   => $subEntryPoint->getPath(),
+                            'type'  => $subEntryPoint->getType(),
+                            'level' => substr_count($path, '/')
+                        );
+                    }
+                }
             }
         }
 

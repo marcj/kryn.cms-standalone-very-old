@@ -261,6 +261,15 @@ class Config extends Model
         return $this->entryPoints;
     }
 
+    public function getEntryPointsArray()
+    {
+        $entryPoints = array();
+        foreach ($this->getEntryPoints() as $entryPoint) {
+            $entryPoints[$entryPoint->getPath()] = $entryPoint->toArray();
+        }
+        return $entryPoints;
+    }
+
     public function getAllEntryPoints(EntryPoint $entryPoint = null)
     {
         $entryPoints = array();

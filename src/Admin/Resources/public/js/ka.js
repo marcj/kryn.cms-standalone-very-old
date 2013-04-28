@@ -184,11 +184,11 @@ ka.entrypoint = {
 
     },
 
-    get: function(pEntrypoint){
+    get: function(path){
+        if (typeOf(path) != 'string') return;
+        console.log('get', path);
 
-        if (typeOf(pEntrypoint) != 'string') return false;
-
-        var splitted = pEntrypoint.split('/');
+        var splitted = path.split('/');
         var extension = splitted[0];
 
         splitted.shift();
@@ -199,22 +199,19 @@ ka.entrypoint = {
 
         var path = [], config, notFound = false;
 
-        if (ka.settings.configs.admin.entryPoints[extension]){
-            config = ka.settings.configs.admin;
-            splitted.unshift(extension);
-        } else
-            config = ka.settings.configs[extension];
+        config = ka.settings.configs[extension];
+
         if (!config){
             throw 'Config not found for module '+extension;
         }
 
         tempEntry = config.entryPoints[splitted.shift()];
-        path.push(tempEntry['title']);
+        path.push(tempEntry['label']);
 
         while(item = splitted.shift()){
             if (tempEntry.children && tempEntry.children[item]){
                 tempEntry = tempEntry.children[item];
-                path.push(tempEntry['title']);
+                path.push(tempEntry['label']);
             } else {
                 notFound = true;
                 break;

@@ -224,21 +224,25 @@ class Model
                 continue;
             }
 
-            $getter = 'get' . ucfirst($k);
-            if (is_callable(array($this, $getter))) {
-                $value = $this->$getter();
+            $getter = 'get' . ucfirst($k) . 'Array';
+            if (!is_callable(array($this, $getter))) {
+                $getter = 'get' . ucfirst($k);
+                if (!is_callable(array($this, $getter))) {
+                    continue;
+                }
+            }
+            $value = $this->$getter();
 
-                if ($value === $properties[$k]) continue;
+            if ($value === $properties[$k]) continue;
 
-                $result[$k] = $value;
-                if (is_array($result[$k])) {
-                    foreach ($result[$k] as &$item) {
-                        if (is_object($item)) {
-                            if ($item instanceof Model) {
-                                $item = $item->toArray();
-                            } else {
-                                $item = (array)$item;
-                            }
+            $result[$k] = $value;
+            if (is_array($result[$k])) {
+                foreach ($result[$k] as &$item) {
+                    if (is_object($item)) {
+                        if ($item instanceof Model) {
+                            $item = $item->toArray();
+                        } else {
+                            $item = (array)$item;
                         }
                     }
                 }

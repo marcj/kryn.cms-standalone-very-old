@@ -78,10 +78,27 @@ class EntryPoint extends Model
         return $this->children;
     }
 
+    public function getChildrenArray()
+    {
+        $entryPoints = array();
+        foreach ($this->getChildren() as $entryPoint) {
+            $entryPoints[$entryPoint->getPath()] = $entryPoint->toArray();
+        }
+        return $entryPoints;
+    }
+
+
     public function getParentInstance()
     {
         // we need to jump two elements, since we have <entry-point><children><entry-point>
         return $this->getModelInstance($this->element->parentNode->parentNode);
+    }
+
+    public function toArray($element = null)
+    {
+        $result = parent::toArray($element);
+        $result['fullPath'] = $this->getFullPath();
+        return $result;
     }
 
     /**
@@ -167,6 +184,11 @@ class EntryPoint extends Model
     public function getLink()
     {
         return $this->link;
+    }
+
+    public function isLink()
+    {
+        return true === $this->link;
     }
 
     /**

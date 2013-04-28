@@ -256,8 +256,25 @@ class Object extends Model
     protected $fields;
 
     /**
+     * The callable string pointing to a method/function that generates the actual public url for a object pk.
+     *
+     * example:
+     *
+     *  `\MyBundle\ControllerXy::getPublicUrl`
+     *
+     * The function should have this signature:
+     *
+     *   `function($objectKey, array $pk, array $pluginProperties )
+     *
+     * @var string
+     */
+    protected $publicUrlGenerator;
+
+    /**
      * Class name to be used in propel's model classes.
      * Default is the `id`.
+     *
+     * \BundleName\Models\<className>
      *
      * @var string
      */
@@ -984,5 +1001,22 @@ class Object extends Model
     {
         return $this->propelClassName;
     }
+
+    /**
+     * @param string $publicUrlGenerator
+     */
+    public function setPublicUrlGenerator($publicUrlGenerator)
+    {
+        $this->publicUrlGenerator = $publicUrlGenerator;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPublicUrlGenerator()
+    {
+        return $this->publicUrlGenerator;
+    }
+
 
 }

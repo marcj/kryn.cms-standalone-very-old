@@ -14,7 +14,7 @@ ka.wm = {
 
     openWindow: function (pEntryPoint, pLink, pParentWindowId, pParams, pInline) {
         var win;
-        if (win = this.checkOpen(pEntryPoint)) {
+        if ((win = this.checkOpen(pEntryPoint)) && !pInline) {
             return win.toFront();
         }
 
@@ -80,19 +80,12 @@ ka.wm = {
         var instance = Object.getLength(ka.wm.windows) + 1;
 
         if (pParentWindowId == -1)
-            pParentWindowId = ka.wm.lastWindow?ka.wm.lastWindow.id:false;
+            pParentWindowId = ka.wm.lastWindow ? ka.wm.lastWindow.id : false;
 
         if (pParentWindowId && !ka.wm.getWindow(pParentWindowId)) throw 'Parent window not found.';
 
-        if (pParentWindowId && pInline) {
-            ka.wm.getWindow(pParentWindowId).prepareInlineContainer();
-        }
-
         ka.wm.windows[instance] = new ka.Window(pEntryPoint, pLink, instance, pParams, pInline, pParentWindowId);
         ka.wm.windows[instance].toFront();
-        if (pParentWindowId){
-            ka.wm.getWindow(pParentWindowId).setChildren(ka.wm.windows[instance]);
-        }
         ka.wm.updateWindowBar();
         ka.wm.reloadHashtag();
     },
@@ -149,7 +142,6 @@ ka.wm = {
     },
 
     updateWindowBar: function () {
-
         ka.wm.removeActiveWindowInformation();
 
         var atLeastOneActive = false;
@@ -162,7 +154,11 @@ ka.wm = {
         Object.each(ka.wm.windows, function (win) {
 
             if (win.getParentId()) return;
-            ka.wm.addActiveWindowInformation(win);
+            var menuItem = ka.adminInterface.getMenuItem(win.getEntryPoint());
+
+            if (menuItem) {
+                menuItem.object.addClass('ka-main-menu-item-open');
+            }
 
             if (win.isInFront()){
 
@@ -201,7 +197,7 @@ ka.wm = {
         var hash = '';
 
         Object.each(ka.wm.windows, function (win) {
-            if (win.isInFront()){
+            if (win.isInFront() && !win.isInline()){
                 hash = win.getEntryPoint()+( win.getParameter() ? '!'+JSON.encode(win.getParameter()) : '' );
             }
         });
@@ -237,28 +233,7 @@ ka.wm = {
     },
 
     removeActiveWindowInformation: function(){
-
-        ka.adminInterface.mainLinks.getElements('a').removeClass('ka-main-menu-item-active');
-
-        Array.each(ka.wm.activeWindowInformation, function(entryPoint){
-            var menuItem = ka.adminInterface.getMenuItem(entryPoint);
-            menuItem.object.knob.destroy();
-            delete menuItem.object.knob;
-        });
-        ka.wm.activeWindowInformation = [];
-    },
-
-    addActiveWindowInformation: function(pWin){
-        var menuItem = ka.adminInterface.getMenuItem(pWin.getEntryPoint());
-
-        if (menuItem && !menuItem.object.knob){
-            menuItem.object.knob = new Element('span', {
-                html: '&bullet;',
-                'class': 'ka-main-menu-item-active-window-information-item'
-            }).inject(menuItem.object.activeWindowInformationContainer);
-
-            ka.wm.activeWindowInformation.push(pWin.getEntryPoint());
-        }
+        ka.adminInterface.mainLinks.getElements('a').removeClass('ka-main-menu-item-open');
     },
 
     checkOpen: function (pEntryPoint, pInstanceId, pParams) {

@@ -16,7 +16,6 @@ ka.Editor = new Class({
 
         this.container = pContainer || document.body;
 
-        logger('penis');
         this.adjustAnchors();
         this.searchSlots();
         this.renderSidebar();
@@ -81,7 +80,6 @@ ka.Editor = new Class({
         }).inject(pElement.getDocument().body);
         clone.addClass('ka-editor-sidebar-draggable-active');
 
-
         var removeBg = function(pTarget){
             if (!pTarget) return;
             var slot = pTarget.hasClass('ka-slot') ? pTarget : pTarget.getParent('.ka-slot');
@@ -96,7 +94,7 @@ ka.Editor = new Class({
             //check position of pTarget?
             var slot = pTarget.getParent('.ka-slot').kaSlotInstance;
             var newContent = slot.addContent({type: pElement.kaContentType}, true);
-            document.id(newContent).inject(pTarget, 'after');
+            content.getDocument().id(newContent).inject(pTarget, 'after');
             removeBg(pTarget);
             this.checkChange();
         }.bind(this));
@@ -129,7 +127,7 @@ ka.Editor = new Class({
 
     startDragNDrop: function(pEvent, pElement, pClone, pCallback){
 
-        var content = pElement
+        var content = pElement;
         var clone   = pClone;
 
         var position = pEvent.page;
@@ -144,13 +142,14 @@ ka.Editor = new Class({
 
         var position = {}, delta = {};
 
-        this.lastDrag = new Drag.Move(clone, {
+        var DOMWindow = pElement.getDocument().window;
+        var droppables = DOMWindow.$$(['.ka-slot', '.ka-content']);
+
+        this.lastDrag = new DOMWindow.Drag.Move(clone, {
             handle: '.ka-content-actionBar-move',
-            droppables: ['.ka-slot', '.ka-content'],
+            droppables: droppables,
             onEnter: function(element, droppable){
-
                 if (content != droppable){
-
                     if (droppable.hasClass('ka-content')){
                         self.currentHoveredElement = droppable;
                         self.currentHoveredElementY = droppable.getPosition(droppable.getDocument().body).y;
@@ -204,9 +203,7 @@ ka.Editor = new Class({
         return clone;
     },
 
-
     updateDragPlaceholder: function(pEvent){
-
         if (!this.currentHoveredElement && !this.currentHoveredSlot) {
 
             if (this.lastPlaceHolder){
@@ -218,7 +215,7 @@ ka.Editor = new Class({
 
         if (!this.lastPlaceHolder){
             this.lastPlaceHolder = new Element('div', {
-                 'class': 'ka-editor-drag-placeholder'
+                'class': 'ka-editor-drag-placeholder'
             });
         }
 
@@ -231,7 +228,6 @@ ka.Editor = new Class({
                 injectPosition = 'before';
             this.lastPlaceHolder.inject(this.currentHoveredElement, injectPosition);
         }
-
     },
 
 
@@ -276,9 +272,9 @@ ka.Editor = new Class({
             'class': 'icon ka-editor-sidebar-item ka-editor-sidebar-item-showslots',
             title: t('Show available slots')
         })
-        .addEvent('mouseenter', function(){ this.highlightSlots(true); }.bind(this))
-        .addEvent('mouseleave', function(){ this.highlightSlots(false); }.bind(this))
-        .inject(this.sidebar);
+            .addEvent('mouseenter', function(){ this.highlightSlots(true); }.bind(this))
+            .addEvent('mouseleave', function(){ this.highlightSlots(false); }.bind(this))
+            .inject(this.sidebar);
 
         this.showPreview = new Element('a', {
             'html': '&#xe28d;',
@@ -286,8 +282,8 @@ ka.Editor = new Class({
             'class': 'icon ka-editor-sidebar-item ka-editor-sidebar-item-splitter',
             title: t('Toggle preview')
         })
-        .addEvent('click', function(){ this.togglePreview(); }.bind(this))
-        .inject(this.sidebar);
+            .addEvent('click', function(){ this.togglePreview(); }.bind(this))
+            .inject(this.sidebar);
 
         Object.each(ka.ContentTypes, function(content, type){
             this.addContentTypeIcon(type, content);
@@ -299,8 +295,8 @@ ka.Editor = new Class({
             title: t('Save changes'),
             'class': 'icon ka-editor-sidebar-item ka-editor-sidebar-item-save'
         })
-        .addEvent('click', function(){ this.save(); }.bind(this))
-        .inject(this.sidebar);
+            .addEvent('click', function(){ this.save(); }.bind(this))
+            .inject(this.sidebar);
 
     },
 
@@ -433,7 +429,7 @@ ka.Editor = new Class({
             href: 'javascript: ;',
             'class': 'icon ka-editor-sidebar-item ka-editor-sidebar-draggable'
         })
-        .inject(this.sidebar);
+            .inject(this.sidebar);
 
         a.kaContentType = pType;
 

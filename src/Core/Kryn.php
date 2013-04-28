@@ -1649,7 +1649,7 @@ class Kryn extends Controller
     }
 
     /**
-     * @return Config/Config[]
+     * @return Config/Configs
      */
     public function getConfigs()
     {

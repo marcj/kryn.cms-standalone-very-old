@@ -1350,8 +1350,6 @@ class Object
      */
     public static function checkRule(&$pObjectItem, $pCondition)
     {
-        global $client;
-
         $field    = $pCondition[0];
         $operator = $pCondition[1];
         $value    = $pCondition[2];
@@ -1364,7 +1362,6 @@ class Object
 
         //'<', '>', '<=', '>=', '=', 'LIKE', 'IN', 'REGEXP'
         switch (strtoupper($operator)) {
-
             case '!=':
                 return ($ovalue != $value);
 
@@ -1397,10 +1394,10 @@ class Object
                 return ($ovalue >= $value);
 
             case '= CURRENT_USER':
-                return $ovalue == $client->user_id;
+                return Kryn::getClient() && $ovalue == Kryn::getClient()->getUserId();
 
             case '!= CURRENT_USER':
-                return $ovalue != $client->user_id;
+                return Kryn::getClient() && $ovalue != Kryn::getClient()->getUserId();
 
             case '=':
             default:
@@ -1412,20 +1409,20 @@ class Object
     /**
      * Returns the public URL.
      *
-     * @param  string $pObjectKey
-     * @param  string $pPk
-     * @param  array  $pPlugin
+     * @param  string $objectKey
+     * @param  string $pk
+     * @param  array  $pluginProperties
      *
      * @return string
      */
-    public static function getPublicUrl($pObjectKey, $pPk, $pPlugin = null)
+    public static function getPublicUrl($objectKey, $pk, $pluginProperties = null)
     {
-        $definition = self::getDefinition($pObjectKey);
+        $definition = self::getDefinition($objectKey);
 
-        if ($definition && $definition['publicUrlGenerator']) {
-            $pk = self::normalizePkString($pObjectKey, $pPk);
+        if ($definition && $callable = $definition->getPublicUrlGenerator()) {
+            $pk = self::normalizePkString($objectKey, $pk);
 
-            return call_user_func_array($definition['publicUrlGenerator'], array($pObjectKey, $pk, $pPlugin));
+            return call_user_func_array($callable, array($objectKey, $pk, $pluginProperties));
         }
 
         return null;

@@ -85,6 +85,11 @@ class PageResponse extends Response
     private $domainHandling = true;
 
     /**
+     * @var string
+     */
+    private $favicon = '';
+
+    /**
      * @var bool
      */
     private $resourceCompression = true;
@@ -116,6 +121,22 @@ class PageResponse extends Response
     public function getEndTag()
     {
         return $this->endTag;
+    }
+
+    /**
+     * @param string $favicon
+     */
+    public function setFavicon($favicon)
+    {
+        $this->favicon = $favicon;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFavicon()
+    {
+        return $this->favicon;
     }
 
     /**
@@ -247,6 +268,7 @@ class PageResponse extends Response
         $header .= $this->getBaseHrefTag();
         $header .= $this->getContentTypeTag();
         $header .= $this->getMetaLanguageTag();
+        $header .= $this->getFaviconTag();
 
         $header .= $this->getAdditionalHeaderTags();
 
@@ -279,6 +301,17 @@ class PageResponse extends Response
         Kryn::removeSearchBlocks($html);
 
         return $html;
+    }
+
+    /**
+     * Builds the html header tag for the favicon.
+     *
+     * @return string
+     */
+    public function getFaviconTag(){
+        if ($this->getFavicon()){
+            return sprintf('<link rel="shortcut icon" type="image/x-icon" href="%s">'.chr(10), $this->getFavicon());
+        }
     }
 
     /**

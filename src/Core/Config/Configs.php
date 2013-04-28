@@ -86,7 +86,7 @@ class Configs implements \IteratorAggregate {
         $result = array();
         foreach ($this->configElements as $config)
         {
-            $result[$config->getName()] = $config->toArray();
+            $result[strtolower($config->getName())] = $config->toArray();
         }
         return $result;
     }

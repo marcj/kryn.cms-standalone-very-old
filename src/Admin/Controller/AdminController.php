@@ -384,6 +384,7 @@ class AdminController
         $response->addCssFile('@AdminBundle/css/ka/Login.css');
         $response->addCssFile('@AdminBundle/css/ka/Select.css');
         $response->addCssFile('@AdminBundle/css/ka/Checkbox.css');
+        $response->setFavicon('admin/images/favicon.ico');
 
         $response->send();
         exit;

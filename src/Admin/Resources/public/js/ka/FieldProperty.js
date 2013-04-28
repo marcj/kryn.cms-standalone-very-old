@@ -46,7 +46,7 @@ ka.FieldProperty = new Class({
                 array: t('Ka.Field Array'),
                 properties: t('Properties (multi array class)'),
                 fieldtable: t('Ka.Field table'),
-                
+
                 fieldCondition: t('Field Condition'),
                 objectCondition: t('Object Condition'),
 
@@ -204,7 +204,7 @@ ka.FieldProperty = new Class({
                     label :t('Relation table name (Optional)'),
                     desc: t('The columns of this table are based on the primary keys of left and right table. Propel ORM generates a new model based on this value. Default value is &lt;moduleKey&gt;_&lt;currentObjectKey&gt;_&lt;fieldKey&gt;')
                 },
-                
+
                 'objectRelationName': {
                     againstField: 'objectRelation',
                     label: t('Relation name (Optional)'),
@@ -232,7 +232,7 @@ ka.FieldProperty = new Class({
                     label: t('File names without extensions'),
                     'default': 1
                 },
-                
+
                 directory: {
                     needValue: 'files',
                     label: t('List files from this folder'),
@@ -372,8 +372,6 @@ ka.FieldProperty = new Class({
 
         this.prepareFields();
 
-        logger('init ka.FieldProperty');
-
         this._createLayout();
     },
 
@@ -414,7 +412,6 @@ ka.FieldProperty = new Class({
 
         }
 
-
         if (this.options.asFrameworkSearch){
             delete this.kaFields.__optional__.children.empty;
             delete this.kaFields.__optional__.children.target;
@@ -431,7 +428,6 @@ ka.FieldProperty = new Class({
             delete this.kaFields.type.items.wysiwyg;
             delete this.kaFields.type.items.array;
             delete this.kaFields.type.items.tab;
-
         }
 
         if (this.options.asFrameworkColumn){
@@ -550,8 +546,8 @@ ka.FieldProperty = new Class({
             this.tdProperties = new Element('td', {width: 150}).inject(this.main);
 
             this.propertiesButton = new ka.Button(t('Properties'))
-            .addEvent('click', this.openProperties)
-            .inject(this.tdProperties);
+                .addEvent('click', this.openProperties)
+                .inject(this.tdProperties);
 
             this.actionContainer = new Element('td', {
                 width: 80
@@ -586,8 +582,8 @@ ka.FieldProperty = new Class({
                 title: _('Add children'),
                 html: '&#xe109;'
             })
-            .addEvent('click', this.addChild.bind(this, '', {}))
-            .inject(this.actionContainer);
+                .addEvent('click', this.addChild.bind(this, '', {}))
+                .inject(this.actionContainer);
         }
 
         if (this.options.withActions){
@@ -597,33 +593,33 @@ ka.FieldProperty = new Class({
                 title: _('Remove'),
                 html: '&#xe26b;'
             })
-            .addEvent('click', function(){
-                this.win._confirm(t('Really delete?'), function(ok){
-                    if(ok){
-                        this.fireEvent('delete');
-                        this.removeEvents('change');
-                        this.main.destroy();
-                        if (this.childContainer) this.childContainer.destroy();
-                    }
-                }.bind(this));
-            }.bind(this))
-            .inject(this.actionContainer);
+                .addEvent('click', function(){
+                    this.win._confirm(t('Really delete?'), function(ok){
+                        if(ok){
+                            this.fireEvent('delete');
+                            this.removeEvents('change');
+                            this.main.destroy();
+                            if (this.childContainer) this.childContainer.destroy();
+                        }
+                    }.bind(this));
+                }.bind(this))
+                .inject(this.actionContainer);
 
             new Element('a', {
                 style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
                 title: t('Move up'),
                 html: '&#xe2ca;'
             })
-            .addEvent('click', function(){
+                .addEvent('click', function(){
 
-                var previous = this.main.getPrevious('.ka-fieldProperty-item');
-                if (!previous) return;
-                this.main.inject(previous, 'before');
+                    var previous = this.main.getPrevious('.ka-fieldProperty-item');
+                    if (!previous) return;
+                    this.main.inject(previous, 'before');
 
-                if (this.childContainer) this.childContainer.inject(this.main, 'after');
+                    if (this.childContainer) this.childContainer.inject(this.main, 'after');
 
-            }.bind(this))
-            .inject(this.actionContainer);
+                }.bind(this))
+                .inject(this.actionContainer);
 
 
             new Element('a', {
@@ -631,16 +627,16 @@ ka.FieldProperty = new Class({
                 title: t('Move down'),
                 html: '&#xe2cc;'
             })
-            .addEvent('click', function(){
+                .addEvent('click', function(){
 
-                var next = this.main.getNext('.ka-fieldProperty-item');
-                if (!next) return;
-                this.main.inject(next.childContainer || next, 'after');
+                    var next = this.main.getNext('.ka-fieldProperty-item');
+                    if (!next) return;
+                    this.main.inject(next.childContainer || next, 'after');
 
-                if (this.childContainer) this.childContainer.inject(this.main, 'after');
+                    if (this.childContainer) this.childContainer.inject(this.main, 'after');
 
-            }.bind(this))
-            .inject(this.actionContainer);
+                }.bind(this))
+                .inject(this.actionContainer);
 
         }
 
@@ -648,20 +644,21 @@ ka.FieldProperty = new Class({
 
     openProperties: function(){
 
-        this.dialog = this.win.newDialog('', true);
-
-        this.dialog.setStyle('width', '90%');
-        this.dialog.setStyle('height', '90%');
+        this.dialog = new ka.Dialog(this.win, {
+            absolute: true,
+            minWidth: '90%',
+            minHeight: '90%',
+        });
 
         /*if (!this.options.withTableDefinition) {
-            var headerInfo = new Element('div', {
-                text: t('Surround the key above with __ and __ (double underscore) to define a field which acts only as a user interface item and does not appear in the result.'),
-                style: 'color: gray',
-                'class': 'ka-fieldTable-key-info'
-            }).inject(this.header);
-        }*/
+         var headerInfo = new Element('div', {
+         text: t('Surround the key above with __ and __ (double underscore) to define a field which acts only as a user interface item and does not appear in the result.'),
+         style: 'color: gray',
+         'class': 'ka-fieldTable-key-info'
+         }).inject(this.header);
+         }*/
 
-        var main = new Element('div', {'class': 'ka-fieldTable-definition', style: 'background-color: #e5e5e5'}).inject(this.dialog.content);
+        var main = new Element('div', {'class': 'ka-fieldTable-definition'}).inject(this.dialog.content);
 
         var fieldContainer;
 
@@ -670,7 +667,7 @@ ka.FieldProperty = new Class({
                 width: '100%'
             }).inject(main);
 
-           fieldContainer = new Element('tbody').inject(table);
+            fieldContainer = new Element('tbody').inject(table);
         } else {
             fieldContainer = main;
         }
@@ -693,30 +690,26 @@ ka.FieldProperty = new Class({
         }
 
         new ka.Button(t('Cancel'))
-        .addEvent('click', this.dialog.close)
-        .inject(this.dialog.bottom);
-
+            .addEvent('click', function(){ this.dialog.closeAnimated(); }.bind(this))
+            .inject(this.dialog.bottom);
 
         this.saveBtn.addEvent('click', function(){
+                if (!this.fieldObject.checkValid()){
+                    return;
+                }
 
-            if (!this.fieldObject.checkValid()){
+                this.definition = this.fieldObject.getValue();
+                this.typeField.setValue(this.definition.type);
+                if (this.options.asFrameworkColumn || this.options.withWidth)
+                    this.widthField.setValue(this.definition.width);
 
-                return;
-            }
+                this.dialog.close();
 
-            this.definition = this.fieldObject.getValue();
-            this.typeField.setValue(this.definition.type);
-            if (this.options.asFrameworkColumn || this.options.withWidth)
-                this.widthField.setValue(this.definition.width);
+            }.bind(this))
+            .setButtonStyle('blue')
+            .inject(this.dialog.bottom);
 
-            this.dialog.close();
-
-        }.bind(this))
-        .setButtonStyle('blue')
-        .inject(this.dialog.bottom);
-
-        this.dialog.center();
-
+        this.dialog.center(true);
         return;
     },
 
