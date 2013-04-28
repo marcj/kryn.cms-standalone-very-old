@@ -6,12 +6,13 @@
 
             <object id="File">
                 <label>File</label>
-                <class>Admin\ObjectFile</class>
+                <class>Admin\Models\ObjectFile</class>
+                <dataModel>custom</dataModel>
                 <table>system_file</table>
                 <labelField>path</labelField>
 
-                <nestedLabel>name</nestedLabel>
                 <nested>true</nested>
+                <treeLabel>name</treeLabel>
                 <treeIcon>extension</treeIcon>
                 <treeIconMapping>
                     <icon id="directory">#icon-folder-4</icon>

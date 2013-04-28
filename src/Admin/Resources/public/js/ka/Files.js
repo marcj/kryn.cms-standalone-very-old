@@ -1160,6 +1160,22 @@ ka.Files = new Class({
 
     renderInfos: function (pFiles) {
 
+
+        if (!this.sideTree) {
+
+            this.sideTree = new ka.Field({
+                label: t('Nodes'),
+                type: 'tree',
+                noWrapper: true,
+                objectKey: 'Core\\File'
+            }, this.infos);
+
+        }
+
+
+
+        return;
+
         if (pFiles) {
             this.renderFiles = pFiles;
         } else {
@@ -1588,7 +1604,7 @@ ka.Files = new Class({
 
             file.post[window._session.tokenid] = window._session.sessionid;
 
-            xhr.open("POST", _path + "admin/file/upload?" + Object.toQueryString(file.post), true);
+            xhr.open("POST", _pathAdmin + "admin/file/upload?" + Object.toQueryString(file.post), true);
 
             var formData = new FormData();
             formData.append('file', file);
@@ -2548,70 +2564,9 @@ ka.Files = new Class({
 
         if (pItems) {
             pItems.each(function (item) {
-                var titem = null;
-                if (item.type == 'dir') {
-                    titem = this.__buildItem(item);
-                }
+                var titem =  this.__buildItem(item);
                 if (!titem) return;
-
-                if (this.current == '/' && titem) {
-                    if (this._krynFolders.indexOf(item.path+'/') >= 0) {
-                        krynFiles.include(titem);
-                    } else if (this._modules.indexOf(item.path+'/') >= 0) {
-                        moduleFiles.include(titem);
-                    } else {
-                        files.include(titem);
-                    }
-                } else {
-                    files.include(titem);
-                }
-            }.bind(this));
-
-            pItems.each(function (item) {
-                if (item.type != 'dir') {
-                    if (this.current == '/') {
-                        files.include(this.__buildItem(item));
-                    } else {
-                        files.include(this.__buildItem(item));
-                    }
-                }
-            }.bind(this));
-        }
-
-        if (this.current == '/') {
-
-            if (krynFiles.length > 0) {
-                new Element('div', {
-                    'class': 'admin-files-seperator',
-                    text: 'Kryn'
-                }).inject(this.fileContainer);
-                krynFiles.each(function (item) {
-                    item.inject(this.fileContainer);
-                }.bind(this));
-            }
-
-            if (moduleFiles.length > 0) {
-                new Element('div', {
-                    'class': 'admin-files-seperator',
-                    html: _('Extensions')
-                }).inject(this.fileContainer);
-                moduleFiles.each(function (item) {
-                    item.inject(this.fileContainer);
-                }.bind(this));
-            }
-
-            new Element('div', {
-                'class': 'admin-files-seperator',
-                html: t('User defined')
-            }).inject(this.fileContainer);
-
-            files.each(function (item) {
-                if (item) item.inject(this.fileContainer);
-            }.bind(this));
-
-        } else {
-            files.each(function (item) {
-                if (item) item.inject(this.fileContainer);
+                titem.inject(this.fileContainer);
             }.bind(this));
         }
 

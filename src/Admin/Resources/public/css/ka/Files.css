@@ -34,14 +34,12 @@
     left: 0;
     right: 0;
     bottom: 0;
-    height: 24px;
-    border-top: 1px solid #ddd;
-    background-color: #E9E9E9;
-    line-height: 24px;
-    color: gray;
+    height: 25px;
+    background-color: #1D1D22;
+    line-height: 25px;
+    color: #FFF;
     text-align: center;
     font-size: 11px;
-    text-shadow: 0 1px 0 white;
 }
 
 .admin-files-status-bar-loader {
@@ -96,10 +94,9 @@
     left: 0px;
     bottom: 25px;
     width: 175px;
-    background-color: #f4f4f4;
+    background-color: white;
     overflow: auto;
     -webkit-overflow-scrolling: touch;
-    border-right: 1px solid #ddd;
 }
 
 .admin-files-infos a {
@@ -113,12 +110,12 @@
     border-radius: 0px;
 
     line-height: 27px;
-    color: #333;
+    color: #eee;
 }
 
 .admin-files-infos a:before {
     padding-right: 9px;
-    color: #414A53;
+    color: #eee;
     text-shadow: 1px 0 0 white;
     font-size: 16px;
     vertical-align: middle;
@@ -135,19 +132,6 @@
 .admin-files-infos a.admin-files-item-selected,
 .admin-files-infos a.admin-files-item-selected:before {
     color: white;
-}
-
-.admin-files-infos > div {
-
-    color: #2B4552;
-    text-shadow: 0 1px 0 #F5EFEF;
-    text-transform: uppercase;
-    padding: 6px 13px;
-    margin: 0;
-    font-size: 11px;
-    font-weight: bold;
-    line-height: 14px;
-
 }
 
 .admin-files-uploadPane {
@@ -228,7 +212,7 @@
 
 .admin-files-item-title-dimensions {
     color: #0055aa;
-    font-size: 11px;
+    font-size: 12px;
 }
 
 .admin-files-item:hover div.admin-files-item-title,
@@ -246,7 +230,7 @@
     border-radius: 4px;
     cursor: default;
     margin-top: 10px;
-    font-size: 12px;
+    font-size: 14px;
     word-wrap: break-word;
 }
 
@@ -336,8 +320,7 @@ table.ka-files-search-table tr:hover td {
     height: 45px;
     background-repeat: no-repeat;
     background-position: center center;
-    /*color: #ECA62D; */
-    color: #349BC4;
+    color: #24688B;
     text-shadow: 1px 0 0 white;
 }
 
@@ -360,3 +343,15 @@ table.ka-files-search-table tr:hover td {
     top: -7px;
     position: relative;
 }
+/*
+.admin-files-infos .ka-objectTree-item-hover,
+.admin-files-infos .ka-objectTree-item-hover:link,
+.admin-files-infos .ka-objectTree-item-selectable:hover {
+    color: #eee;
+    background-color: rgba(47, 140, 189, 0.3);
+}
+
+.admin-files-infos .ka-objectTree-item,
+.admin-files-infos .ka-objectTree-drag-box {
+    color: white;
+}*/

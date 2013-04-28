@@ -159,7 +159,6 @@ ka.wm = {
             if (menuItem) {
                 menuItem.object.addClass('ka-main-menu-item-open');
             }
-            menuItem.object.removeClass('ka-main-menu-item-active');
 
             if (win.isInFront()){
 
@@ -211,7 +210,6 @@ ka.wm = {
     },
 
     handleHashtag: function(pForce){
-
         if (ka.wm.hashHandled && !pForce) return;
 
         ka.wm.hashHandled = true;
@@ -235,6 +233,9 @@ ka.wm = {
     },
 
     removeActiveWindowInformation: function(){
+        ka.adminInterface.mainMenuTopNavigation.getElements('a').removeClass('ka-main-menu-item-active');
+        ka.adminInterface.mainMenu.getElements('a').removeClass('ka-main-menu-item-active');
+        ka.adminInterface.mainMenuTopNavigation.getElements('a').removeClass('ka-main-menu-item-open');
         ka.adminInterface.mainLinks.getElements('a').removeClass('ka-main-menu-item-open');
     },
 

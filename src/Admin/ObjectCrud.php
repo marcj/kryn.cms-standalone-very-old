@@ -2,6 +2,7 @@
 
 namespace Admin;
 
+use Core\Config\Field;
 use Core\Kryn;
 use Core\Object;
 use Admin\Controller\ObjectCrudController;
@@ -76,7 +77,7 @@ class ObjectCrud
      * @abstract
      * @var array
      */
-    public $fields = null;
+    public $fields = array();
 
     /**
      * Defines the fields of your table which should be displayed.
@@ -323,17 +324,32 @@ class ObjectCrud
             throw new \ObjectNotFoundException("Can not find object '".$this->getObject()."'");
         }
 
-        $this->table = $this->objectDefinition->getTable();
+        if ($this->objectDefinition) {
+            if (!$this->table)
+                $this->table = $this->objectDefinition->getTable();
+            if (!$this->fields)
+                $this->fields = $this->objectDefinition->getFields();
+            if (!$this->titleField)
+                $this->titleField = $this->objectDefinition->getLabel();
+        }
+
+        if ($this->fields) {
+            foreach ($this->fields as &$field) {
+                if (is_array($field)) {
+                    $fieldInstance = new Field();
+                    $fieldInstance->fromArray($field);
+                    $field = $fieldInstance;
+                }
+            }
+        }
+
         $this->primary = array();
 
-        foreach ($this->objectDefinition->getFields() as $key => $field) {
+        foreach ($this->fields as $key => $field) {
             if ($field->isPrimaryKey()) {
                 $this->primary[] = $key;
             }
         }
-
-        if (!$this->titleField)
-            $this->titleField = $this->objectDefinition->getLabel();
 
         //resolve shortcuts
         if ($this->fields) {
@@ -520,29 +536,19 @@ class ObjectCrud
 
                 $this->_fields[$pKey] = $pFields;
 
-                switch ($pFields['type']) {
+                switch ($pFields->getType()) {
                     case 'predefined':
 
-                        $def = Object::getDefinition($pFields['object']);
-                        $def = $def['fields'][$pFields['field']];
+                        $def = Object::getDefinition($pFields->getObject());
+                        $def = $def->getField($pFields->getField());
                         if ($def) {
-                            unset($pFields['object']);
-                            unset($pFields['field']);
-                            foreach ($def as $k => $v) {
-                                $pFields[$k] = $v;
-                            }
-                            unset($pFields['primaryKey']);
-
+                            $pFields = $def;
                         }
 
                         break;
                     case 'select':
 
-                        if (!empty($field['eval']))
-                            $pFields['tableItems'] = eval($field['eval']);
-                        elseif ($pFields['relation'] == 'n-n')
-                            $pFields['tableItems'] = dbTableFetchAll($pFields['n-n']['right']);
-                        else if ($pFields['table'])
+                        if ($pFields->getTable())
                             $pFields['tableItems'] = dbTableFetchAll($pFields['table']);
                         else if ($pFields['sql'])
                             $pFields['tableItems'] = dbExFetchAll(str_replace('%pfx%', pfx, $pFields['sql']));
@@ -653,7 +659,7 @@ class ObjectCrud
 
         $options['order'] = $this->getOrder();
 
-        $options['fields'] = array_keys($this->getColumns());
+        $options['fields'] = array_keys($this->getColumns() ?: array());
 
         if ($pFilter)
             $condition = self::buildFilter($pFilter);

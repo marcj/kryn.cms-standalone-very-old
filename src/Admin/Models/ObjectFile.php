@@ -1,6 +1,6 @@
 <?php
 
-namespace Admin;
+namespace Admin\Models;
 
 use Core\WebFile;
 
@@ -14,37 +14,46 @@ class ObjectFile extends \Core\ORM\Propel
      */
     public function primaryStringToArray($pPrimaryKey)
     {
-        if ($pPrimaryKey === '') return false;
+        if ($pPrimaryKey === '') {
+            return false;
+        }
         $groups = explode(',', $pPrimaryKey);
 
         $result = array();
 
         foreach ($groups as $group) {
 
-            $item = array();
+            $item          = array();
             $primaryGroups = explode(',', $group);
 
             foreach ($primaryGroups as $pos => $value) {
 
                 if ($ePos = strpos($value, '=')) {
-                    $key = substr($value, 0, $ePos);
-                    $value = substr($value, $ePos+1);
-                    if (!in_array($key, $this->primaryKeys)) continue;
-                } elseif (!$this->primaryKeys[$pos]) continue;
+                    $key   = substr($value, 0, $ePos);
+                    $value = substr($value, $ePos + 1);
+                    if (!in_array($key, $this->primaryKeys)) {
+                        continue;
+                    }
+                } elseif (!$this->primaryKeys[$pos]) {
+                    continue;
+                }
 
                 if (!is_numeric($value)) {
                     $file = WebFile::getFile(rawurldecode($value));
-                    if ($file)
+                    if ($file) {
                         $value = $file['id'];
-                    else continue;
+                    } else {
+                        continue;
+                    }
                 }
 
                 $item['id'] = $value;
 
             }
 
-            if (count($item) > 0)
+            if (count($item) > 0) {
                 $result[] = $item;
+            }
         }
 
         return $result;
@@ -59,7 +68,7 @@ class ObjectFile extends \Core\ORM\Propel
     public function mapPrimaryKey(&$pPrimaryKey)
     {
         if (!is_numeric($pPrimaryKey['id'])) {
-            $file = WebFile::getFile(urldecode($pPrimaryKey['id']));
+            $file              = WebFile::getFile(urldecode($pPrimaryKey['id']));
             $pPrimaryKey['id'] = $file['id'];
         }
     }
@@ -83,8 +92,9 @@ class ObjectFile extends \Core\ORM\Propel
      */
     public function add($pValues, $pBranchPk = false, $pMode = 'into', $pScope = 0)
     {
-        if ($pBranchPk)
-            $parentPath = is_numeric($pBranchPk['id'])? WebFile::getPath($pBranchPk['id']) : $pBranchPk['id'];
+        if ($pBranchPk) {
+            $parentPath = is_numeric($pBranchPk['id']) ? WebFile::getPath($pBranchPk['id']) : $pBranchPk['id'];
+        }
 
         $path = $parentPath ? $parentPath . $pValues['name'] : $pValues['name'];
 
@@ -100,7 +110,7 @@ class ObjectFile extends \Core\ORM\Propel
     {
         $this->mapPrimaryKey($pPrimaryKey);
 
-        $path = is_numeric($pPrimaryKey['id'])? WebFile::getPath($pPrimaryKey['id']) : $pPrimaryKey['id'];
+        $path = is_numeric($pPrimaryKey['id']) ? WebFile::getPath($pPrimaryKey['id']) : $pPrimaryKey['id'];
         WebFile::setContent($path, $pValues['content']);
 
         return parent::update($pPrimaryKey, $pValues);
@@ -111,12 +121,15 @@ class ObjectFile extends \Core\ORM\Propel
      */
     public function getItem($pPrimaryKey, $pOptions = null)
     {
-        if ($pPrimaryKey)
-            $path = is_numeric($pPrimaryKey['id'])? WebFile::getPath($pPrimaryKey['id']) : $pPrimaryKey['id'];
-        else
+        if ($pPrimaryKey) {
+            $path = is_numeric($pPrimaryKey['id']) ? WebFile::getPath($pPrimaryKey['id']) : $pPrimaryKey['id'];
+        } else {
             $path = '/';
+        }
 
-        if (!$path) return;
+        if (!$path) {
+            return;
+        }
         return WebFile::getFile($path);
     }
 
@@ -125,16 +138,7 @@ class ObjectFile extends \Core\ORM\Propel
      */
     public function getItems($pCondition = null, $pOptions = null)
     {
-        $items = parent::getItems($pCondition, $pOptions);
-
-        $result = array();
-        foreach ($items as $item) {
-            $file = WebFile::getFile($item['path']);
-            if ($file)
-                $result[] = $file;
-        }
-
-        return $result;
+        throw new \Exception('getItems not available for this object.');
     }
 
     /**
@@ -142,30 +146,41 @@ class ObjectFile extends \Core\ORM\Propel
      */
     public function getBranch($pPk = null, $pCondition = null, $pDepth = 1, $pScope = null, $pOptions = null)
     {
-        if ($pPk)
-            $path = is_numeric($pPk['id'])?
-                WebFile::getPath($pPk['id']) : $pPk['id'];
-        else
+        if ($pPk) {
+            $path = is_numeric($pPk['id']) ? WebFile::getPath($pPk['id']) : $pPk['id'];
+        } else {
             $path = '/';
+        }
 
-        if ($pDepth === null) $pDepth = 1;
+        if ($pDepth === null) {
+            $pDepth = 1;
+        }
 
         $files = WebFile::getFiles($path);
 
-        $c = 0;
+        $c      = 0;
         $offset = $pOptions['offset'];
-        $limit = $pOptions['limit'];
+        $limit  = $pOptions['limit'];
         $result = array();
 
         foreach ($files as $file) {
-            if ($pCondition && !\Core\Object::satisfy($file, $pCondition)) continue;
+            if ($pCondition && !\Core\Object::satisfy($file, $pCondition)) {
+                continue;
+            }
 
             $c++;
-            if ($offset && $offset >= $c) continue;
-            if ($limit && $limit < $c) continue;
+            if ($offset && $offset >= $c) {
+                continue;
+            }
+            if ($limit && $limit < $c) {
+                continue;
+            }
 
             if ($pDepth > 0) {
-                $children = self::getBranch(array('id' => $file['path']), $pCondition, $pDepth-1);
+                $children = array();
+                if ($file['type'] == 'dir') {
+                    $children = self::getBranch(array('id' => $file['path']), $pCondition, $pDepth - 1);
+                }
                 $file['_childrenCount'] = count($children);
                 if ($pDepth > 1 && $file['type'] == 'dir') {
                     $file['_children'] = $children;

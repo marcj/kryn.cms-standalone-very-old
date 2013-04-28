@@ -197,7 +197,7 @@ ka.entrypoint = {
 
         var tempEntry = false;
 
-        var path = [], config, notFound = false;
+        var path = [], config, notFound = false, item;
 
         config = ka.settings.configs[extension];
 
@@ -205,7 +205,10 @@ ka.entrypoint = {
             throw 'Config not found for module '+extension;
         }
 
-        tempEntry = config.entryPoints[splitted.shift()];
+        tempEntry = config.entryPoints[splitted.shift()]
+        if (!tempEntry) {
+            return null;
+        }
         path.push(tempEntry['label']);
 
         while(item = splitted.shift()){
@@ -218,7 +221,7 @@ ka.entrypoint = {
             }
         };
 
-        if (notFound) return false;
+        if (notFound) return null;
 
         tempEntry._path = path;
         tempEntry._module = extension;

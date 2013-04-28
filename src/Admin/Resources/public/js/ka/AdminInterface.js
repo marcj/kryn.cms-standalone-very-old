@@ -66,14 +66,17 @@ ka.AdminInterface = new Class({
             src: _path + 'bundles/admin/images/logo.png'
         }).inject(this.mainMenuTop);
 
-        this.userNameBtn = new Element('a', {
-            'class': 'ka-main-menu-login-name',
-            href: 'javascript: ;'
-        }).inject(this.mainMenuTopSub);
+        this.mainMenuTopNavigation = new Element('div', {
+            'class': 'ka-main-menu-top-navigation'
+        }).inject(this.mainMenuTop);
 
         this.mainMenuRight = new Element('div', {
             'class': 'ka-main-menu-additional'
         }).inject(this.mainMenuTop);
+
+        this.mainMenuUser = new Element('div',{
+            'class': 'ka-main-menu-user'
+        }).inject(this.mainMenu);
 
         this.mainLinks = new Element('div',{
             'class': 'ka-mainLinks ka-scrolling'
@@ -163,6 +166,10 @@ ka.AdminInterface = new Class({
             return;
         }
 
+        this.frontendLinkSplitter = new Element('div',{
+            'class': 'ka-main-menu-splitter'
+        }).inject(this.mainTempLinks);
+
         this.frontendLink = new Element('a', {
             text: t('Frontend'),
             'class': 'ka-main-menu-item icon-eye'
@@ -172,28 +179,33 @@ ka.AdminInterface = new Class({
         this.frontendLink.addEvent('click', function(){
             ka.wm.open('admin/nodes/frontend');
         });
+        this.mainMenuUser.empty();
 
-        this.frontendLinkSplitter = new Element('div',{
-            'class': 'ka-main-menu-splitter'
-        }).inject(this.mainTempLinks);
+        new Element('h2', {
+            text: tf('Hi %s %s', window._session.firstName, window._session.lastName)
+        }).inject(this.mainMenuUser);
 
-        this.userNameBtn.set('text', tf('Welcome, %s!', window._session.username));
+        new Element('img', {
+            'class': 'profile-image',
+            src: 'https://secure.gravatar.com/avatar/4cf03620f0f00793f5d034480654bd3c?s=200'
+        }).inject(this.mainMenuUser);
 
-        this.logoutButton = new ka.Button(t('Logout'))
-        .addEvent('click', function(){
-            this.logout();
-        }.bind(this))
-        .inject(this.userNameBtn, 'after');
+        new Element('span', {
+            text: window._session.username,
+            'class': 'username'
+        }).inject(this.mainMenuUser);
 
-        this.editMeButton = new ka.Button(t('Edit me'))
+        this.editMeButton = new ka.Button(t('Edit profile'))
             .addEvent('click', function(){
                 ka.wm.open('users/users/editMe', {values: {id: window._user_id}});
             })
-            .inject(this.userNameBtn, 'after');
+            .inject(this.mainMenuUser);
 
-        this.userNameBtn.onclick = function(){
-            ka.wm.open('users/profile', {values: {id: pResponse.userId}});
-        }
+        this.logoutButton = new ka.Button(t('Logout'))
+            .addEvent('click', function(){
+                this.logout();
+            }.bind(this))
+            .inject(this.mainMenuUser);
 
         if (!this.helpsystem) {
             this.helpsystem = new ka.Helpsystem(document.body);
@@ -291,9 +303,6 @@ ka.AdminInterface = new Class({
                 }.bind(this));
             }
         });
-
-        ka.wm.updateWindowBar();
-
     },
 
     toggleMainbar: function(){
@@ -919,7 +928,6 @@ ka.AdminInterface = new Class({
         if (this.lastLoadMenuReq) this.lastLoadMenuReq.cancel();
 
         this.lastLoadMenuReq = new Request.JSON({url: _pathAdmin + 'admin/backend/menus', noCache: true, onComplete: function (res) {
-
             this.mainTempLinks.dispose();
             if (ka.wm.tempLinksSplitter) ka.wm.tempLinksSplitter.dispose();
             this.mainLinks.empty();
@@ -940,7 +948,7 @@ ka.AdminInterface = new Class({
             }.bind(this));
 
             ka.wm.handleHashtag();
-
+            ka.wm.updateWindowBar();
 
         }.bind(this)}).get();
     },
@@ -1037,11 +1045,19 @@ ka.AdminInterface = new Class({
     },
 
     addAdminLink: function (entryPoint, path) {
-
         var link = new Element('a', {
             text: entryPoint.label,
             'class': 'ka-main-menu-item'
-        })
+        });
+        var module = entryPoint.fullPath.split('/')[0];
+
+        if (this.lastAddedAdminLinkModule && this.lastAddedAdminLinkModule != module) {
+            var splitter = new Element('div',{
+                'class': 'ka-main-menu-splitter'
+            }).inject(this.mainLinks);
+        }
+
+        this.lastAddedAdminLinkModule = module;
 
         link.activeWindowInformationContainer = new Element('div', {
             'class': 'ka-main-menu-item-window-information-container'
@@ -1074,7 +1090,11 @@ ka.AdminInterface = new Class({
         };
 
         if (1 == entryPoint.level) {
-            link.inject(this.mainLinks);
+            if ('admin' === module && 0 !== entryPoint.fullPath.indexOf('admin/system')) {
+                link.inject(this.mainMenuTopNavigation);
+            } else {
+                link.inject(this.mainLinks);
+            }
 
             link.subMenu = new Element('div', {
                 'class': 'ka-menu-item-children'
@@ -1133,8 +1153,6 @@ ka.AdminInterface = new Class({
 
             var item = this._links[entryPoint.fullPath];
             var link = item.object;
-
-            link.getParent().addClass('ka-module-items-activated');
 
             link.addEvent('click', function (e) {
                 this.destroyLinkContext();
@@ -1381,9 +1399,7 @@ ka.AdminInterface = new Class({
 
     },
 
-
     openSearchContextLoad: function(){
-
         this.openSearchContextContent.set('html', '<br /><br /><div style="text-align: center; color: gray;">' + _('Loading ...') + '</div>');
 
 

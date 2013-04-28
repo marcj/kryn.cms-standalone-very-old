@@ -271,7 +271,7 @@ class Backend
         foreach (Kryn::getConfigs() as $bundleName => $bundleConfig) {
 
             foreach ($bundleConfig->getAllEntryPoints() as $subEntryPoint) {
-                $path = strtolower($bundleConfig->getName(true)) . '/' . $subEntryPoint->getFullPath();
+                $path = strtolower($subEntryPoint->getFullPath(true));
 
                 if (substr_count($path, '/') <= 2) {
                     if ($subEntryPoint->isLink()) {

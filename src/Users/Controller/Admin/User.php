@@ -1,6 +1,6 @@
 <?php
 
-namespace Users\Admin;
+namespace Users\Controller\Admin;
 
 class User extends \Admin\ObjectCrud
 {

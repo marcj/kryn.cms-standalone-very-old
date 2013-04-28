@@ -31,6 +31,11 @@ class Field extends Model
     protected $primaryKey = false;
 
     /**
+     * @var array
+     */
+    protected $options = array();
+
+    /**
      * @var bool
      */
     protected $autoIncrement = false;
@@ -43,6 +48,60 @@ class Field extends Model
         $this->setVar('desc');
         $this->setAttributeVar('primaryKey', 'boolean');
         $this->setAttributeVar('autoIncrement', 'boolean');
+
+        foreach ($this->element->childNodes as $child) {
+            $name = $child->nodeName;
+            if ('#text' !== $name && !$this->$name) {
+                $this->options[$name] = $child->nodeValue;
+            }
+        }
+    }
+
+    /**
+     * @param $method
+     * @param $arguments
+     *
+     * @return mixed
+     */
+    public function __call($method, $arguments)
+    {
+        $operation = substr($method, 0, 3);
+        $varName = lcfirst(substr($method, 3));
+        if ($this->$varName){
+            if ('get' === $operation) {
+                return $this->options[$varName];
+            } else if ('set' === $operation) {
+                $this->options[$varName] = $arguments[0];
+            }
+        }
+    }
+
+    /**
+     * @param null $element
+     *
+     * @return array
+     */
+    public function toArray($element = null)
+    {
+        $result = parent::toArray($element);
+        foreach ($this->options as $key => $option) {
+            $result[$key] = $option;
+        }
+        return $result;
+    }
+
+    /**
+     * @param array $values
+     */
+    public function fromArray(array $values)
+    {
+        parent::fromArray($values);
+        $this->options = array();
+        foreach ($values as $key => $value) {
+            if (!$this->$key) {
+                $this->options[$key] = $value;
+            }
+        }
     }
 
     /**

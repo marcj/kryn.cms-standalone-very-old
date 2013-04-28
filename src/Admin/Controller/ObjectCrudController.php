@@ -29,7 +29,7 @@ class ObjectCrudController extends Server
 
     public function run()
     {
-        if ($this->entryPoint->getType() == 'store') {
+        if ($this->entryPoint && $this->entryPoint->getType() == 'store') {
 
             if (!$this->entryPoint->getClass()) {
                 $obj = new adminStore();

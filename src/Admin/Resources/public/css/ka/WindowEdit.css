@@ -13,12 +13,6 @@
     bottom: 0px;
 }
 
-.ka-windowEdit-form > .kwindow-win-tabPane .ka-tabPane-pane {
-    background-image: url(../../images/ka-edit-form-bg.png);
-    background-repeat: repeat-x;
-    background-position: left bottom;
-}
-
 .ka-windowEdit-form .ka-field-layoutelement-layoutcontent {
     position: absolute;
     top: 70px;

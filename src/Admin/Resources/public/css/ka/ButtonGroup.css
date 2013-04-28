@@ -24,7 +24,7 @@
 
 .ka-admin a.ka-buttonGroup-item,
 .ka-admin a.ka-buttonGroup-item:link {
-    border-left: 1px solid #bdbdbd;
+    border-left: 1px solid #327792;
 
     cursor: default ;
     line-height: 20px;
@@ -35,13 +35,11 @@
     text-decoration: none;
     padding: 3px 7px;
     background-position: center center;
-    color: #818181;
-    text-shadow: 0px 1px 0px #F1F1F1;
+    color: #eee;
 }
 
 .ka-buttonGroup-item-with-icon:before {
     font-size: 14px;
-    text-shadow: 0px 1px 0px #f1f1f1;
     padding-right: 5px;
     line-height: 14px;
     vertical-align: text-top;

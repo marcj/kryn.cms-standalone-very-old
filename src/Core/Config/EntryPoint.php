@@ -45,6 +45,11 @@ class EntryPoint extends Model
      */
     protected $children;
 
+    /**
+     * @var string
+     */
+    private $fullPath;
+
     public function setupObject()
     {
         $this->setAttributeVar('path');
@@ -110,19 +115,34 @@ class EntryPoint extends Model
      */
     public function getFullPath($withBundlePrefix = false)
     {
-        if ($withBundlePrefix) {
-            $path[] = strtolower($this->getBundleName());
-        }
-        $path[] = $this->getPath();
-        $instance = $this;
-        while ($instance = $instance->getParentInstance()){
-            if (!($instance instanceof EntryPoint)) {
-                break;
+        if (null === $this->fullPath) {
+            $path[] = $this->getPath();
+            $instance = $this;
+            while ($instance = $instance->getParentInstance()){
+                if (!($instance instanceof EntryPoint)) {
+                    break;
+                }
+                array_unshift($path, $instance->getPath());
             }
-            array_unshift($path, $instance->getPath());
+            array_unshift($path, strtolower($this->getBundleName()));
+            $this->fullPath = implode('/', $path);
         }
-        return implode('/', $path);
+
+        if ($withBundlePrefix) {
+            return $this->fullPath;
+        } else {
+            return substr($this->fullPath, strpos($this->fullPath, '/') + 1);
+        }
     }
+
+    /**
+     * @param string $fullPath
+     */
+    public function setFullPath($fullPath)
+    {
+        $this->fullPath = $fullPath;
+    }
+
 
     /**
      * @param $path

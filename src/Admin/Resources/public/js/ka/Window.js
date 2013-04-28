@@ -743,7 +743,7 @@ ka.Window = new Class({
             }
         }
 
-        var title = ka.settings.configs[ this.getModule() ]['title'];
+        var title = ka.settings.configs[ this.getModule() ]['label'] || ka.settings.configs[ this.getModule() ]['bundleName'];
 
         if (title != 'Kryn.cms') {
             new Element('span', {
@@ -774,7 +774,7 @@ ka.Window = new Class({
             this.createResizer();
         }
 
-        this.titleText.set('text', t(this.entryPointDefinition.title));
+        this.titleText.set('text', t(this.entryPointDefinition.label));
 
         this.content.empty();
         new Element('div', {
@@ -928,15 +928,10 @@ ka.Window = new Class({
             }
         }.bind(this)).inject(this.win);
 
-        this.addEvent('resize', function(){
-            ka.generateNoise(this.title, 0.1);
-        }.bind(this));
-        this.fireEvent('resize');
-
         this.titlePath = new Element('span', {'class': 'ka-kwindow-titlepath'}).inject(this.title);
-        this.titleText = new Element('span').inject(this.titlePath);
+        this.titleText = new Element('span', {'class': 'ka-kwindow-titlepath-main'}).inject(this.titlePath);
 
-        this.titleAdditional = new Element('span').inject(this.titlePath);
+        this.titleAdditional = new Element('span', {'class': 'ka-kwindow-titlepath-additional'}).inject(this.titlePath);
 
 
         this.titleGroups = new Element('div', {

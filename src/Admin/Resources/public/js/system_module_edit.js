@@ -2160,12 +2160,6 @@ var admin_system_module_edit = new Class({
                                 desc: t('Implement with lft, rgt and lvl fields.'),
                                 type: 'checkbox',
                                 children: {
-                                    nestedLabel: {
-                                        needValue: 1,
-                                        label: t('Label field (Optional)'),
-                                        modifier: 'camelcase|trim|lcfirst',
-                                        desc: t('If you want to show a other label than the default label field.')
-                                    },
                                     nestedRootAsObject: {
                                         needValue: 1,
                                         label: t('Root as object (Optional)'),

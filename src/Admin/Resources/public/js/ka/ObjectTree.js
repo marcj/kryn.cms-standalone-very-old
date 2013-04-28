@@ -266,7 +266,7 @@ ka.ObjectTree = new Class({
     },
 
     getUrl: function(){
-        return _pathAdmin + (this.options.entryPoint ? this.options.entryPoint : 'object/' + ka.urlEncode(this.options.objectKey) )+'/';
+        return _pathAdmin + (this.options.entryPoint ? this.options.entryPoint : 'admin/object/' + ka.urlEncode(this.options.objectKey) )+'/';
     },
 
     startupWithObjectInfo: function (pId, pCallback) {
@@ -333,10 +333,8 @@ ka.ObjectTree = new Class({
         if (this.options.rootObject && !this.rootLoaded){
             this.loadRoot();
             return;
-        } else {
-
+        } else if (this.rootA) {
             this.rootA.childrenContainer = this.paneObjects;
-
         }
 
         var scope = null;
@@ -383,14 +381,7 @@ ka.ObjectTree = new Class({
     },
 
     renderLabel: function(pContainer, pData, pObjectKey){
-
-        if (pObjectKey == this.options.objectKey && this.options.labelTemplate)
-            return mowla.fetch(this.options.labelTemplate, pData);
-        else if (pObjectKey == this.options.objectKey && this.options.labelField)
-            return pData[this.options.labelField];
-        else
-            return pContainer.set('html', ka.getObjectLabelByItem(pObjectKey, pData, 'tree', {labelTemplate: this.options.labelTemplate}));
-
+        return pContainer.set('text', ka.getObjectLabelByItem(pObjectKey, pData, 'tree', {labelTemplate: this.options.labelTemplate}));
     },
 
     renderRoot: function(pResponse){
@@ -466,7 +457,6 @@ ka.ObjectTree = new Class({
     },
 
     renderFirstLevel: function (pResponse) {
-
         this.loadingDone = false;
 
         if (pResponse.error) return false;
@@ -661,9 +651,11 @@ ka.ObjectTree = new Class({
         a.objectKey = this.options.objectKey;
 
         var container = pParent;
-        if (pParent.childrenContainer) {
+        if (pParent && pParent.childrenContainer) {
             container = pParent.childrenContainer;
-            a.parent = pParent;
+            a.parent  = pParent;
+        } else {
+            container = this.paneObjects;
         }
 
         if (id == this.options.selectObject && this.options.selectable == true){

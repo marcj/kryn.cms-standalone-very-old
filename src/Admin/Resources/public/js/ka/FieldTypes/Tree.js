@@ -34,7 +34,7 @@ ka.FieldTypes.Tree = new Class({
          *
          * @var boolean
          */
-        scopeChooser: true,
+        scopeChooser: null,
 
         /**
          * if the object behind the scope (RootAsObject) is multiLanguage, we can filter by it.
@@ -136,6 +136,7 @@ ka.FieldTypes.Tree = new Class({
         if (!this.definition) throw 'Object not found '+this.options.object;
         if (!this.definition.nested) throw 'Object is not a nested set '+this.options.object;
 
+        console.log(this.definition);
 
         if (!this.options.labelTemplate){
             this.options.labelTemplate = this.definition.labelTemplate;
@@ -149,6 +150,9 @@ ka.FieldTypes.Tree = new Class({
 
         if (!this.options.treeInterfaceClass)
             this.options.treeInterfaceClass = this.definition.treeInterfaceClass;
+
+        if (null === this.options.scopeChooser)
+            this.options.scopeChooser = this.definition.nestedRootObject ? true : false;
 
         if (!this.options.moveable)
             this.options.moveable = typeOf(this.definition.treeMoveable) !== 'null' ? this.definition.treeMoveable : true;
@@ -176,11 +180,11 @@ ka.FieldTypes.Tree = new Class({
                     this.trees = [];
 
                     if (pResponse.data){
-
-                        this.trees = [];
                         Array.each(pResponse.data, function(item){
                             this.addTree(item);
                         }.bind(this));
+                    } else {
+                        this.addTree();
                     }
 
 
@@ -196,7 +200,7 @@ ka.FieldTypes.Tree = new Class({
     },
 
     getUrl: function(){
-        return _pathAdmin + (this.options.entryPoint ? this.options.entryPoint : 'object/' + ka.urlEncode(this.options.objectKey) )+'/';
+        return _pathAdmin + (this.options.entryPoint ? this.options.entryPoint : 'admin/object/' + ka.urlEncode(this.options.objectKey) )+'/';
     },
 
     loadTree: function(pScope){
@@ -222,10 +226,7 @@ ka.FieldTypes.Tree = new Class({
             }
         }
 
-        this.options.scope = pScope;
-
-
-        var tree= new clazz(this.treesContainer, this.options);
+        var tree = new clazz(this.treesContainer, this.options);
         tree.addEvent('change', this.fieldInstance.fireChange);
         tree.addEvent('select', this.selected);
 

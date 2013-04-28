@@ -2,7 +2,7 @@
 
 namespace Core\Config;
 
-class Model
+class Model implements \ArrayAccess
 {
     /**
      * @var \DOMElement
@@ -138,7 +138,7 @@ class Model
         $element = $this->getDirectChild($variableName);
         if ($element) {
             $setter = 'set' . ucfirst($variableName);
-            $value = $element->nodeValue;
+            $value  = $element->nodeValue;
 
             if (method_exists($this, $setter)) {
                 $this->$setter($value);
@@ -154,7 +154,7 @@ class Model
         $element = $this->element->attributes->getNamedItem($variableName);
         if ($element) {
             $setter = 'set' . ucfirst($variableName);
-            $value = $element->nodeValue;
+            $value  = $element->nodeValue;
 
             if (method_exists($this, $setter)) {
                 $this->$setter($value);
@@ -241,9 +241,9 @@ class Model
      */
     public function toArray($element = null)
     {
-        $result = array();
+        $result    = array();
         $blacklist = array('config', 'element');
-        $element = $element ?: $this;
+        $element   = $element ? : $this;
 
         $reflection = new \ReflectionClass($this);
         $properties = $reflection->getDefaultProperties();
@@ -254,30 +254,122 @@ class Model
             }
 
             $getter = 'get' . ucfirst($k) . 'Array';
-            if (!is_callable(array($this, $getter))) {
+            if (!method_exists($this, $getter) || !is_callable(array($this, $getter))) {
                 $getter = 'get' . ucfirst($k);
-                if (!is_callable(array($this, $getter))) {
+                if (!method_exists($this, $getter) || !is_callable(array($this, $getter))) {
                     continue;
                 }
             }
             $value = $this->$getter();
 
-            if ($value === $properties[$k]) continue;
+            if ($value === $properties[$k]) {
+                continue;
+            }
 
             $result[$k] = $value;
+
             if (is_array($result[$k])) {
-                foreach ($result[$k] as &$item) {
+                foreach ($result[$k] as $key => $item) {
                     if (is_object($item)) {
                         if ($item instanceof Model) {
-                            $item = $item->toArray();
+                            $result[$k][$key] = $item->toArray();
                         } else {
-                            $item = (array)$item;
+                            $result[$k][$key] = (array)$item;
                         }
                     }
                 }
             }
         }
         return $result;
+    }
+
+    /**
+     * @param array $values
+     */
+    public function fromArray(array $values)
+    {
+        $blacklist = array('config', 'element');
+
+        $reflection = new \ReflectionClass($this);
+        $properties = $reflection->getDefaultProperties();
+
+        foreach ($this as $k => $v) {
+            if (in_array($k, $blacklist)) {
+                continue;
+            }
+
+            $setter = 'set' . ucfirst($k) . 'Array';
+            if (!method_exists($this, $setter) || !is_callable(array($this, $setter))) {
+                $setter = 'set' . ucfirst($k);
+                if (!method_exists($this, $setter) || !is_callable(array($this, $setter))) {
+                    continue;
+                }
+            }
+            $value = $values[$k];
+
+            if ($value === $properties[$k]) {
+                continue;
+            }
+            if (null === $value) {
+                $value = $properties[$k];
+            }
+
+            $this->$setter($value);
+        }
+    }
+
+    /**
+     * @param mixed $offset
+     * @param mixed $value
+     */
+    public function offsetSet($offset, $value)
+    {
+        if (null !== $offset) {
+            $setter = 'set' . ucfirst($offset);
+            if (is_array($value) && is_array(current($value))) {
+                if (is_callable(array($this, $setter . 'Array'))) {
+                    $setter .= 'Array';
+                }
+            }
+            $this->$setter($value);
+        }
+    }
+
+    /**
+     * @param mixed $offset
+     *
+     * @return bool
+     */
+    public function offsetExists($offset)
+    {
+        $setter = 'get' . ucfirst($offset);
+        return is_callable(array($this, $setter)) || is_callable(array($this, $setter . 'Array'));
+    }
+
+    /**
+     * @param mixed $offset
+     */
+    public function offsetUnset($offset)
+    {
+        $this->offsetSet($offset, null);
+    }
+
+    /**
+     * @param mixed $offset
+     *
+     * @return mixed
+     */
+    public function offsetGet($offset)
+    {
+        if (null !== $offset) {
+            $getter = 'get' . ucfirst($offset);
+            if (is_callable(array($this, $getter . 'Array'))) {
+                $getter .= 'Array';
+            }
+            if (is_callable(array($this, $getter))) {
+                return $this->$getter();
+            }
+        }
     }
 
     public function dumpElement(\DOMElement $element)
