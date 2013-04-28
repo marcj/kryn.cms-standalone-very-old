@@ -83,7 +83,7 @@ ka.AdminInterface = new Class({
             'class': 'ka-mainTempLinks'
         }).inject(this.mainLinks);
 
-        this.openFrontendBtnContainer = new Element('div', {
+        this.mainMenuIconBar = new Element('div', {
             'class': 'ka-iconbar-item'
         }).inject(this.mainMenuRight);
 
@@ -93,11 +93,7 @@ ka.AdminInterface = new Class({
             href: 'javascript: ;'
         })
         .addEvent('click', function(){ ka.openFrontend(); })
-        .inject(this.openFrontendBtnContainer);
-
-        this.mainMenuIconBar = new Element('div', {
-            'class': 'ka-iconbar-item'
-        }).inject(this.mainMenuRight);
+        .inject(this.mainMenuIconBar);
 
         this.openSearchIndexBtn = new Element('a', {
             'class': 'icon-search-8',
@@ -181,19 +177,19 @@ ka.AdminInterface = new Class({
             'class': 'ka-main-menu-splitter'
         }).inject(this.mainTempLinks);
 
-        this.userNameBtn.set('text', tf('Welcome, %s', window._session.username));
-
-        this.editMeButton = new ka.Button(t('Edit me'))
-        .addEvent('click', function(){
-            ka.wm.open('users/users/editMe', {values: {id: window._user_id}});
-        })
-        .inject(this.userNameBtn, 'after');
+        this.userNameBtn.set('text', tf('Welcome, %s!', window._session.username));
 
         this.logoutButton = new ka.Button(t('Logout'))
         .addEvent('click', function(){
             this.logout();
         }.bind(this))
         .inject(this.userNameBtn, 'after');
+
+        this.editMeButton = new ka.Button(t('Edit me'))
+            .addEvent('click', function(){
+                ka.wm.open('users/users/editMe', {values: {id: window._user_id}});
+            })
+            .inject(this.userNameBtn, 'after');
 
         this.userNameBtn.onclick = function(){
             ka.wm.open('users/profile', {values: {id: pResponse.userId}});
@@ -216,7 +212,7 @@ ka.AdminInterface = new Class({
 
         if (!this.searchContainer) {
             this.searchContainer = new Element('div', {
-                'class': 'ka-search'
+                'class': 'ka-iconbar-item ka-search'
             }).inject(this.mainMenuRight);
 
             this.searchInput = new ka.Field({
