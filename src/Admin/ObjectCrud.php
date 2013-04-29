@@ -3,6 +3,7 @@
 namespace Admin;
 
 use Core\Config\Field;
+use Core\Config\Model;
 use Core\Kryn;
 use Core\Object;
 use Admin\Controller\ObjectCrudController;
@@ -445,8 +446,17 @@ class ObjectCrud
         foreach ($vars as $var => $val) {
             if (in_array($var, $blacklist)) continue;
             $method = 'get'.ucfirst($var);
-            if (method_exists($this, $method))
+            if (method_exists($this, $method)) {
                 $result[$var] = $this->$method();
+            }
+        }
+
+        if ($result['fields']) {
+            foreach ($result['fields'] as &$field) {
+                if ($field instanceof Model) {
+                    $field = $field->toArray();
+                }
+            }
         }
 
         return $result;

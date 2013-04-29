@@ -173,7 +173,6 @@ ka.Field = new Class({
                 }).inject(this.main);
             }
 
-
             if (this.options.label) {
                 this.titleText = new Element('div', {
                     'class': 'title',

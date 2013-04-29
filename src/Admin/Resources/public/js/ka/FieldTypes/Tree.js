@@ -226,6 +226,8 @@ ka.FieldTypes.Tree = new Class({
             }
         }
 
+        this.options.scope = pScope;
+
         var tree = new clazz(this.treesContainer, this.options);
         tree.addEvent('change', this.fieldInstance.fireChange);
         tree.addEvent('select', this.selected);

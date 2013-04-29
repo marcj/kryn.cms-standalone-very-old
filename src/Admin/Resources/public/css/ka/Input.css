@@ -2,7 +2,7 @@
 input.text {
 
     color: #444;
-    font-size: 12px;
+    font-size: 13px;
     line-height: 26px;
 
     height: 26px;
@@ -38,7 +38,10 @@ input.text {
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
+}
 
+.ka-windowEdit-form .ka-Input-text {
+    border: 1px solid silver;
 }
 
 .ka-Input-text:focus,
