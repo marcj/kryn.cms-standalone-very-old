@@ -302,7 +302,7 @@ ka.getClass = function(pClassPath){
 ka.urlEncode = function(pValue){
 
     if (typeOf(pValue) == 'string'){
-        return encodeURIComponent(pValue).replace(/%2F/g, '%252F'); //fix apache default setting
+        return encodeURIComponent(pValue.replace(/\//g, '%252F')); //fix apache default setting
     } else if (typeOf(pValue) == 'array'){
         var result = '';
         Array.each(pValue, function(item){
@@ -327,15 +327,17 @@ ka.urlEncode = function(pValue){
  * @return {String}
  */
 ka.urlDecode = function(pValue){
-
     if (typeOf(pValue) != 'string') return pValue;
 
     try {
-        return decodeURIComponent(pValue).replace(/%2F/g, '/');
+        return decodeURIComponent(pValue.replace(/%25252F/g, '%2F'));
     } catch(e){
         return pValue;
     }
+}
 
+ka.normalizeObjectKey = function(objectKey) {
+    return objectKey.replace('.', '\\').toLowerCase();
 }
 
 /**

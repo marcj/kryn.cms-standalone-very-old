@@ -2827,7 +2827,12 @@ class Kryn extends Controller
     public static function pageUrl($pId = 0, $pAbsolute = false, $pDomainId = false)
     {
         return 'object://node/' . $pId;
+    }
 
+    public static function urlDecode($string)
+    {
+        $string = str_replace('%25252F', '%2F', $string);
+        return rawurldecode($string);
     }
 
 }

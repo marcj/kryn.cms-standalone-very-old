@@ -1158,11 +1158,8 @@ ka.Files = new Class({
         this.load(this.current);
     },
 
-    renderInfos: function (pFiles) {
-
-
+    renderTree: function () {
         if (!this.sideTree) {
-
             this.sideTree = new ka.Field({
                 label: t('Nodes'),
                 type: 'tree',
@@ -1170,9 +1167,15 @@ ka.Files = new Class({
                 objectKey: 'Core\\File'
             }, this.infos);
 
+            this.sideTree.addEvent('select', function(item) {
+                this.loadPath(item.path);
+            }.bind(this));
         }
 
-
+        if (this.sideTree.select) {
+            console.log('select: ', this.currentFile);
+            this.sideTree.select(this.currentFile.id);
+        }
 
         return;
     },
@@ -1290,8 +1293,8 @@ ka.Files = new Class({
 
             this.render(pResponse.data);
 
-            if (this.current == '/' && this.options.withSidebar) {
-                this.renderInfos(pResponse.data);
+            if (this.options.withSidebar) {
+                this.renderTree();
             }
 
             this.updateStatusBar();
@@ -1790,7 +1793,7 @@ ka.Files = new Class({
         if (file) {
             if (file.type == 'file' && this.options.selection && !this.options.selectionOnlyFolders) {
                 this.fireEvent('select', [file, item]);
-                this.fireEvent('dblClick', [file, item]);
+                this.fireEvent('dblclick', [file, item]);
                 this.fireEvent('instantSelect', [file, item]);
             } else {
                 if (file.type == 'file'){

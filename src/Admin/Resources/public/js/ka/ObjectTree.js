@@ -269,16 +269,20 @@ ka.ObjectTree = new Class({
         return _pathAdmin + (this.options.entryPoint ? this.options.entryPoint : 'admin/object/' + ka.urlEncode(this.options.objectKey) )+'/';
     },
 
+    /**
+     *
+     * @param {String} pId String (already encoded) or object.
+     * @param {Function} pCallback
+     */
     startupWithObjectInfo: function (pId, pCallback) {
-
-        if (typeOf(pId) != 'string')
+        if (typeOf(pId) != 'string') {
             pId = ka.getObjectUrlId(this.options.objectKey, pId);
+        }
 
-        new Request.JSON({url: this.getUrl()+ka.urlEncode(pId)+'/parents', noCache: 1, onComplete: function (response) {
-
+        new Request.JSON({url: this.getUrl() + pId + '/parents', noCache: 1, onComplete: function (response) {
             this.load_object_children = [];
             Array.each(response.data, function (item) {
-                if (item._object && item._object && this.options.objectKey) return;
+                if (item._object && ka.normalizeObjectKey(item._object) && ka.normalizeObjectKey(this.options.objectKey)) return;
                 var id = ka.getObjectUrlId(this.options.objectKey, item);
                 this.load_object_children.include(id);
             }.bind(this));
@@ -805,9 +809,7 @@ ka.ObjectTree = new Class({
     },
 
     checkDoneState: function () {
-
         if (this.activeLoadings == 0) {
-
             if (this.firstLoadDone == false) {
                 this.firstLoadDone = true;
 
@@ -818,8 +820,6 @@ ka.ObjectTree = new Class({
 
             this.setRootPosition();
         }
-
-
     },
 
     saveOpens: function () {
@@ -855,12 +855,15 @@ ka.ObjectTree = new Class({
     },
 
     openChildren: function (pA) {
-
         if (!pA.toggler) return;
 
         pA.toggler.set('html', '&#xe0c4;');
-        if (pA.childrenLoaded == true) {
-            pA.childrenContainer.setStyle('display', 'block');
+        if (true === pA.childrenLoaded) {
+            pA.childrenContainer.
+            pA.childrenContainer.setStyles({
+                'display': 'block',
+                'height': '1'
+            });
             this.opens[ pA.id ] = true;
             this.saveOpens();
         } else {
@@ -1260,12 +1263,10 @@ ka.ObjectTree = new Class({
     },
 
     select: function (pId) {
-
         this.deselect();
         pId = ka.getObjectUrlId(this.options.objectKey, pId);
 
         if (this.items[ '_'+pId ]) {
-
             //has been loaded already
             this.items[ '_'+pId ].addClass('ka-objectTree-item-selected');
 

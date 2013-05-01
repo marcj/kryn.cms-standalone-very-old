@@ -160,8 +160,13 @@
 
 .kwindow-win-titleGroups {
     display: block;
-    min-height: 27px;
-    padding: 5px 15px;
+    padding: 0 15px;
+}
+
+
+.kwindow-win-titleGroups > div {
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
 
 .kwindow-win-titleGroups > .ka-tabGroup:first-child {

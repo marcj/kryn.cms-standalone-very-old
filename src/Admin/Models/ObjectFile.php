@@ -3,6 +3,7 @@
 namespace Admin\Models;
 
 use Core\WebFile;
+use Core\Kryn;
 
 class ObjectFile extends \Core\ORM\Propel
 {
@@ -39,7 +40,7 @@ class ObjectFile extends \Core\ORM\Propel
                 }
 
                 if (!is_numeric($value)) {
-                    $file = WebFile::getFile(rawurldecode($value));
+                    $file = WebFile::getFile(Kryn::urlDecode($value));
                     if ($file) {
                         $value = $file['id'];
                     } else {
@@ -57,7 +58,6 @@ class ObjectFile extends \Core\ORM\Propel
         }
 
         return $result;
-
     }
 
     /**
@@ -121,16 +121,37 @@ class ObjectFile extends \Core\ORM\Propel
      */
     public function getItem($pPrimaryKey, $pOptions = null)
     {
-        if ($pPrimaryKey) {
+        if (is_array($pPrimaryKey)) {
             $path = is_numeric($pPrimaryKey['id']) ? WebFile::getPath($pPrimaryKey['id']) : $pPrimaryKey['id'];
         } else {
-            $path = '/';
+            $path = $pPrimaryKey ?: '/';
         }
 
         if (!$path) {
             return;
         }
         return WebFile::getFile($path);
+    }
+
+    public function getParents($pPk)
+    {
+        $path = is_numeric($pPk['id']) ? WebFile::getPath($pPk['id']) : $pPk['id'];
+
+        if ('/' === $path) return array();
+
+        $result = array();
+
+        $part = $path;
+        while ($part = substr($part, 0, strrpos($part, '/'))) {
+            $item = $this->getItem($part);
+            $result[] = $item;
+        }
+
+        $root = $this->getItem('/');
+        $root['_object'] = $this->objectKey;
+        $result[] = $root;
+
+        return array_reverse($result);
     }
 
     /**

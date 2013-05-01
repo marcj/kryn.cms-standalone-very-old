@@ -1061,7 +1061,7 @@ class Propel extends ORMAbstract
         while ($row = dbFetch($stmt)) {
 
             //propels nested set requires a own root item, we do not return this
-            if ($item == false) {
+            if (false === $item) {
                 $item = true;
                 continue;
             }

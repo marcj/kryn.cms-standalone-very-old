@@ -84,11 +84,16 @@
 
 .ka-objectTree-item-masks:before {
     font-size: 16px;
+    color: #22638E;
 }
 
 .ka-objectTree-item-selected,
 .ka-objectTree-item-selected:hover {
     background-color: #22638E;
+    color: white;
+}
+
+.ka-objectTree-item-selected .ka-objectTree-item-masks:before {
     color: white;
 }
 
@@ -121,19 +126,11 @@
     background-color: #ddd;
 }
 
-
-
-
-
-
 .ka-objectTree-domain .ka-objectTree-item-title {
     /*position: absolute;
     left: 35px;
     top: 1px;*/
 }
-
-
-
 
 .ka-objectTree-context {
     position: absolute;

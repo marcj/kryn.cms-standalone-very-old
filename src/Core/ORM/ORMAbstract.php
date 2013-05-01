@@ -377,6 +377,9 @@ abstract class ORMAbstract
     /**
      * Returns all parents.
      *
+     * Root object first.
+     * Each entry has to have also '_objectKey' as value.
+     *
      * @param  array                    $pPk
      * @throws \NotImplementedException
      */
