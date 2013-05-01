@@ -377,7 +377,7 @@ class AdminController
         $response->addJs('ka = parent.ka;');
         $response->addJsFile('admin/js/globals.js', 'bottom');
 
-        $response->addCssFile('admin/css/style.css');
+        $response->addCssFile(Kryn::getAdminPrefix() . '/admin/css/style.css');
         $response->addJs(
             'window.editor = new ka.Editor(document.body, {nodePk: ' . Kryn::$page->getId() . '});',
             'bottom'

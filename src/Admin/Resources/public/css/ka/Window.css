@@ -1,28 +1,10 @@
-.kwindow-win {
-    position: absolute;
-    left: 0px;
-    right: 0px;
-    top: 0px;
-    bottom: 0px;
-}
-
 .kwindow-border {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: auto;
-    height: auto;
-    border: 0px;
+    position: relative;
+    min-height: 250px;
 }
 
 .ka-frontpage-backend .kwindow-border {
     left: 221px;
-}
-
-.ka-window-extend-head .kwindow-win-title {
-    height: 60px;
 }
 
 .ka-window-extend-head .kwindow-win-content {
@@ -136,9 +118,7 @@
     vertical-align: middle;
     font-weight: bold;
     text-align: left;
-    padding-left: 5px;
     color: #555;
-
     position: relative;
     cursor: default;
 }
@@ -180,12 +160,8 @@
 
 .kwindow-win-titleGroups {
     display: block;
-    position: absolute;
-    top: 29px;
-    left: 0px;
-    right: 0px;
     min-height: 27px;
-    height: 27px;
+    padding: 5px 15px;
 }
 
 .kwindow-win-titleGroups > .ka-tabGroup:first-child {
@@ -198,13 +174,7 @@
 }
 
 .kwindow-win-content {
-    position: absolute;
-    left: 0px;
-    right: 0px;
-    top: 24px;
-    bottom: 0px;
-    overflow: auto;
-    text-align: left;
+    position: relative;
 }
 
 .kwindow-win-inline .kwindow-win-content {
@@ -242,8 +212,8 @@
 
 .kwindow-win-titleBar {
     position: absolute;
-    top: 2px;
-    right: 2px;
+    top: 9px;
+    right: 5px;
 }
 
 .ka-window-extend-head .kwindow-win-titleBar {
@@ -257,18 +227,46 @@
     background-repeat: no-repeat;
     font-size: 14px;
     text-align: center;
-    color: white;
+    color: #000;
     display: inline-block;
     padding: 1px 0;
 }
 
 .kwindow-win-titleBarIcon:hover {
-    color: #000;
+    color: #333;
 }
 
-
 .kwindow-win-titleBarIcon:active {
-    color: #222;
+    color: #444;
+}
+
+.ka-kwindow-titlepath-additional {
+    font-size: 22px;
+    display: block;
+    padding: 10px 15px;
+    font-weight: 300;
+    color: #22638E;
+}
+
+.ka-kwindow-titlepath-main {
+    padding-top: 5px;
+    display: block;
+    padding-left: 15px;
+    background-color: #E9E9E9;
+    border-bottom: 1px solid #D6D6D6;
+    padding-bottom: 5px;
+    line-height: 26px;
+    font-size: 14px;
+    font-weight: 300;
+    color: #22638E;
+}
+
+.ka-kwindow-titlepath img {
+    margin: 0 8px;
+    width: 4px;
+}
+.ka-kwindow-titlepath-additional img {
+    display: none;
 }
 
 .ka-kwindow-prompt {
@@ -344,33 +342,6 @@ h3.kryn-headline {
     right: 0px;
     bottom: 31px;
     overflow: auto;
-}
-
-.ka-kwindow-titlepath {
-    position: absolute;
-    top: -30px;
-    left: 0;
-    width: 100%;
-    color: #BBB;
-}
-
-.ka-kwindow-titlepath-additional {
-    position: absolute;
-    top: 33px;
-    left: 10px;
-    font-size: 16px;
-    color: #eee;
-    text-shadow: 0 -1px 0 black;
-}
-
-.ka-kwindow-titlepath-additional > img:first-child {
-    display: none;
-}
-
-.ka-kwindow-titlepath img {
-    position: relative;
-    top: 3px;
-    margin: 0px 5px;
 }
 
 .ka-kwindow-loader-content {

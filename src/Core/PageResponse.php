@@ -327,7 +327,11 @@ class PageResponse extends Response
         Kryn::$themeProperties = array();
         $propertyPath = '';
 
-        $layout = explode('.', Kryn::$page->getLayout());
+        $layout = Kryn::$page->getLayout();
+        if (false !== ($pos = strpos($layout, '/'))) {
+            $layout = substr($layout, 0, $pos);
+        }
+        $layout = explode('.', $layout);
         $bundleName = Kryn::getBundleName($layout[0]);
 
         if ($config = Kryn::getConfig($bundleName)) {
@@ -348,7 +352,6 @@ class PageResponse extends Response
         return Kryn::getInstance()->renderView($layout, array(
             'themeProperties' => Kryn::$themeProperties
         ));
-
     }
 
     /**

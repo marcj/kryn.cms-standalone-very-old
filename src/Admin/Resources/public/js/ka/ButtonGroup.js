@@ -63,7 +63,11 @@ ka.ButtonGroup = new Class({
             wrapper.setStyle('padding', '3px 0px');
         }
 
+
         if (typeOf(pIcon) == 'string'){
+            if (this.options.onlyIcons) {
+                wrapper.addClass('ka-buttonGroup-item-only-icon');
+            }
             if (pIcon.substr(0,1) == '#'){
                 wrapper.addClass('ka-buttonGroup-item-with-icon');
                 wrapper.addClass(pIcon.substr(1));

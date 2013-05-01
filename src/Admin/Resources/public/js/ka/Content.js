@@ -83,7 +83,7 @@ ka.Content = new Class({
 
     loadTemplate: function(pValue){
 
-        this.lastRq = new Request.JSON({url: _path+'admin/content/template', noCache: true,
+        this.lastRq = new Request.JSON({url: _pathAdmin + 'admin/content/template', noCache: true,
             onComplete: function(pResponse){
 
                 this.main.empty();

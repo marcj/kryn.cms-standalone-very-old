@@ -31,7 +31,6 @@ ka.Files = new Class({
 
         useWindowHeader: false, //uses the kwindow instance to add smallTabButtons etc
 
-        onlyUserDefined: false,
         search: true,
         path: '/',
         withSidebar: false,
@@ -60,10 +59,6 @@ ka.Files = new Class({
         this.container = pContainer;
 
         this.setOptions(pOptions);
-
-        if (this.options.onlyUserDefined == false) {
-            this.options.onlyUserDefined = (Cookie.read('adminFiles_OnlyUserFiles') == 0) ? false : true;
-        }
 
         this._createLayout();
         this.loadModules();
@@ -754,11 +749,18 @@ ka.Files = new Class({
             this.win.border.addClass('ka-window-extend-head-files');
         }
 
-        this.headerLayout = new ka.Layout(this.header, {
+        this.wrapper = new Element('div', {
+            'class': 'ka-Files-wrapper'
+        }).inject(this.container);
+
+        this.headerLayout = new ka.Layout(this.wrapper, {
+            fixed: false,
             layout: [{
                 columns: [50, null, 150]
             }]
         });
+
+        document.id(this.headerLayout).addClass('ka-Files-header');
 
         var actionsContainer = this.headerLayout.getCell(1, 1);
 
@@ -805,19 +807,13 @@ ka.Files = new Class({
             btn.store('oriClass', btn.get('class'));
         });
 
-        var userGrp = new ka.ButtonGroup(actionsContainer, {onlyIcons: true});
-        this.userFilesBtn = userGrp.addButton(t('Hide system files'), _path + 'bundles/admin/images/icons/folder_brick.png', this.toggleUserMode.bind(this));
-        this.userFilesBtn.setPressed(this.options.onlyUserDefined);
-
         //address
-
         var addressContainer = this.headerLayout.getCell(1, 2);
 
         this.address = new ka.Field({
             type: 'text',
             noWrapper: true
         }, addressContainer);
-        document.id(this.address).setStyle('margin', '0 5px');
 
         this.address.getFieldObject().input.addEvent('mousedown', function(e){
             if (e.key == 'enter') {
@@ -825,14 +821,13 @@ ka.Files = new Class({
             }
         }.bind(this));
 
-
         var searchContainer = this.headerLayout.getCell(1, 3);
 
         this.search = new ka.Field({
             type: 'text',
             noWrapper: true
         }, searchContainer);
-        document.id(this.search).setStyle('margin', '0 5px');
+        document.id(this.search).setStyle('margin-left', '15px');
 
         this.search.getFieldObject().input.addEvent('mousedown', function(e){
             if (e.key == 'enter') {
@@ -844,6 +839,26 @@ ka.Files = new Class({
             src: _path+ 'bundles/admin/images/icon-search-loupe.png',
             style: 'position: absolute; right: 12px; top: 8px;'
         }).inject(this.search, 'after');
+
+        this.mainLayout = new ka.Layout(this.wrapper, {
+            fixed: false,
+            splitter: this.options.withSidebar ? [
+                [1, 1, 'right']
+            ] : [],
+            layout: [{
+                columns: this.options.withSidebar ? [250, null] : [null]
+            }]
+        });
+
+        document.id(this.mainLayout).addClass('ka-Files-body');
+
+        var fileContainerCell = this.mainLayout.getCell(1, 2);
+        var sideBarCell = this.mainLayout.getCell(1, 1);
+        if (!this.options.withSidebar) {
+            fileContainerCell = this.mainLayout.getCell(1, 1);
+        }
+
+        document.id(fileContainerCell).addClass('admin-files-fileContainer-bg');
 
         this.fileContainer = new Element('div', {
             'class': 'admin-files-droppables admin-files-fileContainer ka-scrolling'
@@ -865,7 +880,7 @@ ka.Files = new Class({
         }.bind(this)).addEvent('mousemove', function (pEvent) {
             this.checkMouseMove(pEvent);
         }.bind(this))
-        .inject(this.container);
+        .inject(fileContainerCell);
 
         if (ka.mobile){
             this.fileContainer.addEvent('click', function (pEvent) {
@@ -891,14 +906,14 @@ ka.Files = new Class({
         if (this.options.withSidebar) {
             this.infos = new Element('div', {
                 'class': 'admin-files-infos'
-            }).inject(this.container);
-        } else {
-            this.fileContainer.setStyle('left', 0);
+            }).inject(sideBarCell, 'top');
+
+            this.mainLayout.getTable().setStyle('table-layout', 'fixed')
         }
 
         this.statusBar = new Element('div', {
             'class': 'admin-files-status-bar'
-        }).inject(this.container);
+        }).inject(this.wrapper);
 
         this.loaderContainer = new Element('div', {
             'class': 'admin-files-status-bar-loader'
@@ -931,21 +946,6 @@ ka.Files = new Class({
 
         this.statusBarSelected.set('text', text);
 
-    },
-
-    toggleUserMode: function () {
-        if (this.options.onlyUserDefined) {
-            this.options.onlyUserDefined = false;
-        } else {
-            this.options.onlyUserDefined = true;
-        }
-        this.userFilesBtn.setPressed(this.options.onlyUserDefined);
-        Cookie.write('adminFiles_OnlyUserFiles', (this.options.onlyUserDefined) ? 1 : 0);
-        this.reRender();
-
-        if (this.options.withSidebar) {
-            this.renderInfos();
-        }
     },
 
 
@@ -1175,48 +1175,6 @@ ka.Files = new Class({
 
 
         return;
-
-        if (pFiles) {
-            this.renderFiles = pFiles;
-        } else {
-            pFiles = this.renderFiles;
-        }
-
-        this.infos.empty();
-
-        if (!this.options.onlyUserDefined) {
-
-            new Element('div', {
-                text: t('Kryn')
-            }).inject(this.infos);
-
-            Object.each(pFiles, function (file) {
-                if (this._krynFolders.indexOf(file.path+'/') >= 0) {
-                    this.newInfoItem(file);
-                }
-            }.bind(this));
-
-            new Element('div', {
-                text: t('Extensions')
-            }).inject(this.infos);
-
-            Object.each(pFiles, function (file) {
-                if (this._modules.indexOf(file.path+'/') >= 0) {
-                    this.newInfoItem(file);
-                }
-            }.bind(this));
-
-        }
-
-        new Element('div', {
-            text: t('User defined')
-        }).inject(this.infos);
-
-        Object.each(pFiles, function (file) {
-            if (this._modules.indexOf(file.path+'/') == -1 && this._krynFolders.indexOf(file.path+'/') == -1) {
-                this.newInfoItem(file);
-            }
-        }.bind(this));
     },
 
     newInfoItem: function (pFile) {
@@ -1380,9 +1338,6 @@ ka.Files = new Class({
             this.path2File[f.path] = f;
 
             if (f.type == 'dir') {
-                if (this.options.onlyUserDefined == true && (this._krynFolders.indexOf(f.path+'/') >= 0 || this._modules.indexOf(f.path+'/') >= 0 )) {
-                    return;
-                }
                 nfiles.include(f);
             }
         }.bind(this));

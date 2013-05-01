@@ -131,6 +131,10 @@ class Render
     {
         $contents = array();
 
+        if (!($pContents instanceof \Traversable)) {
+            return;
+        }
+
         foreach ($pContents as $content) {
 
             $access = true;

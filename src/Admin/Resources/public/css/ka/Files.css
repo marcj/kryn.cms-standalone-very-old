@@ -1,13 +1,18 @@
+.ka-Files-wrapper {
+    margin: 15px;
+}
+
+.ka-Files-header {
+    height: 40px;
+}
+
+.ka-Files-body {
+    border: 1px solid silver;
+    border-bottom: 0;
+}
+
 .admin-files-actionBar {
     height: 31px;
-}
-
-.ka-window-extend-head-files .kwindow-win-title {
-    height: 75px;
-}
-
-.ka-window-extend-head-files .kwindow-win-content {
-    top: 77px;
 }
 
 .admin-files-actionBar-addressPos {
@@ -18,24 +23,19 @@
     height: 16px;
 }
 
-.admin-files-fileContainer {
+.admin-files-fileContainer-bg {
     background-color: white;
-    position: absolute;
-    top: 0px;
-    right: 0px;
-    left: 176px;
-    bottom: 25px;
+}
+
+.admin-files-fileContainer {
+    position: relative;
     cursor: default;
-    padding: 2px;
+    padding: 0 15px;
 }
 
 .admin-files-status-bar {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
     height: 25px;
-    background-color: #1D1D22;
+    background-color: #22638E;
     line-height: 25px;
     color: #FFF;
     text-align: center;
@@ -89,13 +89,10 @@
 }
 
 .admin-files-infos {
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    bottom: 25px;
-    width: 175px;
-    background-color: white;
+    position: relative;
     overflow: auto;
+    height: 100%;
+    background-color: #eee;
     -webkit-overflow-scrolling: touch;
 }
 
@@ -126,7 +123,7 @@
 }
 
 .admin-files-infos a.admin-files-item-selected {
-    background-color: #2F8CBD;
+    background-color: #22638E;
 }
 
 .admin-files-infos a.admin-files-item-selected,
@@ -320,7 +317,7 @@ table.ka-files-search-table tr:hover td {
     height: 45px;
     background-repeat: no-repeat;
     background-position: center center;
-    color: #24688B;
+    color: #22638E;
     text-shadow: 1px 0 0 white;
 }
 

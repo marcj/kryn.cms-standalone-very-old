@@ -60,6 +60,7 @@ body.hide-scrollbar {
 
 body {
     -webkit-tap-highlight-color: transparent;
+    background-color: #F5F5F5;
 }
 
 /* ie9 hack for gradients */
@@ -100,11 +101,6 @@ span.selectable span, div.selectable div {
 }
 
 .ka-border {
-    position: absolute;
-    left: 0px;
-    right: 0px;
-    top: 0px;
-    bottom: 0px;
 }
 
 .ka-editor {
@@ -112,30 +108,29 @@ span.selectable span, div.selectable div {
 }
 
 .ka-desktop {
-    position: absolute;
-    right: 0px;
-    left: 210px;
-    bottom: 0px;
-    top: 100px;
-    background-color: #24688B;
+    position: relative;
+    margin-left: 220px;
 }
 
 .ka-main-menu {
-    z-index: 110000;
-    position: absolute;
-    left: 0px;
-    bottom: 0px;
+    position: relative;
     text-align: left;
-    width: 210px;
-    top: 100px;
-    z-index: 110000;
-
+    float: left;
+    width: 220px;
     background-color: #1D1D22;
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
 }
 
 .ka-main-menu:before {
+    content: 'd';
+    position: fixed;
+    background-color: #1D1D22;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    z-index: -1;
+}
+
+.ka-main-menu:after {
     width: 10px;
     content: '';
     background-image: -moz-linear-gradient(left,rgba(0, 0, 0, 0),rgba(0, 0, 0, 0.2));
@@ -154,20 +149,18 @@ span.selectable span, div.selectable div {
 
 .ka-main-menu-additional {
     float: right;
+    height: 60px;
     font-size: 10px;
 }
 
 .ka-main-menu-top {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
     height: 60px;
     line-height: 60px;
     background-repeat: repeat-x;
     color: white;
-    background-color: #24688B;
+    background-color: #22638E;
     box-shadow: 0 1px 9px #111;
+    z-index: 1000;
 }
 
 .ka-main-menu-top-navigation {
@@ -178,10 +171,6 @@ span.selectable span, div.selectable div {
 }
 
 .ka-main-menu-top-sub {
-    position: absolute;
-    top: 60px;
-    left: 0;
-    right: 0;
     height: 40px;
     line-height: 40px;
     background-color: #1D1D22;
@@ -205,12 +194,14 @@ div.ka-main-menu-additional img.arrowUp:hover {
     margin: 0;
     padding: 0;
     margin-bottom: 5px;
+    display: inline-block;
+    font-size: 12px;
+    border-right: 1px solid #5A5A5A;
+    padding-right: 9px;
 }
 
 .ka-main-menu-user .username {
     color: #ddd;
-    display: block;
-    padding-top: 20px;
     margin-bottom: 15px;
 }
 
@@ -218,14 +209,15 @@ div.ka-main-menu-additional img.arrowUp:hover {
 .ka-border .ka-main-menu-user a.ka-Button:link {
     background-color: transparent;
     background: transparent;
-    color: #24688B;
+    color: #22638E;
     border: 0;
     border-radius: 0;
     -moz-border-radius: 0;
     -webkit-border-radius: 0;
-    padding: 0px 4px;
-    display: block;
+    margin: 0px 7px;
+    display: inline-block;
     line-height: 17px;
+    text-decoration: underline;
 }
 
 .ka-border .ka-main-menu-user a.ka-Button:hover {
@@ -234,11 +226,9 @@ div.ka-main-menu-additional img.arrowUp:hover {
 }
 
 .ka-main-menu-user .profile-image {
-    max-width: 75px;
-    max-height: 75px;
-    float: left;
-    margin: 15px;
-    margin-left: 0;
+    max-width: 20px;
+    margin: 0 15px;
+    vertical-align: text-bottom;
 }
 
 .ka-menu-item-children {
@@ -402,7 +392,7 @@ a.ka-main-menu-item-open:link {
 .ka-mainLinks a.ka-main-menu-item-active,
 .ka-mainLinks a.ka-main-menu-item-active:link,
 .ka-mainLinks a.ka-main-menu-item-active:hover {
-    background-color: #2F8CBD;
+    background-color: #22638E;
     color: white;
     text-shadow: 0 1px 0 #444;
     border-left: 5px solid #1A5574;
@@ -468,9 +458,6 @@ a.ka-main-menu-item-open:link {
 
 .ka-search .ka-Input-text {
     box-shadow: 0;
-    -moz-border-radius: 2px;
-    -webkit-border-radius: 2px;
-    border-radius: 2px;
     border: 0;
 }
 
@@ -485,7 +472,7 @@ a.ka-main-menu-item-open:link {
 .ka-search-query-icon {
     position: absolute;
     right: 12px;
-    top: 28px;
+    top: 27px;
 }
 
 a.ka-create-search-index-icon.green {

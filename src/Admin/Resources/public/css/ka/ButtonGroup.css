@@ -1,9 +1,7 @@
 .kwindow-win-buttonGroup {
-    margin-left: 15px;
+    margin-right: 15px;
     display: inline-block;
     overflow: hidden;
-
-    -moz-border-radius: 5px;
 
     white-space: nowrap;
     position: relative;
@@ -23,26 +21,25 @@
 
 
 .ka-admin a.ka-buttonGroup-item,
-.ka-admin a.ka-buttonGroup-item:link {
-    border-left: 1px solid #327792;
-
-    cursor: default ;
-    line-height: 20px;
+.ka-admin a.ka-buttonGroup-item:link {border-left: 1px solid #327792;
+    cursor: default;
+    line-height: 26px;
     min-height: 11px;
     position: relative;
-    left: -1px;
     display: inline-block;
     text-decoration: none;
-    padding: 3px 7px;
+    padding: 0px 7px;
     background-position: center center;
-    color: #eee;
+    color: #ECECEC;
+    background-color: #22638E;
 }
 
 .ka-buttonGroup-item-with-icon:before {
-    font-size: 14px;
     padding-right: 5px;
-    line-height: 14px;
-    vertical-align: text-top;
+}
+
+.ka-buttonGroup-item-only-icon:before {
+    padding-right: 0;
 }
 
 .ka-buttonGroup-itemFirst {

@@ -377,8 +377,8 @@ ka.Window = new Class({
     },
 
     getFullTitle: function () {
-        if (this.titlePath) {
-            return this.parseTitle(this.titlePath.get('html'));
+        if (this.titleText) {
+            return this.parseTitle(this.titleText.get('html'));
         }
         return '';
     },
@@ -748,25 +748,20 @@ ka.Window = new Class({
         if (title != 'Kryn.cms') {
             new Element('span', {
                 text: title
-            }).inject(this.titleText, 'before');
-
-            new Element('img', {
-                src: _path + 'bundles/admin/images/ka-kwindow-title-path.png'
-            }).inject(this.titleText, 'before');
+            }).inject(this.titleText);
         }
 
         var path = Array.clone(this.entryPointDefinition._path);
         path.pop();
         Array.each(path, function (label) {
 
-            new Element('span', {
-                text: t(label)
-            }).inject(this.titleText, 'before');
-
             new Element('img', {
                 src: _path + 'bundles/admin/images/ka-kwindow-title-path.png'
-            }).inject(this.titleText, 'before');
+            }).inject(this.titleText);
 
+            new Element('span', {
+                text: t(label)
+            }).inject(this.titleText);
 
         }.bind(this));
 
@@ -774,7 +769,13 @@ ka.Window = new Class({
             this.createResizer();
         }
 
-        this.titleText.set('text', t(this.entryPointDefinition.label));
+        new Element('img', {
+            src: _path + 'bundles/admin/images/ka-kwindow-title-path.png'
+        }).inject(this.titleText);
+
+        new Element('span', {
+            text: t(this.entryPointDefinition.label)
+        }).inject(this.titleText);
 
         this.content.empty();
         new Element('div', {
@@ -922,7 +923,6 @@ ka.Window = new Class({
         this.title = new Element('div', {
             'class': 'kwindow-win-title'
         }).addEvent('dblclick', function () {
-
             if (this.entryPointDefinition && this.entryPointDefinition.noMaximize !== true) {
                 this.maximize();
             }
@@ -933,16 +933,11 @@ ka.Window = new Class({
 
         this.titleAdditional = new Element('span', {'class': 'ka-kwindow-titlepath-additional'}).inject(this.titlePath);
 
-
         this.titleGroups = new Element('div', {
             'class': 'kwindow-win-titleGroups'
         }).inject(this.win);
 
         this.createTitleBar();
-
-        this.bottom = new Element('div', {
-            'class': 'kwindow-win-bottom'
-        }).inject(this.win);
 
         if (this.isInline()) {
             this.title.setStyle('display', 'none');
@@ -993,8 +988,6 @@ ka.Window = new Class({
     },
 
     extendHead: function () {
-        this.border.addClass('ka-window-extend-head');
-        this.getTitleContaner().addClass('kwindow-win-title-extended');
     },
 
     addTabGroup: function () {

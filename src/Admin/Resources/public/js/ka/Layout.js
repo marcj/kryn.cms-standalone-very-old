@@ -18,7 +18,6 @@ ka.Layout = new Class({
          *       columns: [null],
          *     }
          *  ]
-         * TODO
          *
          * @var {Array}
          */
@@ -45,7 +44,7 @@ ka.Layout = new Class({
         gridLayout: true,
 
         /**
-         *
+         * True to fullscreen this layout. (position absolute, width: 100%, height 100%)
          *
          * @var {Boolean}
          */
@@ -119,20 +118,21 @@ ka.Layout = new Class({
 
     },
 
+    getTable: function(){
+        return document.id(this.getVertical().getTable());
+    },
+
     destroy: function(){
         this.main.destroy();
     },
 
     mapConnections: function(){
-
         Array.each(this.options.connections, function(connection){
             this.connectCells(connection[0], connection[1]);
         }.bind(this));
-
     },
 
     connectCells: function(pCell1, pCell2){
-
         if (typeOf(pCell1) == 'array') pCell1 = this.getCell(pCell1[0], pCell1[1]);
         if (typeOf(pCell2) == 'array') pCell2 = this.getCell(pCell2[0], pCell2[1]);
 
@@ -143,21 +143,29 @@ ka.Layout = new Class({
         }.bind(this));
 
         pCell1.fireEvent('resize');
-
-
     },
 
     createResizer: function(){
-
         Array.each(this.options.splitter, function(resize){
-
-            new ka.LayoutSplitter(this.getCell(resize[0], resize[1]), resize[2]);
-
+            if ('array' === typeOf(resize)) {
+                new ka.LayoutSplitter(this.getCell(resize[0], resize[1]), resize[2]);
+            } else {
+                console.log('wrong format of `splitter`. Should be a array in a array. [ [1, 2, \'right\']]');
+            }
         }.bind(this));
-
     },
 
     getCell: function(pRow, pColumn){
+        var row, cell;
+        if (row = this.getVertical().getHorizontal(pRow)) {
+            if (cell = row.getColumn(pColumn)) {
+                return cell;
+            } else {
+                throw 'Column ' + pColumn+ ' in row ' + pRow + ' does not exist.';
+            }
+        } else {
+            throw 'Row ' + pRow + ' does not exist.';
+        }
         return this.getVertical().getHorizontal(pRow).getColumn(pColumn);
     },
 
@@ -178,7 +186,6 @@ ka.Layout = new Class({
     },
 
     renderLayout: function(){
-
         if (!this.options.layout || !this.options.layout.length) return;
 
         if (!this.getVertical()){
@@ -188,15 +195,12 @@ ka.Layout = new Class({
         var horizontal;
 
         Array.each(this.options.layout, function(row){
-
             if (row.columns && row.columns.length > 0){
-
-                horizontal = new ka.LayoutHorizontal(this.getVertical(), {columns: row.columns, height: row.height});
-
-                //this.vertical.addHorizontal(horizontal);
+                horizontal = new ka.LayoutHorizontal(this.getVertical(), {
+                    columns: row.columns,
+                    height: row.height
+                });
             }
         }.bind(this));
-
     }
-
 });

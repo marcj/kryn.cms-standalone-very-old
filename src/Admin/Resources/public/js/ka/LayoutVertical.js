@@ -89,6 +89,10 @@ ka.LayoutVertical = new Class({
 
     },
 
+    getTable: function(){
+        return this.table;
+    },
+
     getLayout: function(){
         return this.layout;
     },

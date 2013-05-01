@@ -30,17 +30,13 @@ ka.AdminInterface = new Class({
             }
         }).inject(document.body);
 
-        this.createLayout();
-
         if (!this.options.frontPage){
             this.renderLogin();
         }
     },
 
     createLayout: function(){
-
         if (this.options.frontPage){
-
             return;
 
         } else {
@@ -51,14 +47,14 @@ ka.AdminInterface = new Class({
 
         this.mainMenu = new Element('div', {
             'class': 'ka-main-menu ka-admin'
+        }).inject(document.body);
+
+        this.mainMenuTop = new Element('div', {
+            'class': 'ka-main-menu-top'
         }).inject(this.border);
 
         this.mainMenuTopSub = new Element('div', {
             'class': 'ka-main-menu-top-sub'
-        }).inject(this.border);
-
-        this.mainMenuTop = new Element('div', {
-            'class': 'ka-main-menu-top'
         }).inject(this.border);
 
         this.mainMenuTopLogo = new Element('img', {
@@ -76,7 +72,7 @@ ka.AdminInterface = new Class({
 
         this.mainMenuUser = new Element('div',{
             'class': 'ka-main-menu-user'
-        }).inject(this.mainMenu);
+        }).inject(this.mainMenuTopSub);
 
         this.mainLinks = new Element('div',{
             'class': 'ka-mainLinks ka-scrolling'
@@ -165,10 +161,9 @@ ka.AdminInterface = new Class({
         if (this.options.frontPage){
             return;
         }
+        this.createLayout();
 
-        this.frontendLinkSplitter = new Element('div',{
-            'class': 'ka-main-menu-splitter'
-        }).inject(this.mainTempLinks);
+        this.border.setStyle('display', 'block');
 
         this.frontendLink = new Element('a', {
             text: t('Frontend'),
@@ -182,7 +177,7 @@ ka.AdminInterface = new Class({
         this.mainMenuUser.empty();
 
         new Element('h2', {
-            text: tf('Hi %s %s', window._session.firstName, window._session.lastName)
+            text: tf('Welcome, %s %s', window._session.firstName, window._session.lastName)
         }).inject(this.mainMenuUser);
 
         new Element('img', {
@@ -193,13 +188,11 @@ ka.AdminInterface = new Class({
         new Element('span', {
             text: window._session.username,
             'class': 'username'
-        }).inject(this.mainMenuUser);
-
-        this.editMeButton = new ka.Button(t('Edit profile'))
-            .addEvent('click', function(){
-                ka.wm.open('users/users/editMe', {values: {id: window._user_id}});
-            })
-            .inject(this.mainMenuUser);
+        })
+        .addEvent('click', function(){
+            ka.wm.open('users/users/editMe', {values: {id: window._userId}});
+        })
+        .inject(this.mainMenuUser);
 
         this.logoutButton = new ka.Button(t('Logout'))
             .addEvent('click', function(){
@@ -429,7 +422,6 @@ ka.AdminInterface = new Class({
     },
 
     renderLogin: function(){
-
         this.login = new Element('div', {
             'class': 'ka-login ka-admin'
         }).inject(document.body);
@@ -679,10 +671,6 @@ ka.AdminInterface = new Class({
 
     loginSuccess: function (pResponse, pAlready) {
 
-        logger('loginSuccess');
-
-        this.border.setStyle('display', 'block');
-
         var b = new Fx.Tween(this.loginBgBlue, {duration: 500});
         var g = new Fx.Tween(this.loginBgGreen, {duration: 500});
 
@@ -692,7 +680,6 @@ ka.AdminInterface = new Class({
         b.start('opacity', 0).chain(function(){
             this.start('opacity', 1)
         });
-
 
         if (pAlready && window._session.hasBackendAccess == '0') {
             return;

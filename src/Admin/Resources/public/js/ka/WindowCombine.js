@@ -12,6 +12,7 @@ ka.WindowCombine = new Class({
     renderLayout: function () {
 
         this.mainLayout = new ka.Layout(this.win.content, {
+            fixed: false,
             layout: [{
                 columns: [300, null]
             }],
@@ -22,6 +23,8 @@ ka.WindowCombine = new Class({
                 [[1, 1], this.headerLayout.getColumn(1)]
             ]
         });
+
+        document.id(this.mainLayout).addClass('ka-windowCombine-container');
 
         this.mainLeft = this.mainLayout.getCell(1,1);
 

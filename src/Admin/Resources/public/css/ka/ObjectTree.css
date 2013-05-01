@@ -73,7 +73,7 @@
     position: relative;
     height: 18px;
     width: 15px;
-    vertical-align: middle;
+    vertical-align: text-top;
 }
 
 .ka-objectTree-item-masks img {
@@ -88,7 +88,7 @@
 
 .ka-objectTree-item-selected,
 .ka-objectTree-item-selected:hover {
-    background-color: #2F8CBD;
+    background-color: #22638E;
     color: white;
 }
 
