@@ -19,7 +19,7 @@ ka.WindowEdit = new Class({
     initialize: function (pWin, pContainer) {
         this.win = pWin;
 
-        this.winParams = Object.clone(this.win.getParameter()); //copy
+        this.winParams = Object.clone(this.win.getParameter());
 
         if (!this.winParams.item && this.winParams.values)
             this.winParams.item = this.winParams.values; //compatibility
@@ -65,10 +65,6 @@ ka.WindowEdit = new Class({
             delete this.languageTip;
         }
 
-        if (this.headerLayout)
-            this.headerLayout.getLayout().destroy();
-
-        delete this.headerLayout;
         delete this.tabPane;
 
         Object.each(this._buttons, function (button, id) {
@@ -246,7 +242,7 @@ ka.WindowEdit = new Class({
             e.stop();
         });
 
-        this.previewBox.inject(this.headerLayout.getColumn(2));
+        this.previewBox.inject(this.win.getTitleGroupContainer());
 
         this.previewBox.setStyle('display', 'none');
 
@@ -407,18 +403,13 @@ ka.WindowEdit = new Class({
 
         this.fields = {};
 
-        this.headerLayout = new ka.LayoutHorizontal(this.win.getTitleGroupContainer(), {
-            columns: [null, 250],
-            fixed: false
-        });
-
-        this.renderMultilanguage();
-
         this.renderVersions();
 
         this.renderPreviews();
 
         this.renderSaveActionBar();
+
+        this.renderMultilanguage();
         
         this.renderFields();
 
@@ -442,7 +433,7 @@ ka.WindowEdit = new Class({
             }
 
 //            this.tabPane = new ka.TabPane(this.form, true, {addSmallTabGroup: function(){
-//                return new ka.SmallTabGroup(this.headerLayout.getColumn(1));
+//                return new ka.SmallTabGroup(this.win.getTitleGroupContainer());
 //            }.bind(this)});
 
             this.fieldForm = new ka.FieldForm(this.form, this.classProperties.fields, {}, {win: this.win});
@@ -489,7 +480,7 @@ ka.WindowEdit = new Class({
                 versioningSelectRight = 150;
             }
 
-            this.versioningSelect = new ka.Select(this.headerLayout.getColumn(2));
+            this.versioningSelect = new ka.Select(this.win.getTitleGroupContainer());
             this.versioningSelect.setStyle('width', 120);
 
             this.versioningSelect.addEvent('change', this.changeVersion.bind(this));
@@ -507,9 +498,8 @@ ka.WindowEdit = new Class({
             this.win.extendHead();
 
             this.languageSelect = new ka.Select();
-            this.languageSelect.inject(this.headerLayout.getColumn(2));
+            this.languageSelect.inject(this.win.getTitleGroupContainer());
             this.languageSelect.setStyle('width', 120);
-
 
             this.languageSelect.addEvent('change', this.changeLanguage.bind(this));
 
@@ -635,19 +625,15 @@ ka.WindowEdit = new Class({
 
             this.previewBtn = new ka.Button([t('Preview'), '#icon-eye'])
             //.addEvent('click', this._save.bind(this))
-            .inject(this.headerLayout.getColumn(2));
-            document.id(this.previewBtn).setStyle('float', 'right')
+            .inject(this.win.getTitleGroupContainer());
 
             //this.previewBtn = this.actionsNavi.addButton(t('Preview'), '#icon-eye-3', this.preview.bind(this));
         }
 
         if (this.classProperties.workspace){
-
-
             this.showVersionsBtn = new ka.Button([t('Versions'), '#icon-history'])
             .addEvent('click', this.showVersions)
-            .inject(this.headerLayout.getColumn(2));
-            document.id(this.showVersionsBtn).setStyle('float', 'right')
+            .inject(this.win.getTitleGroupContainer());
         }
 
         this.checkTabFieldWidth();

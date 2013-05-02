@@ -358,7 +358,6 @@ class ObjectCrud
                 }
             }
         }
-        $this->objectDefinition->getFields();
 
         if ($this->columns) {
             $this->prepareFieldDefinition($this->columns);
@@ -427,11 +426,13 @@ class ObjectCrud
             }
         }
 
-        $this->primary = array();
-
-        //var_dump($this->fields); exit;
-        foreach ($this->objectDefinition->getPrimaryKeys() as $sfield) {
-            $this->primary[] = $sfield->getId();
+        if (!$this->primary) {
+            $this->primary = array();
+            if ($this->objectDefinition) {
+                foreach ($this->objectDefinition->getPrimaryKeys() as $sfield) {
+                    $this->primary[] = $sfield->getId();
+                }
+            }
         }
 
         $this->translate($this->nestedRootAddLabel);

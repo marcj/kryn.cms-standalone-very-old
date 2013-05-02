@@ -18,9 +18,6 @@ ka.WindowCombine = new Class({
             }],
             splitter: [
                 [1, 1, 'right']
-            ],
-            connections: [
-                [[1, 1], this.headerLayout.getColumn(1)]
             ]
         });
 
@@ -59,7 +56,6 @@ ka.WindowCombine = new Class({
             }).inject(this.mainLeft, 'top');
 
             this.sortSpan = new Element('span', {
-                style: 'margin-left: 30px; line-height: 17px;'
             }).inject(this.mainLeftTop);
 
             this.itemCount = new Element('div', {
@@ -204,7 +200,7 @@ ka.WindowCombine = new Class({
 
     renderActionbar: function () {
 
-        this.renderTopActionBar(this.headerLayoutLeft.getColumn(1));
+        this.renderTopActionBar(this.headerLayout.getColumn(1));
 
     },
 
@@ -217,7 +213,8 @@ ka.WindowCombine = new Class({
     renderSearchPane: function () {
 
         this.searchIcon = new Element('div', {
-            'class': 'ka-list-combine-searchicon icon-search-8'
+            'class': 'ka-list-combine-searchicon icon-search-8',
+            style: 'display: none'
         }).addEvent('click', this.toggleSearch.bind(this)).inject(this.mainLeftTop);
 
 
@@ -633,27 +630,20 @@ ka.WindowCombine = new Class({
 
 
     renderHeader: function(){
-
         this.headerLayout = new ka.LayoutHorizontal(this.win.getTitleGroupContainer(), {
-            columns: [260, null],
+            columns: [null, null],
             fixed: false
         });
 
-        this.headerLayoutLeft = new ka.LayoutHorizontal(this.headerLayout.getColumn(1), {
-            columns: [null, 147],
-            fixed: false
-        });
-
-        this.renderMultilanguage();
-
-
+        this.headerLayout.getColumn(2).setStyle('text-align', 'right');
+        this.headerLayout.getColumn(2).setStyle('padding-top', '50px');
     },
 
     renderMultilanguage: function () {
 
         if (this.classProperties.multiLanguage) {
 
-            this.languageSelect = new ka.Select(this.headerLayoutLeft.getColumn(2));
+            this.languageSelect = new ka.Select(this.headerLayout.getColumn(1));
 
             document.id(this.languageSelect).setStyle('width', 140);
 

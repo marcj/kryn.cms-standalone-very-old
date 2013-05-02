@@ -1,5 +1,3 @@
-
-
 .ka-Splitter-main {
     position: absolute;
 }
@@ -24,18 +22,16 @@
 .ka-Splitter-main-right {
     top: 0;
     bottom: 0;
-    width: 2px;
-    border-left: 1px solid silver;
-    border-right: 1px solid silver;
-    background-color: #e6e6e6;
+    width: 4px;
     cursor: ew-resize;
 }
 
-
 .ka-Splitter-main-left {
     left: 0;
+    border-left: 1px solid silver;
 }
 
 .ka-Splitter-main-right {
     right: 0;
+    border-right: 1px solid silver;
 }

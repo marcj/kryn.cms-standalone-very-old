@@ -189,19 +189,17 @@ ka.WindowList = new Class({
 
         this.renderActionbar();
 
+        this.renderMultilanguage();
+
         this.renderLoader();
 
         this.renderFinished();
     },
 
     renderHeader: function(){
-
         this.headerLayout = new ka.LayoutHorizontal(this.win.getTitleGroupContainer(), {
             columns: [150, null, 250]
         });
-
-        this.renderMultilanguage();
-
     },
 
     renderFinished: function () {
@@ -595,7 +593,8 @@ ka.WindowList = new Class({
 
         this.viewActionBar = new ka.ButtonGroup(pGroupContainer, {onlyIcons: true});
 
-        this.viewActionBar.addButton(t('Compact'), '#icon-layout');
+        this.viewCompact = this.viewActionBar.addButton(t('Compact'), '#icon-layout');
+        this.viewCompact.setPressed(true);
         this.viewActionBar.addButton(t('Grid'), '#icon-list-9');
 
         /*

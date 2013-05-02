@@ -134,7 +134,6 @@ div.ka-windowCombine-list-actions {
     right: 6px;
     top: 10px;
     color: #999;
-    font-size: 11px;
 }
 
 .ka-list-combine-searchicon {
@@ -365,9 +364,8 @@ a.ka-list-search-button-active:link {
 
 .ka-list-combine-left-top {
     position: relative;
-    padding: 0px 6px;
     height: 32px;
-    border-bottom: 1px solid gray;
+    border-bottom: 1px solid #bebebe;
 
     color: #444;
 }

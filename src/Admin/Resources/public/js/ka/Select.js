@@ -28,6 +28,8 @@ ka.Select = new Class({
     a: {},
     enabled: true,
 
+    searchValue: '',
+
     cachedObjectItems: {},
 
     objectFields: [],
@@ -37,13 +39,12 @@ ka.Select = new Class({
     loaderId: 0,
     backupedTitle: false,
 
-    labelTemplate:
-        '{if kaSelectImage}'+
-            '{var isVectorIcon = kaSelectImage.substr(0,1) == "#"} '+
-            '{if kaSelectImage && isVectorIcon}<span class="{kaSelectImage.substr(1)}">{/if}'+
-            '{if kaSelectImage && !isVectorIcon}<img src="{kaSelectImage}" />{/if}'+
-        '{/if}'+
-        '{label}'+
+    labelTemplate: '{if kaSelectImage}' +
+        '{var isVectorIcon = kaSelectImage.substr(0,1) == "#"} ' +
+        '{if kaSelectImage && isVectorIcon}<span class="{kaSelectImage.substr(1)}">{/if}' +
+        '{if kaSelectImage && !isVectorIcon}<img src="{kaSelectImage}" />{/if}' +
+        '{/if}' +
+        '{label}' +
         '{if kaSelectImage && isVectorIcon}</span>{/if}',
 
     options: {
@@ -157,14 +158,15 @@ ka.Select = new Class({
         this.mapEvents();
         this.prepareOptions();
 
-        if (this.options.selectFirst)
+        if (this.options.selectFirst) {
             this.selectFirst();
+        }
 
         this.fireEvent('ready');
 
     },
 
-    createLayout: function(){
+    createLayout: function () {
 
         this.box = new Element('a', {
             href: 'javascript: ;',
@@ -176,10 +178,10 @@ ka.Select = new Class({
         this.title = new Element('div', {
             'class': 'ka-Select-box-title'
         })
-        .addEvent('mousedown', function (e) {
-            e.preventDefault();
-        })
-        .inject(this.box);
+            .addEvent('mousedown', function (e) {
+                e.preventDefault();
+            })
+            .inject(this.box);
 
         this.arrowBox = new Element('div', {
             'class': 'ka-Select-arrow icon-arrow-17'
@@ -189,30 +191,30 @@ ka.Select = new Class({
             'class': 'ka-Select-chooser ka-normalize'
         });
 
-        if (this.container)
+        if (this.container) {
             this.box.inject(this.container);
+        }
     },
 
-    mapEvents: function(){
-        if (!ka.mobile){
-            this.input = new Element('input', {
-                style: 'height: 1px; position: absolute; top: -40px;'
-            }).inject(this.box);
-            this.input.addEvent('keydown', this.actions);
-            this.input.addEvent('keyup', this.search);
-            this.input.addEvent('focus', this.focus);
-            this.input.addEvent('blur', function(){
-                this.blur.delay(50, this);
-            }.bind(this));
-        }
+    mapEvents: function () {
+        this.box.addEvent('keydown', this.actions);
+        this.box.addEvent('keyup', this.search);
+        this.box.addEvent('focus', this.focus);
+        this.box.addEvent('blur', function () {
+            this.blur.delay(50, this);
+        }.bind(this));
 
-        this.chooser.addEvent('mousedown', function(){
+        this.chooser.addEvent('mousedown', function () {
             this.blockNextBlur = true;
         }.bind(this));
 
         this.chooser.addEvent('click', function (e) {
-            if (!e || !(item = e.target)) return;
-            if (!item.hasClass('ka-select-chooser-item') && !(item = item.getParent('.ka-select-chooser-item'))) return;
+            if (!e || !(item = e.target)) {
+                return;
+            }
+            if (!item.hasClass('ka-select-chooser-item') && !(item = item.getParent('.ka-select-chooser-item'))) {
+                return;
+            }
 
             this.chooseItem(item.kaSelectId, true);
             this.close(true);
@@ -222,46 +224,47 @@ ka.Select = new Class({
         this.chooser.addEvent('scroll', this.checkScroll);
     },
 
+    prepareOptions: function () {
 
-    prepareOptions: function(){
-
-        if (this.options.items){
-            if (typeOf(this.options.items) == 'object'){
-                Object.each(this.options.items, function(label, id){
+        if (this.options.items) {
+            if (typeOf(this.options.items) == 'object') {
+                Object.each(this.options.items, function (label, id) {
                     this.items.push({id: id, label: label});
                 }.bind(this));
             }
 
-            if (typeOf(this.options.items) == 'array'){
-                if (this.options.itemsKey){
+            if (typeOf(this.options.items) == 'array') {
+                if (this.options.itemsKey) {
 
-                    if (this.options.itemsLabel){
-                        Array.each(this.options.items, function(item){
+                    if (this.options.itemsLabel) {
+                        Array.each(this.options.items, function (item) {
                             this.items.push({id: item[this.options.itemsKey], label: item[this.options.itemsLabel]});
                         }.bind(this));
                     } else {
-                        Array.each(this.options.items, function(item){
+                        Array.each(this.options.items, function (item) {
                             this.items.push({id: item[this.options.itemsKey], label: item});
                         }.bind(this));
                     }
 
                 } else {
-                    Array.each(this.options.items, function(label){
+                    Array.each(this.options.items, function (label) {
                         this.items.push({id: label, label: label});
                     }.bind(this));
                 }
             }
 
-        } else if (this.options.object){
+        } else if (this.options.object) {
             this.objectDefinition = ka.getObjectDefinition(this.options.object);
 
             var fields = [];
-            if (this.options.objectFields)
+            if (this.options.objectFields) {
                 fields = this.options.objectFields;
-            else if (this.options.objectLabel)
+            }
+            else if (this.options.objectLabel) {
                 fields.push(this.options.objectLabel);
+            }
 
-            if (typeOf(fields) == 'string'){
+            if (typeOf(fields) == 'string') {
                 fields = fields.replace(/[^a-zA-Z0-9_]/g, '').split(',');
             }
             this.objectFields = fields;
@@ -270,40 +273,45 @@ ka.Select = new Class({
 
     },
 
-    focus: function(){
+    focus: function () {
         this.box.addClass('ka-Select-box-focus');
     },
 
-    blur: function(){
-        if (this.blockNextBlur) return this.blockNextBlur = false;
+    blur: function () {
+        if (this.blockNextBlur) {
+            return this.blockNextBlur = false;
+        }
         this.close();
     },
 
-    loadObjectItems: function(pOffset, pCallback, pCount){
+    loadObjectItems: function (pOffset, pCallback, pCount) {
 
-        if (!pCount)
+        if (!pCount) {
             pCount = this.options.maxItemsPerLoad;
+        }
 
-        if (this.lastRq) this.lastRq.cancel();
+        if (this.lastRq) {
+            this.lastRq.cancel();
+        }
 
-        if (this.options.store){
+        if (this.options.store) {
             var storePath = this.options.store;
 
-            this.lastRq = new Request.JSON({url: _pathAdmin+storePath,
+            this.lastRq = new Request.JSON({url: _pathAdmin + storePath,
                 noErrorReporting: ['NoAccessException'],
-                onCancel: function(){
+                onCancel: function () {
                     pCallback(false);
                 },
-                onComplete: function(response){
+                onComplete: function (response) {
 
-                    if (response.error){
+                    if (response.error) {
                         //todo, handle error
                         return false;
                     } else {
 
                         var items = [];
 
-                        Object.each(response.data, function(item, id){
+                        Object.each(response.data, function (item, id) {
 
                             items.push({
                                 id: id,
@@ -318,34 +326,37 @@ ka.Select = new Class({
                     }
                 }.bind(this)
             }).get({
-                //object: this.options.object,
-                offset: pOffset,
-                limit: pCount,
-                _lang: this.options.objectLanguage,
-                fields: this.objectFields ? this.objectFields.join(',') : null
-            });
+                    //object: this.options.object,
+                    offset: pOffset,
+                    limit: pCount,
+                    _lang: this.options.objectLanguage,
+                    fields: this.objectFields ? this.objectFields.join(',') : null
+                });
 
-        } if (this.options.object){
+        }
+        if (this.options.object) {
 
             this.lastRq = new Request.JSON({url: this.getObjectUrl(),
                 noErrorReporting: ['NoAccessException'],
-                onCancel: function(){
+                onCancel: function () {
                     pCallback(false);
                 },
-                onComplete: function(response){
+                onComplete: function (response) {
 
-                    if (response.error){
+                    if (response.error) {
                         //todo, handle error
                         return false;
                     } else {
 
                         var items = [];
 
-                        Array.each(response.data, function(item){
+                        Array.each(response.data, function (item) {
 
                             var id = ka.getObjectUrlId(this.options.object, item);
 
-                            if (this.hideOptions && this.hideOptions.contains(id)) return;
+                            if (this.hideOptions && this.hideOptions.contains(id)) {
+                                return;
+                            }
 
                             items.push({
                                 id: id,
@@ -360,78 +371,82 @@ ka.Select = new Class({
                     }
                 }.bind(this)
             }).get({
-                //object: this.options.object,
-                offset: pOffset,
-                limit: pCount,
-                _lang: this.options.objectLanguage,
-                scope: this.options.objectScope,
-                fields: this.objectFields ? this.objectFields.join(',') : null
-            });
+                    //object: this.options.object,
+                    offset: pOffset,
+                    limit: pCount,
+                    _lang: this.options.objectLanguage,
+                    scope: this.options.objectScope,
+                    fields: this.objectFields ? this.objectFields.join(',') : null
+                });
         }
 
     },
 
-    getObjectUrl: function(){
-        var uri = _pathAdmin + 'admin/object/'+ka.urlEncode(this.options.object);
+    getObjectUrl: function () {
+        var uri = _pathAdmin + 'admin/object/' + ka.urlEncode(this.options.object);
 
-        if (this.options.objectBranch){
-            if (this.options.objectBranch === true){
+        if (this.options.objectBranch) {
+            if (this.options.objectBranch === true) {
                 uri += '/:branch';
             } else {
-                uri += '/'+ka.urlEncode(this.options.objectBranch)+'/branch';
+                uri += '/' + ka.urlEncode(this.options.objectBranch) + '/branch';
             }
         }
 
         return uri;
     },
 
-    reset: function(){
+    reset: function () {
         this.chooser.empty();
         this.maximumItemsReached = false;
 
         this.loaded = 0;
         this.currentItems = {};
 
-        if (this.lastRq) this.lastRq.cancel();
-
+        if (this.lastRq) {
+            this.lastRq.cancel();
+        }
     },
 
-    checkScroll: function(){
-
-        if (this.maximumItemsReached) return;
-        if (this.whileFetching) return;
+    checkScroll: function () {
+        if (this.maximumItemsReached) {
+            return;
+        }
+        if (this.whileFetching) {
+            return;
+        }
 
         var scrollPos = this.chooser.getScroll();
         var scrollMax = this.chooser.getScrollSize();
         var maxY = scrollMax.y - this.chooser.getSize().y;
 
-        if (scrollPos.y+10 < maxY) return;
+        if (scrollPos.y + 10 < maxY) {
+            return;
+        }
 
         this.loadItems();
-
     },
 
-    actions: function(pEvent){
-
-        if (pEvent.key == 'esc'){
-            this.input.value = '';
-            if (this.isOpen()) this.input.blur();
+    actions: function (pEvent) {
+        if (pEvent.key == 'esc') {
+            this.searchValue = '';
             this.close(true);
             pEvent.stopPropagation();
             return;
         }
 
-        if (pEvent.key == 'enter' || pEvent.key == 'space' || pEvent.key == 'down' || pEvent.key == 'up'){
+        if (pEvent.key == 'enter' || pEvent.key == 'space' || pEvent.key == 'down' || pEvent.key == 'up') {
             var current = this.chooser.getElement('.ka-select-chooser-item-active');
 
-            if (['down', 'up'].contains(pEvent.key)) pEvent.stop();
+            if (['down', 'up'].contains(pEvent.key)) {
+                pEvent.stop();
+            }
 
+            if (pEvent.key == 'enter' || (this.searchValue.trim() == '' && pEvent.key == 'space')) {
 
-            if (pEvent.key == 'enter' || (this.input.value.trim() == '' && pEvent.key == 'space')){
-
-                if (this.isOpen()){
+                if (this.isOpen()) {
                     this.close(true);
-                    if (current){
+                    if (current) {
                         this.chooseItem(current.kaSelectId, true);
                     }
                 } else {
@@ -441,55 +456,59 @@ ka.Select = new Class({
                 return;
             }
 
-            if (pEvent.key == 'down'){
-                if (!current){
+            if (pEvent.key == 'down') {
+                if (!current) {
                     var first = this.chooser.getElement('.ka-select-chooser-item');
-                    if (first)
+                    if (first) {
                         first.addClass('ka-select-chooser-item-active');
+                    }
                 } else {
                     current.removeClass('ka-select-chooser-item-active');
                     var next = current.getNext();
-                    if (next){
+                    if (next) {
                         next.addClass('ka-select-chooser-item-active');
                     } else {
                         var first = this.chooser.getElement('.ka-select-chooser-item');
-                        if (first)
+                        if (first) {
                             first.addClass('ka-select-chooser-item-active');
+                        }
                     }
                 }
             }
 
-            if (pEvent.key == 'up'){
-                if (!current){
+            if (pEvent.key == 'up') {
+                if (!current) {
                     var last = this.chooser.getLast('.ka-select-chooser-item');
-                    if (last)
+                    if (last) {
                         last.addClass('ka-select-chooser-item-active');
+                    }
                 } else {
                     current.removeClass('ka-select-chooser-item-active');
                     var previous = current.getPrevious();
-                    if (previous){
+                    if (previous) {
                         previous.addClass('ka-select-chooser-item-active');
                     } else {
                         var last = this.chooser.getLast('.ka-select-chooser-item');
-                        if (last)
+                        if (last) {
                             last.addClass('ka-select-chooser-item-active');
+                        }
                     }
                 }
             }
 
-
             current = this.chooser.getElement('.ka-select-chooser-item-active');
 
-            if (current){
+            if (current) {
                 var position = current.getPosition(this.chooser);
                 var height = +current.getSize().y;
 
-                if (position.y+height > this.chooser.getSize().y){
-                    this.chooser.scrollTo(this.chooser.getScroll().x, this.chooser.getScroll().y+(position.y-this.chooser.getSize().y)+height);
+                if (position.y + height > this.chooser.getSize().y) {
+                    this.chooser.scrollTo(this.chooser.getScroll().x,
+                        this.chooser.getScroll().y + (position.y - this.chooser.getSize().y) + height);
                 }
 
-                if (position.y < 0){
-                    this.chooser.scrollTo(this.chooser.getScroll().x, this.chooser.getScroll().y+(position.y));
+                if (position.y < 0) {
+                    this.chooser.scrollTo(this.chooser.getScroll().x, this.chooser.getScroll().y + (position.y));
                 }
             }
 
@@ -497,52 +516,71 @@ ka.Select = new Class({
         }
     },
 
-    search: function(pEvent){
+    search: function (pEvent) {
+        if (this.blockNextSearch) {
+            return this.blockNextSearch = false;
+        }
 
-        if (this.blockNextSearch) return this.blockNextSearch = false;
+        if (['down', 'up', 'enter', 'tab'].contains(pEvent.key)) {
+            return;
+        }
 
-        if (['down', 'up', 'enter'].contains(pEvent.key)) return;
+        if ('backspace' === pEvent.key) {
+            if ('' !== this.searchValue) {
+                this.searchValue = this.searchValue.substr(0, this.searchValue.length - 1);
+            }
+        } else if (1 === pEvent.key.length){
+            this.searchValue += pEvent.key;
+        }
 
-        if (this.input && this.input.value.trim() && !this.isOpen())
+        if (this.searchValue.trim() && !this.isOpen()) {
             this.open(true);
-
+        }
 
         this.reset();
         this.loadItems();
 
     },
 
-    loadItems: function(){
+    loadItems: function () {
 
-        if (this.lrct) clearTimeout(this.lrct);
+        if (this.lrct) {
+            clearTimeout(this.lrct);
+        }
 
         this.lrct = this._loadItems.delay(50, this);
 
     },
 
-    _loadItems: function(){
+    _loadItems: function () {
 
         //logger('renderChooser: '+(this.maximumItemsReached+0)+'/'+(this.whileFetching+0)+'/'+this.loaded);
-        if (!this.box.hasClass('ka-Select-box-open')) return false;
+        if (!this.box.hasClass('ka-Select-box-open')) {
+            return false;
+        }
 
         //this.chooser.empty();
-        if (this.maximumItemsReached) return this.displayChooser();
+        if (this.maximumItemsReached) {
+            return this.displayChooser();
+        }
 
-        if (this.whileFetching) return false;
+        if (this.whileFetching) {
+            return false;
+        }
 
         this.whileFetching = true;
 
         //show small loader
-        if (this.input && this.input.value.trim()){
-            
-            if (!this.title.inSearchMode)
+        if (this.searchValue.trim()) {
+            if (!this.title.inSearchMode) {
                 this.backupedTitle = this.title.get('html');
-            
-            this.title.set('text', this.input.value);
+            }
+
+            this.title.set('text', this.searchValue);
             this.title.setStyle('color', 'gray');
             this.title.inSearchMode = true;
 
-        } else if(this.backupedTitle !== false) {
+        } else if (this.backupedTitle !== false) {
             this.title.set('html', this.backupedTitle);
             this.title.setStyle('color');
             this.backupedTitle = false;
@@ -560,23 +598,25 @@ ka.Select = new Class({
 
         var loaderId = this.lastLoader.loaderId;
 
-        (function(){
-            if (this.lastLoader && this.lastLoader.loaderId == loaderId){
+        (function () {
+            if (this.lastLoader && this.lastLoader.loaderId == loaderId) {
                 this.lastLoader.setStyle('display', 'block');
                 this.displayChooser();
             }
         }).delay(1000, this);
 
-        this.dataProxy(this.loaded, function(pItems){
+        this.dataProxy(this.loaded, function (pItems) {
 
-            if (typeOf(pItems) == 'array'){
+            if (typeOf(pItems) == 'array') {
 
                 Array.each(pItems, this.addItemToChooser);
 
                 this.loaded += pItems.length;
 
                 if (!pItems.length)//no items left
+                {
                     this.maximumItemsReached = true;
+                }
             }
 
             this.displayChooser();
@@ -586,16 +626,16 @@ ka.Select = new Class({
 
             this.whileFetching = false;
             this.checkScroll();
-            
+
         }.bind(this));
 
     },
 
-    addItemToChooser: function(pItem){
-        
+    addItemToChooser: function (pItem) {
+
         var a;
 
-        if (pItem.isSplit){
+        if (pItem.isSplit) {
             a = new Element('div', {
                 html: pItem.label,
                 'class': 'group'
@@ -607,11 +647,11 @@ ka.Select = new Class({
                 html: this.renderLabel(pItem.label)
             });
 
-            if (this.input && this.input.value.trim()){
+            if (this.searchValue.trim()) {
 
-                var regex = new RegExp('('+ka.pregQuote(this.input.value.trim())+')', 'gi');
+                var regex = new RegExp('(' + ka.pregQuote(this.searchValue.trim()) + ')', 'gi');
                 var match = a.get('text').match(regex);
-                if (match){
+                if (match) {
                     a.set('html', a.get('html').replace(regex, '<b>$1</b>'));
                 } else {
                     a.destroy();
@@ -630,80 +670,89 @@ ka.Select = new Class({
 
     },
 
-    checkIfCurrentValue: function(pItem, pA){
+    checkIfCurrentValue: function (pItem, pA) {
 
-        if (pItem.id == this.value){
+        if (pItem.id == this.value) {
             pA.addClass('icon-checkmark-6');
             pA.addClass('ka-select-chooser-item-selected');
         }
     },
 
-    renderLabel: function(pData){
+    renderLabel: function (pData) {
 
-        if (typeOf(pData) == 'null') return '';
+        if (typeOf(pData) == 'null') {
+            return '';
+        }
 
         var data = pData;
 
-        if (this.options.object && !this.options.labelTemplate){
+        if (this.options.object && !this.options.labelTemplate) {
             //just return ka.getObjectLabel
             return ka.getObjectLabelByItem(this.options.object, data);
         }
 
-        if (typeOf(data) == 'string')
+        if (typeOf(data) == 'string') {
             data = {label: data};
-        else if (typeOf(data) == 'array'){
+        }
+        else if (typeOf(data) == 'array') {
             //image
             data = {label: data[0], kaSelectImage: data[1]};
         }
 
         var template = this.labelTemplate;
 
-        if (this.options.object && this.objectDefinition.labelTemplate){
+        if (this.options.object && this.objectDefinition.labelTemplate) {
             template = this.objectDefinition.labelTemplate;
         }
 
-        if (this.options.labelTemplate){
+        if (this.options.labelTemplate) {
             template = this.options.labelTemplate;
         }
 
-        if (template == this.labelTemplate && this.options.object && this.objectFields.length > 0){
+        if (template == this.labelTemplate && this.options.object && this.objectFields.length > 0) {
             //we have no custom layout, but objectFields
             var label = [];
-            Array.each(this.objectFields, function(field){
+            Array.each(this.objectFields, function (field) {
                 label.push(pData[field]);
             });
             data.label = label.join(', ');
         }
 
-        if (!data.kaSelectImage) data.kaSelectImage = '';
+        if (!data.kaSelectImage) {
+            data.kaSelectImage = '';
+        }
 
-        if (typeOf(data.label) == 'null') data.label = '';
+        if (typeOf(data.label) == 'null') {
+            data.label = '';
+        }
 
         return mowla.fetch(template, data);
     },
 
-    selectFirst: function(pOffset){
+    selectFirst: function (pOffset) {
 
         this.duringFirstSelectLoading = true;
 
-        if (!pOffset) pOffset = 0;
+        if (!pOffset) {
+            pOffset = 0;
+        }
 
-        this.dataProxy(pOffset, function(items){
+        this.dataProxy(pOffset, function (items) {
             this.duringFirstSelectLoading = false;
 
-            if (items && items.length > 0){
+            if (items && items.length > 0) {
                 var i = 0;
-                for (i=0; i < items.length; i++){
+                for (i = 0; i < items.length; i++) {
                     var item = items[i];
-                    if (item && (!item.label || !item.label.isSplit)){
+                    if (item && (!item.label || !item.label.isSplit)) {
                         this.chooseItem(item.id, true);
                         return;
                     }
                 }
-                this.selectFirst(pOffset+5);
+                this.selectFirst(pOffset + 5);
             }
 
-        }.bind(this), pOffset+5);
+        }.bind(this), pOffset + 5);
 
     },
 
@@ -713,28 +762,38 @@ ka.Select = new Class({
      * @param {Integer}  pOffset
      * @param {Function} pCallback
      */
-    dataProxy: function(pOffset, pCallback, pCount){
+    dataProxy: function (pOffset, pCallback, pCount) {
 
-        if (!pCount) pCount = this.options.maxItemsPerLoad;
+        if (!pCount) {
+            pCount = this.options.maxItemsPerLoad;
+        }
 
-        if (this.items.length > 0){
+        if (this.items.length > 0) {
             //we have static items
             var items = [];
-            var i = pOffset-1;
+            var i = pOffset - 1;
 
-            while (++i >= 0){
+            while (++i >= 0) {
 
-                if (i >= this.items.length) break;
-                if (items.length == pCount) break;
-                if (this.options.objectLanguage && this.items[i].lang != this.options.objectLanguage) continue;
+                if (i >= this.items.length) {
+                    break;
+                }
+                if (items.length == pCount) {
+                    break;
+                }
+                if (this.options.objectLanguage && this.items[i].lang != this.options.objectLanguage) {
+                    continue;
+                }
 
-                if (this.hideOptions && this.hideOptions.contains(this.items[i].id)) continue;
+                if (this.hideOptions && this.hideOptions.contains(this.items[i].id)) {
+                    continue;
+                }
 
                 items.push(this.items[i]);
             }
 
             pCallback(items);
-        } else if (this.options.object || this.options.store){
+        } else if (this.options.object || this.options.store) {
             //we have object items
             this.loadObjectItems(pOffset, pCallback, pCount);
         } else {
@@ -743,15 +802,19 @@ ka.Select = new Class({
 
     },
 
-    setEnabled: function(pEnabled){
+    setEnabled: function (pEnabled) {
 
         this.enabled = pEnabled;
-        this.arrowBox.setStyle('opacity', pEnabled?1:0.4);
+        this.arrowBox.setStyle('opacity', pEnabled ? 1 : 0.4);
 
-        if (this.enabled) this.box.addClass('ka-Select-box-active');
-        else this.box.removeClass('ka-Select-box-active');
+        if (this.enabled) {
+            this.box.addClass('ka-Select-box-active');
+        }
+        else {
+            this.box.removeClass('ka-Select-box-active');
+        }
 
-        this.title.setStyle('opacity', pEnabled?1:0.4);
+        this.title.setStyle('opacity', pEnabled ? 1 : 0.4);
 
     },
 
@@ -768,8 +831,10 @@ ka.Select = new Class({
         this.box = null;
     },
 
-    remove: function(pId){
-        if (typeOf(this.items[ pId ]) == 'null') return;
+    remove: function (pId) {
+        if (typeOf(this.items[ pId ]) == 'null') {
+            return;
+        }
 
         this.hideOption(pId);
         delete this.items[pId];
@@ -787,18 +852,23 @@ ka.Select = new Class({
         this.loadItems();
     },
 
-    showOption: function(pId){
-        if (!this.hideOptions) this.hideOptions = [];
+    showOption: function (pId) {
+        if (!this.hideOptions) {
+            this.hideOptions = [];
+        }
         this.hideOptions.push(pId);
     },
 
-    hideOption: function(pId){
-        if (!this.hideOptions) return;
+    hideOption: function (pId) {
+        if (!this.hideOptions) {
+            return;
+        }
         var idx = this.hideOptions.indexOf(pId);
-        if (idx === -1) return;
+        if (idx === -1) {
+            return;
+        }
         this.hideOptions.splice(idx, 1);
     },
-
 
     addImage: function (pId, pLabel, pImage, pPos) {
         return this.add(pId, [pLabel, pImage], pPos);
@@ -813,20 +883,20 @@ ka.Select = new Class({
      */
     add: function (pId, pLabel, pPos) {
 
-        if (typeOf(pLabel) == 'array'){
+        if (typeOf(pLabel) == 'array') {
             pImagePath = pLabel[1];
             pLabel = pLabel[0];
         }
 
-        if (pPos == 'top'){
+        if (pPos == 'top') {
             this.items.splice(0, 1, {id: pId, label: pLabel});
-        } else if(pPos > 0){
+        } else if (pPos > 0) {
             this.items.splice(pPos, 1, {id: pId, label: pLabel});
         } else {
             this.items.push({id: pId, label: pLabel});
         }
 
-        if (typeOf(this.value) == 'null' && this.options.selectFirst){
+        if (typeOf(this.value) == 'null' && this.options.selectFirst) {
             this.chooseItem(pId);
         }
 
@@ -847,22 +917,22 @@ ka.Select = new Class({
 
     },
 
-    getLabel: function(pId, pCallback){
+    getLabel: function (pId, pCallback) {
 
         var data;
-        if (this.items.length > 0){
+        if (this.items.length > 0) {
 
             //search for i
-            for (var i = this.items.length-1; i >= 0; i--){
-                if (pId == this.items[i].id){
+            for (var i = this.items.length - 1; i >= 0; i--) {
+                if (pId == this.items[i].id) {
                     data = this.items[i];
                     break;
                 }
             }
             pCallback(data);
-        } else if (this.options.object || this.options.store){
+        } else if (this.options.object || this.options.store) {
             //maybe in objectcache?
-            if (this.cachedObjectItems[pId]){
+            if (this.cachedObjectItems[pId]) {
                 item = this.cachedObjectItems[pId];
                 pCallback({
                     id: pId,
@@ -870,17 +940,21 @@ ka.Select = new Class({
                 });
             } else {
                 //we need a request
-                if (this.lastLabelRequest) this.lastLabelRequest.cancel();
+                if (this.lastLabelRequest) {
+                    this.lastLabelRequest.cancel();
+                }
 
-                if (this.options.store){
+                if (this.options.store) {
 
                     this.lastLabelRequest = new Request.JSON({
                         url: _pathAdmin + this.options.store + '/' + ka.urlEncode(pId),
-                        onComplete: function(response){
+                        onComplete: function (response) {
 
-                            if (!response.error){
+                            if (!response.error) {
 
-                                if (response.data === false) return pCallback(false);
+                                if (response.data === false) {
+                                    return pCallback(false);
+                                }
 
                                 pCallback({
                                     id: pId,
@@ -892,14 +966,16 @@ ka.Select = new Class({
                             fields: this.objectFields.join(',')
                         });
 
-                } else if (this.options.object){
+                } else if (this.options.object) {
                     this.lastLabelRequest = new Request.JSON({
                         url: _pathAdmin + 'admin/object/' + ka.urlEncode(this.options.object) + '/' + ka.urlEncode(pId),
-                        onComplete: function(response){
+                        onComplete: function (response) {
 
-                            if (!response.error){
+                            if (!response.error) {
 
-                                if (!response.data) return pCallback(false);
+                                if (!response.data) {
+                                    return pCallback(false);
+                                }
 
                                 var id = ka.getObjectUrlId(this.options.object, response.data);
                                 pCallback({
@@ -909,73 +985,78 @@ ka.Select = new Class({
                             }
                         }.bind(this)
                     }).get({
-                        fields: this.objectFields.join(',')
-                    });
+                            fields: this.objectFields.join(',')
+                        });
                 }
             }
         }
 
     },
 
-    chooseItem: function(pValue, pInternal){
+    chooseItem: function (pValue, pInternal) {
 
         this.setValue(pValue, pInternal);
 
     },
 
-    setValue: function(pValue, pInternal) {
+    setValue: function (pValue, pInternal) {
 
         this.value = pValue;
 
-        if (this.options.object && typeOf(this.value) == 'object'){
+        if (this.options.object && typeOf(this.value) == 'object') {
             this.value = ka.getObjectUrlId(this.options.object, this.value);
         }
 
-        if (typeOf(this.value) == 'null')
+        if (typeOf(this.value) == 'null') {
             return this.title.set('text', '');
+        }
 
-        this.getLabel(this.value, function(item){
-            if (typeOf(item) != 'null' && item !== false)
+        this.getLabel(this.value, function (item) {
+            if (typeOf(item) != 'null' && item !== false) {
                 this.title.set('html', this.renderLabel(item.label));
-            else
+            }
+            else {
                 this.title.set('text', '');
+            }
         }.bind(this));
 
-        if (pInternal)
+        if (pInternal) {
             this.fireChange();
+        }
 
     },
 
-    setLabel: function(pId, pLabel){
+    setLabel: function (pId, pLabel) {
 
         var i = 0, max = this.items.length;
         do {
-            if (this.items[i].id == pId){
+            if (this.items[i].id == pId) {
                 this.items[i].label = pLabel;
                 break;
             }
         } while (++i && i < max);
 
-        if (this.value == pId){
+        if (this.value == pId) {
             this.title.set('html', pLabel);
             this.chooseItem(pId);
         }
 
     },
 
-    fireChange: function(){
+    fireChange: function () {
         this.fireEvent('change');
     },
 
     getValue: function () {
-        var i=0;
+        var i = 0;
 
-        while(this.duringFirstSelectLoading){
+        while (this.duringFirstSelectLoading) {
             i++;
-        };
+        }
+        ;
 
-        if (this.options.object){
-            return ka.getObjectId(this.options.object+'/'+this.value);
+        if (this.options.object) {
+            return ka.getObjectId(this.options.object + '/' + this.value);
         }
 
         return this.value;
@@ -989,18 +1070,18 @@ ka.Select = new Class({
         }
     },
 
-    close: function(pInternal){
+    close: function (pInternal) {
 
         this.chooser.dispose();
         this.box.removeClass('ka-Select-box-open');
         this.reset();
 
-        if(this.backupedTitle !== false) {
+        if (this.backupedTitle !== false) {
             this.title.set('html', this.backupedTitle);
             this.backupedTitle = false;
         }
 
-        if (this.lastOverlay){
+        if (this.lastOverlay) {
             this.lastOverlay.close();
             delete this.lastOverlay;
         }
@@ -1010,73 +1091,71 @@ ka.Select = new Class({
 
         this.box.removeClass('ka-Select-box-focus');
 
-        if (pInternal){
-
-            if (this.input){
-                this.input.focus();
-            }
-            
+        if (pInternal) {
             this.box.addClass('ka-Select-box-focus');
         }
     },
 
-
-    isOpen: function(){
+    isOpen: function () {
 
         return this.box.hasClass('ka-Select-box-open');
 
     },
 
-    open: function(pWithoutLoad){
+    open: function (pWithoutLoad) {
 
-        if (!this.enabled) return;
+        if (!this.enabled) {
+            return;
+        }
 
-        if (this.box.getParent('.kwindow-win-titleGroups'))
+        if (this.box.getParent('.kwindow-win-titleGroups')) {
             this.chooser.addClass('ka-Select-darker');
-        else
+        }
+        else {
             this.chooser.removeClass('ka-Select-darker');
+        }
 
         this.box.addClass('ka-Select-box-open');
 
-        if (this.input && document.activeElement != this.input){
-            this.input.value = '';
-            this.input.focus();
-        }
+        this.searchValue = '';
 
-        if (this.lastRq) this.lastRq.cancel();
+        if (this.lastRq) {
+            this.lastRq.cancel();
+        }
 
         this.box.addClass('ka-Select-box-focus');
 
-        if (pWithoutLoad !== true)
+        if (pWithoutLoad !== true) {
             this.loadItems();
+        }
 
     },
 
-    displayChooser: function(){
+    displayChooser: function () {
 
-
-        if (!this.lastOverlay){
+        if (!this.lastOverlay) {
             this.lastOverlay = ka.openDialog({
                 element: this.chooser,
                 target: this.box,
-                onClose:  function(){
+                onClose: function () {
                     this.close(true);
                 }.bind(this),
                 offset: {y: -1}
             });
         }
 
-        if (this.borderLine)
+        if (this.borderLine) {
             this.borderLine.destroy();
+        }
 
         this.box.removeClass('ka-Select-withBorderLine');
 
         var csize = this.chooser.getSize();
         var bsize = this.box.getSize();
 
-        if (bsize.x < csize.x){
+        if (bsize.x < csize.x) {
 
-            var diff = csize.x-bsize.x;
+            var diff = csize.x - bsize.x;
 
             this.borderLine = new Element('div', {
                 'class': 'ka-Select-borderline',
@@ -1086,11 +1165,11 @@ ka.Select = new Class({
             }).inject(this.chooser);
 
             this.box.addClass('ka-Select-withBorderLine');
-        } else if (bsize.x - csize.x < 4 && bsize.x - csize.x >= 0){
+        } else if (bsize.x - csize.x < 4 && bsize.x - csize.x >= 0) {
             this.box.addClass('ka-Select-withBorderLine');
         }
 
-        if (window.getSize().y < csize.y){
+        if (window.getSize().y < csize.y) {
             this.chooser.setStyle('height', window.getSize().y);
         }
 
