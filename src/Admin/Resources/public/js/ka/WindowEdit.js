@@ -435,17 +435,17 @@ ka.WindowEdit = new Class({
 
             this.form = new Element('div', {
                 'class': 'ka-windowEdit-form'
-            }).inject(this.getContentContainer());
+            }).inject(this.getContentContainer(), 'top');
 
             if (this.classProperties.layout) {
                 this.form.set('html', this.classProperties.layout);
             }
 
-            this.tabPane = new ka.TabPane(this.form, true, {addSmallTabGroup: function(){
-                return new ka.SmallTabGroup(this.headerLayout.getColumn(1));
-            }.bind(this)});
+//            this.tabPane = new ka.TabPane(this.form, true, {addSmallTabGroup: function(){
+//                return new ka.SmallTabGroup(this.headerLayout.getColumn(1));
+//            }.bind(this)});
 
-            this.fieldForm = new ka.FieldForm(this.form, this.classProperties.fields, {firstLevelTabPane: this.tabPane}, {win: this.win});
+            this.fieldForm = new ka.FieldForm(this.form, this.classProperties.fields, {}, {win: this.win});
             this.fields = this.fieldForm.getFields();
 
             this._buttons = this.fieldForm.getTabButtons();
@@ -597,11 +597,9 @@ ka.WindowEdit = new Class({
     renderSaveActionBar: function () {
         var _this = this;
 
-
         this.actionBar = new Element('div', {
             'class': 'kwindow-win-buttonBar'
         }).inject(this.container);
-
 
         this.removeBtn = new ka.Button([t('Remove'), '#icon-warning'])
         .addEvent('click', this.remove.bind(this))

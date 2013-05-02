@@ -63,12 +63,24 @@
 */
 
 
-div.ka-windowCombine-treeContainer {
+.ka-windowCombine-treeContainer {
+    height: 100%;
+    margin-top: 32px;
+    border-top: 1px solid #C0C0C0;
+}
+
+.ka-windowCombine-treeContainer + .ka-Splitter-main {
+    border-top: 1px solid silver;
+
+    -moz-border-radius-bottomleft: 3px;
+    -moz-border-radius-bottomright: 3px;
+    -webkit-border-bottom-left-radius: 3px;
+    -webkit-border-bottom-right-radius: 3px;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
 }
 
 .ka-windowCombine-container {
-    border: 1px solid silver;
-    background-color: white;
     margin: 15px;
 }
 
@@ -114,7 +126,6 @@ div.ka-windowCombine-list-actions {
 }
 
 .ka-list-combine-right {
-    background-color: #eee;
     position: relative;
 }
 
@@ -318,7 +329,8 @@ a.ka-list-search-button-active:link {
     padding: 0px;
     margin: 1px 0px 4px 0px;
     color: #555;
-    font-size: 12px;
+    font-size: 16px;
+    font-weight: normal;
 }
 
 .ka-list-combine-item .sub {
@@ -335,49 +347,37 @@ a.ka-list-search-button-active:link {
 }
     
 .ka-list-combine-item:hover {
-    background-color: #cccccc;
-    background-image: -webkit-gradient(linear, left top, left bottom, #eeeeee, to(#cccccc)); 
-    background-image: -webkit-linear-gradient(top, #eeeeee, #cccccc); 
-    background-image:    -moz-linear-gradient(top, #eeeeee, #cccccc); 
-    background-image:     -ms-linear-gradient(top, #eeeeee, #cccccc); 
-    background-image:      -o-linear-gradient(top, #eeeeee, #cccccc); 
-    background-image:         linear-gradient(top, #eeeeee, #cccccc);
+    background-color: #FCFCFC;
 }
 
 .ka-list-combine-item.active,
 .ka-list-combine-item.active:hover {
-    background-color: #cccccc;
-    background-image: -webkit-gradient(linear, left top, left bottom, #3e9bcb, to(#2f799e)); 
-    background-image: -webkit-linear-gradient(top, #3e9bcb, #2f799e); 
-    background-image:    -moz-linear-gradient(top, #3e9bcb, #2f799e); 
-    background-image:     -ms-linear-gradient(top, #3e9bcb, #2f799e); 
-    background-image:      -o-linear-gradient(top, #3e9bcb, #2f799e); 
-    background-image:         linear-gradient(top, #3e9bcb, #2f799e);
+    background-color: #22638E;
     color: white;
 }
 
 .ka-list-combine-splititem {
-    background-color: #eaeaea;
-    background-image: -webkit-gradient(linear, left top, left bottom, #f1f1f1, to(#d6d6d6)); 
-    background-image: -webkit-linear-gradient(top, #f1f1f1, #d6d6d6); 
-    background-image:    -moz-linear-gradient(top, #f1f1f1, #d6d6d6); 
-    background-image:     -ms-linear-gradient(top, #f1f1f1, #d6d6d6); 
-    background-image:      -o-linear-gradient(top, #f1f1f1, #d6d6d6); 
-    background-image:         linear-gradient(top, #f1f1f1, #d6d6d6);
+    background-color: #F8F8F8;
     border-bottom: 1px solid silver;
     padding: 4px 6px;
     color: #666; 
 }
 
 .ka-list-combine-left-top {
-    background-color: #ededed;
-    background-image: -webkit-gradient(linear, left top, left bottom, #f1f1f1, to(#e2e2e2)); 
-    background-image: -webkit-linear-gradient(top, #f1f1f1, #e2e2e2); 
-    background-image:    -moz-linear-gradient(top, #f1f1f1, #e2e2e2); 
-    background-image:     -ms-linear-gradient(top, #f1f1f1, #e2e2e2); 
-    background-image:      -o-linear-gradient(top, #f1f1f1, #e2e2e2); 
-    background-image:         linear-gradient(top, #f1f1f1, #e2e2e2);
+    position: relative;
+    padding: 0px 6px;
+    height: 32px;
+    border-bottom: 1px solid gray;
+
     color: #444;
+}
+
+.ka-list-combine-left-items {
+}
+
+.ka-list-combine-left-items + .ka-Splitter-main {
+    top: 32px;
+    border-top: 1px solid silver;
 }
 
 .ka-list-combine-itemloader:hover {

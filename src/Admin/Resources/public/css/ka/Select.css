@@ -1,7 +1,7 @@
 .ka-Select-wrapper {
     position: relative;
-    min-height: 26px;
-    line-height: 26px;
+    height: 30px;
+    line-height: 30px;
 }
 
 .ka-Select-wrapper > .ka-Select-box {
@@ -10,48 +10,52 @@
     right: 0;
 }
 
-.ka-Select-box {
-
+.ka-Select-box,
+.ka-Select-box:link {
     border: 1px solid #bbb;
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
-    border-radius: 3px;
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    border-radius: 2px;
 
     cursor: default;
     position: relative;
 
     overflow: hidden;
     display: inline-block;
-    line-height: 24px;
+    line-height: 28px;
+
+    color: #333;
 
     vertical-align: top;
     min-width: 40px;
 
     text-align: left;
     box-shadow: 0px 1px 0px #f8f8f8;
+}
 
+.ka-Select-box:focus {
+    outline: 0;
+    border-color: rgba(47, 140, 189, 0.9);
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(47, 140, 189, 0.6);
+    -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(47, 140, 189, 0.6);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(47, 140, 189, 0.6);
+    box-shadow: 0 0 0 3px rgba(47, 140, 189, 0.2);
+
+    -moz-transition-duration: .1s;
+    -webkit-transition-duration: .1s;
+    -o-transition-duration: .1s;
+    -ms-transition-duration: .1s;
+    transition-duration: .1s;
 }
 
 .ka-Select-box,
 .ka-Select-arrow {
-    background-color: #fafafa;
-    background-image: -webkit-gradient(linear, left top, left bottom, #fafafa, to(#e8e8e8));
-    background-image: -webkit-linear-gradient(top, #fafafa, #e8e8e8);
-    background-image:    -moz-linear-gradient(top, #fafafa, #e8e8e8);
-    background-image:     -ms-linear-gradient(top, #fafafa, #e8e8e8);
-    background-image:      -o-linear-gradient(top, #fafafa, #e8e8e8);
-    background-image:         linear-gradient(top, #fafafa, #e8e8e8);
+    background-color: #fbfbfb;
 }
 
 .ka-Select-box-active:hover,
 .ka-Select-box-active:hover > .ka-Select-arrow {
-    background-color: #e4e4e4;
-    background-image: -webkit-gradient(linear, left top, left bottom, #f2f2f2, to(#d5d5d5));
-    background-image: -webkit-linear-gradient(top, #f2f2f2, #d5d5d5);
-    background-image:    -moz-linear-gradient(top, #f2f2f2, #d5d5d5);
-    background-image:     -ms-linear-gradient(top, #f2f2f2, #d5d5d5);
-    background-image:      -o-linear-gradient(top, #f2f2f2, #d5d5d5);
-    background-image:         linear-gradient(top, #f2f2f2, #d5d5d5);
+    background-color: #f8f8f8;
 }
 
 
@@ -59,17 +63,8 @@
 .ka-Select-box-focus,
 .ka-Select-box:active > .ka-Select-arrow,
 .ka-Select-box-focus > .ka-Select-arrow {
-    background: #e0e0e0; /* Old browsers */
-    background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2UwZTBlMCIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNjZWNlY2UiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
-    background: -moz-linear-gradient(top,  #e0e0e0 0%, #cecece 100%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#e0e0e0), color-stop(100%,#cecece)); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top,  #e0e0e0 0%,#cecece 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top,  #e0e0e0 0%,#cecece 100%); /* Opera 11.10+ */
-    background: -ms-linear-gradient(top,  #e0e0e0 0%,#cecece 100%); /* IE10+ */
-    background: linear-gradient(to bottom,  #e0e0e0 0%,#cecece 100%); /* W3C */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e0e0e0', endColorstr='#cecece',GradientType=0 ); /* IE6-8 */
+    background: #f6f6f6;
 }
-
 
 .ka-Select-box:active,
 .ka-Select-box-focus {
@@ -109,7 +104,6 @@
 }
 
 .ka-Select-chooser {
-
     margin: 0px auto;
     border: 1px solid #bbb;
 
@@ -122,17 +116,17 @@
     max-height: 200px;
     max-width: 400px;
     overflow: auto;
-    background-color: #dddddd;
+    background-color: #f8f8f8;
     /*box-shadow: -1px 1px 1px #888;*/
 
-    -moz-border-radius-bottomright: 3px;
-    -moz-border-radius-bottomleft: 3px;
+    -moz-border-radius-bottomright: 2px;
+    -moz-border-radius-bottomleft: 2px;
 
-    -webkit-border-bottom-left-radius: 3px;
-    -webkit-border-bottom-right-radius: 3px;
+    -webkit-border-bottom-left-radius: 2px;
+    -webkit-border-bottom-right-radius: 2px;
 
-    border-bottom-right-radius: 3px;
-    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 2px;
+    border-bottom-left-radius: 32;
 }
 
 .ka-Select-chooser.ka-Select-darker {
@@ -159,13 +153,7 @@
     -webkit-border-bottom-right-radius: 0px;
     border-bottom-right-radius: 0px;
 
-    background-color: #e4e4e4;
-    background-image: -webkit-gradient(linear, left top, left bottom, #f2f2f2, to(#dddddd));
-    background-image: -webkit-linear-gradient(top, #f2f2f2, #dddddd);
-    background-image:    -moz-linear-gradient(top, #f2f2f2, #dddddd);
-    background-image:     -ms-linear-gradient(top, #f2f2f2, #dddddd);
-    background-image:      -o-linear-gradient(top, #f2f2f2, #dddddd);
-    background-image:         linear-gradient(top, #f2f2f2, #dddddd);
+    background-color: #f8f8f8;
 }
 
 .ka-Select-box-open.ka-Select-withBorderLine,
@@ -186,7 +174,6 @@
 .ka-select-chooser-item {
     display: block;
     padding: 3px 20px 3px 18px;
-    font-size: 10px;
     color: #222;
     text-decoration: none;
     line-height: 18px;
@@ -208,11 +195,11 @@
 }
 
 .ka-select-chooser-item-active {
-    background-color: #aaa;
+    background-color: #e4e4e4;
 }
 
 .ka-select-chooser-item:hover {
-    background-color: #f9f9f9;
+    background-color: #eee;
 }
 
 a.ka-Select-separator,
@@ -232,12 +219,4 @@ a.ka-Select-separator:link {
 
 .ka-Select-chooser a.ka-Select-separator:hover {
     background-color: transparent;
-}
-
-
-.ka-Select-chooser a.active,
-.ka-Select-chooser a.active:link {
-    background-image: url(../images/ka-select-selected-tick.png);
-    background-repeat: no-repeat;
-    background-position: 6px 6px;
 }

@@ -1,0 +1,113 @@
+<config>
+    <connections>
+        <!--
+        type: mysql|pgsql|sqlite (the pdo driver name)
+        persistent: true|false (if the connection should be persistent)
+        -->
+        <connection type="mysql" persistent="true">
+            <!-- Can be a IP or a hostname. For SQLite enter here the path to the file. -->
+            <dsn>127.0.0.1</dsn>
+
+            <!-- the schema/database name -->
+            <name>test</name>
+
+            <!-- credentials -->
+            <user>root</user>
+            <password></password>
+
+            <!-- All tables will be prefixed with this string -->
+            <prefix>kryn_</prefix>
+
+            <!-- The ORM we use deletes all tables not related to the objects, so entere here your tables
+             which should be excluded from this. One table name per line. -->
+            <protectTables></protectTables>
+        </connection>
+
+        <!--
+
+        ReadOnly connections
+        -->
+        <!--
+        <slaveConnection type="mysql">
+            <server>127.0.0.1</server>
+        </slaveConnection>
+        -->
+    </connections>
+
+    <!--
+    Whenever Kryn creates files we try to set the correct permission and file owner.
+    groupPermission:    rw|r|empty
+    everyonePermission: rw|r|empty
+    disableModeChange:  true|false
+    -->
+    <files groupPermission="rw" disableModeChange="false" everyonePermission="r">
+        <!-- The group owner name -->
+        <groupOwner>www-data</groupOwner>
+    </files>
+
+    <!--
+    The cache layer we use for the distributed caching.
+    (The `fast caching` is auto determined (Order: APC, XCache, Files))
+     -->
+    <cache>
+        <class>\Core\Cache\Files</class>
+        <!--
+        <options>
+            <option key="param1">value</option>
+        </options>
+        -->
+    </cache>
+
+    <!-- error handling -->
+    <errors>
+        <!-- If the system should print error messages to the client -->
+        <option key="display">true</option>
+
+        <!-- If the system should print log messages -->
+        <option key="log">true</option>
+
+        <!-- If the system should print error message from the RESTful JSON API to the client -->
+        <option key="displayRest">true</option>
+
+        <!--
+        If the system should print a prettified stackTrace with codeHighlighting in the error message.
+        This included the stackTrace in the RESTful JSON API.
+         -->
+        <option key="stackTrace">true</option>
+    </errors>
+
+    <!-- The system title of this installation -->
+    <systemTitle>Fresh installation</systemTitle>
+
+    <!--
+    IMPORTANT: Set this to your php timezone
+
+    see: http://www.php.net/manual/en/timezones.php
+    -->
+    <timezone>Europe/Berlin</timezone>
+
+    <!--
+    A list of installed bundles. Enter here the PHP FQDN (Will be resolved through PSR-0 and the loaded)
+
+    Example:
+        <bundle>Publication\PublicationBundle</bundle>
+    -->
+    <bundles>
+        <bundle>Publication\PublicationBundle</bundle>
+        <bundle>KrynDemoThemeBundle</bundle>
+    </bundles>
+
+    <!--
+    The client session/authorisation/authentication handling.
+    -->
+    <client>
+        <class>\Core\Client\KrynUsers</class>
+        <options>
+            <option key="emailLogin">true</option>
+            <option key="store">
+                <option key="class">database</option>
+                <option key="options"></option>
+            </option>
+        </options>
+    </client>
+</config>

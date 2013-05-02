@@ -5,7 +5,7 @@ ka.TabPane = new Class({
 
     initialize: function (pParent, pFull, pUseThisAsWindowHeader) {
         this.box = new Element('div', {
-            'class': 'kwindow-win-tabPane'+(pFull?' ka-tabPane-full':'')
+            'class': 'kwindow-win-tabPane' + (pFull ? ' ka-tabPane-full' : '')
         }).inject(pParent);
 
         if (pUseThisAsWindowHeader){
@@ -13,8 +13,6 @@ ka.TabPane = new Class({
             this.box.addClass('ka-tabPane-tabsInWindowHeader');
         } else if (!pFull){
             this.buttonGroup = new ka.SmallTabGroup(this.box);
-            this.buttonGroup.box.setStyle('position', 'relative').setStyle('top', 1);
-            new Element('div', {style: 'clear: both'}).inject(this.box);
         }
 
         this.paneBox = new Element('div', {'class': 'kwindow-win-tabPane-pane ka-scrolling'}).inject(this.box);

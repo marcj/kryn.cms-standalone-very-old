@@ -28,8 +28,6 @@ ka.WindowCombine = new Class({
 
         this.mainLeft = this.mainLayout.getCell(1,1);
 
-        this.mainLeft.setStyle('background-color', '#fafafa');
-
         this.mainRight = this.mainLayout.getCell(1,2);
         this.mainRight.set('class', 'ka-list-combine-right');
 
@@ -39,17 +37,26 @@ ka.WindowCombine = new Class({
 
             this.treeContainer = new Element('div', {
                 'class': 'ka-windowCombine-treeContainer ka-objectTree-container'
-            }).inject(this.mainLeft);
+            }).inject(this.mainLeft, 'top');
 
             this.renderLayoutNested(this.treeContainer);
 
         } else {
             //classic list
 
+            this.mainLeftItems = new Element('div', {
+                'class': 'ka-list-combine-left-items'
+            })
+            .addEvent('scroll', this.checkScrollPosition.bind(this, true))
+            .inject(this.mainLeft, 'top');
+
+            this.mainLeftSearch = new Element('div', {
+                'class': 'ka-list-combine-searchpane'
+            }).inject(this.mainLeft, 'top');
+
             this.mainLeftTop = new Element('div', {
-                style: 'position: absolute; left: 0px; padding: 5px 6px; top: 0px; height: 25px; right: 6px; border-bottom: 1px solid gray;',
                 'class': 'ka-list-combine-left-top'
-            }).inject(this.mainLeft);
+            }).inject(this.mainLeft, 'top');
 
             this.sortSpan = new Element('span', {
                 style: 'margin-left: 30px; line-height: 17px;'
@@ -65,20 +72,11 @@ ka.WindowCombine = new Class({
             new Element('span', {text: '/'}).inject(this.itemCount);
             this.itemsMaxSpan = new Element('span', {text: '0'}).inject(this.itemCount);
 
-            this.mainLeftSearch = new Element('div', {
-                'class': 'ka-list-combine-searchpane'
-            }).inject(this.mainLeft);
-
-            this.mainLeftItems = new Element('div', {
-                style: 'position: absolute; left: 0px; top: 36px; bottom: 0px; right: 6px; overflow: auto;'
-            }).addEvent('scroll', this.checkScrollPosition.bind(this, true)).inject(this.mainLeft);
-
             this.mainLeftDeleter = new Element('div', {
                 'class': 'kwindow-win-buttonBar ka-windowCombine-list-actions'
             }).inject(this.mainLeft);
 
             new ka.Button(t('Select all')).addEvent('click', function () {
-
                 if (!this.checkboxes) return;
                 if (this.checkedAll) {
                     $$(this.checkboxes).set('checked', false);
@@ -87,7 +85,6 @@ ka.WindowCombine = new Class({
                     $$(this.checkboxes).set('checked', true);
                     this.checkedAll = true;
                 }
-
             }.bind(this)).inject(this.mainLeftDeleter);
 
             new ka.Button(t('Remove selected')).addEvent('click', this.removeSelected.bind(this)).inject(this.mainLeftDeleter);
@@ -1235,7 +1232,7 @@ ka.WindowCombine = new Class({
                 this.nestedField.getFieldObject().select(this.win.params.selected);
             }
         } else {
-            if (this.win.params && this.win.params.selected) {
+            if (this.win.params && this.win.params.selected && 0 !== Object.getLength(this.win.params.selected)) {
                 this.needSelection = true;
                 this.loadAround(this.win.params.selected);
             } else {
@@ -1278,7 +1275,6 @@ ka.WindowCombine = new Class({
         if (selected){
             params.selected = selected;
         }
-
 
         this.win.setParameter(params);
 
@@ -1332,6 +1328,10 @@ ka.WindowCombine = new Class({
         this.order = {};
         this.order[this.sortField] = this.sortDirection;
 
+        if (0 === Object.getLength(pPrimaries)) {
+            return;
+        }
+
         this.lastRequest = new Request.JSON({url: _pathAdmin + this.getEntryPoint(), noCache: true, onComplete: function (response) {
 
             var position = response.data;
@@ -1350,7 +1350,6 @@ ka.WindowCombine = new Class({
                 this.loadItems(from, range);
             } else {
                 this.loadItems(0, 1);
-                this.win.alert(t('Ooops. There was an error in the response of %s').replace('%s', 'GET '+_pathAdmin + this.getEntryPoint()));
             }
 
         }.bind(this)}).get({

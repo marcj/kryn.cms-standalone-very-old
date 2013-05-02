@@ -593,6 +593,11 @@ ka.WindowList = new Class({
             }
         }
 
+        this.viewActionBar = new ka.ButtonGroup(pGroupContainer, {onlyIcons: true});
+
+        this.viewActionBar.addButton(t('Compact'), '#icon-layout');
+        this.viewActionBar.addButton(t('Grid'), '#icon-list-9');
+
         /*
         TODO
 

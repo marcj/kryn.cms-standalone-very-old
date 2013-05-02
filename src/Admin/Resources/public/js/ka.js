@@ -405,6 +405,9 @@ ka.getObjectPk = function(pObjectKey, pItem){
  * @return {String}
  */
 ka.getCroppedObjectId = function(pUri){
+    if ('string' !== typeOf(pUri)) {
+        return pUri;
+    }
 
     if (pUri.indexOf('object://') == 0)
         pUri = pUri.substr(9);

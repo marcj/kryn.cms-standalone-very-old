@@ -33,6 +33,11 @@ class Field extends Model
     /**
      * @var array
      */
+    protected $children;
+
+    /**
+     * @var array
+     */
     protected $options = array();
 
     /**
@@ -51,7 +56,7 @@ class Field extends Model
 
         foreach ($this->element->childNodes as $child) {
             $name = $child->nodeName;
-            if ('#text' !== $name && !$this->$name) {
+            if ('#text' !== $name && 'children' !== $name && !$this->$name) {
                 $this->options[$name] = $child->nodeValue;
             }
         }
@@ -102,6 +107,43 @@ class Field extends Model
                 $this->options[$key] = $value;
             }
         }
+    }
+
+    /**
+     * @param array $children
+     */
+    public function setChildren(array $children)
+    {
+        $this->children = array();
+        foreach ($children as $key => $field) {
+            if ($field instanceof Field) {
+                $this->children[] = $field;
+            } else {
+                $instance = new Field();
+                $instance->fromArray($field);
+                if (null === $instance->getId()) {
+                    $instance->setId($key);
+                }
+                $this->children[] = $instance;
+            }
+        }
+    }
+
+    /**
+     * @return array
+     */
+    public function getChildren()
+    {
+        if (null === $this->children) {
+            $childrenElement = $this->getDirectChild('children');
+            if ($childrenElement) {
+                foreach ($childrenElement->childNodes as $field) {
+                    $this->children[] = $this->getModelInstance($field);
+                }
+            }
+        }
+
+        return $this->children;
     }
 
     /**

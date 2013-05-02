@@ -1,11 +1,15 @@
-
 .ka-field,
 .ka-field-inputTd {
     position: relative;
+    max-width: 400px;
+}
+
+.ka-field.ka-field-type-wysiwyg {
+    max-width: 100%;
 }
 
 .ka-field-main {
-    padding: 3px 5px 3px 5px;
+    padding: 5px;
 }
 
 
@@ -61,6 +65,7 @@ h2.ka-field-headline {
 
 .ka-field-title {
     position: relative;
+    width: 420px;
 }
 
 div.desc {
@@ -81,18 +86,10 @@ tr.ka-field-main > td div.desc {
 
 .ka-field-main > .ka-field-field {
     position: relative;
-    margin: 5px 2px 2px 20px;
+    margin: 10px 2px 2px 20px;
 }
 .ka-field-main > .ka-field-field-without-margin {
     margin: 5px 0px 2px 0px;
-}
-
-
-input.ka-field-dateTime {
-    padding-left: 18px;
-    background-image: url(../images/icons/calendar.png);
-    background-repeat: no-repeat;
-    background-position: 2px 3px;
 }
 
 .ka-field-main-small input.text.multiUpload-firstInput {

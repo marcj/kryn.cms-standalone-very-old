@@ -13,18 +13,13 @@ ka.FieldTypes.Datetime = new Class({
             }
         }).inject(this.fieldInstance.fieldPanel);
 
-
-        this.innerWrapper = new Element('div', {
-            'class': 'ka-input-inner-wrapper'
-        }).inject(this.wrapper);
-
         this.input = new Element('input', {
-            'class': 'ka-input',
+            'class': 'ka-Input-text',
             styles: {
                 'height': this.options.inputHeight
             },
             maxLength: this.options.maxLength
-        }).inject(this.innerWrapper);
+        }).inject(this.wrapper);
 
         this.options.time = true;
         this.datePicker = new ka.DatePicker(this.input, this.options);

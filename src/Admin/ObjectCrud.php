@@ -21,21 +21,21 @@ class ObjectCrud
      *
      * @var string table name
      */
-    public $table = '';
+    protected $table = '';
 
     /**
      * Defines the object which should be listed.
      *
      * @var string object key
      */
-    public $object = '';
+    protected $object = '';
 
     /**
      * Copy of the object definition
      *
      * @var \Core\Config\Object
      */
-    public $objectDefinition;
+    protected $objectDefinition;
 
     /**
      * Defines your primary fiels as a array.
@@ -48,7 +48,7 @@ class ObjectCrud
      * @abstract
      * @var array
      */
-    public $primary = array();
+    protected $primary = array();
 
     /**
      * The primary key of the current object.
@@ -68,7 +68,7 @@ class ObjectCrud
      * @var array
      * @see getPrimaryKey()
      */
-    public $primaryKey = array();
+    protected $primaryKey = array();
 
     /**
      * Defines the fields of your edit/add window which should be displayed.
@@ -78,7 +78,7 @@ class ObjectCrud
      * @abstract
      * @var array
      */
-    public $fields = array();
+    protected $fields = array();
 
     /**
      * Defines the fields of your table which should be displayed.
@@ -88,21 +88,21 @@ class ObjectCrud
      * @abstract
      * @var array
      */
-    public $columns = null;
+    protected $columns = null;
 
     /**
      * Defines how many rows should be displayed per page.
      *
      * @var integer number of rows per page
      */
-    public $defaultLimit = 15;
+    protected $defaultLimit = 15;
 
     /**
      * Order field
      *
      * @var string
      */
-    public $orderBy = '';
+    protected $orderBy = '';
 
     /**
      * Order field
@@ -110,14 +110,14 @@ class ObjectCrud
      * @private
      * @var string
      */
-    public $customOrderBy = '';
+    protected $customOrderBy = '';
 
     /**
      * Order direction
      *
      * @var string
      */
-    public $orderByDirection = 'ASC';
+    protected $orderByDirection = 'ASC';
 
     /**
      * Default order
@@ -136,42 +136,42 @@ class ObjectCrud
      *
      * @var array
      */
-    public $order = array();
+    protected $order = array();
 
     /**
      * Contains the fields for the search.
      *
      * @var array
      */
-    public $filter = array();
+    protected $filter = array();
 
     /**
      * Defines the icon for the add button. Relative to media/ or #className for vector images
      *
      * @var string name of image
      */
-    public $addIcon = '#icon-plus-5';
+    protected $addIcon = '#icon-plus-5';
 
     /**
      * Defines the icon for the edit button. Relative to media/ or #className for vector images
      *
      * @var string name of image
      */
-    public $editIcon = '#icon-pencil-8';
+    protected $editIcon = '#icon-pencil-8';
 
     /**
      * Defines the icon for the remove/delete button. Relative to media/ or #className for vector images
      *
      * @var string name of image
      */
-    public $removeIcon = '#icon-minus-5';
+    protected $removeIcon = '#icon-minus-5';
 
     /**
      * Defines the icon for the remove/delete button. Relative to media/ or #className for vector images
      *
      * @var string name of image
      */
-    public $removeIconItem = '#icon-remove-3';
+    protected $removeIconItem = '#icon-remove-3';
 
     /**
      * The system opens this entrypoint when clicking on the add newt_button(left, top, text)n.
@@ -182,7 +182,7 @@ class ObjectCrud
       *
      * @var string
      */
-    public $addEntrypoint = '';
+    protected $addEntrypoint = '';
 
     /**
      * The system opens this entrypoint when clicking on the edit button.
@@ -193,9 +193,9 @@ class ObjectCrud
      *
      * @var string
      */
-    public $editEntrypoint = '';
+    protected $editEntrypoint = '';
 
-    public $removeEntrypoint = '';
+    protected $removeEntrypoint = '';
 
     /**
      * Allow a client to select own fields through the REST api.
@@ -203,33 +203,33 @@ class ObjectCrud
      *
      * @var bool
      */
-    public $allowCustomSelectFields = false;
+    protected $allowCustomSelectFields = false;
 
-    public $nestedRootEdit = false;
-    public $nestedRootAdd = false;
-    public $nestedAddWithPositionSelection = true;
-    public $nestedRootAddIcon = '#icon-plus-2';
-    public $nestedRootAddLabel = '[[Root]]';
-    public $nestedRootRemove = false;
+    protected $nestedRootEdit = false;
+    protected $nestedRootAdd = false;
+    protected $nestedAddWithPositionSelection = true;
+    protected $nestedRootAddIcon = '#icon-plus-2';
+    protected $nestedRootAddLabel = '[[Root]]';
+    protected $nestedRootRemove = false;
 
-    public $nestedRootEditEntrypoint = 'root/';
-    public $nestedRootAddEntrypoint = 'root/';
+    protected $nestedRootEditEntrypoint = 'root/';
+    protected $nestedRootAddEntrypoint = 'root/';
 
-    public $nestedRootRemoveEntrypoint = 'root/';
+    protected $nestedRootRemoveEntrypoint = 'root/';
 
     /**
      * Defines whether the add button should be displayed
      *
      * @var boolean
      */
-    public $add = false;
-    public $addLabel = '[[Add]]';
-    public $addMultiple = false;
-    public $addMultipleFieldContainerWidth = '70%';
+    protected $add = false;
+    protected $addLabel = '[[Add]]';
+    protected $addMultiple = false;
+    protected $addMultipleFieldContainerWidth = '70%';
 
-    public $addMultipleFields = array();
+    protected $addMultipleFields = array();
 
-    public $addMultipleFixedFields = array();
+    protected $addMultipleFixedFields = array();
 
     /**
      * Defines whether the remove/delete button should be displayed
@@ -237,15 +237,15 @@ class ObjectCrud
      *
      * @var boolean
      */
-    public $remove = false;
+    protected $remove = false;
     /**
      * Defines whether the edit button should be displayed
      *
      * @var boolean
      */
-    public $edit = false;
+    protected $edit = false;
 
-    public $nestedMoveable = true;
+    protected $nestedMoveable = true;
 
     /**
      * Defines whether the list windows should display the language select box.
@@ -253,7 +253,7 @@ class ObjectCrud
      *
      * @var bool
      */
-    public $multiLanguage = false;
+    protected $multiLanguage = false;
 
     /**
      * Defines whether the list windows should display the domain select box.
@@ -261,7 +261,7 @@ class ObjectCrud
      *
      * @var bool
      */
-    public $domainDepended = false;
+    protected $domainDepended = false;
 
     /**
      * Defines whether the workspace slider should appears or not.
@@ -269,44 +269,44 @@ class ObjectCrud
      *
      * @var bool
      */
-    public $workspace = false;
+    protected $workspace = false;
 
     /**
      * @var string
      */
-    public $itemLayout = '';
+    protected $itemLayout = '';
 
     /**
      * The admin entry point out which this class has been called.
      *
      * @var array|null
      */
-    public $entryPoint = array();
+    protected $entryPoint = array();
 
     /**
      * @var array
      */
-    public $filterFields = array();
+    protected $filterFields = array();
 
     /**
      * Flatten list of fields.
      *
      * @var array
      */
-    public $_fields = array();
+    protected $_fields = array();
 
     /**
      * Defines whether the class checks, if the user has account to requested object item.
      * @var boolean
      */
-    public $permissionCheck = true;
+    protected $permissionCheck = true;
 
     /**
      * If the object is a nested set, then you should switch this property to true.
      *
      * @var bool
      */
-    public $asNested = false;
+    protected $asNested = false;
 
     /**
      * Constructor
@@ -318,6 +318,11 @@ class ObjectCrud
         $this->initialize($withoutObjectCheck);
     }
 
+    /**
+     * @param bool $pWithoutObjectCheck
+     *
+     * @throws \ObjectNotFoundException
+     */
     public function initialize($pWithoutObjectCheck = false)
     {
         $this->objectDefinition = \Core\Object::getDefinition($this->getObject());
@@ -326,29 +331,14 @@ class ObjectCrud
         }
 
         if ($this->objectDefinition) {
-            if (!$this->table)
+            if (!$this->table) {
                 $this->table = $this->objectDefinition->getTable();
-            if (!$this->fields)
-                $this->fields = $this->objectDefinition->getFields();
-            if (!$this->titleField)
-                $this->titleField = $this->objectDefinition->getLabel();
-        }
-
-        if ($this->fields) {
-            foreach ($this->fields as &$field) {
-                if (is_array($field)) {
-                    $fieldInstance = new Field();
-                    $fieldInstance->fromArray($field);
-                    $field = $fieldInstance;
-                }
             }
-        }
-
-        $this->primary = array();
-
-        foreach ($this->fields as $key => $field) {
-            if ($field->isPrimaryKey()) {
-                $this->primary[] = $key;
+            if (!$this->fields) {
+                $this->fields = $this->objectDefinition->getFields();
+            }
+            if (!$this->titleField) {
+                $this->titleField = $this->objectDefinition->getLabel();
             }
         }
 
@@ -357,6 +347,18 @@ class ObjectCrud
             $this->prepareFieldDefinition($this->fields);
             ObjectCrudController::translateFields($this->fields);
         }
+
+        if ($this->fields) {
+            foreach ($this->fields as $key => &$field) {
+                if (is_array($field)) {
+                    $fieldInstance = new Field();
+                    $fieldInstance->fromArray($field);
+                    $fieldInstance->setId($key);
+                    $field = $fieldInstance;
+                }
+            }
+        }
+        $this->objectDefinition->getFields();
 
         if ($this->columns) {
             $this->prepareFieldDefinition($this->columns);
@@ -425,6 +427,13 @@ class ObjectCrud
             }
         }
 
+        $this->primary = array();
+
+        //var_dump($this->fields); exit;
+        foreach ($this->objectDefinition->getPrimaryKeys() as $sfield) {
+            $this->primary[] = $sfield->getId();
+        }
+
         $this->translate($this->nestedRootAddLabel);
         $this->translate($this->addLabel);
 
@@ -432,8 +441,9 @@ class ObjectCrud
 
     public function translate(&$pField)
     {
-        if (is_string($pField) && substr($pField, 0, 2) == '[[' && substr($pField, -2) == ']]')
+        if (is_string($pField) && substr($pField, 0, 2) == '[[' && substr($pField, -2) == ']]') {
             $pField = t(substr($pField, 2, -2));
+        }
 
     }
 
@@ -526,11 +536,11 @@ class ObjectCrud
      * @param array $pFields
      * @param bool  $pKey
      */
-    public function prepareFieldItem(&$pFields, $pKey = false)
+    public function prepareFieldItem(&$pFields)
     {
-        if (is_array($pFields) && !is_string($pFields['type']) && !is_string($pFields['label'])) {
-            foreach ($pFields as $key => &$field) {
-                $this->prepareFieldItem($field, $key);
+        if (is_array($pFields)) {
+            foreach ($pFields as &$field) {
+                $this->prepareFieldItem($field);
             }
         } else {
 
@@ -542,9 +552,7 @@ class ObjectCrud
                 return;
             }*/
 
-            if (substr($pKey,0,2) != '__' && substr($pKey, -2) != '__') {
-
-                $this->_fields[$pKey] = $pFields;
+            if (substr($pFields->getId(), 0, 2) != '__' && substr($pFields->getId(), -2) != '__') {
 
                 switch ($pFields->getType()) {
                     case 'predefined':
@@ -575,13 +583,12 @@ class ObjectCrud
 
                         break;
                 }
+                $this->_fields[$pFields->getId()] = $pFields;
+
             }
 
-            if (is_array($pFields['depends']))
-                $this->prepareFieldItem($pFields['depends']);
-
-            if (is_array($pFields['children']))
-                $this->prepareFieldItem($pFields['children']);
+            if (is_array($pFields->getChildren()))
+                $this->prepareFieldItem($pFields->getChildren());
 
         }
     }
@@ -592,7 +599,7 @@ class ObjectCrud
 
         foreach ($this->_fields as $key => $field) {
             if (!$field['customValue'] && !$field['startEmpty']) {
-                $fields[] = $key;
+                $fields[] = $field->getId();
             }
         }
 

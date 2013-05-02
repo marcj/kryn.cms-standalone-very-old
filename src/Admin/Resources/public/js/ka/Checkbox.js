@@ -4,8 +4,9 @@ ka.Checkbox = new Class({
 
     initialize: function(pContainer){
 
-        this.box = new Element('div', {
-            'class': 'ka-Checkbox ka-Checkbox-off'
+        this.box = new Element('a', {
+            'class': 'ka-Checkbox ka-Checkbox-off',
+            href: 'javascript: ;'
         });
 
         new Element('div', {

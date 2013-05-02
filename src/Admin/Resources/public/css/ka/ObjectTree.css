@@ -7,7 +7,6 @@
     left: 0px;
     top: 0px;
     width: 100%;
-    background-color: #f3f3f3;
 }
 
 .ka-objectTree-objects {
@@ -38,8 +37,7 @@
     position: relative;
     display: block;
     line-height: 26px;
-    height: 26px;
-    padding: 1px;
+    height: 30px;
     color: #444;
     cursor: default;
     white-space: nowrap;
@@ -84,7 +82,7 @@
 
 .ka-objectTree-item-masks:before {
     font-size: 16px;
-    color: #22638E;
+    /* color: #22638E; */
 }
 
 .ka-objectTree-item-selected,

@@ -1,12 +1,6 @@
 .ka-windowEdit-form,
 .ka-windowEdit-form-addDialog {
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    right: 0px;
-    bottom: 40px;
-    overflow: auto;
-    background-color: #eee;
+    position: relative;
 }
 
 .ka-windowEdit-form-addDialog {
@@ -102,7 +96,7 @@
 
 .kwindow-border .ka-windowEdit-removeButton {
     position: absolute;
-    left: 4px;
+    left: 15px;
     top: 7px;
 }
 

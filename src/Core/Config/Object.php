@@ -285,6 +285,11 @@ class Object extends Model
      */
     protected $propelClassName;
 
+    /**
+     * @var array
+     */
+    private $primaryKeys;
+
     public function setupObject()
     {
         $this->id = $this->element->attributes->getNamedItem('id')->nodeValue;
@@ -512,6 +517,20 @@ class Object extends Model
             $fields[lcfirst($field->getId())] = $field->toArray();
         }
         return $fields;
+    }
+
+    public function getPrimaryKeys()
+    {
+        if (null === $this->primaryKeys) {
+            $this->primaryKeys = array();
+            foreach ($this->getFields() as $field) {
+                if ($field->isPrimaryKey()) {
+                    $this->primaryKeys[] = $field;
+                }
+            }
+        }
+
+        return $this->primaryKeys;
     }
 
     /**

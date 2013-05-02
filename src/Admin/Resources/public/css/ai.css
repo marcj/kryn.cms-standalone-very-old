@@ -78,14 +78,8 @@ body {
 .ka-admin input,
 .ka-admin select,
 .ka-admin textarea {
-    outline: 0;	
+    outline: 0;
 }
-
-.ka-admin a,
-.ka-admin a:link {
-    color: white;
-}
-
 
 div.selectable,
 td.selectable,
@@ -574,7 +568,7 @@ a.ka-create-search-index-icon.red {
 
 .ka-linkcontext-main a.ka-linkcontext-opener,
 .ka-linkcontext-main a.ka-linkcontext-opener:link {
-    border-bottom: 1px solid #aaa;	
+    border-bottom: 1px solid #aaa;
 }
 
 .ka-linkcontext-main a.ka-linkcontext-last,
@@ -583,7 +577,7 @@ a.ka-create-search-index-icon.red {
     -moz-border-radius-bottomright: 5px;
     border-bottom: 0px;
 }
-	
+
 .ka-linkcontext-sub a.ka-linkcontext-last,
 .ka-linkcontext-sub a.ka-linkcontext-last:link {
     -moz-border-radius-bottomleft: 0px;
@@ -685,12 +679,12 @@ a.ka-create-search-index-icon.red {
     -moz-box-shadow: 0 0 2em #656465;
     -webkit-box-shadow: 0 0 2em #656465;
     box-shadow: 0 0 2em #656465;
-    
+
     z-index: 101000;
 }
 
 .ka-searchcontext-content {
-    position: absolute;	
+    position: absolute;
     left: 0px;
     right: 0px;
     top: 0px;
@@ -700,7 +694,7 @@ a.ka-create-search-index-icon.red {
 }
 
 .ka-searchcontext-bottom {
-    position: absolute; 
+    position: absolute;
     left: 0px;
     right: 0px;
     bottom: 0px;
@@ -716,7 +710,7 @@ a.ka-create-search-index-icon.red {
 	right: 10px;
 	top: -12px;
     width: 15px;
-    height: 8px;	   
+    height: 8px;
 }
 
 .ka-pages-pluginchooserpane {
@@ -741,7 +735,7 @@ a.ka-create-search-index-icon.red {
 }
 
 /**
-* 
+*
 * Styles for ka.Buttons, ka.Tabs etc
 * for a white background
 *
@@ -762,14 +756,14 @@ a.ka-create-search-index-icon.red {
     position: absolute;
 }
 
-@-webkit-keyframes blink {  
+@-webkit-keyframes blink {
   from { opacity: 1.0; }
   to { opacity: 0.0; }
 }
 
 .blink {
-  -webkit-animation-name: blink;  
-  -webkit-animation-iteration-count: infinite;  
+  -webkit-animation-name: blink;
+  -webkit-animation-iteration-count: infinite;
   -webkit-animation-timing-function: cubic-bezier(1.0,0,0,1.0);
-  -webkit-animation-duration: 2s; 
+  -webkit-animation-duration: 2s;
 }

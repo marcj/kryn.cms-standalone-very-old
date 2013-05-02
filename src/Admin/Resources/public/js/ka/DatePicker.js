@@ -22,7 +22,7 @@ ka.DatePicker = new Class({
         if (pInput.get('tag') != 'input'){
             this.input = new Element('input', {
                 type: 'text',
-                'class': 'ka-input'
+                'class': 'ka-Input-text'
             }).inject(pInput);
         } else {
            this.input = pInput;
@@ -42,9 +42,14 @@ ka.DatePicker = new Class({
 
     attach: function () {
         this._renderChooser();
+        var blacklist = ['tab', 'esc'];
         this.input.addEvent('keydown', function (e) {
-            e.stop();
-        });
+            if(false === blacklist.indexOf(e.key)) {
+                e.stop();
+            } else {
+                this.close();
+            }
+        }.bind(this));
 
         this.input.addEvent('click', this.show.bind(this));
 
@@ -57,7 +62,6 @@ ka.DatePicker = new Class({
 
         this.monthSelect.set('text', this.options.months[this.choosenDate.format('%m').toInt() - 1]);
         this.yearSelect.set('text', this.choosenDate.format('%Y').toInt());
-
 
         var firstDay = this.choosenDate.clone().set('date', 1);
         var lastDay = this.choosenDate.get('lastdayofmonth');

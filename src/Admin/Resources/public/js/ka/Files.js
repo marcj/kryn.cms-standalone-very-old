@@ -913,7 +913,7 @@ ka.Files = new Class({
 
         this.statusBar = new Element('div', {
             'class': 'admin-files-status-bar'
-        }).inject(this.wrapper);
+        }).inject(fileContainerCell);
 
         this.loaderContainer = new Element('div', {
             'class': 'admin-files-status-bar-loader'
@@ -2591,7 +2591,7 @@ ka.Files = new Class({
         if (fileIcon && pFile.dimensions) {
             new Element('div', {
                 'class': 'admin-files-item-title-dimensions',
-                text: pFile.dimensions.width+' x '+pFile.dimensions.height
+                text: pFile.dimensions.width+'x'+pFile.dimensions.height + ', ' + ka.bytesToSize(pFile.size)
             }).inject(title, 'top');
         }
 

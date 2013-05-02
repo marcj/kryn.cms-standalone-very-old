@@ -92,7 +92,7 @@ ka.FieldForm = new Class({
                         }.bind(this));
                         this.fields[obj.field.againstField].fireEvent('check-depends');
                     } else {
-                        logger('ka.Field "againstField" does not exist: '+obj.field.againstField);
+                        logger('ka.Field "againstField" does not exist: ', obj.field.againstField, obj);
                     }
                 }
             }
@@ -154,6 +154,9 @@ ka.FieldForm = new Class({
         Object.each(pLevel, function (field, id) {
 
             var obj;
+            if (null !== typeOf(field.id)) {
+                id = field.id;
+            }
 
             //json to objects
             Object.each(field, function(item,itemId){
@@ -207,7 +210,7 @@ ka.FieldForm = new Class({
                         if (this.options.tabsInWindowHeader){
                             this.firstLevelTabPane = new ka.TabPane(target, true, this.refs.win);
                         } else {
-                            this.firstLevelTabPane = new ka.TabPane(target, field.tabFullPage?true:false);
+                            this.firstLevelTabPane = new ka.TabPane(target, field.tabFullPage ? true : false);
                         }
                     }
                 } else if(pDependField){
@@ -260,6 +263,10 @@ ka.FieldForm = new Class({
                     obj.addEvent('check-depends', function () {
 
                         Object.each(this.children, function (sub, subid) {
+
+                            if ('null' !== typeOf(sub.id)) {
+                                subid = sub.id;
+                            }
 
                             if (sub.field.againstField && sub.field.againstField != id) return;
 
@@ -479,6 +486,7 @@ ka.FieldForm = new Class({
         }
 
         Object.each(this.fields, function (obj, id) {
+
             if (id.indexOf('[') != -1) {
                 obj.setArrayValue(pValues, id, pInternal);
             } else {

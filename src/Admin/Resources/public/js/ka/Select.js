@@ -166,7 +166,8 @@ ka.Select = new Class({
 
     createLayout: function(){
 
-        this.box = new Element('div', {
+        this.box = new Element('a', {
+            href: 'javascript: ;',
             'class': 'ka-normalize ka-Select-box ka-Select-box-active'
         }).addEvent('click', this.toggle.bind(this));
 

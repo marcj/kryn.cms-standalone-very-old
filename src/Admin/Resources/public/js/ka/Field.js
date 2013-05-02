@@ -214,6 +214,8 @@ ka.Field = new Class({
             this.titleText.appendText('*');
         }
 
+        this.toElement().addClass('ka-field-type-' + this.options.type);
+
         if (pContainer)
             this.inject(pContainer);
 

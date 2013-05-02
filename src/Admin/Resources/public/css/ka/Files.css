@@ -1,14 +1,18 @@
 .ka-Files-wrapper {
-    margin: 15px;
+    margin: 5px 15px;
 }
 
 .ka-Files-header {
     height: 40px;
 }
 
+.ka-desktop .ka-Files-header .ka-Input-text {
+    max-width: 100%;
+}
+
 .ka-Files-body {
-    border: 1px solid silver;
-    border-bottom: 0;
+    margin-top: 18px;
+    border-top: 1px solid silver;
 }
 
 .admin-files-actionBar {
@@ -24,7 +28,6 @@
 }
 
 .admin-files-fileContainer-bg {
-    background-color: white;
 }
 
 .admin-files-fileContainer {
@@ -34,12 +37,13 @@
 }
 
 .admin-files-status-bar {
-    height: 25px;
-    background-color: #22638E;
-    line-height: 25px;
-    color: #FFF;
+    margin-top: 30px;
+    height: 26px;
+    background-color: #E4E4E4;
+    line-height: 26px;
+    color: #636363;
     text-align: center;
-    font-size: 11px;
+    font-size: 12px;
 }
 
 .admin-files-status-bar-loader {
@@ -90,10 +94,7 @@
 
 .admin-files-infos {
     position: relative;
-    overflow: auto;
     height: 100%;
-    background-color: #eee;
-    -webkit-overflow-scrolling: touch;
 }
 
 .admin-files-infos a {
@@ -212,6 +213,11 @@
     font-size: 12px;
 }
 
+
+.admin-files-item-selected .admin-files-item-title-dimensions {
+    color: white;
+}
+
 .admin-files-item:hover div.admin-files-item-title,
 .admin-files-item-miniatur:hover .admin-files-item-miniatur-name {
     background-color: #eee;
@@ -237,7 +243,6 @@
     position: absolute;
     z-index: 150000;
 }
-
 
 .admin-files-item-selected div.admin-files-item-title,
 .admin-files-item-selected:hover div.admin-files-item-title,
