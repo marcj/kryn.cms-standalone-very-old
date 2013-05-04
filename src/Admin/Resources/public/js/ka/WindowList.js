@@ -187,7 +187,9 @@ ka.WindowList = new Class({
 
         this.renderLayout();
 
-        this.renderActionbar();
+        this.renderTopActionBar(this.headerContainer);
+
+        this.renderActionBar();
 
         this.renderMultilanguage();
 
@@ -197,9 +199,12 @@ ka.WindowList = new Class({
     },
 
     renderHeader: function(){
-        this.headerLayout = new ka.LayoutHorizontal(this.win.getTitleGroupContainer(), {
-            columns: [150, null, 250]
-        });
+        this.headerContainer = new Element('div').inject(this.win.getTitleGroupContainer());
+
+        /* bottom */
+        this.actionBar = new Element('div', {
+            'class': 'ka-list-bottom'
+        }).inject(this.headerContainer);
     },
 
     renderFinished: function () {
@@ -247,20 +252,11 @@ ka.WindowList = new Class({
     },
 
     renderLayout: function () {
-
-        if (this.classProperties.asNested){
-
-            this.container.addClass('ka-objectTree-container');
-
-            this.renderLayoutNested(this.container);
-        } else {
-            this.renderLayoutTable();
-            this.renderSearchPane();
-        }
+        this.renderLayoutTable();
+        this.renderSearchPane();
     },
 
     renderLayoutNested: function(pContainer){
-
         var objectOptions = {};
 
         pContainer.empty();
@@ -281,7 +277,6 @@ ka.WindowList = new Class({
         if (this.classProperties.edit){
             this.nestedField.addEvent('select', this.nestedItemSelected.bind(this));
         }
-
     },
 
     nestedItemSelected: function(){
@@ -306,9 +301,7 @@ ka.WindowList = new Class({
     },
 
     renderLayoutTable: function(){
-
         /* head */
-
         this.head = new Element('div', {
             'class': 'ka-list-head'
         }).inject(this.container);
@@ -366,12 +359,10 @@ ka.WindowList = new Class({
             }).inject(tr);
         }
 
-
         /* content */
         this.main = new Element('div', {
             'class': 'ka-list-main'
         }).inject(this.container);
-
 
         this.table = new Element('table', {
             cellspacing: 0
@@ -379,12 +370,6 @@ ka.WindowList = new Class({
         this.tbody = new Element('tbody', {
             'class': 'ka-Table-body'
         }).inject(this.table);
-
-        /* bottom */
-
-        this.bottom = new Element('div', {
-            'class': 'ka-list-bottom'
-        }).inject(this.container);
     },
 
     changeLanguage: function () {
@@ -492,19 +477,19 @@ ka.WindowList = new Class({
         }
     },
 
-    renderActionbar: function () {
+    renderActionBar: function () {
         var _this = this;
 
         this.filterButton = new Element('a', {
             href: 'javascript: ;',
             html: _('Search'),
             'class': 'ka-list-search-button'
-        }).addEvent('click', this.toggleSearch.bind(this)).inject(this.bottom);
+        }).addEvent('click', this.toggleSearch.bind(this)).inject(this.actionBar);
 
         var myPath = _path + 'bundles/admin/images/icons/';
         this.navi = new Element('div', {
             'class': 'navi'
-        }).inject(this.bottom);
+        }).inject(this.actionBar);
 
         this.ctrlFirst = new Element('img', {
             src: myPath + 'control_start.png'
@@ -549,16 +534,9 @@ ka.WindowList = new Class({
             function () {
                 _this.loadPage(_this.lastResult.pages);
             }).inject(this.navi);
-
-
-        this.renderTopActionBar(this.headerLayout.getColumn(1));
     },
 
     renderTopActionBar: function(pGroupContainer){
-
-        if (this.classProperties.multiLanguage || this.classProperties.add || this.classProperties.remove || this.classProperties.custom) {
-            this.win.extendHead();
-        }
 
         if (this.classProperties.add || this.classProperties.remove || this.classProperties.custom ||
             (this.classProperties.asNested && (this.classProperties.nestedRootAdd))) {
@@ -584,18 +562,10 @@ ka.WindowList = new Class({
             if (this.classProperties.add) {
 
                 this.addBtn = this.actionsNavi.addButton(this.options.addLabel || this.classProperties.addLabel, ka.mediaPath(this.classProperties.addIcon), function () {
-
                     this.openAddItem();
-
                 }.bind(this));
             }
         }
-
-        this.viewActionBar = new ka.ButtonGroup(pGroupContainer, {onlyIcons: true});
-
-        this.viewCompact = this.viewActionBar.addButton(t('Compact'), '#icon-layout');
-        this.viewCompact.setPressed(true);
-        this.viewActionBar.addButton(t('Grid'), '#icon-list-9');
 
         /*
         TODO
@@ -692,25 +662,6 @@ ka.WindowList = new Class({
             name: 'myExportFrame' + this.win.id
         }).inject(document.hiddenElement);
         this.lastExportForm.submit();
-    },
-
-    renderActions: function () {
-        if (this.classProperties.add || this.classProperties.navi) { //wenn aktionen vorhanden, dann bar anzeigen
-            this.actions = true;
-        }
-        if (this.actions) {
-            this.table.setStyle('padding-bottom', 50);
-            this.actionBar = new Element('div', {
-                'class': 'ka-list-actionBar'
-            }).inject(this.container);
-        }
-        if (this.classProperties.add) {
-            this.actionAdd = new Element('a', {
-                'class': 'ka-button',
-                html: t('Add')
-            }).inject(this.actionBar);
-        }
-
     },
 
     addDummy: function () {

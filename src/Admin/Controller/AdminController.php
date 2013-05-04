@@ -410,8 +410,10 @@ class AdminController
         $response->setTitle(Kryn::$config['systemTitle'] . ' | Kryn.cms Administration');
 
         $response->addCssFile('@AdminBundle/css/ai.css');
+        $response->addCssFile('@AdminBundle/css/ka/Input.css');
         $response->addCssFile('@AdminBundle/css/ka/Login.css');
         $response->addCssFile('@AdminBundle/css/ka/Select.css');
+        $response->addCssFile('@AdminBundle/css/ka/Button.css');
         $response->addCssFile('@AdminBundle/css/ka/Checkbox.css');
         $response->setFavicon('admin/images/favicon.ico');
 

@@ -1,7 +1,7 @@
 .ka-tabGroup,
 .ka-tabGroup-small {
     position: relative;
-    height: 32px;
+    height: 35px;
     white-space: nowrap;
     padding-left: 20px;
     border-bottom: 1px solid #C0C0C0;
@@ -9,13 +9,13 @@
 
 a.ka-tabGroup-item {
     text-decoration: none;
-    color: #333;
+    color: #555;
     display: inline-block;
     padding: 0 11px;
     min-width: 20px;
     cursor: default;
-    line-height: 30px;
-    height: 30px;
+    line-height: 32px;
+    height: 34px;
     font-size: 16px;
 }
 
@@ -37,11 +37,10 @@ a.ka-tabGroup-item:hover {
 }
 
 a.ka-tabGroup-item-active {
-    line-height: 30px;
-    height: 31px;
     position: relative;
     background: #F7F7F7;
     border: 1px solid #C0C0C0;
     border-bottom: 0;
     border-top: 2px solid #22638E;
+    color: #222;
 }

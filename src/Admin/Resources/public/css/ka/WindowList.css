@@ -80,8 +80,12 @@
     border-top-right-radius: 3px;
 }
 
+.ka-windowCombine-list-container {
+}
+
 .ka-windowCombine-container {
     margin: 15px;
+    position: relative;
 }
 
 div.ka-windowCombine-list-actions {
@@ -364,18 +368,20 @@ a.ka-list-search-button-active:link {
 
 .ka-list-combine-left-top {
     position: relative;
-    height: 32px;
+    height: 35px;
     border-bottom: 1px solid #bebebe;
-
     color: #444;
 }
 
-.ka-list-combine-left-items {
+.ka-list-combine-items {
 }
 
-.ka-list-combine-left-items + .ka-Splitter-main {
-    top: 32px;
-    border-top: 1px solid silver;
+.ka-list-combine-items + .ka-Splitter-main {
+    top: 35px;
+    border-top: 1px solid #E2E2E2;
+}
+
+.ka-windowCombine-title-groups {
 }
 
 .ka-list-combine-itemloader:hover {
