@@ -421,10 +421,6 @@ ka.AdminInterface = new Class({
             'class': 'ka-login ka-admin'
         }).inject(document.body);
 
-        new Element('div', {
-            'class': 'ka-login-bg-blue'
-        }).inject(this.login);
-
         this.middle = new Element('div', {
             'class': 'ka-login-middle',
             styles: {
@@ -602,6 +598,10 @@ ka.AdminInterface = new Class({
     },
 
     reloadLogin: function(){
+        if (this.login) {
+            this.login.destroy();
+        }
+        this.renderLogin();
     },
 
     doLogin: function(){
