@@ -852,7 +852,7 @@ ka.getDomain = function (pRsn) {
     return result;
 }
 
-ka.loadSettings = function (pOnlyThisKeys) {
+ka.loadSettings = function (pOnlyThisKeys, cb) {
     if (!ka.settings) ka.settings = {};
 
     new Request.JSON({url: _pathAdmin + 'admin/backend/settings', noCache: 1, async: false, onComplete: function (res) {
@@ -875,6 +875,10 @@ ka.loadSettings = function (pOnlyThisKeys) {
 
         if (!ka.adminInterface.options.frontPage && ka.settings.system && ka.settings.system.systemTitle) {
             document.title = ka.settings.system.systemTitle + t(' | Kryn.cms Administration');
+        }
+
+        if (cb) {
+            cb(res.data);
         }
 
     }.bind(this)}).get({lang: window._session.lang, keys: pOnlyThisKeys});

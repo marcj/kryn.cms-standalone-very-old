@@ -14,6 +14,12 @@ ka.wm = {
 
     openWindow: function (pEntryPoint, pLink, pParentWindowId, pParams, pInline) {
         var win;
+
+        if (!ka.entrypoint.get(pEntryPoint)) {
+            logger(tf('Entry point `%s` not found.', pEntryPoint));
+            return;
+        }
+
         if ((win = this.checkOpen(pEntryPoint)) && !pInline) {
             return win.toFront();
         }

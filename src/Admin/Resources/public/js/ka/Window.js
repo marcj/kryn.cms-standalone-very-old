@@ -729,7 +729,8 @@ ka.Window = new Class({
         this.entryPointDefinition = ka.entrypoint.get(this.getEntryPoint());
 
         if (!this.entryPointDefinition){
-            this.win.alert(tf('Entry point `%s` not found.', this.getEntryPoint()));
+            this.close(true);
+            logger(tf('Entry point `%s` not found.', this.getEntryPoint()));
             return;
         }
 

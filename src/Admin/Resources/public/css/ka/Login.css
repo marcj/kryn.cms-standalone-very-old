@@ -4,8 +4,8 @@
     margin-top: 200px;
     text-align: center;
     position: relative;
-    background-color: #F9F9F9;
-    border: 1px solid #F0F0F0;
+    background-color: #f5f5f5;
+    border: 1px solid #f0f0f0;
 }
 .ka-login-middle .ka-Select-box,
 .ka-login-middle .ka-Select-box:link,
@@ -50,23 +50,10 @@
     height: 60px;
     font-size: 14px;
     margin-top: 52px;
-    border: 2px solid#f8d800;
+    border: 2px solid #f8d800;
     background-color: black;
     color: #f8d800;
     font-weight: bold;
-}
-
-
-.ka-loginHead-middler {
-    width: 50px;
-    position: relative;
-    margin: auto;
-}
-
-.ka-loginHead-middler img {
-    position: absolute;
-    top: 25px;
-    right: -310px;
 }
 
 .ka-login-logo {
@@ -93,9 +80,16 @@
 
 .ka-login-middle-top {
     background-color: #22638E;
-    padding: 5px 15px;
+    height: 60px;
+    line-height: 60px;
+    text-align: left;
 }
 
+.ka-login-middle-top img {
+    position: relative;
+    top: 6px;
+    margin-left: 23px;
+}
 .ka-ai-loader-con {
     height: 30px;
     -moz-border-radius: 4px;
@@ -144,17 +138,28 @@
     left: 0;
     width: 100%;
     height: 0;
-    background-color: #f9f9f9;
+    overflow: hidden;
+    background-color: #f5f5f5;
 }
 
 .ka-login-loader-top {
     top: 0px;
-    border-bottom: 1px solid #f9f9f9;
 }
 
 .ka-login-loader-bottom {
     bottom: 0px;
-    border-top: 1px solid #f9f9f9;
+}
+
+.ka-login-animation-left {
+    position: absolute;
+    left: 0;
+    top: 60px;
+    bottom: 0;
+    background-color: #1D1D22;
+}
+
+.ka-login-animation-top {
+    background-color: #1D1D22;
 }
 
 .ka-ai-loginLoadingBarText {

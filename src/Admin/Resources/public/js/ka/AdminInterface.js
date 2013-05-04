@@ -36,14 +36,9 @@ ka.AdminInterface = new Class({
     },
 
     createLayout: function(){
-        if (this.options.frontPage){
-            return;
-
-        } else {
-            this.border = new Element('div', {
-                'class': 'ka-border ka-admin'
-            }).inject(document.body);
-        }
+        this.border = new Element('div', {
+            'class': 'ka-border ka-admin'
+        }).inject(document.body);
 
         this.mainMenuTop = new Element('div', {
             'class': 'ka-main-menu-top'
@@ -142,7 +137,6 @@ ka.AdminInterface = new Class({
     },
 
     clearCache: function(){
-
         if (!this.cacheToolTip) {
             this.cacheToolTip = new ka.Tooltip(this.clearCacheBtn, t('Clearing cache ...'), 'top');
         }
@@ -151,7 +145,6 @@ ka.AdminInterface = new Class({
         new Request.JSON({url: _pathAdmin + 'admin/backend/cache', noCache: 1, onComplete: function (res) {
             this.cacheToolTip.stop(t('Cache cleared'));
         }.bind(this)}).delete();
-
     },
 
     /*
@@ -163,7 +156,7 @@ ka.AdminInterface = new Class({
         }
         this.createLayout();
 
-        this.border.setStyle('display', 'block');
+        this.border.setStyles({'display': 'block'});
 
         this.frontendLink = new Element('a', {
             text: t('Frontend'),
@@ -195,10 +188,10 @@ ka.AdminInterface = new Class({
         .inject(this.mainMenuUser);
 
         this.logoutButton = new ka.Button(t('Logout'))
-            .addEvent('click', function(){
-                this.logout();
-            }.bind(this))
-            .inject(this.mainMenuUser);
+        .addEvent('click', function(){
+            this.logout();
+        }.bind(this))
+        .inject(this.mainMenuUser);
 
         if (!this.helpsystem) {
             this.helpsystem = new ka.Helpsystem(document.body);
@@ -296,6 +289,8 @@ ka.AdminInterface = new Class({
                 }.bind(this));
             }
         });
+
+        this.renderMenu();
     },
 
     toggleMainbar: function(){
@@ -431,10 +426,16 @@ ka.AdminInterface = new Class({
         }).inject(this.login);
 
         this.middle = new Element('div', {
-            'class': 'ka-login-middle'
+            'class': 'ka-login-middle',
+            styles: {
+                left: 0
+            }
         }).inject(this.login);
 
-        this.middle.set('tween', {transition: Fx.Transitions.Cubic.easeOut});
+        this.middle.set('morph', {
+            duration: 300,
+            transition: Fx.Transitions.Cubic.easeOut
+        });
 
         this.middleTop = new Element('div', {
             'class': 'ka-login-middle-top'
@@ -511,7 +512,7 @@ ka.AdminInterface = new Class({
         }).inject(this.loaderTop);
 
         this.loaderTopLine.set('tween', {
-            duration: 1500,
+            duration: 4500,
             transition: Fx.Transitions.Quart.easeOut
         });
 
@@ -520,7 +521,7 @@ ka.AdminInterface = new Class({
         }).inject(form);
 
         [this.loaderTop, this.loaderBottom].each(function(item){
-            item.set('morph', {duration: 500, transition: Fx.Transitions.Quart.easeInOut});
+            item.set('morph', {duration: 300, transition: Fx.Transitions.Quart.easeInOut});
         });
 
         var combatMsg = false;
@@ -583,7 +584,7 @@ ka.AdminInterface = new Class({
         this.loginBtn.setButtonStyle('blue');
         this.loginBtn.addEvent('click', function(){
             this.doLogin();
-        }.bind(this))
+        }.bind(this));
 
         if (parent.inChrome && parent.inChrome()) {
             parent.doLogin();
@@ -596,25 +597,33 @@ ka.AdminInterface = new Class({
                 }
             }
         }
+
+        this.loginName.focus();
     },
 
     reloadLogin: function(){
     },
 
     doLogin: function(){
+        (function(){
+            document.activeElement.blur();
+        }).delay(10, this);
+        this.blockLoginForm();
         this.loginMessage.set('html', t('Check Login. Please wait ...'));
+        if (this.loginFailedClearer) {
+            clearTimeout(this.loginFailedClearer);
+        }
         new Request.JSON({url: _pathAdmin + 'admin/login', noCache: 1, onComplete: function (res) {
             if (res.data) {
                 this.loginSuccess(res);
             } else {
                 this.loginFailed();
+                this.unblockLoginForm();
             }
         }.bind(this)}).get({username: this.loginName.value, password: this.loginPw.value});
     },
 
-    logout: function (pScreenlocker) {
-        this.inScreenlockerMode = pScreenlocker;
-
+    logout: function () {
         if (this.loaderCon) {
             this.loaderCon.destroy();
         }
@@ -623,10 +632,10 @@ ka.AdminInterface = new Class({
 
         window.fireEvent('logout');
 
-        if (!pScreenlocker) {
-            ka.wm.closeAll();
-            new Request({url: _pathAdmin + 'admin/logout', noCache: 1}).get();
-        }
+        ka.wm.closeAll();
+        new Request({url: _pathAdmin + 'admin/logout', noCache: 1}).get();
+
+        this.border.destroy();
 
         if (this.loader) {
             this.loader.destroy();
@@ -635,18 +644,46 @@ ka.AdminInterface = new Class({
         this.loginMessage.set('html', '');
         this.login.setStyle('display', 'block');
 
+        this.loginFx.start({
+            0: { //loadingBackendAnimationLeft
+                width: 0,
+                left: 0
+            },
+            1: { //loadingBackendAnimationTop
+                height: 0
+            },
+            2: { //middle
+                marginTop: 200,
+                left: 0,
+                width: 325,
+                height: 310
+            },
+            3: { //middleTop
+                marginLeft: 0
+            },
+            4: { //loginForm
+                opacity: 1
+            },
+            5: { //loginLoadingBarText
+                opacity: 1
+            }
+
+        }).chain(function(){
+            this.unblockLoginForm();
+            this.loginPw.focus();
+        }.bind(this));
+
         [this.loginMessage]
             .each(function(i){document.id(i).setStyle('display', 'block')});
 
-        this.loginLoadingBar.destroy();
-        this.loginLoadingBarText.destroy();
-
         this.loginPw.value = '';
-        this.loginPw.focus();
         window._session.user_id = 0;
     },
 
     loginSuccess: function (pResponse, pAlready) {
+        (function(){
+            document.activeElement.blur();
+        }).delay(10, this);
         if (pAlready && window._session.hasBackendAccess == '0') {
             return;
         }
@@ -658,16 +695,6 @@ ka.AdminInterface = new Class({
         window._sid = pResponse.token;
         window._session.sessionid = pResponse.token;
         window._user_id = pResponse.userId;
-
-        if (this.logoutButton) {
-            this.logoutButton.destroy();
-            delete this.logoutButton;
-        }
-
-        if (this.editMeButton) {
-            this.editMeButton.destroy();
-            delete this.editMeButton;
-        }
 
         window._session.user_id = pResponse.userId;
         window._session.lastlogin = pResponse.lastlogin;
@@ -682,12 +709,17 @@ ka.AdminInterface = new Class({
     loginFailed: function(){
         this.loginPw.focus();
         this.loginMessage.set('html', '<span style="color: red">' + _('Login failed') + '.</span>');
-        (function(){
+        this.loginFailedClearer = (function(){
             this.loginMessage.set('html', '');
         }).delay(3000, this);
     },
 
     loadBackend: function(){
+        if (this.alreadyLoaded) {
+            this.loadDone();
+            return;
+        }
+
         [this.loginMessage]
             .each(function(i){document.id(i).setStyle('display', 'none')});
 
@@ -697,17 +729,18 @@ ka.AdminInterface = new Class({
         }).inject(this.loginForm, 'after');
 
         this.blockLoginForm();
-        this.loaderTopLine.tween('width', 100);
+        this.loaderTopLine.tween('width', 350);
 
         (function(){
-            this.loaderTopLine.tween('width', 80);
+            document.body.focus();
+            //this.loaderTopLine.tween('width', 180);
 
             this.loginLoaderStep2 = (function(){
-                this.loaderTopLine.tween('width', 178);
+                //this.loaderTopLine.tween('width', 200);
             }).delay(900, this);
 
             this.loginLoaderStep3 = (function(){
-                this.loaderTopLine.tween('width', 260);
+                //this.loaderTopLine.tween('width', 220);
             }).delay(3500, this);
 
             new Asset.css(_pathAdmin + 'admin/css/style.css');
@@ -716,29 +749,36 @@ ka.AdminInterface = new Class({
     },
 
     blockLoginForm: function () {
-        this.loaderTop.morph({'height': 91, 'border-bottom': '1px solid #bbbbbb'});
-        this.loaderBottom.morph({'height': 92, 'border-top': '1px solid #bbbbbb'});
+        this.loaderTop.morph({'height': 91, 'border-bottom': '1px solid #ffffff'});
+        this.loaderBottom.morph({'height': 92, 'border-top': '1px solid #ffffff'});
     },
 
     unblockLoginForm: function () {
-        this.loaderTop.morph({'height': 0, 'border-bottom': '0'});
-        this.loaderBottom.morph({'height': 0, 'border-top': '0'});
+        this.loaderTop.morph({'height': 0, 'border-bottom': '0px solid #ffffff'});
+        this.loaderBottom.morph({'height': 0, 'border-top': '0px solid #ffffff'});
     },
 
     loaderDone: function(){
-        if (this.alreadyLoaded) return;
-
         this.alreadyLoaded = true;
 
         if (this.loginLoaderStep2) clearTimeout(this.loginLoaderStep2);
         if (this.loginLoaderStep3) clearTimeout(this.loginLoaderStep3);
 
+        var self = this;
+
         if (this.options.frontPage){
             ka.loadSettings();
         } else {
-            this.loginLoadingBarText.set('html', t('Loading done'));
-            this.loaderTopLine.tween('width', 295);
-            this.loadDone.delay(200, this);
+            ka.loadSettings(null, function(){
+                self.loaderTopLine.tween('width', 255);
+
+                self.loadMenu(function(){
+                    self.loaderTopLine.set('tween', {duration: 200});
+                    self.loaderTopLine.tween('width', 295);
+                    self.loadDone.delay(200, self);
+                    self.loginLoadingBarText.set('html', t('Loading done'));
+                });
+            });
         }
     },
 
@@ -746,31 +786,85 @@ ka.AdminInterface = new Class({
         this.check4Updates.delay(2000, this);
 
         this.allFilesLoaded = true;
-        //this.middle.store('oldMargin', this.middle.getStyle('margin-top'));
-        //this.middle.set('tween', {transition: Fx.Transitions.Cubic.easeOut});
-        //this.middle.tween('margin-top', -250);
-        if (this.blender) this.blender.destroy();
-
-        this.blender = new Element('div', {
-            style: 'left: 0px; top: 0px; right: 0px; bottom: 0px; position: absolute; background-color: white; z-index: 15012300',
-            styles: {
-                opacity: 0
-            }
-        }).inject(document.body);
-
-        this.blender.set('tween', {duration: 450});
 
         var self = this;
 
-        new Fx.Tween(this.blender, {duration: 450})
-        .start('opacity', 1).chain(function(){
+        this.loadingBackendAnimationLeft = new Element('div', {
+            'class': 'ka-login-animation-left',
+            style: 'width: 0px'
+        }).inject(this.middle);
 
-            self.login.setStyle('display', 'none');
+        this.loadingBackendAnimationTop = new Element('div', {
+            'class': 'ka-login-animation-top',
+            style: 'height: 0px'
+        }).inject(this.middleTop, 'after');
+
+        this.middle.setStyles({
+            borderLeft: 0,
+            border: 0
+        });
+        this.loaderTopLine.setStyle('width', 395);
+
+        this.loginFx = new Fx.Elements([
+            this.loadingBackendAnimationLeft,
+            this.loadingBackendAnimationTop,
+            this.middle,
+            this.middleTop,
+            this.loginForm,
+            this.loginLoadingBarText
+        ], {
+            duration: 150,
+            transition: Fx.Transitions.Quint.easeOut
+        });
+
+        this.loginFx.start({
+            0: { //loadingBackendAnimationLeft
+                width: 220,
+                left: -220
+            },
+            1: { //loadingBackendAnimationTop
+                height: 40
+            },
+            2: { //middle
+                marginTop: 0,
+                left: 110,
+                width: window.getSize().x - 220,
+                height: window.getSize().y
+            },
+            3: { //middleTop
+                marginLeft: -220
+            },
+            4: { //loginForm
+                opacity: 0
+            },
+            5: { //loginLoadingBarText
+                opacity: 0
+            }
+
+        }).chain(function(){
+            self.loginLoadingBarText.set('html');
 
             //load settings, bg etc
-            ka.loadSettings();
             self.renderBackend();
-            self.loadMenu();
+            self.login.setStyle('display', 'none');
+            self.border.setStyle('display', 'block');
+
+
+            this.loaderTopLine.setStyle('width', 0);
+
+//            new Fx.Elements([
+//                this.border,
+//                this.login
+//            ], {
+//               duration: 300
+//            }).start({
+//                0: {
+//                    opacity: 1
+//                },
+//                1: {
+//                    opacity: 0
+//                }
+//            });
 
             var lastlogin = new Date();
             if (window._session.lastlogin > 0) {
@@ -783,10 +877,8 @@ ka.AdminInterface = new Class({
                     3000);
             }
 
-            this.start('opacity', 0).chain(function(){
-                self.blender.destroy();
-            })
-        });
+        }.bind(this));
+        //});
     },
 
     toggleModuleMenuIn: function (pOnlyStay) {
@@ -845,34 +937,39 @@ ka.AdminInterface = new Class({
         }
     },
 
-    loadMenu: function(){
-
+    loadMenu: function(cb){
         if (this.lastLoadMenuReq) this.lastLoadMenuReq.cancel();
 
         this.lastLoadMenuReq = new Request.JSON({url: _pathAdmin + 'admin/backend/menus', noCache: true, onComplete: function (res) {
-            this.mainTempLinks.dispose();
-            if (ka.wm.tempLinksSplitter) ka.wm.tempLinksSplitter.dispose();
-            this.mainLinks.empty();
-            this.mainTempLinks.inject(this.mainLinks);
-            if (ka.wm.tempLinksSplitter) ka.wm.tempLinksSplitter.inject(this.mainTempLinks, 'after');
-
-            if (this.additionalMainMenu) {
-                this.additionalMainMenu.destroy();
-                this.additionalMainMenuContainer.destroy();
-                delete this.additionalMainMenu;
+            this.menuItems = res.data;
+            if (cb) {
+                cb(res.data);
             }
-
-            this.removedMainMenuItems = [];
-            delete this.mainMenuItems;
-
-            Object.each(res.data, function (item, path) {
-                this.addAdminLink(item, path);
-            }.bind(this));
-
-            ka.wm.handleHashtag();
-            ka.wm.updateWindowBar();
-
         }.bind(this)}).get();
+    },
+
+    renderMenu: function(){
+        this.mainTempLinks.dispose();
+        if (ka.wm.tempLinksSplitter) ka.wm.tempLinksSplitter.dispose();
+        this.mainLinks.empty();
+        this.mainTempLinks.inject(this.mainLinks);
+        if (ka.wm.tempLinksSplitter) ka.wm.tempLinksSplitter.inject(this.mainTempLinks, 'after');
+
+        if (this.additionalMainMenu) {
+            this.additionalMainMenu.destroy();
+            this.additionalMainMenuContainer.destroy();
+            delete this.additionalMainMenu;
+        }
+
+        this.removedMainMenuItems = [];
+        delete this.mainMenuItems;
+
+        Object.each(this.menuItems, function (item, path) {
+            this.addAdminLink(item, path);
+        }.bind(this));
+
+        ka.wm.handleHashtag();
+        ka.wm.updateWindowBar();
     },
 
     makeMenu: function (pToggler, pMenu, pCalPosition, pOffset) {
