@@ -5,7 +5,7 @@
     text-align: center;
     position: relative;
     background-color: #f5f5f5;
-    border: 1px solid #f0f0f0;
+    border: 5px solid white;
 }
 .ka-login-middle .ka-Select-box,
 .ka-login-middle .ka-Select-box:link,
@@ -66,7 +66,7 @@
     right: 0px;
     top: 0px;
     bottom: 0px;
-    background-color: white;
+    background-color: #22638E;
     text-align: center;
     z-index: 200101;
     overflow: hidden;

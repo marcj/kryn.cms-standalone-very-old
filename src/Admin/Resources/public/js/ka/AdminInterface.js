@@ -512,8 +512,8 @@ ka.AdminInterface = new Class({
         }).inject(this.loaderTop);
 
         this.loaderTopLine.set('tween', {
-            duration: 4500,
-            transition: Fx.Transitions.Quart.easeOut
+            duration: 5000,
+            transition: Fx.Transitions.Expo.easeOut
         });
 
         this.loaderBottom = new Element('div', {
@@ -655,8 +655,9 @@ ka.AdminInterface = new Class({
             2: { //middle
                 marginTop: 200,
                 left: 0,
+                border: '5px solid #ffffff',
                 width: 325,
-                height: 310
+                height: 280
             },
             3: { //middleTop
                 marginLeft: 0
@@ -671,6 +672,7 @@ ka.AdminInterface = new Class({
         }).chain(function(){
             this.unblockLoginForm();
             this.loginPw.focus();
+                this.middle.setStyle('height');
         }.bind(this));
 
         [this.loginMessage]
@@ -684,6 +686,7 @@ ka.AdminInterface = new Class({
         (function(){
             document.activeElement.blur();
         }).delay(10, this);
+
         if (pAlready && window._session.hasBackendAccess == '0') {
             return;
         }
@@ -703,7 +706,7 @@ ka.AdminInterface = new Class({
 
         this.loginMessage.set('html', t('Please wait'));
 
-        this.loadBackend();
+        this.loadBackend(pAlready);
     },
 
     loginFailed: function(){
@@ -714,7 +717,7 @@ ka.AdminInterface = new Class({
         }).delay(3000, this);
     },
 
-    loadBackend: function(){
+    loadBackend: function(pAlready){
         if (this.alreadyLoaded) {
             this.loadDone();
             return;
@@ -728,29 +731,33 @@ ka.AdminInterface = new Class({
             html: _('Loading your interface')
         }).inject(this.loginForm, 'after');
 
-        this.blockLoginForm();
-        this.loaderTopLine.tween('width', 350);
+        this.blockLoginForm(pAlready);
+        this.loaderTopLine.tween('width', 330);
 
         (function(){
             document.body.focus();
-            //this.loaderTopLine.tween('width', 180);
 
             this.loginLoaderStep2 = (function(){
-                //this.loaderTopLine.tween('width', 200);
-            }).delay(900, this);
+                this.loaderTopLine.tween('width', 360);
+            }).delay(1000, this);
 
             this.loginLoaderStep3 = (function(){
-                //this.loaderTopLine.tween('width', 220);
-            }).delay(3500, this);
+                this.loaderTopLine.tween('width', 380);
+            }).delay(3000, this);
 
             new Asset.css(_pathAdmin + 'admin/css/style.css');
             new Asset.javascript(_pathAdmin + 'admin/backend/js/script.js');
         }).delay(500, this);
     },
 
-    blockLoginForm: function () {
-        this.loaderTop.morph({'height': 91, 'border-bottom': '1px solid #ffffff'});
-        this.loaderBottom.morph({'height': 92, 'border-top': '1px solid #ffffff'});
+    blockLoginForm: function (pAlready) {
+        if (pAlready) {
+            this.loaderTop.setStyles({'height': 91, 'border-bottom': '1px solid #ffffff'});
+            this.loaderBottom.setStyles({'height': 92, 'border-top': '1px solid #ffffff'});
+        } else {
+            this.loaderTop.morph({'height': 91, 'border-bottom': '1px solid #ffffff'});
+            this.loaderBottom.morph({'height': 92, 'border-top': '1px solid #ffffff'});
+        }
     },
 
     unblockLoginForm: function () {
@@ -799,10 +806,6 @@ ka.AdminInterface = new Class({
             style: 'height: 0px'
         }).inject(this.middleTop, 'after');
 
-        this.middle.setStyles({
-            borderLeft: 0,
-            border: 0
-        });
         this.loaderTopLine.setStyle('width', 395);
 
         this.loginFx = new Fx.Elements([
@@ -828,6 +831,7 @@ ka.AdminInterface = new Class({
             2: { //middle
                 marginTop: 0,
                 left: 110,
+                border: '0px solid #ffffff',
                 width: window.getSize().x - 220,
                 height: window.getSize().y
             },
