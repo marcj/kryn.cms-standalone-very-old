@@ -262,7 +262,7 @@ ka.WindowCombine = new Class({
             } else {
                 //this.combineContainer.tween('left', (document.id(this.win.content).getSize().x) * -1);
                 this.mainLayoutFx.start({
-                    left: (document.id(this.win.content).getSize().x) * -1
+                    left: ((document.id(this.win.content).getSize().x) + 30 ) * -1
                 });
 //                this.mainLayoutFx.start({
 //                    right: 0
