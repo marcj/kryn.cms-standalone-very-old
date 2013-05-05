@@ -90,7 +90,7 @@ class User extends \Admin\ObjectCrud
         '__general__' => array(
             'type' => 'tab',
             'label' => '[[General]]',
-            'layout' => '   <table width="600"><tr>
+            'layout' => '   <table width="100%"><tr>
                                 <td width="110">
                                      <div style="height: 100px; padding-left: 28px; margin:5px" id="picture"></div>
                                 </td>

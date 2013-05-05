@@ -81,6 +81,7 @@
 }
 
 .ka-windowCombine-list-container {
+    margin: 15px;
 }
 
 .ka-windowCombine-container {
@@ -227,51 +228,45 @@ div.ka-windowCombine-list-actions {
 }
 
 
-.ka-list-bottom {
-    position: absolute;
-    bottom: -1px;
-    height: 30px;
-    width: 100%;
-    border-top: 1px solid #999;
-
-    background: #bdbcbc;
-    background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2JkYmNiYyIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiM5YzliOWIiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
-    background: -moz-linear-gradient(top,  #bdbcbc 0%, #9c9b9b 100%);
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#bdbcbc), color-stop(100%,#9c9b9b));
-    background: -webkit-linear-gradient(top,  #bdbcbc 0%,#9c9b9b 100%);
-    background: -o-linear-gradient(top,  #bdbcbc 0%,#9c9b9b 100%);
-    background: -ms-linear-gradient(top,  #bdbcbc 0%,#9c9b9b 100%);
-    background: linear-gradient(to bottom,  #bdbcbc 0%,#9c9b9b 100%);
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#bdbcbc', endColorstr='#9c9b9b',GradientType=0 );
-
-
+.ka-list-actionBar {
+    margin-top: 15px;
 }
 
-.ka-list-bottom .actionBar {
-    position: absolute;
-    line-height: 15px;
-    top: 5px;
-    left: 5px;
+.ka-list-actionBar-page {
+    border-top: 0;
+    border-bottom: 0;
+    width: 45px;
+    position: relative;
+    text-align: center;
+    text-indent: 0;
+    height: 28px;
 }
 
-.ka-list-bottom .actionBar img {
+.ka-list-actionBar-page-count {
+    display: inline-block;
+    min-width: 29px;
+    text-align: center;
+    line-height: 30px;
+}
+
+.ka-list-actionBar .actionBar img {
     cursor: pointer;
 }
 
-.ka-list-bottom .navi {
+.ka-list-actionBar .navi {
     text-align: right;
-    position: absolute;
+    position: relative;
     width: 150px;
     right: 5px;
     top: 5px;
     line-height: 15px;
 }
 
-.ka-list-bottom .navi img {
+.ka-list-actionBar .navi img {
     margin: 0px 1px 0px 1px;
 }
 
-.ka-list-bottom .navi input {
+.ka-list-actionBar .navi input {
     margin: 0px 1px 0px 1px;
     width: 32px;
     height: 13px;

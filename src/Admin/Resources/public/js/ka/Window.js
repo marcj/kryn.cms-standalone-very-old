@@ -13,29 +13,30 @@ ka.Window = new Class({
     children: null,
 
     initialize: function (pEntryPoint, pLink, pInstanceId, pParameter, pInline, pParentId) {
-        this.params = pParameter;
-        this.id = pInstanceId;
-
+        this.params     = pParameter;
+        this.id         = pInstanceId;
         this.entryPoint = pEntryPoint;
+        this.inline     = pInline;
+        this.link       = pLink;
+        this.parentId   = pParentId;
 
-        this.inline = pInline;
-        this.link = pLink;
-        this.parentId = pParentId;
-        if (this.parentId){
-            ka.wm.getWindow(this.parentId).setChildren(this);
+        if (this.inline) {
+            if (!ka.wm.getWindow(this.parentId)) {
+                throw (tf('Parent window not found. `%s`', this.parentId));
+                return;
+            } else {
+                ka.wm.getWindow(this.parentId).setChildren(this);
+            }
         }
 
-        this.link = pLink || {};;
-
+        this.link   = pLink || {};
         this.active = true;
         this.isOpen = true;
 
         this.createWin();
 
         if (pEntryPoint) {
-
             this.loadContent();
-
             this.addHotkey('esc', false, false, function(e){
                 (function(){
                     this.close(true);

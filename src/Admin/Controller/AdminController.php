@@ -347,13 +347,13 @@ class AdminController
             $client = Kryn::getClient();
 
         $session              = array();
-        $session['user_id']   = $client->getUserId();
+        $session['userId']    = $client->getUserId();
         $session['sessionid'] = $client->getToken();
         $session['tokenid']   = $client->getTokenId();
         $session['lang']      = $client->getSession()->getLanguage();
         if ($client->getUserId()) {
             $session['username']  = $client->getUser()->getUsername();
-            $session['lastlogin'] = $client->getUser()->getLastlogin();
+            $session['lastLogin'] = $client->getUser()->getLastlogin();
             $session['firstName'] = $client->getUser()->getFirstName();
             $session['lastName']  = $client->getUser()->getLastName();
         }
@@ -476,12 +476,20 @@ class AdminController
     {
         $status = Kryn::getAdminClient()->login($pUsername, $pPassword);
 
-        return !$status ? false :
-            array(
+        $lastLogin = Kryn::getAdminClient()->getUser()->getLastLogin();
+        if ($status) {
+            Kryn::getAdminClient()->getUser()->setLastLogin(time());
+            return array(
                 'token' => Kryn::getAdminClient()->getToken(),
                 'userId' => Kryn::getAdminClient()->getUserId(),
-                'lastLogin' => Kryn::getAdminClient()->getUser()->getLastLogin()
+                'username' => Kryn::getAdminClient()->getUser()->getUsername(),
+                'lastLogin' => $lastLogin,
+                'firstName' => Kryn::getAdminClient()->getUser()->getFirstName(),
+                'lastName' => Kryn::getAdminClient()->getUser()->getLastName()
             );
+        }
+
+        return false;
     }
 
     public function loggedIn()

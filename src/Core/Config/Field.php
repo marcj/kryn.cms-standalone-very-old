@@ -118,7 +118,7 @@ class Field extends Model
         foreach ($children as $key => $field) {
             if ($field instanceof Field) {
                 $this->children[] = $field;
-            } else {
+            } else if(is_array($field)) {
                 $instance = new Field();
                 $instance->fromArray($field);
                 if (null === $instance->getId()) {

@@ -1,38 +1,22 @@
+.ka-Table,
 .ka-Table-head,
 .ka-Table-body {
     width: 100%;
 }
 
+.ka-Table > thead > tr > th,
 .ka-Table-head > tr > th {
-    border-left:1px solid #DDDDDD;
-    cursor:default;
-    font-weight:normal;
-    padding:0px 3px;
-    color: #555;
+    font-weight: normal;
+    font-size: 14px;
+    padding: 10px 5px;
+    color: #444;
     border-bottom: 1px solid silver;
-    height:21px;
-
-    background: rgb(238,238,238); /* Old browsers */
-    /* IE9 SVG, needs conditional override of 'filter' to 'none' */
-    background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2VlZWVlZSIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNlNWU1ZTUiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
-    background: -moz-linear-gradient(top,  rgba(238,238,238,1) 0%, rgba(229,229,229,1) 100%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(238,238,238,1)), color-stop(100%,rgba(229,229,229,1))); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top,  rgba(238,238,238,1) 0%,rgba(229,229,229,1) 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top,  rgba(238,238,238,1) 0%,rgba(229,229,229,1) 100%); /* Opera 11.10+ */
-    background: -ms-linear-gradient(top,  rgba(238,238,238,1) 0%,rgba(229,229,229,1) 100%); /* IE10+ */
-    background: linear-gradient(top,  rgba(238,238,238,1) 0%,rgba(229,229,229,1) 100%); /* W3C */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#eeeeee', endColorstr='#e5e5e5',GradientType=0 ); /* IE6-8 */
-
-    text-indent: 3px;
+    line-height: 20px;
 }
 
-
+.ka-Table > thead > tr > th:first-child,
 .ka-Table-head > tr > th:first-child {
     border-left: 0px;
-}
-
-.ka-Table-head > tr > th {
-    background-color: #e5e5e5;
 }
 
 .ka-Table-head-container {
@@ -56,25 +40,32 @@
     vertical-align: top;
 }
 
+.ka-Table > tbody  > tr > td,
 .ka-Table-body > tr > td {
-    padding: 3px;
+    padding: 7px;
     cursor: default;
     overflow-x: hidden;
     text-overflow: ellipsis;
+    line-height: 25px;
 }
 
+.ka-Table > tbody > tr:nth-child(1n) > td,
 .ka-Table-body > tr:nth-child(1n) > td {
     background-color: #f4f4f4;
 }
 
+.ka-Table > tbody > tr:nth-child(2n) > td,
 .ka-Table-body > tr:nth-child(2n) > td {
-    background-color: #e8e8e8;
+    background-color: #eee;
 }
 
+.ka-Table-hover > tbody > tr:hover > td,
 .ka-Table-hover > div > .ka-Table-body > tr:hover > td {
-    background-color: #ccc;
+    background-color: #ddd;
 }
 
+.ka-Table > tbody > tr.active > td,
+.ka-Table-hover > tbody > tr.active > td,
 .ka-Table-body > div > tr.active > td,
 .ka-Table-body > div > tr.active:hover > td,
 .ka-Table-body > div > tr.ka-filepane-file-detail-active > td,
@@ -83,6 +74,6 @@
 .ka-Table-body > tr.active:hover > td
 .ka-Table-hover > div > .ka-Table-body > tr.active > td,
 .ka-Table-hover > div > .ka-Table-body > tr.active:hover > td {
-    background-color: #398eba;
+    background-color: #22638E;
     color: white;
 }

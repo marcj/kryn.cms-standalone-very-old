@@ -2,7 +2,6 @@ ka.Table = new Class({
 
     Implements: [Options, Events],
 
-
     tableBody: false,
     safe: false,
 
@@ -17,17 +16,15 @@ ka.Table = new Class({
 
     /**
      * Constructor
-     * 
-     * @param  array pColumns [ ["label", optionalWidth], ["label", optionalWidth], ... ] 
+     *
+     * @param  array pColumns [ ["label", optionalWidth], ["label", optionalWidth], ... ]
      * @param  array pOptions
      */
     initialize: function (pColumns, pOptions) {
-
         this.setOptions(pOptions);
 
         if (this.options.absolute == false) {
             this.main = new Element('div', {
-                style: 'position: relative;'
             });
         } else {
             this.main = new Element('div', {
@@ -35,34 +32,35 @@ ka.Table = new Class({
             });
         }
 
-        if (this.options.hover){
+        if (this.options.hover) {
             this.main.addClass('ka-Table-hover');
         }
 
-        if (this.options.alignTop){
+        if (this.options.alignTop) {
             this.main.addClass('ka-Table-alignTop');
         }
 
-        if (this.options.selectable == true){
-            this.main.addEvent('click', function(e){
-                
-                if (!e.target) return;
+        if (this.options.selectable == true) {
+            this.main.addEvent('click:relay(td)', function (e, item) {
+                this.fireEvent('preSelect');
 
-                if (e.target.get('tag') == 'td'){
-                    
-                    this.fireEvent('preSelect');
-
-                    if (!this.multi || (this.multi && (e.ctrl != true && e.meta != true)))
-                        e.target.getParent().getParent().getChildren('tr').removeClass('active');
-
-                    e.target.getParent().addClass('active');
-                    this.fireEvent('select');
-                } else {
-                    this.fireEvent('preDeselect');
-                    e.target.getElements('tr').removeClass('active');
-                    this.fireEvent('deselect');
+                if (!this.multi || (this.multi && (e.ctrl != true && e.meta != true))) {
+                    item.getParent().getParent().getChildren('tr').removeClass('active');
                 }
+                item.getParent().addClass('active');
+                e.stop();
+                this.fireEvent('select', item);
+            }.bind(this));
 
+            this.main.addEvent('click:relay(th)', function (e, item) {
+                e.stop();
+                this.fireEvent('selectHead', item);
+            }.bind(this));
+
+            this.main.addEvent('click', function (e) {
+                this.fireEvent('preDeselect');
+                e.target.getElements('tr').removeClass('active');
+                this.fireEvent('deselect');
             }.bind(this));
         }
 
@@ -98,6 +96,9 @@ ka.Table = new Class({
         return this.main;
     },
 
+    /**
+     * @param {Boolean} pActivate
+     */
     loading: function (pActivate) {
 
         if (!pActivate && this.loadingOverlay) {
@@ -132,16 +133,21 @@ ka.Table = new Class({
 
             var size = this.loadingOverlay.getSize();
             this.loadingOverlay.setStyle('padding-top', (size.y / 2) - 50);
-
         }
+    },
 
-
+    /**
+     *
+     * @param {Integer} index Starting at 1
+     */
+    getColumn: function (index) {
+        return this.tableHead.getChildren()[index - 1];
     },
 
     /**
      * Set the columns of the table.
-     * 
-     * @param array pColumns  [ ["label", optionalWidth], ["label", optionalWidth], ... ] 
+     *
+     * @param {Array} pColumns  [ ["label", optionalWidth], ["label", optionalWidth], ... ]
      */
     setColumns: function (pColumns) {
         this.columns = pColumns;
@@ -150,110 +156,106 @@ ka.Table = new Class({
             return;
         }
 
-        if (this.head) this.head.destroy();
+        this.main.empty();
 
-        this.head = new Element('div', {
-            'class': 'ka-Table-head-container'
-        }).inject(this.main);
+        if (this.options.absolute) {
+            this.head = new Element('div', {
+                'class': 'ka-Table-head-container'
+            }).inject(this.main);
 
-        if (this.options.absolute == false) {
-            this.head.setStyle('position', 'relative');
+            if (this.options.absolute == false) {
+                this.head.setStyle('position', 'relative');
+            }
+
+            this.tableHead = new Element('table', {
+                'class': 'ka-Table-head',
+                cellpadding: 0, cellspacing: 0
+            }).inject(this.head, 'top');
+
+            if (this.body) {
+                this.body.destroy();
+            }
+
+            if (this.options.absolute == false) {
+                this.body = new Element('div', {
+                    style: 'position: relative;'
+                }).inject(this.main);
+            } else {
+                this.body = new Element('div', {
+                    'class': 'ka-Table-body-container'
+                }).inject(this.main);
+            }
+
+            this.tableBody = new Element('table', {
+                'class': 'ka-Table-body ka-Table-body-absolute',
+                cellpadding: 0, cellspacing: 0
+            }).inject(this.body, 'bottom');
+        } else {
+            this.table = new Element('table', {
+                'class': 'ka-Table'
+            }).inject(this.main);
+
+            this.tableHead = new Element('thead').inject(this.table);
+            this.tableBody = new Element('tbody').inject(this.table);
+
+            if (this.options.hover) {
+                this.table.addClass('ka-Table-hover');
+            }
+
+            if (this.options.alignTop) {
+                this.table.addClass('ka-Table-alignTop');
+            }
         }
-
-        this.tableHead = new Element('table', {
-            'class': 'ka-Table-head',
-            cellpadding: 0, cellspacing: 0
-        }).inject(this.head, 'top');
 
         var tr = new Element('tr').inject(this.tableHead);
         pColumns.each(function (column, index) {
 
-            new Element('th', {
-                html: column[0],
-                'class': 'gradient',
-                width: (column[1]) ? column[1] : null
+            var th = new Element('th', {
+                html: ('element' !== typeOf(column[0]) ? column[0] : null),
+                styles: {
+                    width: (column[1]) ? column[1] : null
+                }
             }).inject(tr);
 
+            if ('element' === typeOf(column[0])) {
+                column[0].inject(th);
+            }
+
         }.bind(this));
-
-
-        if (this.body) this.body.destroy();
-
-        if (this.options.absolute == false) {
-            this.body = new Element('div', {
-                style: 'position: relative;'
-            }).inject(this.main);
-        } else {
-            this.body = new Element('div', {
-                'class': 'ka-Table-body-container'
-            }).inject(this.main);
-        }
-
-        this.tableBody = new Element('table', {
-            'class': 'ka-Table-body',
-            cellpadding: 0, cellspacing: 0
-        }).inject(this.body, 'bottom');
-
     },
 
-    getRows: function(){
-
+    getRows: function () {
         var children = this.tableBody.getChildren();
-        if (typeOf(children) == 'array' && children[0].get('tag') == 'tbody'){
+        if (typeOf(children) == 'array' && children[0].get('tag') == 'tbody') {
             return children[0].getChildren();
-        } else return children;
-
+        } else {
+            return children;
+        }
     },
 
     addRow: function (pValues, pIndex) {
-
         if (!pIndex) {
             pIndex = this.tableBody.getElements('tr').length + 1;
         }
 
-        if (!this.classTr || this.classTr == 'two') {
-            this.classTr = 'one';
-        } else {
-            this.classTr = 'two';
-        }
-
         var row = pValues;
 
-        var tr = new Element('tr', {
-            'class': this.classTr
-        }).inject(this.tableBody);
+        var tr = new Element('tr').inject(this.tableBody);
         tr.store('rowIndex', pIndex);
 
         var count = 0;
         this.columns.each(function (column, index) {
-
             var html = "";
             if ((typeOf(row[count]) == 'string' || typeOf(row[count]) == 'number') && !row[count].inject) {
                 html = row[count];
             }
 
-            if (index > 0) {
-                width = index;
-            }
-
-
             var td = new Element('td', {
                 width: (column[1]) ? column[1] : null
             }).inject(tr);
 
-            //TODO, make default 'text'
             if (this.safe || this.options.safe) {
                 if (column[2] == 'html') {
-                    td.set('html', html);
-                } else if(typeOf(column[2]) == 'string' && column[2].substr(0,11) == 'javascript:'){
-                    try {
-                        var value = html;
-                        html = eval(column[2].substr(11));
-                    } catch(e) {
-                        throw _('Error in column %id (%label) of ka.Table column definition:')
-                                  .replace('%id', index)
-                                  .replace('%label', column[0])+' '+e;
-                    }
                     td.set('html', html);
                 } else {
                     td.set('text', html);
@@ -286,7 +288,7 @@ ka.Table = new Class({
         this.tableBody.empty();
 
         if (typeOf(pValues) == 'array') {
-            pValues.each(function(row){
+            pValues.each(function (row) {
                 this.addRow(row);
             }.bind(this));
         }

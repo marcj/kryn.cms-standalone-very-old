@@ -1,7 +1,6 @@
 .ka-field,
 .ka-field-inputTd {
     position: relative;
-    max-width: 400px;
 }
 
 .ka-field.ka-field-type-wysiwyg {

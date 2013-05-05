@@ -585,7 +585,7 @@ ka.AdminInterface = new Class({
         if (parent.inChrome && parent.inChrome()) {
             parent.doLogin();
         } else {
-            if (_session.user_id > 0) {
+            if (_session.userId > 0) {
                 if (window._session.noAdminAccess){
                    this.loginFailed();
                 } else {
@@ -615,7 +615,7 @@ ka.AdminInterface = new Class({
         }
         new Request.JSON({url: _pathAdmin + 'admin/login', noCache: 1, onComplete: function (res) {
             if (res.data) {
-                this.loginSuccess(res);
+                this.loginSuccess(res.data);
             } else {
                 this.loginFailed();
                 this.unblockLoginForm();
@@ -655,7 +655,6 @@ ka.AdminInterface = new Class({
             2: { //middle
                 marginTop: 200,
                 left: 0,
-                border: '5px solid #ffffff',
                 width: 325,
                 height: 280
             },
@@ -672,17 +671,19 @@ ka.AdminInterface = new Class({
         }).chain(function(){
             this.unblockLoginForm();
             this.loginPw.focus();
-                this.middle.setStyle('height');
+
+            this.middle.setStyle('border', '5px solid #ffffff');
+            this.middle.setStyle('height');
         }.bind(this));
 
         [this.loginMessage]
             .each(function(i){document.id(i).setStyle('display', 'block')});
 
         this.loginPw.value = '';
-        window._session.user_id = 0;
+        window._session.userId = 0;
     },
 
-    loginSuccess: function (pResponse, pAlready) {
+    loginSuccess: function (sessions, pAlready) {
         (function(){
             document.activeElement.blur();
         }).delay(10, this);
@@ -691,21 +692,11 @@ ka.AdminInterface = new Class({
             return;
         }
 
-        if (pResponse.username) this.loginName.value = pResponse.username;
+        window._session = sessions;
 
-        window._session.username = this.loginName.value;
-
-        window._sid = pResponse.token;
-        window._session.sessionid = pResponse.token;
-        window._user_id = pResponse.userId;
-
-        window._session.user_id = pResponse.userId;
-        window._session.lastlogin = pResponse.lastlogin;
-
-        document.id(document.body).setStyle('background-position', 'center top');
+        this.loginName.value = window._session.username;
 
         this.loginMessage.set('html', t('Please wait'));
-
         this.loadBackend(pAlready);
     },
 
@@ -781,7 +772,7 @@ ka.AdminInterface = new Class({
 
                 self.loadMenu(function(){
                     self.loaderTopLine.set('tween', {duration: 200});
-                    self.loaderTopLine.tween('width', 295);
+                    self.loaderTopLine.tween('width', 395);
                     self.loadDone.delay(200, self);
                     self.loginLoadingBarText.set('html', t('Loading done'));
                 });
@@ -806,19 +797,21 @@ ka.AdminInterface = new Class({
             style: 'height: 0px'
         }).inject(this.middleTop, 'after');
 
-        this.loaderTopLine.setStyle('width', 395);
+        this.loaderTopLine.setStyle('display', 'none');
+        this.loginLoadingBarText.setStyle('display', 'none');
 
         this.loginFx = new Fx.Elements([
             this.loadingBackendAnimationLeft,
             this.loadingBackendAnimationTop,
             this.middle,
             this.middleTop,
-            this.loginForm,
-            this.loginLoadingBarText
+            this.loginForm
         ], {
-            duration: 150,
-            transition: Fx.Transitions.Quint.easeOut
+            duration: 350,
+            transition: Fx.Transitions.Cubic.easeOut
         });
+
+        this.middle.setStyle('border', '0px solid #ffffff');
 
         this.loginFx.start({
             0: { //loadingBackendAnimationLeft
@@ -831,7 +824,6 @@ ka.AdminInterface = new Class({
             2: { //middle
                 marginTop: 0,
                 left: 110,
-                border: '0px solid #ffffff',
                 width: window.getSize().x - 220,
                 height: window.getSize().y
             },
@@ -839,9 +831,6 @@ ka.AdminInterface = new Class({
                 marginLeft: -220
             },
             4: { //loginForm
-                opacity: 0
-            },
-            5: { //loginLoadingBarText
                 opacity: 0
             }
 
@@ -852,9 +841,10 @@ ka.AdminInterface = new Class({
             self.renderBackend();
             self.login.setStyle('display', 'none');
             self.border.setStyle('display', 'block');
+            self.loaderTopLine.setStyle('display', 'block');
+            this.loginLoadingBarText.setStyle('display', 'block');
 
-
-            this.loaderTopLine.setStyle('width', 0);
+            self.loaderTopLine.setStyle('width', 0);
 
 //            new Fx.Elements([
 //                this.border,
@@ -1508,7 +1498,7 @@ ka.AdminInterface = new Class({
 
 
     check4Updates: function(){
-        if (window._session.user_id == 0) return;
+        if (window._session.userId == 0) return;
         new Request.JSON({url: _pathAdmin + 'admin/system/module/manager/check-updates', noCache: 1, onComplete: function (res) {
             if (res && res.found) {
                 this.displayNewUpdates(res.modules);

@@ -195,6 +195,9 @@ class ObjectCrud
      */
     protected $editEntrypoint = '';
 
+    /**
+     * @var string
+     */
     protected $removeEntrypoint = '';
 
     /**
@@ -307,6 +310,12 @@ class ObjectCrud
      * @var bool
      */
     protected $asNested = false;
+
+
+    /**
+     * @var int
+     */
+    protected $itemsPerPage = 15;
 
     /**
      * Constructor
@@ -1880,6 +1889,22 @@ class ObjectCrud
     public function getAllowCustomSelectFields()
     {
         return $this->allowCustomSelectFields;
+    }
+
+    /**
+     * @param int $itemsPerPage
+     */
+    public function setItemsPerPage($itemsPerPage)
+    {
+        $this->itemsPerPage = $itemsPerPage;
+    }
+
+    /**
+     * @return int
+     */
+    public function getItemsPerPage()
+    {
+        return $this->itemsPerPage;
     }
 
 }

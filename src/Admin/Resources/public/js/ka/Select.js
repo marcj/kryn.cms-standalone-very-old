@@ -379,7 +379,6 @@ ka.Select = new Class({
                     fields: this.objectFields ? this.objectFields.join(',') : null
                 });
         }
-
     },
 
     getObjectUrl: function () {
@@ -1001,7 +1000,7 @@ ka.Select = new Class({
 
     setValue: function (pValue, pInternal) {
 
-        this.value = pValue;
+        this.value = 'null' === typeOf(pValue) ? '' : pValue;
 
         if (this.options.object && typeOf(this.value) == 'object') {
             this.value = ka.getObjectUrlId(this.options.object, this.value);

@@ -30,7 +30,6 @@ ka.WindowList = new Class({
 
         this.sortField = '';
         this.sortDirection = 'ASC';
-        this.currentPage = 1;
 
         //this.oriWinCode = this.win.code;
         this.oriWinEntryPoint = this.win.entryPoint;
@@ -62,8 +61,10 @@ ka.WindowList = new Class({
         this.container.set('html', '<div style="text-align: center; padding: 50px; color: silver">'+t('Loading definition ...')+'</div>');
 
         new Request.JSON({url: _pathAdmin + this.win.getEntryPoint(), noCache: true, onComplete: function (res) {
-
-            if (res.error) return false;
+            if (res.error) {
+                this.container.set('html', '<div style="text-align: center; padding: 50px; color: red">'+tf('Failed. Error %s: %s', res.error, res.message)+'</div>');
+                return false;
+            }
 
             this.render(res.data);
             this.classLoaded = true;
@@ -183,14 +184,10 @@ ka.WindowList = new Class({
 
         this.container.empty();
 
-        this.renderHeader();
-
-        this.renderLayout();
-
-        this.renderTopActionBar(this.headerContainer);
-
+        this.renderTopActionBar();
         this.renderActionBar();
 
+        this.renderLayout();
         this.renderMultilanguage();
 
         this.renderLoader();
@@ -198,18 +195,7 @@ ka.WindowList = new Class({
         this.renderFinished();
     },
 
-    renderHeader: function(){
-        this.headerContainer = new Element('div').inject(this.win.getTitleGroupContainer());
-
-        /* bottom */
-        this.actionBar = new Element('div', {
-            'class': 'ka-list-bottom'
-        }).inject(this.headerContainer);
-    },
-
     renderFinished: function () {
-
-        //logger('renderFinished: '+this.options.noInitLoad+'/'+this.loadAlreadyTriggeredBySearch);
         if (this.options.noInitLoad == true) return;
 
         if (!this.loadAlreadyTriggeredBySearch) {
@@ -232,8 +218,8 @@ ka.WindowList = new Class({
 
         if (this.classProperties.multiLanguage) {
 
-            this.languageSelect = new ka.Select(this.headerLayout.getColumn(3));
-            document.id(this.languageSelect).setStyle('width', 140);
+            this.languageSelect = new ka.Select(this.actionBar);
+            document.id(this.languageSelect).setStyle('width', 150);
 
             this.languageSelect.addEvent('change', this.changeLanguage.bind(this));
 
@@ -301,26 +287,20 @@ ka.WindowList = new Class({
     },
 
     renderLayoutTable: function(){
-        /* head */
-        this.head = new Element('div', {
-            'class': 'ka-list-head'
-        }).inject(this.container);
+        this.table = new ka.Table(null, {
+            selectable: true,
+            absolute: false
+        });
 
-        this.headTable = new Element('table', {
-            cellspacing: 0
-        }).inject(this.head);
+        this.table.inject(this.container);
 
-        this.headTableTHead = new Element('thead', {
-            'class': 'ka-Table-head'
-        }).inject(this.headTable);
-        var tr = new Element('tr').inject(this.headTableTHead);
+        //[ ["label", optionalWidth], ["label", optionalWidth], ... ]
+        var columns = [];
 
-        /*** checkbox-Th ***/
+        var indexOffset = 0;
         if (this.classProperties.remove == true) {
-            var th = new Element('th', {
-                style: 'width: 21px;'
-            }).inject(tr);
-            new Element('input', {
+            indexOffset = 1;
+            var input = new Element('input', {
                 value: 1,
                 type: 'checkbox'
             }).addEvent('click',function () {
@@ -328,61 +308,45 @@ ka.WindowList = new Class({
                 this.checkboxes.each(function (checkbox) {
                     checkbox.checked = checked;
                 });
-            }.bind(this)).inject(th)
+            }.bind(this));
+            columns.push([input, 21]);
         }
 
-        /*** title-Th ***/
         this.columns = {};
         if (!this.classProperties.columns || this.classProperties.columns.length == 0){
             this.win.alert(t('This class does not contain any columns.'), function(){
                 this.win.close();
             }.bind(this));
-            throw 'Class does not contain column.';
+            throw 'Class does not contain columns.';
         }
+
+        var columnsIds = [];
         Object.each(this.classProperties.columns, function (column, columnId) {
-            this.columns[columnId] = new Element('th', {
-                html: t(column.label)
-            }).addEvent('click',
-                function () {
-                    this.click(columnId);
-                }).inject(tr);
-            if (column.width > 0) {
-                this.columns[columnId].setStyle('width', column.width + 'px');
-            }
+            columns.push([t(column.label), column.width]);
+            columnsIds.push(columnId);
         }.bind(this));
 
         /*** edit-Th ***/
-        //fixed mirco
         if (this.classProperties.remove == true || this.classProperties.edit == true || this.classProperties.itemActions) {
-            this.titleIconTd = new Element('th', {
-                style: 'width: 40px;'
-            }).inject(tr);
+            this.titleIconTdIndex = columns.length;
+            columns.push(['', 40]);
         }
 
-        /* content */
-        this.main = new Element('div', {
-            'class': 'ka-list-main'
-        }).inject(this.container);
+        this.table.setColumns(columns);
 
-        this.table = new Element('table', {
-            cellspacing: 0
-        }).inject(this.main);
-        this.tbody = new Element('tbody', {
-            'class': 'ka-Table-body'
-        }).inject(this.table);
+        this.table.addEvent('selectHead', function(item){
+            var index = item.getParent().getChildren().indexOf(item) - indexOffset;
+            this.click(columnsIds[index]);
+        }.bind(this));
+        this.titleIconTd = this.table.getColumn(this.titleIconTdIndex);
     },
 
     changeLanguage: function () {
-
         if (this.classProperties.asNested){
-
-
-
+            //todo
         } else {
             this.loadPage(1);
         }
-
-
     },
 
     renderSearchPane: function () {
@@ -464,13 +428,13 @@ ka.WindowList = new Class({
     },
 
     toggleSearch: function () {
-        if (this.searchEnable == 1) {
+        if (this.searchEnabled == 1) {
             this.filterButton.set('class', 'ka-list-search-button');
-            this.searchEnable = 0;
+            this.searchEnabled = 0;
             this.searchPane.tween('height', 1);
             this.main.tween('bottom', 30);
         } else {
-            this.searchEnable = 1;
+            this.searchEnabled = 1;
             this.filterButton.set('class', 'ka-list-search-button ka-list-search-button-active');
             this.searchPane.tween('height', 121);
             this.main.tween('bottom', 120 + 30);
@@ -480,6 +444,39 @@ ka.WindowList = new Class({
     renderActionBar: function () {
         var _this = this;
 
+        this.actionBar = new Element('div', {
+            'class': 'ka-list-actionBar'
+        }).inject(this.topActionBar);
+
+        this.navigateActionBar = new ka.ButtonGroup(this.actionBar, {
+            onlyIcons: true
+        });
+
+        this.ctrlPrevious = this.navigateActionBar.addButton(t('Go to previous page'), '#icon-arrow-left-15', function(){
+            this.loadPage(parseInt(_this.ctrlPage.value) - 1);
+        }.bind(this));
+
+        this.ctrlPage = new Element('input', {
+            'class': 'ka-Input-text ka-list-actionBar-page'
+        }).addEvent('keydown', function (e) {
+            if (e.key == 'enter') {
+                _this.loadPage(parseInt(_this.ctrlPage.value));
+            }
+            if (['backspace', 'left', 'right'].indexOf(e.key) == -1 && (!parseInt(e.key) + 0 > 0)) {
+                e.stop();
+            }
+        }).inject(this.navigateActionBar);
+
+        this.ctrlMax = new Element('div', {
+            'class': 'ka-list-actionBar-page-count',
+            text: '/ 0'
+        }).inject(this.navigateActionBar);
+
+        this.ctrlNext = this.navigateActionBar.addButton(t('Go to next page'), '#icon-arrow-right-15', function(){
+            this.loadPage(parseInt(_this.ctrlPage.value) + 1);
+        }.bind(this));
+
+        /*
         this.filterButton = new Element('a', {
             href: 'javascript: ;',
             html: _('Search'),
@@ -504,23 +501,9 @@ ka.WindowList = new Class({
             function () {
                 _this.loadPage(parseInt(_this.ctrlPage.value) - 1);
             }).inject(this.navi);
+            */
 
-        this.ctrlPage = new Element('input', {
-        }).addEvent('keydown',
-            function (e) {
-                if (e.key == 'enter') {
-                    _this.loadPage(parseInt(_this.ctrlPage.value));
-                }
-                if (['backspace', 'left', 'right'].indexOf(e.key) == -1 && (!parseInt(e.key) + 0 > 0)) {
-                    e.stop();
-                }
-            }).inject(this.navi);
-
-        this.ctrlMax = new Element('span', {
-            text: '/ 0',
-            style: 'position: relative; top: -3px; padding: 0px 3px 0px 3px;'
-        }).inject(this.navi);
-
+        /*
         this.ctrlNext = new Element('img', {
             src: myPath + 'control_play.png'
         }).addEvent('click',
@@ -534,13 +517,15 @@ ka.WindowList = new Class({
             function () {
                 _this.loadPage(_this.lastResult.pages);
             }).inject(this.navi);
+            */
     },
 
-    renderTopActionBar: function(pGroupContainer){
+    renderTopActionBar: function(container){
+        this.topActionBar = new Element('div').inject(container || this.win.getTitleGroupContainer());
 
         if (this.classProperties.add || this.classProperties.remove || this.classProperties.custom ||
             (this.classProperties.asNested && (this.classProperties.nestedRootAdd))) {
-            this.actionsNavi = new ka.ButtonGroup(pGroupContainer);
+            this.actionsNavi = new ka.ButtonGroup(this.topActionBar);
             document.id(this.actionsNavi).addClass('ka-window-list-buttonGroup');
         }
 
@@ -643,8 +628,8 @@ ka.WindowList = new Class({
         var params = new Hash({
             exportType: this.exportType.value,
             orderBy: this.sortField,
-            filter: this.searchEnable,
-            filterVals: (this.searchEnable) ? this.getSearchVals() : '',
+            filter: this.searchEnabled,
+            filterVals: (this.searchEnabled) ? this.getSearchVals() : '',
             language: (this.languageSelect) ? this.languageSelect.getValue(): false,
             orderByDirection: this.sortDirection,
             params: JSON.encode(this.win.params)
@@ -677,15 +662,52 @@ ka.WindowList = new Class({
 
 
     prepareLoadPage: function () {
-        if (this.tbody) {
-            this.tbody.empty();
+        if (this.table) {
+            this.table.empty();
         }
     },
 
+    loadItemCount: function (callback) {
+
+        var req = {};
+
+        if (this.searchEnabled){
+            var vals = this.getSearchVals();
+            Object.each(vals, function(val,id){
+                req['_'+id] = val;
+            });
+        }
+
+        this.lastRequest = new Request.JSON({url: _pathAdmin + this.win.getEntryPoint() + '/:count',
+            noCache: true,
+            onComplete: function (res) {
+                if (!res || res.error) {
+                    this.win.alert(tf('There was an error: %s: %s', res.error, res.message));
+                } else {
+                    this.itemsCount = res.data;
+                    this.maxPages = Math.ceil(res.data / this.classProperties.itemsPerPage);
+
+                    this.ctrlMax.set('text', '/ ' + this.maxPages);
+                    if (callback){
+                        callback();
+                    }
+                }
+            }.bind(this)}).get(req);
+        
+    },
+    
     loadPage: function (pPage) {
 
+        pPage = pPage || 1;
+        if ('null' === typeOf(this.itemsCount)) {
+            this.loadItemCount(function(){
+                this.loadPage(pPage);
+            }.bind(this));
+            return;
+        }
+
         if (this.lastResult && pPage != 1) {
-            if (pPage > this.lastResult.pages) {
+            if (pPage > this.maxPages) {
                 return;
             }
         }
@@ -694,8 +716,8 @@ ka.WindowList = new Class({
             return;
         }
 
-        if (this.lastRequest) {
-            this.lastRequest.cancel();
+        if (this.lastLoadPageRequest) {
+            this.lastLoadPageRequest.cancel();
         }
 
         this.prepareLoadPage();
@@ -704,71 +726,50 @@ ka.WindowList = new Class({
             this.loader.show();
         }
 
-        var params = {};
-
-        /*
-        if (this.options.relation_table && this.classProperties.relation) {
-            var relationFields = this.classProperties.relation.fields;
-
-            Object.each(relationFields, function (field_right, field_left) {
-
-                if (this.options.relation_params[ field_left ]) {
-                    params[field_right] = this.options.relation_params[ field_left ];
-                }
-
-            }.bind(this));
-        }
-
-        this.relation_params_filtered = params;
-        */
-
         var req = {};
+        console.log(pPage);
         this.ctrlPage.value = pPage;
 
         req.offset = (this.classProperties.itemsPerPage * pPage) - this.classProperties.itemsPerPage;
-        req.lang = (this.languageSelect) ? this.languageSelect.getValue() : false;
+        req.lang = (this.languageSelect) ? this.languageSelect.getValue() : null;
 
         req.orderBy = {};
         req.orderBy[this.sortField] = this.sortDirection;
 
-        if (this.searchEnable){
+        if (this.searchEnabled){
             var vals = this.getSearchVals();
             Object.each(vals, function(val,id){
                 req['_'+id] = val;
             });
         }
 
-        this.lastRequest = new Request.JSON({url: _pathAdmin + this.win.getEntryPoint(),
+        this.lastLoadPageRequest = new Request.JSON({url: _pathAdmin + this.win.getEntryPoint(),
         noCache: true,
         onComplete: function (res) {
             this.currentPage = pPage;
+
             this.renderItems(res.data);
         }.bind(this)}).get(req);
     },
 
     renderItems: function (pResult) {
-        var _this = this;
-
         this.checkboxes = [];
 
         if (this.loader) {
             this.loader.hide();
         }
 
-        if (!pResult){
-            pResult = {page: 0, pages:0};
-        }
-
+        console.log('result:', pResult);
         this.lastResult = pResult;
 
-        [this.ctrlFirst, this.ctrlPrevious, this.ctrlNext, this.ctrlLast].each(function (item) {
+        [this.ctrlPrevious, this.ctrlNext].each(function (item) {
             item.setStyle('opacity', 1);
         });
 
         if (this.lastNoItemsDiv)
             this.lastNoItemsDiv.destroy();
 
-        if (pResult.count == 0){
+        if (1 === this.currentPage && 0 === pResult.length){
             this.ctrlPage.value = 0;
             this.lastNoItemsDiv = new Element('div', {
                 style: 'position: absolute; left: 0; right: 0; top: 0; bottom: 0; background-color: #eee',
@@ -781,24 +782,22 @@ ka.WindowList = new Class({
             }).inject(this.main);
         }
 
-        if (pResult.page <= 1) {
-            this.ctrlFirst.setStyle('opacity', 0.2);
+        if (this.currentPage <= 1) {
+            //this.ctrlFirst.setStyle('opacity', 0.2);
             this.ctrlPrevious.setStyle('opacity', 0.2);
         }
 
-        if (pResult.page >= pResult.pages) {
+        if (this.currentPage >= this.maxPages) {
             this.ctrlNext.setStyle('opacity', 0.2);
-            this.ctrlLast.setStyle('opacity', 0.2);
+            //this.ctrlLast.setStyle('opacity', 0.2);
         }
 
-        this.ctrlMax.set('text', '/ ' + pResult.pages);
+        this.table.empty();
 
-        _this.tempcount = 0;
-        if (pResult.items) {
-            Object.each(pResult.items, function (item) {
-                _this.addItem(item);
-                _this.tempcount++;
-            });
+        if (pResult) {
+            Array.each(pResult, function (item) {
+                this.addItem(item);
+            }.bind(this));
         }
     },
 
@@ -808,73 +807,51 @@ ka.WindowList = new Class({
         if (this._lastSelect == tr) return;
 
         if (this._lastSelect) {
-            this._lastSelect.set('class', this._lastSelect.retrieve('oldClass'));
+            this._lastSelect.removeClass('active');
         }
 
-        tr.store('oldClass', tr.get('class'));
-        tr.set('class', 'active');
+        tr.addClass('active');
         this._lastSelect = tr;
+    },
+
+    openEditItem: function (pItem) {
+        ka.entrypoint.open(ka.entrypoint.getRelative(this.win.getEntryPoint(), this.classProperties.editEntrypoint), {
+            item: pItem
+        }, this.win.getId(), true, this.win.getId());
     },
 
     addItem: function (pItem) {
         var _this = this;
-        var tr = new Element('tr', {
-            'class': (_this.tempcount % 2) ? 'one' : 'two'
-        }).inject(this.tbody);
 
-        /*if (this.options.relation_table) {
-            pItem.relation_table = this.options.relation_table;
-            pItem.relation_params = this.options.relation_params_filtered;
-        }*/
+        var row = [];
+
+        var pk = ka.getObjectUrlId(this.classProperties['object'], pItem);
 
         if (this.classProperties.remove == true) {
-            var td = new Element('td', {
-                style: 'width: 21px;'
-            }).inject(tr);
-            if (pItem['remove']) {
-                var mykey = {};
-                this.classProperties.primary.each(function (primary) {
-                    mykey[primary] = pItem[primary];
-                });
-                this.checkboxes.include(new Element('input', {
-                    value: JSON.encode(mykey),
-                    type: 'checkbox'
-                }).inject(td));
+
+            var checkbox = new Element('input', {
+                value: pk,
+                type: 'checkbox'
+            });
+            this.checkboxes.include(checkbox);
+
+            if (!pItem['remove']) {
+                checkbox.disabled = true;
             }
+            row.push(checkbox);
         }
 
         Object.each(this.classProperties.columns, function (column, columnId) {
-
-            var value = ka.getObjectFieldLabel(pItem, column, columnId, this.options.object);
-
-            var td = new Element('td', {
-                html: value
-            }).addEvent('click',function (e) {
-                _this.select(this);
-            }).addEvent('mousedown',function (e) {
-                e.stop();
-            }).addEvent('dblclick', function (e) {
-
-                if (_this.classProperties.edit){
-
-                    ka.entrypoint.open(ka.entrypoint.getRelative(_this.win.getEntryPoint(), _this.classProperties.editEntrypoint), {
-                        item: pItem
-                    }, this);
-
-                }
-
-            }).inject(tr);
-
-            if (column.width > 0) {
-                td.setStyle('width', column.width + 'px');
-            }
+            var value = ka.getObjectFieldLabel(pItem, column, columnId, this.classProperties['object']);
+            row.push(value);
         }.bind(this));
 
         if (this.classProperties.remove == true || this.classProperties.edit == true || this.classProperties.itemActions) {
-            var icon = new Element('td', {
-                width: 40,
+            var icon = new Element('div', {
                 'class': 'edit'
-            }).inject(tr);
+            });
+
+            row.push(icon);
 
             if (this.classProperties.itemActions && this.classProperties.itemActions.each) {
                 this.classProperties.itemActions.each(function (action) {
@@ -926,11 +903,7 @@ ka.WindowList = new Class({
                             ka.entrypoint.open(action.entrypoint, {item: pItem}, this);
                         }).inject(icon);
                     }
-
-
                 });
-                icon.setStyle('width', 40 + (20 * this.classProperties.itemActions.length));
-                this.titleIconTd.setStyle('width', 40 + (20 * this.classProperties.itemActions.length));
             }
 
             if (pItem.edit) {
@@ -984,6 +957,16 @@ ka.WindowList = new Class({
                 }
             }
         }
-    }
 
+        var tr = this.table.addRow(row);
+
+        tr.addEvent('click:relay(td)', function (e, item) {
+            this.select(item);
+        }.bind(this))
+        .addEvent('dblclick', function (e) {
+            if (this.classProperties.edit){
+                this.openEditItem(pItem);
+            }
+        }.bind(this));
+    }
 })

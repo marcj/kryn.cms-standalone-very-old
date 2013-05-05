@@ -149,12 +149,6 @@
     padding: 0 15px;
 }
 
-
-.kwindow-win-titleGroups > div {
-    padding-top: 5px;
-    padding-bottom: 5px;
-}
-
 .kwindow-win-titleGroups > .ka-tabGroup:first-child {
     margin-left: 5px;
 }

@@ -187,32 +187,7 @@ abstract class ClientAbstract
             $userId = $this->login($login, $passwd);
 
             if (!$userId) {
-
                 klog('authentication', str_replace("%s", getArgv('username'), "SECURITY Login failed for '%s'"));
-                if (getArgv(1) == 'admin') {
-                    json(0);
-                }
-
-            } else {
-
-                if (getArgv(1) == 'admin') {
-
-                    if (!Kryn::checkUrlAccess('admin/backend/', $this)) {
-                        json(0);
-                    }
-
-                    klog('authentication', 'Successfully login to administration for user ' .
-                        $this->getSession()->getUser()->getUsername());
-
-                    $lastLogin = $this->getSession()->getUser()->getLastlogin();
-                    if ($userId > 0) {
-                        $this->getSession()->getUser()->setLastlogin(time());
-                        $this->getSession()->getUser()->save();
-                    }
-                    json(array('user_id' => $userId, 'sessionid' => $this->token,
-                        'username' => getArgv('username'), 'lastlogin' => $lastLogin));
-                }
-
             }
         }
 

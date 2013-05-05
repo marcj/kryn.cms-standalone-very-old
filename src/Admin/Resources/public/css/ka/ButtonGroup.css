@@ -10,6 +10,8 @@
     position: relative;
 
     border: 1px solid #C0C0C0;
+    height: 28px;
+    line-height: 28px;
 }
 
 .kwindow-win-buttonGroup object {
@@ -39,7 +41,7 @@
     background-color: #f9f9f9;
 }
 
-.kwindow-win-buttonGroup-wrapper > a:first-child {
+.kwindow-win-buttonGroup > a:first-child {
     border-left: 0;
     -moz-border-radius-bottomleft: 2px;    
     -moz-border-radius-topleft: 2px;
@@ -49,7 +51,7 @@
     border-top-left-radius: 2px;
 }
 
-.kwindow-win-buttonGroup-wrapper > a:last-child {
+.kwindow-win-buttonGroup > a:last-child {
     -moz-border-radius-bottomright: 2px;    
     -moz-border-radius-topright: 2px;
     -webkit-border-top-right-radius: 2px;

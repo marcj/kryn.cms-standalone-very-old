@@ -232,6 +232,14 @@ ka.entrypoint = {
 
 };
 
+/**
+ *
+ * @param {String} value
+ * @returns {string} Safe for innerHTML usage.
+ */
+ka.htmlEntities = function (value){
+    return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
 
 
 ka.newBubble = function(pTitle, pText, pDuration){
@@ -694,7 +702,7 @@ ka.getObjectLabels = function(pFields, pItem, pObjectKey, pRelationsAsArray){
  * @param {String} pObjectKey
  * @param {Boolean} pRelationsAsArray
  *
- * @return {String}
+ * @return {String} Safe HTML. Escapted with ka.htmlEntities()
  */
 ka.getObjectFieldLabel = function(pValue, pField, pFieldId, pObjectKey, pRelationsAsArray){
 
@@ -719,7 +727,7 @@ ka.getObjectFieldLabel = function(pValue, pField, pFieldId, pObjectKey, pRelatio
 
     pValue = Object.clone(pValue);
 
-    if (!field) return typeOf(pValue[fieldId]) != 'null' ? pValue[fieldId] : '';
+    if (!field) return ka.htmlEntities(typeOf(pValue[fieldId]) != 'null' ? pValue[fieldId] : '');
 
     var value = pValue[fieldId] || '';
 
@@ -759,9 +767,9 @@ ka.getObjectFieldLabel = function(pValue, pField, pFieldId, pObjectKey, pRelatio
         value = {};
         if (pRelationsAsArray){
             value[label] = pValue[relation][label];
-            return value;
+            return ka.htmlEntities(value);
         } else {
-            return pValue[relation] ? pValue[relation][label] : '';
+            return ka.htmlEntities(pValue[relation] ? pValue[relation][label] : '');
         }
     }
 
@@ -776,9 +784,9 @@ ka.getObjectFieldLabel = function(pValue, pField, pFieldId, pObjectKey, pRelatio
         if (pRelationsAsArray){
             value = {};
             value[label] = joined;
-            return value;
+            return ka.htmlEntities(value);
         } else {
-            return joined;
+            return ka.htmlEntities(joined);
         }
     }
 
@@ -791,9 +799,9 @@ ka.getObjectFieldLabel = function(pValue, pField, pFieldId, pObjectKey, pRelatio
     }
 
     if (field.imageMap) {
-        return '<img src="' + _path + field.imageMap[value] + '"/>';
+        return '<img src="' + _path + ka.htmlEntities(field.imageMap[value]) + '"/>';
     }
-    return value;
+    return ka.htmlEntities(value);
 }
 
 /**

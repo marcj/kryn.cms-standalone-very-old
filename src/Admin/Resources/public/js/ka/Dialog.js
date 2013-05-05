@@ -30,8 +30,13 @@ ka.Dialog = new Class({
     canClosed: true,
 
     initialize: function(pParent, pOptions){
+        if ('null' === typeOf(pParent)) {
+            throw 'First argument has to be a HTMLElement or ka.Window instance. Null given.';
+        }
+
         this.lastFocusedElement = document.activeElement;
         this.container = instanceOf(pParent, ka.Window) ? pParent.toElement() : pParent;
+        console.log(pParent, this.container);
 
         this.setOptions(pOptions);
         this.renderLayout();

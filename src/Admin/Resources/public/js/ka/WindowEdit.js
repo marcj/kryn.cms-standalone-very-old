@@ -56,7 +56,6 @@ ka.WindowEdit = new Class({
     },
 
     destroy: function () {
-
         this.win.removeEvent('close', this.bCheckClose);
         this.win.removeEvent('resize', this.bCheckTabFieldWidth);
 
@@ -77,6 +76,10 @@ ka.WindowEdit = new Class({
 
         if (this.actionsNavi) {
             this.actionsNavi.destroy();
+        }
+
+        if (this.actionBar) {
+            this.actionBar.destroy();
         }
 
         if (this.actionsNaviDel) {
@@ -150,7 +153,6 @@ ka.WindowEdit = new Class({
     loadItem: function () {
         var _this = this;
 
-
         var id = ka.getObjectUrlId(this.classProperties['object'], this.winParams.item);
 
         if (this.lastRq)
@@ -186,6 +188,7 @@ ka.WindowEdit = new Class({
         if (this.getTitleValue())
             this.win.setTitle(this.getTitleValue());
 
+        console.log('setvalue: ', pValue.lang);
         if (this.languageSelect && this.languageSelect.getValue() != pValue.lang) {
             this.languageSelect.setValue(pValue.lang);
             this.changeLanguage();
@@ -407,7 +410,7 @@ ka.WindowEdit = new Class({
 
         this.renderPreviews();
 
-        this.renderSaveActionBar();
+        this.renderActionBar();
 
         this.renderMultilanguage();
         
@@ -498,7 +501,7 @@ ka.WindowEdit = new Class({
             this.win.extendHead();
 
             this.languageSelect = new ka.Select();
-            this.languageSelect.inject(this.win.getTitleGroupContainer());
+            this.languageSelect.inject(this.saveBtn, 'before');
             this.languageSelect.setStyle('width', 120);
 
             this.languageSelect.addEvent('change', this.changeLanguage.bind(this));
@@ -584,24 +587,27 @@ ka.WindowEdit = new Class({
 
     },
 
-    renderSaveActionBar: function () {
-        var _this = this;
-
+    renderActionBar: function (container) {
         this.actionBar = new Element('div', {
-            'class': 'kwindow-win-buttonBar'
-        }).inject(this.container);
+            'class': 'ka-windowEdit-actions'
+        }).inject(container || this.win.getTitleGroupContainer());
 
         this.removeBtn = new ka.Button([t('Remove'), '#icon-warning'])
-        .addEvent('click', this.remove.bind(this))
-        .inject(this.actionBar);
-
+            .addEvent('click', this.remove.bind(this))
+            .inject(this.actionBar);
         document.id(this.removeBtn).addClass('ka-Button-red');
-        document.id(this.removeBtn).addClass('ka-windowEdit-removeButton');
 
-        this.resetBtn = new ka.Button([t('Reset'), '#icon-escape'])
-        .addEvent('click', this.reset.bind(this))
-        .inject(this.actionBar);
+        this.actionBarGroup1 = new ka.ButtonGroup(this.actionBar);
 
+        this.resetBtn = this.actionBarGroup1.addButton(t('Reset'), '#icon-escape', this.reset.bind(this));
+
+        if (this.classProperties.workspace){
+            this.showVersionsBtn = this.actionBarGroup1.addButton(t('Versions'), '#icon-history', this.showVersions);
+        }
+
+        if (true) {
+            this.previewBtn = this.actionBarGroup1.addButton(t('Preview'), '#icon-eye');
+        }
 
         /*if (this.classProperties.versioning == true){
 
@@ -619,22 +625,6 @@ ka.WindowEdit = new Class({
         .inject(this.actionBar);
 
         document.id(this.saveBtn).addClass('ka-Button-blue');
-
-
-        if (true) {
-
-            this.previewBtn = new ka.Button([t('Preview'), '#icon-eye'])
-            //.addEvent('click', this._save.bind(this))
-            .inject(this.win.getTitleGroupContainer());
-
-            //this.previewBtn = this.actionsNavi.addButton(t('Preview'), '#icon-eye-3', this.preview.bind(this));
-        }
-
-        if (this.classProperties.workspace){
-            this.showVersionsBtn = new ka.Button([t('Versions'), '#icon-history'])
-            .addEvent('click', this.showVersions)
-            .inject(this.win.getTitleGroupContainer());
-        }
 
         this.checkTabFieldWidth();
     },

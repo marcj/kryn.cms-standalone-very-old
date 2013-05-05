@@ -15,10 +15,6 @@ ka.ButtonGroup = new Class({
         this.box = new Element('div', {
             'class': 'kwindow-win-buttonGroup'
         }).inject(pParent);
-
-        this.boxWrapper = new Element('div', {
-            'class': 'kwindow-win-buttonGroup-wrapper'
-        }).inject(this.box);
     },
 
     toElement: function(){
@@ -54,7 +50,7 @@ ka.ButtonGroup = new Class({
         var wrapper = new Element('a', {
             'class': 'ka-buttonGroup-item',
             href: 'javascript:;'
-        }).inject(this.boxWrapper);
+        }).inject(this.box);
 
         if (typeOf(pTitle) == 'string') {
             wrapper.set(this.options.onlyIcons ? 'title' : 'text', pTitle);
@@ -126,7 +122,7 @@ ka.ButtonGroup = new Class({
 
     setPressed: function(pPressed){
 
-        this.boxWrapper.getChildren().each(function (button) {
+        this.box.getChildren().each(function (button) {
             button.setPressed(pPressed);
         });
 
