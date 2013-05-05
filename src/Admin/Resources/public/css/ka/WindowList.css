@@ -82,6 +82,14 @@
 
 .ka-windowCombine-list-container {
     margin: 15px;
+    display: inline-block;
+    vertical-align: top;
+    width: 100%;
+}
+.ka-windowCombine-combine-container {
+    display: inline-block;
+    width: 100%;
+    position: relative;
 }
 
 .ka-windowCombine-container {

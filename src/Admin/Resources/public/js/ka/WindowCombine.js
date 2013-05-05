@@ -12,15 +12,16 @@ ka.WindowCombine = new Class({
     currentViewType: 'list',
 
     renderLayout: function () {
+        this.win.content.setStyle('white-space', 'nowrap');
+
         this.container = this.listContainer = new Element('div', {
             'class': 'ka-windowCombine-list-container'
         }).inject(this.win.content);
 
         this.combineContainer = new Element('div', {
-            'class': 'ka-windowCombine-combine-container'
+            'class': 'ka-windowCombine-combine-container',
+            style: 'left: 0'
         }).inject(this.win.content);
-
-        this.combineContainer.setStyles({opacity: 0, display: 'none'});
 
         this.renderLayoutTable();
 
@@ -37,7 +38,7 @@ ka.WindowCombine = new Class({
         document.id(this.mainLayout).addClass('ka-windowCombine-container');
         document.id(this.mainLayout).setStyles({'opacity': 1, right: 0});
 
-        this.mainLayoutFx = new Fx.Morph(this.mainLayout, {
+        this.mainLayoutFx = new Fx.Morph(this.combineContainer, {
             transition: Fx.Transitions.Cubic.easeOut
         });
 
@@ -242,12 +243,15 @@ ka.WindowCombine = new Class({
                 this.mainLeft.tween('opacity', 0);
 
                 (function(){
+
+                    //this.combineContainer.tween('left', 0);
+                    this.listContainer.tween('opacity', 1);
                     this.mainLayoutFx.start({
-                        right: ((document.id(this.mainLayout).getSize().x) - leftSize) * -1
+                         left: 0
                     });
 
-                    this.listContainer.tween('opacity', 1);
-                    this.combineContainer.tween('opacity', 0);
+//                    this.listContainer.tween('opacity', 1);
+//                    this.combineContainer.tween('opacity', 0);
                     this.combineActionBar.tween('opacity', 0);
 
                     if (!this.currentPage) {
@@ -256,14 +260,20 @@ ka.WindowCombine = new Class({
                 }).delay(100, this);
 
             } else {
+                //this.combineContainer.tween('left', (document.id(this.win.content).getSize().x) * -1);
                 this.mainLayoutFx.start({
-                    right: 0
+                    left: (document.id(this.win.content).getSize().x) * -1
                 });
+//                this.mainLayoutFx.start({
+//                    right: 0
+//                });
                 this.mainLeft.tween('opacity', 1);
                 this.combineActionBar.tween('opacity', 1);
-
+//
                 this.listContainer.tween('opacity', 0);
-                this.combineContainer.tween('opacity', 1);
+//
+//                this.combineContainer.setStyles({display: 'inline-block'});
+//                this.combineContainer.tween('opacity', 1);
             }
         }
 
