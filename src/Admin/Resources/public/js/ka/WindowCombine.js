@@ -244,10 +244,10 @@ ka.WindowCombine = new Class({
 
                 (function(){
 
-                    //this.combineContainer.tween('left', 0);
                     this.listContainer.tween('opacity', 1);
                     this.mainLayoutFx.start({
-                         left: 0
+                        left: 0,
+                        opacity: 0
                     });
 
 //                    this.listContainer.tween('opacity', 1);
@@ -261,7 +261,13 @@ ka.WindowCombine = new Class({
 
             } else {
                 //this.combineContainer.tween('left', (document.id(this.win.content).getSize().x) * -1);
+
+                this.combineContainer.setStyles({
+                    'opacity': 0,
+                    left: ((document.id(this.win.content).getSize().x) - 200 ) * -1
+                });
                 this.mainLayoutFx.start({
+                    opacity: 1,
                     left: ((document.id(this.win.content).getSize().x) + 30 ) * -1
                 });
 //                this.mainLayoutFx.start({
