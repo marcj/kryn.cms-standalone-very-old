@@ -40,6 +40,11 @@
                 <method>uptime</method>
             </stream>
 
+            <stream id="analytics">
+                <class>Admin\Controller\DashboardWidgets</class>
+                <method>analytics</method>
+            </stream>
+
         </streams>
     </bundle>
 </config>

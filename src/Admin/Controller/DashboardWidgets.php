@@ -19,6 +19,20 @@ class DashboardWidgets
         );
     }
 
+    public static function analytics(&$response)
+    {
+        $client = new \GoogleApi\Client();
+        $service = new \GoogleApi\Service\Service();
+
+        var_dump($service);
+        $optParams = array('filter' => 'free-ebooks');
+        $results = $service->volumes->listVolumes('Henry David Thoreau', $optParams);
+
+        foreach ($results['items'] as $item) {
+            print($item['volumeInfo']['title'] . '<br>');
+        }
+    }
+
     public static function space(&$response)
     {
         $response['admin/space'] = self::getSpace();
@@ -26,45 +40,71 @@ class DashboardWidgets
 
     public static function uptime(&$response)
     {
-        $uptime = `uptime`;
+        $uptime  = `uptime`;
         $matches = array();
         preg_match('/up ([^,]*),/', $uptime, $matches);
         $response['admin/uptime'] = $matches[1];
     }
 
-    public static function getSpace ()
+    public static function getSpace()
     {
 
+        $matches = array();
         if ('darwin' == strtolower(PHP_OS)) {
-            $sysctl  = `df -kl`;
-            $matches = array();
-            preg_match_all('/([a-zA-Z0-9\/]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9%]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9%]+)\s+(.*)/', $sysctl, $matches, PREG_SET_ORDER);
+            $sysctl = `df -kl`;
+            preg_match_all(
+                '/([a-zA-Z0-9\/]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9%]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9%]+)\s+(.*)/',
+                $sysctl,
+                $matches,
+                PREG_SET_ORDER
+            );
 
-            $result = array();
-            foreach ($matches as $match) {
-                $avail = $match[4] + 0;
-                $user  = $match[3] + 0;
-                if (1000 * 1024 > $avail) continue; //anything under 1gb
-                $result[] = array(
-                    'name' => '/' === $match[9] ? '/' : basename($match[9]),
-                    'used' => $user,
-                    'available' => $avail,
-                    'size' => $user + $avail
-                );
-            }
-            return $result;
+            $availIdx = 4;
+            $usedIdx  = 3;
+            $nameIdx  = 9;
         } else if ('linux' === strtolower(PHP_OS)) {
-            //todo
+            $sysctl = `df -l --block-size=1K`;
+            preg_match_all(
+                '/([a-zA-Z0-9\/]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9%]+)\s+(.*)/',
+                $sysctl,
+                $matches,
+                PREG_SET_ORDER
+            );
+
+            $availIdx = 4;
+            $usedIdx  = 3;
+            $nameIdx  = 6;
         }
+
+        $result = array();
+        foreach ($matches as $match) {
+            $avail = $match[$availIdx] + 0;
+            $user  = $match[$usedIdx] + 0;
+            $name  = $match[$nameIdx];
+
+            //anything under 1gb
+            if (1000 * 1024 > $avail) {
+                continue;
+            }
+
+            $result[] = array(
+                'name' => '/' === $name ? '/' : basename($name),
+                'used' => $user,
+                'available' => $avail,
+                'size' => $user + $avail
+            );
+        }
+        return $result;
     }
 
     public static function getRamFree()
     {
         $cpuUsage  = str_replace(' ', '', `ps -A -o rss`);
         $processes = explode("\n", $cpuUsage);
-        $ramSize  = array_sum($processes);
+        $ramSize   = array_sum($processes);
         return $ramSize;
     }
+
     public static function getRamSize()
     {
         if ('darwin' == strtolower(PHP_OS)) {

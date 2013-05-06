@@ -1748,6 +1748,26 @@ class Kryn extends Controller
     }
 
     /**
+     * Starts up the application.
+     */
+    public static function startup()
+    {
+        //load main config, setup some constants and check some requirements.
+        require(__DIR__ . '/bootstrap.php');
+
+        self::checkStaticCaching();
+
+        //attach error handler, init propel, load module configs, initialise main controllers and setup the autoloader.
+        require(__DIR__ . '/bootstrap.startup.php');
+
+        //Setup the HTTPKernel.
+        self::setupHttpKernel();
+
+        //Handle the request.
+        self::handleRequest();
+    }
+
+    /**
      * @param $bundleName
      *
      * @return Config\Config

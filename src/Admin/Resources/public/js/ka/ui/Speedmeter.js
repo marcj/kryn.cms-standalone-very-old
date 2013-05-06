@@ -26,7 +26,7 @@ ka.ui.Speedmeter = new Class({
             value: 0,
             min: 0,
             max: 100,
-            titleFontColor: '#fff',
+            titleFontColor: '#666',
             title: "Title"
         }, this.options));
     },

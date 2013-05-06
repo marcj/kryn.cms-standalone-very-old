@@ -3,8 +3,6 @@ ka.DashboardWidgets.Latency = new Class({
 
     streamPath: 'admin/latency',
 
-    gauges: [],
-
     create: function () {
         this.header = new Element('h3', {
             style: 'margin: 0; padding: 0',
@@ -13,18 +11,23 @@ ka.DashboardWidgets.Latency = new Class({
         .inject(this.main);
 
         this.latency = new Element('div', {
+            style: 'padding: 5px; text-align: center;',
+            text: 'Frontend'
+        }).inject(this.main);
+
+        this.latency = new Element('div', {
             style: 'padding: 5px; text-align: center; font-size: 52px;',
             text: '23ms'
         }).inject(this.main);
 
         this.average15 = new Element('div', {
-            style: 'padding: 5px; text-align: center; font-size: 22px;',
-            text: '31ms / one hour'
+            style: 'padding: 5px; text-align: center;',
+            text: 'Backend / DB / Session / Cache'
         }).inject(this.main);
 
         this.average15 = new Element('div', {
-            style: 'padding: 5px; text-align: center; font-size: 22px;',
-            text: '25ms / day'
+            style: 'padding: 5px; text-align: center; font-size: 18px;',
+            text: '31ms / 5ms / 1ms / 1ms'
         }).inject(this.main);
     },
 

@@ -3,8 +3,6 @@ ka.DashboardWidgets.Uptime = new Class({
 
     streamPath: 'admin/uptime',
 
-    gauges: [],
-
     create: function () {
         this.header = new Element('h3', {
             style: 'margin: 0; padding: 0',
