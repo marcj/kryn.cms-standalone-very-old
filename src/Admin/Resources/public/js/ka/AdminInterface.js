@@ -244,7 +244,7 @@ ka.AdminInterface = new Class({
             this._crawler = new ka.Crawler();
         }
 
-        //this.loadStream();
+        ka.loadStream();
 
         window.onbeforeunload = function (evt) {
 
@@ -277,18 +277,18 @@ ka.AdminInterface = new Class({
         }.bind(this));
 
 
-        window.addEvent('stream', function (res) {
-            document.id('serverTime').set('html', res.time);
-            this._iconSessionCounter.set('text', res.sessions_count);
-        });
-
-        window.addEvent('stream', function (res) {
-            if (res.corruptJson) {
-                Array.each(res.corruptJson, function (item) {
-                    this.helpsystem.newBubble(t('Extension config Syntax Error'), _('There is an error in your inc/module/%s/config.json').replace('%s', item), 4000);
-                }.bind(this));
-            }
-        });
+//        window.addEvent('stream', function (res) {
+//            document.id('serverTime').set('html', res.time);
+//            this._iconSessionCounter.set('text', res.sessions_count);
+//        });
+//
+//        window.addEvent('stream', function (res) {
+//            if (res.corruptJson) {
+//                Array.each(res.corruptJson, function (item) {
+//                    this.helpsystem.newBubble(t('Extension config Syntax Error'), _('There is an error in your inc/module/%s/config.json').replace('%s', item), 4000);
+//                }.bind(this));
+//            }
+//        });
 
         this.renderMenu();
     },
@@ -966,6 +966,20 @@ ka.AdminInterface = new Class({
         ka.wm.updateWindowBar();
     },
 
+    showDashboard: function(show) {
+        if (this.dashboardVisible !== show) {
+            if (show) {
+                this.dashboardInstance = new ka.Dashboard(this.desktopContainer);
+            } else if (this.dashboardInstance){
+                this.dashboardInstance.destroy();
+                delete this.dashboardInstance;
+            }
+
+            this.dashboardVisible = show;
+        }
+
+    },
+
     makeMenu: function (pToggler, pMenu, pCalPosition, pOffset) {
 
 
@@ -1063,6 +1077,10 @@ ka.AdminInterface = new Class({
             'class': 'ka-main-menu-item'
         });
         var module = entryPoint.fullPath.split('/')[0];
+
+        if ('admin/dashboard' === path){
+            this.dashboardLink = link;
+        }
 
         if (this.lastAddedAdminLinkModule && this.lastAddedAdminLinkModule != module) {
             var splitter = new Element('div',{

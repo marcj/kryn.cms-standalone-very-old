@@ -1,4 +1,4 @@
-ka.ContentTypes || (ka.ContentTypes = {});
+ka.ContentTypes = ka.ContentTypes || {};
 
 ka.ContentTypes.Plugin = new Class({
 

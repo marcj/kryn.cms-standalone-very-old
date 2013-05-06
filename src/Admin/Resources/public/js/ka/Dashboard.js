@@ -1,0 +1,49 @@
+ka.Dashboard = new Class({
+
+    options: {
+
+    },
+
+    container: null,
+
+    widgets: [],
+
+    initialize: function(container, options) {
+        this.container = container;
+        this.createLayout(container);
+        this.container.getDocument().body.addClass('ka-Dashboard-active');
+    },
+
+    createLayout: function () {
+        this.main = new Element('div', {
+            'class': 'ka-Dashboard'
+        }).inject(this.container);
+
+        this.loadWidgets();
+    },
+
+    loadWidgets: function () {
+        this.main.empty();
+
+        [
+            'ka.DashboardWidgets.Latency',
+            'ka.DashboardWidgets.Uptime',
+            'ka.DashboardWidgets.Load',
+            'ka.DashboardWidgets.Space'
+        ].each(function(clazz){
+            clazz = ka.getClass(clazz);
+            this.widgets.push(new clazz(this.main));
+        }.bind(this));
+
+    },
+
+    destroy: function () {
+        Array.each(this.widgets, function(widget){
+            widget.destroy();
+        });
+        this.container.getDocument().body.removeClass('ka-Dashboard-active');
+        this.main.destroy();
+    }
+
+
+});

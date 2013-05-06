@@ -284,8 +284,8 @@ ka.addFieldKeyPrefix = function(pFields, pPrefix){
  * @return {Class|Function}
  */
 ka.getClass = function(pClassPath){
-    pClassPath = pClassPath.replace('[\'', '');
-    pClassPath = pClassPath.replace('\']', '');
+    pClassPath = pClassPath.replace('[\'', '.');
+    pClassPath = pClassPath.replace('\']', '.');
 
     if (pClassPath.indexOf('.') > 0 ){
         var path = pClassPath.split('.');
@@ -934,30 +934,77 @@ ka.removeStreamParam = function (pKey) {
     delete ka.streamParams[pKey];
 }
 
+/**
+ * 
+ * @param path
+ * @param callback
+ */
+ka.registerStream = function (path, callback) {
+    if (!ka.streamRegistered[path]) {
+        ka.streamRegistered[path] = [];
+    }
+    ka.streamRegistered[path].push(callback);
+    ka.loadStream();
+}
 
+ka.streamRegistered = {};
+/**
+ * Register a callback to a stream path.
+ * 
+ * @param {String}   path
+ * @param {Function} callback
+ */
+ka.deRegisterStream = function (path, callback) {
+    if (!ka.streamRegistered[path]) {
+        return;
+    }
+    if (callback) {
+        var index = ka.streamRegistered[path].indexOf(callback);
+        if (-1 !== index) {
+            ka.streamRegistered[path].splice(index, 1);
+        }
+    } else {
+        delete ka.streamRegistered[path];
+    }
+    ka.loadStream();
+}
+
+/**
+ * The stream loader loop.
+ */
 ka.loadStream = function () {
-    if (ka._lastStreamid) {
-        clearTimeout(ka._lastStreamid);
+    if (ka._lastStreamId) {
+        clearTimeout(ka._lastStreamId);
     }
 
-    if (ka._lastStreamCounter) {
-        clearTimeout(ka._lastStreamCounter);
+    ka.streamParams.__streams = [];
+    Object.each(ka.streamRegistered, function (cbs, path) {
+        if (0 !== cbs.length) {
+            ka.streamParams.__streams.push(path);
+        }
+    });
+
+    if (0 === ka.streamParams.__streams.length) {
+        return;
     }
 
-    _lastStreamCounter = (function () {
-        if (window._session.user_id > 0) {
-            new Request.JSON({url: _pathAdmin + 'admin/backend/stream', noCache: 1, onComplete: function (res) {
+    ka._lastStreamId = (function () {
+        if (window._session.userId > 0) {
+            new Request.JSON({url: _pathAdmin + 'admin/stream', noCache: 1, onComplete: function (res) {
                 if (res) {
-                    if (res.error == 'access_denied') {
-                        ka.ai.logout(true);
+                    if (res.error) {
+                        ka.newBubble(t('Stream error'), res.error + ': ' + res.message);
                     } else {
-                        ka.streamParams.last = res.last;
-                        window.fireEvent('stream', res);
-                        $('serverTime').set('html', res.time);
+                        window.fireEvent('stream', res.data);
+                        Object.each(ka.streamRegistered, function (cbs, path) {
+                            Array.each(cbs, function(cb){
+                                cb(res.data[path], res.data);
+                            });
+                        });
                     }
                 }
-                ka._lastStreamid = ka.loadStream.delay(5 * 1000);
-            }}).post(ka.streamParams);
+                ka._lastStreamId = ka.loadStream.delay(2 * 1000);
+            }}).get(ka.streamParams);
         }
     }).delay(50);
 }

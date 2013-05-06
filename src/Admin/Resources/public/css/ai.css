@@ -25,6 +25,14 @@ table {
     z-index: auto;
 }
 
+h1, h2, h3 {
+    font-weight: normal;
+}
+
+h3 {
+    text-transform: uppercase;
+}
+
 body.hide-scrollbar {
     overflow: hidden;
 }
@@ -189,9 +197,10 @@ div.ka-main-menu-additional img.arrowUp:hover {
     padding: 0;
     margin-bottom: 5px;
     display: inline-block;
-    font-size: 12px;
+    font-size: 14px;
     border-right: 1px solid #5A5A5A;
     padding-right: 9px;
+    font-weight: normal;
 }
 
 .ka-main-menu-user .username {

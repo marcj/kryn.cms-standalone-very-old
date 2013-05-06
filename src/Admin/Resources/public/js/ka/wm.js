@@ -157,6 +157,7 @@ ka.wm = {
         }
         document.body.removeClass('hide-scrollbar');
 
+        var openWindows = 0;
         Object.each(ka.wm.windows, function (win) {
 
             if (win.getParentId()) return;
@@ -167,7 +168,7 @@ ka.wm = {
             }
 
             if (win.isInFront()){
-
+                openWindows++;
                 if (win.getEntryPoint() == 'admin/nodes/frontend')
                     return ka.adminInterface.frontendLink.addClass('ka-main-menu-item-active');
 
@@ -194,6 +195,18 @@ ka.wm = {
 
         if (!atLeastOneActive && ka.adminInterface.options.frontPage) {
             ka.adminInterface.frontendLink.addClass('ka-main-menu-item-active');
+        }
+
+        if (ka.adminInterface.dashboardLink) {
+            if (0 === openWindows) {
+                ka.adminInterface.dashboardLink.addClass('ka-main-menu-item-open');
+                ka.adminInterface.dashboardLink.addClass('ka-main-menu-item-active');
+            } else {
+                ka.adminInterface.dashboardLink.removeClass('ka-main-menu-item-open');
+                ka.adminInterface.dashboardLink.removeClass('ka-main-menu-item-active');
+            }
+
+            ka.adminInterface.showDashboard(0 === openWindows);
         }
 
         ka.wm.reloadHashtag();

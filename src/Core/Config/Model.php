@@ -30,11 +30,14 @@ class Model implements \ArrayAccess
         }
     }
 
+    /**
+     * @return string lowerCased bundle name (without `Bundle` suffix)
+     */
     public function getBundleName()
     {
         $bundleConfig = $this->getBundleConfig();
 
-        return $bundleConfig ? $bundleConfig->getName() : null;
+        return $bundleConfig ? strtolower($bundleConfig->getName()) : null;
     }
 
     /**

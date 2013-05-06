@@ -44,6 +44,11 @@ class Config extends Model
     protected $version;
 
     /**
+     * @var string
+     */
+    protected $streams;
+
+    /**
      * @var array
      */
     protected $instanceRelations = array();
@@ -109,22 +114,6 @@ class Config extends Model
     }
 
     /**
-     * @return Plugin[]
-     */
-    public function getPlugins()
-    {
-        if (null === $this->plugins) {
-            $plugins = $this->element->getElementsByTagName('plugin');
-            $this->plugins = array();
-            foreach ($plugins as $plugin) {
-                $this->plugins[] = $this->getModelInstance($plugin);
-            }
-        }
-
-        return $this->plugins;
-    }
-
-    /**
      * @param \DOMNode $node
      */
     public function import(\DOMNode $node)
@@ -145,6 +134,22 @@ class Config extends Model
     }
 
     /**
+     * @return Plugin[]
+     */
+    public function getPlugins()
+    {
+        if (null === $this->plugins) {
+            $plugins = $this->element->getElementsByTagName('plugin');
+            $this->plugins = array();
+            foreach ($plugins as $plugin) {
+                $this->plugins[] = $this->getModelInstance($plugin);
+            }
+        }
+
+        return $this->plugins;
+    }
+
+    /**
      * @param string $id
      *
      * @return Plugin
@@ -158,6 +163,35 @@ class Config extends Model
             }
         }
     }
+
+    /**
+     * @param string $streams
+     */
+    public function setStreams($streams)
+    {
+        $this->streams = $streams;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStreams()
+    {
+        if (null === $this->streams) {
+            $childrenElement   = $this->getDirectChild('streams');
+            $this->streams = array();
+            if ($childrenElement) {
+                foreach ($childrenElement->childNodes as $child) {
+                    if ('stream' === $child->nodeName) {
+                        $this->streams[] = $this->getModelInstance($child);
+                    }
+                }
+            }
+        }
+
+        return $this->streams;
+    }
+
 
     /**
      * @param string $filter
