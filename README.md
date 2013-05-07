@@ -49,7 +49,7 @@ Features
 Screenshot
 ----------
 
-![Kryn.cms](https://raw.github.com/KrynLabs/Kryn.cms/refactoring/documentation/images/admin-photo.jpg)
+![Kryn.cms](https://raw.github.com/KrynLabs/Kryn.cms/refactoring/documentation/images/kryn-photo.jpg)
 ![Administration movie](https://raw.github.com/KrynLabs/Kryn.cms/refactoring/documentation/images/admin-animation.gif)
 ![Administration Dashboard](https://raw.github.com/KrynLabs/Kryn.cms/refactoring/documentation/images/admin-dashboard.png)
 ![Administration Frontend Edit](https://raw.github.com/KrynLabs/Kryn.cms/refactoring/documentation/images/admin-frontend-edit.png)
