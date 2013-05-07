@@ -383,6 +383,7 @@ abstract class ClientAbstract
     {
         if (!$this->getStarted()) return;
 
+        $time = microtime(true);
         if ($this->hasSession()) {
             if ($this->config['store']['class'] == 'database') {
                 $this->getSession()->save();
@@ -391,6 +392,7 @@ abstract class ClientAbstract
                 $this->store->set($this->tokenId . '_' . $this->token, $this->session->exportTo('JSON'), $this->config['timeout']);
             }
         }
+        \Core\Utils::$latency['session'][] = microtime(true) - $time;
     }
 
     /**
@@ -401,6 +403,7 @@ abstract class ClientAbstract
      */
     public function createSession()
     {
+        $time = microtime(true);
         for ($i = 1; $i <= 25; $i++) {
             $session = $this->createSessionById($this->generateSessionId());
 
@@ -414,6 +417,7 @@ abstract class ClientAbstract
                 setCookie($this->tokenId, $this->token, time() + $this->config['timeout'],
                     $this->config['cookiePath'], $this->config['cookieDomain']);
 
+                \Core\Utils::$latency['session'][] = microtime(true) - $time;
                 return $session;
             }
 
@@ -567,11 +571,15 @@ abstract class ClientAbstract
 
         if (!$token) return false;
 
+        $time = microtime(true);
         if ($this->config['store']['class'] == 'database') {
-            return $this->loadSessionDatabase($token);
+            $session =  $this->loadSessionDatabase($token);
         } else {
-            return $this->loadSessionCache($token);
+            $session = $this->loadSessionCache($token);
         }
+
+        \Core\Utils::$latency['session'][] = microtime(true) - $time;
+        return $session;
     }
 
 

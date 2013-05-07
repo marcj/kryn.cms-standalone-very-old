@@ -72,6 +72,17 @@
     border: 1px solid #999;
 }
 
+.ka-Select-transparent,
+.ka-Select-transparent .ka-Select-arrow,
+.ka-Select-transparent:link,
+.ka-Select-transparent:active,
+.ka-Select-transparent .ka-Select-box:active > .ka-Select-arrow,
+.ka-Select-transparent .ka-Select-box-focus > .ka-Select-arrow {
+    background-color: transparent;
+    border: 0;
+}
+
+
 .ka-Select-box-focus {
     border: 1px solid #3E9BCB;
 }

@@ -5,10 +5,10 @@ ka.DashboardWidgets.Load = new Class({
 
     create: function () {
         this.header = new Element('h3', {
-            style: 'margin: 0; padding: 0',
             text: ka.tc('dashboardWidget.load', 'Load')
         })
         .inject(this.main);
+        this.toElement().addClass('ka-Dashboard-widget-grid-2');
 
         this.load = new Element('div', {
             style: 'padding: 5px; text-align: center',

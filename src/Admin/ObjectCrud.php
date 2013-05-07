@@ -179,7 +179,7 @@ class ObjectCrud
      *
      * Relative or absolute paths are allowed.
      * Empty means current entrypoint.
-      *
+     *
      * @var string
      */
     protected $addEntrypoint = '';
@@ -300,6 +300,7 @@ class ObjectCrud
 
     /**
      * Defines whether the class checks, if the user has account to requested object item.
+     *
      * @var boolean
      */
     protected $permissionCheck = true;
@@ -336,7 +337,7 @@ class ObjectCrud
     {
         $this->objectDefinition = \Core\Object::getDefinition($this->getObject());
         if (!$this->objectDefinition && $this->getObject() && !$pWithoutObjectCheck) {
-            throw new \ObjectNotFoundException("Can not find object '".$this->getObject()."'");
+            throw new \ObjectNotFoundException("Can not find object '" . $this->getObject() . "'");
         }
 
         if ($this->objectDefinition) {
@@ -384,26 +385,30 @@ class ObjectCrud
         }
 
         //do magic with type select and add all fields to _fields.
-        if (count($this->fields) > 0 )
+        if (count($this->fields) > 0) {
             $this->prepareFieldItem($this->fields);
+        }
 
         if (is_string($this->primary)) {
             $this->primary = explode(',', str_replace(' ', '', $this->primary));
         }
 
-        if (getArgv('order'))
+        if (getArgv('order')) {
             $this->setOrder(getArgv('order'));
+        }
 
         if (!$this->order || count($this->order) == 0) {
 
             /* compatibility */
             $this->orderByDirection = (strtolower($this->orderByDirection) == 'asc') ? 'asc' : 'desc';
-            if ($this->orderBy)
+            if ($this->orderBy) {
                 $this->order = array($this->orderBy => $this->orderByDirection);
+            }
 
         }
 
         if ((!$this->order || count($this->order) == 0) && $this->columns) {
+            reset($this->columns);
             $this->order[key($this->columns)] = 'asc';
         }
 
@@ -424,9 +429,9 @@ class ObjectCrud
                 if (is_numeric($key)) {
                     //no special definition
                     $fieldKey = $val;
-                    $field = $this->fields[$val];
+                    $field    = $this->fields[$val];
                 } else {
-                    $field = $val;
+                    $field    = $val;
                     $fieldKey = $key;
                 }
 
@@ -459,13 +464,15 @@ class ObjectCrud
 
     public function getInfo()
     {
-        $vars = get_object_vars($this);
+        $vars      = get_object_vars($this);
         $blacklist = array('objectDefinition', 'entryPoint');
-        $result = array();
+        $result    = array();
 
         foreach ($vars as $var => $val) {
-            if (in_array($var, $blacklist)) continue;
-            $method = 'get'.ucfirst($var);
+            if (in_array($var, $blacklist)) {
+                continue;
+            }
+            $method = 'get' . ucfirst($var);
             if (method_exists($this, $method)) {
                 $result[$var] = $this->$method();
             }
@@ -501,12 +508,14 @@ class ObjectCrud
                 } else {
                     continue;
                 }
-                if (!$newItem['label']) $newItem['label'] = $field;
+                if (!$newItem['label']) {
+                    $newItem['label'] = $field;
+                }
 
                 $pFields = array_merge(
                     array_slice($pFields, 0, $i),
                     array($field => $newItem),
-                    array_slice($pFields, $i+1)
+                    array_slice($pFields, $i + 1)
                 );
                 reset($pFields);
                 $i = -1;
@@ -516,7 +525,7 @@ class ObjectCrud
 
         foreach ($pFields as $key => &$field) {
 
-            if (!is_array($field)){
+            if (!is_array($field)) {
                 continue;
             }
 
@@ -525,17 +534,24 @@ class ObjectCrud
                 continue;
             }
 
-            if (!isset($field['label']))
+            if (!isset($field['label'])) {
                 $field['label'] = $oField->getLabel();
+            }
 
-            if (!isset($field['desc']))
+            if (!isset($field['desc'])) {
                 $field['desc'] = $oField->getDesc();
+            }
 
-            if (!isset($field['label']))
+            if (!isset($field['label'])) {
                 $field['label'] = '!!No title defined (either object or in objectWindow class!!';
+            }
 
-            if ($field['depends']) $this->prepareFieldDefinition($field['depends']);
-            if ($field['children']) $this->prepareFieldDefinition($field['children']);
+            if ($field['depends']) {
+                $this->prepareFieldDefinition($field['depends']);
+            }
+            if ($field['children']) {
+                $this->prepareFieldDefinition($field['children']);
+            }
         }
 
     }
@@ -576,20 +592,22 @@ class ObjectCrud
                         break;
                     case 'select':
 
-                        if ($pFields->getTable())
+                        if ($pFields->getTable()) {
                             $pFields['tableItems'] = dbTableFetchAll($pFields['table']);
-                        else if ($pFields['sql'])
+                        } else if ($pFields['sql']) {
                             $pFields['tableItems'] = dbExFetchAll(str_replace('%pfx%', pfx, $pFields['sql']));
-                        else if ($pFields['method']) {
+                        } else if ($pFields['method']) {
                             $nam = $pFields['method'];
-                            if (method_exists($this, $nam))
+                            if (method_exists($this, $nam)) {
                                 $pFields['tableItems'] = $this->$nam($pFields);
+                            }
                         }
 
                         if ($pFields['modifier'] && !empty($pFields['modifier']) &&
                             method_exists($this, $pFields['modifier'])
-                        )
+                        ) {
                             $pFields['tableItems'] = $this->$pFields['modifier']($pFields['tableItems']);
+                        }
 
                         break;
                 }
@@ -597,8 +615,9 @@ class ObjectCrud
 
             }
 
-            if (is_array($pFields->getChildren()))
+            if (is_array($pFields->getChildren())) {
                 $this->prepareFieldItem($pFields->getChildren());
+            }
 
         }
     }
@@ -628,27 +647,33 @@ class ObjectCrud
 
         $options['permissionCheck'] = $this->permissionCheck;
         */
-        $obj = \Core\Object::getClass($this->object);
+        $obj        = \Core\Object::getClass($this->object);
         $primaryKey = $obj->normalizePrimaryKey($pPk);
-        $items = $this->getItems();
+        $items      = $this->getItems();
 
         $position = 0;
 
         if (count($primaryKey) == 1) {
-            $singlePrimaryKey = key($primaryKey);
+            $singlePrimaryKey   = key($primaryKey);
             $singlePrimaryValue = current($primaryKey);
         }
 
         foreach ($items as $item) {
 
             if ($singlePrimaryKey) {
-                if ($item[$singlePrimaryKey] == $singlePrimaryValue) break;
+                if ($item[$singlePrimaryKey] == $singlePrimaryValue) {
+                    break;
+                }
             } else {
                 $isItem = true;
                 foreach ($primaryKey as $prim => $val) {
-                    if ($item[$prim] != $val) $isItem = false;
+                    if ($item[$prim] != $val) {
+                        $isItem = false;
+                    }
                 }
-                if ($isItem) break;
+                if ($isItem) {
+                    break;
+                }
             }
 
             $position++;
@@ -670,26 +695,29 @@ class ObjectCrud
      * @param  array $pFilter
      * @param  int   $pLimit
      * @param  int   $pOffset
+     *
      * @return array
      */
     public function getItems($pFilter = null, $pLimit = null, $pOffset = null)
     {
-        $options   = array();
+        $options                    = array();
         $options['permissionCheck'] = $this->getPermissionCheck();
-        $options['offset'] = $pOffset;
-        $options['limit'] = $pLimit ? $pLimit : $this->defaultLimit;
+        $options['offset']          = $pOffset;
+        $options['limit']           = $pLimit ? $pLimit : $this->defaultLimit;
 
         $condition = $this->getCondition();
 
-        if ($extraCondition = $this->getCustomListingCondition())
+        if ($extraCondition = $this->getCustomListingCondition()) {
             $condition = !$condition ? $extraCondition : array($condition, 'AND', $extraCondition);
+        }
 
         $options['order'] = $this->getOrder();
 
-        $options['fields'] = array_keys($this->getColumns() ?: array());
+        $options['fields'] = array_keys($this->getColumns() ? : array());
 
-        if ($pFilter)
+        if ($pFilter) {
             $condition = self::buildFilter($pFilter);
+        }
 
         if ($this->getMultiLanguage()) {
 
@@ -698,14 +726,15 @@ class ObjectCrud
 
                 //add language condition
                 $langCondition = array(
-                    array('lang', '=', getArgv('lang')+""),
+                    array('lang', '=', getArgv('lang') + ""),
                     'OR',
                     array('lang', 'IS NULL'),
                 );
-                if ($condition)
+                if ($condition) {
                     $condition = array($condition, 'AND', $langCondition);
-                else
+                } else {
                     $condition = $langCondition;
+                }
             }
         }
 
@@ -716,6 +745,7 @@ class ObjectCrud
 
     /**
      * @param  array      $pFilter
+     *
      * @return array|null
      */
     public static function buildFilter($pFilter)
@@ -726,7 +756,9 @@ class ObjectCrud
             //build condition query
             $condition = array();
             foreach ($pFilter as $k => $v) {
-                if ($condition) $condition[] = 'and';
+                if ($condition) {
+                    $condition[] = 'and';
+                }
 
                 $k = camelcase2Underscore(substr($k, 1));
 
@@ -745,13 +777,14 @@ class ObjectCrud
      *
      *
      * @param  string $pFields
+     *
      * @return array
      */
     public function getTreeFields($pFields = null)
     {
         //use default fields from object definition
         $definition = $this->objectDefinition;
-        $fields = array();
+        $fields     = array();
 
         if ($pFields && $this->getAllowCustomSelectFields()) {
             if (is_array($pFields)) {
@@ -763,15 +796,20 @@ class ObjectCrud
 
         if ($definition && !$fields) {
 
-            if ($treeFields = $definition->getTreeFields())
+            if ($treeFields = $definition->getTreeFields()) {
                 $fields = explode(',', trim(preg_replace('/[^a-zA-Z0-9_,]/', '', $treeFields)));
-            else
-                $fields = ($definition->getDefaultSelection()) ? explode(',', trim(preg_replace('/[^a-zA-Z0-9_,]/', '', $definition->getDefaultSelection()))) : array();
+            } else {
+                $fields = ($definition->getDefaultSelection()) ? explode(
+                    ',',
+                    trim(preg_replace('/[^a-zA-Z0-9_,]/', '', $definition->getDefaultSelection()))
+                ) : array();
+            }
 
             $fields[] = $definition->getFieldLabel();
 
-            if ($definition->getTreeIcon())
+            if ($definition->getTreeIcon()) {
                 $fields[] = $definition->getTreeIcon();
+            }
         }
 
         return $fields;
@@ -788,31 +826,43 @@ class ObjectCrud
      * @param  int   $pDepth
      * @param  int   $pLimit
      * @param  int   $pOffset
+     *
      * @return mixed
      */
-    public function getBranchItems($pPk = null, $pFilter = null, $pFields = null, $pScope = null, $pDepth = 1, $pLimit = null, $pOffset = null)
-    {
-        $options = array();
+    public function getBranchItems(
+        $pPk = null,
+        $pFilter = null,
+        $pFields = null,
+        $pScope = null,
+        $pDepth = 1,
+        $pLimit = null,
+        $pOffset = null
+    ) {
+        $options                    = array();
         $options['permissionCheck'] = $this->getPermissionCheck();
-        $options['offset'] = $pOffset;
-        $options['limit'] = $pLimit ? $pLimit : $this->defaultLimit;
+        $options['offset']          = $pOffset;
+        $options['limit']           = $pLimit ? $pLimit : $this->defaultLimit;
 
         $condition = $this->getCondition();
 
         if ($pFilter) {
-            if ($condition)
+            if ($condition) {
                 $condition = array($condition, 'AND', self::buildFilter($pFilter));
-            else
+            } else {
                 $condition = self::buildFilter($pFilter);
+            }
         }
 
-        if ($extraCondition = $this->getCustomListingCondition())
+        if ($extraCondition = $this->getCustomListingCondition()) {
             $condition = !$condition ? $extraCondition : array($condition, 'AND', $extraCondition);
+        }
 
         $options['order'] = $this->getOrder();
 
-        $options['fields'] = array_keys($this->getColumns() ?: array());
-        if (!$options['fields']) $options['fields'] = array();
+        $options['fields'] = array_keys($this->getColumns() ? : array());
+        if (!$options['fields']) {
+            $options['fields'] = array();
+        }
 
         $options['fields'] += $this->getTreeFields();
 
@@ -823,14 +873,15 @@ class ObjectCrud
 
                 //add language condition
                 $langCondition = array(
-                    array('lang', '=', getArgv('lang')+""),
+                    array('lang', '=', getArgv('lang') + ""),
                     'OR',
                     array('lang', 'IS NULL'),
                 );
-                if ($condition)
+                if ($condition) {
                     $condition = array($condition, 'AND', $langCondition);
-                else
+                } else {
                     $condition = $langCondition;
+                }
             }
         }
 
@@ -845,6 +896,7 @@ class ObjectCrud
      * @param  mixed $pPk
      * @param  mixed $pScope
      * @param  array $pFilter
+     *
      * @return array
      */
     public function getBranchChildrenCount($pPk = null, $pScope = null, $pFilter = null)
@@ -852,16 +904,18 @@ class ObjectCrud
         $condition = $this->getCondition();
 
         if ($pFilter) {
-            if ($condition)
+            if ($condition) {
                 $condition = array($condition, 'AND', self::buildFilter($pFilter));
-            else
+            } else {
                 $condition = self::buildFilter($pFilter);
+            }
         }
 
-        if ($extraCondition = $this->getCustomListingCondition())
+        if ($extraCondition = $this->getCustomListingCondition()) {
             $condition = !$condition ? $extraCondition : array($condition, 'AND', $extraCondition);
+        }
 
-        $options['order'] = $this->getOrder();
+        $options['order']           = $this->getOrder();
         $options['permissionCheck'] = $this->getPermissionCheck();
 
         $options['fields'] = array_keys($this->getColumns());
@@ -880,7 +934,7 @@ class ObjectCrud
 
     public function getParent($pPk)
     {
-        $options = array('permissionCheck' => $this->getPermissionCheck());
+        $options    = array('permissionCheck' => $this->getPermissionCheck());
         $primaryKey = Object::normalizePkString($this->object, $pPk);
 
         return \Core\Object::getParent($this->object, $primaryKey, $options);
@@ -889,7 +943,7 @@ class ObjectCrud
 
     public function getParents($pPk)
     {
-        $options = array('permissionCheck' => $this->getPermissionCheck());
+        $options    = array('permissionCheck' => $this->getPermissionCheck());
         $primaryKey = Object::normalizePkString($this->object, $pPk);
 
         return \Core\Object::getParents($this->object, $primaryKey, $options);
@@ -900,7 +954,10 @@ class ObjectCrud
     {
         $options = array('permissionCheck' => $this->getPermissionCheck());
 
-        $pTargetPk = \Core\Object::normalizePkString($pTargetObjectKey ? $pTargetObjectKey : $this->getObject(), $pTargetPk);
+        $pTargetPk = \Core\Object::normalizePkString(
+            $pTargetObjectKey ? $pTargetObjectKey : $this->getObject(),
+            $pTargetPk
+        );
 
         return \Core\Object::move($this->getObject(), $pPk, $pTargetPk, $pPosition, $pTargetObjectKey, $options);
     }
@@ -973,6 +1030,7 @@ class ObjectCrud
      * Use dbPrimaryKeyToCondition() to convert it to a full condition definition.
      *
      * @param  array $pPk
+     *
      * @return array
      */
     public function getItem($pPk, $pFields = null)
@@ -1007,11 +1065,15 @@ class ObjectCrud
         }
 
         //check against additionaly our own custom condition
-        if ($item && $condition = $this->getCondition())
-            if (!\Core\Object::satisfy($item, $condition)) $item = null;
+        if ($item && $condition = $this->getCondition()) {
+            if (!\Core\Object::satisfy($item, $condition)) {
+                $item = null;
+            }
+        }
 
-        if ($item)
+        if ($item) {
             $this->prepareRow($item);
+        }
 
         return $item;
     }
@@ -1053,8 +1115,9 @@ class ObjectCrud
 
         $fixedData = array();
 
-        if ($fixedFields)
+        if ($fixedFields) {
             $fixedData = $this->collectData($fixedFields);
+        }
 
         $fields = $this->getAddMultipleFields();
 
@@ -1062,8 +1125,9 @@ class ObjectCrud
 
         $items = $_REQUEST['_items'];
 
-        if ($position == 'first' || $position == 'next')
+        if ($position == 'first' || $position == 'next') {
             $items = array_reverse($_REQUEST['_items']);
+        }
 
         foreach ($items as $item) {
 
@@ -1093,18 +1157,22 @@ class ObjectCrud
      * @param  array      $pPk
      * @param  string     $pPosition        If nested set. `first` (child), `last` (child), `prev` (sibling), `next` (sibling)
      * @param  int|string $pTargetObjectKey
+     *
      * @return mixed      False if some went wrong or a array with the new primary keys.
      */
     public function add($pData = null, $pPk = null, $pPosition = null, $pTargetObjectKey = null)
     {
         //collect values
-        if ($pData)
+        if ($pData) {
             $data = $pData;
-        else
+        } else {
             $data = $this->collectData();
+        }
 
         //do normal add through Core\Object
-        $this->primaryKey = \Core\Object::add($this->getObject(), $data,
+        $this->primaryKey = \Core\Object::add(
+            $this->getObject(),
+            $data,
             $pPk,
             $pPosition,
             $pTargetObjectKey,
@@ -1113,8 +1181,9 @@ class ObjectCrud
 
         //handle customPostSave
         foreach ($this->_fields as $key => $field) {
-            if ($field['customPostSave'] && method_exists($this, $method = $field['customPostSave']))
+            if ($field['customPostSave'] && method_exists($this, $method = $field['customPostSave'])) {
                 $this->$method($field, $key);
+            }
         }
 
         return $this->primaryKey;
@@ -1123,11 +1192,12 @@ class ObjectCrud
 
     /**
      * @param $pPk
+     *
      * @return bool
      */
     public function remove($pPk)
     {
-        $this->primaryKey = $pPk;
+        $this->primaryKey           = $pPk;
         $options['permissionCheck'] = $this->getPermissionCheck();
 
         return \Core\Object::remove($this->object, $pPk, $options);
@@ -1138,6 +1208,7 @@ class ObjectCrud
      * Updates a object entry. This means, all fields which are not defined will be saved as NULL.
      *
      * @param  array                        $pPk
+     *
      * @return bool
      * @throws \ObjectItemNotFoundException
      */
@@ -1145,7 +1216,7 @@ class ObjectCrud
     {
         $this->primaryKey = $pPk;
 
-        $options['fields'] = '';
+        $options['fields']          = '';
         $options['permissionCheck'] = $this->getPermissionCheck();
 
         //collect values
@@ -1154,11 +1225,18 @@ class ObjectCrud
         //check against additionally our own custom condition
         if ($condition = $this->getCondition()) {
             $item = \Core\Object::get($this->getObject(), $pPk, $options);
-            if (!\Core\Object::satisfy($item, $condition)) return null;
+            if (!\Core\Object::satisfy($item, $condition)) {
+                return null;
+            }
         }
 
         //do normal update through Core\Object
-        $result = \Core\Object::update($this->getObject(), $pPk, $data, array('permissionCheck' => $this->getPermissionCheck()));
+        $result = \Core\Object::update(
+            $this->getObject(),
+            $pPk,
+            $data,
+            array('permissionCheck' => $this->getPermissionCheck())
+        );
 
         return $result;
     }
@@ -1168,6 +1246,7 @@ class ObjectCrud
      * not be overwritten.
      *
      * @param  array                        $pPk
+     *
      * @return bool
      * @throws \ObjectItemNotFoundException
      */
@@ -1175,7 +1254,7 @@ class ObjectCrud
     {
         $this->primaryKey = $pPk;
 
-        $options['fields'] = '';
+        $options['fields']          = '';
         $options['permissionCheck'] = $this->getPermissionCheck();
 
         //collect values
@@ -1184,11 +1263,18 @@ class ObjectCrud
         //check against additionally our own custom condition
         if ($condition = $this->getCondition()) {
             $item = \Core\Object::get($this->getObject(), $pPk, $options);
-            if (!\Core\Object::satisfy($item, $condition)) return null;
+            if (!\Core\Object::satisfy($item, $condition)) {
+                return null;
+            }
         }
 
         //do normal update through Core\Object
-        $result = \Core\Object::patch($this->getObject(), $pPk, $data, array('permissionCheck' => $this->getPermissionCheck()));
+        $result = \Core\Object::patch(
+            $this->getObject(),
+            $pPk,
+            $data,
+            array('permissionCheck' => $this->getPermissionCheck())
+        );
 
         return $result;
     }
@@ -1199,6 +1285,7 @@ class ObjectCrud
      *
      * @param  mixed                        $pFields The fields definition. If empty we use $this->fields.
      * @param  mixed                        $pData   Is used if a field is not defined through _POST or _GET
+     *
      * @return array
      * @throws \FieldCanNotBeEmptyException
      */
@@ -1206,15 +1293,18 @@ class ObjectCrud
     {
         $data = array();
 
-        if ($pFields)
+        if ($pFields) {
             $fields =& $pFields;
-        else
+        } else {
             $fields =& $this->_fields;
+        }
 
         foreach ($fields as $key => $field) {
-            if ($field['noSave']) continue;
+            if ($field['noSave']) {
+                continue;
+            }
 
-            $data[$key] = $pData ? $pData[$key] :($_POST[$key]?:$_GET[$key]);
+            $data[$key] = $pData ? $pData[$key] : ($_POST[$key] ? : $_GET[$key]);
 
             if ($field['customValue'] && method_exists($this, $method = $field['customValue'])) {
                 $data[$key] = $this->$method($field, $key);
@@ -1225,11 +1315,13 @@ class ObjectCrud
                 continue;
             }
 
-            if (($field['saveOnlyFilled'] || $field['saveOnlyIfFilled']) && ($data[$key] === '' || $data[$key] === null))
+            if (($field['saveOnlyFilled'] || $field['saveOnlyIfFilled']) && ($data[$key] === '' || $data[$key] === null)) {
                 unset($data[$key]);
+            }
 
-            if ($field['required'] && ($data[$key] === '' || $data[$key] === null) )
+            if ($field['required'] && ($data[$key] === '' || $data[$key] === null)) {
                 throw new \FieldCanNotBeEmptyException(tf('The field %s is required.', $key));
+            }
 
         }
 
@@ -1258,11 +1350,11 @@ class ObjectCrud
      */
     public function prepareRow(&$pItem)
     {
-        $visible = true;
-        $editable = $this->edit;
+        $visible    = true;
+        $editable   = $this->edit;
         $deleteable = $this->remove;
 
-        $pItem['_editable'] = $editable;
+        $pItem['_editable']   = $editable;
         $pItem['_deleteable'] = $deleteable;
 
     }
@@ -1432,7 +1524,7 @@ class ObjectCrud
      */
     public function setFields($fields)
     {
-        $this->fields = $fields;
+        $this->fields  = $fields;
         $this->_fields = array();
         $this->prepareFieldItem($this->fields);
     }

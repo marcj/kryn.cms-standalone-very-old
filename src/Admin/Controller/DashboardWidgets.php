@@ -12,8 +12,8 @@ class DashboardWidgets
             'load' => $load,
             'os' => PHP_OS,
             'ram' => array(
-                'used' => self::getRamFree(),
-                'size' => self::getRamSize() / 1024
+                'used' => self::getRamUsed(),
+                'size' => self::getRamSize()
             ),
             'cpu' => self::getCpuUsage()
         );
@@ -21,16 +21,6 @@ class DashboardWidgets
 
     public static function analytics(&$response)
     {
-        $client = new \GoogleApi\Client();
-        $service = new \GoogleApi\Service\Service();
-
-        var_dump($service);
-        $optParams = array('filter' => 'free-ebooks');
-        $results = $service->volumes->listVolumes('Henry David Thoreau', $optParams);
-
-        foreach ($results['items'] as $item) {
-            print($item['volumeInfo']['title'] . '<br>');
-        }
     }
 
     public static function space(&$response)
@@ -78,6 +68,7 @@ class DashboardWidgets
 
         $result = array();
         foreach ($matches as $match) {
+            if (count($result) > 2) break;
             $avail = $match[$availIdx] + 0;
             $user  = $match[$usedIdx] + 0;
             $name  = $match[$nameIdx];
@@ -97,7 +88,10 @@ class DashboardWidgets
         return $result;
     }
 
-    public static function getRamFree()
+    /**
+     * @return integer kB
+     */
+    public static function getRamUsed()
     {
         $cpuUsage  = str_replace(' ', '', `ps -A -o rss`);
         $processes = explode("\n", $cpuUsage);
@@ -105,15 +99,41 @@ class DashboardWidgets
         return $ramSize;
     }
 
+    public static function latency(&$response)
+    {
+        $lastLatency = \Core\Kryn::getFastCache('core/latency');
+
+        $result =array(
+            'frontend' => 0,
+            'backend' => 0,
+            'database' => 0,
+            'session' => 0,
+            'cache' => 0
+        );
+        foreach ($result as $key => &$value) {
+            if ($lastLatency[$key]) {
+                $value = round((array_sum($lastLatency[$key]) / count($lastLatency[$key])) * 1000);
+            }
+        }
+
+        $response['admin/latency'] = $result;
+    }
+
+    /**
+     * @return int kB
+     */
     public static function getRamSize()
     {
         if ('darwin' == strtolower(PHP_OS)) {
             $sysctl  = `sysctl hw.memsize`;
             $matches = array();
             preg_match('/hw.memsize: ([0-9\.]*)/', $sysctl, $matches);
-            return $matches[1] + 0;
+            return ($matches[1] + 0) / 1024;
         } else if ('linux' === strtolower(PHP_OS)) {
-            return (`free`) + 0;
+            $sysctl  = `free`;
+            $matches = array();
+            preg_match('/Mem:\s+([0-9\.]*)/', $sysctl, $matches);
+            return ($matches[1] + 0);
         }
 
         return 1;

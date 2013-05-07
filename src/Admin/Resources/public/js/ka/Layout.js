@@ -104,11 +104,7 @@ ka.Layout = new Class({
         }).inject(pContainer);
 
         if (this.options.fixed){
-            this.main.setStyles({
-                position: 'absolute',
-                left: 0, right: 0,
-                'top': 0, bottom: 0
-            });
+            this.main.addClass('ka-Layout-main-fixed');
         }
 
         this.renderLayout();
@@ -167,6 +163,10 @@ ka.Layout = new Class({
             throw 'Row ' + pRow + ' does not exist.';
         }
         return this.getVertical().getHorizontal(pRow).getColumn(pColumn);
+    },
+
+    getRow: function (row) {
+        return this.getVertical().getRow(row);
     },
 
     toElement: function(){

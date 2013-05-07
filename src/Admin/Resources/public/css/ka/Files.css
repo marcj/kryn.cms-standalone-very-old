@@ -2,17 +2,31 @@
     margin: 5px 15px;
 }
 
-.ka-Files-header {
-    height: 40px;
+.ka-Files-wrapper-fixed {
+    margin: 0;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
 }
 
-.ka-desktop .ka-Files-header .ka-field {
-    max-width: 100%;
+.ka-Files-header {
+    height: 30px;
 }
 
 .ka-Files-body {
     margin-top: 18px;
-    border-top: 1px solid silver;
+}
+
+
+.ka-Files-wrapper-fixed .ka-Files-body {
+    margin: 0;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
 }
 
 .admin-files-actionBar {
@@ -36,14 +50,32 @@
     padding: 0 15px;
 }
 
+.admin-files-fileContainer-fixed {
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 31px;
+}
+
 .admin-files-status-bar {
     margin-top: 30px;
-    height: 26px;
-    line-height: 26px;
+    height: 30px;
+    line-height: 30px;
     color: #636363;
     text-align: center;
     font-size: 12px;
     border-top: 1px solid #E4E4E4;
+}
+
+.admin-files-status-bar-fixed {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin-top: 0px;
 }
 
 .admin-files-status-bar-loader {
@@ -95,6 +127,8 @@
 .admin-files-infos {
     position: relative;
     height: 100%;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .admin-files-infos a {
@@ -339,11 +373,12 @@ table.ka-files-search-table tr:hover td {
 }
 
 .admin-files-item-icon img {
-    box-shadow: 0 2px 11px #979797;
+    box-shadow: 0 0 9px #DDD;
     vertical-align: middle;
     padding: 5px;
     top: -7px;
     position: relative;
+    border-radius: 2px;
 }
 /*
 .admin-files-infos .ka-objectTree-item-hover,

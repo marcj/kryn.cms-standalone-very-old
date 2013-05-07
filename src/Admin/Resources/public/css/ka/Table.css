@@ -4,6 +4,14 @@
     width: 100%;
 }
 
+.ka-Table-absolute {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    top: 0px;
+}
+
 .ka-Table > thead > tr > th,
 .ka-Table-head > tr > th {
     font-weight: normal;
@@ -30,7 +38,7 @@
 .ka-Table-body-container {
     position: absolute;
     left: 0px;
-    top: 22px;
+    top: 41px;
     right: 0px;
     bottom: 0px;
     overflow-y: scroll;

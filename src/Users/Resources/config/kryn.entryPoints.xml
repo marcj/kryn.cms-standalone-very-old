@@ -21,7 +21,7 @@
             </entry-point>
             <entry-point path="groups" type="combine" icon="#icon-users-2" link="true">
                 <label>Groups</label>
-                <class>\Users\Admin\Groups</class>
+                <class>\Users\Controller\Admin\Groups</class>
             </entry-point>
             <entry-point path="acl" type="custom" link="true" icon="#icon-key-4">
                 <label>Access management</label>

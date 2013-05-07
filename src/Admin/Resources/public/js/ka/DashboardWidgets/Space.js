@@ -7,7 +7,6 @@ ka.DashboardWidgets.Space = new Class({
 
     create: function () {
         this.header = new Element('h3', {
-            style: 'margin: 0; padding: 0',
             text: ka.tc('dashboardWidget.space', 'Space')
         })
         .inject(this.main);
@@ -21,6 +20,8 @@ ka.DashboardWidgets.Space = new Class({
 
     update: function (value) {
         if (0 === this.gauges.length) {
+            this.toElement().addClass('ka-Dashboard-widget-grid-' + value.length);
+
             Array.each(value, function (space, id) {
                 this.gauges.push(
                     new ka.ui.Speedmeter(this.main, {
@@ -42,8 +43,7 @@ ka.DashboardWidgets.Space = new Class({
         }.bind(this));
 
         this.load.set('text',
-            tf('Total used: %s', ka.bytesToSize(used * 1024)) + ' / ' +
-            tf('Total size: %s', ka.bytesToSize(total * 1024))
+            tf('Total %s / %s', ka.bytesToSize(used * 1024), ka.bytesToSize(total * 1024))
         );
     }
 });

@@ -1,4 +1,6 @@
 <?php
+global $_start;
+global $_time;
 
 $_time = time();
 $_start = microtime(true);

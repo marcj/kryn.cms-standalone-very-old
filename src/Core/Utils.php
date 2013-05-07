@@ -6,6 +6,8 @@ class Utils
 {
     private static $inErrorHandler = false;
 
+    public static $latency = array();
+
     public static function exceptionHandler($pException)
     {
         $exceptionArray = array(
@@ -21,11 +23,37 @@ class Utils
 
     public static function shutdownHandler()
     {
+        global $_start;
         chdir(PATH);
+
+        $key = 'kryn' === getArgv(1) ? 'backend' : 'frontend';
+        \Core\Utils::$latency[$key] = microtime(true) - $_start;
+
         $error = error_get_last();
         if ($error['type'] == 1) {
             $backtrace = array($error);
             self::errorHandler($error['type'], $error['message'], $error['file'], $error['line'], $backtrace);
+        } else {
+            $lastLatency = Kryn::getFastCache('core/latency');
+
+            if (self::$latency['cache']) {
+                self::$latency['cache'] = array_sum(self::$latency['cache']) / count(self::$latency['cache']);
+            }
+            if (self::$latency['session']) {
+                self::$latency['session'] = array_sum(self::$latency['session']) / count(self::$latency['session']);
+            }
+
+            $max = 20;
+            foreach (array('frontend', 'backend', 'cache', 'session') as $key){
+                if (!self::$latency[$key]) continue;
+                $lastLatency[$key] = (array)$lastLatency[$key] ?: array();
+                array_unshift($lastLatency[$key], self::$latency[$key]);
+                if ($max < count($lastLatency[$key]))
+                    array_splice($lastLatency[$key], $max);
+            }
+
+            self::$latency = array();
+            Kryn::setFastCache('core/latency', $lastLatency);
         }
     }
     public static function errorHandler($pErrorCode, $pErrorStr, $pFile, $pLine, $pBacktrace = null)

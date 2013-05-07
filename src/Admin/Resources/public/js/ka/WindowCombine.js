@@ -9,7 +9,7 @@ ka.WindowCombine = new Class({
 
     searchPaneHeight: 110,
 
-    currentViewType: 'list',
+    currentViewType: '',
 
     renderLayout: function () {
         this.win.content.setStyle('white-space', 'nowrap');
@@ -19,14 +19,14 @@ ka.WindowCombine = new Class({
         }).inject(this.win.content);
 
         this.combineContainer = new Element('div', {
-            'class': 'ka-windowCombine-combine-container',
-            style: 'left: 0'
+            'class': 'ka-windowCombine-combine-container'
         }).inject(this.win.content);
+
+        this.combineContainer.setStyle('opacity', 0);
 
         this.renderLayoutTable();
 
         this.mainLayout = new ka.Layout(this.combineContainer, {
-            fixed: false,
             layout: [{
                 columns: [300, null]
             }],
@@ -34,9 +34,6 @@ ka.WindowCombine = new Class({
                 [1, 1, 'right']
             ]
         });
-
-        document.id(this.mainLayout).addClass('ka-windowCombine-container');
-        document.id(this.mainLayout).setStyles({'opacity': 1, right: 0});
 
         this.mainLayoutFx = new Fx.Morph(this.combineContainer, {
             transition: Fx.Transitions.Cubic.easeOut
@@ -46,7 +43,7 @@ ka.WindowCombine = new Class({
         this.mainLeft.set('tween', {duration: 100});
 
         this.mainRight = this.mainLayout.getCell(1,2);
-        this.mainRight.set('class', 'ka-list-combine-right');
+        this.mainRight.addClass('ka-list-combine-right');
 
         if (this.classProperties.asNested){
 
@@ -119,7 +116,7 @@ ka.WindowCombine = new Class({
             this.createItemLoader();
         }
 
-
+        this.setView('list');
     },
 
     leftItemsDown: function (pE) {
@@ -235,51 +232,41 @@ ka.WindowCombine = new Class({
         var btn = 'list' === viewType ? this.viewListBtn : this.viewCompactBtn;
         var btnOther = 'list' === viewType ? this.viewCompactBtn : this.viewListBtn;
 
+        logger(viewType);
         if (this.currentViewType !== viewType) {
             this.currentViewType = viewType;
 
+            if (this.mainLayoutFx.isRunning()) {
+                this.mainLayoutFx.cancel();
+            }
+
             if ('list' === viewType) {
-                var leftSize = this.mainLeft.getSize().x;
-                this.mainLeft.tween('opacity', 0);
-
-                (function(){
-
-                    this.listContainer.tween('opacity', 1);
-                    this.mainLayoutFx.start({
-                        left: 0,
-                        opacity: 0
-                    });
-
-//                    this.listContainer.tween('opacity', 1);
-//                    this.combineContainer.tween('opacity', 0);
-                    this.combineActionBar.tween('opacity', 0);
-
-                    if (!this.currentPage) {
-                        this.loadPage(1);
-                    }
-                }).delay(100, this);
+                this.listContainer.tween('opacity', 1);
+                this.combineActionBar.tween('opacity', 0);
+                this.actionBarNavigation.tween('opacity', 1);
+                this.mainLayoutFx.start({
+                    left: 200,
+                    right: -200,
+                    opacity: 0
+                });
+                if (!this.currentPage) {
+                    this.loadPage(1);
+                }
 
             } else {
-                //this.combineContainer.tween('left', (document.id(this.win.content).getSize().x) * -1);
-
                 this.combineContainer.setStyles({
                     'opacity': 0,
-                    left: ((document.id(this.win.content).getSize().x) - 200 ) * -1
+                    left: 200,
+                    right: -200
                 });
                 this.mainLayoutFx.start({
                     opacity: 1,
-                    left: ((document.id(this.win.content).getSize().x) + 30 ) * -1
+                    left: 0,
+                    right: 0
                 });
-//                this.mainLayoutFx.start({
-//                    right: 0
-//                });
-                this.mainLeft.tween('opacity', 1);
                 this.combineActionBar.tween('opacity', 1);
-//
                 this.listContainer.tween('opacity', 0);
-//
-//                this.combineContainer.setStyles({display: 'inline-block'});
-//                this.combineContainer.tween('opacity', 1);
+                this.actionBarNavigation.tween('opacity', 0);
             }
         }
 
@@ -299,7 +286,7 @@ ka.WindowCombine = new Class({
 
         this.sortSelect = new ka.Select();
         this.sortSelect.inject(this.sortSpan);
-        this.sortSelect.setStyle('width', 150);
+        document.id(this.sortSelect).addClass('ka-Select-transparent');
 
         Object.each(this.classProperties.columns, function (column, id) {
 
@@ -1109,7 +1096,7 @@ ka.WindowCombine = new Class({
 
         } else {
 
-            var hasUnsaved = this.currentEdit.hasUnsavedChanges();
+            var hasUnsaved = false && this.currentEdit.hasUnsavedChanges(); //todo debugging
 
             if (hasUnsaved) {
                 this.win.interruptClose = true;
@@ -1181,7 +1168,7 @@ ka.WindowCombine = new Class({
 
         } else {
 
-            var hasUnsaved = this.currentRootEdit.hasUnsavedChanges();
+            var hasUnsaved = false && this.currentRootEdit.hasUnsavedChanges(); //todo. debugging
 
             if (hasUnsaved) {
                 this.win.interruptClose = true;
@@ -1219,7 +1206,9 @@ ka.WindowCombine = new Class({
         var pk = typeOf(pItem) == 'string' ? pItem : ka.getObjectUrlId(this.classProperties['object'], pItem);
 
         if (this.classProperties.asNested) {
-            throw 'todo';
+            if (this.nestedField) {
+                //this.nestedField.select(pk);
+            }
         } else {
 
             this.mainLeftItems.getChildren().each(function (item, i) {
@@ -1234,6 +1223,7 @@ ka.WindowCombine = new Class({
     itemLoaded: function (pItem) {
         this.lastLoadedItem = pItem;
         this.setWinParams();
+        this.setView('compact');
     },
 
     renderFinished: function () {

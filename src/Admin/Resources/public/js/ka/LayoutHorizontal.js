@@ -113,7 +113,7 @@ ka.LayoutHorizontal = new Class({
         }).inject(this.getContainer());
 
         var div = new Element('div', {
-            style: 'position: relative; height: 100%;'
+            'class': 'ka-Layout-cell'
         }).inject(td);
 
         this.columns.push(div);

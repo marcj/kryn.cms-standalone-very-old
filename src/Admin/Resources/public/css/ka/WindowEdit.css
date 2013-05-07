@@ -19,8 +19,25 @@
     padding: 15px;
 }
 
+.ka-windowEdit-form {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
 .ka-windowEdit-form .ka-field-layoutelement-tinytoolbar {
     right: 0px;
+}
+
+.ka-windowEdit-form .ka-tabGroup-small {
+    background-color: white;
+}
+.ka-windowEdit-form {
+    background-color: #F7F7F7;
 }
 
 .ka-windowEdit-overhangingItemsContainer {

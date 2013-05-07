@@ -147,7 +147,7 @@ ka.LayoutVertical = new Class({
                 }).inject(this.rows[pId-1]);
 
                 var div = new Element('div', {
-                    style: 'position: relative; height: 100%;'
+                    'class': 'ka-Layout-cell'
                 }).inject(td);
 
                 return div;

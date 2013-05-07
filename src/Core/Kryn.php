@@ -1911,7 +1911,6 @@ class Kryn extends Controller
     public static function sendResponse(Response $pResponse)
     {
         global $_start;
-
         $dispatcher = self::getEventDispatcher();
 
         $dispatcher->dispatch('core.response-send-pre', new GenericEvent($pResponse));
@@ -1919,7 +1918,6 @@ class Kryn extends Controller
         $dispatcher->dispatch('core.response-send', new GenericEvent($pResponse));
 
         Kryn::getLogger()->addDebug('Done. Generation time: ' . (microtime(true) - $_start) . ' seconds.');
-        exit;
     }
 
     /**

@@ -17,19 +17,16 @@ ka.Table = new Class({
     /**
      * Constructor
      *
-     * @param  array pColumns [ ["label", optionalWidth], ["label", optionalWidth], ... ]
-     * @param  array pOptions
+     * @param {Array} pColumns [ ["label", optionalWidth], ["label", optionalWidth], ... ]
+     * @param {Array} pOptions
      */
     initialize: function (pColumns, pOptions) {
         this.setOptions(pOptions);
 
-        if (this.options.absolute == false) {
-            this.main = new Element('div', {
-            });
-        } else {
-            this.main = new Element('div', {
-                style: 'position: absolute; left: 0px; right: 0px; bottom: 0px; top: 0px;'
-            });
+        this.main = new Element('div');
+
+        if (this.options.absolute) {
+            this.main.addClass('ka-Table-absolute');
         }
 
         if (this.options.hover) {

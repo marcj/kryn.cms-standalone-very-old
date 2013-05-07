@@ -19,12 +19,13 @@ ka.Dashboard = new Class({
             'class': 'ka-Dashboard'
         }).inject(this.container);
 
+        this.main.setStyle('opacity', 0);
+
         this.loadWidgets();
     },
 
     loadWidgets: function () {
         this.main.empty();
-
         [
             'ka.DashboardWidgets.LiveVisitor',
             'ka.DashboardWidgets.Latency',
@@ -36,6 +37,7 @@ ka.Dashboard = new Class({
             this.widgets.push(new clazz(this.main));
         }.bind(this));
 
+        this.main.tween('opacity', 1);
     },
 
     destroy: function () {

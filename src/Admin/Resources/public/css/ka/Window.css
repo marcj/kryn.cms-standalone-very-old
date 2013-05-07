@@ -1,5 +1,10 @@
 .kwindow-border {
-    position: relative;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    overflow: auto;
     min-height: 250px;
 }
 
@@ -146,7 +151,11 @@
 
 .kwindow-win-titleGroups {
     display: block;
-    padding: 0 15px;
+    padding: 10px;
+    margin: 0 15px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 2px;
 }
 
 .kwindow-win-titleGroups > .ka-tabGroup:first-child {
@@ -159,7 +168,15 @@
 }
 
 .kwindow-win-content {
-    position: relative;
+    position: absolute;
+    left: 15px;
+    right: 15px;
+    top: 15px;
+    bottom: 15px;
+    overflow: auto;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 2px;
 }
 
 .kwindow-win-inline .kwindow-win-content {
@@ -197,8 +214,8 @@
 
 .kwindow-win-titleBar {
     position: absolute;
-    top: 9px;
-    right: 5px;
+    top: 24px;
+    right: 21px;
 }
 
 .ka-window-extend-head .kwindow-win-titleBar {
@@ -212,7 +229,7 @@
     background-repeat: no-repeat;
     font-size: 14px;
     text-align: center;
-    color: #000;
+    color: #444;
     display: inline-block;
     padding: 1px 0;
 }
@@ -228,22 +245,22 @@
 .ka-kwindow-titlepath-additional {
     font-size: 22px;
     display: block;
-    padding: 15px;
+    padding: 0 17px 15px;
     font-weight: 300;
     color: #22638E;
 }
 
 .ka-kwindow-titlepath-main {
-    padding-top: 5px;
     display: block;
-    padding-left: 15px;
-    background-color: #E9E9E9;
-    border-bottom: 1px solid #D6D6D6;
-    padding-bottom: 5px;
+    padding: 5px 15px;
+    background-color: white;
+    border: 1px solid #ddd;
     line-height: 26px;
     font-size: 14px;
-    font-weight: 300;
+    font-weight: normal;
     color: #555;
+    margin: 15px;
+    border-radius: 2px;
 }
 
 .ka-kwindow-titlepath img {
@@ -278,7 +295,7 @@
     top: 0px;
     padding-top: 5px;
     overflow: auto;
-    overflow: auto;
+    -webkit-overflow-scrolling: touch;
     left: 0px;
     right: 0px;
     bottom: 38px;

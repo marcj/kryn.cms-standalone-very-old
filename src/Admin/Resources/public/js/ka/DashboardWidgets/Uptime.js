@@ -5,7 +5,6 @@ ka.DashboardWidgets.Uptime = new Class({
 
     create: function () {
         this.header = new Element('h3', {
-            style: 'margin: 0; padding: 0',
             text: ka.tc('dashboardWidget.uptime', 'Uptime')
         })
         .inject(this.main);

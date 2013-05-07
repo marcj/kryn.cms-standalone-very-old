@@ -2,6 +2,7 @@
 @import "../../core/font/SourceCodePro/Regular/fonts.css";
 @import "../../core/font/SourceSansPro/Light/fonts.css";
 @import "../../core/font/SourceSansPro/Regular/fonts.css";
+@import "../../core/font/SourceSansPro/Semibold/fonts.css";
 
 html, body {
     margin: 0;
@@ -27,6 +28,7 @@ table {
 
 h1, h2, h3 {
     font-weight: normal;
+    font-family: "SourceSansPro-Semibold";
 }
 
 h3 {
@@ -51,10 +53,11 @@ body.hide-scrollbar {
 
 .kryn_cke_toolbar {
     position: absolute !important;
-    top: 29px !important;
-    left: 221px !important;
-    right: 6px !important;
+    top: 218px !important;
+    left: 236px !important;
+    right: 15px !important;
     width: auto !important;
+    box-shadow: 0 0 0 #000 !important;
 }
 
 .ka-admin div,
@@ -103,6 +106,11 @@ span.selectable span, div.selectable div {
 }
 
 .ka-border {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
 }
 
 .ka-editor {
@@ -110,26 +118,24 @@ span.selectable span, div.selectable div {
 }
 
 .ka-desktop {
-    position: relative;
-    margin-left: 220px;
+    position: absolute;
+    top: 100px;
+    left: 220px;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
 }
 
 .ka-main-menu {
-    position: relative;
+    position: absolute;
     text-align: left;
-    float: left;
-    width: 220px;
-    background-color: #1D1D22;
-}
-
-.ka-main-menu:before {
-    content: 'd';
-    position: fixed;
-    background-color: #1D1D22;
-    top: 0;
+    top: 100px;
+    left: 0;
     bottom: 0;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
     width: 220px;
-    z-index: -1;
+    background-color: #1D1D22;
 }
 
 .ka-main-menu:after {

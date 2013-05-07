@@ -1,5 +1,5 @@
 .ka-Dashboard-active {
-    /*background-color: #103955; */
+    /* background-color: #22638E; */
 }
 
 .ka-Dashboard {
@@ -7,15 +7,43 @@
 }
 
 .ka-Dashboard-widget {
-    background-color: #22638E;
-    background-color: #FFF;
+    background-color: white;
     margin: 5px;
     display: block;
     float: left;
-    min-width: 210px;
-    min-height: 210px;
+    width: 215px;
+    height: 215px;
     color: white;
     color: black;
+    border: 1px solid #ddd;
+
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.ka-Dashboard-widget h3 {
+    background-color: #f9f9f9;
+    margin: 0;
     padding: 5px;
-    border: 1px solid #E5E8EB;
+}
+
+.ka-Dashboard-widget-grid-1 {
+    width: 215px;
+}
+
+.ka-Dashboard-widget-grid-2 {
+    width: 440px;
+}
+
+.ka-Dashboard-widget-grid-3 {
+    width: 665px;
+}
+
+.ka-Dashboard-widget-grid-4 {
+    width: 890px;
+}
+
+.ka-Dashboard-widget-grid-5 {
+    width: 1115px;
 }

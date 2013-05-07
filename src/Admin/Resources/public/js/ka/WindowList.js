@@ -185,10 +185,10 @@ ka.WindowList = new Class({
         this.container.empty();
 
         this.renderTopActionBar();
+        this.renderMultilanguage();
         this.renderActionBar();
 
         this.renderLayout();
-        this.renderMultilanguage();
 
         this.renderLoader();
 
@@ -208,6 +208,7 @@ ka.WindowList = new Class({
             }
         }
 
+        this.container.tween('opacity', 1);
     },
 
     renderLoader: function () {
@@ -216,9 +217,9 @@ ka.WindowList = new Class({
 
     renderMultilanguage: function () {
 
-        if (this.classProperties.multiLanguage) {
+        if (this.classProperties.multiLanguage && !this.languageSelect) {
 
-            this.languageSelect = new ka.Select(this.actionBar);
+            this.languageSelect = new ka.Select(this.topActionBar);
             document.id(this.languageSelect).setStyle('width', 150);
 
             this.languageSelect.addEvent('change', this.changeLanguage.bind(this));
@@ -238,6 +239,7 @@ ka.WindowList = new Class({
     },
 
     renderLayout: function () {
+        this.container.setStyle('opacity', 0);
         this.renderLayoutTable();
         this.renderSearchPane();
     },
@@ -279,7 +281,6 @@ ka.WindowList = new Class({
     },
 
     openAddItem: function(){
-
         ka.entrypoint.open(ka.entrypoint.getRelative(this.win.getEntryPoint(), this.classProperties.addEntrypoint), {
             lang: (this.languageSelect) ? this.languageSelect.getValue() : false
         }, this);
@@ -288,9 +289,10 @@ ka.WindowList = new Class({
 
     renderLayoutTable: function(){
         this.table = new ka.Table(null, {
-            selectable: true,
-            absolute: false
+            selectable: true
         });
+
+        document.id(this.table).addClass('ka-Table-windowList');
 
         this.table.inject(this.container);
 
@@ -444,11 +446,11 @@ ka.WindowList = new Class({
     renderActionBar: function () {
         var _this = this;
 
-        this.actionBar = new Element('div', {
-            'class': 'ka-list-actionBar'
-        }).inject(this.topActionBar);
+        this.actionBarNavigation = new Element('div', {
+            'class': 'ka-list-actionBarNavigation'
+        }).inject(this.container);
 
-        this.navigateActionBar = new ka.ButtonGroup(this.actionBar, {
+        this.navigateActionBar = new ka.ButtonGroup(this.actionBarNavigation, {
             onlyIcons: true
         });
 
@@ -521,7 +523,7 @@ ka.WindowList = new Class({
     },
 
     renderTopActionBar: function(container){
-        this.topActionBar = new Element('div').inject(container || this.win.getTitleGroupContainer());
+        this.topActionBar = container || this.win.getTitleGroupContainer();
 
         if (this.classProperties.add || this.classProperties.remove || this.classProperties.custom ||
             (this.classProperties.asNested && (this.classProperties.nestedRootAdd))) {
@@ -531,7 +533,7 @@ ka.WindowList = new Class({
 
         if (this.actionsNavi) {
             if (this.classProperties.remove) {
-                this.actionsNavi.addButton(t('Remove selected'), ka.mediaPath(this.classProperties.removeIcon), function () {
+                this.actionsNavi.addButton(t('Remove'), ka.mediaPath(this.classProperties.removeIcon), function () {
                     this.removeSelected();
                 }.bind(this));
             }
@@ -727,7 +729,6 @@ ka.WindowList = new Class({
         }
 
         var req = {};
-        console.log(pPage);
         this.ctrlPage.value = pPage;
 
         req.offset = (this.classProperties.itemsPerPage * pPage) - this.classProperties.itemsPerPage;
@@ -759,7 +760,6 @@ ka.WindowList = new Class({
             this.loader.hide();
         }
 
-        console.log('result:', pResult);
         this.lastResult = pResult;
 
         [this.ctrlPrevious, this.ctrlNext].each(function (item) {

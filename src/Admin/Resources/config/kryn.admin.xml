@@ -45,6 +45,11 @@
                 <method>analytics</method>
             </stream>
 
+            <stream id="latency">
+                <class>Admin\Controller\DashboardWidgets</class>
+                <method>latency</method>
+            </stream>
+
         </streams>
     </bundle>
 </config>

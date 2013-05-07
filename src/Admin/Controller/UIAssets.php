@@ -67,7 +67,7 @@ class UIAssets
     {
         header('Content-Type: text/css');
 
-        $from = array(
+        $toGecko = array(
             "-moz-border-radius-topleft",
             "-moz-border-radius-topright",
             "-moz-border-radius-bottomleft",
@@ -82,7 +82,7 @@ class UIAssets
             "-webkit-border-bottom-right-radius",
             "-webkit-border-radius",
         );
-        $toCss3 = array(
+        $from = array(
             "border-top-left-radius",
             "border-top-right-radius",
             "border-bottom-left-radius",
@@ -129,7 +129,7 @@ class UIAssets
                         $newLine = str_replace($from, $toWebkit, $buffer);
                         if ($newLine != $buffer)
                             $content .= $newLine;
-                        $newLine = str_replace($from, $toCss3, $buffer);
+                        $newLine = str_replace($from, $toGecko, $buffer);
                         if ($newLine != $buffer)
                             $content .= $newLine;
                     }

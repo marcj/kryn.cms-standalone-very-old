@@ -66,6 +66,17 @@ class NodeCrud extends \Admin\ObjectCrud
   ),
 );
 
+    public $columns = array (
+        'title' => array (
+            'type' => 'text',
+            'label' => 'Title',
+        ),
+        'urn' => array (
+            'type' => 'text',
+            'label' => 'Urn',
+        ),
+    );
+
     public $defaultLimit = 15;
 
     public $asNested = true;

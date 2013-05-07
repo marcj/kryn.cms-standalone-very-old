@@ -38,6 +38,8 @@ ka.Files = new Class({
         onlyLocal: false, //only local files are selectable. So exludes all magic folders
         returnPath: false, //return the path instead of the object_id (like in version <= 0.9)
 
+        fixed: true,
+
         selection: true,
         /* if selection is false, all options below will be ignored */
         selectionValue: false, //not useful, use setValue() instead
@@ -740,7 +742,6 @@ ka.Files = new Class({
         if (!this.options.useWindowHeader){
 
             this.header = new Element('div', {
-                style: 'position: absolute; top: 6px; left: 0px; height: 50px; right: 0px;'
             }).inject(this.container);
 
         } else {
@@ -753,7 +754,11 @@ ka.Files = new Class({
             'class': 'ka-Files-wrapper'
         }).inject(this.container);
 
-        this.headerLayout = new ka.Layout(this.wrapper, {
+        if (this.options.fixed) {
+            this.wrapper.addClass('ka-Files-wrapper-fixed');
+        }
+
+        this.headerLayout = new ka.Layout(this.header, {
             fixed: false,
             layout: [{
                 columns: [50, null, 150]
@@ -841,7 +846,7 @@ ka.Files = new Class({
         }).inject(this.search, 'after');
 
         this.mainLayout = new ka.Layout(this.wrapper, {
-            fixed: false,
+            fixed: this.options.fixed,
             splitter: this.options.withSidebar ? [
                 [1, 1, 'right']
             ] : [],
@@ -857,8 +862,6 @@ ka.Files = new Class({
         if (!this.options.withSidebar) {
             fileContainerCell = this.mainLayout.getCell(1, 1);
         }
-
-        document.id(fileContainerCell).addClass('admin-files-fileContainer-bg');
 
         this.fileContainer = new Element('div', {
             'class': 'admin-files-droppables admin-files-fileContainer ka-scrolling'
@@ -924,6 +927,13 @@ ka.Files = new Class({
 
         this.statusBarSelected = new Element('span').inject(this.statusBar);
 
+        if (this.options.fixed) {
+            this.fileContainer.addClass('admin-files-fileContainer-fixed');
+            this.statusBar.addClass('admin-files-status-bar-fixed');
+            this.mainLayout.getCell(1, 1).addClass('ka-scrolling');
+            this.mainLayout.getCell(1, 2).addClass('ka-scrolling');
+        }
+
         this.setListType('icon', true); //TODO retrieve cookie
     },
 
@@ -932,7 +942,6 @@ ka.Files = new Class({
     },
 
     updateStatusBar: function(){
-
         var selected = this.getSelectedFilesAsArray();
         var items = this.fileContainer.getElements('.admin-files-item');
 
@@ -945,7 +954,6 @@ ka.Files = new Class({
         }
 
         this.statusBarSelected.set('text', text);
-
     },
 
 

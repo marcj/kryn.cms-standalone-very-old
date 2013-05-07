@@ -922,22 +922,22 @@ ka.Window = new Class({
 
         this.win = this.border;
 
-        this.title = new Element('div', {
-            'class': 'kwindow-win-title'
-        }).addEvent('dblclick', function () {
-            if (this.entryPointDefinition && this.entryPointDefinition.noMaximize !== true) {
-                this.maximize();
-            }
-        }.bind(this)).inject(this.win);
+        this.mainLayout = new ka.Layout(this.win, {
+            layout: [
+                {columns: [null], height: '30px'},
+                {columns: [null], height: '30px'},
+                {columns: [null]}
+            ]
+        });
+
+        this.title = new Element('div', {'class': 'kwindow-win-title'}).inject(this.mainLayout.getCell(1, 1));
 
         this.titlePath = new Element('span', {'class': 'ka-kwindow-titlepath'}).inject(this.title);
         this.titleText = new Element('span', {'class': 'ka-kwindow-titlepath-main'}).inject(this.titlePath);
 
         this.titleAdditional = new Element('span', {'class': 'ka-kwindow-titlepath-additional'}).inject(this.titlePath);
 
-        this.titleGroups = new Element('div', {
-            'class': 'kwindow-win-titleGroups'
-        }).inject(this.win);
+        this.titleGroups = new Element('div', {'class': 'kwindow-win-titleGroups'}).inject(this.mainLayout.getCell(2, 1));
 
         this.createTitleBar();
 
@@ -949,9 +949,7 @@ ka.Window = new Class({
                 this.linker.setStyle('display', 'none');
         }
 
-        this.content = new Element('div', {
-            'class': 'kwindow-win-content'
-        }).inject(this.win);
+        this.content = new Element('div', {'class': 'kwindow-win-content'}).inject(this.mainLayout.getCell(3, 1));
 
         this.inFront = true;
 
@@ -979,6 +977,14 @@ ka.Window = new Class({
             this.border.inject(ka.adminInterface.desktopContainer);
         }
 
+    },
+
+    hideTitleGroups: function () {
+        this.mainLayout.getRow(2).setStyle('display', 'none');
+    },
+
+    showTitleGroups: function () {
+        this.mainLayout.getRow(2).setStyle('display', 'table-row');
     },
 
     setStatusText: function (pVal) {

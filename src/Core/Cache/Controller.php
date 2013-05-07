@@ -125,7 +125,9 @@ class Controller
     public function &get($pKey, $pWithoutValidationCheck = false) {
 
         if (!isset($this->cache[$pKey])) {
+            $time = microtime(true);
             $this->cache[$pKey] = $this->instance->get($pKey);
+            \Core\Utils::$latency['cache'][] = microtime(true) - $time;
         }
 
         if (!$this->cache[$pKey]) {
@@ -193,7 +195,10 @@ class Controller
     {
         $this->cache['invalidate-'.$pKey] = $pTime;
 
-        return $this->instance->set('invalidate-'.$pKey, $pTime, 99999999, true);
+        $time = microtime(true);
+        $result = $this->instance->set('invalidate-'.$pKey, $pTime, 99999999, true);
+        \Core\Utils::$latency['cache'][] = microtime(true) - $time;
+        return $result;
     }
 
     /**
@@ -225,7 +230,10 @@ class Controller
 
         $this->cache[$pKey] = $pValue;
 
-        return $this->instance->set($pKey, $pValue, $pLifeTime);
+        $time = microtime(true);
+        $result = $this->instance->set($pKey, $pValue, $pLifeTime);
+        \Core\Utils::$latency['cache'][] = microtime(true) - $time;
+        return $result;
     }
 
     /**

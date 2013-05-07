@@ -51,13 +51,9 @@ class Groups extends \Admin\ObjectCrud
 
     public $addIcon = '#icon-plus-5';
 
-    public $addEntrypoint = 'add';
-
     public $add = true;
 
     public $editIcon = '#icon-pencil-8';
-
-    public $editEntrypoint = 'edit';
 
     public $edit = true;
 

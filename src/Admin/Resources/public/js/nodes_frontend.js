@@ -10,6 +10,10 @@ var admin_nodes_frontend = new Class({
         this.wrapper = new Element('div', {
             'class': 'ka-admin-nodes-frontend-wrapper'
         }).inject(this.win.content);
+
+        this.win.hideTitleGroups();
+
+        this.win.setTitle(t('Home'));
 	
 		this.iframe = new Element('iframe', {
 			src: _path+'?_kryn_editor=1',

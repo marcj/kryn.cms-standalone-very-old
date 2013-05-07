@@ -188,7 +188,6 @@ ka.WindowEdit = new Class({
         if (this.getTitleValue())
             this.win.setTitle(this.getTitleValue());
 
-        console.log('setvalue: ', pValue.lang);
         if (this.languageSelect && this.languageSelect.getValue() != pValue.lang) {
             this.languageSelect.setValue(pValue.lang);
             this.changeLanguage();
@@ -435,11 +434,12 @@ ka.WindowEdit = new Class({
                 this.form.set('html', this.classProperties.layout);
             }
 
-//            this.tabPane = new ka.TabPane(this.form, true, {addSmallTabGroup: function(){
-//                return new ka.SmallTabGroup(this.win.getTitleGroupContainer());
-//            }.bind(this)});
+            this.tabPane = new ka.TabPane(this.form, true);
 
-            this.fieldForm = new ka.FieldForm(this.form, this.classProperties.fields, {}, {win: this.win});
+            this.fieldForm = new ka.FieldForm(this.form, this.classProperties.fields, {
+                firstLevelTabPane: this.tabPane
+            }, {win: this.win});
+
             this.fields = this.fieldForm.getFields();
 
             this._buttons = this.fieldForm.getTabButtons();
@@ -577,9 +577,8 @@ ka.WindowEdit = new Class({
 
             this.lastDeleteRq = new Request.JSON({url: _pathAdmin + this.getEntryPoint() +'/'+objectId,
             onComplete: function(pResponse){
-
+                //todo
                 logger(pResponse);
-
             }}).delete();
 
 
@@ -796,9 +795,7 @@ ka.WindowEdit = new Class({
     },
 
     checkClose: function () {
-
         var hasUnsaved = this.hasUnsavedChanges();
-
 
         if (hasUnsaved) {
             this.win.interruptClose = true;
@@ -810,7 +807,6 @@ ka.WindowEdit = new Class({
         } else {
             this.win.close();
         }
-
     },
 
     buildRequest: function(){
