@@ -148,7 +148,11 @@
 .kwindow-win-buttonBar::before {
     content: "\a0";
 }
-
+.kwindow-win-titleGroups {
+    display: block;
+    margin: 0 15px;
+}
+/*
 .kwindow-win-titleGroups {
     display: block;
     padding: 10px;
@@ -157,6 +161,7 @@
     border: 1px solid #ddd;
     border-radius: 2px;
 }
+*/
 
 .kwindow-win-titleGroups > .ka-tabGroup:first-child {
     margin-left: 5px;
@@ -242,19 +247,8 @@
     color: #444;
 }
 
-.ka-kwindow-titlepath-additional {
-    font-size: 22px;
+.ka-kwindow-titlepath {
     display: block;
-    padding: 0 17px 15px;
-    font-weight: 300;
-    color: #22638E;
-}
-
-.ka-kwindow-titlepath-main {
-    display: block;
-    padding: 5px 15px;
-    background-color: white;
-    border: 1px solid #ddd;
     line-height: 26px;
     font-size: 14px;
     font-weight: normal;
@@ -266,9 +260,6 @@
 .ka-kwindow-titlepath img {
     margin: 0 8px;
     width: 4px;
-}
-.ka-kwindow-titlepath-additional img {
-    display: none;
 }
 
 .ka-kwindow-prompt {

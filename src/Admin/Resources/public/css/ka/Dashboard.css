@@ -13,9 +13,9 @@
     float: left;
     width: 215px;
     height: 215px;
-    color: white;
-    color: black;
+    color: #444;
     border: 1px solid #ddd;
+    border-top: 2px solid #22638E;
 
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
