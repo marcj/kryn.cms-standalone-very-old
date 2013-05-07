@@ -32,13 +32,13 @@ ka.DashboardWidgets.Load = new Class({
             this.speedmeterRam = new ka.ui.Speedmeter(this.main, {
                 title: 'RAM',
                 label: 'MB',
-                max: (value.ram.size / 1024).toFixed(0)
+                max: Math.round(value.ram.size / 1024)
             });
             this.lastRamSize = value.ram.size;
         }
 
         if (this.speedmeterRam) {
-            this.speedmeterRam.setValue(value.ram.used / 1024);
+            this.speedmeterRam.setValue(Math.round(value.ram.used / 1024));
         }
 
         var val1 = (value.load[0] || 0).toFixed(2);
