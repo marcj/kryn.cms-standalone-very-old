@@ -67,25 +67,29 @@ class DashboardWidgets
         }
 
         $result = array();
+        $blacklist = array('/boot', '/dev', '/run', '/run/lock', '/run/shm');
         foreach ($matches as $match) {
+
             if (count($result) > 2) break;
+
             $avail = $match[$availIdx] + 0;
             $user  = $match[$usedIdx] + 0;
             $name  = $match[$nameIdx];
+            if (in_array($name, $blacklist)) return;
 
             //anything under 1gb
             if (1000 * 1024 > $avail) {
                 continue;
             }
 
-            $result[] = array(
+            $result[$name] = array(
                 'name' => '/' === $name ? '/' : basename($name),
                 'used' => $user,
                 'available' => $avail,
                 'size' => $user + $avail
             );
         }
-        return $result;
+        return array_values($result);
     }
 
     /**
