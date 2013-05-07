@@ -75,7 +75,7 @@ class DashboardWidgets
             $avail = $match[$availIdx] + 0;
             $user  = $match[$usedIdx] + 0;
             $name  = $match[$nameIdx];
-            if (in_array($name, $blacklist)) return;
+            if (in_array($name, $blacklist)) continue;
 
             //anything under 1gb
             if (1000 * 1024 > $avail) {
@@ -89,7 +89,7 @@ class DashboardWidgets
                 'size' => $user + $avail
             );
         }
-        return array_values($result);
+        return array_values($result) ?: array();
     }
 
     /**
