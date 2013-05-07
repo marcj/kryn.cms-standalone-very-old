@@ -7,7 +7,7 @@ written in PHP and JavaScript using Symfony Components, Propel, Mootools and oth
 We're in development. This means, there are still a _lot_ of issues in this product (not even an Alpha) and it's not everything implemented yet.
 
 [![Build Status Drone.io](https://drone.io/marcj/Kryn.cms/status.png)](https://drone.io/marcj/Kryn.cms/latest)
-[![Build Status Travis](https://travis-ci.org/KrynLabs/Kryn.cms.png?branch=propel1.6)](https://travis-ci.org/KrynLabs/Kryn.cms)
+[![Build Status Travis](https://travis-ci.org/KrynLabs/Kryn.cms.png?branch=refactoring)](https://travis-ci.org/KrynLabs/Kryn.cms)
 
 
 Installation
@@ -49,13 +49,13 @@ Features
 Screenshot
 ----------
 
-![Administration movie](https://raw.github.com/KrynLabs/Kryn.cms/propel1.6/docu/images/admin-animation.gif)
-![Administration Dashboard](https://raw.github.com/KrynLabs/Kryn.cms/propel1.6/docu/images/admin-dashboard.png)
-![Administration Frontend Edit](https://raw.github.com/KrynLabs/Kryn.cms/propel1.6/docu/images/admin-frontend-edit.png)
-![Administration File manager](https://raw.github.com/KrynLabs/Kryn.cms/propel1.6/docu/images/admin-files-context-image.png)
-![Administration CRUD Framework Window](https://raw.github.com/KrynLabs/Kryn.cms/propel1.6/docu/images/admin-users.png)
+![Administration movie](https://raw.github.com/KrynLabs/Kryn.cms/refactoring/docu/images/admin-animation.gif)
+![Administration Dashboard](https://raw.github.com/KrynLabs/Kryn.cms/refactoring/docu/images/admin-dashboard.png)
+![Administration Frontend Edit](https://raw.github.com/KrynLabs/Kryn.cms/refactoring/docu/images/admin-frontend-edit.png)
+![Administration File manager](https://raw.github.com/KrynLabs/Kryn.cms/refactoring/docu/images/admin-files-context-image.png)
+![Administration CRUD Framework Window](https://raw.github.com/KrynLabs/Kryn.cms/refactoring/docu/images/admin-users.png)
 
-[More Screenshots](https://github.com/KrynLabs/Kryn.cms/blob/propel1.6/docu/screenshots.markdown)
+[More Screenshots](https://github.com/KrynLabs/Kryn.cms/blob/refactoring/docu/screenshots.markdown)
 
 More information:
 https://www.facebook.com/kryncms
