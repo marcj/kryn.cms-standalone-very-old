@@ -238,6 +238,15 @@ class Model implements \ArrayAccess
     }
 
     /**
+     * @return string
+     */
+    public function __toString()
+    {
+        $array = $this->toArray();
+        return json_format(json_encode($array));
+    }
+
+    /**
      * @param null $element
      *
      * @return array

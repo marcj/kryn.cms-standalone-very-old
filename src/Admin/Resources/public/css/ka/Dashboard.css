@@ -8,10 +8,10 @@
 
 .ka-Dashboard-widget {
     background-color: white;
-    margin: 5px;
+    margin: 4px;
     display: block;
     float: left;
-    width: 215px;
+    width: 255px;
     height: 215px;
     color: #444;
     border: 1px solid #ddd;
@@ -33,11 +33,11 @@
 }
 
 .ka-Dashboard-widget-grid-2 {
-    width: 440px;
+    width: 518px;
 }
 
 .ka-Dashboard-widget-grid-3 {
-    width: 665px;
+    width: 781px;
 }
 
 .ka-Dashboard-widget-grid-4 {

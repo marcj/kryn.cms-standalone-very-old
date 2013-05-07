@@ -21,6 +21,7 @@ class DashboardWidgets
 
     public static function analytics(&$response)
     {
+        //todo
     }
 
     public static function space(&$response)
@@ -119,8 +120,23 @@ class DashboardWidgets
                 $value = round((array_sum($lastLatency[$key]) / count($lastLatency[$key])) * 1000);
             }
         }
-
         $response['admin/latency'] = $result;
+    }
+
+    public static function latencies(&$response)
+    {
+        $lastLatency = \Core\Kryn::getFastCache('core/latency');
+        $result =array(
+            'frontend' => 0,
+            'backend' => 0,
+            'database' => 0,
+            'session' => 0,
+            'cache' => 0
+        );
+        foreach ($result as $key => &$value) {
+            $value = $lastLatency[$key] ?: array();
+        }
+        $response['admin/latencies'] = $result;
     }
 
     /**

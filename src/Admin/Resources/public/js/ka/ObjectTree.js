@@ -859,10 +859,8 @@ ka.ObjectTree = new Class({
 
         pA.toggler.set('html', '&#xe0c4;');
         if (true === pA.childrenLoaded) {
-            pA.childrenContainer.
             pA.childrenContainer.setStyles({
-                'display': 'block',
-                'height': '1'
+                'display': 'block'
             });
             this.opens[ pA.id ] = true;
             this.saveOpens();

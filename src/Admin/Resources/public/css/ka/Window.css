@@ -349,22 +349,10 @@ h3.kryn-headline {
     font-size: 18px;
     font-weight: bold;
     padding: 25px;
-    text-shadow: 0px 1px 0px black;
     color: white;
 
-    box-shadow: 0px 0px 4px #AAA;
-
     position: relative;
-
-    background: #3a76aa; /* Old browsers */
-    /* IE9 SVG, needs conditional override of 'filter' to 'none' */
-    background-image: -webkit-gradient(linear, left top, left bottom, #3e9bcb, to(#2f799e));
-    background-image: -webkit-linear-gradient(top, #3e9bcb, #2f799e);
-    background-image:    -moz-linear-gradient(top, #3e9bcb, #2f799e);
-    background-image:     -ms-linear-gradient(top, #3e9bcb, #2f799e);
-    background-image:      -o-linear-gradient(top, #3e9bcb, #2f799e);
-    background-image:         linear-gradient(top, #3e9bcb, #2f799e);
-
+    background-color: #22638E;
 }
 
 .ka-kwindow-sizer {

@@ -9,6 +9,7 @@ use Core\Object;
 use Admin\Controller\ObjectCrudController;
 
 use Core\Config\EntryPoint;
+use Symfony\Component\Routing\Exception\InvalidParameterException;
 
 class ObjectCrud
 {
@@ -583,8 +584,26 @@ class ObjectCrud
                 switch ($pFields->getType()) {
                     case 'predefined':
 
-                        $def = Object::getDefinition($pFields->getObject());
-                        $def = $def->getField($pFields->getField());
+                        $object = Object::getDefinition($pFields->getObject());
+                        if (!$object) {
+                            throw new \Exception(tf(
+                                'Object `%s` does not exist [%s]',
+                                $pFields->getObject(),
+                                $pFields
+                            ));
+                        }
+                        $def = $object->getField($pFields->getField());
+                        if (!$def) {
+                            $objectArray = $object->toArray();
+                            $fields = $objectArray['fields'];
+                            throw new \Exception(tf(
+                                "Object `%s` does not have field `%s`. \n[%s]\n[%s]",
+                                $pFields->getObject(),
+                                $pFields->getField(),
+                                $pFields,
+                                json_format($fields)
+                            ));
+                        }
                         if ($def) {
                             $pFields = $def;
                         }

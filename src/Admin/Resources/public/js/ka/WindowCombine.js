@@ -18,6 +18,11 @@ ka.WindowCombine = new Class({
             'class': 'ka-windowCombine-list-container'
         }).inject(this.win.content);
 
+        // for windowEdit/Add actionbars
+        this.combineActionBar = new Element('div', {
+            'class': 'ka-windowCombine-combine-actionbar'
+        }).inject(this.win.content);
+
         this.combineContainer = new Element('div', {
             'class': 'ka-windowCombine-combine-container'
         }).inject(this.win.content);
@@ -221,11 +226,6 @@ ka.WindowCombine = new Class({
 
     renderActionBar: function () {
         this.parent();
-
-        // for windowEdit/Add actionbars
-        this.combineActionBar = new Element('div', {
-            'class': 'ka-windowCombine-combine-actionbar'
-        }).inject(this.win.getTitleGroupContainer());
     },
 
     setView: function (viewType) {
@@ -1207,7 +1207,7 @@ ka.WindowCombine = new Class({
 
         if (this.classProperties.asNested) {
             if (this.nestedField) {
-                //this.nestedField.select(pk);
+                this.nestedField.select(pItem);
             }
         } else {
 
@@ -1245,7 +1245,8 @@ ka.WindowCombine = new Class({
 
         if (this.classProperties.asNested){
             if (this.win.params && this.win.params.selected) {
-                this.nestedField.getFieldObject().select(this.win.params.selected);
+                //todo
+                //this.nestedField.select(this.win.params.selected);
             }
         } else {
             if (this.win.params && this.win.params.selected && 0 !== Object.getLength(this.win.params.selected)) {

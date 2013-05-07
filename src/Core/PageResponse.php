@@ -87,7 +87,7 @@ class PageResponse extends Response
     /**
      * @var string
      */
-    private $favicon = '';
+    private $favicon = '@CoreBundle/images/favicon.ico';
 
     /**
      * @var bool
@@ -310,7 +310,7 @@ class PageResponse extends Response
      */
     public function getFaviconTag(){
         if ($this->getFavicon()){
-            return sprintf('<link rel="shortcut icon" type="image/x-icon" href="%s">'.chr(10), $this->getFavicon());
+            return sprintf('<link rel="shortcut icon" type="image/x-icon" href="%s">'.chr(10), Kryn::resolvePublicPath($this->getFavicon()));
         }
     }
 

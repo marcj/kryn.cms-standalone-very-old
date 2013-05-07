@@ -50,6 +50,11 @@
                 <method>latency</method>
             </stream>
 
+            <stream id="latencies">
+                <class>Admin\Controller\DashboardWidgets</class>
+                <method>latencies</method>
+            </stream>
+
         </streams>
     </bundle>
 </config>

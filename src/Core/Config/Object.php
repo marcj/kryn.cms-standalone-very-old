@@ -541,7 +541,7 @@ class Object extends Model
     public function getField($fieldId)
     {
         foreach ($this->getFields() as $field) {
-            if ($field->getId() === $field) {
+            if ($field->getId() === $fieldId) {
                 return $field;
             }
         }

@@ -22,9 +22,7 @@ ka.DashboardWidgets.Base = new Class({
 
         this.create();
 
-        if (null !== this.streamPath) {
-            ka.registerStream(this.streamPath, this.update);
-        }
+        this.registerStream();
 
     },
 
@@ -33,8 +31,18 @@ ka.DashboardWidgets.Base = new Class({
     },
 
     destroy: function () {
+        this.deRegisterStream();
+    },
+
+    deRegisterStream: function(){
         if (null !== this.streamPath) {
             ka.deRegisterStream(this.streamPath, this.update);
+        }
+    },
+
+    registerStream: function(){
+        if (null !== this.streamPath) {
+            ka.registerStream(this.streamPath, this.update);
         }
     },
 

@@ -29,6 +29,7 @@ ka.Dashboard = new Class({
         [
             'ka.DashboardWidgets.LiveVisitor',
             'ka.DashboardWidgets.Latency',
+            'ka.DashboardWidgets.LatencyChart',
             'ka.DashboardWidgets.Uptime',
             'ka.DashboardWidgets.Load',
             'ka.DashboardWidgets.Space'

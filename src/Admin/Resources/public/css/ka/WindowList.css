@@ -75,14 +75,7 @@
 }
 
 .ka-windowCombine-treeContainer + .ka-Splitter-main {
-    border-top: 1px solid silver;
-
-    -moz-border-radius-bottomleft: 3px;
-    -moz-border-radius-bottomright: 3px;
-    -webkit-border-bottom-left-radius: 3px;
-    -webkit-border-bottom-right-radius: 3px;
-    border-top-left-radius: 3px;
-    border-top-right-radius: 3px;
+    top: 35px;
 }
 
 .ka-windowCombine-list-container {
@@ -96,8 +89,12 @@
     position: absolute;
     left: 0;
     right: 0;
-    top: 0;
+    top: 50px;
     bottom: 0;
+}
+
+.ka-windowCombine-combine-actionbar .ka-windowEdit-actions {
+    border-top: 0;
 }
 
 div.ka-windowCombine-list-actions {

@@ -72,7 +72,7 @@ class Field extends Model
     {
         $operation = substr($method, 0, 3);
         $varName = lcfirst(substr($method, 3));
-        if ($this->$varName){
+        if (!$this->$varName){
             if ('get' === $operation) {
                 return $this->options[$varName];
             } else if ('set' === $operation) {
