@@ -247,7 +247,7 @@ class Propel extends ORMAbstract
             $clazz = $this->definition->getPropelClassName();
             if (!$clazz) {
                 $temp = explode('\\', $this->objectKey);
-                $clazz = $temp[0] . '\\Models\\' . $temp[1];
+                $clazz = ucfirst($temp[0] . '\\Models\\' . $temp[1]);
             }
         }
         return $clazz;
