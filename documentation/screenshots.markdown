@@ -4,6 +4,8 @@ Screenshots
 General
 -------
 
+![Administration movie](https://raw.github.com/KrynLabs/Kryn.cms/propel1.6/docu/images/admin-animation.gif)
+
 Frontend Inline Edit
 ![Administration Frontend Edit](https://raw.github.com/KrynLabs/Kryn.cms/propel1.6/docu/images/admin-frontend-edit.png)
 
