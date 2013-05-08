@@ -74,7 +74,6 @@
         "marijnh/CodeMirror": ">=v3.1",
         "sybio/image-workshop": "dev-master",
         "ckeditor/ckeditor": "dev-master",
-        "krynlabs/kryn-publication-bundle": "dev-master",
         "google/google-api-php-client": "0.6.*"
     }
 }
