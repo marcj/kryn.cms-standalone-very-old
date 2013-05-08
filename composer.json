@@ -38,20 +38,6 @@
                     "reference": "origin/master"
                 }
             }
-        },
-        {
-            "type": "package",
-            "package": {
-                "name": "google/google-api-php-client",
-                "version": "0.6.0",
-                "dist": {
-                    "url": "http://google-api-php-client.googlecode.com/files/google-api-php-client-0.6.2.tar.gz",
-                    "type": "tar"
-                },
-                "autoload": {
-                    "classmap": ["src/"]
-                }
-            }
         }
     ],
     "autoload": {
@@ -74,7 +60,6 @@
         "symfony/console": ">=v2.1",
         "marijnh/codemirror": ">=v3.1",
         "sybio/image-workshop": "dev-master",
-        "ckeditor/ckeditor": "dev-master",
-        "google/google-api-php-client": "0.6.*"
+        "ckeditor/ckeditor": "dev-master"
     }
 }
