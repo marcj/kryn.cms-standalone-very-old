@@ -18,7 +18,7 @@
         {
             "type": "package",
             "package": {
-                "name": "marijnh/CodeMirror",
+                "name": "marijnh/codemirror",
                 "version": "v3.1",
                 "source": {
                     "url": "git://github.com/marijnh/CodeMirror.git",
@@ -72,7 +72,7 @@
         "symfony/event-dispatcher": ">=v2.1.7",
         "symfony/routing": ">=v2.1.7",
         "symfony/console": ">=v2.1",
-        "marijnh/CodeMirror": ">=v3.1",
+        "marijnh/codemirror": ">=v3.1",
         "sybio/image-workshop": "dev-master",
         "ckeditor/ckeditor": "dev-master",
         "google/google-api-php-client": "0.6.*"
