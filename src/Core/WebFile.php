@@ -314,7 +314,6 @@ class WebFile
     {
         //$access = krynAcl::check(3, $pPath, 'read', true);
         //if (!$access) return false;
-
         $fs = static::getLayer($pPath);
         $path = static::normalizePath($pPath);
 

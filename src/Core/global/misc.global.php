@@ -130,20 +130,27 @@ function readFolder($pPath)
     return $res;
 }
 
-function find($pPath, $pRecursive = true)
+/**
+ * find files matching a pattern
+ * using PHP "glob" function and recursion
+ *
+ * @return array containing all pattern-matched files
+ *
+ * @param string $dir       directory to start with
+ * @param string $pattern   pattern to glob for
+ * @param bool   $recursive pattern to glob for
+ */
+function find($dir, $pattern, $recursive = true)
 {
-    $res = array();
-    $items = glob($pPath);
-    if (is_array($items)) {
-        foreach ($items as $f) {
-            if (is_dir($f) && $pRecursive) {
-                $res = array_merge($res, find($f . '/*'));
-            }
-            $res[] = $f;
+    $files = glob($dir . ($pattern ? '/' . $pattern : ''));
+
+    if ($recursive) {
+        foreach (glob("$dir/*", GLOB_BRACE | GLOB_ONLYDIR) as $sub_dir) {
+            $arr   = find($sub_dir, $pattern);
+            $files = array_merge($files, $arr);
         }
     }
-
-    return $res;
+    return $files;
 }
 
 /**

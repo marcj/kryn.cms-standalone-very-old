@@ -22,9 +22,15 @@ class Assets extends Model implements \IteratorAggregate
      */
     private $assets;
 
+    /**
+     * @var bool
+     */
+    private $recursive = false;
+
     public function setupObject()
     {
         $this->path = $this->element->nodeValue;
+        $this->setAttributeVar('recursive');
     }
 
     /**
@@ -44,6 +50,22 @@ class Assets extends Model implements \IteratorAggregate
     }
 
     /**
+     * @param boolean $recursive
+     */
+    public function setRecursive($recursive)
+    {
+        $this->recursive = $recursive;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getRecursive()
+    {
+        return $this->recursive;
+    }
+
+    /**
      * @return Asset[]
      */
     public function getAssets()
@@ -56,7 +78,7 @@ class Assets extends Model implements \IteratorAggregate
             $offset = strlen($prefixPath);
 
             $path   = Kryn::resolvePath($this->getPath(), 'Resources/public');
-            $files  = find($path, false);
+            $files  = find($path, '', $this->getRecursive());
             foreach ($files as $file) {
                 $asset = new Asset();
                 $file = ($bundleName ? $bundleName . '/' : '') . substr($file, $offset);

@@ -59,7 +59,7 @@ class Config extends Model
      */
     public function __construct($bundleName, \DOMElement $bundleDoc = null)
     {
-        $this->element = new \DOMDocument();
+        $this->element    = new \DOMDocument();
         $this->bundleName = $bundleName;
 
         if ($bundleDoc) {
@@ -139,7 +139,7 @@ class Config extends Model
     public function getPlugins()
     {
         if (null === $this->plugins) {
-            $plugins = $this->element->getElementsByTagName('plugin');
+            $plugins       = $this->element->getElementsByTagName('plugin');
             $this->plugins = array();
             foreach ($plugins as $plugin) {
                 $this->plugins[] = $this->getModelInstance($plugin);
@@ -156,9 +156,9 @@ class Config extends Model
      */
     public function getPlugin($id)
     {
-        $this->plugins = $this->plugins ?: $this->getPlugins();
+        $this->plugins = $this->plugins ? : $this->getPlugins();
         foreach ($this->plugins as $plugin) {
-            if ($plugin->getId() == $id){
+            if ($plugin->getId() == $id) {
                 return $plugin;
             }
         }
@@ -178,8 +178,8 @@ class Config extends Model
     public function getStreams()
     {
         if (null === $this->streams) {
-            $childrenElement   = $this->getDirectChild('streams');
-            $this->streams = array();
+            $childrenElement = $this->getDirectChild('streams');
+            $this->streams   = array();
             if ($childrenElement) {
                 foreach ($childrenElement->childNodes as $child) {
                     if ('stream' === $child->nodeName) {
@@ -235,15 +235,15 @@ class Config extends Model
 
     /**
      *
-     * @param bool   $localPath
-     * @param string $filter
-     * @param bool   $regex
+     * @param bool   $localPath Return the real local accessible path or the defined.
+     * @param string $filter    a filter value
+     * @param bool   $regex     if you pass a own regex as $filter set this to true
      *
      * @return string[]
      */
     public function getAdminAssetsPaths($localPath = false, $filter = '', $regex = false)
     {
-        $files = array();
+        $files  = array();
         $method = $localPath ? 'getLocalPath' : 'getPath';
         foreach ($this->getAdminAssets($filter, $regex) as $asset) {
             if ($asset instanceof Asset) {
@@ -254,7 +254,7 @@ class Config extends Model
                 }
             }
         }
-        return $files;
+        return array_unique($files);
     }
 
     /**
@@ -264,9 +264,9 @@ class Config extends Model
      */
     public function getTheme($id)
     {
-        $this->themes = $this->themes ?: $this->getThemes();
+        $this->themes = $this->themes ? : $this->getThemes();
         foreach ($this->themes as $theme) {
-            if ($theme->getId() == $id){
+            if ($theme->getId() == $id) {
                 return $theme;
             }
         }
@@ -289,7 +289,7 @@ class Config extends Model
             $childrenElement   = $this->getDirectChild('entry-points');
             $this->entryPoints = array();
             if ($childrenElement) {
-                $children          = $childrenElement->childNodes;
+                $children = $childrenElement->childNodes;
                 foreach ($children as $child) {
                     if ('entry-point' === $child->nodeName) {
                         $this->entryPoints[] = $this->getModelInstance($child);
@@ -321,7 +321,10 @@ class Config extends Model
 
         foreach ($subEntryPoints as $subEntryPoint) {
             $entryPoints[$subEntryPoint->getFullPath()] = $subEntryPoint;
-            $entryPoints = array_merge($entryPoints, $this->getAllEntryPoints($subEntryPoint));
+            $entryPoints                                = array_merge(
+                $entryPoints,
+                $this->getAllEntryPoints($subEntryPoint)
+            );
         }
 
         return $entryPoints;
@@ -379,8 +382,8 @@ class Config extends Model
      */
     public function getEntryPoint($path)
     {
-        $this->entryPoints = $this->entryPoints ?: $this->getEntryPoints();
-        $first = (false === ($pos = strpos($path, '/'))) ? $path : substr($path, 0, $pos);
+        $this->entryPoints = $this->entryPoints ? : $this->getEntryPoints();
+        $first             = (false === ($pos = strpos($path, '/'))) ? $path : substr($path, 0, $pos);
 
         foreach ($this->entryPoints as $entryPoint) {
             if ($first == $entryPoint->getPath()) {
@@ -399,7 +402,7 @@ class Config extends Model
     public function getObjects()
     {
         if (null === $this->objects) {
-            $element = $this->getDirectChild('objects');
+            $element       = $this->getDirectChild('objects');
             $this->objects = array();
             if ($element) {
                 foreach ($element->childNodes as $node) {
@@ -429,9 +432,9 @@ class Config extends Model
      */
     public function getObject($id)
     {
-        $this->objects = $this->objects ?: $this->getObjects();
+        $this->objects = $this->objects ? : $this->getObjects();
         foreach ($this->objects as $object) {
-            if ($object->getId() == $id){
+            if ($object->getId() == $id) {
                 return $object;
             }
         }
@@ -443,7 +446,7 @@ class Config extends Model
     public function getThemes()
     {
         if (null === $this->themes) {
-            $themes = $this->element->getElementsByTagName('theme');
+            $themes       = $this->element->getElementsByTagName('theme');
             $this->themes = array();
             foreach ($themes as $theme) {
                 if ('theme' === $theme->nodeName) {

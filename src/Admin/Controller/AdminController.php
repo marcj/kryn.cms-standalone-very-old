@@ -400,10 +400,10 @@ class AdminController
 
         $response->addJs(
             "
-                    window.addEvent('domready', function(){
-                        ka.adminInterface = new ka.AdminInterface();
-                    });
-                    "
+        window.addEvent('domready', function(){
+            ka.adminInterface = new ka.AdminInterface();
+        });
+"
         );
 
         $response->setResourceCompression(false);
@@ -428,7 +428,7 @@ class AdminController
 
         $response->addJs(
             '
-                    window._path = window._baseUrl = ' . json_encode(Kryn::getBaseUrl()) . '
+        window._path = window._baseUrl = ' . json_encode(Kryn::getBaseUrl()) . '
         window._pathAdmin = ' . json_encode(Kryn::getAdminPrefix() . '/')
         );
         $response->addJsFile('@CoreBundle/mootools-core.js');

@@ -4,11 +4,25 @@ namespace Core;
 
 class Bundle {
 
+    /**
+     * @var \ReflectionClass
+     */
     private $reflectionObject;
 
+    /**
+     * @var string
+     */
     private $name;
 
+    /**
+     * @var string
+     */
     private $path;
+
+    /**
+     * @var array
+     */
+    private $composer;
 
     final public function getPath()
     {
@@ -37,6 +51,14 @@ class Bundle {
         return $this->reflectionObject->getNamespaceName();
     }
 
+    /**
+     * @return string
+     */
+    final public function getClassName()
+    {
+        return get_called_class();
+    }
+
     final public function getName($withoutSuffix = false)
     {
         if (null === $this->name) {
@@ -54,6 +76,42 @@ class Bundle {
         return $this->name;
     }
 
+    public function getComposerPath()
+    {
+        return $this->getPath() . 'composer.json';
+    }
+
+    /**
+     * Returns the composer configuration as array.
+     *
+     * @return array
+     */
+    public function getComposer()
+    {
+        if (null === $this->composer) {
+            $path = $this->getComposerPath();
+            if (file_exists($file = $path)) {
+                $this->composer = json_decode(file_get_contents($file), true);
+            }
+        }
+
+        return $this->composer;
+    }
+
+    /**
+     * @param array $composer
+     */
+    public function setComposer(array $composer)
+    {
+        $this->composer = $composer;
+        file_put_contents($this->getComposerPath(), json_encode($this->composer));
+    }
+
+    /**
+     * Returns a all unfiltered configuration vars. Not recommended to use it. Use instead Kryn::getConfig();
+     *
+     * @return array
+     */
     public function getConfig()
     {
         $configs = array();

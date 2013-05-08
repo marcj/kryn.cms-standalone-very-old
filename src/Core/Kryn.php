@@ -2579,33 +2579,6 @@ class Kryn extends Controller
     }
 
     /**
-     * Reads all files of the specified folders.
-     *
-     * @param string $pPath
-     * @param bool   $pWithExt Return file extensions or not
-     *
-     * @return array
-     * @static
-     */
-    public static function readFolder($pPath, $pWithExt = false)
-    {
-        $h = @opendir($pPath);
-        if (!$h) {
-            return false;
-        }
-        while ($file = readdir($h)) {
-            if (substr($file, 0, 1) != '.') {
-                if (!$pWithExt) {
-                    $file = substr($file, 0, (strpos($file, '.') > 0) ? strrpos($file, '.') : strlen($file));
-                }
-                $files[] = $file;
-            }
-        }
-
-        return $files;
-    }
-
-    /**
      * Returns the servers temp folder, where you should store dynamic generated stuff.
      *
      * You can access these files also through

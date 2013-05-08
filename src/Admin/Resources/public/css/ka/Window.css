@@ -134,13 +134,15 @@
 
 .kwindow-win-buttonBar,
 .window-bottom-bar {
-    position: relative;
+    position: absolute;
     height: 40px;
     line-height: 40px;
 
-    margin-top: 15px;
     text-align: right;
     padding: 0 15px;
+    bottom: 0;
+    left: 0;
+    right: 0;
 }
 
 

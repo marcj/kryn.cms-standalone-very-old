@@ -254,7 +254,7 @@ var admin_system_module = new Class({
                 table = 'local';
             }
 
-            var title = item['title'];
+            var title = item['name'];
 
             if (!item)
                 title = "config parse error: " + key;
@@ -266,7 +266,7 @@ var admin_system_module = new Class({
 
             var actions = new Element('div');
             var bActions = new Element('div');
-            if (!['core', 'admin', 'users'].contains(key)) {
+            if (!['Core\\CoreBundle'].contains(key)) {
                 if (item.activated) {
                     new ka.Button(_('Deactivate')).addEvent('click', function () {
                         new Request.JSON({url: _pathAdmin + 'admin/system/module/manager/deactivate/', noCache: 1, onComplete: function () {
@@ -304,7 +304,12 @@ var admin_system_module = new Class({
                     ka.wm.open('admin/system/module/publish', {name: key});
                 }).inject(actions)
 
-            var value = [title + ' <span style="color: gray;">(' + key + ')</span>', '<img title="' + _title + '" src="' + _path + 'bundles/admin/images/icons/' + icon + '.png" />', item.version, (!item.owner || item.owner == "") ? _('Local') : item.serverVersion, bActions, actions];
+            var value = [title + ' <span style="color: gray;">(' + key + ')</span>',
+                '<img title="' + _title + '" src="' + _path + 'bundles/admin/images/icons/' + icon + '.png" />',
+                item.version,
+                (!item.owner || item.owner == "") ? _('Local') : item.serverVersion,
+                bActions,
+                actions];
 
             values[table].include(value);
         }.bind(this));

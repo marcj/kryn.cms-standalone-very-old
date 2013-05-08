@@ -22,7 +22,7 @@ class Manager
 
     public static function saveMainConfig()
     {
-        $config = '<?php return '. var_export(Kryn::$config,true) .'; ?>';
+        $config = '<?php return ' . var_export(Kryn::$config, true) . '; ?>';
 
         return SystemFile::setContent('config.php', $config);
     }
@@ -31,6 +31,7 @@ class Manager
      * Filters any special char out of the name.
      *
      * @static
+     *
      * @param $pName Reference
      */
     public static function prepareName(&$pName)
@@ -43,15 +44,18 @@ class Manager
         Manager::prepareName($pName);
 
         $idx = array_search($pName, Kryn::$config['activeModules']);
-        if ($idx !== false)
+        if ($idx !== false) {
             unset(Kryn::$config['activeModules'][$idx]);
+        }
 
         $idx = array_search($pName, \Core\Kryn::$bundles);
-        if ($idx !== false)
+        if ($idx !== false) {
             unset(\Core\Kryn::$bundles[$idx]);
+        }
 
-        if ($pReloadConfig)
+        if ($pReloadConfig) {
             Kryn::loadModuleConfigs();
+        }
 
         return self::saveMainConfig();
 
@@ -65,11 +69,13 @@ class Manager
 
         if (array_search($pName, $systemModules) === false) {
 
-            if (array_search($pName, Kryn::$config['bundles']) === false)
+            if (array_search($pName, Kryn::$config['bundles']) === false) {
                 Kryn::$config['bundles'][] = $pName;
+            }
 
-            if (array_search($pName, \Core\Kryn::$bundles) === false)
+            if (array_search($pName, \Core\Kryn::$bundles) === false) {
                 \Core\Kryn::$bundles[] = $pName;
+            }
 
             if ($pReloadConfig) {
                 Kryn::loadModuleConfigs();
@@ -85,9 +91,9 @@ class Manager
     public static function getInstalled()
     {
         foreach (Kryn::$bundles as $mod) {
-            $config = self::loadInfo($mod);
-            $res[$mod] = $config;
-            $res[$mod]['activated'] = array_search($mod, Kryn::$config['bundles']) !== false?1:0;
+            $config                     = self::loadInfo($mod);
+            $res[$mod]                  = $config;
+            $res[$mod]['activated']     = array_search($mod, Kryn::$config['bundles']) !== false ? 1 : 0;
             $res[$mod]['serverVersion'] = wget(Kryn::$config['repoServer'] . "/?version=" . $mod);
             $res[$mod]['serverCompare'] =
                 self::versionCompareToServer($res[$mod]['version'], $res[$mod]['serverVersion']);
@@ -104,28 +110,40 @@ class Manager
         list($major, $minor, $patch) = explode(".", $server);
         $sversion = $major * 1000 * 1000 + $minor * 1000 + $patch;
 
-        if ($lversion == $sversion)
-            return '='; // Same version
-        else if ($lversion < $sversion)
-            return '<'; // Local older
-        else
-            return '>'; // Local newer
+        if ($lversion == $sversion) {
+            return '=';
+        } // Same version
+        else if ($lversion < $sversion) {
+            return '<';
+        } // Local older
+        else {
+            return '>';
+        } // Local newer
     }
 
     public function getLocal()
     {
-        $modules = Kryn::readFolder(PATH_MODULE);
-        $modules = array_merge(array('core'), $modules);
-        $res = array();
+        $classes = find('src', '*Bundle.php');
 
-        foreach ($modules as $module) {
-            $config = self::loadInfo($module);
-            $res[$module] = array(
-                'title' => $config['title']
-            );
-            $res[$module]['activated'] = array_search($module, Kryn::$config['activeModules']) !== false?1:0;
+        foreach ($classes as $class) {
+            $class = str_replace('/', '\\', substr($class, 4, -4)); //remove `src/` and `.php` and replace / with \
+
+            if ('Core\\Bundle' === $class) {
+                continue;
+            }
+
+            /** @var \Core\Bundle $object */
+            $object = new $class();
+
+            if ($composer = $object->getComposer()) {
+                $res[$object->getClassName()]              = $composer;
+                $res[$object->getClassName()]['activated'] = 'Core\CoreBundle' === $class || array_search(
+                    $object->getClassName(),
+                    Kryn::$config['bundles']
+                ) !== false ? true : false;
+            }
+
         }
-
         return $res;
     }
 
@@ -143,7 +161,7 @@ class Manager
         */
 
         $pModuleName = str_replace(".", "", $pModuleName);
-        $configFile = \Core\Kryn::getModuleDir($pModuleName) . "config.json";
+        $configFile  = \Core\Kryn::getBundleDir($pModuleName) . "config.json";
 
         $extract = false;
 
@@ -151,8 +169,9 @@ class Manager
         if ($pType === true || $pType == 1) {
 
             $res = wget(Kryn::$config['repoServer'] . "/?install=$pModuleName");
-            if ($res === false)
+            if ($res === false) {
                 return array('cannotConnect' => 1);
+            }
 
             $info = json_decode($res, 1);
 
@@ -160,13 +179,17 @@ class Manager
                 return array('notExist' => 1);
             }
 
-            if (!@file_exists('data/upload'))
-                if (!@mkdir('data/upload'))
+            if (!@file_exists('data/upload')) {
+                if (!@mkdir('data/upload')) {
                     klog('core', t('FATAL ERROR: Can not create folder data/upload.'));
+                }
+            }
 
-            if (!@file_exists('data/packages/modules'))
-                if (!@mkdir('data/packages/modules'))
+            if (!@file_exists('data/packages/modules')) {
+                if (!@mkdir('data/packages/modules')) {
                     klog('core', _l('FATAL ERROR: Can not create folder data/packages/modules.'));
+                }
+            }
 
             $configFile = "data/packages/modules/$pModuleName.config.json";
             @unlink($configFile);
@@ -183,11 +206,11 @@ class Manager
             if (file_exists(PATH_WEB . $pType)) {
                 $pType = PATH_WEB . $pType;
             }
-            $zipFile = $pType;
-            $bname = basename($pType);
-            $t = explode("-", $bname);
+            $zipFile     = $pType;
+            $bname       = basename($pType);
+            $t           = explode("-", $bname);
             $pModuleName = $t[0];
-            $extract = true;
+            $extract     = true;
         }
 
         if ($extract) {
@@ -195,17 +218,18 @@ class Manager
             include_once 'File/Archive.php';
             $toDir = "data/packages/modules/$pModuleName/";
             $zipFile .= "/";
-            $res = File_Archive::extract($zipFile, $toDir);
+            $res        = File_Archive::extract($zipFile, $toDir);
             $configFile = "data/packages/modules/$pModuleName/module/$pModuleName/config.json";
-            if ($pModuleName == 'core')
+            if ($pModuleName == 'core') {
                 $configFile = "data/packages/modules/kryn/core/config.json";
+            }
         }
 
         if ($configFile) {
             if (!file_exists($configFile)) {
                 return false;
             }
-            $json = file_get_contents($configFile);
+            $json   = file_get_contents($configFile);
             $config = json_decode($json, true);
             unset($config['noConfig']);
 
@@ -216,18 +240,19 @@ class Manager
 
             //if locale
             if ($pType == false) {
-                if (is_dir(PATH_WEB."$pModuleName/_screenshots")) {
-                    $config['screenshots'] = Kryn::readFolder(PATH_WEB."$pModuleName/_screenshots");
+                if (is_dir(PATH_WEB . "$pModuleName/_screenshots")) {
+                    $config['screenshots'] = Kryn::readFolder(PATH_WEB . "$pModuleName/_screenshots");
                 }
             }
 
             $config['__path'] = dirname($configFile);
-            if (is_array(Kryn::$configs) && array_key_exists($pModuleName, Kryn::$configs))
+            if (is_array(Kryn::$configs) && array_key_exists($pModuleName, Kryn::$configs)) {
                 $config['installed'] = true;
+            }
 
             $config['extensionCode'] = $pModuleName;
 
-            if (Kryn::$configs)
+            if (Kryn::$configs) {
                 foreach (Kryn::$configs as $extender => &$modConfig) {
                     if (is_array($modConfig['extendConfig'])) {
                         foreach ($modConfig['extendConfig'] as $extendModule => $extendConfig) {
@@ -237,6 +262,7 @@ class Manager
                         }
                     }
                 }
+            }
 
             return $config;
         }
@@ -251,14 +277,18 @@ class Manager
 
         foreach (Kryn::$configs as $key => $config) {
             $version = '0';
-            $name = $key;
+            $name    = $key;
             $version = wget(Kryn::$config['repoServer'] . "/?version=$name");
-            if ($version && $version != '' && self::versionCompareToServer($config->getVersion(), $version['content']) == '<') {
-                $res['found'] = true;
-                $temp = array();
+            if ($version && $version != '' && self::versionCompareToServer(
+                $config->getVersion(),
+                $version['content']
+            ) == '<'
+            ) {
+                $res['found']       = true;
+                $temp               = array();
                 $temp['newVersion'] = $version;
-                $temp['name'] = $name;
-                $res['modules'][] = $temp;
+                $temp['name']       = $name;
+                $res['modules'][]   = $temp;
             }
         }
 
@@ -294,6 +324,7 @@ class Manager
      *
      * @param  string $pName
      * @param  bool   $pWithoutDBSchemaUpdate
+     *
      * @return bool
      */
     public function install($pName, $pWithoutDBSchemaUpdate = false)
@@ -333,6 +364,7 @@ class Manager
      * Fires the database package script.
      *
      * @param  string $pName
+     *
      * @return bool
      */
     public function installDatabase($pName)
@@ -349,20 +381,21 @@ class Manager
      * @param  string $pName
      * @param  bool   $pRemoveFiles
      * @param  bool   $pWithoutOrmUpdate
+     *
      * @return bool
      */
     public function uninstall($pName, $pRemoveFiles = true, $pWithoutOrmUpdate = false)
     {
         Manager::prepareName($pName);
-        $config = self::getConfig($pName);
-        $hasPropelModels = SystemFile::exists(\Core\Kryn::getModuleDir($pName).'model.xml');
+        $config          = self::getConfig($pName);
+        $hasPropelModels = SystemFile::exists(\Core\Kryn::getModuleDir($pName) . 'model.xml');
 
         \Core\Event::fire('admin/module/manager/uninstall/pre', $pName);
 
         //remove object data
         if ($config['objects']) {
             foreach ($config['objects'] as $key => $object) {
-                \Core\Object::clear(ucfirst($pName).'\\'.$key);
+                \Core\Object::clear(ucfirst($pName) . '\\' . $key);
             }
         }
 
@@ -370,7 +403,7 @@ class Manager
 
         //catch all propel classes
         if ($hasPropelModels) {
-            $propelClasses = find(\Core\Kryn::getModuleDir($pName).'model/');
+            $propelClasses = find(\Core\Kryn::getModuleDir($pName) . 'model/');
         }
 
         //remove files
@@ -383,8 +416,8 @@ class Manager
             }
 
             if ($pName != 'core') {
-                delDir('module/'.$pName);
-                delDir('media/'.$pName);
+                delDir('module/' . $pName);
+                delDir('media/' . $pName);
             }
 
         }
@@ -397,17 +430,17 @@ class Manager
         if ($pWithoutOrmUpdate) {
             //remove propel classes in temp
             foreach ($propelClasses as $propelClass) {
-                $propelClasses = substr($propelClasses, strlen(\Core\Kryn::getModuleDir($pName).'model/'));
-                \Core\TempFile::remove('propel-classes/Base'.$propelClass.'.php');
-                \Core\TempFile::remove('propel-classes/Base'.$propelClass.'Peer.php');
-                \Core\TempFile::remove('propel-classes/Base'.$propelClass.'Query.php');
-                \Core\TempFile::remove('propel-classes/'.$propelClass.'TableMap.php');
+                $propelClasses = substr($propelClasses, strlen(\Core\Kryn::getModuleDir($pName) . 'model/'));
+                \Core\TempFile::remove('propel-classes/Base' . $propelClass . '.php');
+                \Core\TempFile::remove('propel-classes/Base' . $propelClass . 'Peer.php');
+                \Core\TempFile::remove('propel-classes/Base' . $propelClass . 'Query.php');
+                \Core\TempFile::remove('propel-classes/' . $propelClass . 'TableMap.php');
             }
 
             //update propel
             if (!$pWithoutOrmUpdate) {
                 \Core\PropelHelper::updateSchema();
-                $files = find(\Core\Kryn::getTempFolder().'/propel/');
+                $files = find(\Core\Kryn::getTempFolder() . '/propel/');
                 \Core\PropelHelper::cleanup();
             }
 
@@ -426,13 +459,14 @@ class Manager
      *
      * @param  string             $pModule
      * @param  string             $pScript
+     *
      * @throws \SecurityException
      * @throws \Exception
      * @return bool
      */
     public function fireScript($pModule, $pScript)
     {
-        \Core\Event::fire('admin/module/manager/'.$pScript.'/pre', $pModule);
+        \Core\Event::fire('admin/module/manager/' . $pScript . '/pre', $pModule);
 
         $file = $this->getScriptFile($pModule, $pScript);
 
@@ -446,11 +480,11 @@ class Manager
             try {
                 include($file);
             } catch (\Exception $ex) {
-                \Core\Event::fire('admin/module/manager/'.$pScript.'/failed', $arg = array($pModule, $ex));
+                \Core\Event::fire('admin/module/manager/' . $pScript . '/failed', $arg = array($pModule, $ex));
                 throw $ex;
             }
 
-            \Core\Event::fire('admin/module/manager/'.$pScript, $pModule);
+            \Core\Event::fire('admin/module/manager/' . $pScript, $pModule);
         }
 
         return true;
@@ -463,7 +497,8 @@ class Manager
 
         try {
             return \Core\Kryn::getBundleDir($pModule) . 'Resources/package/' . $pName . '.php';
-        } catch (\Core\Exceptions\ModuleDirNotFoundException $e) {}
+        } catch (\Core\Exceptions\ModuleDirNotFoundException $e) {
+        }
 
     }
 }
