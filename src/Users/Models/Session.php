@@ -2,6 +2,7 @@
 
 namespace Users\Models;
 
+use Propel\Runtime\Connection\ConnectionInterface;
 use Users\Models\Base\Session as BaseSession;
 
 /**
@@ -30,20 +31,9 @@ class Session extends BaseSession
     }
 
     /**
-     * Persists this object to the database.
-     *
-     * If the object is new, it inserts it; otherwise an update is performed.
-     * All modified related objects will also be persisted in the doSave()
-     * method.  This method wraps all precipitate database operations in a
-     * single transaction.
-     *
-     * @param  PropelPDO       $con
-     * @return int             The number of rows affected by this insert/update and any referring fk objects' save() operations.
-     * @throws PropelException
-     * @throws Exception
-     * @see        doSave()
+     * {@inheritDoc}
      */
-    public function save(\PropelPDO $con = null)
+    public function save(ConnectionInterface $con = null)
     {
         if ($this->getIsStoredInDatabase()) {
             parent::save($con);
@@ -52,11 +42,9 @@ class Session extends BaseSession
 
 
     /**
-     *
-     *
-     * @return User
+     * {@inheritDoc}
      */
-    public function getUser(PropelPDO $con = null, $doQuery = true)
+    public function getUser(ConnectionInterface $con = null)
     {
         $user = parent::getUser();
         if (!$user) {

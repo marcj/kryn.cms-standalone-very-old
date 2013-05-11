@@ -2094,7 +2094,7 @@ class Kryn extends Controller
         if (!$urls) {
 
             $nodes = NodeQuery::create()
-                ->select(array('id', 'urn', 'lvl', 'type'))
+                ->select(array('Id', 'Urn', 'Lvl', 'Type'))
                 ->filterByDomainId($pDomainId)
                 ->orderByBranch()
                 ->find();

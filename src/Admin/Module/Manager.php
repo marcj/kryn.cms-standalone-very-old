@@ -471,7 +471,7 @@ class Manager
             try {
                 include($file);
             } catch (\Exception $ex) {
-                \Core\Event::fire('admin/module/manager/' . $pScript . '/failed', $arg = array($pModule, $ex));
+                //\Core\Event::fire('admin/module/manager/' . $pScript . '/failed', $arg = array($pModule, $ex));
                 throw $ex;
             }
 

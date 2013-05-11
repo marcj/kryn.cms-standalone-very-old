@@ -44,9 +44,38 @@ class WorkspaceBehavior extends Behavior
         $this->workspaceGetter = $workspaceGetter;
     }
 
-    public function parentClass($builder)
+    public function preDeleteQuery($builder)
     {
-        return '\Core\WorkspaceBaseQuery';
+        return "
+        //save current version
+        static::doBackupRecord(\$this, \$con);
+
+        //save workspace_action=deleted
+        \$updateValues = clone \$this;
+        self::appendWorkspaceInfo(\$updateValues, 'delete');
+
+        //update the record
+        parent::doUpdate(\$updateValues, \$con);
+
+        //move the updated record (marked as deleted) into the version table
+        static::doBackupRecord(\$this, \$con);
+     ";
+    }
+
+    public function preSelectQuery($builder)
+    {
+        return "
+        self::appendWorkspaceInfo(\$this);
+     ";
+    }
+
+    public function preUpdateQuery($builder)
+    {
+        return "
+        \$selectCriteria = clone \$this;
+        static::doBackupRecord(\$selectCriteria, \$con);
+        self::appendWorkspaceInfo(\$this, 'update');
+     ";
     }
 
     /**
@@ -126,7 +155,7 @@ class WorkspaceBehavior extends Behavior
 
         //$table->setBas('\WorkspaceBehaviorPeer');
         //$table->set
-        $table->setBaseClass('\WorkspaceBehaviorClass');
+        //$table->setBaseClass('\WorkspaceBehaviorClass');
 
         /*
         //pk index
@@ -151,7 +180,6 @@ class WorkspaceBehavior extends Behavior
     {
         $table = $this->getTable();
         $database = $table->getDatabase();
-
 
         $this->versionTableName = $this->getParameter('version_table');
         if (!$this->versionTableName) {
@@ -228,6 +256,11 @@ class WorkspaceBehavior extends Behavior
         }
     }
 
+    public function getPrefix()
+    {
+        return $this->prefix;
+    }
+
     public function staticAttributes()
     {
 
@@ -268,7 +301,6 @@ class WorkspaceBehavior extends Behavior
     {
 
         return "
-
 //set default values
 if (\$this->isModified() && !\$this->isColumnModified(" . $this->getColumnConstant($this->prefix . 'id', $builder) . "))
     \$this->" . $this->getColumnSetter($this->prefix . 'id') . "(call_user_func_array(" . var_export(
@@ -284,52 +316,92 @@ if (\$this->isModified() && !\$this->isColumnModified(" . $this->getColumnConsta
             $builder
         ) . "))
     \$this->" . $this->getColumnSetter($this->prefix . 'action_date') . "(time());
-
 ";
     }
 
-
     public function queryMethods($builder)
     {
-
         $this->builder = $builder;
         $script = '';
         $this->addFilterByWorkspace($script);
+        $this->addAppendWorkspaceInfo($script);
+        $this->addDoBackupRecord($script);
         return $script;
-
     }
 
     protected function addFilterByWorkspace(&$script)
     {
-
         $table = $this->getTable();
         $workspaceId = $table->getColumn($this->prefix . 'id')->getPhpName();
 
         $script .= "
-/**
- * Filters all items by given workspace
- *
- * @return    " . $this->builder->getStubQueryBuilder()->getClassname() . " The current query
- */
-public function filterByWorkspace(\$workspaceId){
-    return \$this->filterBy{$workspaceId}(\$workspaceId+0);
-}
+    /**
+     * Filters all items by given workspace.
+     *
+     * @return    " . $this->builder->getStubQueryBuilder()->getClassname() . " The current query
+     */
+    public function filterByWorkspace(\$workspaceId){
+        return \$this->filterBy{$workspaceId}(\$workspaceId+0);
+    }
 ";
-
     }
 
-    public function preSelectQuery($builder)
+    protected function addDoBackupRecord(&$script)
     {
-        $this->builder = $builder;
+        $script .= '
+    /**
+    * @param Criteria            $criteria
+    * @Param ConnectionInterface $con
+    */
+    public static function doBackupRecord(Criteria $criteria, ConnectionInterface $con = null)
+    {
+        $items = static::create(null, $criteria)->find($con);
 
-        $table = $this->getTable();
-        $id = $table->getColumn($this->prefix . 'id')->getPhpName();
+        foreach ($items as $item) {
+            $version = new ' . $this->versionTableName . ';
+';
 
-        return "
+        foreach ($this->table->getColumns() as $col) {
+            $script .= "
+            \$version->set" . $col->getPhpName() . "(\$this->get" . $col->getPhpName() . "());";
+        }
 
-\$this->filterBy$id(call_user_func_array(" . var_export($this->workspaceGetter, true) . ", array()));
+        $script .= '
+            $version->save($con);
+        }
+    }
+';
+    }
 
-";
+    protected function addAppendWorkspaceInfo(&$script)
+    {
+        $prefix = $this->getPrefix();
+        $colId = "'" . $this->getTable()->getColumn($prefix . 'id')->getFullyQualifiedName() . "'";
+        $colAction = "'" . $this->getTable()->getColumn($prefix . 'action')->getFullyQualifiedName() . "'";
+
+        $script .= '
+    private static function appendWorkspaceInfo(&$criteria, $mode = "select")
+    {
+        $colId = ' . $colId . ';
+        $colAction = ' . $colAction . ';
+
+        if (!$criteria->containsKey($colId)) {
+            $criteria->add($colId, static::getWorkspaceId());
+        }
+
+        if (!$criteria->containsKey($colAction)) {
+            if ($mode == \'insert\') {
+                $criteria->add($colAction, 1);
+            } //created
+            else if ($mode == \'delete\') {
+                $criteria->add($colAction, 0);
+            } //deleted
+            else if ($mode == \'update\') {
+                $criteria->add($colAction, 2);
+            } //updated
+        }
+    }
+    ';
     }
 
     public function staticMethods($builder)

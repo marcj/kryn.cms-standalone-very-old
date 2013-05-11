@@ -400,7 +400,11 @@ class PropelHelper
         $output = new StreamOutput(fopen('php://memory', 'rw'));
         $command->run($input, $output);
 
-        rename($tmp . 'propel/config.php', $tmp . 'propel-classes/config.php');
+
+        mkdirr($tmp . 'propel-classes/');
+
+        $source = $tmp . 'propel/config.php';
+        rename($source, $tmp . 'propel-classes/config.php');
 
         return true;
     }

@@ -180,15 +180,14 @@ function dbQuery($pQuery, $pParams = null)
         $dbLastInsertedTable = $matches[1];
 
     if ($pParams !== null) {
-        $sth = dbConnection()->prepare($pQuery);
+        $stm = dbConnection()->prepare($pQuery);
 
         if (!is_array($pParams)) $pParams = array($pParams);
-        $sth->execute($pParams);
+        $stm->execute($pParams);
+		return dbConnection()->getDataFetcher($stm);
     } else {
-        $sth = dbConnection()->query($pQuery);
+        return dbConnection()->query($pQuery);
     }
-
-    return $sth;
 }
 
 

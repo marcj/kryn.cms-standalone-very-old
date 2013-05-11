@@ -37,7 +37,7 @@
         "marijnh/codemirror": ">=v3.1",
         "sybio/image-workshop": "dev-master",
         "tinymce/tinymce": "*",
-        "propel/propel2": "dev-removing-peer",
+        "propel/propel2": "dev-master",
         "composer/composer": "*",
         "krynlabs/kryn-publication-bundle": "*",
         "symfony/filesystem": "2.2.*"
