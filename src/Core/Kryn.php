@@ -248,14 +248,6 @@ class Kryn extends Controller
     public static $configs;
 
     /**
-     * Contains all extension class instances of all installed extensions
-     *
-     * @var array
-     * @static
-     */
-    public static $modules;
-
-    /**
      * Contains all installed extensions
      * Example: array('core', 'admin', 'users', 'sitemap', 'publication');
      *
@@ -283,34 +275,12 @@ class Kryn extends Controller
     public static $dbConnection;
 
     /**
-     * Contains the master/slave state of the current db connection.
-     *
-     * @var bool
-     */
-    public static $dbConnectionIsSlave = \Propel::CONNECTION_WRITE;
-
-    /**
-     * Current Smarty template object
-     *
-     * @var Smarty
-     */
-    public static $smarty = array();
-
-    /**
      * Contains the system config (config.php).
      *
      * @var array
      * @static
      */
     public static $config;
-
-    /**
-     * Ref to Kryn::$config for compatibility
-     *
-     * @var array
-     * @static
-     */
-    public static $cfg;
 
     /**
      * The Auth user object of the backend user.
@@ -460,7 +430,35 @@ class Kryn extends Controller
      */
     private static $monolog;
 
+    /**
+     * Current instance, factoring.
+     *
+     * @var Kryn
+     */
     private static $instance;
+
+    /**
+     * AutoLoader instance.
+     *
+     * @var \Composer\Autoload\ClassLoader
+     */
+    private static $loader;
+
+    /**
+     * @param \Composer\Autoload\ClassLoader $loader
+     */
+    public static function setLoader($loader)
+    {
+        self::$loader = $loader;
+    }
+
+    /**
+     * @return \Composer\Autoload\ClassLoader
+     */
+    public static function getLoader()
+    {
+        return self::$loader;
+    }
 
     /**
      * The response object. Here you can add
@@ -518,9 +516,9 @@ class Kryn extends Controller
                     global $_start;
                     static $lastDebugPoint;
 
-                    $timeUsed       = round((microtime(true) - $_start) * 1000, 2);
-                    $bytes          = convertSize(memory_get_usage(true));
-                    $last           = $lastDebugPoint ? 'diff ' . round(
+                    $timeUsed = round((microtime(true) - $_start) * 1000, 2);
+                    $bytes = convertSize(memory_get_usage(true));
+                    $last = $lastDebugPoint ? 'diff ' . round(
                         (microtime(true) - $lastDebugPoint) * 1000,
                         2
                     ) . 'ms' : '';
@@ -546,7 +544,7 @@ class Kryn extends Controller
     {
         if (!self::$httpKernel) {
             self::$controllerResolver = new ControllerResolver();
-            self::$httpKernel         = new HttpKernel(self::getEventDispatcher(), self::$controllerResolver);
+            self::$httpKernel = new HttpKernel(self::getEventDispatcher(), self::$controllerResolver);
         }
 
         return self::$httpKernel;
@@ -621,7 +619,7 @@ class Kryn extends Controller
         $infos = array();
 
         foreach (Kryn::$bundles as $extension) {
-            $config                          = Kryn::getModuleConfig($extension, 'en');
+            $config = Kryn::getModuleConfig($extension, 'en');
             $infos['extensions'][$extension] = array(
                 'version' => $config['version']
             );
@@ -639,6 +637,11 @@ class Kryn extends Controller
         return $infos;
     }
 
+    /**
+     * Loads all active bundles from $config['bundles'] to self::$bundles.
+     *
+     * @param bool $pWithoutDefaults
+     */
     public static function loadActiveModules($pWithoutDefaults = false)
     {
         if (isset(Kryn::$config['bundles'])) {
@@ -648,6 +651,10 @@ class Kryn extends Controller
         }
     }
 
+    /**
+     * Creates all symlink in /web/<bundleName> to <bundlePath>/Resources/public
+     * if not already.
+     */
     public static function prepareWebSymlinks()
     {
         $bundles = PATH_WEB . 'bundles/';
@@ -655,7 +662,7 @@ class Kryn extends Controller
             WebFile::createFolder('bundles');
         }
 
-        foreach (Kryn::$config['bundles'] as $bundle) {
+        foreach (Kryn::$bundles as $bundle) {
             $bundle = self::getBundle($bundle);
             if ($bundle) {
                 $public = $bundle->getPath() . 'Resources/public';
@@ -679,14 +686,13 @@ class Kryn extends Controller
     public static function loadModuleConfigs($pForceNoCache = false)
     {
         self::$configs = new Config\Configs(Kryn::$bundles);
-
         self::prepareWebSymlinks();
 
         return;
 
         $md5 = md5($md5);
         if (!$pForceNoCache) {
-            Kryn::$themes  =& Kryn::getFastCache('core/themes');
+            Kryn::$themes =& Kryn::getFastCache('core/themes');
             Kryn::$configs =& Kryn::getFastCache('core/configs');
         }
 
@@ -718,15 +724,9 @@ class Kryn extends Controller
                         if (is_array($object['fields'])) {
                             foreach ($object['fields'] as $fieldKey => $field) {
                                 if ($field['objectRelation'] == ORM\ORMAbstract::MANY_TO_ONE) {
-                                    $objectName                                                           = Object::getName(
-                                        $field['object']
-                                    );
-                                    $module                                                               = strtolower(
-                                        Object::getModule($field['object'])
-                                    );
-                                    $fieldName                                                            = $field['objectRefRelationName'] ? : lcfirst(
-                                        $objectKey
-                                    );
+                                    $objectName = Object::getName($field['object']);
+                                    $module = strtolower(Object::getModule($field['object']));
+                                    $fieldName = $field['objectRefRelationName'] ? : lcfirst($objectKey);
                                     Kryn::$configs[$module]['objects'][$objectName]['fields'][$fieldName] = array(
                                         'virtual' => true,
                                         'label' => 'Auto Object relation (' . ORM\ORMAbstract::MANY_TO_ONE . ')',
@@ -748,7 +748,7 @@ class Kryn extends Controller
          */
         if (!Kryn::$themes || $md5 != Kryn::$themes['__md5']) {
 
-            Kryn::$themes          = array();
+            Kryn::$themes = array();
             Kryn::$themes['__md5'] = $md5;
 
             foreach (Kryn::$bundles as &$extension) {
@@ -810,7 +810,7 @@ class Kryn extends Controller
         }
 
         $mtime = filemtime($config);
-        $lang  = $pLang ? $pLang : Kryn::getLanguage();
+        $lang = $pLang ? $pLang : Kryn::getLanguage();
 
         if (!$pNoCache) {
 
@@ -839,36 +839,21 @@ class Kryn extends Controller
     }
 
     /**
-     * Load and initialise all activated extension classes.
-     *
-     * @internal
-     */
-    public static function initModules()
-    {
-
-        foreach (Kryn::$bundles as $mod) {
-            if ($mod != 'core' && $mod != 'admin' && $mod != 'users') {
-                $clazz = '\\' . ucfirst($mod) . '\\MainController';
-                if (class_exists($clazz)) {
-                    Kryn::$modules[$mod] = new $mod();
-                }
-            }
-        }
-    }
-
-    /**
      * Checks whether a module is active/enabled or not.
      *
-     * @param  string $pModuleKey
+     * @param  string $bundleName
      *
      * @return bool
      */
-    public static function isActiveModule($pModuleKey)
+    public static function isActiveModule($bundleName)
     {
-        $pModuleKey = strtolower($pModuleKey);
+        $bundle = self::getBundle($bundleName);
+        if ($bundle) {
+            $className = $bundle->getClassName();
 
-        return $pModuleKey == 'admin' || $pModuleKey == 'users' || $pModuleKey == 'core' ||
-            array_search($pModuleKey, self::$config['bundles']) !== false;
+            return in_array($className, self::$bundles);
+        }
+        return false;
     }
 
     /**
@@ -957,7 +942,7 @@ class Kryn extends Controller
             }
 
             $domain = Kryn::$domain->getDomain();
-            $path   = Kryn::$domain->getPath();
+            $path = Kryn::$domain->getPath();
 
             if (substr($domain, 0, -1) != '/') {
                 $domain .= '/';
@@ -1015,7 +1000,7 @@ class Kryn extends Controller
         }
 
         $fastestCacheClass = Cache\Controller::getFastestCacheClass();
-        Kryn::$cacheFast   = new Cache\Controller($fastestCacheClass);
+        Kryn::$cacheFast = new Cache\Controller($fastestCacheClass);
     }
 
     /**
@@ -1030,10 +1015,10 @@ class Kryn extends Controller
             );
         }
 
-        $defaultClientClass  = Kryn::$config['client']['class'];
+        $defaultClientClass = Kryn::$config['client']['class'];
         $defaultClientConfig = Kryn::$config['client']['config'];
-        $defaultClientStore  = Kryn::$config['client']['config']['store'];
-        $defaultAutoStart    = Kryn::$config['client']['autoStart'];
+        $defaultClientStore = Kryn::$config['client']['config']['store'];
+        $defaultAutoStart = Kryn::$config['client']['autoStart'];
 
         if (self::isAdmin()) {
 
@@ -1046,13 +1031,13 @@ class Kryn extends Controller
 
             $sessionProperties = self::getDomain() ? self::getDomain()->getSessionProperties() : array();
 
-            $frontClientClass    = $defaultClientClass;
-            $frontClientConfig   = $defaultClientConfig;
+            $frontClientClass = $defaultClientClass;
+            $frontClientConfig = $defaultClientConfig;
             $frontendClientStore = $defaultClientStore;
-            $frontendAutoStart   = $defaultAutoStart;
+            $frontendAutoStart = $defaultAutoStart;
 
             if ($sessionProperties['class']) {
-                $frontClientClass  = $sessionProperties['class'];
+                $frontClientClass = $sessionProperties['class'];
                 $frontClientConfig = $sessionProperties['config'];
             }
 
@@ -1195,14 +1180,18 @@ class Kryn extends Controller
             return;
         }
 
-        $code       = 'cacheLang_' . $pLang;
+        $code = 'cacheLang_' . $pLang;
         Kryn::$lang =& Kryn::getFastCache($code);
 
         $md5 = '';
-        //<div
+        $bundles = array();
         foreach (Kryn::$bundles as $key) {
-            $path = self::resolvePath("@$key/$pLang.po", 'Resources/translations');
-            $md5 .= @filemtime($path);
+            $path = self::getBundleDir($key);
+            if ($path) {
+                $path .= "Resources/translations/$pLang.po";
+                $md5 .= @filemtime($path);
+                $bundles[] = $key;
+            }
         }
 
         $md5 = md5($md5);
@@ -1211,8 +1200,8 @@ class Kryn extends Controller
 
             Kryn::$lang = array('__md5' => $md5, '__plural' => Lang::getPluralForm($pLang), '__lang' => $pLang);
 
-            foreach (Kryn::$bundles as $key) {
-                $po         = Lang::getLanguage($key, $pLang);
+            foreach ($bundles as $key) {
+                $po = Lang::getLanguage($key, $pLang);
                 Kryn::$lang = array_merge(Kryn::$lang, $po['translations']);
             }
             Kryn::setFastCache($code, Kryn::$lang);
@@ -1226,49 +1215,44 @@ class Kryn extends Controller
      */
     public static function cleanup()
     {
-        self::$breadcrumbs      = null;
-        self::$lang             = null;
-        self::$language         = null;
-        self::$languages        = null;
-        self::$baseUrl          = null;
-        self::$domain           = null;
-        self::$page             = null;
-        self::$current_page     = null;
+        self::$breadcrumbs = null;
+        self::$lang = null;
+        self::$language = null;
+        self::$languages = null;
+        self::$baseUrl = null;
+        self::$domain = null;
+        self::$page = null;
+        self::$current_page = null;
         self::$forceKrynContent = null;
-        self::$pageHtml         = null;
-        self::$url              = null;
-        self::$urlWithGet       = null;
-        self::$currentTheme     = array();
-        self::$themeProperties  = array();
+        self::$pageHtml = null;
+        self::$url = null;
+        self::$urlWithGet = null;
+        self::$currentTheme = array();
+        self::$themeProperties = array();
         self::$domainProperties = array();
-        self::$pageProperties   = array();
-        self::$ssl              = false;
-        self::$port             = 0;
+        self::$pageProperties = array();
+        self::$ssl = false;
+        self::$port = 0;
         //self::$objects = array();
-        self::$slot                = null;
-        self::$contents            = null;
-        self::$isStartpage         = null;
-        self::$configs             = null;
-        self::$modules             = null;
-        self::$bundles             = array('core', 'admin', 'users');
-        self::$themes              = null;
-        self::$dbConnection        = null;
-        self::$dbConnectionIsSlave = \Propel::CONNECTION_WRITE;
-        self::$smarty              = array();
-        self::$config              = null;
-        self::$cfg                 = null;
-        self::$adminClient         = null;
-        self::$client              = null;
-        self::$nestedLevels        = array();
-        self::$unsearchableBegin   = '<!--unsearchable-begin-->';
-        self::$unsearchableEnd     = '<!--unsearchable-end-->';
-        self::$pageUrl             = '';
-        self::$canonical           = '';
+        self::$slot = null;
+        self::$contents = null;
+        self::$isStartpage = null;
+        self::$configs = null;
+        self::$bundles = array('Core\CoreBundle', 'Admin\AdminBundle', 'Users\UsersBundle');
+        self::$themes = null;
+        self::$dbConnection = null;
+        self::$config = null;
+        self::$adminClient = null;
+        self::$client = null;
+        self::$nestedLevels = array();
+        self::$unsearchableBegin = '<!--unsearchable-begin-->';
+        self::$unsearchableEnd = '<!--unsearchable-end-->';
+        self::$pageUrl = '';
+        self::$canonical = '';
         self::$disableSearchEngine = false;
-        self::$cache               = null;
-        self::$cacheFast           = null;
-        self::$admin               = false;
-        self::$urls                = null;
+        self::$cache = null;
+        self::$cacheFast = null;
+        self::$urls = null;
         //self::$cachedTempFolder = '';
     }
 
@@ -1357,7 +1341,7 @@ class Kryn extends Controller
 
         $cacheKey = 'core/object-caching.' . strtolower(preg_replace('/[^\w]/', '.', $pObjectClassName)) . '/' . $pk;
 
-        $clazz  = $pObjectClassName . 'Query';
+        $clazz = $pObjectClassName . 'Query';
         $object = $pObject;
         if (!$object) {
             $object = $clazz::create()->findPk($pObjectPk);
@@ -1416,7 +1400,7 @@ class Kryn extends Controller
         }
 
         $created = self::getCache('core/object.page.' . $pPageId . '.created');
-        $data    = self::getFastCache('core/object.page.' . $pPageId);
+        $data = self::getFastCache('core/object.page.' . $pPageId);
 
         if ($data && $created == $data['!created']) {
             return unserialize($data['page']);
@@ -1428,7 +1412,7 @@ class Kryn extends Controller
             return false;
         }
 
-        $data['page']     = serialize($page);
+        $data['page'] = serialize($page);
         $data['!created'] = microtime();
         self::setFastCache('core/object.page.' . $pPageId, $data);
         self::setCache('core/object.page.' . $pPageId . '.created', $data['!created']);
@@ -1474,14 +1458,14 @@ class Kryn extends Controller
      */
     public static function detectDomain($pNoRefreshCache = false)
     {
-        $request    = self::getRequest();
+        $request = self::getRequest();
         $dispatcher = self::getEventDispatcher();
-        $hostname   = $request->get('kryn_domain') ? : $request->getHost();
+        $hostname = $request->get('kryn_domain') ? : $request->getHost();
 
-        $possibleLanguage     = self::getPossibleLanguage();
+        $possibleLanguage = self::getPossibleLanguage();
         $hostnameWithLanguage = $hostname . '/' . $possibleLanguage;
 
-        $cachedDomains        = self::getFastCache('core/domains');
+        $cachedDomains = self::getFastCache('core/domains');
         $cachedDomainsCreated = self::getCache('core/domains.created'); //for loadBalanced scenarios
 
         if ($cachedDomains) {
@@ -1491,9 +1475,9 @@ class Kryn extends Controller
         if (!$cachedDomains || $cachedDomains['!created'] != $cachedDomainsCreated) {
 
             $cachedDomains = array();
-            $domains       = Models\DomainQuery::create()->find();
+            $domains = Models\DomainQuery::create()->find();
             foreach ($domains as $domain) {
-                $key     = $domain->getDomain();
+                $key = $domain->getDomain();
                 $langKey = '';
 
                 if (!$domain->getMaster()) {
@@ -1519,7 +1503,7 @@ class Kryn extends Controller
                 }
             }
 
-            $created                   = microtime();
+            $created = microtime();
             $cachedDomains['!created'] = $created;
             self::setFastCache('core/domains', \serialize($cachedDomains));
             self::setCache('core/domains.created', $created);
@@ -1540,7 +1524,7 @@ class Kryn extends Controller
         if (($aliasHostname = $cachedDomains['!aliases'][$hostnameWithLanguage]) ||
             ($aliasHostname = $cachedDomains['!aliases'][$hostname])
         ) {
-            $domain   = $cachedDomains[$aliasHostname];
+            $domain = $cachedDomains[$aliasHostname];
             $hostname = $aliasHostname;
         } else {
             $domain = $cachedDomains[$hostname];
@@ -1596,7 +1580,7 @@ class Kryn extends Controller
                         if ($foundRoute) {
                             //we've remove the route and fire now again a sub request
                             Kryn::getRequest()->attributes = new ParameterBag();
-                            $response                      = Kryn::getHttpKernel()->handle(
+                            $response = Kryn::getHttpKernel()->handle(
                                 Kryn::getRequest(),
                                 HttpKernelInterface::SUB_REQUEST
                             );
@@ -1645,9 +1629,9 @@ class Kryn extends Controller
         $routes = new RouteCollection();
         $dispatcher->dispatch('core.setup-routes-pre', new GenericEvent($routes));
 
-        $clazz     = 'Core\\PageController';
+        $clazz = 'Core\\PageController';
         $domainUrl = (!Kryn::$domain->getMaster()) ? '/' . Kryn::$domain->getLang() : '';
-        $url       = $domainUrl . Node::getUrl(Kryn::$page);
+        $url = $domainUrl . Node::getUrl(Kryn::$page);
 
         $controller = $clazz . '::handle';
 
@@ -1674,7 +1658,7 @@ class Kryn extends Controller
         );
 
         $cacheKey = 'core/node/plugins-' . Kryn::$page->getId();
-        $plugins  = Kryn::getDistributedCache($cacheKey);
+        $plugins = Kryn::getDistributedCache($cacheKey);
 
         if ($plugins === null) {
 
@@ -1741,24 +1725,38 @@ class Kryn extends Controller
 
         $dispatcher->dispatch('core.setup-routes', new GenericEvent($routes));
 
-        self::$routes   = $routes;
-        $matcher        = new UrlMatcher(self::$routes, new RequestContext());
+        self::$routes = $routes;
+        $matcher = new UrlMatcher(self::$routes, new RequestContext());
         $routerListener = new RouterListener($matcher);
         $dispatcher->addSubscriber($routerListener);
     }
 
     /**
-     * Starts up the application.
+     * Bootstrap.
+     *
+     * @param null $loader
      */
-    public static function startup()
+    public static function bootstrap($loader = null)
     {
+        if ($loader) {
+            self::$loader = $loader;
+        }
+
         //load main config, setup some constants and check some requirements.
-        require(__DIR__ . '/bootstrap.php');
+        require_once(__DIR__ . '/bootstrap.php');
 
         self::checkStaticCaching();
 
         //attach error handler, init propel, load module configs, initialise main controllers and setup the autoloader.
-        require(__DIR__ . '/bootstrap.startup.php');
+        require_once(__DIR__ . '/bootstrap.startup.php');
+    }
+
+    /**
+     * Starts up the application.
+     */
+    public static function startup($loader = null)
+    {
+        self::bootstrap($loader);
 
         //Setup the HTTPKernel.
         self::setupHttpKernel();
@@ -1798,7 +1796,7 @@ class Kryn extends Controller
             return;
         }
 
-        $key     = md5(self::getRequest()->getRequestUri());
+        $key = md5(self::getRequest()->getRequestUri());
         $caching = Kryn::getCache('core/static-caching');
 
         if (!$caching) {
@@ -1828,19 +1826,19 @@ class Kryn extends Controller
         Kryn::initClient();
 
         if (self::isAdmin()) {
-            Kryn::$modules['admin'] = new \Admin\Controller\AdminController();
+            $admin = new \Admin\Controller\AdminController();
 
-            return Kryn::$modules['admin']->run();
+            return $admin->run();
         }
 
-        $kernel     = self::getHttpKernel();
-        $request    = self::getRequest();
+        $kernel = self::getHttpKernel();
+        $request = self::getRequest();
         $dispatcher = self::getEventDispatcher();
 
         $dispatcher->addListener(
             'core.domain-redirect',
             function (GenericEvent $event) {
-                $domain   = $event->getSubject();
+                $domain = $event->getSubject();
                 $response = new \Symfony\Component\HttpFoundation\RedirectResponse($domain->getUrl(Kryn::$ssl), 301);
                 $response->send();
                 exit;
@@ -1882,10 +1880,10 @@ class Kryn extends Controller
             $dispatcher->addListener(
                 'core.response-send-pre',
                 function () {
-                    $caching       = Kryn::getCache('core/static-caching');
-                    $key           = md5(Kryn::getRequest()->getRequestUri());
+                    $caching = Kryn::getCache('core/static-caching');
+                    $key = md5(Kryn::getRequest()->getRequestUri());
                     $caching[$key] = true;
-                    $file          = 'media/cache/core/static.' . $key . '.html';
+                    $file = 'media/cache/core/static.' . $key . '.html';
                     file_put_contents($file, Kryn::getResponse()->getContent());
                     Kryn::setCache('core/static-caching', $caching, 60);
                 }
@@ -2091,7 +2089,7 @@ class Kryn extends Controller
     {
 
         $cacheKey = 'core/urls/' . $pDomainId;
-        $urls     = self::getDistributedCache($cacheKey);
+        $urls = self::getDistributedCache($cacheKey);
 
         if (!$urls) {
 
@@ -2102,7 +2100,7 @@ class Kryn extends Controller
                 ->find();
 
             //build urls array
-            $urls  = array();
+            $urls = array();
             $level = array();
 
             foreach ($nodes as $node) {
@@ -2161,12 +2159,12 @@ class Kryn extends Controller
         $url = self::getRequest()->getPathInfo();
 
         $domain = Kryn::$domain->getId();
-        $urls   = self::getCachedUrlToPage($domain);
+        $urls = self::getCachedUrlToPage($domain);
 
         //extract extra url attributes
-        $found       = $end = false;
+        $found = $end = false;
         $possibleUrl = $next = $url;
-        $oriUrl      = $possibleUrl;
+        $oriUrl = $possibleUrl;
 
         do {
 
@@ -2291,10 +2289,10 @@ class Kryn extends Controller
      */
     public static function internalError($title = '', $message, $data = null)
     {
-        $data          = $data ? : array();
+        $data = $data ? : array();
         $data['title'] = $title ? : 'Internal system error';
-        $data['msg']   = $message;
-        $response      = new Response(self::translate(
+        $data['msg'] = $message;
+        $response = new Response(self::translate(
             self::getInstance()->renderView('@CoreBundle/internal-error.html.smarty', $data)
         ), 404);
         $response->send();
@@ -2483,8 +2481,8 @@ class Kryn extends Controller
     public static function getDistributedCache($pKey)
     {
         $invalidationKey = $pKey . '/!invalidationCheck';
-        $timestamp       = self::getCache($invalidationKey);
-        $cache           = null;
+        $timestamp = self::getCache($invalidationKey);
+        $cache = null;
 
         if ($timestamp !== null) {
             $cache = self::getFastCache($pKey);
@@ -2524,9 +2522,9 @@ class Kryn extends Controller
     public static function setDistributedCache($pKey, $pValue, $pLifeTime = null)
     {
         $invalidationKey = $pKey . '/!invalidationCheck';
-        $timestamp       = microtime();
+        $timestamp = microtime();
 
-        $cache['data']      = $pValue;
+        $cache['data'] = $pValue;
         $cache['timestamp'] = $timestamp;
 
         return Kryn::setFastCache($pKey, $cache, $pLifeTime) && Kryn::setCache(
@@ -2728,8 +2726,8 @@ class Kryn extends Controller
             return null;
         }
 
-        $bundle                                                = new $clazz();
-        self::$bundleInstances[$clazzIdx]                      = $bundle;
+        $bundle = new $clazz();
+        self::$bundleInstances[$clazzIdx] = $bundle;
         self::$bundleInstances[strtolower($bundle->getName())] = $bundle;
 
         return self::$bundleInstances[$clazzIdx];
@@ -2748,8 +2746,10 @@ class Kryn extends Controller
             preg_match_all('/(\@[a-zA-Z0-9\-_\.\\\\]+)/', $path, $matches);
             if ($matches) {
                 foreach ($matches as $match) {
-                    $dir = \Core\Kryn::getBundleDir($match[0]);
+                    $dir = self::getBundleDir($match[0]);
                     if (!$dir) {
+                        var_dump(self::$bundles);
+                        var_dump(self::$bundleInstances);
                         throw new BundleNotFoundException(sprintf('Bundle for `%s` not found.', $match[0]));
                     }
                     $path = str_replace($match[0], $dir . $suffix, $path);

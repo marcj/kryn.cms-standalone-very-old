@@ -11,16 +11,15 @@ use Core\Models\NodeQuery;
 use Core\Models\Workspace;
 use Core\Models\WorkspaceQuery;
 
-\Core\Models\DomainPeer::doDeleteAll();
-\Core\Models\NodePeer::doDeleteAll();
-\Core\Models\ContentPeer::doDeleteAll();
-\Core\Models\AppLockPeer::doDeleteAll();
+\Core\Models\DomainQuery::create()->deleteAll();
+\Core\Models\NodeQuery::create()->deleteAll();
+\Core\Models\ContentQuery::create()->deleteAll();
+\Core\Models\AppLockQuery::create()->deleteAll();
 
-//setup Nodes
-
-$domainName = $_GET['domain']?$_GET['domain']:'127.0.0.1';
-if ($_SERVER['SERVER_NAME'])
+$domainName = $_GET['domain'] ? : '127.0.0.1';
+if ($_SERVER['SERVER_NAME']) {
     $domainName = $_SERVER['SERVER_NAME'];
+}
 
 $domain = new Domain();
 $domain->setDomain($domainName);
@@ -35,7 +34,7 @@ if ($_SERVER['REQUEST_URI']) {
 }
 
 $domain->setPath($path);
-$domain->setTitleFormat('%title | Node title - my website - change me under domain settings.');
+$domain->setTitleFormat('%title | Node title - My Website - change me under domain settings.');
 $domain->setMaster(1);
 $domain->setLang('en');
 $domain->setResourcecompression(1);
@@ -65,7 +64,7 @@ $Nodes = array(
     array(0, 'Blog', $defaultLayout, 'home', '',
         array(
             '1' => array(
-                array('text', 'Kryn.cms has been installed!', $defaultContentTemplate, '<p>Kryn.cms has been installed correctly.</p><p>&nbsp;</p><p><a href="http://www.kryn.org">Kryn CMS Website</a></p><p>&nbsp;</p><p>&nbsp;</p><p>Go to <a href="admin">administration</a> to manage your new website.</p><p>&nbsp;</p><p><strong>Default login:</strong></p><p><strong><br /></strong></p><p style="padding-left: 10px;">Username: admin</p><p style="padding-left: 10px;">Password: admin</p>'),
+                array('text', 'Kryn.cms has been installed!', $defaultContentTemplate, '<p>Kryn.cms has been installed correctly.</p><p>&nbsp;</p><p><a href="http://www.kryn.org">Kryn CMS Website</a></p><p>&nbsp;</p><p>&nbsp;</p><p>Go to <a href="kryn">administration</a> to manage your new website.</p><p>&nbsp;</p><p><strong>Default login:</strong></p><p><strong><br /></strong></p><p style="padding-left: 10px;">Username: admin</p><p style="padding-left: 10px;">Password: admin</p>'),
                 array('plugin', '', $defaultContentTemplate, '{"bundle":"PublicationBundle","plugin":"listing","options":{"itemsPerPage":10,"maxPages":10,"detailPage":"","template":"default.tpl","categoryId":[],"enableRss":false}}')
             ),
             '2' => array(
@@ -276,7 +275,7 @@ $domain->save();
 dbDelete('system_langs');
 $h = fopen(__DIR__ . '/ISO_639-1_codes.csv', 'r');
 if ($h) {
-    while (($data = fgetcsv($h, 1000, ",")) !== FALSE) {
+    while (($data = fgetcsv($h, 1000, ",")) !== false) {
         dbInsert('system_langs', array('code' => $data[0], 'title' => $data[1], 'langtitle' => $data[2]));
     }
 }

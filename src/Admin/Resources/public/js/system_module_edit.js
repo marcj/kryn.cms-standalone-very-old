@@ -8,6 +8,8 @@ var admin_system_module_edit = new Class({
     },
 
     _createLayout: function () {
+        this.win.content.setStyle('top', 0);
+        this.win.content.setStyle('border-top', 0);
 
         this.topNavi = this.win.addTabGroup();
         this.buttons = {};
@@ -52,7 +54,7 @@ var admin_system_module_edit = new Class({
 
         this.pluginsPane = new Element('div', {
             'class': 'admin-system-modules-edit-pane',
-            style: 'bottom: 31px;'
+            style: 'bottom: 40px;'
         }).inject(this.panes['plugins']);
 
         this.pluginTBody = new Element('table', {
@@ -270,7 +272,7 @@ var admin_system_module_edit = new Class({
         this.panes['docu'].empty();
         var p = new Element('div', {
             'class': 'admin-system-modules-edit-pane',
-            style: 'bottom: 31px;'
+            style: 'bottom: 40px;'
         }).inject(this.panes['docu']);
 
         var buttonBar = new ka.ButtonBar(this.panes['docu']);
@@ -310,7 +312,7 @@ var admin_system_module_edit = new Class({
 
         var p = new Element('div', {
             'class': 'admin-system-modules-edit-pane',
-            style: 'bottom: 31px;'
+            style: 'bottom: 40px;'
         }).inject(this.panes['windows']);
         this.windowsPaneItems = p;
 
@@ -492,7 +494,7 @@ var admin_system_module_edit = new Class({
 
         this.dbEditorPane = new Element('div', {
             'class': 'admin-system-modules-edit-pane',
-            style: 'bottom: 31px;'
+            style: 'bottom: 40px;'
         }).inject(this.panes['db']);
 
         this.dbEditor = new ka.Field({
@@ -549,7 +551,7 @@ var admin_system_module_edit = new Class({
 
         this.helpPane = new Element('div', {
             'class': 'admin-system-modules-edit-pane',
-            style: 'bottom: 31px;'
+            style: 'bottom: 40px;'
         }).inject(this.panes['help']);
 
         Object.each(pHelp, function (item, index) {
@@ -650,7 +652,7 @@ var admin_system_module_edit = new Class({
 
         var p = new Element('div', {
             'class': 'admin-system-modules-edit-pane',
-            style: 'bottom: 31px; padding: 5px;'
+            style: 'bottom: 40px; padding: 5px;'
         }).inject(this.panes['links']);
 
         this.entryPointsTable = new Element('table', {
@@ -1381,7 +1383,7 @@ var admin_system_module_edit = new Class({
 
         var p = new Element('div', {
             'class': 'admin-system-modules-edit-pane',
-            style: 'bottom: 31px;'
+            style: 'bottom: 40px;'
         }).inject(this.panes['general']);
 
         this.generellFields = {};
@@ -1526,7 +1528,7 @@ var admin_system_module_edit = new Class({
         this.panes['layouts'].empty();
         var p = new Element('div', {
             'class': 'admin-system-modules-edit-pane',
-            style: 'bottom: 31px;'
+            style: 'bottom: 40px;'
         }).inject(this.panes['layouts']);
 
         this.layoutsAddThemeButton = new Element('div').inject(p);
@@ -1897,7 +1899,7 @@ var admin_system_module_edit = new Class({
 
         this.pluginsPane = new Element('div', {
             'class': 'admin-system-modules-edit-pane',
-            style: 'bottom: 31px;'
+            style: 'bottom: 40px;'
         }).inject(this.panes['objects']);
 
         this.objectTBody = new Element('table', {
@@ -3027,7 +3029,7 @@ var admin_system_module_edit = new Class({
 
         this.extrasPane = new Element('div', {
             'class': 'admin-system-modules-edit-pane',
-            style: 'bottom: 31px;'
+            style: 'bottom: 40px;'
         }).inject(this.panes['extras']);
 
         this.extraFieldsObj = new ka.FieldForm(this.extrasPane, extrasFields, {allTableItems:1, tableItemLabelWidth: 270});

@@ -140,7 +140,7 @@ function readFolder($pPath)
  * @param string $pattern   pattern to glob for
  * @param bool   $recursive pattern to glob for
  */
-function find($dir, $pattern, $recursive = true)
+function find($dir, $pattern = '', $recursive = true)
 {
     $files = glob($dir . ($pattern ? '/' . $pattern : ''));
 

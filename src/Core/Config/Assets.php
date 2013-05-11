@@ -23,6 +23,13 @@ class Assets extends Model implements \IteratorAggregate
     private $assets;
 
     /**
+     * If assets can be compressed with other equal files (js/css compression)
+     *
+     * @var bool
+     */
+    private $compression = true;
+
+    /**
      * @var bool
      */
     private $recursive = false;
@@ -31,6 +38,23 @@ class Assets extends Model implements \IteratorAggregate
     {
         $this->path = $this->element->nodeValue;
         $this->setAttributeVar('recursive');
+        $this->setAttributeVar('compression');
+    }
+
+    /**
+     * @param boolean $compression
+     */
+    public function setCompression($compression)
+    {
+        $this->compression = filter_var($compression, FILTER_VALIDATE_BOOLEAN);
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getCompression()
+    {
+        return $this->compression;
     }
 
     /**
@@ -83,6 +107,7 @@ class Assets extends Model implements \IteratorAggregate
                 $asset = new Asset();
                 $file = ($bundleName ? $bundleName . '/' : '') . substr($file, $offset);
                 $asset->setPath($file);
+                $asset->setCompression($this->getCompression());
                 $this->assets[] = $asset;
             }
         }

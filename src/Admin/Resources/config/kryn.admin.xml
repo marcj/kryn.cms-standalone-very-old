@@ -1,6 +1,22 @@
 <config>
     <bundle>
         <admin>
+            <asset>@CoreBundle/mootools-core.js</asset>
+            <asset>@CoreBundle/mootools-more.js</asset>
+            <asset>@CoreBundle/mowla.min.js</asset>
+            <asset>@AdminBundle/js/mootools-extras/String.sprintf.js</asset>
+
+            <asset compression="false">@CoreBundle/tinymce/tinymce.min.js</asset>
+            <asset compression="false">@CoreBundle/codemirror/lib/codemirror.js</asset>
+            <asset compression="false">@CoreBundle/codemirror/addon/mode/loadmode.js</asset>
+
+            <asset>@AdminBundle/js/ka.js</asset>
+            <asset>@AdminBundle/js/ka/AdminInterface.js</asset>
+            <asset>@AdminBundle/js/ka/Button.js</asset>
+            <asset>@AdminBundle/js/globals.js</asset>
+            <asset>@AdminBundle/js/ka/Select.js</asset>
+            <asset>@AdminBundle/js/ka/Checkbox.js</asset>
+
             <asset>@AdminBundle/js/ka/ObjectTree.js</asset>
             <asset>@AdminBundle/js/ka/TabGroup.js</asset>
             <asset>@AdminBundle/js/ka/WindowEdit.js</asset>
@@ -21,8 +37,18 @@
             <assets>@AdminBundle/js/mootools-extras/*.js</assets>
             <assets>@AdminBundle/js/extras/*.js</assets>
 
+            <asset>@AdminBundle/icons/style.css</asset>
+            <asset>@CoreBundle/codemirror/lib/codemirror.css</asset>
+
+            <asset>@CoreBundle/font/SourceCodePro/Light/fonts.css</asset>
+            <asset>@CoreBundle/font/SourceCodePro/Regular/fonts.css</asset>
+            <asset>@CoreBundle/font/SourceSansPro/Light/fonts.css</asset>
+            <asset>@CoreBundle/font/SourceSansPro/Regular/fonts.css</asset>
+            <asset>@CoreBundle/font/SourceSansPro/Semibold/fonts.css</asset>
+            <assets>@AdminBundle/css/ai.css</assets>
             <assets>@AdminBundle/css/ka/*.css</assets>
             <assets>@AdminBundle/css/ka/ui/*.css</assets>
+
         </admin>
         <streams>
             <stream id="load">

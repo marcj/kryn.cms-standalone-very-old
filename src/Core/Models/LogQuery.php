@@ -2,7 +2,8 @@
 
 namespace Core\Models;
 
-use Core\Models\om\BaseLogQuery;
+use Core\Models\Base\LogQuery as BaseLogQuery;
+
 
 /**
  * Skeleton subclass for performing query and update operations on the 'kryn_system_log' table.
@@ -13,8 +14,7 @@ use Core\Models\om\BaseLogQuery;
  * application requirements.  This class will only be generated as
  * long as it does not already exist in the output directory.
  *
- * @package    propel.generator.kryn
  */
-class LogQuery extends BaseLogQuery
-{
+class LogQuery extends BaseLogQuery {
+
 } // LogQuery

@@ -2,7 +2,8 @@
 
 namespace Users\Models;
 
-use Users\Models\om\BaseGroupQuery;
+use Users\Models\Base\GroupQuery as BaseGroupQuery;
+
 
 /**
  * Skeleton subclass for performing query and update operations on the 'kryn_system_group' table.
@@ -13,8 +14,7 @@ use Users\Models\om\BaseGroupQuery;
  * application requirements.  This class will only be generated as
  * long as it does not already exist in the output directory.
  *
- * @package    propel.generator.Users
  */
-class GroupQuery extends BaseGroupQuery
-{
+class GroupQuery extends BaseGroupQuery {
+
 } // GroupQuery

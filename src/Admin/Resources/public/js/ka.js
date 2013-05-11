@@ -860,36 +860,8 @@ ka.getDomain = function (pRsn) {
     return result;
 }
 
-ka.loadSettings = function (pOnlyThisKeys, cb) {
-    if (!ka.settings) ka.settings = {};
-
-    new Request.JSON({url: _pathAdmin + 'admin/backend/settings', noCache: 1, async: false, onComplete: function (res) {
-        if (res.error == 'access_denied') return;
-
-        Object.each(res.data, function(val,key){
-            ka.settings[key] = val;
-        })
-
-        ka.settings['images'] = ['jpg', 'jpeg', 'bmp', 'png', 'gif', 'psd'];
-
-        if (!ka.settings.user)
-            ka.settings.user = {};
-
-        if (typeOf(ka.settings.user) != 'object')
-            ka.settings.user = {};
-
-        if (!ka.settings['user']['windows'])
-            ka.settings['user']['windows'] = {};
-
-        if (!ka.adminInterface.options.frontPage && ka.settings.system && ka.settings.system.systemTitle) {
-            document.title = ka.settings.system.systemTitle + t(' | Kryn.cms Administration');
-        }
-
-        if (cb) {
-            cb(res.data);
-        }
-
-    }.bind(this)}).get({lang: window._session.lang, keys: pOnlyThisKeys});
+ka.loadSettings = function (keyLimitation, cb) {
+    ka.adminInterface.loadSettings(keyLimitation, cb);
 }
 
 ka.loadLanguage = function (pLang) {

@@ -49,7 +49,7 @@ ka.Content = new Class({
         new Element('a', {
             html: '&#xe0c6;',
             href: 'javascript: ;',
-            class: 'icon ka-content-actionBar-move',
+            'class': 'icon ka-content-actionBar-move',
             title: t('Move content')
         }).inject(this.actionBar);
 
@@ -57,7 +57,7 @@ ka.Content = new Class({
             html: '&#xe26b;',
             href: 'javascript: ;',
             title: t('Remove content'),
-            class: 'icon'
+            'class': 'icon'
         })
         .addEvent('click', this.remove)
         .inject(this.actionBar);

@@ -53,7 +53,7 @@
     <foreign-key foreignTable="system_node" onDelete="cascade">
       <reference local="node_id" foreign="id"/>
     </foreign-key>
-    <behavior name="workspace" />
+    <behavior name="Core\WorkspaceBehavior" />
     <behavior name="sortable">
       <parameter name="rank_column" value="sort" />
       <parameter name="use_scope" value="true"/>

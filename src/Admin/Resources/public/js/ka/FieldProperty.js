@@ -647,7 +647,7 @@ ka.FieldProperty = new Class({
         this.dialog = new ka.Dialog(this.win, {
             absolute: true,
             minWidth: '90%',
-            minHeight: '90%',
+            minHeight: '90%'
         });
 
         /*if (!this.options.withTableDefinition) {

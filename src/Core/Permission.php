@@ -12,7 +12,9 @@
 
 namespace Core;
 
-use Users\User;
+use Users\Models\User;
+use Core\Models\AclQuery;
+use Core\Models\Acl;
 
 class Permission
 {
@@ -113,7 +115,7 @@ class Permission
         }
 
         if ($pTargetType === self::USER) {
-            $user = Kryn::getPropelCacheObject('Users\\User', $pTargetId);
+            $user = Kryn::getPropelCacheObject('Users\\Models\\User', $pTargetId);
         }
 
         if ($user) {

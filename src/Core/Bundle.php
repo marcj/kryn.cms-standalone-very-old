@@ -24,6 +24,11 @@ class Bundle {
      */
     private $composer;
 
+    /**
+     * Returns the path to this bundle.
+     *
+     * @return string
+     */
     final public function getPath()
     {
         if (null === $this->reflectionObject) {
@@ -42,6 +47,11 @@ class Bundle {
 
     }
 
+    /**
+     * Returns the full namespace.
+     *
+     * @return string
+     */
     final public function getNamespace()
     {
         if (null === $this->reflectionObject) {
@@ -52,6 +62,17 @@ class Bundle {
     }
 
     /**
+     * Returns the first part of the namespace.
+     *
+     * @return string
+     */
+    final public function getRootNamespace()
+    {
+        $namespace = $this->getNamespace();
+        return substr($namespace, 0, strpos($namespace, '\\') ?: strlen($namespace));
+    }
+
+    /**
      * @return string
      */
     final public function getClassName()
@@ -59,6 +80,13 @@ class Bundle {
         return get_called_class();
     }
 
+    /**
+     * Returns the name of this bundle.
+     *
+     * @param bool $withoutSuffix
+     *
+     * @return string
+     */
     final public function getName($withoutSuffix = false)
     {
         if (null === $this->name) {
@@ -76,6 +104,11 @@ class Bundle {
         return $this->name;
     }
 
+    /**
+     * Returns the path to the composer.json
+     *
+     * @return string
+     */
     public function getComposerPath()
     {
         return $this->getPath() . 'composer.json';

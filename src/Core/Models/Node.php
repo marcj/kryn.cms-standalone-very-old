@@ -2,7 +2,7 @@
 
 namespace Core\Models;
 
-use Core\Models\om\BaseNode;
+use Core\Models\Base\Node as BaseNode;
 use Core\Kryn;
 
 /**

@@ -6,8 +6,8 @@ use Tests\TestCaseWithCore;
 use \Core\Object;
 use \Core\WorkspaceManager;
 
-use Test\ItemQuery;
-use Test\ItemCategoryQuery;
+use Test\Models\ItemQuery;
+use Test\Models\ItemCategoryQuery;
 
 class WorkspaceObjectRelationTest extends TestCaseWithCore
 {

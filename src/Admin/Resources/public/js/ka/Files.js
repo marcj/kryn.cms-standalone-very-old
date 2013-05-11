@@ -1047,7 +1047,7 @@ ka.Files = new Class({
 
                 new Request.JSON({url: _pathAdmin + 'admin/file', noCache: 1, onComplete: function (res) {
                     this.reload();
-                }.bind(this)}).delete({path: item.path});
+                }.bind(this)}).get({_method: 'delete', path: item.path});
 
             }.bind(this));
 

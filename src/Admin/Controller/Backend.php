@@ -19,9 +19,11 @@ class Backend
 
     public function getDesktop()
     {
-        if ($desktop = Kryn::getAdminClient()->getUser()->getDesktop())
+        if ($desktop = Kryn::getAdminClient()->getUser()->getDesktop()) {
             return $desktop->toArray();
-        else return false;
+        } else {
+            return false;
+        }
     }
 
     public function saveDesktop($pIcons)
@@ -47,9 +49,11 @@ class Backend
 
     public function getWidgets()
     {
-        if ($widgets = Kryn::getAdminClient()->getUser()->getWidgets())
+        if ($widgets = Kryn::getAdminClient()->getUser()->getWidgets()) {
             return $widgets->toArray();
-        else return false;
+        } else {
+            return false;
+        }
 
     }
 
@@ -77,19 +81,20 @@ class Backend
     public function getCustomJs()
     {
         $module = getArgv('module', 2);
-        $code = getArgv('code', 2);
+        $code   = getArgv('code', 2);
 
-        if ($module == 'admin')
+        if ($module == 'admin') {
             $file = "web/bundles/admin/js/$code.js";
-        else
+        } else {
             $file = "web/bundles/$module/admin/js/$code.js";
+        }
 
         header('Content-Type: text/javascript');
 
         if (!file_exists($file)) {
             $content = "contentCantLoaded_" . getArgv('onLoad', 2) . "('$file');\n";
         } else {
-            $content  = file_get_contents($file);
+            $content = file_get_contents($file);
             $content .= "\n";
             $content .= "contentLoaded_" . getArgv('onLoad', 2) . '();' . "\n";
         }
@@ -116,6 +121,7 @@ class Backend
      *  Example: settings?keys[]=modules&keys[]=layouts
      *
      * @param  array $keys Limits the result.
+     *
      * @return array
      */
     public function getSettings($keys = array())
@@ -127,18 +133,19 @@ class Backend
 
         $res = array();
 
-        if ($loadKeys == false || in_array('modules', $loadKeys)){
+        if ($loadKeys == false || in_array('modules', $loadKeys)) {
             foreach (Kryn::$configs as $config) {
                 $res['bundles'][] = $config->getName();
             }
         }
 
-        if ($loadKeys == false || in_array('configs', $loadKeys))
+        if ($loadKeys == false || in_array('configs', $loadKeys)) {
             $res['configs'] = Kryn::getConfigs()->toArray();
+        }
 
         if (
             $loadKeys == false || in_array('themes', $loadKeys)
-        ){
+        ) {
             foreach (Kryn::getConfigs() as $key => $config) {
                 if ($config->getThemes()) {
                     foreach ($config->getThemes() as $themeTitle => $theme) {
@@ -150,23 +157,26 @@ class Backend
         }
 
         if ($loadKeys == false || in_array('upload_max_filesize', $loadKeys)) {
-            $v = ini_get('upload_max_filesize');
-            $v2 = ini_get('post_max_size');
-            $b = $this->return_bytes(($v < $v2) ? $v : $v2);
+            $v                          = ini_get('upload_max_filesize');
+            $v2                         = ini_get('post_max_size');
+            $b                          = $this->return_bytes(($v < $v2) ? $v : $v2);
             $res['upload_max_filesize'] = $b;
         }
 
-        if ($loadKeys == false || in_array('groups', $loadKeys))
+        if ($loadKeys == false || in_array('groups', $loadKeys)) {
             $res['groups'] = dbTableFetchAll('system_group');
+        }
 
         if ($loadKeys == false || in_array('user', $loadKeys)) {
             if ($settings = Kryn::getAdminClient()->getUser()->getSettings()) {
-                if ($settings instanceof \Core\Properties)
+                if ($settings instanceof \Core\Properties) {
                     $res['user'] = $settings->toArray();
+                }
             }
 
-            if (!$res['user'])
+            if (!$res['user']) {
                 $res['user'] = array();
+            }
         }
 
         if ($loadKeys == false || in_array('system', $loadKeys)) {
@@ -183,8 +193,9 @@ class Backend
                 $res['r2d'] = \Core\Render::updatePage2DomainCache();
             }
 
-            if (!$res['r2d'])
+            if (!$res['r2d']) {
                 $res['r2d'] = array();
+            }
         }
 
         if ($loadKeys == false || in_array('domains', $loadKeys)) {
@@ -192,9 +203,13 @@ class Backend
         }
 
         if ($loadKeys == false || in_array('langs', $loadKeys)) {
-            $tlangs = \Core\Models\LanguageQuery::create()->filterByVisible(true)->find()->toArray(null, null, \BasePeer::TYPE_STUDLYPHPNAME);
+            $tlangs = \Core\Models\LanguageQuery::create()->filterByVisible(true)->find()->toArray(
+                null,
+                null,
+                \BasePeer::TYPE_STUDLYPHPNAME
+            );
 
-            $langs = dbToKeyIndex($tlangs, 'code');
+            $langs        = dbToKeyIndex($tlangs, 'code');
             $res['langs'] = $langs;
         }
 
@@ -203,7 +218,7 @@ class Backend
 
     public function return_bytes($val)
     {
-        $val = trim($val);
+        $val  = trim($val);
         $last = strtolower($val[strlen($val) - 1]);
         switch ($last) {
             // The 'G' modifier is available since PHP 5.1.0
@@ -218,49 +233,145 @@ class Backend
         return $val;
     }
 
-    public static function loadJs()
+    public function loadJsMap()
     {
-        //header('Content-Type: application/x-javascript');
+        $this->loadJs(true);
+    }
 
-        $md5Hash = '';
-        $jsFiles = array();
+    public function loadCss()
+    {
+        header('Content-Type: text/css');
+        $expires= 60 * 60 * 24 * 14;
+        header('Pragma: public');
+        header('Cache-Control: max-age=' . $expires);
+        header('Expires: ' . gmdate('D, d M Y H:i:s', time() + $expires) . ' GMT');
+
+        if (extension_loaded("zlib") && (ini_get("output_handler") != "ob_gzhandler")) {
+            ini_set("zlib.output_compression", 1);
+        }
+
+        $oFile     = 'web/cache/admin.style-compiled.css';
+        $md5String = '';
 
         foreach (Kryn::$configs as $bundleConfig) {
-            foreach ($bundleConfig->getAdminAssetsPaths(false, '.*\.js', true) as $assetPath) {
-                $jsFiles[$assetPath] = Kryn::resolvePath($assetPath, 'Resources/public');
+            foreach ($bundleConfig->getAdminAssetsPaths(false, '.*\.css', true, true) as $assetPath) {
+                $path = Kryn::resolvePath($assetPath, 'Resources/public');
+                if (file_exists($path)) {
+                    $files[] = $assetPath;
+                    $md5String .= ">$path<";
+                }
             }
         }
 
-        foreach ($jsFiles as $jsFile) {
-            $md5Hash .= filemtime($jsFile) . '.';
+        $handle       = @fopen($oFile, 'r');
+        $fileUpToDate = false;
+        $md5Line      = '//' . md5($md5String) . "\n";
+
+        if ($handle) {
+            $line = fgets($handle);
+            fclose($handle);
+            if ($line == $md5Line) {
+                $fileUpToDate = true;
+            }
         }
 
-        $md5Hash = md5($md5Hash);
+        if (!$fileUpToDate) {
+            $content = \Core\Utils::compressCss($files, Kryn::getAdminPrefix() . '/admin/backend/');
+            file_put_contents($oFile, $content);
+        }
 
-        print "/* Kryn.cms combined admin javascript file: $md5Hash */\n\n";
+        readfile($oFile);
+        exit;
+    }
 
-        $cacheDir  = PATH_WEB_CACHE . '';
-        $cacheFile = $cacheDir.'admin.cachedJs_' . $md5Hash . '.css';
+    public function loadJs($printSourceMap = false)
+    {
 
-        if (file_exists($cacheFile)) {
-            readFile($cacheFile);
+        header('Content-Type: application/x-javascript');
+        $expires= 60 * 60 * 24 * 14;
+        header('Pragma: public');
+        header('Cache-Control: max-age=' . $expires);
+        header('Expires: ' . gmdate('D, d M Y H:i:s', time() + $expires) . ' GMT');
+
+        if (extension_loaded("zlib") && (ini_get("output_handler") != "ob_gzhandler")) {
+            ini_set("zlib.output_compression", 1);
+        }
+
+        chdir('web/');
+        $oFile     = 'cache/admin.script-compiled.js';
+        $sourceMap = $oFile . '.map';
+        $cmdTest   = 'java -version';
+        $compiler  = escapeshellarg(realpath('../vendor/google/closure-compiler/compiler.jar'));
+        $cmd       = 'java -jar ' . $compiler . ' --js_output_file ' . escapeshellarg($oFile);
+        $returnVal = 0;
+        $debugMode = false;
+
+        if ($printSourceMap) {
+            $content = file_get_contents($sourceMap);
+            $content = str_replace('"bundles/', '"../../../bundles/', $content);
+            $content = str_replace('"cache/admin.script-compiled.js', '"kryn/admin/backend/script.js', $content);
+            echo $content;
+            exit;
+        }
+
+        $files     = array();
+        $assets    = array();
+        $md5String = '';
+
+        chdir('../');
+        foreach (Kryn::$configs as $bundleConfig) {
+            foreach ($bundleConfig->getAdminAssetsPaths(false, '.*\.js', true, true) as $assetPath) {
+                $path = Kryn::resolvePath($assetPath, 'Resources/public');
+                if (file_exists($path)) {
+                    $assets[] = $assetPath;
+                    $files[]  = '--js ' . escapeshellarg(Kryn::resolvePublicPath($assetPath));
+                    $md5String .= ">$path<";
+                }
+            }
+        }
+        chdir('web/');
+
+        $handle       = @fopen($oFile, 'r');
+        $fileUpToDate = false;
+        $md5Line      = '//' . md5($md5String) . "\n";
+
+        if ($handle) {
+            $line = fgets($handle);
+            fclose($handle);
+            if ($line == $md5Line) {
+                $fileUpToDate = true;
+            }
+        }
+
+        if ($fileUpToDate) {
+            readfile($oFile);
         } else {
-
-            $content = '';
-            foreach ($jsFiles as $jsFile => $localPath) {
-                $content .= "\n\n/* file: $jsFile */\n\n";
-                $content .= file_get_contents($localPath);
+            if (!$debugMode) {
+                system($cmdTest, $returnVal);
             }
 
-            //delete old cached files
-            foreach (glob($cacheDir . 'admin.cachedJs_*.js') as $cache)
-                @unlink($cache);
+            if (0 === $returnVal) {
+                $cmd .= ' --create_source_map ' . escapeshellarg($sourceMap);
+                $cmd .= ' --source_map_format=V3';
 
-            file_put_contents($cacheDir . 'admin.cachedJs_' . $md5Hash . '.js', $content);
-            print $content;
+                $cmd .= ' ' . implode(' ', $files);
+                $cmd .= ' 2>&1';
+                shell_exec($cmd);
+
+                $content = file_get_contents($oFile);
+                $sourceMapUrl = '//@ sourceMappingURL=script.js.map';
+                file_put_contents($oFile, $md5Line . $content . $sourceMapUrl);
+
+                readfile($oFile);
+            } else {
+                foreach ($assets as $assetPath) {
+                    echo "/* $assetPath */\n\n";
+                    $path = Kryn::resolvePath($assetPath, 'Resources/public');
+                    echo file_get_contents($path);
+                }
+            }
         }
 
-        print "\n" . 'ka.adminInterface.loaderDone(' . getArgv('id') . ');' . "\n";
         exit;
     }
 
@@ -278,10 +389,10 @@ class Backend
                         //todo, check permissions
                         $entryPoints[$path] = array(
                             'label' => $subEntryPoint->getLabel(),
-                            'icon'  => $subEntryPoint->getIcon(),
-                            'fullPath'  => $path,
-                            'path'   => $subEntryPoint->getPath(),
-                            'type'  => $subEntryPoint->getType(),
+                            'icon' => $subEntryPoint->getIcon(),
+                            'fullPath' => $path,
+                            'path' => $subEntryPoint->getPath(),
+                            'type' => $subEntryPoint->getType(),
                             'level' => substr_count($path, '/')
                         );
                     }
@@ -302,17 +413,17 @@ class Backend
                 $childs = $this->getChildMenus($pCode . "/$key", $value);
                 if (count($childs) == 0) {
                     //if (Kryn::checkUrlAccess($pCode . "/$key")) {
-                        unset($value['children']);
-                        $links[$key] = $value;
+                    unset($value['children']);
+                    $links[$key] = $value;
                     //}
                 } else {
                     $value['children'] = $childs;
-                    $links[$key] = $value;
+                    $links[$key]       = $value;
                 }
 
             } else {
                 //if (Kryn::checkUrlAccess($pCode . "/$key")) {
-                    $links[$key] = $value;
+                $links[$key] = $value;
                 //}
             }
             if ((!$links[$key]['type'] && !$links[$key]['children']) || $links[$key]['isLink'] === false) {

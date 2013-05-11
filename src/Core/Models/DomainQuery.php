@@ -2,7 +2,8 @@
 
 namespace Core\Models;
 
-use Core\Models\om\BaseDomainQuery;
+use Core\Models\Base\DomainQuery as BaseDomainQuery;
+
 
 /**
  * Skeleton subclass for performing query and update operations on the 'kryn_system_domain' table.
@@ -13,8 +14,7 @@ use Core\Models\om\BaseDomainQuery;
  * application requirements.  This class will only be generated as
  * long as it does not already exist in the output directory.
  *
- * @package    propel.generator.kryn
  */
-class DomainQuery extends BaseDomainQuery
-{
+class DomainQuery extends BaseDomainQuery {
+
 } // DomainQuery

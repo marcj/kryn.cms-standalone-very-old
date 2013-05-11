@@ -3,7 +3,7 @@
 namespace Tests\Object;
 
 use Tests\TestCaseWithCore;
-use Test\Item;
+use Test\Models\Item;
 
 use Core\Object;
 

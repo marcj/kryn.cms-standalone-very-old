@@ -3,7 +3,6 @@ var admin_system_module = new Class({
     initialize: function (pWin) {
         this.win = pWin;
 
-
         this.tabGroup = this.win.addTabGroup();
 
         this.tabButtons = {};
@@ -332,7 +331,6 @@ var admin_system_module = new Class({
 
     _createInstallLayout: function () {
         this.panes['install'].empty();
-
 
         this.searchPane = new Element('div', {
             'style': 'position: absolute; left: 0px; top: 0px; right: 0px; height: 30px; text-align: right; padding-top: 5px; border-bottom: 1px solid #bbb; padding-right: 3px;'

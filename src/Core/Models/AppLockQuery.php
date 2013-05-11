@@ -2,7 +2,8 @@
 
 namespace Core\Models;
 
-use Core\Models\om\BaseAppLockQuery;
+use Core\Models\Base\AppLockQuery as BaseAppLockQuery;
+
 
 /**
  * Skeleton subclass for performing query and update operations on the 'kryn_system_app_lock' table.
@@ -13,8 +14,7 @@ use Core\Models\om\BaseAppLockQuery;
  * application requirements.  This class will only be generated as
  * long as it does not already exist in the output directory.
  *
- * @package    propel.generator.kryn
  */
-class AppLockQuery extends BaseAppLockQuery
-{
+class AppLockQuery extends BaseAppLockQuery {
+
 } // AppLockQuery

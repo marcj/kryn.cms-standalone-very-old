@@ -9,6 +9,7 @@ class BasicTest extends TestCaseWithCore
     public function testGeneral()
     {
         $active = \Core\Kryn::isActiveModule('core');
+
         $this->assertTrue($active);
 
         $active = \Core\Kryn::isActiveModule('users');
@@ -18,14 +19,14 @@ class BasicTest extends TestCaseWithCore
         $this->assertTrue($active);
 
         $active = \Core\Kryn::isActiveModule('test');
-        $this->assertTrue($active);
+        $this->assertTrue($active, 'Module `test` is active.`');
 
         $this->assertTrue(is_dir('web/cache'));
         $this->assertTrue(is_writable('web/cache'));
 
         $this->assertTrue(is_writable(\Core\Kryn::getTempFolder()));
 
-        $this->assertInstanceOf('Test\\Test', new \Test\Test());
+        $this->assertInstanceOf('Test\\Controller\\Test', new \Test\Controller\Test());
 
     }
 

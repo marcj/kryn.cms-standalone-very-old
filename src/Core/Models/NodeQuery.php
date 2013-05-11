@@ -2,7 +2,8 @@
 
 namespace Core\Models;
 
-use Core\Models\om\BaseNodeQuery;
+use Core\Models\Base\NodeQuery as BaseNodeQuery;
+
 
 /**
  * Skeleton subclass for performing query and update operations on the 'kryn_system_node' table.
@@ -13,8 +14,7 @@ use Core\Models\om\BaseNodeQuery;
  * application requirements.  This class will only be generated as
  * long as it does not already exist in the output directory.
  *
- * @package    propel.generator.Core
  */
-class NodeQuery extends BaseNodeQuery
-{
+class NodeQuery extends BaseNodeQuery {
+
 } // NodeQuery

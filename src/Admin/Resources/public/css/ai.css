@@ -1,9 +1,3 @@
-@import "../../core/font/SourceCodePro/Light/fonts.css";
-@import "../../core/font/SourceCodePro/Regular/fonts.css";
-@import "../../core/font/SourceSansPro/Light/fonts.css";
-@import "../../core/font/SourceSansPro/Regular/fonts.css";
-@import "../../core/font/SourceSansPro/Semibold/fonts.css";
-
 html, body {
     margin: 0;
     padding: 0;
@@ -120,10 +114,10 @@ span.selectable span, div.selectable div {
 .ka-desktop {
     position: absolute;
     top: 100px;
-    left: 220px;
+    left: 210px;
     right: 0;
     bottom: 0;
-    overflow: hidden;
+    overflow: auto;
 }
 
 .ka-main-menu {
@@ -134,7 +128,7 @@ span.selectable span, div.selectable div {
     bottom: 0;
     overflow: auto;
     -webkit-overflow-scrolling: touch;
-    width: 220px;
+    width: 210px;
     background-color: #1D1D22;
 }
 
@@ -253,7 +247,7 @@ a.ka-main-menu-item:before {
 a.ka-main-menu-item,
 a.ka-main-menu-item:link {
     line-height: 22px;
-    padding: 8px 24px;
+    padding: 8px 5px;
     padding-left: 55px;
     color: white;
     font-weight: normal;

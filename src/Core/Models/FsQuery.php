@@ -2,7 +2,8 @@
 
 namespace Core\Models;
 
-use Core\Models\om\BaseFsQuery;
+use Core\Models\Base\FsQuery as BaseFsQuery;
+
 
 /**
  * Skeleton subclass for performing query and update operations on the 'kryn_system_fs' table.
@@ -13,8 +14,7 @@ use Core\Models\om\BaseFsQuery;
  * application requirements.  This class will only be generated as
  * long as it does not already exist in the output directory.
  *
- * @package    propel.generator.kryn
  */
-class FsQuery extends BaseFsQuery
-{
+class FsQuery extends BaseFsQuery {
+
 } // FsQuery

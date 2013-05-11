@@ -2,7 +2,7 @@
 
 namespace Core\Models;
 
-use Core\Models\om\BaseContentVersionQuery;
+use Core\Models\Base\ContentVersionQuery as BaseContentVersionQuery;
 
 
 /**
@@ -14,8 +14,7 @@ use Core\Models\om\BaseContentVersionQuery;
  * application requirements.  This class will only be generated as
  * long as it does not already exist in the output directory.
  *
- * @package    propel.generator.Core
  */
-class ContentVersionQuery extends BaseContentVersionQuery
-{
-}
+class ContentVersionQuery extends BaseContentVersionQuery {
+
+} // ContentVersionQuery

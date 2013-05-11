@@ -1,20 +1,20 @@
 /*
----
-description: String.sprintf
+ ---
+ description: String.sprintf
 
-license: MIT-style
+ license: MIT-style
 
-authors:
-- MArc J. Schmidt
+ authors:
+ - MArc J. Schmidt
 
-requires:
-- Core
-- More 'String.Extra'
+ requires:
+ - Core
+ - More 'String.Extra'
 
-provides: [String.sprintf]
+ provides: [String.sprintf]
 
-...
-*/
+ ...
+ */
 
 
 /**
@@ -74,15 +74,15 @@ provides: [String.sprintf]
             }
 
             if (code[3] == 's'){
-                var char = '';
+                var character = '';
                 if (code[2]){
 
                     if (code[2].substr(0,1) == '\''){
-                        char = code[2].substr(1,1);
+                        character = code[2].substr(1,1);
                         opt = 2;
                     } else {
                         opt = code[2].search(/[\-1-9]/);
-                        char = code[2].substr(0, opt) || ' ';
+                        character = code[2].substr(0, opt) || ' ';
                     }
 
                     opt = code[2].substr(opt, code[2].length);
@@ -94,13 +94,13 @@ provides: [String.sprintf]
                     opt = parseFloat(opt);
 
                     if (opt < 0 && (opt*-1) - arg.length > 0)
-                        result += char.repeat( parseInt((opt*-1) - arg.length) );
+                        result += character.repeat( parseInt((opt*-1) - arg.length) );
                 }
 
                 result += String.from(arg);
 
                 if (opt > 0 && opt - arg.length > 0)
-                    result += char.repeat( parseInt(opt - arg.length) );
+                    result += character.repeat( parseInt(opt - arg.length) );
 
                 continue;
             }

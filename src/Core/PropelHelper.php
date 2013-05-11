@@ -2,13 +2,42 @@
 
 namespace Core;
 
+use Propel\Generator\Command\ConfigConvertXmlCommand;
+use Propel\Generator\Command\MigrationDiffCommand;
+use Propel\Generator\Command\ModelBuildCommand;
+use Propel\Generator\Manager\ModelManager;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Console\Output\StreamOutput;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
+
+/**
+ * Class PropelHelper
+ *
+ * @package Core
+ */
 class PropelHelper
 {
+    /**
+     * @var array
+     */
     public static $objectsToExtension = array();
+    /**
+     * @var array
+     */
     public static $classDefinition = array();
 
+    /**
+     * @var string
+     */
     private static $tempFolder = '';
 
+    /**
+     * @return string
+     */
     public static function init()
     {
         try {
@@ -23,6 +52,9 @@ class PropelHelper
         return $result;
     }
 
+    /**
+     * @return string
+     */
     public static function getTempFolder()
     {
         if (self::$tempFolder) {
@@ -34,6 +66,11 @@ class PropelHelper
         return self::$tempFolder;
     }
 
+    /**
+     * @param $pCmd
+     *
+     * @return array|bool|string
+     */
     public static function callGen($pCmd)
     {
         $errors = self::checkModelXml();
@@ -61,6 +98,9 @@ class PropelHelper
         return $result;
     }
 
+    /**
+     *
+     */
     public static function cleanup()
     {
         $tmp = self::getTempFolder();
@@ -68,6 +108,9 @@ class PropelHelper
 
     }
 
+    /**
+     * @return array
+     */
     public static function checkModelXml()
     {
         foreach (Kryn::$bundles as $extension) {
@@ -85,6 +128,9 @@ class PropelHelper
         return $errors;
     }
 
+    /**
+     * @return string
+     */
     public static function fullGenerator()
     {
         self::writeXmlConfig();
@@ -103,6 +149,10 @@ class PropelHelper
         return $content;
     }
 
+    /**
+     * @return string
+     * @throws \Exception
+     */
     public static function generateClasses()
     {
         $tmp = self::getTempFolder();
@@ -113,16 +163,78 @@ class PropelHelper
             self::collectSchemas();
         }
 
-        $content = self::execute('om');
+        $input = new ArrayInput(array(
+             '--input-dir' => $tmp . 'propel/',
+             '--output-dir' => $tmp . 'propel/build/classes/',
+             '--verbose' => 'vvv'
+        ));
+        $command = new ModelBuildCommand();
+        $command->getDefinition()->addOption(
+            new InputOption('--verbose', '-v|vv|vvv', InputOption::VALUE_NONE, '') //because migrationDiffCommand access this option
+        );
 
-        if (is_array($content)) {
-            throw new \Exception("Propel generateClasses failed: \n" . $content[0]);
-        }
+        $output = new StreamOutput(fopen('php://memory', 'rw'));
+        $command->run($input, $output);
+
+//        $generatorConfig = new GeneratorConfig(array_merge(array(
+//            'propel.platform.class'                     => $input->getOption('platform'),
+//            'propel.builder.object.class'               => $input->getOption('object-class'),
+//            'propel.builder.objectstub.class'           => $input->getOption('object-stub-class'),
+//            'propel.builder.objectmultiextend.class'    => $input->getOption('object-multiextend-class'),
+//            'propel.builder.query.class'                => $input->getOption('query-class'),
+//            'propel.builder.querystub.class'            => $input->getOption('query-stub-class'),
+//            'propel.builder.queryinheritance.class'     => $input->getOption('query-inheritance-class'),
+//            'propel.builder.queryinheritancestub.class' => $input->getOption('query-inheritance-stub-class'),
+//            'propel.builder.tablemap.class'             => $input->getOption('tablemap-class'),
+//            'propel.builder.pluralizer.class'           => $input->getOption('pluralizer-class'),
+//            'propel.disableIdentifierQuoting'           => !$input->getOption('enable-identifier-quoting'),
+//            'propel.targetPackage'                      => $input->getOption('target-package'),
+//            'propel.packageObjectModel'                 => $input->getOption('enable-package-object-model'),
+//            'propel.namespace.autoPackage'              => !$input->getOption('disable-namespace-auto-package'),
+//            'propel.addGenericAccessors'                => true,
+//            'propel.addGenericMutators'                 => true,
+//            'propel.addSaveMethod'                      => true,
+//            'propel.addTimeStamp'                       => false,
+//            'propel.addValidateMethod'                  => true,
+//            'propel.addHooks'                           => true,
+//            'propel.namespace.map'                      => 'Map',
+//            'propel.useLeftJoinsInDoJoinMethods'        => true,
+//            'propel.emulateForeignKeyConstraints'       => false,
+//            'propel.schema.autoPrefix'                  => false,
+//            'propel.dateTimeClass'                      => '\DateTime',
+//            // MySQL specific
+//            'propel.mysql.tableType'                    => $input->getOption('mysql-engine'),
+//            'propel.mysql.tableEngineKeyword'           => 'ENGINE',
+//       ), $this->getBuildProperties($input->getOption('input-dir') . '/build.properties')));
+//
+//        $manager = new ModelManager();
+//        $manager->setFilesystem(new Filesystem());
+//        $manager->setGeneratorConfig($generatorConfig);
+//        $manager->setSchemas($schemas);
+//
+//        $manager->setLoggerClosure(function($message){
+//            echo $message;
+//        });
+//        $manager->setWorkingDirectory($tmp . 'propel/');
+
+//        var_dump($manager->build());
+
+//        $content = self::execute('om');
+
+//        if (is_array($content)) {
+//            throw new \Exception("Propel generateClasses failed: \n" . $content[0]);
+//        }
+
+        $content = stream_get_contents($output->getStream());
         $content .= self::moveClasses();
 
         return $content;
     }
 
+    /**
+     * @return string
+     * @throws \FileNotWritableException
+     */
     public static function moveClasses()
     {
         $tmp = self::getTempFolder();
@@ -133,14 +245,15 @@ class PropelHelper
 
         foreach (Kryn::$bundles as $extension) {
 
-            $extension = Kryn::getBundleName($extension);
-            $source    = $tmp . 'propel-classes/' . ucfirst($extension) . '/Models';
+            //$extension = Kryn::getBundleName($extension);
+            $bundle = Kryn::getBundle($extension);
+            $source = $tmp . 'propel-classes/' . ucfirst($bundle->getNamespace()) . '/Models';
 
             //$result .= " CHECK $targetDir \n";
             $files = find($source . '/*.php');
 
             foreach ($files as $file) {
-                $target = \Core\Kryn::getBundleDir($extension) . 'Models/' . basename($file);
+                $target = $bundle->getPath() . 'Models/' . basename($file);
 
                 $result .= "$file => " . (file_exists($target) + 0) . "\n";
 
@@ -157,46 +270,51 @@ class PropelHelper
 
     }
 
+//    /**
+//     * Returns a array of propel config's value. We do not save it as .php file, instead
+//     * we create it dynamicaly out of our own config.php.
+//     *
+//     * @return array The config array for Propel::init() (only in kryn's version of propel, no official)
+//     */
+//    public static function getConfig()
+//    {
+//        $adapter = Kryn::$config['database']['type'];
+//        if ($adapter == 'postgresql') {
+//            $adapter = 'pgsql';
+//        }
+//
+//        $persistent = Kryn::$config['database']['persistent'] ? true : false;
+//
+//        $emulatePrepares = Kryn::$config['database']['type'] == 'mysql';
+//
+//        $config = array();
+//        $config['datasources']['kryn'] = array(
+//            'adapter' => $adapter,
+//            'connection' => array(
+//                'dsn' => self::getDsn($adapter),
+//                'user' => Kryn::$config['database']['user'],
+//                'password' => Kryn::$config['database']['password'],
+//                'options' => array(
+//                    'ATTR_PERSISTENT' => array('value' => $persistent)
+//                ),
+//                'settings' => array(
+//                    'charset' => array('value' => 'utf8')
+//                ),
+//                'attributes' => array(
+//                    'ATTR_EMULATE_PREPARES' => array('value' => $emulatePrepares)
+//                )
+//            )
+//        );
+//        $config['datasources']['default'] = 'kryn';
+//
+//        return $config;
+//    }
+
     /**
-     * Returns a array of propel config's value. We do not save it as .php file, instead
-     * we create it dynamicaly out of our own config.php.
+     * @param $pDriver
      *
-     * @return array The config array for Propel::init() (only in kryn's version of propel, no official)
+     * @return string
      */
-    public static function getConfig()
-    {
-        $adapter = Kryn::$config['database']['type'];
-        if ($adapter == 'postgresql') {
-            $adapter = 'pgsql';
-        }
-
-        $persistent = Kryn::$config['database']['persistent'] ? true : false;
-
-        $emulatePrepares = Kryn::$config['database']['type'] == 'mysql';
-
-        $config                           = array();
-        $config['datasources']['kryn']    = array(
-            'adapter' => $adapter,
-            'connection' => array(
-                'dsn' => self::getDsn($adapter),
-                'user' => Kryn::$config['database']['user'],
-                'password' => Kryn::$config['database']['password'],
-                'options' => array(
-                    'ATTR_PERSISTENT' => array('value' => $persistent)
-                ),
-                'settings' => array(
-                    'charset' => array('value' => 'utf8')
-                ),
-                'attributes' => array(
-                    'ATTR_EMULATE_PREPARES' => array('value' => $emulatePrepares)
-                )
-            )
-        );
-        $config['datasources']['default'] = 'kryn';
-
-        return $config;
-    }
-
     public static function getDsn($pDriver)
     {
         $dsn = strtolower($pDriver);
@@ -215,11 +333,15 @@ class PropelHelper
         return $dsn;
     }
 
+    /**
+     * @return bool
+     * @throws \Exception
+     */
     public static function writeXmlConfig()
     {
         $tmp = self::getTempFolder();
 
-        if (!mkdirr($folder = $tmp . 'propel/build/conf/')) {
+        if (!mkdirr($folder = $tmp . 'propel/')) {
             throw new \Exception('Can not create propel folder in ' . $folder);
         }
 
@@ -228,7 +350,7 @@ class PropelHelper
             $adapter = 'pgsql';
         }
 
-        $persistent = Kryn::$config['database']['persistent'] ? true : false;
+        $persistent = Kryn::$config['database']['persistent'] ? 'true' : 'false';
 
         $xml = '<?xml version="1.0"?>
 <config>
@@ -237,7 +359,6 @@ class PropelHelper
             <datasource id="kryn">
                 <adapter>' . $adapter . '</adapter>
                 <connection>
-                    <classname>PropelPDO</classname>
                     <dsn>' . self::getDsn($adapter) . '</dsn>
                     <user>' . Kryn::$config['database']['user'] . '</user>
                     <password>' . Kryn::$config['database']['password'] . '</password>
@@ -266,7 +387,34 @@ class PropelHelper
         file_put_contents($tmp . 'propel/runtime-conf.xml', $xml);
         file_put_contents($tmp . 'propel/buildtime-conf.xml', $xml);
 
+        $input = new ArrayInput(array(
+             '--input-dir' => $tmp . 'propel/',
+             '--output-dir' => $tmp . 'propel/',
+             '--verbose' => 'vvv'
+        ));
+        $command = new ConfigConvertXmlCommand();
+        $command->getDefinition()->addOption(
+            new InputOption('--verbose', '-v|vv|vvv', InputOption::VALUE_NONE, '') //because migrationDiffCommand access this option
+        );
+
+        $output = new StreamOutput(fopen('php://memory', 'rw'));
+        $command->run($input, $output);
+
+        rename($tmp . 'propel/config.php', $tmp . 'propel-classes/config.php');
+
         return true;
+    }
+
+
+    public static function loadConfig()
+    {
+        $tmp = self::getTempFolder();
+        if (file_exists($file = $tmp . 'propel-classes/config.php')) {
+            include($file);
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -313,6 +461,9 @@ class PropelHelper
     }
 
 
+    /**
+     * @return bool
+     */
     public static function collectSchemas()
     {
         $tmp = self::getTempFolder();
@@ -326,12 +477,14 @@ class PropelHelper
 
         foreach (Kryn::$bundles as $bundleName) {
 
-            $bundle = Kryn::getBundle($bundleName);
+            if (!($bundle = Kryn::getBundle($bundleName))) {
+                continue;
+            }
 
             if (file_exists($schema = $bundle->getPath() . 'Resources/config/models.xml')) {
 
                 $extension = $bundle->getNamespace();
-                $tables    = simplexml_load_file($schema);
+                $tables = simplexml_load_file($schema);
                 $newSchema = $schemeData . ' namespace="' . ucfirst($extension) . '\\Models">';
 
                 foreach ($tables->table as $table) {
@@ -350,6 +503,9 @@ class PropelHelper
         return true;
     }
 
+    /**
+     * @return array|string
+     */
     public static function getSqlDiff()
     {
         $tmp = self::getTempFolder();
@@ -360,29 +516,25 @@ class PropelHelper
             self::collectSchemas();
         }
 
-        if (!\Propel::isInit()) {
-            \Propel::setConfiguration(self::getConfig());
-            \Propel::initialize();
-        }
-
-        $tmp = self::getTempFolder();
-
         //remove all migration files
-        $files = find($tmp . 'propel/build/migrations/PropelMigration_*.php');
+        $files = find($tmp . 'propel/generated-migrations/PropelMigration_*.php');
         if ($files[0]) {
             unlink($files[0]);
         }
+        $input = new ArrayInput(array(
+             '--input-dir' => $tmp . 'propel/',
+             '--output-dir' => $tmp . 'propel/build/',
+             '--verbose' => 'vvv'
+        ));
+        $command = new MigrationDiffCommand();
+        $command->getDefinition()->addOption(
+            new InputOption('--verbose', '-v|vv|vvv', InputOption::VALUE_NONE, '') //because migrationDiffCommand access this option
+        );
 
-        $content = self::execute('sql-diff');
+        $output = new StreamOutput(fopen('php://memory', 'rw'));
+        $command->run($input, $output);
 
-        if (is_array($content)) {
-            return $content;
-        }
-        if (strpos($content, '"sql-diff" failed')) {
-            return array($content);
-        }
-
-        $files             = find($tmp . 'propel/build/migrations/PropelMigration_*.php');
+        $files = find($tmp . 'propel/build/PropelMigration_*.php');
         $lastMigrationFile = $files[0];
 
         if (!$lastMigrationFile) {
@@ -390,8 +542,8 @@ class PropelHelper
         }
 
         preg_match('/(.*)\/PropelMigration_([0-9]*)\.php/', $lastMigrationFile, $matches);
-        $clazz    = 'PropelMigration_' . $matches[2];
-        $uid      = str_replace('.', '_', uniqid('', true));
+        $clazz = 'PropelMigration_' . $matches[2];
+        $uid = str_replace('.', '_', uniqid('', true));
         $newClazz = 'PropelMigration__' . $uid;
 
         $content = file_get_contents($lastMigrationFile);
@@ -409,15 +561,18 @@ class PropelHelper
         if (is_array($protectTables = \Core\Kryn::$config['database']['protectTables'])) {
             foreach ($protectTables as $table) {
                 $table = str_replace('%pfx%', pfx, $table);
-                $sql   = preg_replace('/^DROP TABLE (IF EXISTS|) ' . $table . '(\n|\s)(.*)\n+/im', '', $sql);
+                $sql = preg_replace('/^DROP TABLE (IF EXISTS|) ' . $table . '(\n|\s)(.*)\n+/im', '', $sql);
             }
         }
         $sql = preg_replace('/^#.*$/im', '', $sql);
 
         return trim($sql);
-
     }
 
+    /**
+     * @return array|string
+     * @throws \Exception
+     */
     public static function execute()
     {
         $chdir = getcwd();
@@ -437,13 +592,14 @@ class PropelHelper
 
         $argv[] = '-Dproject.dir=' . $tmp;
 
+        var_dump($tmp);
+
         require_once 'phing/Phing.php';
 
         $outStreamS = fopen("php://memory", "w+");
-        $outStream  = new \OutputStream($outStreamS);
-        $cmd        = implode(' ', $argv);
+        $outStream = new \OutputStream($outStreamS);
+        $cmd = implode(' ', $argv);
         $outStream->write("\n\nExecute command: " . $cmd . "\n\n");
-
 
         try {
             /* Setup Phing environment */
@@ -489,6 +645,9 @@ class PropelHelper
         }
     }
 
+    /**
+     * @throws Exception
+     */
     public static function writeBuildPorperties()
     {
         $tmp = self::getTempFolder();

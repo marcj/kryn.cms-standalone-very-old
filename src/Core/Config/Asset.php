@@ -16,9 +16,33 @@ class Asset extends Model
      */
     private $path;
 
+    /**
+     * If the asset can be compressed with other equal files (js/css compression)
+     *
+     * @var bool
+     */
+    private $compression = true;
+
     public function setupObject()
     {
         $this->path = $this->element->nodeValue;
+        $this->setAttributeVar('compression');
+    }
+
+    /**
+     * @param boolean $compression
+     */
+    public function setCompression($compression)
+    {
+        $this->compression = filter_var($compression, FILTER_VALIDATE_BOOLEAN);
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getCompression()
+    {
+        return $this->compression;
     }
 
     /**

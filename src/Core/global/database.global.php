@@ -74,14 +74,14 @@ function dbQuote($pValue, $pTable = '')
 /**
  * Get the PDO connection instance
  *
- * @param bool $pSlave
+ * @param bool $write force a write-able connection
  *
  * @return PDO
  */
-function dbConnection($pSlave = null)
+function dbConnection($write = false)
 {
-    if ($pSlave !== null) Core\Kryn::$dbConnectionIsSlave = $pSlave;
-    Core\Kryn::$dbConnection = Propel::getConnection(null, Core\Kryn::$dbConnectionIsSlave);
+    //if (null !== $pSlave) Core\Kryn::$dbConnectionIsSlave = $pSlave;
+    Core\Kryn::$dbConnection = \Propel\Runtime\Propel::getConnection();
 
     return Core\Kryn::$dbConnection;
 }
@@ -205,7 +205,7 @@ function dbQuery($pQuery, $pParams = null)
 function dbExec($pQuery, $pParams = null)
 {
     $stmt = dbQuery($pQuery, $pParams);
-    $int = $stmt->rowCount();
+    $int = $stmt->count();
     dbFree($stmt);
 
     return $int;

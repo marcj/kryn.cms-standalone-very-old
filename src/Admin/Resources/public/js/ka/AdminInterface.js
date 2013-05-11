@@ -144,7 +144,7 @@ ka.AdminInterface = new Class({
 
         new Request.JSON({url: _pathAdmin + 'admin/backend/cache', noCache: 1, onComplete: function (res) {
             this.cacheToolTip.stop(t('Cache cleared'));
-        }.bind(this)}).delete();
+        }.bind(this)}).get({_method: 'delete'});
     },
 
     /*
@@ -708,39 +708,6 @@ ka.AdminInterface = new Class({
         }).delay(3000, this);
     },
 
-    loadBackend: function(pAlready){
-        if (this.alreadyLoaded) {
-            this.loadDone();
-            return;
-        }
-
-        [this.loginMessage]
-            .each(function(i){document.id(i).setStyle('display', 'none')});
-
-        this.loginLoadingBarText = new Element('div', {
-            'class': 'ka-ai-loginLoadingBarText',
-            html: _('Loading your interface')
-        }).inject(this.loginForm, 'after');
-
-        this.blockLoginForm(pAlready);
-        this.loaderTopLine.tween('width', 330);
-
-        (function(){
-            document.body.focus();
-
-            this.loginLoaderStep2 = (function(){
-                this.loaderTopLine.tween('width', 360);
-            }).delay(1000, this);
-
-            this.loginLoaderStep3 = (function(){
-                this.loaderTopLine.tween('width', 380);
-            }).delay(3000, this);
-
-            new Asset.css(_pathAdmin + 'admin/css/style.css');
-            new Asset.javascript(_pathAdmin + 'admin/backend/js/script.js');
-        }).delay(500, this);
-    },
-
     blockLoginForm: function (pAlready) {
         if (pAlready) {
             this.loaderTop.setStyles({'height': 91, 'border-bottom': '1px solid #ffffff'});
@@ -756,18 +723,58 @@ ka.AdminInterface = new Class({
         this.loaderBottom.morph({'height': 0, 'border-top': '0px solid #ffffff'});
     },
 
-    loaderDone: function(){
-        this.alreadyLoaded = true;
+    loadSettings: function(keyLimitation, cb) {
+        if (!ka.settings) ka.settings = {};
 
-        if (this.loginLoaderStep2) clearTimeout(this.loginLoaderStep2);
-        if (this.loginLoaderStep3) clearTimeout(this.loginLoaderStep3);
+        new Request.JSON({url: _pathAdmin + 'admin/backend/settings', noCache: 1, async: false, onComplete: function (res) {
+            if (res.error == 'access_denied') return;
 
+            Object.each(res.data, function(val,key){
+                ka.settings[key] = val;
+            })
+
+            ka.settings['images'] = ['jpg', 'jpeg', 'bmp', 'png', 'gif', 'psd'];
+
+            if (!ka.settings.user)
+                ka.settings.user = {};
+
+            if (typeOf(ka.settings.user) != 'object')
+                ka.settings.user = {};
+
+            if (!ka.settings['user']['windows'])
+                ka.settings['user']['windows'] = {};
+
+            if (!this.options.frontPage && ka.settings.system && ka.settings.system.systemTitle) {
+                document.title = ka.settings.system.systemTitle + t(' | Kryn.cms Administration');
+            }
+
+            if (cb) {
+                cb(res.data);
+            }
+        }.bind(this)}).get({lang: window._session.lang, keys: keyLimitation});
+    },
+
+    loadBackend: function(pAlready){
+        if (this.alreadyLoaded) {
+            this.loadDone();
+            return;
+        }
+
+        [this.loginMessage]
+            .each(function(i){document.id(i).setStyle('display', 'none')});
+
+        this.loginLoadingBarText = new Element('div', {
+            'class': 'ka-ai-loginLoadingBarText',
+            html: _('Loading your interface')
+        }).inject(this.loginForm, 'after');
+
+        this.blockLoginForm(pAlready);
         var self = this;
 
         if (this.options.frontPage){
-            ka.loadSettings();
+            this.loadSettings();
         } else {
-            ka.loadSettings(null, function(){
+            this.loadSettings(null, function(){
                 self.loaderTopLine.tween('width', 255);
 
                 self.loadMenu(function(){
@@ -1377,7 +1384,6 @@ ka.AdminInterface = new Class({
     },
 
     openSearchContext: function(){
-
         var button = this.openSearchIndexBtn;
 
         this.openSearchContextClose();
@@ -1427,12 +1433,10 @@ ka.AdminInterface = new Class({
         }).addEvent('click', this.openSearchContextClose).inject(this.openSearchContextLast);
 
         this.openSearchContextLoad();
-
     },
 
     openSearchContextLoad: function(){
         this.openSearchContextContent.set('html', '<br /><br /><div style="text-align: center; color: gray;">' + _('Loading ...') + '</div>');
-
 
         //todo
         this.openSearchContextTable = new ka.Table([
@@ -1456,7 +1460,6 @@ ka.AdminInterface = new Class({
 
             }
         }.bind(this)).post();
-
     },
 
 
@@ -1512,8 +1515,6 @@ ka.AdminInterface = new Class({
             'class': 'ka-upload-menu-info'
         }).inject(this.uploadMenu);
     },
-
-
 
     check4Updates: function(){
         if (window._session.userId == 0) return;

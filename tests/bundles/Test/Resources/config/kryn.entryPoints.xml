@@ -1,0 +1,25 @@
+<config>
+    <bundle>
+        <entryPoints>
+            <entryPoint path="test" type="custom" icon="#icon-warning" link="true">
+                <title>Test</title>
+                <children>
+                    <entryPoint path="testObjectList" type="combine" link="true">
+                        <title>Test Object</title>
+                        <class>\Test\Admin\TestCrud</class>
+                        <children>
+                            <entryPoint path="add" type="add">
+                                <title>Test Object Add</title>
+                                <class>\Test\Admin\TestCrud</class>
+                            </entryPoint>
+                            <entryPoint id="edit" type="edit">
+                                <title>Test Object Edit</title>
+                                <class>\Test\Admin\TestCrud</class>
+                            </entryPoint>
+                        </children>
+                    </entryPoint>
+                </children>
+            </entryPoint>
+        </entryPoints>
+    </bundle>
+</config>

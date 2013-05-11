@@ -4,58 +4,73 @@ namespace Tests;
 
 class Manager
 {
-    public static $config;
+    /**
+     * @var array
+     */
+    public static $config = array();
 
+    /**
+     * @var string
+     */
     public static $configFile = 'default.json';
 
     /**
-     * @param null $pConfigFile Default is config/default.mysql.json
+     * @param array $pConfigFile
+     *
+     * @throws \Exception
      */
-    public static function setupConfig($pConfigFile = null)
+    public static function setupConfig(array $pConfigFile = null)
     {
-        $configFile = $pConfigFile ?: 'test/config/'.(getenv('CONFIG_FILE')?getenv('CONFIG_FILE'):self::$configFile);
+        $configFile = $pConfigFile ? : 'tests/config/' . (getenv('CONFIG_FILE') ? : self::$configFile);
 
         if (!file_exists($configFile)) {
-            die("Config file not found: $configFile\n");
+            throw new \Exception("Config file not found: $configFile\n");
         }
         self::$config = json_decode(file_get_contents($configFile), true);
 
-        if (getenv('DOMAIN'))
+        if (getenv('DOMAIN')) {
             self::$config['domain'] = getenv('DOMAIN');
+        }
 
-        if (getenv('PORT'))
+        if (getenv('PORT')) {
             self::$config['port'] = getenv('PORT');
+        }
 
-        if (getenv('DB_NAME'))
+        if (getenv('DB_NAME')) {
             self::$config['config']['database']['name'] = getenv('DB_NAME');
+        }
 
-        if (getenv('DB_USER'))
+        if (getenv('DB_USER')) {
             self::$config['config']['database']['user'] = getenv('DB_USER');
+        }
 
-        if (getenv('DB_PW'))
+        if (getenv('DB_PW')) {
             self::$config['config']['database']['password'] = getenv('DB_PW');
+        }
 
-        if (getenv('DB_SERVER'))
+        if (getenv('DB_SERVER')) {
             self::$config['config']['database']['server'] = getenv('DB_SERVER');
+        }
 
-        if (getenv('DB_TYPE'))
+        if (getenv('DB_TYPE')) {
             self::$config['config']['database']['type'] = getenv('DB_TYPE');
+        }
 
     }
 
     /**
-     * @param null $pConfigFile Default is config/default.mysql.json
+     * @param string $pConfigFile Default is config/default.json
      */
     public static function freshInstallation($pConfigFile = null)
     {
         self::setupConfig($pConfigFile);
         $cfg = self::$config['config'];
 
-        if (file_exists('config.php'))
+        if (file_exists('config.php')) {
             self::uninstall();
+        }
 
         self::install($cfg);
-
     }
 
     public static function getJson($pPath = '/', $pMethod = 'GET', $pPostData = null)
@@ -77,21 +92,22 @@ class Manager
         }
 
         $domain = self::$config['domain'];
-        if (self::$config['port'] && self::$config['port'] != 80)
-            $domain .= ':'.self::$config['port'];
+        if (self::$config['port'] && self::$config['port'] != 80) {
+            $domain .= ':' . self::$config['port'];
+        }
 
         $ch = curl_init();
 
         if (strtoupper($pMethod) != 'GET') {
-            $pPath .= (strpos($pPath, '?') === false ? '?' : '&') . '_method='.strtolower($pMethod);
+            $pPath .= (strpos($pPath, '?') === false ? '?' : '&') . '_method=' . strtolower($pMethod);
         }
 
-        $url = $domain.$pPath;
+        $url = $domain . $pPath;
 
         curl_setopt($ch, CURLOPT_URL, $url);
         //curl_setopt($ch, CURLOPT_HEADER, 1);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $cookieFile = \Core\Kryn::getTempFolder().'cookies.txt';
+        $cookieFile = \Core\Kryn::getTempFolder() . 'cookies.txt';
         touch($cookieFile);
         curl_setopt($ch, CURLOPT_COOKIEJAR, $cookieFile);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
@@ -117,38 +133,37 @@ class Manager
 
     public static function clearCookies()
     {
-        file_put_contents(\Core\Kryn::getTempFolder().'/cookies.txt', '');
+        file_put_contents(\Core\Kryn::getTempFolder() . '/cookies.txt', '');
     }
 
     public static function uninstall()
     {
         $trace = debug_backtrace();
         foreach ($trace as $t) {
-            $string[] = basename($t['file']).':'.$t['line'];
+            $string[] = basename($t['file']) . ':' . $t['line'];
         }
 
         if (file_exists('config.php')) {
             $config = include 'config.php';
         } else {
-            die("Kryn.cms not installed. =>".implode(', ', $string)." \n");
+            throw new \Exception("Kryn.cms not installed. =>" . implode(', ', $string) . " \n");
         }
 
         $config['displayBeautyErrors'] = 0; //0 otherwise the exceptionHandler of kryn is used, that breaks the PHPUnit.
 
-        require 'core/bootstrap.php';
-        require 'core/bootstrap.startup.php';
+        \Core\Kryn::bootstrap();
 
         \Core\Kryn::loadModuleConfigs(true);
 
         $manager = new \Admin\Module\Manager;
 
-        foreach ($config['activeModules'] as $module) {
-            $manager->uninstall($module, false, true);
+        foreach ($config['bundles'] as $bundleName) {
+            $manager->uninstall($bundleName, false, true);
         }
 
-        $manager->uninstall('users', false, true);
-        $manager->uninstall('admin', false, true);
-        $manager->uninstall('core', false, true);
+        $manager->uninstall('Users\\UsersBundle', false, true);
+        $manager->uninstall('Admin\\AdminBundle', false, true);
+        $manager->uninstall('Core\\CoreBundle', false, true);
 
         \Core\PropelHelper::updateSchema();
 
@@ -162,15 +177,16 @@ class Manager
         $cfg = $pConfig;
         $cfg['displayBeautyErrors'] = 0; //0 otherwise the exceptionHandler of kryn is used, what breaks the PHPUnit.
 
-        if (!file_put_contents('config.php', "<?php\n return ".var_export($cfg, true).'; '))
+        if (!file_put_contents('config.php', "<?php\n return " . var_export($cfg, true) . '; ')) {
             throw new \FileNotWritableException('Can not install Kryn.cms. config.php not writeable.');
+        }
 
-        require 'core/bootstrap.php';
+        require 'src/Core/bootstrap.php';
 
         \Core\TempFile::createFolder('./');
         \Core\WebFile::createFolder('cache/');
 
-        require 'core/bootstrap.startup.php';
+        \Core\Kryn::bootstrap();
         @ini_set('display_errors', 1);
         \Core\Kryn::loadModuleConfigs();
 
@@ -186,24 +202,26 @@ class Manager
 
         \Propel::setConfiguration(\Core\PropelHelper::getConfig());
 
-        $manager->install('core', true);
-        $manager->install('admin', true);
-        $manager->install('users', true);
+        $manager->install('Core\\CoreBundle', true);
+        $manager->install('Admin\\AdminBundle', true);
+        $manager->install('Users\\UsersBundle', true);
 
-        foreach ($pConfig['activeModules'] as $module)
+        foreach ($pConfig['bundles'] as $module) {
             $manager->install($module, true);
+        }
 
         \Core\PropelHelper::updateSchema();
         \Core\PropelHelper::generateClasses();
 
-        $manager->installDatabase('core');
-        $manager->installDatabase('admin');
-        $manager->installDatabase('users');
+        $manager->installDatabase('Core\\CoreBundle');
+        $manager->installDatabase('Admin\\AdminBundle');
+        $manager->installDatabase('Users\\UsersBundle');
 
-        foreach ($pConfig['activeModules'] as $module)
+        foreach ($pConfig['bundles'] as $module) {
             $manager->installDatabase($module);
+        }
 
-        include 'core/bootstrap.startup.php';
+        \Core\Kryn::bootstrap();
 
         \Core\PropelHelper::cleanup();
 
@@ -226,11 +244,9 @@ class Manager
         $_SERVER['PATH_INFO'] = '/';
         $_SERVER['SERVER_NAME'] = self::$config['domain'];
 
-        require 'core/bootstrap.php';
-        require 'core/bootstrap.startup.php';
+        \Core\Kryn::bootstrap();
 
         ini_set('display_errors', 1);
-
     }
 
     public static function cleanup()

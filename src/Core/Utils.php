@@ -16,17 +16,93 @@ class Utils
             'file' => $pException->getFile(),
             'line' => $pException->getLine(),
         );
-        self::errorHandler(get_class($pException),
-            $pException->getMessage(), $pException->getFile(), $pException->getLine(),
-            array_merge(array($exceptionArray), $pException->getTrace()));
+        self::errorHandler(
+            get_class($pException),
+            $pException->getMessage(),
+            $pException->getFile(),
+            $pException->getLine(),
+            array_merge(array($exceptionArray), $pException->getTrace())
+        );
+    }
+
+    /**
+     * @param array  $files
+     * @param string $includePath The directory where to compressed css is. with trailing slash!
+     *
+     * @return string
+     */
+    public static function compressCss(array $files, $includePath = '')
+    {
+        $toGecko = array(
+            "-moz-border-radius-topleft",
+            "-moz-border-radius-topright",
+            "-moz-border-radius-bottomleft",
+            "-moz-border-radius-bottomright",
+            "-moz-border-radius",
+        );
+
+        $toWebkit = array(
+            "-webkit-border-top-left-radius",
+            "-webkit-border-top-right-radius",
+            "-webkit-border-bottom-left-radius",
+            "-webkit-border-bottom-right-radius",
+            "-webkit-border-radius",
+        );
+        $from     = array(
+            "border-top-left-radius",
+            "border-top-right-radius",
+            "border-bottom-left-radius",
+            "border-bottom-right-radius",
+            "border-radius",
+        );
+
+        $content = '';
+        foreach ($files as $assetPath) {
+            $content .= "\n\n/* file: $assetPath */\n\n";
+
+            $cssFile = Kryn::resolvePublicPath($assetPath); //admin/css/style.css
+            $cssDir  = dirname($cssFile) . '/'; //admin/css/...
+            $cssDir  = str_repeat('../', substr_count($includePath, '/')) . $cssDir;
+
+            $h = fopen('web/' . $cssFile, "r");
+            if ($h) {
+                while (!feof($h) && $h) {
+                    $buffer = fgets($h, 4096);
+
+                    $buffer = preg_replace('/@import \'([^\/].*)\'/', '@import \'' . $cssDir . '$1\'', $buffer);
+                    $buffer = preg_replace('/@import "([^\/].*)"/', '@import "' . $cssDir . '$1"', $buffer);
+                    $buffer = preg_replace('/url\(\'([^\/].*)\'\)/', 'url(\'' . $cssDir . '$1\')', $buffer);
+                    $buffer = preg_replace('/url\((?!data:image)([^\/\'].*)\)/', 'url(' . $cssDir . '$1)', $buffer);
+                    $buffer = str_replace(array('  ', '    ', "\t", "\n", "\r"), '', $buffer);
+                    $buffer = str_replace(': ', ':', $buffer);
+
+                    $content .= $buffer;
+                    $newLine = str_replace($from, $toWebkit, $buffer);
+                    if ($newLine != $buffer) {
+                        $content .= $newLine;
+                    }
+                    $newLine = str_replace($from, $toGecko, $buffer);
+                    if ($newLine != $buffer) {
+                        $content .= $newLine;
+                    }
+                }
+                fclose($h);
+            }
+        }
+        return $content;
     }
 
     public static function shutdownHandler()
     {
         global $_start;
+
+        if (class_exists('PHPUnit_Framework_TestCase') || defined('KRYN_INSTALLER')) {
+            return;
+        }
+
         chdir(PATH);
 
-        $key = 'kryn' === getArgv(1) ? 'backend' : 'frontend';
+        $key                        = 'kryn' === getArgv(1) ? 'backend' : 'frontend';
         \Core\Utils::$latency[$key] = microtime(true) - $_start;
 
         $error = error_get_last();
@@ -44,27 +120,35 @@ class Utils
             }
 
             $max = 20;
-            foreach (array('frontend', 'backend', 'cache', 'session') as $key){
-                if (!self::$latency[$key]) continue;
-                $lastLatency[$key] = (array)$lastLatency[$key] ?: array();
+            foreach (array('frontend', 'backend', 'cache', 'session') as $key) {
+                if (!self::$latency[$key]) {
+                    continue;
+                }
+                $lastLatency[$key] = (array)$lastLatency[$key] ? : array();
                 array_unshift($lastLatency[$key], self::$latency[$key]);
-                if ($max < count($lastLatency[$key]))
+                if ($max < count($lastLatency[$key])) {
                     array_splice($lastLatency[$key], $max);
+                }
             }
 
             self::$latency = array();
             Kryn::setFastCache('core/latency', $lastLatency);
         }
     }
+
     public static function errorHandler($pErrorCode, $pErrorStr, $pFile, $pLine, $pBacktrace = null)
     {
         ob_end_clean();
         ob_clean();
 
         if (!Kryn::$config['displayErrors']) {
-            Kryn::internalError('Internal Server Error',
-                tf('The server encountered an internal error and was unable to complete your request. Please contact the administrator. %s',
-                    Kryn::$config['email']));
+            Kryn::internalError(
+                'Internal Server Error',
+                tf(
+                    'The server encountered an internal error and was unable to complete your request. Please contact the administrator. %s',
+                    Kryn::$config['email']
+                )
+            );
         }
 
         if ((isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') ||
@@ -77,8 +161,8 @@ class Utils
             );
 
             if (Kryn::$config['displayDetailedRestErrors']) {
-                $response['file'] = $pFile;
-                $response['line'] = $pLine;
+                $response['file']       = $pFile;
+                $response['line']       = $pLine;
                 $response['backstrace'] = $pBacktrace ? $pBacktrace : debug_backtrace();
             }
 
@@ -86,11 +170,12 @@ class Utils
         }
 
         if (self::$inErrorHandler === true) {
-            print $pErrorCode.', '.$pErrorStr.' in '.$pFile.' at '.$pLine;
-            if ($pBacktrace)
+            print $pErrorCode . ', ' . $pErrorStr . ' in ' . $pFile . ' at ' . $pLine;
+            if ($pBacktrace) {
                 print_r($pBacktrace);
-            else
+            } else {
                 print_r(debug_backtrace());
+            }
             exit;
         }
 
@@ -116,7 +201,7 @@ class Utils
             }
         }
 
-        $msg = '<div style="margin-bottom: 15px; background-color: white; padding: 5px;">'.$pErrorStr.'</div>';
+        $msg = '<div style="margin-bottom: 15px; background-color: white; padding: 5px;">' . $pErrorStr . '</div>';
 
         $backtrace = $pBacktrace;
         if (!$backtrace) {
@@ -126,15 +211,17 @@ class Utils
         $data['loadCodemirror'] = true;
 
         $traces = array();
-        $count = count($backtrace);
+        $count  = count($backtrace);
         foreach ($backtrace as $trace) {
             $trace['file'] = substr($trace['file'], strlen(PATH));
-            $trace['id'] = $count--;
+            $trace['id']   = $count--;
             // if ($trace['file'] == 'core/bootstrap.php' && $trace['line'] == 74) continue;
-            if ($trace['file'] == 'src/Core/global/internal.global.php' && $trace['line'] == 40) continue;
+            if ($trace['file'] == 'src/Core/global/internal.global.php' && $trace['line'] == 40) {
+                continue;
+            }
 
-            $trace['code'] = self::getFileContent($trace['file'], $trace['line'], 5);
-            $trace['relLine'] = $trace['line']-5;
+            $trace['code']    = self::getFileContent($trace['file'], $trace['line'], 5);
+            $trace['relLine'] = $trace['line'] - 5;
             //$trace['args_string'] = implode(', ', $trace['args']);
             $traces[] = $trace;
         }
@@ -155,7 +242,9 @@ class Utils
 
     public static function getFileContent($pFile, $pLine, $pOffset = 10)
     {
-        if (!file_exists($pFile)) return;
+        if (!file_exists($pFile)) {
+            return;
+        }
         $fh = fopen($pFile, 'r');
 
         if ($fh) {
@@ -163,11 +252,13 @@ class Utils
             $code = '';
             while (($buffer = fgets($fh, 4096)) !== false) {
 
-                if ($line >= ($pLine-$pOffset) && $line <= ($pLine+$pOffset))
+                if ($line >= ($pLine - $pOffset) && $line <= ($pLine + $pOffset)) {
                     $code .= $buffer;
+                }
 
-                if ($line == $pLine)
+                if ($line == $pLine) {
                     $highlightLine = $line;
+                }
 
                 $line++;
             }
@@ -181,6 +272,7 @@ class Utils
     /**
      * Stores all locked keys, so that we can release all,
      * on process terminating.
+     *
      * @var array
      */
     public static $lockedKeys = array();
@@ -203,17 +295,19 @@ class Utils
      *
      * @param  string  $pId
      * @param  integer $pTimeout Milliseconds
+     *
      * @return boolean
      */
     public static function appLock($pId, $pTimeout = 15)
     {
-        if (self::appTryLock($pId, $pTimeout))
+        if (self::appTryLock($pId, $pTimeout)) {
             return true;
-        else {
-            for ($i=0; $i<1000; $i++) {
-                usleep(15*1000); //15ms
-                if (self::appTryLock($pId, $pTimeout))
+        } else {
+            for ($i = 0; $i < 1000; $i++) {
+                usleep(15 * 1000); //15ms
+                if (self::appTryLock($pId, $pTimeout)) {
                     return true;
+                }
             }
         }
 
@@ -228,17 +322,20 @@ class Utils
      *
      * @param  string $pId
      * @param  int    $pTimeout Default is 30sec
+     *
      * @return bool
      */
     public static function appTryLock($pId, $pTimeout = 30)
     {
         //already aquired by this process?
-        if (self::$lockedKeys[$pId] === true) return true;
+        if (self::$lockedKeys[$pId] === true) {
+            return true;
+        }
 
-        $now     = ceil(microtime(true)*1000);
-        $timeout = $now+$pTimeout;
+        $now     = ceil(microtime(true) * 1000);
+        $timeout = $now + $pTimeout;
 
-        dbDelete('system_app_lock', 'timeout <= '.$now);
+        dbDelete('system_app_lock', 'timeout <= ' . $now);
 
         try {
             dbInsert('system_app_lock', array('id' => $pId, 'timeout' => $timeout));

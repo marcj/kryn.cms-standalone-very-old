@@ -235,21 +235,24 @@ class Config extends Model
 
     /**
      *
-     * @param bool   $localPath Return the real local accessible path or the defined.
-     * @param string $filter    a filter value
-     * @param bool   $regex     if you pass a own regex as $filter set this to true
+     * @param bool   $localPath   Return the real local accessible path or the defined.
+     * @param string $filter      a filter value
+     * @param bool   $regex       if you pass a own regex as $filter set this to true
+     * @param bool   $compression if true or false it returns only assets with this compression value. null returns all
      *
      * @return string[]
      */
-    public function getAdminAssetsPaths($localPath = false, $filter = '', $regex = false)
+    public function getAdminAssetsPaths($localPath = false, $filter = '', $regex = false, $compression = null)
     {
         $files  = array();
         $method = $localPath ? 'getLocalPath' : 'getPath';
         foreach ($this->getAdminAssets($filter, $regex) as $asset) {
             if ($asset instanceof Asset) {
+                if (null !== $compression && $compression !== $asset->getCompression()) continue;
                 $files[] = $asset->$method();
             } else if ($asset instanceof Assets) {
                 foreach ($asset as $subAsset) {
+                    if (null !== $compression && $compression !== $subAsset->getCompression()) continue;
                     $files[] = $subAsset->$method();
                 }
             }

@@ -579,7 +579,7 @@ ka.WindowEdit = new Class({
             onComplete: function(pResponse){
                 //todo
                 logger(pResponse);
-            }}).delete();
+            }}).get({_method: 'delete'});
 
 
         }.bind(this));

@@ -2,7 +2,8 @@
 
 namespace Core\Models;
 
-use Core\Models\om\BaseLanguageQuery;
+use Core\Models\Base\LanguageQuery as BaseLanguageQuery;
+
 
 /**
  * Skeleton subclass for performing query and update operations on the 'kryn_system_langs' table.
@@ -13,8 +14,7 @@ use Core\Models\om\BaseLanguageQuery;
  * application requirements.  This class will only be generated as
  * long as it does not already exist in the output directory.
  *
- * @package    propel.generator.kryn
  */
-class LanguageQuery extends BaseLanguageQuery
-{
+class LanguageQuery extends BaseLanguageQuery {
+
 } // LanguageQuery

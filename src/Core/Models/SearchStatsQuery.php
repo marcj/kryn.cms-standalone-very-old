@@ -2,7 +2,8 @@
 
 namespace Core\Models;
 
-use Core\Models\om\BaseSearchStatsQuery;
+use Core\Models\Base\SearchStatsQuery as BaseSearchStatsQuery;
+
 
 /**
  * Skeleton subclass for performing query and update operations on the 'kryn_system_search_stats' table.
@@ -13,8 +14,7 @@ use Core\Models\om\BaseSearchStatsQuery;
  * application requirements.  This class will only be generated as
  * long as it does not already exist in the output directory.
  *
- * @package    propel.generator.kryn
  */
-class SearchStatsQuery extends BaseSearchStatsQuery
-{
+class SearchStatsQuery extends BaseSearchStatsQuery {
+
 } // SearchStatsQuery

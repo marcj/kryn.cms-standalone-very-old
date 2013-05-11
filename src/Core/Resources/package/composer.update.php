@@ -10,26 +10,7 @@ $createSymlink = function ($path, $link) {
     symlink(realpath($path), $link);
 };
 
-/*
- * Move important ckeditor from vendor to our public available folder
- */
-$files = array(
-    'core',
-    'lang',
-    'skins',
-    'plugins',
-    'ckeditor.js',
-    'styles.js',
-    'config.js',
-    'LICENSE.md',
-    'README.md'
-);
-
-$dir = 'src/Core/Resources/public/ckeditor/';
-
-foreach ($files as $file) {
-    $createSymlink('vendor/ckeditor/ckeditor/' . $file, $dir . $file);
-}
+$createSymlink('vendor/tinymce/tinymce/js/tinymce', 'src/Core/Resources/public/tinymce');
 
 /*
  * Move important CodeMirror from vendor to our public available folder

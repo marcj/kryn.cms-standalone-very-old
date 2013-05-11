@@ -2,7 +2,7 @@
 
 namespace Users\Models;
 
-use Users\Models\om\BaseSession;
+use Users\Models\Base\Session as BaseSession;
 
 /**
  * Skeleton subclass for representing a row from the 'kryn_system_session' table.

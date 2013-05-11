@@ -6,7 +6,7 @@
 
     <testsuites>
         <testsuite name="Kryn.cms">
-            <directory>./tests/</directory>
+            <directory>./tests/Tests</directory>
         </testsuite>
     </testsuites>
 </phpunit>

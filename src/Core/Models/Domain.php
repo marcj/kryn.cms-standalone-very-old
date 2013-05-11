@@ -2,7 +2,7 @@
 
 namespace Core\Models;
 
-use Core\Models\om\BaseDomain;
+use Core\Models\Base\Domain as BaseDomain;
 
 /**
  * Skeleton subclass for representing a row from the 'kryn_system_domain' table.

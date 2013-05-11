@@ -188,7 +188,6 @@ class AdminController
                 ->setExceptionHandler($exceptionHandler)
                 ->setDebugMode($debugMode)
 
-                ->addGetRoute('css/style.css', 'loadCss')
                 ->addGetRoute('login', 'loginUser')
                 ->addGetRoute('logged-in', 'loggedIn')
                 ->addGetRoute('logout', 'logoutUser')
@@ -203,7 +202,9 @@ class AdminController
 
                 //admin/backend
                 ->addSubController('backend', '\Admin\Controller\Backend')
-                    ->addGetRoute('js/script.js', 'loadJs')
+                    ->addGetRoute('script.js', 'loadJs')
+                    ->addGetRoute('script.js.map', 'loadJsMap')
+                    ->addGetRoute('style.css', 'loadCss')
 
                     ->addGetRoute('settings', 'getSettings')
 
@@ -379,7 +380,7 @@ class AdminController
         $response->addJs('ka = parent.ka;');
         $response->addJsFile('admin/js/globals.js', 'bottom');
 
-        $response->addCssFile(Kryn::getAdminPrefix() . '/admin/css/style.css');
+        $response->addCssFile(Kryn::getAdminPrefix() . '/admin/backend/style.css');
         $response->addJs(
             'window.editor = new ka.Editor(document.body, {nodePk: ' . Kryn::$page->getId() . '});',
             'bottom'
@@ -393,9 +394,9 @@ class AdminController
         self::addLanguageResources();
 
         $response = Kryn::getResponse();
-        $response->addJsFile('@AdminBundle/js/globals.js');
-        $response->addJsFile('@AdminBundle/js/ka/Select.js');
-        $response->addJsFile('@AdminBundle/js/ka/Checkbox.js');
+//        $response->addJsFile('@AdminBundle/js/globals.js');
+//        $response->addJsFile('@AdminBundle/js/ka/Select.js');
+//        $response->addJsFile('@AdminBundle/js/ka/Checkbox.js');
         self::addSessionScripts();
 
         $response->addJs(
@@ -411,13 +412,6 @@ class AdminController
 
         $response->setTitle(Kryn::$config['systemTitle'] . ' | Kryn.cms Administration');
 
-        $response->addCssFile('@AdminBundle/css/ai.css');
-        $response->addCssFile('@AdminBundle/css/ka/Input.css');
-        $response->addCssFile('@AdminBundle/css/ka/Login.css');
-        $response->addCssFile('@AdminBundle/css/ka/Select.css');
-        $response->addCssFile('@AdminBundle/css/ka/Button.css');
-        $response->addCssFile('@AdminBundle/css/ka/Checkbox.css');
-
         $response->send();
         exit;
     }
@@ -431,35 +425,36 @@ class AdminController
         window._path = window._baseUrl = ' . json_encode(Kryn::getBaseUrl()) . '
         window._pathAdmin = ' . json_encode(Kryn::getAdminPrefix() . '/')
         );
-        $response->addJsFile('@CoreBundle/mootools-core.js');
-        $response->addJsFile('@CoreBundle/mootools-more.js');
-        $response->addJsFile('@CoreBundle/mowla.min.js');
 
-        $response->addJsFile('@AdminBundle/js/mootools-extras/String.sprintf.js');
-        $response->addJsFile('@CoreBundle/ckeditor/ckeditor.js');
+        $response->addCssFile(Kryn::getAdminPrefix() . '/admin/backend/style.css');
+        $response->addJsFile(Kryn::getAdminPrefix() . '/admin/backend/script.js');
 
-        $response->addCssFile('@AdminBundle/icons/style.css');
-        $response->addCssFile('@AdminBundle/css/ai.css');
-        $response->addCssFile('@AdminBundle/css/ka.wm.css');
+        foreach (Kryn::$configs as $bundleConfig) {
+            foreach ($bundleConfig->getAdminAssetsPaths(false, '.*\.js', true) as $assetPath) {
+                $path = Kryn::resolvePath($assetPath, 'Resources/public');
+                if (!file_exists($path)) {
+                    $response->addJsFile($assetPath);
+                }
+            }
 
-        $response->addJsFile('@CoreBundle/codemirror/lib/codemirror.js');
-        $response->addJsFile('@CoreBundle/codemirror/addon/mode/loadmode.js');
-        $response->addCssFile('@CoreBundle/codemirror/lib/codemirror.css');
-        $response->addCssFile('@AdminBundle/icons/style.css');
+            foreach ($bundleConfig->getAdminAssetsPaths(false, '.*\.css', true) as $assetPath) {
+                $path = Kryn::resolvePath($assetPath, 'Resources/public');
+                if (!file_exists($path)) {
+                    $response->addCssFile($assetPath);
+                }
+            }
+
+            foreach ($bundleConfig->getAdminAssetsPaths(false, '.*\.js', true, false) as $assetPath) {
+                $response->addJsFile($assetPath);
+            }
+
+            foreach ($bundleConfig->getAdminAssetsPaths(false, '.*\.css', true, false) as $assetPath) {
+                $response->addCssFile($assetPath);
+            }
+        }
+
         $response->addHeader('<meta name="viewport" content="initial-scale=1.0" >');
         $response->addHeader('<meta name="apple-mobile-web-app-capable" content="yes">');
-
-        $response->addJs(
-            "
-                    CKEDITOR.disableAutoInline = true;
-                    CodeMirror.modeURL = 'core/codemirror/mode/%N/%N.js';
-                    ",
-            "bottom"
-        );
-
-        $response->addJsFile('@AdminBundle/js/ka.js');
-        $response->addJsFile('@AdminBundle/js/ka/AdminInterface.js');
-        $response->addJsFile('@AdminBundle/js/ka/Button.js');
 
         $response->setResourceCompression(false);
     }

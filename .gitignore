@@ -6,4 +6,4 @@ vendor
 .idea
 composer.lock
 src/Core/Resources/public/codemirror
-src/Core/Resources/public/ckeditor
+src/Core/Resources/public/tinymce

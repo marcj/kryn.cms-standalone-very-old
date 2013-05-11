@@ -3,8 +3,11 @@
 namespace Tests\Object;
 
 use Tests\TestCaseWithCore;
-use \Core\Object;
-use \Core\WorkspaceManager;
+use Core\Object;
+use Core\WorkspaceManager;
+use Publication\Models\News;
+use Publication\Models\NewsQuery;
+use Publication\Models\NewsVersionQuery;
 
 class WorkspacesTest extends TestCaseWithCore
 {
@@ -42,11 +45,11 @@ class WorkspacesTest extends TestCaseWithCore
 
         //anything inserted and selecting works correctly, also through propel directly?
         WorkspaceManager::setCurrent(0);
-        $count = \Publication\NewsQuery::create()->count();
+        $count = NewsQuery::create()->count();
         $this->assertEquals(2, $count);
 
         WorkspaceManager::setCurrent(1);
-        $count = \Publication\NewsQuery::create()->count();
+        $count = NewsQuery::create()->count();
         $this->assertEquals(3, $count);
 
     }
@@ -85,14 +88,14 @@ class WorkspacesTest extends TestCaseWithCore
         ));
 
         //check version counter - we have 2 updates, so we have 2 versions.
-        $count = \Publication\NewsVersionQuery::create()->filterById($id11)->count();
+        $count = NewsVersionQuery::create()->filterById($id11)->count();
         $this->assertEquals(2, $count);
 
         Object::remove('Publication\\News', $id11);
 
         //check version counter - we have 2 updates and 1 deletion (one deletion creates 2 new versions,
         //first regular version and second placeholder for deletion, so we have 4 versions now.
-        $count = \Publication\NewsVersionQuery::create()->filterById($id11)->count();
+        $count = NewsVersionQuery::create()->filterById($id11)->count();
         $this->assertEquals(4, $count);
 
         $item = Object::get('Publication\\News', $id11);
@@ -104,17 +107,17 @@ class WorkspacesTest extends TestCaseWithCore
 
     public function testThroughPropelObjects()
     {
-        \Publication\NewsQuery::create()->deleteAll();
-        \Publication\NewsVersionQuery::create()->deleteAll();
+        NewsQuery::create()->deleteAll();
+        NewsVersionQuery::create()->deleteAll();
 
-        $count = \Publication\NewsQuery::create()->count();
+        $count = NewsQuery::create()->count();
         $this->assertEquals(0, $count);
 
         $id = 0;
 
         for ($i=1; $i<=50;$i++) {
 
-            $object = new \Publication\News;
+            $object = new News;
             $object->setTitle('News '.$i);
             $object->setIntro(str_repeat('L', $i));
             $object->save();
@@ -123,30 +126,30 @@ class WorkspacesTest extends TestCaseWithCore
 
         }
 
-        $count = \Publication\NewsQuery::create()->count();
+        $count = NewsQuery::create()->count();
         $this->assertEquals(50, $count);
 
-        $item = \Publication\NewsQuery::create()->findOneById($id);
+        $item = NewsQuery::create()->findOneById($id);
         $this->assertEquals('News 11', $item->getTitle());
 
         $item->setTitle('New News 11');
         $item->save();
 
-        $item = \Publication\NewsQuery::create()->findOneById($id);
+        $item = NewsQuery::create()->findOneById($id);
         $this->assertEquals('New News 11', $item->getTitle());
 
         //check version counter - we have 1 update, so we have 1 version.
-        $count = \Publication\NewsVersionQuery::create()->filterById($id)->count();
+        $count = NewsVersionQuery::create()->filterById($id)->count();
         $this->assertEquals(1, $count);
 
         $item->delete();
 
         //check version counter - we have 1 update and 1 deletion (one deletion creates 2 new versions,
         //first regular version and second placeholder for deletion, so we have 3 versions now.
-        $count = \Publication\NewsVersionQuery::create()->filterById($id)->count();
+        $count = NewsVersionQuery::create()->filterById($id)->count();
         $this->assertEquals(3, $count);
 
-        $item = \Publication\NewsQuery::create()->findOneById($id);
+        $item = NewsQuery::create()->findOneById($id);
         $this->assertNull($item); //should be gone
 
     }

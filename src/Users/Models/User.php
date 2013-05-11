@@ -2,7 +2,7 @@
 
 namespace Users\Models;
 
-use Users\Models\om\BaseUser;
+use Users\Models\Base\User as BaseUser;
 
 use Core\Client\ClientAbstract;
 

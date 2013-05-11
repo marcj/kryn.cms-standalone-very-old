@@ -3,14 +3,15 @@
 namespace Tests\Permission;
 
 use Tests\TestCaseWithCore;
-use Test\Item;
-use Test\ItemQuery;
-use Test\Test;
-use Test\TestQuery;
+use Test\Models\Item;
+use Test\Models\ItemQuery;
+use Test\Models\Test;
+use Test\Models\TestQuery;
+use Test\Models\ItemCategory;
 use Core\Permission;
 
-use Users\Group;
-use Users\User;
+use Users\Models\Group;
+use Users\Models\User;
 
 class ObjectTest extends TestCaseWithCore
 {
@@ -29,16 +30,16 @@ class ObjectTest extends TestCaseWithCore
         $group->addGroupMembershipUser($user);
         $group->save();
 
-        $cat1 = new \Test\ItemCategory();
-        $cat1->setname('Nein');
+        $cat1 = new ItemCategory();
+        $cat1->setName('Nein');
 
         $item1 = new Item();
         $item1->setTitle('Item 1');
         $item1->addItemCategory($cat1);
         $item1->save();
 
-        $cat2 = new \Test\ItemCategory();
-        $cat2->setname('Hiiiii');
+        $cat2 = new ItemCategory();
+        $cat2->setName('Hiiiii');
 
         $item2 = new Item();
         $item2->setTitle('Item 2');
@@ -46,18 +47,25 @@ class ObjectTest extends TestCaseWithCore
         $item2->save();
 
         Permission::removeObjectRules('Test\\Item');
-        $fields = array('oneCategory' => array(array('access' => false, 'condition' => array(array('catid', '>', $cat1->getCatid())))));
+        $fields = array('oneCategory' => array(array('access' => false, 'condition' => array(array('catid', '>', $cat1->getId())))));
         Permission::setObjectUpdate('Test\\Item', Permission::USER, $user->getId(), true, $fields);
 
-        $this->assertFalse(Permission::checkUpdate('Test\\Item', array('oneCategory' => $cat2->getCatid()), Permission::USER, $user->getId()));
-        $this->assertTrue(Permission::checkUpdate('Test\\Item', array('oneCategory' => $cat1->getCatid()), Permission::USER, $user->getId()));
+        $this->assertFalse(
+            Permission::checkUpdate(
+                'Test\\Item',
+                array('oneCategory' => $cat2->getId()),
+                Permission::USER,
+                $user->getId()
+            )
+        );
+        $this->assertTrue(Permission::checkUpdate('Test\\Item', array('oneCategory' => $cat1->getId()), Permission::USER, $user->getId()));
 
         Permission::removeObjectRules('Test\\Item');
         $fields = array('oneCategory' => array(array('access' => false, 'condition' => array(array('name', '=', 'Nein')))));
         Permission::setObjectUpdate('Test\\Item', Permission::USER, $user->getId(), true, $fields);
 
-        $this->assertTrue(Permission::checkUpdate('Test\\Item', array('oneCategory' => $cat2->getCatid()), Permission::USER, $user->getId()));
-        $this->assertFalse(Permission::checkUpdate('Test\\Item', array('oneCategory' => $cat1->getCatid()), Permission::USER, $user->getId()));
+        $this->assertTrue(Permission::checkUpdate('Test\\Item', array('oneCategory' => $cat2->getId()), Permission::USER, $user->getId()));
+        $this->assertFalse(Permission::checkUpdate('Test\\Item', array('oneCategory' => $cat1->getId()), Permission::USER, $user->getId()));
 
         Permission::removeObjectRules('Test\\Item');
 

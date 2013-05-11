@@ -1,6 +1,9 @@
 {
+    "repositories":[
+        {"type":"composer","url":"http:\/\/packages.kryn.org\/"}
+    ],
     "name": "krynlabs/kryn.cms",
-    "description": "A open-source enterprise Content-Management-System and Content-Management-Framework based on Propel and Symfony components.",
+    "description": "A open-source enterprise Content-Management-System CMS and Content-Management-Framework CMF based on Propel and Symfony components.",
     "keywords": ["CMS", "PHP CMS", "WCMS"],
     "license": "GPL",
     "homepage": "http://www.kryn.org/",
@@ -14,32 +17,6 @@
     "scripts": {
         "post-update-cmd": "php src/Core/Resources/package/composer.update.php"
     },
-    "repositories": [
-        {
-            "type": "package",
-            "package": {
-                "name": "marijnh/codemirror",
-                "version": "v3.1",
-                "source": {
-                    "url": "git://github.com/marijnh/CodeMirror.git",
-                    "type": "git",
-                    "reference": "v3.1"
-                }
-            }
-        },
-        {
-            "type": "package",
-            "package": {
-                "name": "ckeditor/ckeditor",
-                "version": "dev-master",
-                "source": {
-                    "url": "git://github.com/ckeditor/ckeditor-dev.git",
-                    "type": "git",
-                    "reference": "origin/master"
-                }
-            }
-        }
-    ],
     "autoload": {
         "psr-0": {
             "": "src/"
@@ -47,12 +24,11 @@
     },
     "minimum-stability": "dev",
     "require": {
-        "php": ">=5.3.2",
+        "php": ">=5.4",
         "twig/twig": ">=1.12",
         "smarty/smarty": ">=v3.1",
         "marcj/php-rest-service": "0.1.0",
         "marcj/propel-workspace-behavior": "dev-master",
-        "propel/propel1": ">=1.7@dev",
         "monolog/monolog": ">=1.3.1",
         "symfony/http-kernel": ">=v2.1.7",
         "symfony/event-dispatcher": ">=v2.1.7",
@@ -60,6 +36,10 @@
         "symfony/console": ">=v2.1",
         "marijnh/codemirror": ">=v3.1",
         "sybio/image-workshop": "dev-master",
-        "ckeditor/ckeditor": "dev-master"
+        "tinymce/tinymce": "*",
+        "propel/propel2": "dev-removing-peer",
+        "composer/composer": "*",
+        "krynlabs/kryn-publication-bundle": "*",
+        "symfony/filesystem": "2.2.*"
     }
 }

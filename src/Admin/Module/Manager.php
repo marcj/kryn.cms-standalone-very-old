@@ -2,6 +2,7 @@
 
 namespace Admin\Module;
 
+use Core\Exceptions\BundleNotFoundException;
 use Core\Kryn;
 use Core\SystemFile;
 
@@ -43,9 +44,9 @@ class Manager
     {
         Manager::prepareName($pName);
 
-        $idx = array_search($pName, Kryn::$config['activeModules']);
+        $idx = array_search($pName, Kryn::$config['bundles']);
         if ($idx !== false) {
-            unset(Kryn::$config['activeModules'][$idx]);
+            unset(Kryn::$config['bundles'][$idx]);
         }
 
         $idx = array_search($pName, \Core\Kryn::$bundles);
@@ -80,10 +81,11 @@ class Manager
             if ($pReloadConfig) {
                 Kryn::loadModuleConfigs();
             }
+
+            self::saveMainConfig();
         }
 
         \Admin\Utils::clearModuleCache($pName);
-        self::saveMainConfig();
 
         return false;
     }
@@ -142,7 +144,6 @@ class Manager
                     Kryn::$config['bundles']
                 ) !== false ? true : false;
             }
-
         }
         return $res;
     }
@@ -342,9 +343,7 @@ class Manager
 
         }
 
-        //$config = self::getConfig($pName);
         $hasPropelModels = SystemFile::exists(Kryn::getBundleDir($pName) . 'Resources/config/models.xml');
-
         $this->fireScript($pName, 'install');
 
         //fire update propel orm
@@ -357,7 +356,6 @@ class Manager
         $this->activate($pName, true);
 
         return true;
-
     }
 
     /**
@@ -388,7 +386,7 @@ class Manager
     {
         Manager::prepareName($pName);
         $config          = self::getConfig($pName);
-        $hasPropelModels = SystemFile::exists(\Core\Kryn::getModuleDir($pName) . 'model.xml');
+        $hasPropelModels = SystemFile::exists(\Core\Kryn::resolvePath($pName, 'Resources/config') . 'model.xml');
 
         \Core\Event::fire('admin/module/manager/uninstall/pre', $pName);
 
@@ -401,14 +399,14 @@ class Manager
 
         $this->fireScript($pName, 'uninstall');
 
-        //catch all propel classes
-        if ($hasPropelModels) {
-            $propelClasses = find(\Core\Kryn::getModuleDir($pName) . 'model/');
+        $bundle = \Core\Kryn::getBundle($pName);
+
+        if (!$bundle) {
+            throw new BundleNotFoundException(tf('Bundle `%s` not found.', $pName));
         }
 
         //remove files
         if ($pRemoveFiles) {
-
             if ($config['extraFiles']) {
                 foreach ($config['extraFiles'] as $file) {
                     delDir($file);
@@ -419,7 +417,6 @@ class Manager
                 delDir('module/' . $pName);
                 delDir('media/' . $pName);
             }
-
         }
 
         \Core\Event::fire('admin/module/manager/uninstall/post', $pName);
@@ -429,13 +426,7 @@ class Manager
         //fire update propel orm
         if ($pWithoutOrmUpdate) {
             //remove propel classes in temp
-            foreach ($propelClasses as $propelClass) {
-                $propelClasses = substr($propelClasses, strlen(\Core\Kryn::getModuleDir($pName) . 'model/'));
-                \Core\TempFile::remove('propel-classes/Base' . $propelClass . '.php');
-                \Core\TempFile::remove('propel-classes/Base' . $propelClass . 'Peer.php');
-                \Core\TempFile::remove('propel-classes/Base' . $propelClass . 'Query.php');
-                \Core\TempFile::remove('propel-classes/' . $propelClass . 'TableMap.php');
-            }
+            \Core\TempFile::remove('propel-classes/' . $bundle->getRootNamespace());
 
             //update propel
             if (!$pWithoutOrmUpdate) {

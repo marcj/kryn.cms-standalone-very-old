@@ -15,20 +15,21 @@ register_shutdown_function('coreUtilsShutdownHandler');
 /*
  * Propel orm initialisation.
  */
-if (!is_dir(\Core\Kryn::getTempFolder().'propel-classes')) {
+if (!\Core\PropelHelper::loadConfig()) {
     Core\PropelHelper::init();
+    \Core\PropelHelper::loadConfig();
 }
 
-Propel::setConfiguration(Core\PropelHelper::getConfig());
-
-if (!Propel::isInit()) {
-    Propel::setLogger(new \Core\PropelLoggerProxy());
-    Propel::initialize();
-
-    $con = Propel::getConnection();
-    $con->useDebug(true);
-    $con->setLogger(new \Core\PropelLoggerProxy());
-}
+//Propel::setConfiguration(Core\PropelHelper::getConfig());
+//
+//if (!Propel::isInit()) {
+//    Propel::setLogger(new \Core\PropelLoggerProxy());
+//    Propel::initialize();
+//
+//    $con = Propel::getConnection();
+//    $con->useDebug(true);
+//    $con->setLogger(new \Core\PropelLoggerProxy());
+//}
 
 /*
  * Initialize the config.php values. Make some vars compatible to older versions etc.
@@ -49,10 +50,5 @@ Core\Kryn::loadModuleConfigs();
  * Load current language
  */
 Core\Kryn::loadLanguage();
-
-/**
- *
- */
-Core\Kryn::initModules();
 
 Core\Kryn::getLogger()->addDebug('Bootstrap loaded.');
