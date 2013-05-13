@@ -5,6 +5,11 @@ namespace Core\ORM;
 use Core\Object;
 use Core\Config\Object as ConfigObject;
 
+use Propel\Runtime\ActiveQuery\Criteria;
+use Propel\Runtime\ActiveQuery\ModelCriteria;
+use Propel\Runtime\Map\TableMap;
+use Propel\Runtime\Propel as RuntimePropel;
+
 /**
  * Propel ORM Wrapper.
  */
@@ -311,32 +316,55 @@ class Propel extends ORMAbstract
         return array($sql, $params);
     }
 
-    public function getStm($pQuery, $pCondition = null)
+    public function getStm(ModelCriteria $pQuery, $pCondition = null)
     {
-        $id = (hexdec(uniqid())/mt_rand())+mt_rand();
 
-        if ($pCondition) {
-            $pQuery->where($id.' != '.$id);
+//        if ($pCondition) {
+//            $pQuery->where($id.' != '.$id);
+//        }
+
+//        $con = RuntimePropel::getConnection($pQuery->getDbName());
+//
+//        $peer = $pQuery->getModelPeerName();
+//        $dbMap = RuntimePropel::getDatabaseMap($pQuery->getDbName());
+//
+//        $pQuery->find();
+//        $pQuery->setPrimaryTableName(constant($peer . '::TABLE_NAME'));
+//
+//        //only triggers all behaviors that has attached code via preSelect.
+//        \CoreRuntimePropelBasePeer::setIgnoreNextDoSelect(true);
+//        $peer::doSelectStmt($pQuery);
+//
+//        //build the sql
+//        list($sql, $params) = $this->getSelectSql($pQuery);
+
+        $condition = '';
+        $params = [];
+
+        // check that the columns of the main class are already added (if this is the primary ModelCriteria)
+        if (!$pQuery->hasSelectClause() && !$pQuery->getPrimaryCriteria()) {
+            $pQuery->addSelfSelectColumns();
         }
 
-        $con = \Propel::getConnection($pQuery->getDbName(), \Propel::CONNECTION_READ);
-        $db = \Propel::getDB($pQuery->getDbName());
+        $con = RuntimePropel::getServiceContainer()->getReadConnection($pQuery->getDbName());
+        $pQuery->configureSelectColumns();
 
-        $peer = $pQuery->getModelPeerName();
-        $dbMap = \Propel::getDatabaseMap($pQuery->getDbName());
+        $dbMap = RuntimePropel::getServiceContainer()->getDatabaseMap($pQuery->getDbName());
+        $db = RuntimePropel::getServiceContainer()->getAdapter($pQuery->getDbName());
 
-        $pQuery->setPrimaryTableName(constant($peer . '::TABLE_NAME'));
+        $model = $pQuery->getModelName();
+        $tableMap = constant($model . '::TABLE_MAP');
 
-        //only triggers all behaviors that has attached code via preSelect.
-        \Core\PropelBasePeer::setIgnoreNextDoSelect(true);
-        $peer::doSelectStmt($pQuery);
+        $pQuery->setPrimaryTableName(constant($tableMap . '::TABLE_NAME'));
 
-        //build the sql
-        list($sql, $params) = $this->getSelectSql($pQuery);
+        $sql = $pQuery->createSelectSql($params);
 
         if ($pCondition) {
+            $id = (hexdec(uniqid())/mt_rand())+mt_rand();
+            $pQuery->where($id.' != '.$id);
             $data = $params;
             $condition = dbConditionToSql($pCondition, $data, $pQuery->getPrimaryTableName());
+            $pQuery->where($condition, null, Criteria::RAW);
             $sql = str_replace($id.' != '.$id, '('.$condition.')', $sql);
         }
 
@@ -421,8 +449,9 @@ class Propel extends ORMAbstract
      */
     public function populateRow($pClazz, $pRow, $pSelects, $pRelations, $pRelationFields, $pPermissionCheck = false)
     {
+        /** @var \Publication\Models\News $item */
         $item = new $pClazz();
-        $item->fromArray($pRow, \BasePeer::TYPE_FIELDNAME);
+        $item->fromArray($pRow);
 
         foreach ($pSelects as $select) {
             if (strpos($select, '.') === false)
@@ -485,7 +514,7 @@ class Propel extends ORMAbstract
                         while ($subRow = dbFetch($sStmt)) {
 
                             $sItem = new $sClazz();
-                            $sItem->fromArray($subRow, \BasePeer::TYPE_FIELDNAME);
+                            $sItem->fromArray($subRow);
 
                             $temp = array();
                             foreach ($pRelationFields[$name] as $select) {
@@ -499,8 +528,8 @@ class Propel extends ORMAbstract
                         $sItems = $item->$get();
                     }
 
-                    if ($sItems instanceof \PropelObjectCollection)
-                        $newRow[lcfirst($name)] = $sItems->toArray(null, null, \BasePeer::TYPE_STUDLYPHPNAME) ?: null;
+                    if ($sItems instanceof RuntimePropelObjectCollection)
+                        $newRow[lcfirst($name)] = $sItems->toArray(null, null, TableMap::TYPE_STUDLYPHPNAME) ?: null;
                     else if (is_array($sItems) && $sItems)
                         $newRow[lcfirst($name)] = $sItems;
                     else
@@ -529,10 +558,10 @@ class Propel extends ORMAbstract
         $this->mapToOneRelationFields($query, $relations, $relationFields);
 
         if ($this->definition->isNested()) {
-            $query->filterByLft(1, \Criteria::GREATER_THAN);
-            $selects[] = 'lft';
-            $selects[] = 'rgt';
-            $selects[] = 'lvl';
+            $query->filterByLft(1, Criteria::GREATER_THAN);
+            $selects[] = 'Lft';
+            $selects[] = 'Rgt';
+            $selects[] = 'Lvl';
         }
 
         $query->select($selects);
@@ -834,7 +863,7 @@ class Propel extends ORMAbstract
                         if ($field['objectRelation'] == ORMAbstract::ONE_TO_MANY) {
 
                             $foreignItems = array();
-                            $coll = new \PropelObjectCollection();
+                            $coll = new RuntimePropelObjectCollection();
                             $coll->setModel(ucfirst($foreignClass));
 
                             foreach ($fieldValue as $foreignItem) {
@@ -847,7 +876,7 @@ class Propel extends ORMAbstract
                                 if (!$item) {
                                     $item = new $foreignClass();
                                 }
-                                $item->fromArray($foreignItem, \BasePeer::TYPE_STUDLYPHPNAME);
+                                $item->fromArray($foreignItem, TableMap::TYPE_STUDLYPHPNAME);
                                 $coll[] = $item;
                             }
 

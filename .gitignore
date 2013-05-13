@@ -7,3 +7,4 @@ vendor
 composer.lock
 src/Core/Resources/public/codemirror
 src/Core/Resources/public/tinymce
+app/cache

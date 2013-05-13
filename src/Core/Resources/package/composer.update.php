@@ -30,3 +30,5 @@ $dir = 'src/Core/Resources/public/codemirror/';
 foreach ($files as $file) {
     $createSymlink('vendor/marijnh/CodeMirror/' . $file, $dir . $file);
 }
+
+chmod('vendor/google/closure-compiler/compiler.jar', 0644);

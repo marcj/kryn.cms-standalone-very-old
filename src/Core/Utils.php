@@ -64,29 +64,33 @@ class Utils
             $cssDir  = dirname($cssFile) . '/'; //admin/css/...
             $cssDir  = str_repeat('../', substr_count($includePath, '/')) . $cssDir;
 
-            $h = fopen('web/' . $cssFile, "r");
-            if ($h) {
-                while (!feof($h) && $h) {
-                    $buffer = fgets($h, 4096);
+            if (file_exists($file = 'web/bundles/' . $cssFile) || file_exists($file = 'web/' . $cssFile)){
+                $h = fopen($file, "r");
+                if ($h) {
+                    while (!feof($h) && $h) {
+                        $buffer = fgets($h, 4096);
 
-                    $buffer = preg_replace('/@import \'([^\/].*)\'/', '@import \'' . $cssDir . '$1\'', $buffer);
-                    $buffer = preg_replace('/@import "([^\/].*)"/', '@import "' . $cssDir . '$1"', $buffer);
-                    $buffer = preg_replace('/url\(\'([^\/].*)\'\)/', 'url(\'' . $cssDir . '$1\')', $buffer);
-                    $buffer = preg_replace('/url\((?!data:image)([^\/\'].*)\)/', 'url(' . $cssDir . '$1)', $buffer);
-                    $buffer = str_replace(array('  ', '    ', "\t", "\n", "\r"), '', $buffer);
-                    $buffer = str_replace(': ', ':', $buffer);
+                        $buffer = preg_replace('/@import \'([^\/].*)\'/', '@import \'' . $cssDir . '$1\'', $buffer);
+                        $buffer = preg_replace('/@import "([^\/].*)"/', '@import "' . $cssDir . '$1"', $buffer);
+                        $buffer = preg_replace('/url\(\'([^\/].*)\'\)/', 'url(\'' . $cssDir . '$1\')', $buffer);
+                        $buffer = preg_replace('/url\((?!data:image)([^\/\'].*)\)/', 'url(' . $cssDir . '$1)', $buffer);
+                        $buffer = str_replace(array('  ', '    ', "\t", "\n", "\r"), '', $buffer);
+                        $buffer = str_replace(': ', ':', $buffer);
 
-                    $content .= $buffer;
-                    $newLine = str_replace($from, $toWebkit, $buffer);
-                    if ($newLine != $buffer) {
-                        $content .= $newLine;
+                        $content .= $buffer;
+                        $newLine = str_replace($from, $toWebkit, $buffer);
+                        if ($newLine != $buffer) {
+                            $content .= $newLine;
+                        }
+                        $newLine = str_replace($from, $toGecko, $buffer);
+                        if ($newLine != $buffer) {
+                            $content .= $newLine;
+                        }
                     }
-                    $newLine = str_replace($from, $toGecko, $buffer);
-                    if ($newLine != $buffer) {
-                        $content .= $newLine;
-                    }
+                    fclose($h);
                 }
-                fclose($h);
+            } else {
+                Kryn::getLogger()->addError(tf('Can not find css file `%s` [%s]', $file, $assetPath));
             }
         }
         return $content;

@@ -7,6 +7,7 @@ use Core\Kryn;
 use Core\Config\Asset;
 use Core\Config\Assets;
 use Core\Permission;
+use Propel\Runtime\Map\TableMap;
 
 class Backend
 {
@@ -206,7 +207,7 @@ class Backend
             $tlangs = \Core\Models\LanguageQuery::create()->filterByVisible(true)->find()->toArray(
                 null,
                 null,
-                \BasePeer::TYPE_STUDLYPHPNAME
+                TableMap::TYPE_STUDLYPHPNAME
             );
 
             $langs        = dbToKeyIndex($tlangs, 'code');
@@ -301,7 +302,8 @@ class Backend
         $oFile     = 'cache/admin.script-compiled.js';
         $sourceMap = $oFile . '.map';
         $cmdTest   = 'java -version';
-        $compiler  = escapeshellarg(realpath('../vendor/google/closure-compiler/compiler.jar'));
+        $closure   = 'vendor/google/closure-compiler/compiler.jar';
+        $compiler  = escapeshellarg(realpath('../'.$closure));
         $cmd       = 'java -jar ' . $compiler . ' --js_output_file ' . escapeshellarg($oFile);
         $returnVal = 0;
         $debugMode = false;
@@ -356,10 +358,13 @@ class Backend
 
                 $cmd .= ' ' . implode(' ', $files);
                 $cmd .= ' 2>&1';
-                shell_exec($cmd);
+                $output = shell_exec($cmd);
+                if (0 === strpos($output, 'Unable to access jarfile')) {
+                    die('Can not access google compiler: ' . $closure);
+                }
 
                 $content = file_get_contents($oFile);
-                $sourceMapUrl = '//@ sourceMappingURL=script.js.map';
+                $sourceMapUrl = '//@ sourceMappingURL=script-map';
                 file_put_contents($oFile, $md5Line . $content . $sourceMapUrl);
 
                 readfile($oFile);

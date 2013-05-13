@@ -1635,8 +1635,7 @@ class Kryn extends Controller
 
         $controller = $clazz . '::handle';
 
-        if (Kryn::$domain && Kryn::$domain->getStartnodeId() == Kryn::$page->getId()) {
-
+        if ('' !== $url && '/' !== $url && Kryn::$domain && Kryn::$domain->getStartnodeId() == Kryn::$page->getId()) {
             //This is the start page, so add a redirect controller
             $routes->add(
                 $routes->count() + 1,
@@ -1661,7 +1660,6 @@ class Kryn extends Controller
         $plugins = Kryn::getDistributedCache($cacheKey);
 
         if ($plugins === null) {
-
             $plugins = ContentQuery::create()
                 ->filterByNodeId(Kryn::$page->getId())
                 ->filterByType('plugin')
@@ -1678,6 +1676,14 @@ class Kryn extends Controller
             }
             $data = json_decode($plugin->getContent(), true);
             if (!$data) {
+                self::getLogger()->addAlert(
+                    tf(
+                        'On page `%s` [%d] is a invalid plugin `%d`.',
+                        Kryn::$page->getTitle(),
+                        Kryn::$page->getId(),
+                        $plugin->getId()
+                    )
+                );
                 continue;
             }
 
@@ -1685,12 +1691,34 @@ class Kryn extends Controller
 
             $config = Kryn::getConfig($bundleName);
             if (!$config) {
-                throw new BundleConfigNotFoundException(sprintf('Bundle config `%s` not found.', $bundleName));
+                self::getLogger()->addAlert(
+                    tf(
+                        'Bundle `%s` for plugin `%s` on page `%s` [%d] does not not exist.',
+                        $bundleName,
+                        $data['plugin'],
+                        Kryn::$page->getTitle(),
+                        Kryn::$page->getId()
+                    )
+                );
+                continue;
             }
 
             $pluginDefinition = $config->getPlugin($data['plugin']);
 
-            if ($pluginDefinition && ($pluginRoutes = $pluginDefinition->getRoutes())) {
+            if (!$pluginDefinition) {
+                self::getLogger()->addAlert(
+                    tf(
+                        'In bundle `%s the plugin `%s` on page `%s` [%d] does not not exist.',
+                        $bundleName,
+                        $data['plugin'],
+                        Kryn::$page->getTitle(),
+                        Kryn::$page->getId()
+                    )
+                );
+                continue;
+            }
+
+            if ($pluginRoutes = $pluginDefinition->getRoutes()) {
                 foreach ($pluginRoutes as $route) {
 
                     $clazz = $pluginDefinition->getClass();
@@ -2061,7 +2089,7 @@ class Kryn extends Controller
     {
         $id = null;
 
-        $page2Domain =& Kryn::getDistributedCache('core/node/toDomains');
+        $page2Domain = Kryn::getDistributedCache('core/node/toDomains');
 
         if (!is_array($page2Domain)) {
             $page2Domain = Render::updatePage2DomainCache();

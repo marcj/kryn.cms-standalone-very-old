@@ -34,16 +34,15 @@ class Lang
     public static function getPluralForm($lang, $onlyAlgorithm = false)
     {
         //csv based on (c) http://translate.sourceforge.net/wiki/l10n/pluralforms
-
         $file = Kryn::resolvePath('@CoreBundle/Resources/package/gettext-plural-forms.csv');
         if (!file_exists($file)) {
             return false;
         }
+
         $fh = fopen($file, 'r');
         if (!$fh) {
             return false;
         }
-
         while (($buffer = fgetcsv($fh, 1000)) !== false) {
             if ($buffer[0] == $lang) {
                 fclose($fh);
@@ -80,7 +79,6 @@ class Lang
         if (!WebFile::exists('cache/core_gettext_plural_fn_' . $lang . '.js')) {
             $pluralForm = Lang::getPluralForm($lang, true);
 
-            var_dump($pluralForm);
             $code = "function gettext_plural_fn_$lang(n){\n";
             $code .= "    return " . $pluralForm . ";\n";
             $code .= "}";

@@ -7,17 +7,17 @@ use Core\Lang;
 use Core\SystemFile;
 
 use Core\Models\LanguageQuery;
+use Propel\Runtime\Map\TableMap;
 
 class UIAssets
 {
     public function getPossibleLangs()
     {
         $languages = LanguageQuery::create()
-            ->select(array('code', 'title', 'langtitle'))
             ->filterByVisible(true)
             ->orderByCode()
             ->find()
-            ->toArray('code');
+            ->toArray('Code', null, TableMap::TYPE_STUDLYPHPNAME);
 
         if (0 === count($languages)) {
             $json = '{"en":{"code":"en","title":"English","langtitle":"English"}}';

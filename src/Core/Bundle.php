@@ -44,7 +44,6 @@ class Bundle {
         }
 
         return $this->path . '/';
-
     }
 
     /**

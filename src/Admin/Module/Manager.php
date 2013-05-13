@@ -331,17 +331,17 @@ class Manager
     public function install($pName, $pWithoutDBSchemaUpdate = false)
     {
         Manager::prepareName($pName);
-
-        if (is_file($pName)) {
-            $zip = new \ZipArchive;
-            if ($zip->open($pName) === true) {
-                $zip->extractTo(PATH);
-                $zip->close();
-
-                $this->fireScript($pName, 'extract');
-            }
-
-        }
+//
+//        if (is_file($pName)) {
+//            $zip = new \ZipArchive;
+//            if ($zip->open($pName) === true) {
+//                $zip->extractTo(PATH);
+//                $zip->close();
+//
+//                $this->fireScript($pName, 'extract');
+//            }
+//
+//        }
 
         $hasPropelModels = SystemFile::exists(Kryn::getBundleDir($pName) . 'Resources/config/models.xml');
         $this->fireScript($pName, 'install');

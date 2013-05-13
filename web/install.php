@@ -676,28 +676,8 @@ function step5Init()
 
     define('pfx', Kryn::$config['database']['prefix']);
 
-    if ($subStep == 0 && $_POST['modules']) {
-
-        $dir = opendir(PATH_MODULE);
-        if (!$dir) {
-            return;
-        }
-        while (($file = readdir($dir)) !== false) {
-            if (is_dir(PATH_MODULE . $file) && $file != '..' && $file != '.' && $file != 'admin' && $file != 'users') {
-                if ($_POST['modules'][$file]) {
-                    $modules[] = $file;
-                }
-            }
-        }
-
-        $bundles = array();
-        foreach ($_POST['modules'] as $bundle => $active) {
-            if ($active) {
-                $bundles[] = $bundle;
-            }
-        }
-
-        Kryn::$config['bundles'] = $bundles;
+    if ($subStep == 0 && $_REQUEST['modules']) {
+        Kryn::$config['bundles'] = array_keys($_REQUEST['modules']);
 
         \Core\SystemFile::setContent('config.php', "<?php\nreturn " . var_export(Kryn::$config, true) . ";\n?>");
     }
@@ -861,32 +841,13 @@ function step4()
     ?>
 
     <br/>
-    Your installation file contains following modules:<br/>
+    Your package contains following modules:<br/>
     <br/>
     <br/>
     <form action="?step=5" method="post" id="form.modules">
-
         <table style="width: 98%" class="modulelist" cellpadding="4">
             <?php
-
-            $systemModules = array('core', 'admin', 'users');
-            buildModInfo($systemModules);
-
-            $dir = opendir(PATH_MODULE);
-            $modules = array();
-            if (!$dir) {
-                return;
-            }
-            while (($file = readdir($dir)) !== false) {
-                if (is_dir(PATH_MODULE . $file) && $file != '..' && $file != '.' && $file != '.svn' && (array_search(
-                    $file,
-                    $systemModules
-                ) === false)
-                ) {
-                    $modules[] = $file;
-                }
-            }
-            buildModInfo($modules);
+            buildModInfo();
             ?>
         </table>
     </form>
@@ -896,31 +857,68 @@ function step4()
 <?php
 }
 
-function buildModInfo($modules)
+function buildModInfo()
 {
-    global $lang;
-    foreach ($modules as $module) {
-        $config = \Admin\Module\Manager::loadInfo($module);
-        $version = $config['version'];
-        $title = $config['title'];
-        $desc = $config['desc'];
 
-        $checkbox = '<input name="modules[' . $module . ']" checked type="checkbox" value="1" />';
-        if ($config['system'] == "1") {
-            $checkbox = '<input name="modules[' . $module . ']" checked disabled type="checkbox" value="1" />';
+    $finder = new \Symfony\Component\Finder\Finder();
+    $finder
+        ->files()
+        ->name('*Bundle.php')
+        ->in(__DIR__ . '/../vendor')
+        ->in(__DIR__ . '/../src');
+
+    $bundles = array();
+    /** @var \Symfony\Component\Finder\SplFileInfo $file */
+    foreach ($finder as $file) {
+
+        $file = $file->getRealPath();
+        $content = file_get_contents($file);
+        preg_match('/^\s*\t*class ([a-z0-9_]+)/mi', $content, $className);
+        if (isset($className[1]) && $className[1]){
+            preg_match('/\s*\t*namespace ([a-zA-Z0-9_\\\\]+)/', $content, $namespace);
+            $class = (count($namespace) > 1 ? $namespace[1] . '\\' : '' ) . $className[1];
+
+            if ('Bundle' === $className[1] || false !== strpos($class, '\\Test\\') || false !== strpos($class, '\\Tests\\')) {
+                continue;
+            }
+
+            $bundles[] = $class;
         }
+    }
+
+    $bundles = array_unique($bundles);
+    $systemBundles = array('Admin\\AdminBundle', 'Core\\CoreBundle', 'Users\\UsersBundle');
+
+    foreach ($bundles as $bundleClass) {
+        $bundle = new $bundleClass();
+        if (in_array($bundleClass, $systemBundles)) {
+            continue;
+        }
+
+        $composer = $bundle->getComposer();
+
         ?>
+
         <tr>
-            <td valign="top" width="30"><?php print $checkbox ?></td>
-            <td valign="top" width="150"><b><?php print $title ?></b></td>
-            <td valign="top" width="90">
-                <div style="color: gray; margin-bottom: 11px;">#<?php print $module ?></div>
+            <td valign="top" width="30">
+                <div style="padding-top: 5px;">
+                    <input name="modules[<?php echo $bundleClass; ?>]" checked="checked" type="checkbox" value="1" />
+                </div>
             </td>
+            <td valign="top"><b><?php echo $composer['name'] ?></b></td>
             <td valign="top">
-                <?php print $desc ?>
+                <div style="color: gray; margin-bottom: 11px;">#<?php echo $bundleClass ?></div>
             </td>
         </tr>
-    <?php
+        <tr>
+            <td valign="top" colspan="3" style="border-bottom: 1px solid silver;">
+                <div style="padding-left: 40px;">
+                    <?php echo $composer['description'] ?>
+                </div>
+            </td>
+        </tr>
+
+        <?php
     }
 
 }
@@ -942,7 +940,7 @@ function step2()
             $v = ($t[0]) ? $t[0] : PHP_VERSION;
             //5.3.2 because flock()
             if (!version_compare($v, "5.3.2") < 0) {
-                print '<div style="color: red">PHP version tot old.<br />';
+                print '<div style="color: red">PHP version too old.<br />';
                 print "You need PHP version 5.3.0 or greater.<br />";
                 print "Installed version: $v (" . PHP_VERSION . ")<br/></div>";
                 $anyThingOk = false;

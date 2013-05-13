@@ -1,152 +1,152 @@
 <config>
     <bundle>
-        <entry-points>
-            <entry-point path="backend">
+        <entryPoints>
+            <entryPoint path="backend">
                 <label>Backend access</label>
                 <children>
-                    <entry-point path="chooser" type="custom">
+                    <entryPoint path="chooser" type="custom">
                         <label>Chooser</label>
-                    </entry-point>
-                    <entry-point path="stores" link="false">
+                    </entryPoint>
+                    <entryPoint path="stores" link="false">
                         <label>Stores</label>
                         <children>
-                            <entry-point path="languages" type="store">
+                            <entryPoint path="languages" type="store">
                                 <table_key>code</table_key>
                                 <table_label>title</table_label>
                                 <table>system_langs</table>
                                 <label>Language</label>
-                            </entry-point>
-                            <entry-point path="extensions">
+                            </entryPoint>
+                            <entryPoint path="extensions">
                                 <class>adminStoreExtensions</class>
                                 <type>store</type>
                                 <isLink>false</isLink>
                                 <label>Extensions</label>
-                            </entry-point>
+                            </entryPoint>
                         </children>
-                    </entry-point>
+                    </entryPoint>
                 </children>
-            </entry-point>
-            <entry-point path="dashboard" type="custom" icon="#icon-chart-5" link="true">
+            </entryPoint>
+            <entryPoint path="dashboard" type="custom" icon="#icon-chart-5" link="true">
                 <label>Dashboard</label>
-            </entry-point>
-            <entry-point path="nodes" type="combine" icon="#icon-screen-2" link="true" multi="true">
+            </entryPoint>
+            <entryPoint path="nodes" type="combine" icon="#icon-screen-2" link="true" multi="true">
                 <label>Pages</label>
                 <class>Admin\Controller\Windows\NodeCrud</class>
                 <children>
-                    <entry-point path="add" type="custom" multi="true">
+                    <entryPoint path="add" type="custom" multi="true">
                         <label>Add pages</label>
-                    </entry-point>
-                    <entry-point path="addDomains" type="custom" multi="true">
+                    </entryPoint>
+                    <entryPoint path="addDomains" type="custom" multi="true">
                         <label>Add domains</label>
                         <type>custom</type>
-                    </entry-point>
-                    <entry-point path="root" type="combine">
+                    </entryPoint>
+                    <entryPoint path="root" type="combine">
                         <label>Domain</label>
                         <class>\Admin\Controller\Windows\DomainCrud</class>
-                    </entry-point>
-                    <entry-point path="frontend" type="custom">
+                    </entryPoint>
+                    <entryPoint path="frontend" type="custom">
                         <label>Frontend</label>
-                    </entry-point>
+                    </entryPoint>
                 </children>
-            </entry-point>
-            <entry-point path="files" type="custom" icon="#icon-folder-5" link="true" multi="true">
+            </entryPoint>
+            <entryPoint path="files" type="custom" icon="#icon-folder-5" link="true" multi="true">
                 <label>Files</label>
                 <type>custom</type>
                 <children>
-                    <entry-point path="edit" type="custom" multi="true">
+                    <entryPoint path="edit" type="custom" multi="true">
                         <label>File edit</label>
-                    </entry-point>
-                    <entry-point path="diff" type="custom" multi="true">
+                    </entryPoint>
+                    <entryPoint path="diff" type="custom" multi="true">
                         <label>File diff</label>
-                    </entry-point>
-                    <entry-point path="system">
+                    </entryPoint>
+                    <entryPoint path="system">
                         <label>System files</label>
-                    </entry-point>
-                    <entry-point path="properties" type="custom" multi="true">
+                    </entryPoint>
+                    <entryPoint path="properties" type="custom" multi="true">
                         <label>Properties</label>
-                    </entry-point>
+                    </entryPoint>
                 </children>
-            </entry-point>
-            <entry-point path="help" type="custom">
+            </entryPoint>
+            <entryPoint path="help" type="custom">
                 <label>Help</label>
-            </entry-point>
-            <entry-point path="stores">
+            </entryPoint>
+            <entryPoint path="stores">
                 <label>Data Stores</label>
                 <children>
-                    <entry-point path="layout" type="store">
+                    <entryPoint path="layout" type="store">
                         <label>Layouts</label>
                         <class>\Admin\Stores\Layout</class>
-                    </entry-point>
+                    </entryPoint>
                 </children>
-            </entry-point>
-            <entry-point path="system" type="custom" link="true" icon="#icon-cog-4">
+            </entryPoint>
+            <entryPoint path="system" type="custom" link="true" icon="#icon-cog-4">
                 <label>System</label>
                 <children>
-                    <entry-point path="desktop-settings" type="custom" multi="true">
+                    <entryPoint path="desktop-settings" type="custom" multi="true">
                         <label>Desktop settings</label>
-                    </entry-point>
-                    <entry-point path="searchIndexerList" type="list" multi="true">
+                    </entryPoint>
+                    <entryPoint path="searchIndexerList" type="list" multi="true">
                         <label>Search index</label>
                         <class>adminSearchIndexList</class>
                         <children>
-                            <entry-point path="doAction" type="custom">
+                            <entryPoint path="doAction" type="custom">
                                 <label>Add</label>
-                            </entry-point>
+                            </entryPoint>
                         </children>
-                    </entry-point>
-                    <entry-point path="layout" type="custom" link="true" multi="true" icon="#icon-code">
+                    </entryPoint>
+                    <entryPoint path="layout" type="custom" link="true" multi="true" icon="#icon-code">
                         <label>Templates</label>
-                    </entry-point>
-                    <entry-point path="languages" type="custom" link="true" multi="true" icon="#icon-flag">
+                    </entryPoint>
+                    <entryPoint path="languages" type="custom" link="true" multi="true" icon="#icon-flag">
                         <label>Languages</label>
                         <children>
-                            <entry-point path="edit" type="custom" multi="true">
+                            <entryPoint path="edit" type="custom" multi="true">
                                 <label>Edit</label>
-                            </entry-point>
+                            </entryPoint>
                         </children>
-                    </entry-point>
-                    <entry-point path="backup" type="custom" link="true" multi="true" icon="#icon-database-2">
+                    </entryPoint>
+                    <entryPoint path="backup" type="custom" link="true" multi="true" icon="#icon-database-2">
                         <label>Backup</label>
-                    </entry-point>
-                    <entry-point path="module" type="custom" link="true" multi="true" icon="#icon-cube-2">
+                    </entryPoint>
+                    <entryPoint path="module" type="custom" link="true" multi="true" icon="#icon-cube-2">
                         <label>Extensions</label>
                         <children>
-                            <entry-point path="publish" type="custom" multi="true" icon="#icon-cube-2">
+                            <entryPoint path="publish" type="custom" multi="true" icon="#icon-cube-2">
                                 <label>Publish</label>
-                            </entry-point>
-                            <entry-point path="edit" type="custom" multi="true" icon="#icon-cube-2">
+                            </entryPoint>
+                            <entryPoint path="edit" type="custom" multi="true" icon="#icon-cube-2">
                                 <label>Edit extension</label>
-                            </entry-point>
-                            <entry-point path="add" type="custom" multi="true" icon="#icon-cube-2">
+                            </entryPoint>
+                            <entryPoint path="add" type="custom" multi="true" icon="#icon-cube-2">
                                 <label>Create extension</label>
-                            </entry-point>
-                            <entry-point path="view" type="custom" multi="true" icon="#icon-cube-2">
+                            </entryPoint>
+                            <entryPoint path="view" type="custom" multi="true" icon="#icon-cube-2">
                                 <label>Extension</label>
-                            </entry-point>
-                            <entry-point path="editWindow" type="custom" multi="true" icon="#icon-window">
+                            </entryPoint>
+                            <entryPoint path="editWindow" type="custom" multi="true" icon="#icon-window">
                                 <label>Edit window</label>
-                            </entry-point>
+                            </entryPoint>
                         </children>
-                    </entry-point>
-                    <entry-point path="settings" type="custom" link="true" multi="true" icon="#icon-cog-4">
+                    </entryPoint>
+                    <entryPoint path="settings" type="custom" link="true" multi="true" icon="#icon-cog-4">
                         <label>Settings</label>
-                    </entry-point>
-                    <entry-point path="development" link="true">
+                    </entryPoint>
+                    <entryPoint path="development" link="true">
                         <label>Development</label>
                         <children>
-                            <entry-point path="database" type="custom" link="true" multi="true">
+                            <entryPoint path="database" type="custom" link="true" multi="true">
                                 <label>Database</label>
-                            </entry-point>
-                            <entry-point path="logs" type="custom" link="true" multi="true">
+                            </entryPoint>
+                            <entryPoint path="logs" type="custom" link="true" multi="true">
                                 <label>Logs</label>
-                            </entry-point>
-                            <entry-point path="orm" type="custom" link="true">
+                            </entryPoint>
+                            <entryPoint path="orm" type="custom" link="true">
                                 <label>ORM</label>
-                            </entry-point>
+                            </entryPoint>
                         </children>
-                    </entry-point>
+                    </entryPoint>
                 </children>
-            </entry-point>
-        </entry-points>
+            </entryPoint>
+        </entryPoints>
     </bundle>
 </config>

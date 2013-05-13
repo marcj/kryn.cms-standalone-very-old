@@ -133,7 +133,7 @@ class ObjectFile extends \Core\ORM\Propel
         return WebFile::getFile($path);
     }
 
-    public function getParents($pPk)
+    public function getParents($pPk, $pOptions = null)
     {
         $path = is_numeric($pPk['id']) ? WebFile::getPath($pPk['id']) : $pPk['id'];
 

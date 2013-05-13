@@ -202,9 +202,9 @@ class AdminController
 
                 //admin/backend
                 ->addSubController('backend', '\Admin\Controller\Backend')
-                    ->addGetRoute('script.js', 'loadJs')
-                    ->addGetRoute('script.js.map', 'loadJsMap')
-                    ->addGetRoute('style.css', 'loadCss')
+                    ->addGetRoute('script', 'loadJs')
+                    ->addGetRoute('script-map', 'loadJsMap')
+                    ->addGetRoute('style', 'loadCss')
 
                     ->addGetRoute('settings', 'getSettings')
 
@@ -426,8 +426,8 @@ class AdminController
         window._pathAdmin = ' . json_encode(Kryn::getAdminPrefix() . '/')
         );
 
-        $response->addCssFile(Kryn::getAdminPrefix() . '/admin/backend/style.css');
-        $response->addJsFile(Kryn::getAdminPrefix() . '/admin/backend/script.js');
+        $response->addCssFile(Kryn::getAdminPrefix() . '/admin/backend/style');
+        $response->addJsFile(Kryn::getAdminPrefix() . '/admin/backend/script');
 
         foreach (Kryn::$configs as $bundleConfig) {
             foreach ($bundleConfig->getAdminAssetsPaths(false, '.*\.js', true) as $assetPath) {

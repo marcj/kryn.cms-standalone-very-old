@@ -75,7 +75,7 @@ class EntryPoint extends Model
             $children        = $childrenElement->childNodes;
             if ($children) {
                 foreach ($children as $child) {
-                    if ('entry-point' === $child->nodeName) {
+                    if ('entryPoint' === $child->nodeName) {
                         $this->children[] = $this->getModelInstance($child);
                     }
                 }
@@ -97,7 +97,7 @@ class EntryPoint extends Model
 
     public function getParentInstance()
     {
-        // we need to jump two elements, since we have <entry-point><children><entry-point>
+        // we need to jump two elements, since we have <entryPoint><children><entryPoint>
         return $this->getModelInstance($this->element->parentNode->parentNode);
     }
 

@@ -289,12 +289,12 @@ class Config extends Model
     public function getEntryPoints()
     {
         if (null === $this->entryPoints) {
-            $childrenElement   = $this->getDirectChild('entry-points');
+            $childrenElement   = $this->getDirectChild('entryPoints');
             $this->entryPoints = array();
             if ($childrenElement) {
                 $children = $childrenElement->childNodes;
                 foreach ($children as $child) {
-                    if ('entry-point' === $child->nodeName) {
+                    if ('entryPoint' === $child->nodeName) {
                         $this->entryPoints[] = $this->getModelInstance($child);
                     }
                 }

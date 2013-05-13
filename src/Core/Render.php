@@ -13,6 +13,7 @@
 namespace Core;
 
 use Core\Render\TypeNotFoundException;
+use Propel\Runtime\Map\TableMap;
 use Symfony\Component\EventDispatcher\GenericEvent;
 
 use Symfony\Component\HttpKernel\HttpKernelInterface;
@@ -255,7 +256,7 @@ class Render
             ));
         }
 
-        $data['content'] = $content->toArray(\BasePeer::TYPE_STUDLYPHPNAME);
+        $data['content'] = $content->toArray(TableMap::TYPE_STUDLYPHPNAME);
         $data['parameter'] = $parameter;
         $data['html'] = $html;
 

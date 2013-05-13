@@ -2,6 +2,7 @@
 
 namespace Core;
 
+use Core\Exceptions\BundleNotFoundException;
 use Propel\Generator\Command\ConfigConvertXmlCommand;
 use Propel\Generator\Command\MigrationDiffCommand;
 use Propel\Generator\Command\ModelBuildCommand;
@@ -166,6 +167,7 @@ class PropelHelper
         $input = new ArrayInput(array(
              '--input-dir' => $tmp . 'propel/',
              '--output-dir' => $tmp . 'propel/build/classes/',
+             '--enable-package-object-model' => true,
              '--verbose' => 'vvv'
         ));
         $command = new ModelBuildCommand();
@@ -243,10 +245,12 @@ class PropelHelper
 
         copyr($tmp . 'propel/build/classes/', $tmp . 'propel-classes/');
 
-        foreach (Kryn::$bundles as $extension) {
+        foreach (Kryn::$bundles as $bundleName) {
 
-            //$extension = Kryn::getBundleName($extension);
-            $bundle = Kryn::getBundle($extension);
+            $bundle = Kryn::getBundle($bundleName);
+            if (!$bundle) {
+                throw new BundleNotFoundException(tf('Bundle `%s` not found.', $bundleName));
+            }
             $source = $tmp . 'propel-classes/' . ucfirst($bundle->getNamespace()) . '/Models';
 
             //$result .= " CHECK $targetDir \n";
@@ -477,7 +481,7 @@ class PropelHelper
             unlink($file);
         }
 
-        $schemeData = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n  <database name=\"kryn\" basePeer=\"\\Core\\PropelBasePeer\" defaultIdMethod=\"native\"\n";
+        $schemeData = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n  <database name=\"kryn\" defaultIdMethod=\"native\"\n";
 
         foreach (Kryn::$bundles as $bundleName) {
 
@@ -528,6 +532,7 @@ class PropelHelper
         $input = new ArrayInput(array(
              '--input-dir' => $tmp . 'propel/',
              '--output-dir' => $tmp . 'propel/build/',
+             '--enable-package-object-model' => true,
              '--verbose' => 'vvv'
         ));
         $command = new MigrationDiffCommand();
@@ -668,10 +673,6 @@ class PropelHelper
         $properties = '
 propel.mysql.tableType = InnoDB
 
-propel.database = ' . $adapter . '
-propel.database.url = ' . self::getDsn($adapter) . '
-propel.database.user = ' . Kryn::$config['database']['user'] . '
-propel.database.password = ' . Kryn::$config['database']['password'] . '
 propel.tablePrefix = ' . Kryn::$config['database']['prefix'] . '
 propel.database.encoding = utf8
 propel.project = kryn

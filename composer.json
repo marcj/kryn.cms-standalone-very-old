@@ -37,9 +37,11 @@
         "marijnh/codemirror": ">=v3.1",
         "sybio/image-workshop": "dev-master",
         "tinymce/tinymce": "*",
-        "propel/propel2": "dev-master",
+        "propel/propel": "dev-master",
         "composer/composer": "*",
         "krynlabs/kryn-publication-bundle": "*",
+        "krynlabs/kryn-demotheme-bundle": "*",
+        "google/closure-compiler": "*",
         "symfony/filesystem": "2.2.*"
     }
 }

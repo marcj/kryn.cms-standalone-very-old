@@ -30,6 +30,11 @@ class WorkspaceBehavior extends Behavior
     private $versionTableName;
 
     /**
+     * @var string
+     */
+    private $versionTablePhpName;
+
+    /**
      * The callable where wo get our current workspace id
      *
      * @var callable
@@ -190,12 +195,14 @@ class WorkspaceBehavior extends Behavior
             }
         }
 
+        $this->versionTablePhpName = $table->getPhpName() . 'Version';
+
         if (!$database->hasTable($this->versionTableName)) {
             // create the version table
             $versionTable = $database->addTable(
                 array(
                      'name' => $this->versionTableName,
-                     'phpName' => $table->getPhpName() . 'Version',
+                     'phpName' => $this->versionTablePhpName,
                      'package' => $table->getPackage(),
                      'schema' => $table->getSchema(),
                      'namespace' => $table->getNamespace() ? '\\' . $table->getNamespace() : null,
@@ -348,6 +355,12 @@ if (\$this->isModified() && !\$this->isColumnModified(" . $this->getColumnConsta
 
     protected function addDoBackupRecord(&$script)
     {
+        $table = $this->getTable();
+        $versionTable =  '\\' . $this->versionTablePhpName;
+        if ($table->getNamespace()) {
+            $versionTable = '\\' . $table->getNamespace() . $versionTable;
+        }
+
         $script .= '
     /**
     * @param Criteria            $criteria
@@ -358,12 +371,12 @@ if (\$this->isModified() && !\$this->isColumnModified(" . $this->getColumnConsta
         $items = static::create(null, $criteria)->find($con);
 
         foreach ($items as $item) {
-            $version = new ' . $this->versionTableName . ';
+            $version = new '.$versionTable.';
 ';
 
         foreach ($this->table->getColumns() as $col) {
             $script .= "
-            \$version->set" . $col->getPhpName() . "(\$this->get" . $col->getPhpName() . "());";
+            \$version->set" . $col->getPhpName() . "(\$item->get" . $col->getPhpName() . "());";
         }
 
         $script .= '

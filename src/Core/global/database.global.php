@@ -137,7 +137,7 @@ function dbExFetch($pQuery, $pParams = null)
 {
     $stm = dbQuery($pQuery, $pParams);
     $items = $stm->fetch(PDO::FETCH_ASSOC);
-    $stm->closeCursor();
+    $stm->close();
 
     return $items;
 }
@@ -153,8 +153,8 @@ function dbExFetch($pQuery, $pParams = null)
 function dbExFetchAll($pQuery, $pParams = null)
 {
     $stm = dbQuery($pQuery, $pParams);
-    $items = $stm->fetchAll(PDO::FETCH_ASSOC);
-    $stm->closeCursor();
+    $items = iterator_to_array($stm);
+    $stm->close();
 
     return $items;
 }

@@ -620,7 +620,7 @@ class PageResponse extends Response
      */
     public function setPluginResponse(PluginResponse $pResponse)
     {
-        $param =& $pResponse->getControllerRequest()->attributes->get('_route_params');
+        $param = $pResponse->getControllerRequest()->attributes->get('_route_params');
         $this->pluginResponse[$param['_content']->getId()] = $pResponse;
 
         return $this;
@@ -657,7 +657,7 @@ class PageResponse extends Response
             $cssCode = '';
             foreach ($this->css as $css) {
                 if ($css['path']) {
-                    if (strpos($css['path'], "://") !== false) {
+                    if (false !== strpos($css['path'], "://")) {
                         $result .= sprintf(
                             '<link rel="stylesheet" type="text/css" href="%s" %s',
                             $css['path'],
@@ -669,6 +669,8 @@ class PageResponse extends Response
 
                         if (file_exists($file) && $modifiedTime = filemtime($file)) {
                             $cssCode .= $file . '_' . $modifiedTime;
+                        } else {
+                            Kryn::getLogger()->addError(tf('CSS file `%s` [%s] not found.', $file, $css['path']));
                         }
                     }
                 } else {
@@ -678,45 +680,25 @@ class PageResponse extends Response
 
             $cssMd5        = md5($cssCode);
             $cssCachedFile = 'cachedCss_' . $cssMd5 . '.css';
-            $cssContent    = '';
 
             if (!file_exists(PATH_WEB_CACHE . $cssCachedFile)) {
+                $compressFiles = array();
                 foreach ($this->css as $css) {
                     if ($css['path']) {
-
-                        if (strpos($css['path'], "://") !== false) {
+                        if (false !== strpos($css['path'], "://")) {
                             $result .= sprintf(
                                 '<link rel="stylesheet" type="text/css" href="%s" %s',
                                 $css['path'],
                                 $this->getEndTag()
                             );
                         } else {
-                            $file   = Kryn::resolvePath($css['path'], 'Resources/public');
-                            $public = Kryn::resolvePublicPath($css['path']);
-
-                            if (file_exists($file)) {
-                                $cssContent .= "/* ($public, {$css['path']}) $file: */\n\n";
-                                $temp = file_get_contents($file) . "\n\n\n";
-
-                                //replace relative urls to absolute
-                                $relativePath = '../' . dirname($public);
-                                $temp         = preg_replace('/url\(\n*\'/', 'url("' . $relativePath . '/', $temp);
-                                $temp         = preg_replace('/url\(\n*"/', 'url("' . $relativePath . '/', $temp);
-                                $temp         = preg_replace('/url\(\n*/', 'url(' . $relativePath . '/', $temp);
-
-                                $cssContent .= $temp;
-                            }
+                            $compressFiles[] = $css['path'];
                         }
                     } else {
-                        $temp = $css['content'];
-                        $relativePath = '../';
-                        $temp         = preg_replace('/url\(\n*\'/', 'url("' . $relativePath . '/', $temp);
-                        $temp         = preg_replace('/url\(\n*"/', 'url("' . $relativePath . '/', $temp);
-                        $temp         = preg_replace('/url\(\n*/', 'url(' . $relativePath . '/', $temp);
-
-                        $cssContent .= $temp;
+                        $result .= sprintf('<style type="text/css">'.chr(10).'%s'.chr(10).'</style>'.chr(10), $css['content']);
                     }
                 }
+                $cssContent = Utils::compressCss($compressFiles, 'cache/');
                 file_put_contents(PATH_WEB_CACHE . $cssCachedFile, $cssContent);
             }
             $result .= sprintf(
@@ -727,7 +709,7 @@ class PageResponse extends Response
         } else {
             foreach ($this->css as $css) {
                 if ($css['path']) {
-                    if (strpos($css['path'], "://") !== false) {
+                    if (false !== strpos($css['path'], "://")) {
                         $result .= sprintf(
                             '<link rel="stylesheet" type="text/css" href="%s" %s',
                             $css['path'],
@@ -776,13 +758,15 @@ class PageResponse extends Response
                 if ($js['position'] != $pPosition) continue;
 
                 if ($js['path']) {
-                    if (strpos($js['path'], "http://") !== false) {
+                    if (false !== strpos($js['path'], "http://")) {
                         $result .= '<script type="text/javascript" src="' . $js['path'] . '" ></script>' . "\n";
                     } else {
                         //local
                         $file   = Kryn::resolvePath($js['path'], 'Resources/public');
                         if (file_exists($file) && $modifiedTime = filemtime($file)) {
                             $jsCode .= $file . '_' . $modifiedTime;
+                        } else {
+                            Kryn::getLogger()->addError(tf('JavaScript file `%s` [%s] not found.', $file, $js['path']));
                         }
                     }
                 } else {
@@ -795,12 +779,11 @@ class PageResponse extends Response
             $jsContent = '';
 
             if (!file_exists(PATH_WEB_CACHE . $jsCachedFile)) {
-
                 foreach ($this->js as $js) {
                     if ($js['position'] != $pPosition) continue;
 
                     if ($js['path']) {
-                        if (strpos($js['path'], "://") !== false) {
+                        if (false !== strpos($js['path'], "://")) {
                             $result .= sprintf('<script type="%s" src="%s"></script>'.chr(10), $js['type'], $js['path']);
                         } else {
                             $file   = Kryn::resolvePath($js['path'], 'Resources/public');
@@ -825,15 +808,13 @@ class PageResponse extends Response
                 if ($js['position'] != $pPosition) continue;
 
                 if ($js['path']) {
-                    if (strpos($js['path'], "://") !== false) {
+                    if (false !== strpos($js['path'], "://")) {
                         $result .= sprintf('<script type="%s" src="%s"></script>'.chr(10), $js['type'], $js['path']);
                     } else {
                         $file   = Kryn::resolvePath($js['path'], 'Resources/public');
                         $public = Kryn::resolvePublicPath($js['path']);
 
-                        if (file_exists($file)) {
-                            $modifiedTime = filemtime($file);
-                        }
+                        $modifiedTime = file_exists($file) ? filemtime($file) : null;
 
                         $result .= sprintf(
                             '<script type="%s" src="%s"></script>'.chr(10), $js['type'],

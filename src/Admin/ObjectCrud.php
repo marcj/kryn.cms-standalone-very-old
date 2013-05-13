@@ -563,7 +563,7 @@ class ObjectCrud
      * @param array $pFields
      * @param bool  $pKey
      */
-    public function prepareFieldItem(&$pFields)
+    public function prepareFieldItem($pFields)
     {
         if (is_array($pFields)) {
             foreach ($pFields as &$field) {
@@ -611,22 +611,22 @@ class ObjectCrud
                         break;
                     case 'select':
 
-                        if ($pFields->getTable()) {
-                            $pFields['tableItems'] = dbTableFetchAll($pFields['table']);
-                        } else if ($pFields['sql']) {
-                            $pFields['tableItems'] = dbExFetchAll(str_replace('%pfx%', pfx, $pFields['sql']));
-                        } else if ($pFields['method']) {
-                            $nam = $pFields['method'];
-                            if (method_exists($this, $nam)) {
-                                $pFields['tableItems'] = $this->$nam($pFields);
-                            }
-                        }
-
-                        if ($pFields['modifier'] && !empty($pFields['modifier']) &&
-                            method_exists($this, $pFields['modifier'])
-                        ) {
-                            $pFields['tableItems'] = $this->$pFields['modifier']($pFields['tableItems']);
-                        }
+//                        if ($pFields->getTable()) {
+//                            $pFields['tableItems'] = dbTableFetchAll($pFields['table']);
+//                        } else if ($pFields['sql']) {
+//                            $pFields['tableItems'] = dbExFetchAll(str_replace('%pfx%', pfx, $pFields['sql']));
+//                        } else if ($pFields['method']) {
+//                            $nam = $pFields['method'];
+//                            if (method_exists($this, $nam)) {
+//                                $pFields['tableItems'] = $this->$nam($pFields);
+//                            }
+//                        }
+//
+//                        if ($pFields['modifier'] && !empty($pFields['modifier']) &&
+//                            method_exists($this, $pFields['modifier'])
+//                        ) {
+//                            $pFields['tableItems'] = $this->$pFields['modifier']($pFields['tableItems']);
+//                        }
 
                         break;
                 }
