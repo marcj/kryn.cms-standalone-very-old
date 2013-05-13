@@ -23,9 +23,10 @@ var admin_system_desktopSettings = new Class({
             style: 'margin: 15px;'
         }).inject(this.win.content);
 
-        this.fieldBg = new ka.Field({label: t('Background image'), type: 'fileChooser'}).addEvent('change', function (pValue) {
-            this.choose(pValue);
-        }.bind(this)).inject(this.options);
+        this.fieldBg =
+            new ka.Field({label: t('Background image'), type: 'fileChooser'}).addEvent('change', function (pValue) {
+                this.choose(pValue);
+            }.bind(this)).inject(this.options);
         this.fieldBg.setValue(ka.settings.user.userBg);
 
         var _this = this;
@@ -38,7 +39,8 @@ var admin_system_desktopSettings = new Class({
     loadDefaultImages: function () {
         var _this = this;
 
-        new Request.JSON({url: _pathAdmin + 'admin/backend/getDefaultImages', noCache: 1, onComplete: function (pFiles) {
+        new Request.JSON({url: _pathAdmin +
+            'admin/backend/getDefaultImages', noCache: 1, onComplete: function (pFiles) {
             pFiles.each(function (file) {
 
                 file = '/admin/images/userBgs/defaultImages/' + file;

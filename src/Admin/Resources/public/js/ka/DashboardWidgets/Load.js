@@ -7,7 +7,7 @@ ka.DashboardWidgets.Load = new Class({
         this.header = new Element('h3', {
             text: ka.tc('dashboardWidget.load', 'Load')
         })
-        .inject(this.main);
+            .inject(this.main);
         this.toElement().addClass('ka-Dashboard-widget-grid-2');
 
         this.load = new Element('div', {
@@ -45,6 +45,6 @@ ka.DashboardWidgets.Load = new Class({
         var val2 = (value.load[1] || 0).toFixed(2);
         var val3 = (value.load[2] || 0).toFixed(2);
 
-        this.load.set('text', val1 + ' / ' + val2 + ' / '+ val3);
+        this.load.set('text', val1 + ' / ' + val2 + ' / ' + val3);
     }
 });

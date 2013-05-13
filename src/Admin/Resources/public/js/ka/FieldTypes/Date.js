@@ -1,8 +1,8 @@
 ka.FieldTypes.Date = new Class({
-    
+
     Extends: ka.FieldAbstract,
 
-    createLayout: function(){
+    createLayout: function () {
         this.checkbox = new ka.Checkbox(this.fieldInstance.fieldPanel);
 
         this.checkbox.addEvent('change', this.fieldInstance.fireChange);
@@ -15,8 +15,9 @@ ka.FieldTypes.Date = new Class({
 
         this.datePicker = new ka.DatePicker(this.input, this.options);
 
-        if (this.options.inputWidth)
+        if (this.options.inputWidth) {
             this.input.setStyle('width', this.options.inputWidth);
+        }
 
         if (this.win) {
             this.win.addEvent('resize', this.datePicker.updatePos.bind(this.datePicker));
@@ -27,18 +28,17 @@ ka.FieldTypes.Date = new Class({
             this.fireChange();
         }.bind(this));
 
-
         if (this.options['default']) {
-            var time = new Date(this.field['default']=='now'?null:this.field['default']).getTime();
+            var time = new Date(this.field['default'] == 'now' ? null : this.field['default']).getTime();
             this.setValue(time, true);
         }
     },
 
-    setValue: function(pValue){
+    setValue: function (pValue) {
         this.datePicker.setTime((pVal != 0) ? pVal : false);
     },
 
-    getValue: function(){
+    getValue: function () {
         return this.datePicker.getTime();
     }
 });

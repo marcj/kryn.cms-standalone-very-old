@@ -2,4 +2,6 @@
 
 namespace Core\Render;
 
-class TypeNotFoundException extends \Exception {}
+class TypeNotFoundException extends \Exception
+{
+}

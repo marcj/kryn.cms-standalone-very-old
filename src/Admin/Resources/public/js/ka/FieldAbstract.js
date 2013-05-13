@@ -2,7 +2,6 @@ ka.FieldAbstract = new Class({
 
     Implements: [Options, Events],
 
-
     /**
      * Here you can define some default options.
      *
@@ -21,14 +20,12 @@ ka.FieldAbstract = new Class({
 
     },
 
-
     /**
      * The reference to the current (parent) ka.Field instance.
      *
      * @type {ka.Field}
      */
     fieldInstance: null,
-
 
     /**
      * The reference to the current ka.Window instance.
@@ -37,7 +34,6 @@ ka.FieldAbstract = new Class({
      */
     win: null,
 
-
     /**
      * Constructor.
      *
@@ -45,13 +41,12 @@ ka.FieldAbstract = new Class({
      * @param  {Object} pFieldInstance The instance of ka.Field
      * @param  {Object} pOptions
      */
-    initialize: function(pFieldInstance, pOptions){
+    initialize: function (pFieldInstance, pOptions) {
         this.fieldInstance = pFieldInstance;
         this.win = this.fieldInstance.win;
         this.setOptions(pOptions);
         this.createLayout();
     },
-
 
     /**
      * Use this method to create your field layout.
@@ -59,10 +54,9 @@ ka.FieldAbstract = new Class({
      *
      * Inject your elements to this.fieldInstance.fieldPanel.
      */
-    createLayout: function(){
+    createLayout: function () {
         /* Override it to your needs */
     },
-
 
     /**
      * This method is called, when the option 'disabled' is true and there this field
@@ -70,10 +64,9 @@ ka.FieldAbstract = new Class({
      *
      * @param {Boolean} pDisabled
      */
-    setDisabled: function(pDisabled){
+    setDisabled: function (pDisabled) {
         /* Override it to your needs */
     },
-
 
     /**
      * Renders the UI with the new value.
@@ -84,17 +77,16 @@ ka.FieldAbstract = new Class({
      *
      * @param {Mixed} pValue
      */
-    setValue: function(pValue){
+    setValue: function (pValue) {
         /* Override it to your needs */
     },
-
 
     /**
      * Returns the current value of this field.
      *
      * @return {Mixed}
      */
-    getValue: function(){
+    getValue: function () {
         /* Override it to your needs */
         return null;
     },
@@ -103,7 +95,7 @@ ka.FieldAbstract = new Class({
      * Returns the main element of this field.
      * This is not necessary.
      */
-    toElement: function(){
+    toElement: function () {
         return this.main;
     },
 
@@ -114,12 +106,13 @@ ka.FieldAbstract = new Class({
      * Take a look into the code, to get a idea behind.
      *
      */
-    highlight: function(){
+    highlight: function () {
 
         //example of using highlight
         //this calls toElement() and highlight the background of it.
-        if (document.id(this))
+        if (document.id(this)) {
             document.id(this).highlight();
+        }
 
         //or
         //document.id(this.input).highlight();
@@ -134,14 +127,15 @@ ka.FieldAbstract = new Class({
      *
      * @return {Boolean}
      */
-    isValid: function(){
+    isValid: function () {
 
-        if (this.fieldInstance.options.required && this.getValue() === '')
+        if (this.fieldInstance.options.required && this.getValue() === '') {
             return false;
+        }
 
-        if (this.fieldInstance.options.requiredRegex){
+        if (this.fieldInstance.options.requiredRegex) {
             var rx = new RegExp(this.fieldInstance.options.requiredRegex);
-            if (!rx.test(this.getValue().toString())){
+            if (!rx.test(this.getValue().toString())) {
                 return false;
             }
         }
@@ -159,10 +153,14 @@ ka.FieldAbstract = new Class({
      *
      * @return {Boolean} true if everything is ok
      */
-    checkValid: function(){
+    checkValid: function () {
         var status = this.isValid();
-        if (status) this.showValid();
-        else this.showInvalid();
+        if (status) {
+            this.showValid();
+        }
+        else {
+            this.showInvalid();
+        }
         return status;
     },
 
@@ -171,9 +169,11 @@ ka.FieldAbstract = new Class({
      *
      * @param  {String} pText text to display
      */
-    showInvalid: function(pText){
+    showInvalid: function (pText) {
 
-        if (this.invalidIcon) return; //we're already displaying invalid stuff
+        if (this.invalidIcon) {
+            return;
+        } //we're already displaying invalid stuff
 
         this.invalidIcon = new Element('div', {
             'class': 'ka-field-invalid-icon icon-warning blink'
@@ -186,8 +186,9 @@ ka.FieldAbstract = new Class({
             text: text
         }).inject(this.main || this.input, 'after');
 
-        if (this.input)
+        if (this.input) {
             this.input.addClass('ka-field-invalid');
+        }
 
     },
 
@@ -195,15 +196,17 @@ ka.FieldAbstract = new Class({
      * If the entered data is valid, this will be fired. (possible with each 'change' event)
      *
      */
-    showValid: function(){
+    showValid: function () {
 
-        if (this.invalidIcon){
+        if (this.invalidIcon) {
             //we was invalid before, highlight a smooth green
-            if (this.input)
+            if (this.input) {
                 this.input.highlight('green');
+            }
 
-            if (this.input)
+            if (this.input) {
                 this.input.removeClass('ka-field-invalid');
+            }
 
             //remove the invalid icon and text
             this.invalidIcon.destroy();

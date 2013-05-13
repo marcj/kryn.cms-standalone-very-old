@@ -50,9 +50,9 @@ class Route extends Model
 
     public function getArrayDefaults()
     {
-        $this->defaults = $this->defaults ?: $this->getDefaults();
+        $this->defaults = $this->defaults ? : $this->getDefaults();
         $result = array();
-        foreach ($this->defaults as $default){
+        foreach ($this->defaults as $default) {
             $result[$default->getId()] = $default->getValue();
         }
         return $result;
@@ -110,9 +110,9 @@ class Route extends Model
 
     public function getArrayRequirements()
     {
-        $this->requirements = $this->requirements ?: $this->getRequirements();
+        $this->requirements = $this->requirements ? : $this->getRequirements();
         $result = array();
-        foreach ($this->requirements as $requirement){
+        foreach ($this->requirements as $requirement) {
             $result[$requirement->getId()] = $requirement->getValue();
         }
         return $result;

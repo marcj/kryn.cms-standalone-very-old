@@ -1,5 +1,5 @@
-function generateNoise(opacity) {
-    if ( !!!document.createElement('canvas').getContext ) {
+function generateNoise (opacity) {
+    if (!!!document.createElement('canvas').getContext) {
         return false;
     }
 
@@ -14,11 +14,11 @@ function generateNoise(opacity) {
 
     ctx = canvas.getContext("2d");
 
-    for ( x = 0; x < canvas.width; x++ ) {
-        for ( y = 0; y < canvas.height; y++ ) {
-            r = Math.floor( Math.random() * 80 );
-            g = Math.floor( Math.random() * 80 );
-            b = Math.floor( Math.random() * 80 );
+    for (x = 0; x < canvas.width; x++) {
+        for (y = 0; y < canvas.height; y++) {
+            r = Math.floor(Math.random() * 80);
+            g = Math.floor(Math.random() * 80);
+            b = Math.floor(Math.random() * 80);
 
             ctx.fillStyle = "rgba(" + r + "," + g + "," + b + "," + opacity + ")";
             ctx.fillRect(x, y, 1, 1);
@@ -28,5 +28,7 @@ function generateNoise(opacity) {
     document.body.style.backgroundImage = "url(" + canvas.toDataURL("image/png") + ")";
 }
 
-window.onresize = function(){generateNoise(0.1);};
+window.onresize = function () {
+    generateNoise(0.1);
+};
 generateNoise(0.1);

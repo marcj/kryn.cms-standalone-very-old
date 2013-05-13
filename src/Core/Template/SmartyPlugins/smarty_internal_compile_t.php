@@ -4,9 +4,10 @@
  * Smarty Internal Plugin Compile Level
  *
  * Compiles the {t} tag
- * @package Smarty
+ *
+ * @package    Smarty
  * @subpackage Compiler
- * @author MArc Schmidt <marc@kryn.org>
+ * @author     MArc Schmidt <marc@kryn.org>
  */
 
 /**
@@ -24,13 +25,18 @@ class Smarty_Internal_Compile_T extends Smarty_Internal_CompileBase
         $this->compiler = $compiler;
 
         $args = $this->getAttributes($compiler, $args);
-        if (!$args['context']) $args['context'] = "''";
-        if (!$args['count']) $args['count'] = "1";
+        if (!$args['context']) {
+            $args['context'] = "''";
+        }
+        if (!$args['count']) {
+            $args['count'] = "1";
+        }
 
-        if ($args['plural'])
-            return '<?php print t('.$args['singular'].','.$args['plural'].','.$args['count'].','.$args['context'].'); ?>';
-        else
-            return '<?php print t('.$args['singular'].'); ?>';
+        if ($args['plural']) {
+            return '<?php print t(' . $args['singular'] . ',' . $args['plural'] . ',' . $args['count'] . ',' . $args['context'] . '); ?>';
+        } else {
+            return '<?php print t(' . $args['singular'] . '); ?>';
+        }
 
     }
 }

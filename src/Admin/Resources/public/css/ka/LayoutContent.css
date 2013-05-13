@@ -5,12 +5,12 @@
     color: #222;
     text-align: left;
     position: relative;
-    
+
     -moz-border-radius-topleft: 5px;
     -moz-border-radius-topright: 5px;
     -webkit-border-top-left-radius: 5px;
     -webkit-border-top-right-radius: 5px;
-    
+
     outline: 1px solid silver;
 }
 
@@ -23,7 +23,7 @@
 }
 
 .ka-layoutContent-body-notext .ka-layoutelement-content-content {
-    
+
     border: 1px solid #ccc;
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
@@ -34,12 +34,12 @@
     cursor: pointer;
 
     background-color: #eaeaea;
-    background-image: -webkit-gradient(linear, left top, left bottom, #f6f6f6, to(#ebebeb)); 
-    background-image: -webkit-linear-gradient(top, #f6f6f6, #ebebeb); 
-    background-image:    -moz-linear-gradient(top, #f6f6f6, #ebebeb); 
-    background-image:     -ms-linear-gradient(top, #f6f6f6, #ebebeb); 
-    background-image:      -o-linear-gradient(top, #f6f6f6, #ebebeb); 
-    background-image:         linear-gradient(top, #f6f6f6, #ebebeb);
+    background-image: -webkit-gradient(linear, left top, left bottom, #f6f6f6, to(#ebebeb));
+    background-image: -webkit-linear-gradient(top, #f6f6f6, #ebebeb);
+    background-image: -moz-linear-gradient(top, #f6f6f6, #ebebeb);
+    background-image: -ms-linear-gradient(top, #f6f6f6, #ebebeb);
+    background-image: -o-linear-gradient(top, #f6f6f6, #ebebeb);
+    background-image: linear-gradient(top, #f6f6f6, #ebebeb);
 }
 
 .ka-layoutContent-main:hover {
@@ -49,12 +49,12 @@
 .ka-layoutContent-body-notext:hover .ka-layoutelement-content-content {
     border: 1px solid #aaa;
     background-color: #dddddd;
-    background-image: -webkit-gradient(linear, left top, left bottom, #ebebeb, to(#dddddd)); 
-    background-image: -webkit-linear-gradient(top, #ebebeb, #dddddd); 
-    background-image:    -moz-linear-gradient(top, #ebebeb, #dddddd); 
-    background-image:     -ms-linear-gradient(top, #ebebeb, #dddddd); 
-    background-image:      -o-linear-gradient(top, #ebebeb, #dddddd); 
-    background-image:         linear-gradient(top, #ebebeb, #dddddd);
+    background-image: -webkit-gradient(linear, left top, left bottom, #ebebeb, to(#dddddd));
+    background-image: -webkit-linear-gradient(top, #ebebeb, #dddddd);
+    background-image: -moz-linear-gradient(top, #ebebeb, #dddddd);
+    background-image: -ms-linear-gradient(top, #ebebeb, #dddddd);
+    background-image: -o-linear-gradient(top, #ebebeb, #dddddd);
+    background-image: linear-gradient(top, #ebebeb, #dddddd);
 }
 
 .ka-layoutContent-div {
@@ -161,7 +161,6 @@ body .ka-layoutContent-toolbar-images img {
     margin-top: 2px;
 }
 
-
 .ka-layoutContent-toolbar-arrow {
     position: absolute;
     bottom: -12px;
@@ -171,7 +170,7 @@ body .ka-layoutContent-toolbar-images img {
     -moz-transform: rotate(180deg);
 }
 
-.ka-layoutContent-main input, 
+.ka-layoutContent-main input,
 .ka-layoutContent-main select {
     border: 1px solid silver;
     padding: 1px;
@@ -203,7 +202,6 @@ body .ka-layoutBox-main .ka-layoutContent-options .ka-layoutContent-options-arro
     -moz-transform: rotate(270deg);
 }
 
-
 .ka-layoutContent-bubbleBox {
     border: 1px solid silver;
     padding: 5px;
@@ -213,7 +211,6 @@ body .ka-layoutBox-main .ka-layoutContent-options .ka-layoutContent-options-arro
     height: 35px;
     z-index: 93000000;
 }
-
 
 .ka-contentBox-main {
     -moz-border-radius: 4px;

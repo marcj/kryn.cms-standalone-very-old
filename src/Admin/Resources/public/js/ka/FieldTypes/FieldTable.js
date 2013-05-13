@@ -1,8 +1,8 @@
 ka.FieldTypes.FieldTable = new Class({
-    
+
     Extends: ka.FieldAbstract,
 
-    createLayout: function(){
+    createLayout: function () {
 
         this.fieldTable = new ka.FieldTable(this.fieldInstance.fieldPanel, this.win, this.options);
 
@@ -10,11 +10,11 @@ ka.FieldTypes.FieldTable = new Class({
 
     },
 
-    setValue: function(pValue){
+    setValue: function (pValue) {
         this.fieldTable.setValue(pValue);
     },
 
-    getValue: function(){
+    getValue: function () {
         return this.fieldTable.getValue();
     }
 });

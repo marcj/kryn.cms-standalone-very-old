@@ -528,7 +528,7 @@ ka.Select = new Class({
             if ('' !== this.searchValue) {
                 this.searchValue = this.searchValue.substr(0, this.searchValue.length - 1);
             }
-        } else if (1 === pEvent.key.length){
+        } else if (1 === pEvent.key.length) {
             this.searchValue += pEvent.key;
         }
 

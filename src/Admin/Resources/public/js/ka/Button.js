@@ -27,12 +27,12 @@ ka.Button = new Class({
         if (typeOf(pText) == 'element' && pText.inject) {
             pText.inject(this.main);
 
-        } else if (typeOf(pText) == 'array'){
+        } else if (typeOf(pText) == 'array') {
             this.main.set('text', pText[0]);
 
-            if (typeOf(pText[1]) == 'string'){
+            if (typeOf(pText[1]) == 'string') {
 
-                if (pText[1].substr(0,1) == '#'){
+                if (pText[1].substr(0, 1) == '#') {
                     this.main.addClass(pText[1].substr(1));
                 } else {
                     new Element('img', {
@@ -46,26 +46,30 @@ ka.Button = new Class({
         }
     },
 
-    setButtonStyle: function(pStyle){
-        if (this.oldButtonStyle)
-            this.main.removeClass('ka-Button-'+oldButtonStyle);
+    setButtonStyle: function (pStyle) {
+        if (this.oldButtonStyle) {
+            this.main.removeClass('ka-Button-' + oldButtonStyle);
+        }
 
-        this.main.addClass('ka-Button-'+pStyle);
+        this.main.addClass('ka-Button-' + pStyle);
         this.oldButtonStyle = pStyle;
         return this;
     },
 
-    setEnabled: function(pEnabled){
+    setEnabled: function (pEnabled) {
 
-        if (this.enabled === pEnabled) return;
+        if (this.enabled === pEnabled) {
+            return;
+        }
 
         this.enabled = pEnabled;
 
-        if (this.enabled){
+        if (this.enabled) {
 
             //add back all events
-            if (this.$eventsBackuper)
+            if (this.$eventsBackuper) {
                 this.main.cloneEvents(this.$eventsBackuper);
+            }
 
             this.main.removeClass('ka-Button-deactivate');
             delete this.$eventsBackuper;
@@ -86,17 +90,17 @@ ka.Button = new Class({
         return this.main;
     },
 
-    inject: function(pTarget, pWhere){
+    inject: function (pTarget, pWhere) {
         this.main.inject(pTarget, pWhere);
         return this;
     },
 
-    addEvent: function(pType, pFn){
+    addEvent: function (pType, pFn) {
         (this.$eventsBackuper || this.main).addEvent(pType, pFn);
         return this;
     },
 
-    fireEvent: function(pType, pParams){
+    fireEvent: function (pType, pParams) {
         (this.$eventsBackuper || this.main).fireEvent(pType, pParams);
     },
 
@@ -118,13 +122,14 @@ ka.Button = new Class({
      * @param {String} pText
      * @param {Integer} pDelay Default is 300
      */
-    startLaggedTip: function(pText, pDelay){
+    startLaggedTip: function (pText, pDelay) {
 
-        if (!this.toolTip)
+        if (!this.toolTip) {
             this.toolTip = new ka.Tooltip(this.main, pText);
+        }
 
         this.toolTip.setText(pText);
-        this.laggedTip = (function(){
+        this.laggedTip = (function () {
 
             this.toolTip.show();
 
@@ -132,10 +137,13 @@ ka.Button = new Class({
     },
 
     stopTip: function (pText) {
-        if (this.laggedTip) clearTimeout(this.laggedTip);
+        if (this.laggedTip) {
+            clearTimeout(this.laggedTip);
+        }
 
-        if (this.toolTip)
+        if (this.toolTip) {
             this.toolTip.stop(pText);
+        }
     },
 
     show: function () {
@@ -146,7 +154,7 @@ ka.Button = new Class({
         this.main.setStyle('display', 'none');
     },
 
-    isHidden: function(){
+    isHidden: function () {
         return this.main.getStyle('display') == 'none';
     },
 

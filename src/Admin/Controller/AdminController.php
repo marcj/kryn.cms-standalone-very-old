@@ -12,13 +12,12 @@
 
 namespace Admin\Controller;
 
+use Admin\ObjectCrud;
+use Admin\Utils;
 use Core\Config\EntryPoint;
 use Core\Exceptions\InvalidArgumentException;
-use \Core\Kryn;
-use \Core\Object;
-
-use Admin\Utils;
-use Admin\ObjectCrud;
+use Core\Kryn;
+use Core\Object;
 use Propel\Runtime\Map\TableMap;
 
 class AdminController
@@ -32,14 +31,14 @@ class AdminController
     public static function checkAccess($pUrl)
     {
         return true;
-
-        if (substr($pUrl, 0, 9) == 'admin/ui/') {
-            return true;
-        }
-
-        if ($pUrl == 'admin/login') {
-            return true;
-        }
+//
+//        if (substr($pUrl, 0, 9) == 'admin/ui/') {
+//            return true;
+//        }
+//
+//        if ($pUrl == 'admin/login') {
+//            return true;
+//        }
 
         //todo, use Permission class
 
@@ -49,10 +48,9 @@ class AdminController
 
     public function exceptionHandler($pException)
     {
-        if (get_class($pException) != 'AccessDeniedException')
-                {
-                    \Core\Utils::exceptionHandler($pException);
-                }
+        if (get_class($pException) != 'AccessDeniedException') {
+            \Core\Utils::exceptionHandler($pException);
+        }
     }
 
     public function run()
@@ -61,7 +59,7 @@ class AdminController
 
         if (Kryn::$config['displayDetailedRestErrors']) {
             $exceptionHandler = array($this, 'exceptionHandler');
-            $debugMode        = true;
+            $debugMode = true;
         }
 
         $url = Kryn::getRequest()->getPathInfo();
@@ -108,15 +106,19 @@ class AdminController
                 } elseif ($entryPoint->getType() == 'store') {
 
                     $clazz = $entryPoint['class'];
-                    if (!$clazz) throw new \ClassNotFoundException(sprintf(
-                        'The property `class` is not defined in entry point `%s`',
-                        $entryPoint['_url']
-                    ));
-                    if (!class_exists($clazz)) throw new \ClassNotFoundException(sprintf(
-                        'The class `%s` does not exist in entry point `%s`',
-                        $clazz,
-                        $entryPoint['_url']
-                    ));
+                    if (!$clazz) {
+                        throw new \ClassNotFoundException(sprintf(
+                            'The property `class` is not defined in entry point `%s`',
+                            $entryPoint['_url']
+                        ));
+                    }
+                    if (!class_exists($clazz)) {
+                        throw new \ClassNotFoundException(sprintf(
+                            'The class `%s` does not exist in entry point `%s`',
+                            $clazz,
+                            $entryPoint['_url']
+                        ));
+                    }
 
                     $obj = new $clazz($entryPoint['_url']);
                     $obj->setEntryPoint($entryPoint);
@@ -150,11 +152,12 @@ class AdminController
                 $entryPoint->setFullPath('admin/object/' . getArgv(4));
                 $entryPoint->setType('combine');
 
-                $objectKey  = rawurldecode(getArgv(4));
+                $objectKey = rawurldecode(getArgv(4));
                 $definition = \Core\Object::getDefinition($objectKey);
 
-                if (!$definition)
+                if (!$definition) {
                     throw new \ObjectNotFoundException(sprintf('Object `%s` not found.', $objectKey));
+                }
 
                 $object = new ObjectCrud();
                 $object->setObject($objectKey);
@@ -162,7 +165,9 @@ class AdminController
 
                 $autoFields = array();
                 foreach ($definition->getFields() as $key => $field) {
-                    if ($field->getType() != 'object') $autoFields[$key] = $field;
+                    if ($field->getType() != 'object') {
+                        $autoFields[$key] = $field;
+                    }
                 }
 
                 $object->setFields($autoFields);
@@ -196,33 +201,33 @@ class AdminController
                 ->addGetRoute('stream', 'stream')
 
                 ->addSubController('ui', '\Admin\Controller\UIAssets')
-                    ->addGetRoute('possibleLangs', 'getPossibleLangs')
-                    ->addGetRoute('languagePluralForm', 'getLanguagePluralForm')
-                    ->addGetRoute('language', 'getLanguage')
+                ->addGetRoute('possibleLangs', 'getPossibleLangs')
+                ->addGetRoute('languagePluralForm', 'getLanguagePluralForm')
+                ->addGetRoute('language', 'getLanguage')
                 ->done()
 
                 //admin/backend
                 ->addSubController('backend', '\Admin\Controller\Backend')
-                    ->addGetRoute('script', 'loadJs')
-                    ->addGetRoute('script-map', 'loadJsMap')
-                    ->addGetRoute('style', 'loadCss')
+                ->addGetRoute('script', 'loadJs')
+                ->addGetRoute('script-map', 'loadJsMap')
+                ->addGetRoute('style', 'loadCss')
 
-                    ->addGetRoute('settings', 'getSettings')
+                ->addGetRoute('settings', 'getSettings')
 
-                    ->addGetRoute('desktop', 'getDesktop')
-                    ->addPostRoute('desktop', 'saveDesktop')
+                ->addGetRoute('desktop', 'getDesktop')
+                ->addPostRoute('desktop', 'saveDesktop')
 
-                    ->addGetRoute('widgets', 'getWidgets')
-                    ->addPostRoute('widgets', 'saveWidgets')
+                ->addGetRoute('widgets', 'getWidgets')
+                ->addPostRoute('widgets', 'saveWidgets')
 
-                    ->addGetRoute('menus', 'getMenus')
-                    ->addGetRoute('custom-js', 'getCustomJs')
-                    ->addPostRoute('user-settings', 'saveUserSettings')
+                ->addGetRoute('menus', 'getMenus')
+                ->addGetRoute('custom-js', 'getCustomJs')
+                ->addPostRoute('user-settings', 'saveUserSettings')
 
-                    ->addDeleteRoute('cache', 'clearCache')
+                ->addDeleteRoute('cache', 'clearCache')
 
-                    ->addGetRoute('search', 'getSearch')
-                    //->addPutRoute('content', 'saveContents')
+                ->addGetRoute('search', 'getSearch')
+                //->addPutRoute('content', 'saveContents')
 
                 ->done()
 
@@ -232,97 +237,97 @@ class AdminController
 
                 ->addSubController('', '\Admin\Controller\Object\Controller')
 
-                    ->addGetRoute('objects', 'getItemsByUrl')
-                    ->addGetRoute('object', 'getItemPerUrl')
-                    ->addGetRoute('object-version', 'getVersionsPerUrl')
+                ->addGetRoute('objects', 'getItemsByUrl')
+                ->addGetRoute('object', 'getItemPerUrl')
+                ->addGetRoute('object-version', 'getVersionsPerUrl')
 
-                    /*
-                    ->addGetRoute('field-object/([a-zA-Z-_]+)/([^/]+)', 'getFieldItem')
-                    ->addGetRoute('field-object-count/([a-zA-Z-_]+)', 'getFieldItemsCount')
-                    ->addGetRoute('field-object/([a-zA-Z-_]+)', 'getFieldItems')
-                    */
+                /*
+                ->addGetRoute('field-object/([a-zA-Z-_]+)/([^/]+)', 'getFieldItem')
+                ->addGetRoute('field-object-count/([a-zA-Z-_]+)', 'getFieldItemsCount')
+                ->addGetRoute('field-object/([a-zA-Z-_]+)', 'getFieldItems')
+                */
 
-                    ->addGetRoute('object-browser/([a-zA-Z-_\.\\\\]+)', 'getBrowserItems')
-                    ->addGetRoute('object-browser-count/([a-zA-Z-_\.\\\\]+)', 'getBrowserItemsCount')
+                ->addGetRoute('object-browser/([a-zA-Z-_\.\\\\]+)', 'getBrowserItems')
+                ->addGetRoute('object-browser-count/([a-zA-Z-_\.\\\\]+)', 'getBrowserItemsCount')
                 ->done()
 
                 //admin/system
                 ->addSubController('system', '\Admin\Controller\System')
 
-                    ->addGetRoute('', 'getSystemInformation')
+                ->addGetRoute('', 'getSystemInformation')
 
-                    ->addSubController('config', '\Admin\Controller\Config')
-                    ->addGetRoute('', 'getConfig')
-                    ->addGetRoute('labels', 'getLabels')
-                    ->addPostRoute('', 'saveConfig')
+                ->addSubController('config', '\Admin\Controller\Config')
+                ->addGetRoute('', 'getConfig')
+                ->addGetRoute('labels', 'getLabels')
+                ->addPostRoute('', 'saveConfig')
                 ->done()
 
                 //admin/system/module/manager
                 ->addSubController('module/manager', '\Admin\Module\Manager')
-                    ->addGetRoute('install/pre', 'installPre')
-                    ->addGetRoute('install/extract', 'installExtract')
-                    ->addGetRoute('install/database', 'installDatabase')
-                    ->addGetRoute('install/post', 'installPost')
-                    ->addGetRoute('check-updates', 'check4updates')
-                    ->addGetRoute('local', 'getLocal')
-                    ->addGetRoute('installed', 'getInstalled')
-                    ->addGetRoute('activate', 'activate')
-                    ->addGetRoute('deactivate', 'deactivate')
-                    ->done()
+                ->addGetRoute('install/pre', 'installPre')
+                ->addGetRoute('install/extract', 'installExtract')
+                ->addGetRoute('install/database', 'installDatabase')
+                ->addGetRoute('install/post', 'installPost')
+                ->addGetRoute('check-updates', 'check4updates')
+                ->addGetRoute('local', 'getLocal')
+                ->addGetRoute('installed', 'getInstalled')
+                ->addGetRoute('activate', 'activate')
+                ->addGetRoute('deactivate', 'deactivate')
+                ->done()
 
-                    ->addSubController('languages', '\Admin\Controller\Languages')
+                ->addSubController('languages', '\Admin\Controller\Languages')
                 ->done()
 
                 //admin/system/orm
                 ->addSubController('orm', '\Admin\Controller\ORM')
-                    ->addGetRoute('environment', 'buildEnvironment')
-                    ->addGetRoute('models', 'writeModels')
-                    ->addGetRoute('update', 'updateScheme')
-                    ->addGetRoute('check', 'checkScheme')
+                ->addGetRoute('environment', 'buildEnvironment')
+                ->addGetRoute('models', 'writeModels')
+                ->addGetRoute('update', 'updateScheme')
+                ->addGetRoute('check', 'checkScheme')
                 ->done()
 
                 //admin/system/module/editor
                 ->addSubController('module/editor', '\Admin\Module\Editor')
-                    ->addGetRoute('config', 'getConfig')
+                ->addGetRoute('config', 'getConfig')
 
-                    ->addGetRoute('windows', 'getWindows')
-                    ->addGetRoute('window', 'getWindowDefinition')
-                    ->addPostRoute('window', 'saveWindowDefinition')
-                    ->addPutRoute('window', 'newWindow')
+                ->addGetRoute('windows', 'getWindows')
+                ->addGetRoute('window', 'getWindowDefinition')
+                ->addPostRoute('window', 'saveWindowDefinition')
+                ->addPutRoute('window', 'newWindow')
 
-                    ->addGetRoute('objects', 'getObjects')
-                    ->addPostRoute('objects', 'saveObjects')
+                ->addGetRoute('objects', 'getObjects')
+                ->addPostRoute('objects', 'saveObjects')
 
-                    ->addGetRoute('plugins', 'getPlugins')
-                    ->addPostRoute('plugins', 'savePlugins')
+                ->addGetRoute('plugins', 'getPlugins')
+                ->addPostRoute('plugins', 'savePlugins')
 
-                    ->addPostRoute('model/from-object', 'setModelFromObject')
-                    ->addPostRoute('model/from-objects', 'setModelFromObjects')
+                ->addPostRoute('model/from-object', 'setModelFromObject')
+                ->addPostRoute('model/from-objects', 'setModelFromObjects')
 
-                    ->addPostRoute('model', 'saveModel')
-                    ->addGetRoute('model', 'getModel')
+                ->addPostRoute('model', 'saveModel')
+                ->addGetRoute('model', 'getModel')
 
-                    ->addPostRoute('language', 'saveLanguage')
-                    ->addGetRoute('language', 'getLanguage')
-                    ->addGetRoute('language/extract', 'getExtractedLanguage')
+                ->addPostRoute('language', 'saveLanguage')
+                ->addGetRoute('language', 'getLanguage')
+                ->addGetRoute('language/extract', 'getExtractedLanguage')
 
-                    ->addPostRoute('general', 'saveGeneral')
-                    ->addPostRoute('entryPoints', 'saveEntryPoints')
+                ->addPostRoute('general', 'saveGeneral')
+                ->addPostRoute('entryPoints', 'saveEntryPoints')
                 ->done()
 
                 ->done()
 
                 ->addSubController('file', '\Admin\Controller\File')
-                    ->addGetRoute('', 'getFiles')
+                ->addGetRoute('', 'getFiles')
 
-                    ->addPostRoute('', 'createFile')
-                    ->addDeleteRoute('', 'deleteFile')
-                    ->addPostRoute('folder', 'createFolder')
+                ->addPostRoute('', 'createFile')
+                ->addDeleteRoute('', 'deleteFile')
+                ->addPostRoute('folder', 'createFolder')
 
-                    ->addGetRoute('single', 'getFile')
-                    ->addGetRoute('preview', 'showPreview')
-                    ->addPostRoute('upload', 'doUpload')
-                    ->addPostRoute('upload/prepare', 'prepareUpload')
+                ->addGetRoute('single', 'getFile')
+                ->addGetRoute('preview', 'showPreview')
+                ->addPostRoute('upload', 'doUpload')
+                ->addPostRoute('upload/prepare', 'prepareUpload')
                 ->done()
 
                 ->run();
@@ -348,19 +353,20 @@ class AdminController
         $response = Kryn::getResponse();
 
         $client = Kryn::getAdminClient();
-        if (!$client)
+        if (!$client) {
             $client = Kryn::getClient();
+        }
 
-        $session              = array();
-        $session['userId']    = $client->getUserId();
+        $session = array();
+        $session['userId'] = $client->getUserId();
         $session['sessionid'] = $client->getToken();
-        $session['tokenid']   = $client->getTokenId();
-        $session['lang']      = $client->getSession()->getLanguage();
+        $session['tokenid'] = $client->getTokenId();
+        $session['lang'] = $client->getSession()->getLanguage();
         if ($client->getUserId()) {
-            $session['username']  = $client->getUser()->getUsername();
+            $session['username'] = $client->getUser()->getUsername();
             $session['lastLogin'] = $client->getUser()->getLastlogin();
             $session['firstName'] = $client->getUser()->getFirstName();
-            $session['lastName']  = $client->getUser()->getLastName();
+            $session['lastName'] = $client->getUser()->getLastName();
         }
 
         $css = 'window._session = ' . json_encode($session) . ';';
@@ -512,13 +518,14 @@ class AdminController
         $nodes = \Core\NodeQuery::create()->filterByTitle('%' . $pQuery . '%', \Criteria::LIKE)->find();
 
         if (count($nodes) > 0) {
-            foreach ($nodes as $node)
+            foreach ($nodes as $node) {
                 $respages[] =
                     array(
                         $node->getTitle(),
                         'admin/pages',
                         array('id' => $node->getId(), 'lang' => $node->getDomain()->getLang())
                     );
+            }
             $res[t('Pages')] = $respages;
         }
 
@@ -526,27 +533,37 @@ class AdminController
         $helps = array();
         foreach (Kryn::$configs as $key => $mod) {
             $helpFile = PATH_MODULE . "$key/lang/help_$lang.json";
-            if (!file_exists($helpFile)) continue;
-            if (count($helps) > 10) continue;
+            if (!file_exists($helpFile)) {
+                continue;
+            }
+            if (count($helps) > 10) {
+                continue;
+            }
 
             $json = json_decode(file_get_contents($helpFile), 1);
             if (is_array($json) && count($json) > 0) {
                 foreach ($json as $help) {
 
-                    if (count($helps) > 10) continue;
+                    if (count($helps) > 10) {
+                        continue;
+                    }
                     $found = false;
 
-                    if (preg_match("/$pQuery/i", $help['title']))
+                    if (preg_match("/$pQuery/i", $help['title'])) {
                         $found = true;
+                    }
 
-                    if (preg_match("/$pQuery/i", $help['tags']))
+                    if (preg_match("/$pQuery/i", $help['tags'])) {
                         $found = true;
+                    }
 
-                    if (preg_match("/$pQuery/i", $help['help']))
+                    if (preg_match("/$pQuery/i", $help['help'])) {
                         $found = true;
+                    }
 
-                    if ($found)
+                    if ($found) {
                         $helps[] = array($help['title'], 'admin/help', array('id' => $key . '/' . $help['id']));
+                    }
                 }
             }
         }
@@ -559,7 +576,9 @@ class AdminController
 
     public function stream($__streams)
     {
-        if (!is_array($__streams)) throw new InvalidArgumentException('__streams has to be an array.');
+        if (!is_array($__streams)) {
+            throw new InvalidArgumentException('__streams has to be an array.');
+        }
 
         $response = array();
         foreach (Kryn::getConfigs() as $bundleConfig) {

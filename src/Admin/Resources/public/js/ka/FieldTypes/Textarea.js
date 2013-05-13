@@ -1,5 +1,5 @@
 ka.FieldTypes.Textarea = new Class({
-    
+
     Extends: ka.FieldTypes.Input,
 
     options: {
@@ -7,14 +7,13 @@ ka.FieldTypes.Textarea = new Class({
         inputHeight: '50px'
     },
 
-    createLayout: function(){
-
+    createLayout: function () {
 
         this.wrapper = new Element('div', {
             style: this.options.style,
             'class': 'ka-input-wrapper',
             styles: {
-                'width': this.options.inputWidth=='100%'?null:this.options.inputWidth
+                'width': this.options.inputWidth == '100%' ? null : this.options.inputWidth
             }
         }).inject(this.fieldInstance.fieldPanel);
 

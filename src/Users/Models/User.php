@@ -2,9 +2,8 @@
 
 namespace Users\Models;
 
-use Users\Models\Base\User as BaseUser;
-
 use Core\Client\ClientAbstract;
+use Users\Models\Base\User as BaseUser;
 
 /**
  * Skeleton subclass for representing a row from the 'kryn_system_user' table.

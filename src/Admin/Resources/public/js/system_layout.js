@@ -15,11 +15,14 @@ var admin_system_layout = new Class({
 
         this.buttons['layouts'] = this.topNavi.addButton(_('Layouts'), this.changeType.bind(this, 'layouts'));
         this.buttons['contents'] = this.topNavi.addButton(_('Container'), this.changeType.bind(this, 'contents'));
-        this.buttons['navigations'] = this.topNavi.addButton(_('Navigations'), this.changeType.bind(this, 'navigations'));
+        this.buttons['navigations'] =
+            this.topNavi.addButton(_('Navigations'), this.changeType.bind(this, 'navigations'));
 
         this.addNavi = this.win.addButtonGroup();
-        this.addNavi.addButton(_('Install a theme'), _path + 'bundles/admin/images/icons/package_add.png', this.installTheme.bind(this));
-        this.addNavi.addButton(_('Develop a theme'), _path + 'bundles/admin/images/icons/layout_add.png', this.addTheme.bind(this));
+        this.addNavi.addButton(_('Install a theme'), _path + 'bundles/admin/images/icons/package_add.png',
+            this.installTheme.bind(this));
+        this.addNavi.addButton(_('Develop a theme'), _path + 'bundles/admin/images/icons/layout_add.png',
+            this.addTheme.bind(this));
 
         this.panes = {};
         Object.each(this.buttons, function (button, id) {
@@ -55,7 +58,9 @@ var admin_system_layout = new Class({
 
     addTheme: function () {
         this.win._prompt(_('Please enter the extension code for your theme extension: '), '', function (res) {
-            if (!res)return;
+            if (!res) {
+                return;
+            }
             ka.wm.open('admin/system/module/add', {name: res});
         })
     },
@@ -91,7 +96,9 @@ var admin_system_layout = new Class({
     loadFile: function (pFile) {
         var file = pFile;
         this.right.empty();
-        if (file == '') return;
+        if (file == '') {
+            return;
+        }
         var loader = new ka.Loader().inject(this.right);
         loader.show();
 
@@ -177,7 +184,9 @@ var admin_system_layout = new Class({
         if (matches) {
             matches.each(function (match) {
                 var path = match.match(/file=["|']([^"']*)["|']/)[1];
-                if (!path || path == '') return;
+                if (!path || path == '') {
+                    return;
+                }
                 var li = new Element('li', {
                     text: path
                 }).inject(this.cssPageOl);
@@ -218,7 +227,6 @@ var admin_system_layout = new Class({
             var div = new Element('div', {
                 'class': 'admin-layout-theme-items'
             }).inject(this.left);
-
 
             Object.each(theme, function (layoutFile, layoutTitle) {
                 this._layoutFiles.include(layoutFile, new Element('a', {

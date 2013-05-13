@@ -43,7 +43,7 @@
 
 .kwindow-win-buttonGroup > a:first-child {
     border-left: 0;
-    -moz-border-radius-bottomleft: 2px;    
+    -moz-border-radius-bottomleft: 2px;
     -moz-border-radius-topleft: 2px;
     -webkit-border-top-left-radius: 2px;
     -webkit-border-bottom-left-radius: 2px;
@@ -52,7 +52,7 @@
 }
 
 .kwindow-win-buttonGroup > a:last-child {
-    -moz-border-radius-bottomright: 2px;    
+    -moz-border-radius-bottomright: 2px;
     -moz-border-radius-topright: 2px;
     -webkit-border-top-right-radius: 2px;
     -webkit-border-bottom-right-radius: 2px;

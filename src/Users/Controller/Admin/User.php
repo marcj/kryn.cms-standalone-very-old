@@ -4,46 +4,46 @@ namespace Users\Controller\Admin;
 
 class User extends \Admin\ObjectCrud
 {
-    public $columns = array (
-  'lastName' =>
-  array (
-    'label' => 'Last name',
-    'type' => 'text',
-  ),
-  'firstName' =>
-  array (
-    'label' => 'First name',
-    'type' => 'text',
-  ),
-  'username' =>
-  array (
-    'label' => 'Username',
-    'width' => '100',
-    'type' => 'text',
-  ),
-  'email' =>
-  array (
-    'label' => 'Email',
-    'type' => 'text',
-  ),
-  'activate' =>
-  array (
-    'label' => 'Active',
-    'width' => '35',
-    'type' => 'imagemap',
-    'imageMap' =>
-    array (
-      0 => 'admin/images/icons/cancel.png',
-      1 => 'admin/images/icons/accept.png',
-      'null' => 'admin/images/icons/cancel.png',
-    ),
-  ),
-  'groupMembership.name' =>
-  array (
-    'label' => 'Group membership',
-    'type' => 'text',
-  ),
-);
+    public $columns = array(
+        'lastName' =>
+        array(
+            'label' => 'Last name',
+            'type' => 'text',
+        ),
+        'firstName' =>
+        array(
+            'label' => 'First name',
+            'type' => 'text',
+        ),
+        'username' =>
+        array(
+            'label' => 'Username',
+            'width' => '100',
+            'type' => 'text',
+        ),
+        'email' =>
+        array(
+            'label' => 'Email',
+            'type' => 'text',
+        ),
+        'activate' =>
+        array(
+            'label' => 'Active',
+            'width' => '35',
+            'type' => 'imagemap',
+            'imageMap' =>
+            array(
+                0 => 'admin/images/icons/cancel.png',
+                1 => 'admin/images/icons/accept.png',
+                'null' => 'admin/images/icons/cancel.png',
+            ),
+        ),
+        'groupMembership.name' =>
+        array(
+            'label' => 'Group membership',
+            'type' => 'text',
+        ),
+    );
 
     public $itemLayout = '
     <div title="#{id}">
@@ -160,7 +160,7 @@ class User extends \Admin\ObjectCrud
                 ),
             )
         ),
-        '__account__'  => array(
+        '__account__' => array(
             'type' => 'tab',
             'label' => '[[Account]]',
             'children' => array(
@@ -171,7 +171,6 @@ class User extends \Admin\ObjectCrud
                     'required' => true
                     //'empty' => false // TODO: FE users don't need a username, just an email address [Ferdi]
                 ),
-
                 'password' => array( //it's a virtual field from the user model
                     'label' => 'Password',
                     'type' => 'password',
@@ -179,7 +178,6 @@ class User extends \Admin\ObjectCrud
                     'startEmpty' => true,
                     'saveOnlyFilled' => true
                 ),
-
                 'email' => array(
                     'label' => 'Email',
                     'type' => 'text',
@@ -246,7 +244,7 @@ class User extends \Admin\ObjectCrud
 
         $settingsFields = array('autocrawler', 'css3Shadow', 'userBg');
         foreach ($settingsFields as $field) {
-            $settings[$field] = $_POST[$field] ?: $_GET[$field];
+            $settings[$field] = $_POST[$field] ? : $_GET[$field];
         }
 
         $data['settings'] = new \Core\Properties($settings);
@@ -266,15 +264,16 @@ class User extends \Admin\ObjectCrud
 
         $settings = array();
         if ($this->cachedUser['settings']) {
-            if (is_string($this->cachedUser['settings']))
+            if (is_string($this->cachedUser['settings'])) {
                 $this->cachedUser['settings'] = unserialize($this->cachedUser['settings']);
+            }
             $settings = $this->cachedUser['settings']->toArray();
         }
 
         return $settings;
     }
 
-    private function getSetting( $pKey )
+    private function getSetting($pKey)
     {
         $settings = $this->getSettings();
 
@@ -304,15 +303,17 @@ class User extends \Admin\ObjectCrud
     public function getAutocrawlerDelay()
     {
         $val = $this->getSetting('autocrawler_minddelay');
-        if( !$val ) return 200;
+        if (!$val) {
+            return 200;
+        }
 
         return $val;
     }
 
-    public function savePasswd( &$pRow )
+    public function savePasswd(&$pRow)
     {
         $salt = krynAuth::getSalt();
-        $passwd = krynAuth::getHashedPassword( getArgv('passwd'), $salt );
+        $passwd = krynAuth::getHashedPassword(getArgv('passwd'), $salt);
         $pRow['passwd'] = $passwd;
         $pRow['passwd_salt'] = $salt;
 

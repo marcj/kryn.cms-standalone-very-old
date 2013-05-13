@@ -36,10 +36,14 @@ ka.Crawler = new Class({
         //waiting for permission
         this.check = function (res) {
 
-            if (!ka.settings.user.autocrawler || ka.settings.user.autocrawler != 1) return;
+            if (!ka.settings.user.autocrawler || ka.settings.user.autocrawler != 1) {
+                return;
+            }
 
             if (res.hasCrawlPermission == true) {
-                if (this.stopped == true) return;
+                if (this.stopped == true) {
+                    return;
+                }
                 ka.startSearchCrawlerInfo(_('Check searchindex'));
                 this.step1.delay(2000, this);
                 window.removeEvent('stream', this.check);
@@ -54,7 +58,9 @@ ka.Crawler = new Class({
         ka.setSearchCrawlerInfo(_('Crawl unindexed'));
         this.lastRq = new Request.JSON({url: _pathAdmin + 'admin/backend/searchIndexer/getWaitlist', noCache: 1,
             onComplete: function (pRes) {
-                if (pRes.access == false) return this.restart();
+                if (pRes.access == false) {
+                    return this.restart();
+                }
 
                 if (pRes.pages.length == 0) {
                     this.step1_5();
@@ -69,19 +75,22 @@ ka.Crawler = new Class({
     step1_5: function () {
 
         ka.setSearchCrawlerInfo(_('Searching for new pages'));
-        this.lastRq = new Request.JSON({url: _pathAdmin + 'admin/backend/searchIndexer/getNewUnindexedPages', noCache: 1,
-            onComplete: function (pRes) {
-                if (pRes.access == false) return this.restart();
+        this.lastRq =
+            new Request.JSON({url: _pathAdmin + 'admin/backend/searchIndexer/getNewUnindexedPages', noCache: 1,
+                onComplete: function (pRes) {
+                    if (pRes.access == false) {
+                        return this.restart();
+                    }
 
-                if (pRes.pages.length == 0) {
-                    //no new pages, just keep up to date
-                    this.step2();
-                } else {
-                    //we found some pages and put'em to waitlist
-                    this.step1();
-                }
+                    if (pRes.pages.length == 0) {
+                        //no new pages, just keep up to date
+                        this.step2();
+                    } else {
+                        //we found some pages and put'em to waitlist
+                        this.step1();
+                    }
 
-            }.bind(this)}).post({crawlerId: this.id});
+                }.bind(this)}).post({crawlerId: this.id});
     },
 
     step2: function () {
@@ -90,7 +99,9 @@ ka.Crawler = new Class({
 
         this.lastRq = new Request.JSON({url: _pathAdmin + 'admin/backend/searchIndexer/getIndex', noCache: 1,
             onComplete: function (pRes) {
-                if (pRes.access == false) return this.restart();
+                if (pRes.access == false) {
+                    return this.restart();
+                }
 
                 this.crawl(pRes.pages, this.done.bind(this));
 
@@ -146,11 +157,11 @@ ka.Crawler = new Class({
                     this.crawlPage(pPos + 1, pCallback);
 
                 }.bind(this)}).post({
-                enableSearchIndexMode: 1,
-                crawlerId: this.id,
-                jsonOut: 1,
-                kryn_domain: page.domain
-            });
+                    enableSearchIndexMode: 1,
+                    crawlerId: this.id,
+                    jsonOut: 1,
+                    kryn_domain: page.domain
+                });
         }).delay(startTimeout, this);
 
         return true;

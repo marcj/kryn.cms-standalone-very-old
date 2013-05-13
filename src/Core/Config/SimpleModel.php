@@ -2,7 +2,8 @@
 
 namespace Core\Config;
 
-class SimpleModel extends Model {
+class SimpleModel extends Model
+{
 
     /**
      * @var string
@@ -19,7 +20,8 @@ class SimpleModel extends Model {
      */
     private $value;
 
-    public function setupObject(){
+    public function setupObject()
+    {
         $this->id = $this->element->attributes->getNamedItem($this->idKey)->nodeValue;
         $this->value = $this->element->nodeValue;
     }

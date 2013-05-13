@@ -28,8 +28,12 @@ ka.Progress = new Class({
     },
 
     setValue: function (pValue) {
-        if (!pValue) pValue = 0;
-        if (pValue > 100) pValue = 100;
+        if (!pValue) {
+            pValue = 0;
+        }
+        if (pValue > 100) {
+            pValue = 100;
+        }
 
         this.value = pValue;
         this.progress.setStyle('width', pValue + '%');
@@ -43,9 +47,9 @@ ka.Progress = new Class({
         this.main.inject(pTo, pWhere);
     },
 
-    setUnlimited: function(pActivated){
+    setUnlimited: function (pActivated) {
 
-        if( pActivated ){
+        if (pActivated) {
             this.main.addClass('ka-progress-unlimited');
         } else {
             this.main.removeClass('ka-progress-unlimited');

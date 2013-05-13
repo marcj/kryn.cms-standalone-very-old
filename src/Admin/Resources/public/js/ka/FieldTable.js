@@ -28,7 +28,7 @@ ka.FieldTable = new Class({
 
     container: false,
 
-    initialize: function(pContainer, pWin, pOptions){
+    initialize: function (pContainer, pWin, pOptions) {
 
         this.setOptions(pOptions);
 
@@ -39,7 +39,7 @@ ka.FieldTable = new Class({
 
     },
 
-    _createLayout: function(){
+    _createLayout: function () {
 
         this.main = new Element('div').inject(this.container);
 
@@ -50,12 +50,12 @@ ka.FieldTable = new Class({
 
         this.headerTr = new Element('tr').inject(this.header);
         new Element('th', {text: 'Key'}).inject(this.headerTr);
-        if (this.options.asFrameworkColumn || this.options.withWidth){
+        if (this.options.asFrameworkColumn || this.options.withWidth) {
             this.widthTd = new Element('th', {width: 80, text: 'Width'}).inject(this.headerTr);
         }
         new Element('th', {width: 150, text: 'Type'}).inject(this.headerTr);
         new Element('th', {width: 150, text: 'Properties'}).inject(this.headerTr);
-        new Element('th', {width:  80, text: 'Actions'}).inject(this.headerTr);
+        new Element('th', {width: 80, text: 'Actions'}).inject(this.headerTr);
 
         this.table = new Element('table', {
             width: '100%',
@@ -63,27 +63,26 @@ ka.FieldTable = new Class({
         }).inject(this.main);
 
         new ka.Button([this.options.addLabel, '#icon-plus-5'])
-            .addEvent('click', function(){
+            .addEvent('click', function () {
                 this.add(null, null, this.itemContainer);
             }.bind(this))
             .inject(this.main);
 
     },
 
-    toElement: function(){
+    toElement: function () {
         return this.main;
     },
 
-
-    fireChange: function(){
+    fireChange: function () {
         this.fireEvent('change');
     },
 
-    getValue: function(){
+    getValue: function () {
 
         var result = {};
 
-        this.table.getChildren('tr').each(function(item){
+        this.table.getChildren('tr').each(function (item) {
 
             var fieldProperty = item.retrieve('ka.FieldProperty');
             var value = fieldProperty.getValue();
@@ -95,17 +94,17 @@ ka.FieldTable = new Class({
         return result;
     },
 
-    setValue: function(pValue){
+    setValue: function (pValue) {
 
-        if (typeOf(pValue) == 'object'){
-            Object.each(pValue, function(property,key){
+        if (typeOf(pValue) == 'object') {
+            Object.each(pValue, function (property, key) {
                 this.add(key, property);
             }.bind(this));
 
         }
     },
 
-    add: function(pKey, pDefinition){
+    add: function (pKey, pDefinition) {
 
         var fieldProperty = new ka.FieldProperty(pKey, pDefinition, this.table, this.options, this.win);
         fieldProperty.addEvent('change', this.fireChange);

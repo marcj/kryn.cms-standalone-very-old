@@ -38,26 +38,28 @@ ka.Accordion = new Class({
         var paneHeight = this.height;
         paneHeight = paneHeight - ( this.togglerHeight * (this.box.getElements('.ka-Accordion-toggler').length));
 
-        this.lastAccordion = new Accordion(this.box.getElements('.ka-Accordion-toggler'), this.box.getElements('.ka-Accordion-pane'), {
-            duration: 400,
-            display: this.index,
-            fixedHeight: paneHeight,
-            transition: Fx.Transitions.Cubic.easeOut,
-            onActive: function (toggler, element) {
-                toggler.addClass('ka-Accordion-current');
+        this.lastAccordion =
+            new Accordion(this.box.getElements('.ka-Accordion-toggler'), this.box.getElements('.ka-Accordion-pane'), {
+                duration: 400,
+                display: this.index,
+                fixedHeight: paneHeight,
+                transition: Fx.Transitions.Cubic.easeOut,
+                onActive: function (toggler, element) {
+                    toggler.addClass('ka-Accordion-current');
 
-                _this.box.getElements('.ka-Accordion-toggler-img').each(function (img) {
-                    img.set('src', _path + 'bundles/admin/images/icons/tree_plus.png');
-                });
+                    _this.box.getElements('.ka-Accordion-toggler-img').each(function (img) {
+                        img.set('src', _path + 'bundles/admin/images/icons/tree_plus.png');
+                    });
 
-                toggler.getElement('.ka-Accordion-toggler-img').set('src', _pathAdmin + 'bundles/admin/images/icons/tree_minus.png');
+                    toggler.getElement('.ka-Accordion-toggler-img').set('src',
+                        _pathAdmin + 'bundles/admin/images/icons/tree_minus.png');
 
-                element.setStyles({ overflowX: 'hidden', overflowY: 'auto' });
-            },
-            onBackground: function (toggler, element) {
-                toggler.removeClass('ka-Accordion-current');
-            }
-        }, this.box);
+                    element.setStyles({ overflowX: 'hidden', overflowY: 'auto' });
+                },
+                onBackground: function (toggler, element) {
+                    toggler.removeClass('ka-Accordion-current');
+                }
+            }, this.box);
 
         this.ready = true;
         this.fireEvent('ready');
@@ -71,7 +73,9 @@ ka.Accordion = new Class({
     },
 
     display: function (pId) {
-        if (!this.ready) return;
+        if (!this.ready) {
+            return;
+        }
         this.index = pId;
         this.lastAccordion.display(pId);
     },
@@ -82,7 +86,6 @@ ka.Accordion = new Class({
             'class': 'ka-Accordion-toggler',
             href: 'javascript:;'
         }).inject(this.box);
-
 
         new Element('img', {
             'class': 'ka-Accordion-toggler-img',

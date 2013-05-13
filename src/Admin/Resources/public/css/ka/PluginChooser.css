@@ -20,7 +20,6 @@ a.ka-pc-module:hover {
     text-decoration: none;
 }
 
-
 .ka-pluginchooser-main {
     position: absolute;
     left: 0px;
@@ -28,7 +27,7 @@ a.ka-pc-module:hover {
     height: 100%;
     width: 100%;
     /*background-image: url(../images/ka-pluginchooser-background.png);*/
-    background-repeat: no-repeat;   
+    background-repeat: no-repeat;
 }
 
 .ka-pluginchooser-options {

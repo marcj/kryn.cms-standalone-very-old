@@ -15,6 +15,7 @@ use Core\Models\Base\DomainQuery as BaseDomainQuery;
  * long as it does not already exist in the output directory.
  *
  */
-class DomainQuery extends BaseDomainQuery {
+class DomainQuery extends BaseDomainQuery
+{
 
 } // DomainQuery

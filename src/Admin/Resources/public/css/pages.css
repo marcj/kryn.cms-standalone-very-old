@@ -17,7 +17,7 @@
     bottom: 0px;
     background-image: url(../images/ka-pages-nolayout-bg.png);
     background-repeat: no-repeat;
-    background-color: white;	
+    background-color: white;
     background-position: right top;
 }
 
@@ -30,12 +30,13 @@
 }
 
 .ka-pages-nolayoutoverlay-text {
-	color:gray;
-	font-size:30px;
-	position:absolute;
-	right:300px;
-	top:52px;
+    color: gray;
+    font-size: 30px;
+    position: absolute;
+    right: 300px;
+    top: 52px;
 }
+
 .admin-pages-pane-contents-actions {
     height: 40px;
     margin: auto;

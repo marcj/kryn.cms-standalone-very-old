@@ -2,9 +2,9 @@
 
 namespace Admin\Controller;
 
-use Core\WebFile;
-use Core\Permission;
 use Core\Kryn;
+use Core\Permission;
+use Core\WebFile;
 
 class File
 {
@@ -13,6 +13,7 @@ class File
      * Removes a file or folder (recursively).
      *
      * @param string $pPath
+     *
      * @return bool
      */
     public function deleteFile($pPath)
@@ -29,6 +30,7 @@ class File
      *
      * @param string $pPath
      * @param string $pContent
+     *
      * @return bool
      */
     public function createFile($pPath, $pContent = '')
@@ -41,6 +43,7 @@ class File
      * Creates a folder
      *
      * @param string $pPath
+     *
      * @return bool
      */
     public function createFolder($pPath)
@@ -53,12 +56,14 @@ class File
      * Checks the file access.
      *
      * @param $pPath
+     *
      * @throws \FileIOException
      * @throws \AccessDeniedException
      */
-    public function checkAccess($pPath){
+    public function checkAccess($pPath)
+    {
         $file = WebFile::getFile($pPath);
-        if ($file && !Permission::checkUpdate('Core\\File', array('id' => $file['id']))){
+        if ($file && !Permission::checkUpdate('Core\\File', array('id' => $file['id']))) {
             throw new \AccessDeniedException(tf('No access to file `%s`', $pPath));
         }
 
@@ -66,7 +71,7 @@ class File
             $folder = WebFile::getFile(dirname($pPath));
             if (!$folder) {
                 throw new \FileIOException(tf('Folder `%s` does not exist.', dirname($pPath)));
-            } else if (!Permission::checkUpdate('Core\\File', array('id' => $folder['id']))){
+            } else if (!Permission::checkUpdate('Core\\File', array('id' => $folder['id']))) {
                 throw new \AccessDeniedException(tf('No access to folder `%s`', $folder));
             }
         }
@@ -77,14 +82,15 @@ class File
      *
      * @param string $pPath
      * @param string $pName
-     * @param bool $pOverwrite
+     * @param bool   $pOverwrite
+     *
      * @return array
      */
     public function prepareUpload($pPath, $pName, $pOverwrite = false)
     {
 
         $oriName = $pName;
-        $name    = $pName;
+        $name = $pName;
         $newPath = ($pPath == '/') ? '/' . $name : $pPath . '/' . $name;
 
         $this->checkAccess($pPath);
@@ -93,7 +99,7 @@ class File
 
         if ($name != $oriName) {
             $res['renamed'] = true;
-            $res['name']    = $name;
+            $res['name'] = $name;
         }
 
         $exist = WebFile::exists($newPath);
@@ -111,7 +117,8 @@ class File
      *
      * @param string $pPath
      * @param string $pName
-     * @param bool $pOverwrite
+     * @param bool   $pOverwrite
+     *
      * @return string
      * @throws \FileUploadException
      * @throws \FileIOException
@@ -174,7 +181,7 @@ class File
         }
 
         $file = WebFile::getFile($pPath);
-        if ($file && !Permission::checkUpdate('Core\\File', array('id' => $file['id']))){
+        if ($file && !Permission::checkUpdate('Core\\File', array('id' => $file['id']))) {
             throw new \AccessDeniedException(tf('No access to file `%s`', $pPath));
         }
 
@@ -182,7 +189,7 @@ class File
             $folder = WebFile::getFile(dirname($pPath));
             if (!$folder) {
                 throw new \FileIOException(tf('Folder `%s` does not exist.', dirname($pPath)));
-            } else if (!Permission::checkUpdate('Core\\File', array('id' => $folder['id']))){
+            } else if (!Permission::checkUpdate('Core\\File', array('id' => $folder['id']))) {
                 throw new \AccessDeniedException(tf('No access to folder `%s`', $folder));
             }
         }
@@ -199,12 +206,15 @@ class File
      * Returns a list of files for a folder.
      *
      * @param string $pPath
+     *
      * @return array|null
      */
     public function getFiles($pPath)
     {
 
-        if (!self::getFile($pPath)) return null;
+        if (!self::getFile($pPath)) {
+            return null;
+        }
 
         //todo, create new option 'show hidden files' in user settings and depend on that
         $showHiddenFiles = false;
@@ -234,13 +244,16 @@ class File
 
     /**
      * @param string $pPath
+     *
      * @return array|bool|int
      */
     public function getFile($pPath)
     {
 
         $file = WebFile::getFile($pPath);
-        if (!Permission::checkListExact('Core\\File', array('id' => $file['id']))) return;
+        if (!Permission::checkListExact('Core\\File', array('id' => $file['id']))) {
+            return;
+        }
 
         $file['writeAccess'] = Permission::checkUpdate('Core\\File', $file['id']);
 
@@ -253,8 +266,8 @@ class File
      * This exists the process and sends a `content-type: image/png` http header.
      *
      * @param string $pPath
-     * @param int $pWidth
-     * @param int $pHeight
+     * @param int    $pWidth
+     * @param int    $pHeight
      */
     public function showPreview($pPath, $pWidth = 50, $pHeight = 50)
     {
@@ -262,8 +275,8 @@ class File
 
         $expires = 3600;
         header("Pragma: public");
-        header("Cache-Control: maxage=".$expires);
-        header('Expires: ' . gmdate('D, d M Y H:i:s', time()+$expires) . ' GMT');
+        header("Cache-Control: maxage=" . $expires);
+        header('Expires: ' . gmdate('D, d M Y H:i:s', time() + $expires) . ' GMT');
         header('Content-type: image/png');
 
         imagepng($image->getResult(), null, 8);

@@ -2,7 +2,7 @@ ka.Checkbox = new Class({
 
     Implements: [Events],
 
-    initialize: function(pContainer){
+    initialize: function (pContainer) {
 
         this.box = new Element('a', {
             'class': 'ka-Checkbox ka-Checkbox-off',
@@ -30,12 +30,12 @@ ka.Checkbox = new Class({
             this.fireEvent('change');
         }.bind(this));
 
-
-        if (pContainer)
+        if (pContainer) {
             this.box.inject(pContainer);
+        }
     },
 
-    toElement: function(){
+    toElement: function () {
         return this.box;
     },
 
@@ -43,8 +43,10 @@ ka.Checkbox = new Class({
         return this.value == false ? false : true;
     },
 
-    setValue:function (p) {
-        if (typeOf(p) == 'null') p = false;
+    setValue: function (p) {
+        if (typeOf(p) == 'null') {
+            p = false;
+        }
         p = (!p || p == 'false') ? false : true;
 
         this.value = p;

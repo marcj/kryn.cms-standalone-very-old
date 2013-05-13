@@ -2,9 +2,8 @@
 
 namespace Core;
 
-use \Symfony\Component\HttpFoundation\Response;
-
 use Core\Models\Content;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * This is the response, we use to generate the basic html skeleton.
@@ -22,17 +21,19 @@ class PageResponse extends Response
      */
     public static $docTypeDeclarations = array(
 
-        'html 4.01 transitional' => '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">',
-        'html 4.01 strict' => '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">',
-        'html 4.01 frameset' => '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">',
-
+        'html 4.01 transitional' =>
+        '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">',
+        'html 4.01 strict' =>
+        '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">',
+        'html 4.01 frameset' =>
+        '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">',
         'xhtml 1.0 transitional' =>
         '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',
-        'xhtml 1.0 strict' => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">',
+        'xhtml 1.0 strict' =>
+        '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">',
         'xhtml 1.0 frameset' =>
         '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">',
         'xhtml 1.1 dtd' => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">',
-
         'html5' => '<!DOCTYPE html>'
     );
 
@@ -177,11 +178,12 @@ class PageResponse extends Response
      * @param string $pPath
      * @param string $pType
      */
-    public function addCssFile($pPath, $pType  = 'text/css')
+    public function addCssFile($pPath, $pType = 'text/css')
     {
         $insert = array('path' => $pPath, 'type' => $pType);
-        if (array_search($insert, $this->css) === false)
+        if (array_search($insert, $this->css) === false) {
             $this->css[] = $insert;
+        }
     }
 
     /**
@@ -190,11 +192,12 @@ class PageResponse extends Response
      * @param string $pContent
      * @param string $pType
      */
-    public function addCss($pContent, $pType  = 'text/css')
+    public function addCss($pContent, $pType = 'text/css')
     {
         $insert = array('content' => $pContent, 'type' => $pType);
-        if (array_search($insert, $this->css) === false)
+        if (array_search($insert, $this->css) === false) {
             $this->css[] = $insert;
+        }
     }
 
     /**
@@ -207,8 +210,9 @@ class PageResponse extends Response
     public function addJsFile($pPath, $pPosition = 'top', $pType = 'text/javascript')
     {
         $insert = array('path' => $pPath, 'position' => $pPosition, 'type' => $pType);
-        if (array_search($insert, $this->js) === false)
+        if (array_search($insert, $this->js) === false) {
             $this->js[] = $insert;
+        }
     }
 
     /**
@@ -221,8 +225,9 @@ class PageResponse extends Response
     public function addJs($pContent, $pPosition = 'top', $pType = 'text/javascript')
     {
         $insert = array('content' => $pContent, 'position' => $pPosition, 'type' => $pType);
-        if (array_search($insert, $this->js) === false)
+        if (array_search($insert, $this->js) === false) {
             $this->js[] = $insert;
+        }
     }
 
     /**
@@ -230,7 +235,8 @@ class PageResponse extends Response
      *
      * @param string $pContent
      */
-    public function addHeader($pContent){
+    public function addHeader($pContent)
+    {
         $this->header[] = $pContent;
     }
 
@@ -262,9 +268,9 @@ class PageResponse extends Response
 
     public function buildHtml()
     {
-        $body    = $this->buildBody();
+        $body = $this->buildBody();
 
-        $header  = $this->getTitleTag();
+        $header = $this->getTitleTag();
         $header .= $this->getBaseHrefTag();
         $header .= $this->getContentTypeTag();
         $header .= $this->getMetaLanguageTag();
@@ -284,16 +290,23 @@ class PageResponse extends Response
         $docType = $this->getDocTypeDeclaration();
         $htmlOpener = $this->getHtmlTag();
 
-        $html = sprintf("%s
-%s
-<head>
-%s
-</head>
-<body>
-%s
-%s
-</body>
-</html>", $docType, $htmlOpener, $header, $body, $beforeBodyClose);
+        $html = sprintf(
+            "%s
+            %s
+            <head>
+            %s
+            </head>
+            <body>
+            %s
+            %s
+            </body>
+            </html>",
+            $docType,
+            $htmlOpener,
+            $header,
+            $body,
+            $beforeBodyClose
+        );
 
         $html = preg_replace('/href="#([^"]*)"/', 'href="' . Kryn::getBaseUrl() . '#$1"', $html);
         $html = Kryn::parseObjectUrls($html);
@@ -308,9 +321,13 @@ class PageResponse extends Response
      *
      * @return string
      */
-    public function getFaviconTag(){
-        if ($this->getFavicon()){
-            return sprintf('<link rel="shortcut icon" type="image/x-icon" href="%s">'.chr(10), Kryn::resolvePublicPath($this->getFavicon()));
+    public function getFaviconTag()
+    {
+        if ($this->getFavicon()) {
+            return sprintf(
+                '<link rel="shortcut icon" type="image/x-icon" href="%s">' . chr(10),
+                Kryn::resolvePublicPath($this->getFavicon())
+            );
         }
     }
 
@@ -321,8 +338,10 @@ class PageResponse extends Response
      */
     public function buildBody()
     {
-        $page   = Kryn::getPage();
-        if (!$page) return '';
+        $page = Kryn::getPage();
+        if (!$page) {
+            return '';
+        }
 
         Kryn::$themeProperties = array();
         $propertyPath = '';
@@ -349,9 +368,12 @@ class PageResponse extends Response
 
         $layout = $page->getLayout();
 
-        return Kryn::getInstance()->renderView($layout, array(
-            'themeProperties' => Kryn::$themeProperties
-        ));
+        return Kryn::getInstance()->renderView(
+            $layout,
+            array(
+                 'themeProperties' => Kryn::$themeProperties
+            )
+        );
     }
 
     /**
@@ -361,14 +383,18 @@ class PageResponse extends Response
      */
     public function getContentTypeTag()
     {
-        return sprintf('<meta http-equiv="content-type" content="text/html; charset=%s">'.chr(10), $this->getCharset());
+        return sprintf(
+            '<meta http-equiv="content-type" content="text/html; charset=%s">' . chr(10),
+            $this->getCharset()
+        );
     }
 
     /**
      * Returns all additional html header elements.
      */
-    public function getAdditionalHeaderTags(){
-        return implode("\n    ", $this->header)."\n";
+    public function getAdditionalHeaderTags()
+    {
+        return implode("\n    ", $this->header) . "\n";
     }
 
     /**
@@ -396,7 +422,7 @@ class PageResponse extends Response
     public function setDocType($pDocType)
     {
         $this->docType = $pDocType;
-        $this->setEndTag(((strpos(strtolower($this->docType), 'xhtml') !== false) ? '/>' : '>')."\n");
+        $this->setEndTag(((strpos(strtolower($this->docType), 'xhtml') !== false) ? '/>' : '>') . "\n");
     }
 
     /**
@@ -446,8 +472,13 @@ class PageResponse extends Response
      */
     public function getMetaLanguageTag()
     {
-        if ($this->getDomainHandling())
-            return sprintf('<meta name="DC.language" content="%s" %s', Kryn::$domain->getLang(), $this->getEndTag());
+        if ($this->getDomainHandling()) {
+            return sprintf(
+                '<meta name="DC.language" content="%s" %s',
+                Kryn::$domain->getLang(),
+                $this->getEndTag()
+            );
+        }
     }
 
     /**
@@ -466,9 +497,11 @@ class PageResponse extends Response
                          '%title'
                     ),
                     array(
-                         Kryn::$page->getAlternativeTitle() ?: Kryn::$page->getTitle()
+                         Kryn::$page->getAlternativeTitle() ? : Kryn::$page->getTitle()
                     )
-                    , $title);
+                    ,
+                    $title
+                );
             }
         } else {
             $title = $this->getTitle();
@@ -501,6 +534,7 @@ class PageResponse extends Response
      * Compares two PageResponses and returns the difference as array/
      *
      * @param  PageResponse $pResponse
+     *
      * @return array
      */
     public function diff(PageResponse $pResponse)
@@ -510,13 +544,17 @@ class PageResponse extends Response
         $blacklist = array('pluginResponse');
 
         foreach ($this as $key => $value) {
-            if (in_array($key, $blacklist)) continue;
-            $getter = 'get'.ucfirst($key);
+            if (in_array($key, $blacklist)) {
+                continue;
+            }
+            $getter = 'get' . ucfirst($key);
 
-            if (!is_callable(array($this, $getter))) continue;
+            if (!is_callable(array($this, $getter))) {
+                continue;
+            }
 
             $particular = null;
-            $other      = $pResponse->$getter();
+            $other = $pResponse->$getter();
 
             if (is_array($value)) {
                 $particular = $this->arrayDiff($value, $other);
@@ -524,8 +562,9 @@ class PageResponse extends Response
                 $particular = $other;
             }
 
-            if ($particular)
+            if ($particular) {
                 $diff[$key] = $particular;
+            }
         }
 
         return $diff;
@@ -534,6 +573,7 @@ class PageResponse extends Response
     /**
      * @param  array $p1
      * @param  arry  $p2
+     *
      * @return array
      */
     public function arrayDiff($p1, $p2)
@@ -616,6 +656,7 @@ class PageResponse extends Response
      *
      *
      * @param  PluginResponse $pResponse
+     *
      * @return PageResponse
      */
     public function setPluginResponse(PluginResponse $pResponse)
@@ -665,7 +706,7 @@ class PageResponse extends Response
                         );
                     } else {
                         //local
-                        $file   = Kryn::resolvePath($css['path'], 'Resources/public');
+                        $file = Kryn::resolvePath($css['path'], 'Resources/public');
 
                         if (file_exists($file) && $modifiedTime = filemtime($file)) {
                             $cssCode .= $file . '_' . $modifiedTime;
@@ -678,7 +719,7 @@ class PageResponse extends Response
                 }
             }
 
-            $cssMd5        = md5($cssCode);
+            $cssMd5 = md5($cssCode);
             $cssCachedFile = 'cachedCss_' . $cssMd5 . '.css';
 
             if (!file_exists(PATH_WEB_CACHE . $cssCachedFile)) {
@@ -695,7 +736,10 @@ class PageResponse extends Response
                             $compressFiles[] = $css['path'];
                         }
                     } else {
-                        $result .= sprintf('<style type="text/css">'.chr(10).'%s'.chr(10).'</style>'.chr(10), $css['content']);
+                        $result .= sprintf(
+                            '<style type="text/css">' . chr(10) . '%s' . chr(10) . '</style>' . chr(10),
+                            $css['content']
+                        );
                     }
                 }
                 $cssContent = Utils::compressCss($compressFiles, 'cache/');
@@ -728,10 +772,13 @@ class PageResponse extends Response
                             $css['type'],
                             $public . ($modifiedTime ? '?c=' . $modifiedTime : ''),
                             $this->getEndTag()
-                            );
+                        );
                     }
                 } else {
-                    $result .= sprintf('<style type="text/css">'.chr(10).'%s'.chr(10).'</style>'.chr(10), $css['content']);
+                    $result .= sprintf(
+                        '<style type="text/css">' . chr(10) . '%s' . chr(10) . '</style>' . chr(10),
+                        $css['content']
+                    );
                 }
             }
         }
@@ -755,14 +802,16 @@ class PageResponse extends Response
         if ($this->getResourceCompression()) {
             $jsCode = '';
             foreach ($this->js as $js) {
-                if ($js['position'] != $pPosition) continue;
+                if ($js['position'] != $pPosition) {
+                    continue;
+                }
 
                 if ($js['path']) {
                     if (false !== strpos($js['path'], "http://")) {
                         $result .= '<script type="text/javascript" src="' . $js['path'] . '" ></script>' . "\n";
                     } else {
                         //local
-                        $file   = Kryn::resolvePath($js['path'], 'Resources/public');
+                        $file = Kryn::resolvePath($js['path'], 'Resources/public');
                         if (file_exists($file) && $modifiedTime = filemtime($file)) {
                             $jsCode .= $file . '_' . $modifiedTime;
                         } else {
@@ -780,13 +829,19 @@ class PageResponse extends Response
 
             if (!file_exists(PATH_WEB_CACHE . $jsCachedFile)) {
                 foreach ($this->js as $js) {
-                    if ($js['position'] != $pPosition) continue;
+                    if ($js['position'] != $pPosition) {
+                        continue;
+                    }
 
                     if ($js['path']) {
                         if (false !== strpos($js['path'], "://")) {
-                            $result .= sprintf('<script type="%s" src="%s"></script>'.chr(10), $js['type'], $js['path']);
+                            $result .= sprintf(
+                                '<script type="%s" src="%s"></script>' . chr(10),
+                                $js['type'],
+                                $js['path']
+                            );
                         } else {
-                            $file   = Kryn::resolvePath($js['path'], 'Resources/public');
+                            $file = Kryn::resolvePath($js['path'], 'Resources/public');
                             $public = Kryn::resolvePublicPath($js['path']);
 
                             if (file_exists($file)) {
@@ -805,24 +860,31 @@ class PageResponse extends Response
             $result .= '<script type="text/javascript" src="cache/' . $jsCachedFile . '" ></script>' . "\n";
         } else {
             foreach ($this->js as $js) {
-                if ($js['position'] != $pPosition) continue;
+                if ($js['position'] != $pPosition) {
+                    continue;
+                }
 
                 if ($js['path']) {
                     if (false !== strpos($js['path'], "://")) {
-                        $result .= sprintf('<script type="%s" src="%s"></script>'.chr(10), $js['type'], $js['path']);
+                        $result .= sprintf('<script type="%s" src="%s"></script>' . chr(10), $js['type'], $js['path']);
                     } else {
-                        $file   = Kryn::resolvePath($js['path'], 'Resources/public');
+                        $file = Kryn::resolvePath($js['path'], 'Resources/public');
                         $public = Kryn::resolvePublicPath($js['path']);
 
                         $modifiedTime = file_exists($file) ? filemtime($file) : null;
 
                         $result .= sprintf(
-                            '<script type="%s" src="%s"></script>'.chr(10), $js['type'],
-                            $public. ($modifiedTime ? '?c='.$modifiedTime :'')
+                            '<script type="%s" src="%s"></script>' . chr(10),
+                            $js['type'],
+                            $public . ($modifiedTime ? '?c=' . $modifiedTime : '')
                         );
                     }
                 } else {
-                    $result .= sprintf('<script type="%s">'.chr(10).'%s'.chr(10).'</script>'.chr(10), $js['type'], $js['content']);
+                    $result .= sprintf(
+                        '<script type="%s">' . chr(10) . '%s' . chr(10) . '</script>' . chr(10),
+                        $js['type'],
+                        $js['content']
+                    );
                 }
             }
         }

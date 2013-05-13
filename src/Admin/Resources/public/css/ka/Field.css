@@ -11,7 +11,6 @@
     padding: 5px;
 }
 
-
 .ka-field-tdtitle,
 .ka-field-inputTd {
     border-bottom: 1px solid #E0E0E0;
@@ -45,7 +44,7 @@ table tr:first-child > .ka-field-inputTd {
 
 h2.ka-field-headline {
     font-size: 12px;
-    margin: 2px;   
+    margin: 2px;
 }
 
 .ka-field-main-small .ka-field-title div.desc {
@@ -87,37 +86,34 @@ tr.ka-field-main > td div.desc {
     position: relative;
     margin: 10px 2px 2px 20px;
 }
+
 .ka-field-main > .ka-field-field-without-margin {
     margin: 5px 0px 2px 0px;
 }
 
 .ka-field-main-small input.text.multiUpload-firstInput {
-	width: 120px;
+    width: 120px;
 }
 
-
 .kwindow-win-buttonWrapper.multiUpload-uploadBtnDiv {
-	height: 14px;
+    height: 14px;
     margin-top: 5px;
-	margin-left: 3px;
+    margin-left: 3px;
 }
 
 .multiUpload-fileName {
-	border-bottom: 1px solid #DDDDDD;
-	font-weight: bold;
-	padding: 15px 0px 8px 16px;
+    border-bottom: 1px solid #DDDDDD;
+    font-weight: bold;
+    padding: 15px 0px 8px 16px;
 }
 
 .multiUpload-fileContainer {
-	margin-bottom: 15px;
+    margin-bottom: 15px;
 }
-
 
 .multiUpload-delBtn {
-	padding-left: 5px;
+    padding-left: 5px;
 }
-
-
 
 .ka-field-layoutelement-tinytoolbar {
     position: absolute;
@@ -148,7 +144,6 @@ tr.ka-field-main > td div.desc {
     color: white;
     background-color: #399bc7;
 }
-
 
 .ka-field-textlist-item a {
     background-color: #444;
@@ -242,14 +237,12 @@ tr.ka-field-main > td div.desc {
     overflow: auto;
 }
 
-
 .ka-field-textlist-searchbox-body a,
 .ka-field-textlist-searchbox-body a:link {
     display: block;
     padding: 5px 15px;
     cursor: default;
 }
-
 
 .ka-field-textlist-searchbox-body a.active,
 .ka-field-textlist-searchbox-body a.active:link {
@@ -278,7 +271,7 @@ tr.ka-field-main > td div.desc {
 }
 
 .ka-field-condition-withLeftBracket .ka-field-condition-leftBracket,
-.ka-field-condition-withRightBracket .ka-field-condition-rightBracket{
+.ka-field-condition-withRightBracket .ka-field-condition-rightBracket {
     display: table-cell;
 }
 
@@ -304,7 +297,7 @@ tr.ka-field-main > td div.desc {
     left: -22px;
     margin-left: 2px;
     font-size: 14px;
-    text-decoration:blink;
+    text-decoration: blink;
 }
 
 .ka-field-invalid-text {
@@ -312,7 +305,6 @@ tr.ka-field-main > td div.desc {
     font-size: 10px;
     padding-top: 3px;
 }
-
 
 .ka-field-designMode-actions {
     position: absolute;

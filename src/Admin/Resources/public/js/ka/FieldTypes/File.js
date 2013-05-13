@@ -1,8 +1,8 @@
 ka.FieldTypes.File = new Class({
-   
+
     Extends: ka.FieldTypes.Object,
 
-    initialize: function(pFieldInstance, pOptions){
+    initialize: function (pFieldInstance, pOptions) {
 
         pOptions.withoutObjectWrapper = 1;
         pOptions.combobox = true;

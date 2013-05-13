@@ -1,8 +1,8 @@
 ka.FieldTypes.Files = new Class({
-   
+
     Extends: ka.FieldTypes.Select,
 
-    initialize: function(pFieldInstance, pOptions){
+    initialize: function (pFieldInstance, pOptions) {
 
         pOptions.object = 'Core\\File';
         pOptions.objectBranch = pOptions.directory;

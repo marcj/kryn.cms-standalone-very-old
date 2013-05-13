@@ -6,7 +6,7 @@ ka.FieldTypes.UsersAclRuleFields = new Class({
 
     fields: {}, //backup for speed
 
-    createLayout: function(){
+    createLayout: function () {
 
         this.value = '';
 
@@ -23,18 +23,18 @@ ka.FieldTypes.UsersAclRuleFields = new Class({
 
     },
 
-    renderFields: function(){
+    renderFields: function () {
 
         var definition = ka.getObjectDefinition(this.options.object);
 
-        if (!definition){
-            new Element('div', {'class': 'error', text: 'Invalid object: '+this.options.object}).inject(this.main);
+        if (!definition) {
+            new Element('div', {'class': 'error', text: 'Invalid object: ' + this.options.object}).inject(this.main);
             return;
         }
 
         this.fields = definition.fields;
 
-        if (!definition.fields || Object.getLength(definition.fields) == 0){
+        if (!definition.fields || Object.getLength(definition.fields) == 0) {
             new Element('div', {
                 style: 'color: silver; padding: 20px; text-align: center;',
                 text: t('There are no fields to manage.')
@@ -49,8 +49,7 @@ ka.FieldTypes.UsersAclRuleFields = new Class({
 
         ], {absolute: false, hover: false});
 
-
-        Object.each(definition.fields, function(def, key){
+        Object.each(definition.fields, function (def, key) {
 
             var select = new ka.Select();
             document.id(select).setStyle('width', 140);
@@ -70,12 +69,11 @@ ka.FieldTypes.UsersAclRuleFields = new Class({
 
         }.bind(this));
 
-
         this.table.inject(this.main);
 
     },
 
-    createConditionRule: function(pDefinition, pKey){
+    createConditionRule: function (pDefinition, pKey) {
 
         var div = new Element('div');
 
@@ -85,19 +83,21 @@ ka.FieldTypes.UsersAclRuleFields = new Class({
         }).inject(div);
 
         new ka.Button([t('Add field rule'), 'admin/images/icons/add.png'])
-        .addEvent('click', this.addFieldRule.bind(this, conditions, pKey, null))
-        .inject(div);
+            .addEvent('click', this.addFieldRule.bind(this, conditions, pKey, null))
+            .inject(div);
 
         return div;
     },
 
-    checkHasFieldRules: function(pFieldKey){
+    checkHasFieldRules: function (pFieldKey) {
 
-        if (!this.rows[pFieldKey]) return;
+        if (!this.rows[pFieldKey]) {
+            return;
+        }
 
         var selectNode = this.rows[pFieldKey].getElement('.ka-Select-box');
 
-        if (this.rows[pFieldKey].getElement('.users-acl-rule-fields-item')){
+        if (this.rows[pFieldKey].getElement('.users-acl-rule-fields-item')) {
             selectNode.instance.setEnabled(false);
             selectNode.instance.setValue('2', true);
         } else {
@@ -106,7 +106,7 @@ ka.FieldTypes.UsersAclRuleFields = new Class({
 
     },
 
-    addFieldRule: function(pContainer, pFieldKey, pValues){
+    addFieldRule: function (pContainer, pFieldKey, pValues) {
 
         var div = new Element('div', {
             'class': 'users-acl-rule-fields-item'
@@ -136,39 +136,41 @@ ka.FieldTypes.UsersAclRuleFields = new Class({
             style: 'right: 6px;'
         }).inject(images);
 
-        new Element('img', {src: _path+ PATH_WEB + '/admin/images/icons/arrow_up.png'})
-        .addEvent('click', function(){
-            if (div.getPrevious()){
-                div.inject(div.getPrevious(), 'before');
-            }
-        })
-        .inject(imagesContainer);
+        new Element('img', {src: _path + PATH_WEB + '/admin/images/icons/arrow_up.png'})
+            .addEvent('click', function () {
+                if (div.getPrevious()) {
+                    div.inject(div.getPrevious(), 'before');
+                }
+            })
+            .inject(imagesContainer);
 
-        new Element('img', {src: _path+ PATH_WEB + '/admin/images/icons/arrow_down.png'})
-        .addEvent('click', function(){
-            if (div.getNext()){
-                div.inject(div.getNext(), 'after');
-            }
-        }).inject(imagesContainer);
+        new Element('img', {src: _path + PATH_WEB + '/admin/images/icons/arrow_down.png'})
+            .addEvent('click',function () {
+                if (div.getNext()) {
+                    div.inject(div.getNext(), 'after');
+                }
+            }).inject(imagesContainer);
 
-        new Element('img', {src: _path+ PATH_WEB + '/admin/images/icons/delete.png'})
-        .addEvent('click', function(){
-            this.win._confirm(t('Really delete?'), function(a){
-                if (!a) return;
-                div.destroy();
-                this.checkHasFieldRules(pFieldKey);
+        new Element('img', {src: _path + PATH_WEB + '/admin/images/icons/delete.png'})
+            .addEvent('click', function () {
+                this.win._confirm(t('Really delete?'), function (a) {
+                    if (!a) {
+                        return;
+                    }
+                    div.destroy();
+                    this.checkHasFieldRules(pFieldKey);
+                }.bind(this))
             }.bind(this))
-        }.bind(this))
-        .inject(imagesContainer);
+            .inject(imagesContainer);
 
         select.add('0', [t('Deny'), 'admin/images/icons/exclamation.png']);
         select.add('1', [t('Allow'), 'admin/images/icons/accept.png']);
 
-        if (pValues){
+        if (pValues) {
             select.setValue(pValues.access, true);
         }
 
-        if (this.fields[pFieldKey].type != 'object'){
+        if (this.fields[pFieldKey].type != 'object') {
 
             var conditionField = new ka.Field({
                 noWrapper: true,
@@ -190,8 +192,7 @@ ka.FieldTypes.UsersAclRuleFields = new Class({
             }, div, {win: this.win})
         }
 
-
-        if (pValues){
+        if (pValues) {
             conditionField.setValue(pValues.condition);
         }
 
@@ -205,21 +206,19 @@ ka.FieldTypes.UsersAclRuleFields = new Class({
 
     },
 
-
-    getValue: function(){
+    getValue: function () {
 
         var values = {};
 
-        Object.each(this.rows, function(tr, key){
-
+        Object.each(this.rows, function (tr, key) {
 
             var selectNode = this.rows[key].getElement('.ka-Select-box');
             var conditions = this.rows[key].getElement('.users-acl-rule-field-item-detail-rule-conditions');
 
-            if (conditions.getElement('.users-acl-rule-fields-item')){
+            if (conditions.getElement('.users-acl-rule-fields-item')) {
 
                 var detailedRule = [];
-                conditions.getChildren().each(function(children){
+                conditions.getChildren().each(function (children) {
 
                     detailedRule.push({
                         access: children.accessField.getValue(),
@@ -230,8 +229,8 @@ ka.FieldTypes.UsersAclRuleFields = new Class({
 
                 values[key] = detailedRule;
 
-            } else if (selectNode.instance.getValue() != '2'){
-                 values[key] = selectNode.instance.getValue();
+            } else if (selectNode.instance.getValue() != '2') {
+                values[key] = selectNode.instance.getValue();
             }
 
         }.bind(this));
@@ -241,11 +240,14 @@ ka.FieldTypes.UsersAclRuleFields = new Class({
 
     },
 
-    setValue: function( pValue ){
-        if( !pValue || pValue == '' ) return;
+    setValue: function (pValue) {
+        if (!pValue || pValue == '') {
+            return;
+        }
 
-        if (typeOf(pValue) == 'string')
+        if (typeOf(pValue) == 'string') {
             pValue = JSON.decode(pValue);
+        }
 
         this.value = pValue;
 
@@ -253,17 +255,19 @@ ka.FieldTypes.UsersAclRuleFields = new Class({
 
     },
 
-    renderFieldValues: function(){
+    renderFieldValues: function () {
 
-        Object.each(this.value, function(def, key){
+        Object.each(this.value, function (def, key) {
 
-            if(!this.rows[key]) return;
+            if (!this.rows[key]) {
+                return;
+            }
 
             var conditions = this.rows[key].getElement('.users-acl-rule-field-item-detail-rule-conditions');
             conditions.getChildren().destroy();
 
-            if (typeOf(def) == 'array'){
-                Array.each(def, function(rule){
+            if (typeOf(def) == 'array') {
+                Array.each(def, function (rule) {
                     this.addFieldRule(conditions, key, rule);
                 }.bind(this));
             } else {
@@ -276,12 +280,14 @@ ka.FieldTypes.UsersAclRuleFields = new Class({
 
     },
 
-    isEmpty: function(){
-        if( this.value == '' ) return true;
+    isEmpty: function () {
+        if (this.value == '') {
+            return true;
+        }
         return false;
     },
 
-    highlight: function(){
+    highlight: function () {
         this.main.highlight();
     }
 

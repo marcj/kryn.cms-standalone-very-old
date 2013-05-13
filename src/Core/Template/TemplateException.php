@@ -2,4 +2,6 @@
 
 namespace Core\Template;
 
-class TemplateException extends \Exception {}
+class TemplateException extends \Exception
+{
+}

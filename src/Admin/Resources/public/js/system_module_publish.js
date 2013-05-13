@@ -8,9 +8,12 @@ var admin_system_module_publish = new Class({
 
         this.topGroup = this.win.addButtonGroup();
         if (ka.settings.system.communityId > 0) {
-            this.uploadBtn = this.topGroup.addButton(_('Upload this version'), _path + 'bundles/admin/images/icons/add.png', this.add.bind(this));
+            this.uploadBtn =
+                this.topGroup.addButton(_('Upload this version'), _path + 'bundles/admin/images/icons/add.png',
+                    this.add.bind(this));
         }
-        this.createPkg = this.topGroup.addButton(_('Create package'), _path + 'bundles/admin/images/icons/compress.png', this.getPackage.bind(this));
+        this.createPkg = this.topGroup.addButton(_('Create package'), _path + 'bundles/admin/images/icons/compress.png',
+            this.getPackage.bind(this));
 
         this.loadInfo();
         this.downloadUrl = new Element('div', {
@@ -20,7 +23,8 @@ var admin_system_module_publish = new Class({
 
     loadInfo: function () {
 
-        new Request.JSON({url: _pathAdmin + 'admin/system/module/getPublishInfo', noCache: 1, onComplete: function (res) {
+        new Request.JSON({url: _pathAdmin +
+            'admin/system/module/getPublishInfo', noCache: 1, onComplete: function (res) {
             this.loader.hide();
             this.info = res;
             this.renderInfo();
@@ -38,7 +42,8 @@ var admin_system_module_publish = new Class({
         new Request.JSON({url: _pathAdmin + 'admin/system/module/getPackage', noCache: 1, onComplete: function (res) {
             this.loader.hide();
             if (res) {
-                this.downloadUrl.set('html', '<a target="_blank" href="' + _path + res['file'] + '">' + res['file'] + '</a>');
+                this.downloadUrl.set('html',
+                    '<a target="_blank" href="' + _path + res['file'] + '">' + res['file'] + '</a>');
             } else {
                 this.win._alert(_('Unknown error'));
             }
@@ -47,14 +52,19 @@ var admin_system_module_publish = new Class({
 
     add: function () {
         this.win._confirm(_('Really upload this version ?'), function (pGo) {
-            if (!pGo) return;
+            if (!pGo) {
+                return;
+            }
             this.askPw();
         }.bind(this));
     },
 
     askPw: function (p) {
-        if (p) p = p + '<br />'; else p = "";
-
+        if (p) {
+            p = p + '<br />';
+        } else {
+            p = "";
+        }
 
         var _msg = _('Please enter your commit message. Leave blank to commit without a comment.');
         this.commitMessage = new Element('textarea', {
@@ -73,10 +83,12 @@ var admin_system_module_publish = new Class({
                 }
             });
 
+        var dialog = this.win._passwordPrompt(p +
+            _('Please enter your password (%s)').replace('%s', ka.settings.system.communityEmail), '',
+            this.checkPw.bind(this));
 
-        var dialog = this.win._passwordPrompt(p + _('Please enter your password (%s)').replace('%s', ka.settings.system.communityEmail), '', this.checkPw.bind(this));
-
-        new Element('h3', {text: _('Publish to version %s').replace('%s', this.info.config.version)}).inject(dialog, 'top');
+        new Element('h3', {text: _('Publish to version %s').replace('%s', this.info.config.version)}).inject(dialog,
+            'top');
 
         var title = new Element('div', {
             'class': 'ka-kwindow-prompt-text',
@@ -88,7 +100,9 @@ var admin_system_module_publish = new Class({
     },
 
     checkPw: function (pPw) {
-        if (!pPw) return;
+        if (!pPw) {
+            return;
+        }
         this.loader.show();
         new Request.JSON({url: _pathAdmin + 'admin/system/module/publish', noCache: 1, onComplete: function (res) {
             this.loader.hide();
@@ -116,10 +130,8 @@ var admin_system_module_publish = new Class({
             this.uploadBtn.hide();
         }
 
-
         var table = new Element('table', {width: '100%'}).inject(p);
         var tbody = new Element('tbody', {'class': 'ka-Table-body'}).inject(table);
-
 
         var tr = new Element('tr', {'class': 'two'}).inject(tbody);
         new Element('td', {text: 'Title (en)'}).inject(tr);

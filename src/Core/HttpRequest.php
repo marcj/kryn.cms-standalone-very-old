@@ -2,7 +2,7 @@
 
 namespace Core;
 
-use \Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Request;
 
 class HttpRequest extends Request
 {

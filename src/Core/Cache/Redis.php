@@ -32,11 +32,13 @@ class Redis implements CacheInterface
      */
     public function testConfig($pConfig)
     {
-        if (!$pConfig['servers'])
+        if (!$pConfig['servers']) {
             throw new \Exception('No redis servers set.');
+        }
 
-        if (!class_exists('Redis'))
+        if (!class_exists('Redis')) {
             throw new \Exception('The module Redis is not activated in your PHP environment.');
+        }
 
         //TODO, test if all servers are reachable
         if (!$this->noServerTest) {

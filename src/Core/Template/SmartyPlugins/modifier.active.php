@@ -1,18 +1,21 @@
 <?php
 function smarty_modifier_active($string)
 {
-    if( is_numeric( $string ) )
+    if (is_numeric($string)) {
         $rsn = $string;
-    else
+    } else {
         $rsn = $string['rsn'];
+    }
 
-    if( $rsn == kryn::$page['rsn'] ) return true;
+    if ($rsn == kryn::$page['rsn']) {
+        return true;
+    }
 
-    $url = kryn::pageUrl( kryn::$page['rsn'], false, true );
-    $purl = kryn::pageUrl( $rsn, false, true );
+    $url = kryn::pageUrl(kryn::$page['rsn'], false, true);
+    $purl = kryn::pageUrl($rsn, false, true);
 
-    $pos = strpos( $url, $purl );
-    if ($url == '/' || $pos != 0  || $pos === false) {
+    $pos = strpos($url, $purl);
+    if ($url == '/' || $pos != 0 || $pos === false) {
         return false;
     } else {
         return true;

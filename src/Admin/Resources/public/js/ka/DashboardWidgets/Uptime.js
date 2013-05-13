@@ -7,7 +7,7 @@ ka.DashboardWidgets.Uptime = new Class({
         this.header = new Element('h3', {
             text: ka.tc('dashboardWidget.uptime', 'Uptime')
         })
-        .inject(this.main);
+            .inject(this.main);
 
         this.uptime = new Element('div', {
             style: 'padding-top: 25px; text-align: center; font-size: 62px;'

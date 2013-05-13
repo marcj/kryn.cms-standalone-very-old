@@ -9,7 +9,7 @@ ka.DashboardWidgets.Space = new Class({
         this.header = new Element('h3', {
             text: ka.tc('dashboardWidget.space', 'Space')
         })
-        .inject(this.main);
+            .inject(this.main);
 
         this.load = new Element('div', {
             style: 'padding: 5px; text-align: center',
@@ -27,8 +27,8 @@ ka.DashboardWidgets.Space = new Class({
                     new ka.ui.Speedmeter(this.main, {
                         title: 'HDD ' + space.name,
                         label: 'GB',
-                        max: (space.size  / 1024 / 1024).toFixed(0),
-                        value: (space.used  / 1024 / 1024).toFixed(0)
+                        max: (space.size / 1024 / 1024).toFixed(0),
+                        value: (space.used / 1024 / 1024).toFixed(0)
                     })
                 )
             }.bind(this));
@@ -37,9 +37,9 @@ ka.DashboardWidgets.Space = new Class({
         var total = 0;
         var used = 0;
         Array.each(value, function (space, id) {
-            this.gauges[id].setValue((space.used  / 1024 / 1024).toFixed(0));
+            this.gauges[id].setValue((space.used / 1024 / 1024).toFixed(0));
             total += space.size;
-            used  += space.used;
+            used += space.used;
         }.bind(this));
 
         this.load.set('text',

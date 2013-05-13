@@ -59,7 +59,7 @@ class Config extends Model
      */
     public function __construct($bundleName, \DOMElement $bundleDoc = null)
     {
-        $this->element    = new \DOMDocument();
+        $this->element = new \DOMDocument();
         $this->bundleName = $bundleName;
 
         if ($bundleDoc) {
@@ -139,7 +139,7 @@ class Config extends Model
     public function getPlugins()
     {
         if (null === $this->plugins) {
-            $plugins       = $this->element->getElementsByTagName('plugin');
+            $plugins = $this->element->getElementsByTagName('plugin');
             $this->plugins = array();
             foreach ($plugins as $plugin) {
                 $this->plugins[] = $this->getModelInstance($plugin);
@@ -179,7 +179,7 @@ class Config extends Model
     {
         if (null === $this->streams) {
             $childrenElement = $this->getDirectChild('streams');
-            $this->streams   = array();
+            $this->streams = array();
             if ($childrenElement) {
                 foreach ($childrenElement->childNodes as $child) {
                     if ('stream' === $child->nodeName) {
@@ -202,7 +202,7 @@ class Config extends Model
     public function getAdminAssets($filter = '', $regex = false)
     {
         if (null === $this->adminAssets) {
-            $childrenElement   = $this->getDirectChild('admin');
+            $childrenElement = $this->getDirectChild('admin');
             $this->adminAssets = array();
             if ($childrenElement) {
                 $children = $childrenElement->childNodes;
@@ -244,15 +244,19 @@ class Config extends Model
      */
     public function getAdminAssetsPaths($localPath = false, $filter = '', $regex = false, $compression = null)
     {
-        $files  = array();
+        $files = array();
         $method = $localPath ? 'getLocalPath' : 'getPath';
         foreach ($this->getAdminAssets($filter, $regex) as $asset) {
             if ($asset instanceof Asset) {
-                if (null !== $compression && $compression !== $asset->getCompression()) continue;
+                if (null !== $compression && $compression !== $asset->getCompression()) {
+                    continue;
+                }
                 $files[] = $asset->$method();
             } else if ($asset instanceof Assets) {
                 foreach ($asset as $subAsset) {
-                    if (null !== $compression && $compression !== $subAsset->getCompression()) continue;
+                    if (null !== $compression && $compression !== $subAsset->getCompression()) {
+                        continue;
+                    }
                     $files[] = $subAsset->$method();
                 }
             }
@@ -289,7 +293,7 @@ class Config extends Model
     public function getEntryPoints()
     {
         if (null === $this->entryPoints) {
-            $childrenElement   = $this->getDirectChild('entryPoints');
+            $childrenElement = $this->getDirectChild('entryPoints');
             $this->entryPoints = array();
             if ($childrenElement) {
                 $children = $childrenElement->childNodes;
@@ -324,7 +328,7 @@ class Config extends Model
 
         foreach ($subEntryPoints as $subEntryPoint) {
             $entryPoints[$subEntryPoint->getFullPath()] = $subEntryPoint;
-            $entryPoints                                = array_merge(
+            $entryPoints = array_merge(
                 $entryPoints,
                 $this->getAllEntryPoints($subEntryPoint)
             );
@@ -386,7 +390,7 @@ class Config extends Model
     public function getEntryPoint($path)
     {
         $this->entryPoints = $this->entryPoints ? : $this->getEntryPoints();
-        $first             = (false === ($pos = strpos($path, '/'))) ? $path : substr($path, 0, $pos);
+        $first = (false === ($pos = strpos($path, '/'))) ? $path : substr($path, 0, $pos);
 
         foreach ($this->entryPoints as $entryPoint) {
             if ($first == $entryPoint->getPath()) {
@@ -405,7 +409,7 @@ class Config extends Model
     public function getObjects()
     {
         if (null === $this->objects) {
-            $element       = $this->getDirectChild('objects');
+            $element = $this->getDirectChild('objects');
             $this->objects = array();
             if ($element) {
                 foreach ($element->childNodes as $node) {
@@ -449,7 +453,7 @@ class Config extends Model
     public function getThemes()
     {
         if (null === $this->themes) {
-            $themes       = $this->element->getElementsByTagName('theme');
+            $themes = $this->element->getElementsByTagName('theme');
             $this->themes = array();
             foreach ($themes as $theme) {
                 if ('theme' === $theme->nodeName) {

@@ -2,9 +2,8 @@
 
 namespace Core\ORM;
 
-use Core\Object;
 use Core\Config\Object as ConfigObject;
-
+use Core\Object;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\ModelCriteria;
 use Propel\Runtime\Map\RelationMap;
@@ -38,7 +37,9 @@ class Propel extends ORMAbstract
 
     public function init()
     {
-        if ($this->propelPrimaryKeys) return;
+        if ($this->propelPrimaryKeys) {
+            return;
+        }
 
         $this->query = $this->getQueryClass();
         $this->tableMap = $this->query->getTableMap();
@@ -50,14 +51,16 @@ class Propel extends ORMAbstract
      * If '*' we return all allowed fields.
      *
      * @param  array|string $pFields
+     *
      * @return array
      */
     public function getFields($pFields)
     {
         $this->init();
 
-        if ($pFields != '*' && is_string($pFields))
+        if ($pFields != '*' && is_string($pFields)) {
             $pFields = explode(',', str_replace(' ', '', trim($pFields)));
+        }
 
         $query = $this->getQueryClass();
         $tableMap = $query->getTableMap();
@@ -95,7 +98,7 @@ class Propel extends ORMAbstract
                     $cols = $relation->getRightTable()->getColumns();
                     foreach ($cols as $col) {
                         if ($relation->getType == \RelationMap::ONE_TO_ONE || $relation->getType == \RelationMap::MANY_TO_ONE) {
-                            $fields[$relationName.'.'.$col->getPhpName()] = $col;
+                            $fields[$relationName . '.' . $col->getPhpName()] = $col;
                         } else {
                             $relationFields[ucfirst($relationName)][] = $col->getPhpName();
                         }
@@ -109,9 +112,9 @@ class Propel extends ORMAbstract
                 $relationFieldSelection = '';
                 $relationName = '';
 
-                if ( ($pos = strpos($field, '.')) !== false) {
+                if (($pos = strpos($field, '.')) !== false) {
                     $relationName = ucfirst(substr($field, 0, $pos));
-                    $field = ucfirst(substr($field, $pos+1));
+                    $field = ucfirst(substr($field, $pos + 1));
                     $relationFieldSelection = $field;
                     $addRelationField = $field;
                     if (!$tableMap->hasRelation(ucfirst($relationName))) {
@@ -125,8 +128,11 @@ class Propel extends ORMAbstract
                 if ($relationName) {
                     $relation = $tableMap->getRelation(ucfirst($relationName));
                     //check if $field exists in the foreign table
-                    if ($relationFieldSelection)
-                        if (!$relation->getRightTable()->hasColumnByPhpName($relationFieldSelection)) continue;
+                    if ($relationFieldSelection) {
+                        if (!$relation->getRightTable()->hasColumnByPhpName($relationFieldSelection)) {
+                            continue;
+                        }
+                    }
 
                     $relations[ucfirst($relationName)] = $relation;
 
@@ -140,16 +146,18 @@ class Propel extends ORMAbstract
                     //select at least all pks of the foreign table
                     $pks = $relation->getRightTable()->getPrimaryKeys();
                     foreach ($pks as $pk) {
-                       $relationFields[ucfirst($relationName)][] = $pk->getPhpName();
+                        $relationFields[ucfirst($relationName)][] = $pk->getPhpName();
                     }
-                    if ($addRelationField)
+                    if ($addRelationField) {
                         $relationFields[ucfirst($relationName)][] = $addRelationField;
+                    }
 
                     continue;
                 }
 
                 if ($tableMap->hasColumnByPhpName(ucfirst($field)) &&
-                    $column = $tableMap->getColumnByPhpName(ucfirst($field))){
+                    $column = $tableMap->getColumnByPhpName(ucfirst($field))
+                ) {
                     $fields[$column->getPhpName()] = $column;
                 }
             }
@@ -161,12 +169,14 @@ class Propel extends ORMAbstract
             $objectName = $relations[$relation]->getRightTable()->getPhpName();
             $def = Object::getDefinition(lcfirst($objectName));
             $limit = $def['blacklistSelection'];
-            if (!$limit) continue;
-            $allowedFields = strtolower(','.str_replace(' ', '', trim($limit)).',');
+            if (!$limit) {
+                continue;
+            }
+            $allowedFields = strtolower(',' . str_replace(' ', '', trim($limit)) . ',');
 
             $filteredFields = array();
             foreach ($objectFields as $name) {
-                if (strpos($allowedFields, strtolower(','.$name.',')) === false) {
+                if (strpos($allowedFields, strtolower(',' . $name . ',')) === false) {
                     $filteredFields[] = $name;
                 }
             }
@@ -177,17 +187,17 @@ class Propel extends ORMAbstract
         //filter
         if ($blacklistSelection = $this->definition->getBlacklistSelection()) {
 
-            $allowedFields = strtolower(','.str_replace(' ', '', trim($blacklistSelection)).',');
+            $allowedFields = strtolower(',' . str_replace(' ', '', trim($blacklistSelection)) . ',');
 
             $filteredFields = array();
             foreach ($fields as $name => $def) {
-                if (strpos($allowedFields, strtolower(','.$name.',')) === false) {
+                if (strpos($allowedFields, strtolower(',' . $name . ',')) === false) {
                     $filteredFields[$name] = $def;
                 }
             }
             $filteredRelations = array();
             foreach ($relations as $name => $def) {
-                if (strpos($allowedFields, strtolower(','.$name.',')) === false) {
+                if (strpos($allowedFields, strtolower(',' . $name . ',')) === false) {
                     $filteredRelations[$name] = $def;
                 }
             }
@@ -211,7 +221,7 @@ class Propel extends ORMAbstract
     {
         $objectKey = $pName ? $pName : $this->getPhpName();
 
-        $clazz = $objectKey.'Query';
+        $clazz = $objectKey . 'Query';
         if (!class_exists($clazz)) {
             throw new \ObjectNotFoundException(tf('The object query %s of %s does not exist.', $clazz, $objectKey));
         }
@@ -231,7 +241,7 @@ class Propel extends ORMAbstract
     {
         $objectKey = $pName ? $pName : $this->getPhpName();
 
-        $clazz = ucfirst($objectKey).'Peer';
+        $clazz = ucfirst($objectKey) . 'Peer';
         if (!class_exists($clazz)) {
             throw new \ObjectNotFoundException(tf('The object peer %s of %s does not exist.', $clazz, $objectKey));
         }
@@ -243,6 +253,7 @@ class Propel extends ORMAbstract
      * Returns php class name.
      *
      * @param  string $pName
+     *
      * @return string
      */
     public function getPhpName($pName = null)
@@ -263,12 +274,15 @@ class Propel extends ORMAbstract
      * Since the core provide the pk as array('id' => 123) and not as array(123) we have to convert it for propel orm.
      *
      * @param  array $pPk
+     *
      * @return mixed Propel PK
      */
     public function getPropelPk($pPk)
     {
         $pPk = array_values($pPk);
-        if (count($pPk) == 1) $pPk = $pPk[0];
+        if (count($pPk) == 1) {
+            $pPk = $pPk[0];
+        }
         return $pPk;
     }
 
@@ -280,11 +294,13 @@ class Propel extends ORMAbstract
      */
     public function mapOptions($pQuery, $pOptions = array())
     {
-        if ($pOptions['limit'])
+        if ($pOptions['limit']) {
             $pQuery->limit($pOptions['limit']);
+        }
 
-        if ($pOptions['offset'])
+        if ($pOptions['offset']) {
             $pQuery->offset($pOptions['offset']);
+        }
 
         if (is_array($pOptions['order'])) {
             foreach ($pOptions['order'] as $field => $direction) {
@@ -324,12 +340,12 @@ class Propel extends ORMAbstract
         $sql = $pQuery->createSelectSql($params);
 
         if ($pCondition) {
-            $id = (hexdec(uniqid())/mt_rand())+mt_rand();
-            $pQuery->where($id.' != '.$id);
+            $id = (hexdec(uniqid()) / mt_rand()) + mt_rand();
+            $pQuery->where($id . ' != ' . $id);
             $data = $params;
             $condition = dbConditionToSql($pCondition, $data, $pQuery->getPrimaryTableName());
             $pQuery->where($condition, null, Criteria::RAW);
-            $sql = str_replace($id.' != '.$id, '('.$condition.')', $sql);
+            $sql = str_replace($id . ' != ' . $id, '(' . $condition . ')', $sql);
         }
 
         $stmt = $con->prepare($sql);
@@ -346,50 +362,52 @@ class Propel extends ORMAbstract
         try {
             $stmt->execute();
         } catch (\PDOException $e) {
-            throw new \PDOException($e->getMessage()."\nSQL: $sql");
+            throw new \PDOException($e->getMessage() . "\nSQL: $sql");
         }
 
         return $stmt;
 
-/*
-        $pQuery->setPrimaryTableName(constant($this->getPeerName() . '::TABLE_NAME'));
+        /*
+                $pQuery->setPrimaryTableName(constant($this->getPeerName() . '::TABLE_NAME'));
 
-        list($sql, $params) = $pQuery->getSql();
+                list($sql, $params) = $pQuery->getSql();
 
-        if ($pCondition) {
-            $data = $params;
-            $condition = dbConditionToSql($pCondition, $data, $pQuery->getPrimaryTableName());
-            $sql = str_replace($id.' != '.$id, $condition, $sql);
-        }
-
-        $stmt = $pQuery->bindValues($sql, $params, $dbMap);
-
-        if ($data) {
-            foreach ($data as $idx => $v) {
-                if (!is_array($v)) { //propel uses arrays as bind values, we with dbConditionToSql not.
-                    $stmt->bindValue($idx, $v);
+                if ($pCondition) {
+                    $data = $params;
+                    $condition = dbConditionToSql($pCondition, $data, $pQuery->getPrimaryTableName());
+                    $sql = str_replace($id.' != '.$id, $condition, $sql);
                 }
-            }
-        }
 
-        $stmt->execute();
+                $stmt = $pQuery->bindValues($sql, $params, $dbMap);
 
-        return $stmt;
-*/
+                if ($data) {
+                    foreach ($data as $idx => $v) {
+                        if (!is_array($v)) { //propel uses arrays as bind values, we with dbConditionToSql not.
+                            $stmt->bindValue($idx, $v);
+                        }
+                    }
+                }
+
+                $stmt->execute();
+
+                return $stmt;
+        */
     }
 
     public function mapToOneRelationFields(&$pQuery, $pRelations, $pRelationFields)
     {
         if ($pRelations) {
             foreach ($pRelations as $name => $relation) {
-                if ($relation->getType() != RelationMap::MANY_TO_MANY && $relation->getType() != RelationMap::ONE_TO_MANY) {
+                if ($relation->getType() != RelationMap::MANY_TO_MANY && $relation->getType(
+                ) != RelationMap::ONE_TO_MANY
+                ) {
 
-                    $pQuery->{'join'.$name}($name);
+                    $pQuery->{'join' . $name}($name);
                     //$pQuery->with($name);
 
                     if ($pRelationFields[$name]) {
                         foreach ($pRelationFields[$name] as $col) {
-                            $pQuery->withColumn($name.".".$col, '"'.$name.".".$col.'"');
+                            $pQuery->withColumn($name . "." . $col, '"' . $name . "." . $col . '"');
                         }
                     }
 
@@ -418,14 +436,17 @@ class Propel extends ORMAbstract
         $item->fromArray($pRow);
 
         foreach ($pSelects as $select) {
-            if (strpos($select, '.') === false)
-                $newRow[lcfirst($select)] = $item->{'get'.$select}();
+            if (strpos($select, '.') === false) {
+                $newRow[lcfirst($select)] = $item->{'get' . $select}();
+            }
         }
 
         if ($pRelations) {
             foreach ($pRelations as $name => $relation) {
 
-                if ($relation->getType() != RelationMap::MANY_TO_MANY && $relation->getType() != RelationMap::ONE_TO_MANY) {
+                if ($relation->getType() != RelationMap::MANY_TO_MANY && $relation->getType(
+                ) != RelationMap::ONE_TO_MANY
+                ) {
 
                     if (is_array($pRelationFields[$name])) {
 
@@ -435,8 +456,8 @@ class Propel extends ORMAbstract
                         $allNull = true;
 
                         foreach ($pRelationFields[$name] as $col) {
-                            if ($pRow[$name.".".$col] !== null) {
-                                $foreignRow[$col] = $pRow[$name.".".$col];
+                            if ($pRow[$name . "." . $col] !== null) {
+                                $foreignRow[$col] = $pRow[$name . "." . $col];
                                 $allNull = false;
                             }
                         }
@@ -447,7 +468,7 @@ class Propel extends ORMAbstract
                             $foreignObj->fromArray($foreignRow);
                             $foreignRow = array();
                             foreach ($pRelationFields[$name] as $col) {
-                                $foreignRow[lcfirst($col)] = $foreignObj->{'get'.$col}();
+                                $foreignRow[lcfirst($col)] = $foreignObj->{'get' . $col}();
                             }
                             $newRow[lcfirst($name)] = $foreignRow;
                         }
@@ -455,15 +476,17 @@ class Propel extends ORMAbstract
                 } else {
                     //many-to-many, we need a extra query
                     if (is_array($pRelationFields[$name])) {
-                        $sClazz    = $relation->getRightTable()->getClassname();
+                        $sClazz = $relation->getRightTable()->getClassname();
 
-                        $queryName = $sClazz.'Query';
-                        $filterBy  = 'filterBy'.$relation->getSymmetricalRelation()->getName();
+                        $queryName = $sClazz . 'Query';
+                        $filterBy = 'filterBy' . $relation->getSymmetricalRelation()->getName();
                         //var_dump($queryName);
 
                         $sQuery = $queryName::create()
                             ->select($pRelationFields[$name])
-                            ->$filterBy($item);
+                            ->$filterBy(
+                                $item
+                            );
                         //var_dump($sQuery->toString());
 
                         $condition = array();
@@ -482,22 +505,23 @@ class Propel extends ORMAbstract
 
                             $temp = array();
                             foreach ($pRelationFields[$name] as $select) {
-                                $temp[lcfirst($select)] = $sItem->{'get'.$select}();
+                                $temp[lcfirst($select)] = $sItem->{'get' . $select}();
                             }
                             $sItems[] = $temp;
                         }
                         dbFree($sStmt);
                     } else {
-                        $get = 'get'.$relation->getPluralName();
+                        $get = 'get' . $relation->getPluralName();
                         $sItems = $item->$get();
                     }
 
-                    if ($sItems instanceof RuntimePropelObjectCollection)
-                        $newRow[lcfirst($name)] = $sItems->toArray(null, null, TableMap::TYPE_STUDLYPHPNAME) ?: null;
-                    else if (is_array($sItems) && $sItems)
+                    if ($sItems instanceof RuntimePropelObjectCollection) {
+                        $newRow[lcfirst($name)] = $sItems->toArray(null, null, TableMap::TYPE_STUDLYPHPNAME) ? : null;
+                    } else if (is_array($sItems) && $sItems) {
                         $newRow[lcfirst($name)] = $sItems;
-                    else
+                    } else {
                         $newRow[lcfirst($name)] = null;
+                    }
                 }
             }
         }
@@ -535,7 +559,14 @@ class Propel extends ORMAbstract
         $clazz = $this->getPhpName();
 
         while ($row = dbFetch($stmt)) {
-            $result[] = $this->populateRow($clazz, $row, $selects, $relations, $relationFields, $pOptions['permissionCheck']);
+            $result[] = $this->populateRow(
+                $clazz,
+                $row,
+                $selects,
+                $relations,
+                $relationFields,
+                $pOptions['permissionCheck']
+            );
         }
 
         dbFree($stmt);
@@ -552,10 +583,11 @@ class Propel extends ORMAbstract
     public function mapPk(&$pQuery, $pPk)
     {
         foreach ($this->primaryKeys as $key) {
-            $filter = 'filterBy'.ucfirst($key);
+            $filter = 'filterBy' . ucfirst($key);
             $val = $pPk[$key];
-            if (method_exists($pQuery, $filter))
+            if (method_exists($pQuery, $filter)) {
                 $pQuery->$filter($val);
+            }
         }
     }
 
@@ -581,7 +613,9 @@ class Propel extends ORMAbstract
         $this->mapPk($query, $pPk);
 
         $item = $query->findOne();
-        if (!$item) return false;
+        if (!$item) {
+            return false;
+        }
 
         $stmt = $this->getStm($query);
 
@@ -590,7 +624,14 @@ class Propel extends ORMAbstract
 
         $clazz = $this->getPhpName();
 
-        return $row===false?null:$this->populateRow($clazz, $row, $selects, $relations, $relationFields, $pOptions['permissionCheck']);
+        return $row === false ? null : $this->populateRow(
+            $clazz,
+            $row,
+            $selects,
+            $relations,
+            $relationFields,
+            $pOptions['permissionCheck']
+        );
     }
 
     /**
@@ -602,7 +643,9 @@ class Propel extends ORMAbstract
 
         $this->mapPk($query, $pPk);
         $item = $query->findOne();
-        if (!$item) return false;
+        if (!$item) {
+            return false;
+        }
 
         $item->delete();
 
@@ -618,7 +661,7 @@ class Propel extends ORMAbstract
 
         if ($this->definition['workspace']) {
             //delete all versions
-            $versionQueryPeer = $this->getPhpName().'Peer';
+            $versionQueryPeer = $this->getPhpName() . 'Peer';
             $versionQueryPeer::doDeleteAll();
         }
 
@@ -627,7 +670,7 @@ class Propel extends ORMAbstract
 
     public function getVersions($pPk, $pOptions = null)
     {
-        $queryClass = $this->getPhpName().'VersionQuery';
+        $queryClass = $this->getPhpName() . 'VersionQuery';
         $query = new $queryClass();
 
         $query->select(array('id', 'workspaceRev', 'workspaceAction', 'workspaceActionDate', 'workspaceActionUser'));
@@ -657,10 +700,10 @@ class Propel extends ORMAbstract
 
         $this->mapPk($query, $pPk);
         $item = $query->findOne();
-        $values = $pPk+$pValues;
+        $values = $pPk + $pValues;
         $this->mapValues($item, $values);
 
-        return $item->save()?true:false;
+        return $item->save() ? true : false;
     }
 
     /**
@@ -676,7 +719,7 @@ class Propel extends ORMAbstract
         $item = $query->findOne();
         $this->mapValues($item, $pValues, false);
 
-        return $item->save()?true:false;
+        return $item->save() ? true : false;
     }
 
     /**
@@ -688,10 +731,12 @@ class Propel extends ORMAbstract
         $item = $query->findPK($this->getPropelPk($pPk));
 
         $method = 'moveToFirstChildOf';
-        if ($pPosition == 'up' || $pPosition == 'before'|| $pPosition == 'prev')
+        if ($pPosition == 'up' || $pPosition == 'before' || $pPosition == 'prev') {
             $method = 'moveToPrevSiblingOf';
-        if ($pPosition == 'down' || $pPosition == 'below' || $pPosition == 'next')
+        }
+        if ($pPosition == 'down' || $pPosition == 'below' || $pPosition == 'next') {
             $method = 'moveToNextSiblingOf';
+        }
 
         if (!$pTargetPk) {
             //we need a target
@@ -699,8 +744,9 @@ class Propel extends ORMAbstract
         } else {
 
             if ($pTargetObjectKey && $this->objectKey != $pTargetObjectKey) {
-                if (!$this->definition['nestedRootAsObject'])
+                if (!$this->definition['nestedRootAsObject']) {
                     throw new \InvalidArgumentException('This object has no different object as root.');
+                }
 
                 $scopeId = $item->getScopeValue();
                 $method = 'moveToFirstChildOf';
@@ -710,7 +756,9 @@ class Propel extends ORMAbstract
                 $target = $query->findPK($this->getPropelPk($pTargetPk));
             }
 
-            if (!$target) return false;
+            if (!$target) {
+                return false;
+            }
         }
 
         if ($item == $target) {
@@ -756,22 +804,37 @@ class Propel extends ORMAbstract
                 }
             }
 
-            if (!$branch) return false;
+            if (!$branch) {
+                return false;
+            }
 
-            if ($branch->getLeftValue() == 1)
+            if ($branch->getLeftValue() == 1) {
                 $root = true;
+            }
 
-            if (!$pScope)
+            if (!$pScope) {
                 $pScope = $branch->getScopeValue();
+            }
 
             switch (strtolower($pMode)) {
-                case 'last':  $obj->insertAsLastChildOf($branch); break;
-                case 'prev':  if (!$root) $obj->insertAsPrevSiblingOf($branch); break;
-                case 'next':  if (!$root) $obj->insertAsNextSiblingOf($branch); break;
+                case 'last':
+                    $obj->insertAsLastChildOf($branch);
+                    break;
+                case 'prev':
+                    if (!$root) {
+                        $obj->insertAsPrevSiblingOf($branch);
+                    }
+                    break;
+                case 'next':
+                    if (!$root) {
+                        $obj->insertAsNextSiblingOf($branch);
+                    }
+                    break;
 
                 case 'first':
-                     default:
-                              $obj->insertAsFirstChildOf($branch); break;
+                default:
+                    $obj->insertAsFirstChildOf($branch);
+                    break;
             }
 
             if ($pScope) {
@@ -781,13 +844,15 @@ class Propel extends ORMAbstract
 
         $this->mapValues($obj, $pValues);
 
-        if (!$obj->save()) return false;
+        if (!$obj->save()) {
+            return false;
+        }
 
         //return new pk
 
         $newPk = array();
         foreach ($this->primaryKeys as $pk) {
-            $newPk[$pk] = $obj->{'get'.ucfirst($pk)}();
+            $newPk[$pk] = $obj->{'get' . ucfirst($pk)}();
         }
 
         return $newPk;
@@ -799,29 +864,33 @@ class Propel extends ORMAbstract
 
             $fieldValue = $pValues[$fieldName];
 
-            if ($field['primaryKey']) continue;
+            if ($field['primaryKey']) {
+                continue;
+            }
 
             $fieldName = ucfirst($fieldName);
 
-            $set = 'set'.$fieldName;
+            $set = 'set' . $fieldName;
             $methodExist = method_exists($pItem, $set);
 
-            if (!$field && !$methodExist) continue;
+            if (!$field && !$methodExist) {
+                continue;
+            }
 
             if ($field['type'] == 'object' || $this->tableMap->hasRelation($fieldName)) {
 
                 if ($field['objectRelation'] == ORMAbstract::MANY_TO_MANY || $field['objectRelation'] == ORMAbstract::ONE_TO_MANY) {
 
                     //$getItems = 'get'.underscore2Camelcase($fieldName).'s';
-                    $setItems   = 'set'.underscore2Camelcase($fieldName).'s';
-                    $getItems   = 'get'.underscore2Camelcase($fieldName).'s';
-                    $clearItems = 'clear'.underscore2Camelcase($fieldName).'s';
-                    $addItem    = 'add'.underscore2Camelcase($fieldName);
+                    $setItems = 'set' . underscore2Camelcase($fieldName) . 's';
+                    $getItems = 'get' . underscore2Camelcase($fieldName) . 's';
+                    $clearItems = 'clear' . underscore2Camelcase($fieldName) . 's';
+                    $addItem = 'add' . underscore2Camelcase($fieldName);
 
                     if ($fieldValue) {
 
-                        $foreignQuery    = $this->getQueryClass($field['object']);
-                        $foreignClass    = $this->getPhpName($field['object']);
+                        $foreignQuery = $this->getQueryClass($field['object']);
+                        $foreignClass = $this->getPhpName($field['object']);
                         $foreignObjClass = \Core\Object::getClass($field['object']);
 
                         if ($field['objectRelation'] == ORMAbstract::ONE_TO_MANY) {
@@ -831,10 +900,10 @@ class Propel extends ORMAbstract
                             $coll->setModel(ucfirst($foreignClass));
 
                             foreach ($fieldValue as $foreignItem) {
-                                $pk   = Object::getObjectPk($field['object'], $foreignItem);
+                                $pk = Object::getObjectPk($field['object'], $foreignItem);
                                 $item = null;
                                 if ($pk) {
-                                    $pk   = $this->getPropelPk($pk);
+                                    $pk = $this->getPropelPk($pk);
                                     $item = $foreignQuery->findPk($pk);
                                 }
                                 if (!$item) {
@@ -869,16 +938,24 @@ class Propel extends ORMAbstract
             }
 
             if ($methodExist) {
-                if ($fieldValue === null && !$pSetUndefinedAsNull) continue;
+                if ($fieldValue === null && !$pSetUndefinedAsNull) {
+                    continue;
+                }
 
                 $pItem->$set($fieldValue);
             } else {
-                throw new \FieldNotFoundException(tf('Field %s in object %s not found (%s)', $fieldName, $this->objectKey, $set));
+                throw new \FieldNotFoundException(tf(
+                    'Field %s in object %s not found (%s)',
+                    $fieldName,
+                    $this->objectKey,
+                    $set
+                ));
             }
 
         }
 
     }
+
     /**
      * {@inheritdoc}
      */
@@ -894,7 +971,7 @@ class Propel extends ORMAbstract
 
         dbFree($stmt);
 
-        return current($row)+0;
+        return current($row) + 0;
     }
 
     public function getBranchChildrenCount($pPk = null, $pCondition = null, $pScope = null)
@@ -909,12 +986,16 @@ class Propel extends ORMAbstract
             $this->mapPk($pkQuery, $pPk);
             $pkItem = $pkQuery->findOne();
 
-            if (!$pkItem) return null;
+            if (!$pkItem) {
+                return null;
+            }
             $query->childrenOf($pkItem);
         } elseif ($pScope) {
             $pkQuery = $this->getQueryClass();
             $root = $pkQuery->findRoot($pScope);
-            if (!$root) return null;
+            if (!$root) {
+                return null;
+            }
             $query->childrenOf($root);
         }
 
@@ -924,7 +1005,7 @@ class Propel extends ORMAbstract
 
         dbFree($stmt);
 
-        return current($row)+0;
+        return current($row) + 0;
 
     }
 
@@ -945,16 +1026,21 @@ class Propel extends ORMAbstract
     {
         $query = $this->getQueryClass();
         if (!$pPk) {
-            if ($pScope === null && $this->definition['nestedRootAsObject'])
+            if ($pScope === null && $this->definition['nestedRootAsObject']) {
                 throw new \InvalidArgumentException('Argument `scope` is missing. Since this object is a nested set with different roots, we need a `scope` to get the first level.');
+            }
             $parent = $query->findRoot($pScope);
         } else {
             $parent = $query->findPK($this->getPropelPk($pPk));
         }
 
-        if (!$parent) return null;
+        if (!$parent) {
+            return null;
+        }
 
-        if ($pDepth === null) $pDepth = 1;
+        if ($pDepth === null) {
+            $pDepth = 1;
+        }
 
         $query = $this->getQueryClass();
 
@@ -979,23 +1065,48 @@ class Propel extends ORMAbstract
         $clazz = $this->getPhpName();
 
         while ($row = dbFetch($stmt)) {
-            $item = $this->populateRow($clazz, $row, $selects, $relations, $relationFields, $pOptions['permissionCheck']);
+            $item = $this->populateRow(
+                $clazz,
+                $row,
+                $selects,
+                $relations,
+                $relationFields,
+                $pOptions['permissionCheck']
+            );
 
             if ($pDepth > 0) {
                 if (!$pCondition) {
-                    $item['_childrenCount'] = ($item['rgt'] - $item['lft'] - 1)/2;
+                    $item['_childrenCount'] = ($item['rgt'] - $item['lft'] - 1) / 2;
                     if ($pDepth > 1 && ($item['rgt'] - $item['lft']) > 0) {
-                        $item['_children'] = $this->getBranch($this->pkFromRow($item), $pCondition, $pDepth-1, $pScope, $pOptions);
+                        $item['_children'] = $this->getBranch(
+                            $this->pkFromRow($item),
+                            $pCondition,
+                            $pDepth - 1,
+                            $pScope,
+                            $pOptions
+                        );
                     }
                 } else {
 
                     //since we have a custom (probably a permission listing condition) we have
                     //firstly to select all children and then count
                     if ($pDepth > 1) {
-                        $item['_children'] = $this->getBranch($this->pkFromRow($item), $pCondition, $pDepth-1, $pScope, $pOptions);
+                        $item['_children'] = $this->getBranch(
+                            $this->pkFromRow($item),
+                            $pCondition,
+                            $pDepth - 1,
+                            $pScope,
+                            $pOptions
+                        );
                         $item['_childrenCount'] = count($item['_children']);
                     } else {
-                        $children = $this->getBranch($this->pkFromRow($item), $pCondition, $pDepth-1, $pScope, $pOptions);
+                        $children = $this->getBranch(
+                            $this->pkFromRow($item),
+                            $pCondition,
+                            $pDepth - 1,
+                            $pScope,
+                            $pOptions
+                        );
                         $item['_childrenCount'] = count($children);
                     }
                 }
@@ -1017,7 +1128,7 @@ class Propel extends ORMAbstract
         $item = $query->findPK($this->getPropelPk($pPk));
 
         if (!$item) {
-            throw new \Exception('Can not found entry. '.var_export($pPk, true));
+            throw new \Exception('Can not found entry. ' . var_export($pPk, true));
         }
 
         list($fields, $relations, $relationFields) = $this->getFields($pOptions['fields']);
@@ -1042,7 +1153,7 @@ class Propel extends ORMAbstract
 
         if ($this->definition['nestedRootAsObject']) {
             //fetch root object entry
-            $scopeField = 'get'.ucfirst($this->definition['nestedRootObjectField']);
+            $scopeField = 'get' . ucfirst($this->definition['nestedRootObjectField']);
             $scopeId = $item->$scopeField();
             $root = Object::get($this->definition['nestedRootObject'], $scopeId);
             $root['_object'] = $this->definition['nestedRootObject'];
@@ -1059,7 +1170,14 @@ class Propel extends ORMAbstract
                 continue;
             }
 
-            $item = $this->populateRow($clazz, $row, $selects, $relations, $relationFields, $pOptions['permissionCheck']);
+            $item = $this->populateRow(
+                $clazz,
+                $row,
+                $selects,
+                $relations,
+                $relationFields,
+                $pOptions['permissionCheck']
+            );
             $result[] = $item;
         }
 

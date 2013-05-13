@@ -2,7 +2,8 @@
 
 namespace Core;
 
-class Bundle {
+class Bundle
+{
 
     /**
      * @var \ReflectionClass
@@ -68,7 +69,7 @@ class Bundle {
     final public function getRootNamespace()
     {
         $namespace = $this->getNamespace();
-        return substr($namespace, 0, strpos($namespace, '\\') ?: strlen($namespace));
+        return substr($namespace, 0, strpos($namespace, '\\') ? : strlen($namespace));
     }
 
     /**
@@ -148,7 +149,7 @@ class Bundle {
     {
         $configs = array();
 
-        $files = glob($this->getPath(). '/Resources/config/kryn.*.xml');
+        $files = glob($this->getPath() . '/Resources/config/kryn.*.xml');
 
         foreach ($files as $file) {
 
@@ -162,7 +163,7 @@ class Bundle {
                     if (!$bundleName) {
                         $bundleName = $this->getName();
                     }
-                    $priority = $bundle->attributes->getNamedItem('priority')->nodeValue ?: 0;
+                    $priority = $bundle->attributes->getNamedItem('priority')->nodeValue ? : 0;
 
                     $configs[$bundleName][$priority][] = $bundle;
                 }

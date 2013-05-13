@@ -15,6 +15,7 @@ interface CacheInterface
      * Gets the data for a key.
      *
      * @param  string $pKey
+     *
      * @return mixed
      */
     public function get($pKey);
@@ -25,6 +26,7 @@ interface CacheInterface
      * @param  string  $pKey
      * @param  mixed   $pValue
      * @param  int     $pTimeout
+     *
      * @return boolean
      */
     public function set($pKey, $pValue, $pTimeout = null);
@@ -42,6 +44,7 @@ interface CacheInterface
      * is loaded or not).
      *
      * @param  array   $pConfig
+     *
      * @return boolean returns true if everything is fine, if not it should throw an exception with the detailed issue.
      */
     public function testConfig($pConfig);

@@ -2,8 +2,8 @@
 
 namespace Admin\Controller;
 
-use RestService\Server;
 use Core\Config\EntryPoint;
+use RestService\Server;
 
 /**
  * RestController for the entry points which are from type store or framework window.
@@ -18,8 +18,9 @@ class ObjectCrudController extends Server
 
     public function exceptionHandler($exception)
     {
-        if (get_class($exception) != 'AccessDeniedException')
+        if (get_class($exception) != 'AccessDeniedException') {
             \Core\Utils::exceptionHandler($exception);
+        }
     }
 
     public function setEntryPoint(EntryPoint $entryPoint)
@@ -35,13 +36,16 @@ class ObjectCrudController extends Server
                 $obj = new adminStore();
             } else {
                 $clazz = $this->entryPoint->getClass();
-                $obj   = new $clazz();
+                $obj = new $clazz();
             }
 
             try {
                 $this->send($obj->handle($this->entryPoint));
             } catch (Exception $e) {
-                $this->sendError('AdminStoreException', array('exception' => $e->getMessage(), 'entryPoint' => $this->entryPoint->toArray()));
+                $this->sendError(
+                    'AdminStoreException',
+                    array('exception' => $e->getMessage(), 'entryPoint' => $this->entryPoint->toArray())
+                );
             }
         } else {
 
@@ -146,8 +150,8 @@ class ObjectCrudController extends Server
             foreach ($pFields as &$field) {
                 self::translateFields($field);
             }
-        } elseif (is_string($pFields) && substr($pFields,0,2) == '[[' && substr($pFields,-2) == ']]') {
-                $pFields  = t(substr($pFields, 2, -2));
+        } elseif (is_string($pFields) && substr($pFields, 0, 2) == '[[' && substr($pFields, -2) == ']]') {
+            $pFields = t(substr($pFields, 2, -2));
         }
 
     }
@@ -156,6 +160,7 @@ class ObjectCrudController extends Server
      * Proxy method for REST DELETE to remove().
      *
      * @param  string $pObject
+     *
      * @return mixed
      */
     public function removeItem($pObject = null)
@@ -170,6 +175,7 @@ class ObjectCrudController extends Server
      * Proxy method for REST PUT to update().
      *
      * @param  null  $pObject
+     *
      * @return mixed
      */
     public function updateItem($pObject = null)
@@ -185,6 +191,7 @@ class ObjectCrudController extends Server
      * Proxy method for REST PATCH to patch().
      *
      * @param  null  $pObject
+     *
      * @return mixed
      */
     public function patchItem($pObject = null)
@@ -228,6 +235,7 @@ class ObjectCrudController extends Server
      * @param  int    $pLimit
      * @param  int    $pOffset
      * @param  int    $pGetPosition
+     *
      * @return mixed
      */
     public function getItems($pUrl = null, $_ = null, $pLimit = null, $pOffset = null, $pGetPosition = null)
@@ -248,15 +256,28 @@ class ObjectCrudController extends Server
 
     }
 
-    public function getRootBranchItems($pScope = null, $pFields = null, $pDepth = 1, $pLimit = null, $pOffset = null,
-                                       $_ = null){
+    public function getRootBranchItems(
+        $pScope = null,
+        $pFields = null,
+        $pDepth = 1,
+        $pLimit = null,
+        $pOffset = null,
+        $_ = null
+    ) {
         $obj = $this->getObj();
 
         return $obj->getBranchItems(null, $_, $pFields, $pScope, $pDepth, $pLimit, $pOffset);
     }
 
-    public function getBranchItems($pPk = null, $pFields = null, $pScope = null, $pDepth = 1, $pLimit = null,
-                                   $pOffset = null, $_ = null){
+    public function getBranchItems(
+        $pPk = null,
+        $pFields = null,
+        $pScope = null,
+        $pDepth = 1,
+        $pLimit = null,
+        $pOffset = null,
+        $_ = null
+    ) {
         $obj = $this->getObj();
 
         $pk = \Core\Object::normalizePkString($obj->getObject(), $pPk);
@@ -268,8 +289,9 @@ class ObjectCrudController extends Server
     {
         $obj = $this->getObj();
 
-        if ($pPk)
+        if ($pPk) {
             $pPk = \Core\Object::normalizePkString($obj->getObject(), $pPk);
+        }
 
         return $obj->getBranchChildrenCount($pPk, $pScope, $_);
 
@@ -281,12 +303,13 @@ class ObjectCrudController extends Server
 
         $primaryKeys = \Core\Object::parsePk($obj->getObject(), $pPk);
 
-        if (count($primaryKeys) == 1)
+        if (count($primaryKeys) == 1) {
             return $obj->getItem($primaryKeys[0], $pFields);
-        else {
+        } else {
             foreach ($primaryKeys as $primaryKey) {
-                if ($item = $obj->getItem($primaryKey, $pFields))
+                if ($item = $obj->getItem($primaryKey, $pFields)) {
                     $items[] = $item;
+                }
             }
 
             return $items;
@@ -315,7 +338,9 @@ class ObjectCrudController extends Server
      */
     public function getObj()
     {
-        if ($this->obj) return $this->obj;
+        if ($this->obj) {
+            return $this->obj;
+        }
 
         $class = $this->entryPoint->getClass();
 

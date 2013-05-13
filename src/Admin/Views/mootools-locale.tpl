@@ -1,12 +1,12 @@
 {literal}
-{
+    {
     months: [ '[[January]]', '[[February]]', '[[March]]', '[[April]]', '[[May]]', '[[June]]', '[[July]]', '[[August]]', '[[September]]', '[[October]]', '[[November]]', '[[December]]'],
     days: ['[[Sunday]]', '[[Monday]]', '[[Tuesday]]', '[[Wednesday]]', '[[Thursday]]', '[[Friday]]', '[[Saturday]]'],
     dateOrder: [[date_order]],
     AM: "[[AM]]",
     PM: "[[PM]]",
     ordinal: function(dayOfMonth){
-        return [[ordinal]];
+    return [[ordinal]];
     },
     lessThanMinuteAgo: '[[less than a minute ago]]',
     lessThanMinuteAgo: '[[less than a minute ago]]',
@@ -35,4 +35,4 @@
     monthsUntil: '[[{delta} months from now]]',
     yearUntil: '[[1 year from now]]',
     yearsUntil: '[[{delta} years from now]]'
-}{/literal}
+    }{/literal}

@@ -12,8 +12,12 @@ ka.Widget = new Class({
         this.load();
 
         this.addEvent('close', function () {
-            if (this.lastDelayId) clearTimeout(this.lastDelayId);
-            if (this.lastrq) this.lastrq.cancel();
+            if (this.lastDelayId) {
+                clearTimeout(this.lastDelayId);
+            }
+            if (this.lastrq) {
+                this.lastrq.cancel();
+            }
             this.closed = true;
             this.main.destroy();
         }.bind(this));
@@ -54,8 +58,8 @@ ka.Widget = new Class({
         this.ctrlPrevious = new Element('img', {
             src: myPath + 'control_back.png'
         }).addEvent('click', function () {
-            this.go2Page(parseInt(this.currentPage) - 1);
-        }.bind(this)).inject(this.navi);
+                this.go2Page(parseInt(this.currentPage) - 1);
+            }.bind(this)).inject(this.navi);
 
         this.ctrlText = new Element('span', {
             text: 1,
@@ -65,9 +69,8 @@ ka.Widget = new Class({
         this.ctrlNext = new Element('img', {
             src: myPath + 'control_play.png'
         }).addEvent('click', function () {
-            this.go2Page(parseInt(this.currentPage) + 1);
-        }.bind(this)).inject(this.navi);
-
+                this.go2Page(parseInt(this.currentPage) + 1);
+            }.bind(this)).inject(this.navi);
 
         this.content = new Element('div', {
             'class': 'ka-widget-content',
@@ -140,15 +143,14 @@ ka.Widget = new Class({
 
         this.main.setStyle('position', 'absolute');
 
-
         new Element('a', {
             'class': 'ka-widget-knoptodesktop',
             'text': 'x',
             style: 'font-weight: bold;',
             title: _('Remove this widget')
         }).addEvent('click', function () {
-            this.fireEvent('close');
-        }.bind(this)).inject(this.main);
+                this.fireEvent('close');
+            }.bind(this)).inject(this.main);
 
         this.main.set('tween', {transition: Fx.Transitions.Cubic.easeOut});
         this.main.tween('opacity', 0.7);
@@ -177,7 +179,6 @@ ka.Widget = new Class({
         var ptop = 50; //todo calculate free space
         var left = 50; //todo calculate free space
 
-
         if (typeOf(this.opts.left) == 'number') {
             left = this.opts.left;
         }
@@ -198,7 +199,6 @@ ka.Widget = new Class({
         left = (left < 0 ) ? 20 : left;
         ptop = (ptop < 0 ) ? 20 : ptop;
 
-
         this.main.setStyle('left', left);
         this.main.setStyle('top', ptop);
 
@@ -211,7 +211,6 @@ ka.Widget = new Class({
                 this.fireEvent('change');
             }.bind(this)
         });
-
 
         //make resizeable
 
@@ -247,9 +246,8 @@ ka.Widget = new Class({
             'src': _path + 'bundles/admin/images/win-top-bar-link.png',
             title: _('Display this widget at desktop')
         }).addEvent('click', function () {
-            ka.desktop.addWidget(this.opts);
-        }.bind(this)).inject(this.main);
-
+                ka.desktop.addWidget(this.opts);
+            }.bind(this)).inject(this.main);
 
     },
 
@@ -277,9 +275,10 @@ ka.Widget = new Class({
             return;
         }
 
-        if (this.lastrq) this.lastrq.cancel();
+        if (this.lastrq) {
+            this.lastrq.cancel();
+        }
         this.table.loading(true);
-
 
         if (this.opts.url) {
             url = _path + this.opts.url;
@@ -304,14 +303,16 @@ ka.Widget = new Class({
             this.table.loading(false);
             this.table.setValues(pRes.items);
 
-            if (this.lastDelayId) clearTimeout(this.lastDelayId);
-            if (this.closed) return;
+            if (this.lastDelayId) {
+                clearTimeout(this.lastDelayId);
+            }
+            if (this.closed) {
+                return;
+            }
 
             this.lastDelayId = this.reload.delay(this.opts.refresh, this);
 
-
         }.bind(this)}).post({page: pPage, extension: this.opts.extension, widget: this.opts.code});
-
 
     },
 

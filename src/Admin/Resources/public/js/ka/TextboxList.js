@@ -7,32 +7,36 @@ ka.TextboxList = new Class({
         selectFirst: false
     },
 
-    createLayout: function(){
+    createLayout: function () {
         this.parent();
         this.box.addClass('ka-TextboxList');
     },
 
-    clear: function(){
+    clear: function () {
 
         this.value = [];
         this.title.empty();
 
     },
 
-    addValue: function(pItem){
+    addValue: function (pItem) {
 
-        if (typeOf(pItem) == 'null') return;
+        if (typeOf(pItem) == 'null') {
+            return;
+        }
 
         var span = new Element('span', {
             'class': 'ka-textboxList-item'
         }).inject(this.title);
 
-        this.getLabel(pItem, function(item){
+        this.getLabel(pItem, function (item) {
 
-            if (typeOf(item) != 'null' && item !== false)
+            if (typeOf(item) != 'null' && item !== false) {
                 span.set('html', this.renderLabel(item.label));
-            else
+            }
+            else {
                 span.set('text', t('-- not found --'));
+            }
 
             new Element('a', {
                 href: 'javascript:;',
@@ -40,12 +44,12 @@ ka.TextboxList = new Class({
                 title: t('Remove'),
                 'class': 'ka-textboxList-item-closer'
             })
-            .addEvent('click', function(e){
-                e.stopPropagation();
-                this.value.erase(pItem);
-                span.destroy();
-            }.bind(this))
-            .inject(span);
+                .addEvent('click', function (e) {
+                    e.stopPropagation();
+                    this.value.erase(pItem);
+                    span.destroy();
+                }.bind(this))
+                .inject(span);
 
         }.bind(this));
 
@@ -53,47 +57,52 @@ ka.TextboxList = new Class({
 
     },
 
-    checkIfCurrentValue: function(pItem, pA){
+    checkIfCurrentValue: function (pItem, pA) {
 
-        if (this.value.contains(pItem.key)){
+        if (this.value.contains(pItem.key)) {
             pA.addClass('icon-checkmark-6');
             pA.addClass('ka-select-chooser-item-selected');
         }
     },
 
-    chooseItem: function(pItem, pInternal){
+    chooseItem: function (pItem, pInternal) {
 
-        if (this.value.contains(pItem.key)) return false;
+        if (this.value.contains(pItem.key)) {
+            return false;
+        }
 
         this.addValue(pItem);
 
-        if (pInternal)
+        if (pInternal) {
             this.fireChange();
+        }
     },
 
-    getValue: function(){
+    getValue: function () {
         return this.value;
     },
 
-    setValue: function(pValue, pInternal){
+    setValue: function (pValue, pInternal) {
 
         this.clear();
 
-        if (typeOf(pValue) == 'null')
+        if (typeOf(pValue) == 'null') {
             return;
+        }
 
-        if (typeOf(pValue) != 'array')
+        if (typeOf(pValue) != 'array') {
             pValue = [pValue];
+        }
 
-
-        Array.each(pValue, function(item){
+        Array.each(pValue, function (item) {
             this.addValue(item);
         }.bind(this));
 
         this.value = pValue;
 
-        if (pInternal)
+        if (pInternal) {
             this.fireChange();
+        }
     }
 
 });

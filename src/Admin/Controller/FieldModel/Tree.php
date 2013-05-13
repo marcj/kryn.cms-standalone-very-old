@@ -12,11 +12,17 @@ abstract class Tree
      * @param int   $pDepth
      * @param int   $pScope
      * @param mixed $pOptions
+     *
      * @abstract
      *
      * @return array|bool
      */
-    abstract public function getBranch($pParentPrimaryKey = false, $pCondition = false, $pDepth = 1, $pScope = 0,
-        $pOptions = false);
+    abstract public function getBranch(
+        $pParentPrimaryKey = false,
+        $pCondition = false,
+        $pDepth = 1,
+        $pScope = 0,
+        $pOptions = false
+    );
 
 }

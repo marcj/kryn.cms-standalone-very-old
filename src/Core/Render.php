@@ -12,17 +12,16 @@
 
 namespace Core;
 
+use Core\Models\Content;
 use Core\Render\TypeNotFoundException;
 use Propel\Runtime\Map\TableMap;
 use Symfony\Component\EventDispatcher\GenericEvent;
-
-use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpFoundation\Request;
-
-use Core\Models\Content;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 /**
  * Html render class
+ *
  * @author MArc Schmidt <marc@Kryn.org>
  *
  * @events onRenderSlot
@@ -44,9 +43,11 @@ class Render
      * it returns the layouts with all it contents.
      *
      * @static
+     *
      * @param  bool         $pPageId
      * @param  bool         $pSlotId
      * @param  bool         $pProperties
+     *
      * @return mixed|string
      */
     public static function renderPage($pPageId = false, $pSlotId = false, $pProperties = false)
@@ -56,7 +57,7 @@ class Render
         }
 
         Kryn::$forceKrynContent = true;
-        Kryn::getLogger()->addDebug('renderPage('.$pPageId.', '.$pSlotId.')');
+        Kryn::getLogger()->addDebug('renderPage(' . $pPageId . ', ' . $pSlotId . ')');
 
         if ($pPageId == Kryn::$page->getId()) {
             //endless loop
@@ -83,11 +84,13 @@ class Render
 
         Kryn::getEventDispatcher()->dispatch('core.render.contents.pre');
 
-        if (file_exists($file = 'css/_pages/' . $pPageId . '.css'))
+        if (file_exists($file = 'css/_pages/' . $pPageId . '.css')) {
             Kryn::getResponse()->addCssFile($file);
+        }
 
-        if (file_exists($file = 'js/_pages/' . $pPageId . '.js'))
+        if (file_exists($file = 'js/_pages/' . $pPageId . '.js')) {
             Kryn::getResponse()->addJsFile($file);
+        }
 
         self::$contents[$pSlotId] =& PageController::getSlotContents($pSlotId, $pSlotId);
 
@@ -241,7 +244,7 @@ class Render
     public static function renderContent(Content $content, $parameter = array())
     {
 
-        $type  = $content->getType();
+        $type = $content->getType();
         $class = 'Core\\Render\\Type' . ucfirst($type);
 
         if (class_exists($class)) {
@@ -290,174 +293,11 @@ class Render
         Kryn::getEventDispatcher()->dispatch('core/render/content', new GenericEvent($argument));
 
         return $result;
-
-
-
-
-
-
-
-
-
-        $content =& $pContent;
-
-        tAssignRef('content', $content);
-
-        $argument = array(&$content, $pProperties);
-
-        Kryn::getEventDispatcher()->dispatch('core.render.content', new GenericEvent($pContent));
-        Event::fire('preRenderContent', $argument);
-
-        $data = array_merge($data, $content->toArray(TableMap::TYPE_STUDLYPHPNAME));
-
-        switch (strtolower($content->getType())) {
-            case 'text':
-                //replace all [[ with a workaround, so that multilanguage will not fetch.
-                //we replace it later again in the actual send()
-                $data['content'] = str_replace('[[', '\[[', $data['content']);
-
-                break;
-            case 'html':
-                $data['content'] = str_replace('[[', '\[[', $data['content']);
-
-                break;
-            case 'navigation':
-
-                if ($data['content']) {
-                    $temp = json_decode($data['content'], 1);
-                    $temp['id'] = $temp['entryPoint']+0;
-                    unset($temp['entryPoint']);
-
-                    $data['content'] = krynNavigation::get($temp);
-                }
-
-                break;
-            case 'picture':
-
-                /*
-                $temp = explode('::', $content['content']);
-
-                if ($temp[0] != '' && $temp[0] != 'none') {
-                    $opts = json_decode($temp[0], true);
-                    $align = ($opts['align']) ? $opts['align'] : 'left';
-                    $alt = ($opts['alt']) ? $opts['alt'] : '';
-                    $title = ($opts['title']) ? $opts['title'] : '';
-
-                    $imagelink = $temp[1];
-
-                    if ($opts['width'] && $opts['height']) {
-                        $imagelink = resizeImageCached($imagelink, $opts['width'] . 'x' . $opts['height']);
-                    } elseif ($pProperties['picturedimension'] && $opts['forcedimension'] != "1") {
-                        $imagelink = resizeImageCached($imagelink, $pProperties['picturedimension']);
-                    }
-
-                    $link = '';
-                    if ($opts['link'] + 0 > 0) {
-                        $link = Kryn::pageUrl($opts['link']);
-                    } elseif ($opts['link'] != '') {
-                        $link = $opts['link'];
-                    }
-
-                    if ($link == '') {
-                        $content['content'] =
-                            '<div style="text-align: ' . $align . ';"><img src="' . $imagelink . '" alt="' . $alt .
-                            '" title="' . $title . '" /></div>';
-                    } else {
-                        $content['content'] =
-                            '<div style="text-align: ' . $align . ';"><a href="' . $link . '" ><img src="' .
-                            $imagelink . '" alt="' . $alt . '" title="' . $title . '" /></a></div>';
-                    }
-
-                } else {
-                    $content['content'] = '<img src="' . $temp[1] . '" />';
-                }
-                */
-
-                break;
-            case 'template':
-
-                if (substr($data['content'], 0, 1) == '/')
-                    $data['content'] = substr($data['content'], 1);
-
-                $file = str_replace('..', '', $data['content']);
-                if (file_exists(PATH . PATH_WEB . $file)) {
-                    $data['content'] = tFetch($file);
-                }
-                break;
-            case 'pointer':
-
-                if ($data['content'] + 0 > 0 && $data['content'] + 0 != Kryn::$page['id'])
-                    $data['content'] = self::renderContents($data['content'] + 0, 1, $pProperties);
-
-                break;
-
-            case 'layoutelement':
-
-                $oldContents = self::$contents;
-
-                $layoutcontent = json_decode($data['content'], true);
-                self::$contents = $layoutcontent['contents'];
-                $data['content'] = tFetch($layoutcontent['layout']);
-
-                self::$contents = $oldContents;
-
-                break;
-            case 'plugin':
-
-                if ($response = Kryn::getResponse()->getPluginResponse($content)) {
-                    $data['content'] = $response->getContent();
-                } elseif ($data['content']) {
-                    $plugin = json_decode($data['content'], 1);
-                    if ($pluginDef = Kryn::$configs[$plugin['module']]['plugins'][$method = $plugin['plugin']]) {
-                        $clazz = $pluginDef['class'];
-                        if (class_exists($clazz)) {
-
-                            if (method_exists($clazz, $method)) {
-                                //create a sub request
-                                $request = new Request();
-                                $request->attributes->add(array(
-                                    '_controller' => $clazz.'::'.$method,
-                                    'options'     => $plugin['options']
-                                ));
-
-                                ob_start();
-                                $response = Kryn::getHttpKernel()->handle($request, HttpKernelInterface::SUB_REQUEST);
-                                $ob = ob_get_clean();
-
-                                if ($response instanceof Response) {
-                                    Kryn::sendResponse($response);
-                                } else {
-                                    $data['content'] = $ob.$response->getContent();
-                                }
-                            } else {
-                                return '';
-                            }
-                        } else {
-                            $data['content'] = tf('Class `%s` does not exist. You should create this class.', $clazz);
-                        }
-                    } else {
-                        $data['content'] = tf('Plugin `%s` in extension `%s` does not exist. You probably want to install the extension.',
-                            $method, $plugin['module']);
-                    }
-                }
-                break;
-            case 'php':
-                $temp = ob_get_contents();
-                ob_end_clean();
-                ob_start();
-                eval($data['content']);
-                $data['content'] = ob_get_contents();
-                ob_end_clean();
-                ob_start();
-                print $temp;
-                break;
-        }
-
     }
 
     public static function updateDomainCache()
     {
-        $res = dbQuery('SELECT * FROM '.pfx.'system_domain');
+        $res = dbQuery('SELECT * FROM ' . pfx . 'system_domain');
         $domains = array();
 
         while ($domain = dbFetch($res, 1)) {
@@ -485,8 +325,9 @@ class Render
             if (count($redirects) > 0) {
                 foreach ($redirects as $redirect) {
                     $domainName = str_replace(' ', '', $redirect);
-                    if ($domainName != '')
+                    if ($domainName != '') {
                         $domains['_redirects'][$domainName] = $domain['id'];
+                    }
                 }
             }
 
@@ -500,15 +341,18 @@ class Render
 
     public static function updateMenuCache($pDomainRsn)
     {
-        $resu = dbQuery("SELECT id, title, url, pid FROM ".pfx."system_node WHERE
-                         domain_id = $pDomainRsn AND (type = 0 OR type = 1 OR type = 4)");
+        $resu = dbQuery(
+            "SELECT id, title, url, pid FROM " . pfx . "system_node WHERE
+                         domain_id = $pDomainRsn AND (type = 0 OR type = 1 OR type = 4)"
+        );
         $res = array();
         while ($page = dbFetch($resu, 1)) {
 
-            if ($page['type'] == 0)
+            if ($page['type'] == 0) {
                 $res[$page['id']] = self::getParentMenus($page);
-            else
+            } else {
                 $res[$page['id']] = self::getParentMenus($page, true);
+            }
 
         }
 
@@ -526,7 +370,7 @@ class Render
         $res = array();
         while ($pid != 0) {
             $parent_page =
-                dbExfetch("SELECT id, title, url, pid, type FROM ".pfx."system_node WHERE id = " . $pid, 1);
+                dbExfetch("SELECT id, title, url, pid, type FROM " . pfx . "system_node WHERE id = " . $pid, 1);
             if ($parent_page['type'] == 0 || $parent_page['type'] == 1 || $parent_page['type'] == 4) {
                 //page or link or page-mount
                 array_unshift($res, $parent_page);
@@ -543,7 +387,9 @@ class Render
     {
         $pDomainRsn = $pDomainRsn + 0;
 
-        $resu = dbQuery("SELECT id, title, url, type, link FROM ".pfx."system_node WHERE domain_id = $pDomainRsn AND parent_id IS NULL");
+        $resu = dbQuery(
+            "SELECT id, title, url, type, link FROM " . pfx . "system_node WHERE domain_id = $pDomainRsn AND parent_id IS NULL"
+        );
         $res = array('url' => array(), 'id' => array());
 
         $domain = Kryn::getDomain($pDomainRsn);
@@ -556,7 +402,7 @@ class Render
             $res['id'] = array_merge($res['id'], $newRes['id']);
         }
 
-        $aliasRes = dbQuery('SELECT node_id, url FROM '.pfx.'system_node_alias WHERE domain_id = ' . $pDomainRsn);
+        $aliasRes = dbQuery('SELECT node_id, url FROM ' . pfx . 'system_node_alias WHERE domain_id = ' . $pDomainRsn);
         while ($row = dbFetch($aliasRes)) {
             $res['alias'][$row['url']] = $row['node_id'];
         }
@@ -572,7 +418,7 @@ class Render
     public static function updatePage2DomainCache()
     {
         $r2d = array();
-        $res = dbQuery('SELECT id, domain_id FROM '.pfx.'system_node ');
+        $res = dbQuery('SELECT id, domain_id FROM ' . pfx . 'system_node ');
 
         while ($row = dbFetch($res)) {
             $r2d[$row['domain_id']] .= $row['id'] . ',';
@@ -597,9 +443,11 @@ class Render
             }
         }
 
-        $pages = dbExfetchAll("SELECT id, title, url, type, link
-                             FROM ".pfx."system_node
-                             WHERE parent_id = " . $pPage['id']);
+        $pages = dbExfetchAll(
+            "SELECT id, title, url, type, link
+                                         FROM " . pfx . "system_node
+                             WHERE parent_id = " . $pPage['id']
+        );
 
         if (is_array($pages)) {
             foreach ($pages as $page) {
@@ -623,8 +471,9 @@ class Render
     {
         if ($page['type'] == 0) {
             $del = '';
-            if ($pPage['realurl'] != '')
+            if ($pPage['realurl'] != '') {
                 $del = $pPage['realurl'] . '/';
+            }
             $page['realurl'] = $del . $page['url'];
 
         } elseif ($page['type'] == 1) { //link
@@ -632,8 +481,9 @@ class Render
                 $page['realurl'] = $pPage['realurl'];
             } else {
                 $del = '';
-                if ($pPage['realurl'] != '')
+                if ($pPage['realurl'] != '') {
                     $del = $pPage['realurl'] . '/';
+                }
                 $page['realurl'] = $del . $page['url'];
             }
 

@@ -1,7 +1,7 @@
 ka.NodeTree = new Class({
     Extends: ka.ObjectTree,
 
-    addRootIcon: function(pItem, pA){
+    addRootIcon: function (pItem, pA) {
 
         pA.icon = new Element('span', {
             style: 'font-family: Icomoon; font-size: 16px; position: relative; vertical-align: middle; left: -1px',
@@ -10,18 +10,22 @@ ka.NodeTree = new Class({
 
     },
 
-    addItemIcon: function(pItem, pA){
+    addItemIcon: function (pItem, pA) {
         var icon = 'icon-newspaper';
 
-        if (pItem.type == 1) icon = 'icon-link-5'; //link
-        if (pItem.type == 2) icon = 'icon-folder-4'; //folder
-        if (pItem.type == 3) icon = 'icon-clipboard-2'; //deposit
-
+        if (pItem.type == 1) {
+            icon = 'icon-link-5';
+        } //link
+        if (pItem.type == 2) {
+            icon = 'icon-folder-4';
+        } //folder
+        if (pItem.type == 3) {
+            icon = 'icon-clipboard-2';
+        } //deposit
 
         pA.icon = new Element('span', {
-            'class': 'ka-objectTree-item-masks '+icon
+            'class': 'ka-objectTree-item-masks ' + icon
         }).inject(pA, 'top');
-
 
         if ((pItem.type == 0 || pItem.type == 1) && pItem.visible == 0) {
             //pA.icon.setStyle('color', 'silver');

@@ -76,7 +76,7 @@
     "themes": {
         "Kryn.cms": {
             "layouts": [
-                
+
             ],
             "navigations": {
                 "Main": "core\/navigation_main.tpl"
@@ -85,10 +85,10 @@
                 "Default": "core\/content_default.tpl"
             },
             "properties": [
-                
+
             ],
             "publicProperties": [
-                
+
             ],
             "layoutElement": {
                 "Full text": "core\/layoutelement\/full.tpl",
@@ -138,7 +138,7 @@
             "domainDepended": false,
             "chooserFieldType": "default",
             "chooserFieldDataModelCondition": [
-                
+
             ],
             "chooserFieldDataModelField": "path",
             "treeInterface": "default",
@@ -250,7 +250,7 @@
             "defaultSelection": "type, title, alternativeTitle, urn, layout, visible, target",
             "blacklistSelection": "",
             "limitDataSets": [
-                
+
             ],
             "publicUrlGenerator": "\\Core\\PageController::getPublicUrl",
             "propelClass": "",
@@ -277,7 +277,7 @@
             "treeFields": "type, title, accessDenied, accessFromGroups, visible",
             "treeIcon": "type",
             "treeIconMapping": [
-                
+
             ],
             "treeDefaultIcon": "",
             "treeFixedIcon": false,
@@ -288,14 +288,14 @@
             "treeRootFieldFields": "",
             "browserInterfaceClass": "",
             "browserInterfaceOptions": [
-                
+
             ],
             "browserOptions": [
-                
+
             ],
             "browserInterface": "custom",
             "browserColumns": [
-                
+
             ],
             "browserDataModel": "none",
             "fields": {
@@ -444,18 +444,18 @@
             "labelTemplate": "[{lang}] {domain}",
             "defaultSelection": "domain, lang",
             "limitDataSets": [
-                
+
             ],
             "nested": false,
             "dataModel": "propel",
             "multiLanguage": false,
             "domainDepended": false,
             "treeIconMapping": [
-                
+
             ],
             "treeFixedIcon": false,
             "browserColumns": [
-                
+
             ],
             "fields": {
                 "id": {
@@ -502,7 +502,7 @@
                 ]
             ],
             "treeIconMapping": [
-                
+
             ],
             "treeFixedIcon": false,
             "fields": {
@@ -529,18 +529,18 @@
         "Workspace": {
             "table": "system_workspace",
             "limitDataSets": [
-                
+
             ],
             "nested": false,
             "dataModel": "propel",
             "multiLanguage": false,
             "domainDepended": false,
             "treeIconMapping": [
-                
+
             ],
             "treeFixedIcon": false,
             "browserColumns": [
-                
+
             ],
             "fields": {
                 "id": {
@@ -573,7 +573,7 @@
             "defaultSelection": "",
             "blacklistSelection": "",
             "limitDataSets": [
-                
+
             ],
             "nestedLabel": "",
             "nestedRootAsObject": false,
@@ -591,12 +591,12 @@
             "treeFields": "",
             "treeIcon": "",
             "treeIconMapping": [
-                
+
             ],
             "treeDefaultIcon": "",
             "treeFixedIcon": false,
             "browserColumns": [
-                
+
             ],
             "fields": {
                 "path": {
@@ -628,7 +628,7 @@
             "defaultSelection": "nodeId,boxId,template,type,content",
             "blacklistSelection": "",
             "limitDataSets": [
-                
+
             ],
             "propelClass": "",
             "propelClassName": "",
@@ -646,12 +646,12 @@
             "treeFields": "",
             "treeIcon": "",
             "treeIconMapping": [
-                
+
             ],
             "treeDefaultIcon": "",
             "treeFixedIcon": false,
             "browserColumns": [
-                
+
             ],
             "fields": {
                 "id": {
@@ -703,7 +703,7 @@
             "defaultSelection": "",
             "blacklistSelection": "",
             "limitDataSets": [
-                
+
             ],
             "nestedLabel": "",
             "nestedRootAsObject": false,
@@ -721,12 +721,12 @@
             "treeFields": "",
             "treeIcon": "",
             "treeIconMapping": [
-                
+
             ],
             "treeDefaultIcon": "",
             "treeFixedIcon": false,
             "browserColumns": [
-                
+
             ],
             "fields": {
                 "path": {

@@ -13,17 +13,19 @@ ka.WindowAdd = new Class({
 
         this.saveBtn.setText([t('Add'), '#icon-checkmark-6']);
         this.removeBtn.hide();
-        if (this.previewBtn) this.previewBtn.hide();
+        if (this.previewBtn) {
+            this.previewBtn.hide();
+        }
 
         this.ritem = this.retrieveData(true);
 
         this.openAddItem();
 
         var first = this.getContentContainer().getElement('input[type=text]');
-        if (first && first.focus)
+        if (first && first.focus) {
             first.focus();
+        }
     },
-
 
     /**
      * Opens a first step overlay, that points then to the actual form if only nestedAddWithPositionSelection is set.
@@ -32,26 +34,29 @@ ka.WindowAdd = new Class({
      * If nothing is set, this method does nothing.
      *
      */
-    openAddItem: function(){
+    openAddItem: function () {
 
-        if ((this.classProperties.asNested && this.classProperties.nestedAddWithPositionSelection) || this.classProperties.addMultiple){
+        if ((this.classProperties.asNested && this.classProperties.nestedAddWithPositionSelection) ||
+            this.classProperties.addMultiple) {
 
             //show dialog with
             this.createNewFirstDialog();
 
-            if (this.tabPane)
+            if (this.tabPane) {
                 this.tabPane.hide();
+            }
 
-            if (this.classProperties.addMultiple){
+            if (this.classProperties.addMultiple) {
 
-                if (this.classProperties.nestedAddWithPositionSelection){
+                if (this.classProperties.nestedAddWithPositionSelection) {
                     this.addItemMultiAddLayout = new ka.LayoutHorizontal(this.addDialogFieldContainer, {
                         columns: [null, this.classProperties.addMultipleFieldContainerWidth]
                     });
 
                     new ka.LayoutSplitter(this.addItemMultiAddLayout.getColumn(2), 'left');
 
-                    this.addDialogLayoutPositionChooser = this.addNestedObjectPositionChooser(this.addItemMultiAddLayout.getColumn(1));
+                    this.addDialogLayoutPositionChooser =
+                        this.addNestedObjectPositionChooser(this.addItemMultiAddLayout.getColumn(1));
 
                     this.addDialogFieldContainerNested = new Element('div', {
                         'style': 'position: absolute; left: 6px; top: 0; right: 0; bottom: 0; overflow: auto;'
@@ -68,35 +73,37 @@ ka.WindowAdd = new Class({
 
             }
 
-            if (this.addDialogLayoutPositionChooser){
+            if (this.addDialogLayoutPositionChooser) {
 
-                this.addDialogLayoutPositionChooser.addEvent('positionChoose', function(pDom, pDirection, pItem, pChooser, pTree){
+                this.addDialogLayoutPositionChooser.addEvent('positionChoose',
+                    function (pDom, pDirection, pItem, pChooser, pTree) {
 
-                    this.addItemToAdd = {
-                        position: pDirection == 'after' ? 'next' : 'first',
-                        pk: ka.getObjectPk(pDom.objectKey, pItem),
-                        objectKey: pDom.objectKey,
-                        tree: pTree
-                    };
+                        this.addItemToAdd = {
+                            position: pDirection == 'after' ? 'next' : 'first',
+                            pk: ka.getObjectPk(pDom.objectKey, pItem),
+                            objectKey: pDom.objectKey,
+                            tree: pTree
+                        };
 
-                    this.checkAddItemForm();
-                }.bind(this));
+                        this.checkAddItemForm();
+                    }.bind(this));
 
             }
 
-
-            if (!this.classProperties.addMultiple && this.classProperties.nestedAddWithPositionSelection){
+            if (!this.classProperties.addMultiple && this.classProperties.nestedAddWithPositionSelection) {
 
                 this.openAddItemNextButton = new ka.Button(tc('addNestedObjectChoosePositionDialog', t('Next')))
-                .inject(this.openAddItemPageBottom);
+                    .inject(this.openAddItemPageBottom);
 
                 this.openAddItemNextButton.setButtonStyle('blue');
                 this.openAddItemNextButton.setEnabled(false);
-            } else if (this.classProperties.addMultiple){
+            } else if (this.classProperties.addMultiple) {
 
                 this.openAddItemSaveButton = new ka.Button(tc('addMultipleItems', t('Add')))
-                .addEvent('click', function(){ this.multipleAdd(); }.bind(this))
-                .inject(this.openAddItemPageBottom);
+                    .addEvent('click', function () {
+                        this.multipleAdd();
+                    }.bind(this))
+                    .inject(this.openAddItemPageBottom);
 
                 this.openAddItemSaveButton.setButtonStyle('blue');
                 //this.openAddItemSaveButton.setEnabled(false);
@@ -107,124 +114,135 @@ ka.WindowAdd = new Class({
         }
     },
 
-    multipleAdd: function(pClose){
+    multipleAdd: function (pClose) {
 
-        if (!this.addMultipleFieldForm.checkValid()) return false;
+        if (!this.addMultipleFieldForm.checkValid()) {
+            return false;
+        }
 
         var request = this.addMultipleFieldForm.getValue();
 
         this.openAddItemSaveButton.startLaggedTip(t('Still adding ...'));
-        if (this.lastAddRq) this.lastAddRq.cancel();
+        if (this.lastAddRq) {
+            this.lastAddRq.cancel();
+        }
 
         request._multiple = true;
 
-        if (this.addItemToAdd){
+        if (this.addItemToAdd) {
             request._position = this.addItemToAdd.position;
             request._pk = this.addItemToAdd.pk;
             request._targetObjectKey = this.addItemToAdd.objectKey;
         }
 
-        this.lastAddRq = new Request.JSON({url: _pathAdmin + this.getEntryPoint()+'/:multiple',
+        this.lastAddRq = new Request.JSON({url: _pathAdmin + this.getEntryPoint() + '/:multiple',
             noErrorReporting: ['DuplicateKeysException', 'ObjectItemNotModified'],
             noCache: true, onComplete: function (pResponse) {
 
-            if(pResponse.error == 'DuplicateKeysException'){
-                this.win._alert(t('Duplicate keys. Please change the values of marked fields.'));
+                if (pResponse.error == 'DuplicateKeysException') {
+                    this.win._alert(t('Duplicate keys. Please change the values of marked fields.'));
 
-                Array.each(pResponse.fields, function(field){
-                    if (this.fields[field])
-                        this.fields[field].showInvalid();
-                }.bind(this));
+                    Array.each(pResponse.fields, function (field) {
+                        if (this.fields[field]) {
+                            this.fields[field].showInvalid();
+                        }
+                    }.bind(this));
 
-                this.openAddItemSaveButton.stopTip(t('Failed'));
-                return;
-            }
+                    this.openAddItemSaveButton.stopTip(t('Failed'));
+                    return;
+                }
 
-            if (pResponse.error == 'FieldCanNotBeEmptyException'){
-                this.openAddItemSaveButton.stopTip(t('Failed'));
-                return;
-            }
+                if (pResponse.error == 'FieldCanNotBeEmptyException') {
+                    this.openAddItemSaveButton.stopTip(t('Failed'));
+                    return;
+                }
 
-            this.winParams.item = pResponse.data[0]; //our new primary keys for the first item
+                this.winParams.item = pResponse.data[0]; //our new primary keys for the first item
 
-            this.openAddItemSaveButton.stopTip(t('Saved'));
+                this.openAddItemSaveButton.stopTip(t('Saved'));
 
-            if (!pClose && this.saveNoClose) {
-                this.saveNoClose.stopTip(t('Done'));
-            }
+                if (!pClose && this.saveNoClose) {
+                    this.saveNoClose.stopTip(t('Done'));
+                }
 
-            if (this.classProperties.loadSettingsAfterSave == true) ka.loadSettings();
+                if (this.classProperties.loadSettingsAfterSave == true) {
+                    ka.loadSettings();
+                }
 
-            var args = [request, pResponse.data];
-            if (this.addItemToAdd){
-                args.push(this.addItemToAdd.tree);
-            }
-            this.fireEvent('addMultiple', args);
+                var args = [request, pResponse.data];
+                if (this.addItemToAdd) {
+                    args.push(this.addItemToAdd.tree);
+                }
+                this.fireEvent('addMultiple', args);
 
-            window.fireEvent('softReload', this.win.getEntryPoint());
+                window.fireEvent('softReload', this.win.getEntryPoint());
 
-            if (pClose) {
-                this.win.close();
-            }
+                if (pClose) {
+                    this.win.close();
+                }
 
-        }.bind(this)}).post(request);
-
+            }.bind(this)}).post(request);
 
     },
 
-    renderSelectPositionText: function(){
+    renderSelectPositionText: function () {
 
-        if (this.classProperties.nestedAddWithPositionSelection){
+        if (this.classProperties.nestedAddWithPositionSelection) {
             this.selectPositionText = new Element('div', {
                 text: t('Select the position of your new entries!'),
                 style: 'position: absolute; top: 0px; left: 5px; color: gray;'
             }).inject(this.openAddItemPageBottom);
 
-            this.addDialogLayoutPositionChooser.addEvent('positionChoose', function(){
+            this.addDialogLayoutPositionChooser.addEvent('positionChoose', function () {
                 this.selectPositionText.setStyle('display', 'none');
             }.bind(this));
 
-            this.addDialogLayoutPositionChooser.addEvent('positionChoose', function(){
+            this.addDialogLayoutPositionChooser.addEvent('positionChoose', function () {
                 this.selectPositionText.setStyle('display', 'none');
             }.bind(this));
         }
 
     },
 
-    checkAddItemForm: function(){
+    checkAddItemForm: function () {
 
         var valid = true;
 
-        if (!this.addItemToAdd) valid = false;
-
-        if (this.classProperties.addMultiple){
-
-            if (this.addMultipleFieldForm && !this.addMultipleFieldForm.isValid()) valid = false;
-
-            if (this.openAddItemSaveButton)
-                this.openAddItemSaveButton.setEnabled(valid);
+        if (!this.addItemToAdd) {
+            valid = false;
         }
-        if (this.openAddItemNextButton)
+
+        if (this.classProperties.addMultiple) {
+
+            if (this.addMultipleFieldForm && !this.addMultipleFieldForm.isValid()) {
+                valid = false;
+            }
+
+            if (this.openAddItemSaveButton) {
+                this.openAddItemSaveButton.setEnabled(valid);
+            }
+        }
+        if (this.openAddItemNextButton) {
             this.openAddItemNextButton.setEnabled(valid);
+        }
 
     },
 
-    populateAddMultipleForm: function(pContainer){
-
+    populateAddMultipleForm: function (pContainer) {
 
         var fields = {};
 
         if (typeOf(this.classProperties.addMultipleFixedFields) == 'object' &&
-            Object.getLength(this.classProperties.addMultipleFixedFields) > 0){
+            Object.getLength(this.classProperties.addMultipleFixedFields) > 0) {
 
-            Object.each(this.classProperties.addMultipleFixedFields, function(item, key){
+            Object.each(this.classProperties.addMultipleFixedFields, function (item, key) {
                 fields[key] = item;
             });
 
         }
 
         if (typeOf(this.classProperties.addMultipleFields) == 'object' &&
-            Object.getLength(this.classProperties.addMultipleFields) > 0){
+            Object.getLength(this.classProperties.addMultipleFields) > 0) {
 
             fields._items = {
                 label: t('Values per entry'),
@@ -234,18 +252,16 @@ ka.WindowAdd = new Class({
                 fields: {}
             };
 
-            Object.each(this.classProperties.addMultipleFields, function(item, key){
+            Object.each(this.classProperties.addMultipleFields, function (item, key) {
 
                 var column = {};
                 column.label = item.label;
                 column.desc = item.desc;
                 column.width = item.width;
 
-
-                if (item.required && (typeOf(item.withAsteriskIfRequired) == 'null' || item.withAsteriskIfRequired)){
+                if (item.required && (typeOf(item.withAsteriskIfRequired) == 'null' || item.withAsteriskIfRequired)) {
                     column.label += '*';
                 }
-
 
                 fields._items.columns.push(column);
 
@@ -260,7 +276,7 @@ ka.WindowAdd = new Class({
 
     },
 
-    createNewFirstDialog: function(){
+    createNewFirstDialog: function () {
 
         this.addNestedAddPage = new Element('div', {
             'class': 'ka-windowEdit-form-addDialog'
@@ -279,14 +295,13 @@ ka.WindowAdd = new Class({
 
         this.openAddItemCancelButton = new ka.Button(t('Cancel')).inject(this.openAddItemPageBottom);
 
-        this.openAddItemCancelButton.addEvent('click', function(){
+        this.openAddItemCancelButton.addEvent('click', function () {
             alert('todo')
         }.bind(this));
 
-
     },
 
-    addNestedObjectPositionChooser: function(pContainer){
+    addNestedObjectPositionChooser: function (pContainer) {
         var objectOptions = {};
         var fieldObject;
 
@@ -299,10 +314,11 @@ ka.WindowAdd = new Class({
 
         var lastSelected;
 
-        var choosePosition = function(pChooser, pDom, pDirection, pItem, pTree){
+        var choosePosition = function (pChooser, pDom, pDirection, pItem, pTree) {
 
-            if (lastSelected)
+            if (lastSelected) {
                 lastSelected.removeClass('ka-objectTree-positionChooser-item-active');
+            }
 
             lastSelected = pChooser;
             lastSelected.addClass('ka-objectTree-positionChooser-item-active');
@@ -311,14 +327,14 @@ ka.WindowAdd = new Class({
 
         }
 
-        var addChooser = function(pDom, pDirection, pItem, pTree){
+        var addChooser = function (pDom, pDirection, pItem, pTree) {
 
             var div;
 
-            if (pDirection != 'into'){
+            if (pDirection != 'into') {
                 div = new Element('div', {
                     styles: {
-                        paddingLeft: pDom.getStyle('padding-left').toInt()+18
+                        paddingLeft: pDom.getStyle('padding-left').toInt() + 18
                     }
                 }).inject(pDom.childrenContainer, pDirection);
             } else {
@@ -327,44 +343,47 @@ ka.WindowAdd = new Class({
                 pDom.insertedAddChooser = true;
             }
 
-            var a = new Element('a',{
+            var a = new Element('a', {
                 html: ' <------ &nbsp;&nbsp;',
                 'class': 'ka-objectTree-positionChooser-item',
                 href: 'javascript:;',
                 style: 'text-decoration: none;'
             })
-            .addEvent('click', function(){
-                choosePosition(this, pDom, pDirection, pItem, pTree);
-            })
-            .inject(div);
+                .addEvent('click', function () {
+                    choosePosition(this, pDom, pDirection, pItem, pTree);
+                })
+                .inject(div);
 
             new Element('span', {
                 'class': 'ka-objectTree-positionChooser-item-text',
-                text: pDirection == 'into' ? tc('addNestedObjectChoosePositionDialog', 'Into this!') : tc('addNestedObjectChoosePositionDialog', 'Add here!')
+                text: pDirection == 'into' ? tc('addNestedObjectChoosePositionDialog', 'Into this!') :
+                    tc('addNestedObjectChoosePositionDialog', 'Add here!')
             }).inject(a);
 
             return div;
         }
 
-        objectOptions.onChildrenLoaded = function(pItem, pDom, pTree){
+        objectOptions.onChildrenLoaded = function (pItem, pDom, pTree) {
 
-            if (pDom.childrenContainer){
+            if (pDom.childrenContainer) {
                 var children = pDom.childrenContainer.getChildren('.ka-objectTree-item');
-                if (children.length > 0){
-                    pDom.childrenContainer.getChildren('.ka-objectTree-item').each(function(item){
+                if (children.length > 0) {
+                    pDom.childrenContainer.getChildren('.ka-objectTree-item').each(function (item) {
                         addChooser(item, 'after', item.objectEntry, pTree);
                         addChooser(item, 'into', item.objectEntry, pTree);
                     });
                 }
             }
 
-            if (!pDom.insertedAddChooser)
+            if (!pDom.insertedAddChooser) {
                 addChooser(pDom, 'into', pDom.objectEntry, pTree);
+            }
 
         }.bind(this);
 
-        if (this.languageSelect)
+        if (this.languageSelect) {
             objectOptions.scopeLanguage = this.languageSelect.getValue();
+        }
 
         var treeContainer = new Element('div', {
             style: 'position: absolute; left: 0; right: 0; top: 0; bottom: 0; overflow: auto;'
@@ -375,31 +394,34 @@ ka.WindowAdd = new Class({
 
     },
 
-    nestedItemSelected: function(pItem, pDom){
+    nestedItemSelected: function (pItem, pDom) {
         //pDom.objectKey
         //pDom.id
 
-        if (pDom.objectKey == this.classProperties.object){
+        if (pDom.objectKey == this.classProperties.object) {
 
-            if (_this.classProperties.edit){
+            if (_this.classProperties.edit) {
 
-                ka.entrypoint.open(ka.entrypoint.getRelative(_this.win.getEntryPoint(), _this.classProperties.editEntrypoint), {
+                ka.entrypoint.open(ka.entrypoint.getRelative(_this.win.getEntryPoint(),
+                    _this.classProperties.editEntrypoint), {
                     item: pItem.values
                 }, this);
 
             }
 
-        } else if (this.classProperties.nestedRootEdit){
-            var entryPoint = ka.entrypoint.getRelative(this.win.getEntryPoint(), this.classProperties.nestedRootEditEntrypoint);
+        } else if (this.classProperties.nestedRootEdit) {
+            var entryPoint = ka.entrypoint.getRelative(this.win.getEntryPoint(),
+                this.classProperties.nestedRootEditEntrypoint);
             ka.entrypoint.open(entryPoint);
         }
 
     },
 
-
     save: function (pClose) {
 
-        if (this.lastSaveRq) this.lastSaveRq.cancel();
+        if (this.lastSaveRq) {
+            this.lastSaveRq.cancel();
+        }
 
         var request = this.buildRequest();
 
@@ -408,50 +430,55 @@ ka.WindowAdd = new Class({
             this.saveBtn.startTip(t('Adding ...'));
 
             this.lastSaveRq = new Request.JSON({url: _pathAdmin + this.getEntryPoint(),
-            noErrorReporting: ['DuplicateKeysException', 'ObjectItemNotModified'],
-            noCache: true, onComplete: function (res) {
+                noErrorReporting: ['DuplicateKeysException', 'ObjectItemNotModified'],
+                noCache: true, onComplete: function (res) {
 
-                if (res.error == 'RouteNotFoundException'){
-                    return this.win.alert(t('RouteNotFoundException. You setup probably the wrong `editEntrypoint`'));
-                }
+                    if (res.error == 'RouteNotFoundException') {
+                        return this.win.alert(t('RouteNotFoundException. You setup probably the wrong `editEntrypoint`'));
+                    }
 
-                if(res.error == 'DuplicateKeysException'){
-                    this.win._alert(t('Duplicate keys. Please change the values of marked fields.'));
+                    if (res.error == 'DuplicateKeysException') {
+                        this.win._alert(t('Duplicate keys. Please change the values of marked fields.'));
 
-                    Array.each(res.fields, function(field){
-                        if (this.fields[field])
-                            this.fields[field].showInvalid();
-                    }.bind(this));
+                        Array.each(res.fields, function (field) {
+                            if (this.fields[field]) {
+                                this.fields[field].showInvalid();
+                            }
+                        }.bind(this));
 
-                    this.saveBtn.stopTip(t('Failed'));
-                    return;
-                }
+                        this.saveBtn.stopTip(t('Failed'));
+                        return;
+                    }
 
-                if (typeOf(res.data) == 'object'){
-                    this.winParams.item = res.data; //our new primary keys
-                } else {
-                    this.winParams.item = ka.getObjectPk(this.classProperties['object'], request); //maybe we changed some pk
-                }
+                    if (typeOf(res.data) == 'object') {
+                        this.winParams.item = res.data; //our new primary keys
+                    } else {
+                        this.winParams.item = ka.getObjectPk(this.classProperties['object'], request); //maybe we changed some pk
+                    }
 
-                this.saveBtn.stopTip(t('Added'));
+                    this.saveBtn.stopTip(t('Added'));
 
-                if (!pClose && this.saveNoClose) {
-                    this.saveNoClose.stopTip(t('Done'));
-                }
+                    if (!pClose && this.saveNoClose) {
+                        this.saveNoClose.stopTip(t('Done'));
+                    }
 
-                if (this.classProperties.loadSettingsAfterSave == true) ka.loadSettings();
+                    if (this.classProperties.loadSettingsAfterSave == true) {
+                        ka.loadSettings();
+                    }
 
-                this.fireEvent('add', [request, res]);
+                    this.fireEvent('add', [request, res]);
 
-                window.fireEvent('softReload', this.getEntryPoint());
+                    window.fireEvent('softReload', this.getEntryPoint());
 
-                if ((!pClose || this.inline ) && this.classProperties.versioning == true) this.loadVersions();
+                    if ((!pClose || this.inline ) && this.classProperties.versioning == true) {
+                        this.loadVersions();
+                    }
 
-                if (pClose) {
-                    this.win.close();
-                }
+                    if (pClose) {
+                        this.win.close();
+                    }
 
-            }.bind(this)}).post(request);
+                }.bind(this)}).post(request);
         }
     }
 

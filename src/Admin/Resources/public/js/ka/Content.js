@@ -13,7 +13,7 @@ ka.Content = new Class({
 
     contentContainer: null,
 
-    initialize: function(pContent, pSlot, pOptions){
+    initialize: function (pContent, pSlot, pOptions) {
 
         this.slot = pSlot;
         this.setOptions(pOptions);
@@ -24,7 +24,7 @@ ka.Content = new Class({
 
     },
 
-    renderLayout: function(){
+    renderLayout: function () {
 
         this.main = new Element('div', {
             'class': 'ka-content'
@@ -40,11 +40,11 @@ ka.Content = new Class({
 
     },
 
-    fireChange: function(){
+    fireChange: function () {
         this.fireEvent('change');
     },
 
-    addActionBarItems: function(){
+    addActionBarItems: function () {
 
         new Element('a', {
             html: '&#xe0c6;',
@@ -59,32 +59,32 @@ ka.Content = new Class({
             title: t('Remove content'),
             'class': 'icon'
         })
-        .addEvent('click', this.remove)
-        .inject(this.actionBar);
+            .addEvent('click', this.remove)
+            .inject(this.actionBar);
 
     },
 
-    remove: function(){
+    remove: function () {
         this.main.destroy();
         this.actionBar.destroy();
     },
 
-    onOver: function(){
+    onOver: function () {
         this.actionBar.inject(this.main);
     },
 
-    onOut: function(){
+    onOut: function () {
         this.actionBar.dispose();
     },
 
-    toElement: function(){
+    toElement: function () {
         return this.contentContainer || this.main;
     },
 
-    loadTemplate: function(pValue){
+    loadTemplate: function (pValue) {
 
         this.lastRq = new Request.JSON({url: _pathAdmin + 'admin/content/template', noCache: true,
-            onComplete: function(pResponse){
+            onComplete: function (pResponse) {
 
                 this.main.empty();
                 this.main.set('html', pResponse.data);
@@ -100,8 +100,8 @@ ka.Content = new Class({
 
     },
 
-    focus: function(){
-        if (this.contentObject){
+    focus: function () {
+        if (this.contentObject) {
             this.contentObject.focus();
             this.nextFocus = false;
         } else {
@@ -109,37 +109,38 @@ ka.Content = new Class({
         }
     },
 
-    getValue: function(){
+    getValue: function () {
 
-        if (this.contentObject){
+        if (this.contentObject) {
             this.value.content = this.contentObject.getValue();
         }
 
         return this.value;
     },
 
-    setValue: function(pValue){
+    setValue: function (pValue) {
 
         this.value = pValue;
 
         if (!this.currentType || pValue.type != this.currentType || !this.currentTemplate ||
-            this.currentTemplate != pValue.template){
+            this.currentTemplate != pValue.template) {
 
-            if (!this.currentTemplate || this.currentTemplate != pValue.template){
+            if (!this.currentTemplate || this.currentTemplate != pValue.template) {
                 return this.loadTemplate(pValue);
             }
 
-            if (!ka.ContentTypes)
+            if (!ka.ContentTypes) {
                 throw 'No ka.ContentTypes loaded.';
+            }
 
             var clazz = ka.ContentTypes[pValue.type] || ka.ContentTypes[pValue.type.capitalize()];
-            if (clazz){
+            if (clazz) {
                 this.contentObject = new clazz(this);
             } else {
                 throw tf('ka.ContentType `%s` not found.', pValue.type);
             }
 
-            if (this.nextFocus){
+            if (this.nextFocus) {
                 this.focus();
             }
             this.currentType = pValue.type;

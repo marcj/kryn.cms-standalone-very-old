@@ -14,16 +14,20 @@ class Languages
 
     public function getOverviewExtract($pModule, $pLang)
     {
-        if( !$pModule || !$pLang) return array();
+        if (!$pModule || !$pLang) {
+            return array();
+        }
 
-        $extract = \Core\Lang::extractLanguage( $pModule );
-        $translated = \Core\Lang::getLanguage( $pModule, $pLang );
+        $extract = \Core\Lang::extractLanguage($pModule);
+        $translated = \Core\Lang::getLanguage($pModule, $pLang);
 
         $p100 = count($extract);
         $cTranslated = 0;
 
         foreach ($extract as $id => $translation) {
-            if( $translated['translations'][$id] && $translated['translations'][$id] != '' ) $cTranslated++;
+            if ($translated['translations'][$id] && $translated['translations'][$id] != '') {
+                $cTranslated++;
+            }
         }
 
         return array(
@@ -35,7 +39,9 @@ class Languages
 
     public function getAllLanguages($pLang = 'en')
     {
-        if ($pLang == '') $pLang = 'en';
+        if ($pLang == '') {
+            $pLang = 'en';
+        }
 
         $res = array();
         foreach (kryn::$configs as $key => $mod) {
@@ -46,10 +52,11 @@ class Languages
             if (count($res[$key]['lang']) > 0) {
                 $translate = \Core\Lang::getLanguage($key, $pLang);
                 foreach ($res[$key]['lang'] as $key => &$lang) {
-                    if ($translate[$key] != '')
+                    if ($translate[$key] != '') {
                         $lang = $translate[$key];
-                    else
+                    } else {
                         $lang = '';
+                    }
                 }
             }
         }

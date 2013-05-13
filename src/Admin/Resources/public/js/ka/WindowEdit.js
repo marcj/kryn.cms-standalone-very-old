@@ -21,11 +21,12 @@ ka.WindowEdit = new Class({
 
         this.winParams = Object.clone(this.win.getParameter());
 
-        if (!this.winParams.item && this.winParams.values)
-            this.winParams.item = this.winParams.values; //compatibility
+        if (!this.winParams.item && this.winParams.values) {
+            this.winParams.item = this.winParams.values;
+        } //compatibility
 
-        if (!this.windowAdd && !this.winParams.item){
-            this.win.alert('No item given. A edit object window can not be called directly.', function(){
+        if (!this.windowAdd && !this.winParams.item) {
+            this.win.alert('No item given. A edit object window can not be called directly.', function () {
                 this.win.close();
             }.bind(this));
             return;
@@ -47,11 +48,12 @@ ka.WindowEdit = new Class({
         this.win.addEvent('close', this.bCheckClose);
         this.win.addEvent('resize', this.bCheckTabFieldWidth);
 
-        if (this.win.getEntryPoint())
+        if (this.win.getEntryPoint()) {
             this.load();
+        }
     },
 
-    getContentContainer: function(){
+    getContentContainer: function () {
         return this.container;
     },
 
@@ -59,7 +61,7 @@ ka.WindowEdit = new Class({
         this.win.removeEvent('close', this.bCheckClose);
         this.win.removeEvent('resize', this.bCheckTabFieldWidth);
 
-        if (this.languageTip){
+        if (this.languageTip) {
             this.languageTip.stop();
             delete this.languageTip;
         }
@@ -101,9 +103,9 @@ ka.WindowEdit = new Class({
 
     },
 
-    getModule: function(){
-        if (!this.module){
-            if (this.getEntryPoint().indexOf('/') > 0){
+    getModule: function () {
+        if (!this.module) {
+            if (this.getEntryPoint().indexOf('/') > 0) {
                 this.module = this.getEntryPoint().substr(0, this.getEntryPoint().indexOf('/'));
             } else {
                 this.module = this.getEntryPoint();
@@ -112,24 +114,29 @@ ka.WindowEdit = new Class({
         return this.module;
     },
 
-    getEntryPoint: function(){
+    getEntryPoint: function () {
         var restPoint = this.win.getEntryPoint();
-        if (restPoint.substr(restPoint.length-1) == '/'){
-            restPoint = restPoint.substr(0, restPoint.length-1);
+        if (restPoint.substr(restPoint.length - 1) == '/') {
+            restPoint = restPoint.substr(0, restPoint.length - 1);
         }
         return restPoint;
     },
 
     load: function () {
 
-        this.container.set('html', '<div style="text-align: center; padding: 50px; color: silver">'+t('Loading definition ...')+'</div>');
+        this.container.set('html',
+            '<div style="text-align: center; padding: 50px; color: silver">' + t('Loading definition ...') + '</div>');
 
-        new Request.JSON({url: _pathAdmin + this.getEntryPoint(), noCache: true, onComplete: function(pResponse){
+        new Request.JSON({url: _pathAdmin + this.getEntryPoint(), noCache: true, onComplete: function (pResponse) {
 
-            if (!pResponse.error && pResponse.data && pResponse.data._isClassDefinition)
+            if (!pResponse.error && pResponse.data && pResponse.data._isClassDefinition) {
                 this.render(pResponse.data);
-            else
-                this.container.set('html', '<div style="text-align: center; padding: 50px; color: red">'+t('Failed. No correct class definition returned. %s').replace('%s', 'admin/' + this.getEntryPoint()+'?_method=options')+'</div>');
+            }
+            else {
+                this.container.set('html', '<div style="text-align: center; padding: 50px; color: red">' +
+                    t('Failed. No correct class definition returned. %s').replace('%s',
+                        'admin/' + this.getEntryPoint() + '?_method=options') + '</div>');
+            }
 
         }.bind(this)}).get({_method: 'options'});
     },
@@ -155,15 +162,16 @@ ka.WindowEdit = new Class({
 
         var id = ka.getObjectUrlId(this.classProperties['object'], this.winParams.item);
 
-        if (this.lastRq)
+        if (this.lastRq) {
             this.lastRq.cancel();
+        }
 
         this.win.setLoading(true, null, this.container.getCoordinates(this.win));
 
-        this.lastRq = new Request.JSON({url: _pathAdmin + this.getEntryPoint()+'/'+id,
-        noCache: true, onComplete: function (res) {
-            this._loadItem(res.data);
-        }.bind(this)}).get();
+        this.lastRq = new Request.JSON({url: _pathAdmin + this.getEntryPoint() + '/' + id,
+            noCache: true, onComplete: function (res) {
+                this._loadItem(res.data);
+            }.bind(this)}).get();
     },
 
     _loadItem: function (pItem) {
@@ -179,14 +187,15 @@ ka.WindowEdit = new Class({
         this.ritem = this.retrieveData(true);
     },
 
-    setValue: function(pValue){
+    setValue: function (pValue) {
 
         pValue = pValue || {};
 
         this.fieldForm.setValue(pValue);
 
-        if (this.getTitleValue())
+        if (this.getTitleValue()) {
             this.win.setTitle(this.getTitleValue());
+        }
 
         if (this.languageSelect && this.languageSelect.getValue() != pValue.lang) {
             this.languageSelect.setValue(pValue.lang);
@@ -198,24 +207,28 @@ ka.WindowEdit = new Class({
      * Returns the vlaue of the field for the window title.
      * @return {String}
      */
-    getTitleValue: function(){
+    getTitleValue: function () {
 
         var value = this.fieldForm.getValue();
 
         var titleField = this.classProperties.titleField;
-        if (!this.classProperties.titleField){
+        if (!this.classProperties.titleField) {
 
             Object.each(this.fields, function (field, fieldId) {
-                if (field.type != 'tab' && field.type != 'childrenSwitcher')
-                    if (!titleField) titleField = fieldId;
+                if (field.type != 'tab' && field.type != 'childrenSwitcher') {
+                    if (!titleField) {
+                        titleField = fieldId;
+                    }
+                }
             });
         }
 
-        if (!this.fields[titleField]){
-            logger(tf('Field %s ($titleField) for the window title does not exists in the $fields variable', titleField));
+        if (!this.fields[titleField]) {
+            logger(tf('Field %s ($titleField) for the window title does not exists in the $fields variable',
+                titleField));
         }
 
-        if (titleField && this.fields[titleField]){
+        if (titleField && this.fields[titleField]) {
 
             var value = ka.getObjectFieldLabel(
                 value,
@@ -284,7 +297,6 @@ ka.WindowEdit = new Class({
                         }).addEvent('click', this.doPreview.bind(this, page_id, index)).inject(this.previewBox);
                     }
 
-
                 }.bind(this));
 
             }.bind(this));
@@ -307,7 +319,8 @@ ka.WindowEdit = new Class({
         var url = this.previewUrls[pPluginId][pPageRsn];
 
         if (this.versioningSelect.getValue() != '-') {
-            url += '?kryn_framework_version_id=' + this.versioningSelect.getValue() + '&kryn_framework_code=' + pPluginId;
+            url +=
+                '?kryn_framework_version_id=' + this.versioningSelect.getValue() + '&kryn_framework_code=' + pPluginId;
         }
 
         this.lastPreviewWin = window.open(url, '_blank');
@@ -373,7 +386,9 @@ ka.WindowEdit = new Class({
     },
 
     renderVersionItems: function () {
-        if (this.classProperties.versioning != true) return;
+        if (this.classProperties.versioning != true) {
+            return;
+        }
 
         this.versioningSelect.empty();
         this.versioningSelect.chooser.setStyle('width', 210);
@@ -412,12 +427,12 @@ ka.WindowEdit = new Class({
         this.renderActionBar();
 
         this.renderMultilanguage();
-        
+
         this.renderFields();
 
         this.fireEvent('render');
 
-        if (this.winParams){
+        if (this.winParams) {
             this.loadItem();
         }
     },
@@ -444,31 +459,30 @@ ka.WindowEdit = new Class({
 
             this._buttons = this.fieldForm.getTabButtons();
 
-            if (this.fieldForm.firstLevelTabBar)
+            if (this.fieldForm.firstLevelTabBar) {
                 this.topTabGroup = this.fieldForm.firstLevelTabBar.buttonGroup;
+            }
 
         }
 
-
         //generate index, fieldkey => main-tabid
-        Object.each(this.classProperties.fields, function(item, key){
-            if (item.type == 'tab')
+        Object.each(this.classProperties.fields, function (item, key) {
+            if (item.type == 'tab') {
                 this.setFieldToTabIdIndex(item.depends, key);
+            }
         }.bind(this));
 
-
         //generate index, fieldkey => main-tabid
-        Object.each(this.classProperties.tabFields, function(items, key){
+        Object.each(this.classProperties.tabFields, function (items, key) {
             this.setFieldToTabIdIndex(items, key);
         }.bind(this));
 
-
     },
 
-    setFieldToTabIdIndex: function(childs, tabId){
-        Object.each(childs, function(item, key){
+    setFieldToTabIdIndex: function (childs, tabId) {
+        Object.each(childs, function (item, key) {
             this.fieldToTabOIndex[key] = tabId;
-            if (item.depends){
+            if (item.depends) {
                 this.setFieldToTabIdIndex(item.depends, tabId);
             }
         }.bind(this));
@@ -496,7 +510,9 @@ ka.WindowEdit = new Class({
 
         if (this.classProperties.multiLanguage) {
 
-            if (this.classProperties.asNested) return false;
+            if (this.classProperties.asNested) {
+                return false;
+            }
 
             this.win.extendHead();
 
@@ -540,8 +556,7 @@ ka.WindowEdit = new Class({
             }
         }.bind(this));
 
-
-        if (this.languageTip && this.languageSelect.getValue() != ''){
+        if (this.languageTip && this.languageSelect.getValue() != '') {
             this.languageTip.stop();
             delete this.languageTip;
         }
@@ -559,28 +574,25 @@ ka.WindowEdit = new Class({
         this._buttons[ pTab ].stopTip();
     },
 
-    reset: function(){
+    reset: function () {
 
         this.setValue(this.item);
     },
 
-    remove: function(){
+    remove: function () {
 
-
-        this.win.confirm(tf('Really delete %s?', this.getTitleValue()), function(answer){
-
+        this.win.confirm(tf('Really delete %s?', this.getTitleValue()), function (answer) {
 
             this.win.setLoading(true, null, this.container.getCoordinates(this.win));
 
             var object = ka.getObjectUrlId(this.classProperties['object'], this.winParams.item);
-            var objectId = '?object='+object;
+            var objectId = '?object=' + object;
 
-            this.lastDeleteRq = new Request.JSON({url: _pathAdmin + this.getEntryPoint() +'/'+objectId,
-            onComplete: function(pResponse){
-                //todo
-                logger(pResponse);
-            }}).get({_method: 'delete'});
-
+            this.lastDeleteRq = new Request.JSON({url: _pathAdmin + this.getEntryPoint() + '/' + objectId,
+                onComplete: function (pResponse) {
+                    //todo
+                    logger(pResponse);
+                }}).get({_method: 'delete'});
 
         }.bind(this));
 
@@ -600,7 +612,7 @@ ka.WindowEdit = new Class({
 
         this.resetBtn = this.actionBarGroup1.addButton(t('Reset'), '#icon-escape', this.reset.bind(this));
 
-        if (this.classProperties.workspace){
+        if (this.classProperties.workspace) {
             this.showVersionsBtn = this.actionBarGroup1.addButton(t('Versions'), '#icon-history', this.showVersions);
         }
 
@@ -610,78 +622,85 @@ ka.WindowEdit = new Class({
 
         /*if (this.classProperties.versioning == true){
 
-            this.saveAndPublishBtn = new ka.Button([t('Save'), '#icon-checkmark-6'])
-            .addEvent('click', this._save.bind(this, [false,true]))
-            .inject(this.actionBar);
-            // this.saveAndPublishBtn = this.actionsNavi.addButton(t('Save and publish'), '#icon-disk-2', function () {
-            //     _this._save(false, true);
-            // }.bind(this));
-        }*/
-
+         this.saveAndPublishBtn = new ka.Button([t('Save'), '#icon-checkmark-6'])
+         .addEvent('click', this._save.bind(this, [false,true]))
+         .inject(this.actionBar);
+         // this.saveAndPublishBtn = this.actionsNavi.addButton(t('Save and publish'), '#icon-disk-2', function () {
+         //     _this._save(false, true);
+         // }.bind(this));
+         }*/
 
         this.saveBtn = new ka.Button([t('Save'), '#icon-checkmark-6'])
-        .addEvent('click', function(){ this.save(); }.bind(this))
-        .inject(this.actionBar);
+            .addEvent('click', function () {
+                this.save();
+            }.bind(this))
+            .inject(this.actionBar);
 
         document.id(this.saveBtn).addClass('ka-Button-blue');
 
         this.checkTabFieldWidth();
     },
 
-    showVersions: function(){
+    showVersions: function () {
 
         //for now, we use a dialog
 
         var dialog = this.win.newDialog();
 
-
         new ka.ObjectVersionGraph(dialog.content, {
             object: ka.getObjectUrlId(this.classProperties['object'], this.winParams.item)
         });
 
-
     },
 
-    checkTabFieldWidth: function(){
+    checkTabFieldWidth: function () {
 
-        if (!this.topTabGroup) return;
+        if (!this.topTabGroup) {
+            return;
+        }
 
-        if (!this.cachedTabItems)
+        if (!this.cachedTabItems) {
             this.cachedTabItems = document.id(this.topTabGroup).getElements('a');
+        }
 
         var actionsMaxLeftPos = 5;
-        if (this.versioningSelect)
-            actionsMaxLeftPos += document.id(this.versioningSelect).getSize().x+10
+        if (this.versioningSelect) {
+            actionsMaxLeftPos += document.id(this.versioningSelect).getSize().x + 10
+        }
 
-        if (this.languageSelect)
-            actionsMaxLeftPos += document.id(this.languageSelect).getSize().x+10
+        if (this.languageSelect) {
+            actionsMaxLeftPos += document.id(this.languageSelect).getSize().x + 10
+        }
 
         var actionNaviWidth = this.actionsNavi ? document.id(this.actionsNavi).getSize().x : 0;
 
         var fieldsMaxWidth = this.win.titleGroups.getSize().x - actionNaviWidth - 17 - 20 -
-                             (actionsMaxLeftPos + document.id(this.topTabGroup).getPosition(this.win.titleGroups).x);
+            (actionsMaxLeftPos + document.id(this.topTabGroup).getPosition(this.win.titleGroups).x);
 
-
-        if (this.tooMuchTabFieldsButton)
+        if (this.tooMuchTabFieldsButton) {
             this.tooMuchTabFieldsButton.destroy();
+        }
 
         this.cachedTabItems.removeClass('ka-tabGroup-item-last');
         this.cachedTabItems.inject(document.hiddenElement);
         this.cachedTabItems[0].inject(document.id(this.topTabGroup));
         var curWidth = this.cachedTabItems[0].getSize().x;
 
-        var itemCount = this.cachedTabItems.length-1;
+        var itemCount = this.cachedTabItems.length - 1;
 
-        if (!this.overhangingItemsContainer)
+        if (!this.overhangingItemsContainer) {
             this.overhangingItemsContainer = new Element('div', {'class': 'ka-windowEdit-overhangingItemsContainer'});
+        }
 
         var removeTooMuchTabFieldsButton = false, atLeastOneItemMoved = false;
 
-        this.cachedTabItems.each(function(button,id){
-            if (id == 0) return;
+        this.cachedTabItems.each(function (button, id) {
+            if (id == 0) {
+                return;
+            }
 
             curWidth += button.getSize().x;
-            if ((curWidth < fieldsMaxWidth && id < itemCount) || (id == itemCount && curWidth < fieldsMaxWidth+20)) {
+            if ((curWidth < fieldsMaxWidth && id < itemCount) || (id == itemCount && curWidth < fieldsMaxWidth + 20)) {
                 button.inject(document.id(this.topTabGroup));
             } else {
                 atLeastOneItemMoved = true;
@@ -692,19 +711,19 @@ ka.WindowEdit = new Class({
 
         this.cachedTabItems.getLast().addClass('ka-tabGroup-item-last');
 
-        if (atLeastOneItemMoved){
+        if (atLeastOneItemMoved) {
 
             this.tooMuchTabFieldsButton = new Element('a', {
                 'class': 'ka-tabGroup-item ka-tabGroup-item-last'
             }).inject(document.id(this.topTabGroup));
 
             new Element('img', {
-                src: _path+ 'bundles/admin/images/ka.mainmenu-additional.png',
+                src: _path + 'bundles/admin/images/ka.mainmenu-additional.png',
                 style: 'left: 1px; top: 6px;'
             }).inject(this.tooMuchTabFieldsButton);
 
-            this.tooMuchTabFieldsButton.addEvent('click', function(){
-                if (!this.overhangingItemsContainer.getParent()){
+            this.tooMuchTabFieldsButton.addEvent('click', function () {
+                if (!this.overhangingItemsContainer.getParent()) {
                     this.overhangingItemsContainer.inject(this.win.border);
                     ka.openDialog({
                         element: this.overhangingItemsContainer,
@@ -713,10 +732,10 @@ ka.WindowEdit = new Class({
                     });
 
                     /*ka.openDialog({
-                        element: this.chooser,
-                        target: this.box,
-                        onClose: this.close.bind(this)
-                    });*/
+                     element: this.chooser,
+                     target: this.box,
+                     onClose: this.close.bind(this)
+                     });*/
                 }
             }.bind(this));
 
@@ -727,29 +746,32 @@ ka.WindowEdit = new Class({
 
     },
 
-    removeTooltip: function(){
+    removeTooltip: function () {
         this.stopTip();
         this.removeEvent('click', this.removeTooltip);
     },
 
     retrieveData: function (pWithoutEmptyCheck) {
 
-        if (!pWithoutEmptyCheck && !this.fieldForm.checkValid()){
+        if (!pWithoutEmptyCheck && !this.fieldForm.checkValid()) {
             var invalidFields = this.fieldForm.getInvalidFields();
 
             Object.each(invalidFields, function (item, fieldId) {
 
                 var properTabKey = this.fieldToTabOIndex[fieldId];
-                if (!properTabKey) return;
+                if (!properTabKey) {
+                    return;
+                }
                 var tabButton = this.fields[properTabKey];
 
-                if (tabButton && !tabButton.isPressed()){
+                if (tabButton && !tabButton.isPressed()) {
 
                     tabButton.startTip(t('Invalid input!'));
                     tabButton.toolTip.loader.set('src', _path + 'bundles/admin/images/icons/error.png');
                     tabButton.toolTip.loader.setStyle('position', 'relative');
                     tabButton.toolTip.loader.setStyle('top', '-2px');
-                    document.id(tabButton.toolTip).setStyle('top', document.id(tabButton.toolTip).getStyle('top').toInt()+2);
+                    document.id(tabButton.toolTip).setStyle('top',
+                        document.id(tabButton.toolTip).getStyle('top').toInt() + 2);
 
                     tabButton.addEvent('click', this.removeTooltip);
                 } else {
@@ -765,16 +787,16 @@ ka.WindowEdit = new Class({
         var req = this.fieldForm.getValue();
 
         if (this.languageSelect) {
-            if (!pWithoutEmptyCheck && this.languageSelect.getValue() == ''){
+            if (!pWithoutEmptyCheck && this.languageSelect.getValue() == '') {
 
-                if (!this.languageTip){
+                if (!this.languageTip) {
                     this.languageTip = new ka.Tooltip(this.languageSelect, _('Please fill!'), null, null,
                         _path + 'bundles/admin/images/icons/error.png');
                 }
                 this.languageTip.show();
 
                 return false;
-            } else if (!pWithoutEmptyCheck && this.languageTip){
+            } else if (!pWithoutEmptyCheck && this.languageTip) {
                 this.languageTip.stop();
             }
             req['lang'] = this.languageSelect.getValue();
@@ -786,12 +808,16 @@ ka.WindowEdit = new Class({
 
     hasUnsavedChanges: function () {
 
-        if (!this.ritem) return false;
+        if (!this.ritem) {
+            return false;
+        }
 
         var currentData = this.retrieveData(true);
-        if (!currentData) return true;
+        if (!currentData) {
+            return true;
+        }
 
-        return JSON.encode(currentData) == JSON.encode(this.ritem) ? false: true;
+        return JSON.encode(currentData) == JSON.encode(this.ritem) ? false : true;
     },
 
     checkClose: function () {
@@ -809,13 +835,15 @@ ka.WindowEdit = new Class({
         }
     },
 
-    buildRequest: function(){
+    buildRequest: function () {
 
         var req = {};
 
         var data = this.retrieveData();
 
-        if (!data) return;
+        if (!data) {
+            return;
+        }
 
         this.ritem = data;
 
@@ -830,7 +858,9 @@ ka.WindowEdit = new Class({
 
     save: function (pClose) {
 
-        if (this.lastSaveRq) this.lastSaveRq.cancel();
+        if (this.lastSaveRq) {
+            this.lastSaveRq.cancel();
+        }
 
         var request = this.buildRequest();
 
@@ -840,52 +870,57 @@ ka.WindowEdit = new Class({
 
             var objectId = ka.getObjectUrlId(this.classProperties['object'], this.winParams.item);
 
-            this.lastSaveRq = new Request.JSON({url: _pathAdmin + this.getEntryPoint()+'/'+objectId,
-            noErrorReporting: ['DuplicateKeysException', 'ObjectItemNotModified'],
-            noCache: true, onComplete: function (res) {
+            this.lastSaveRq = new Request.JSON({url: _pathAdmin + this.getEntryPoint() + '/' + objectId,
+                noErrorReporting: ['DuplicateKeysException', 'ObjectItemNotModified'],
+                noCache: true, onComplete: function (res) {
 
-                if (res.error == 'RouteNotFoundException'){
-                    this.saveBtn.stopTip(t('Failed'));
-                    return this.win.alert(t('RouteNotFoundException. You setup probably the wrong `editEntrypoint`'));
-                }
+                    if (res.error == 'RouteNotFoundException') {
+                        this.saveBtn.stopTip(t('Failed'));
+                        return this.win.alert(t('RouteNotFoundException. You setup probably the wrong `editEntrypoint`'));
+                    }
 
-                if(res.error == 'DuplicateKeysException'){
-                    this.win.alert(t('Duplicate keys. Please change the values of marked fields.'));
+                    if (res.error == 'DuplicateKeysException') {
+                        this.win.alert(t('Duplicate keys. Please change the values of marked fields.'));
 
-                    Array.each(res.fields, function(field){
-                        if (this.fields[field])
-                            this.fields[field].showInvalid();
-                    }.bind(this));
+                        Array.each(res.fields, function (field) {
+                            if (this.fields[field]) {
+                                this.fields[field].showInvalid();
+                            }
+                        }.bind(this));
 
-                    this.saveBtn.stopTip(t('Failed'));
-                    return;
-                }
+                        this.saveBtn.stopTip(t('Failed'));
+                        return;
+                    }
 
-                if (typeOf(res.data) == 'object'){
-                    this.winParams.item = res.data; //our new primary keys
-                } else {
-                    this.winParams.item = ka.getObjectPk(this.classProperties['object'], request); //maybe we changed some pk
-                }
+                    if (typeOf(res.data) == 'object') {
+                        this.winParams.item = res.data; //our new primary keys
+                    } else {
+                        this.winParams.item = ka.getObjectPk(this.classProperties['object'], request); //maybe we changed some pk
+                    }
 
-                this.saveBtn.stopTip(t('Saved'));
+                    this.saveBtn.stopTip(t('Saved'));
 
-                if (!pClose && this.saveNoClose) {
-                    this.saveNoClose.stopTip(t('Done'));
-                }
+                    if (!pClose && this.saveNoClose) {
+                        this.saveNoClose.stopTip(t('Done'));
+                    }
 
-                if (this.classProperties.loadSettingsAfterSave == true) ka.loadSettings();
+                    if (this.classProperties.loadSettingsAfterSave == true) {
+                        ka.loadSettings();
+                    }
 
-                this.fireEvent('save', [request, res]);
+                    this.fireEvent('save', [request, res]);
 
-                window.fireEvent('softReload', this.getEntryPoint());
+                    window.fireEvent('softReload', this.getEntryPoint());
 
-                if ((!pClose || this.inline ) && this.classProperties.versioning == true) this.loadVersions();
+                    if ((!pClose || this.inline ) && this.classProperties.versioning == true) {
+                        this.loadVersions();
+                    }
 
-                if (pClose) {
-                    this.win.close();
-                }
+                    if (pClose) {
+                        this.win.close();
+                    }
 
-            }.bind(this)}).put(request);
+                }.bind(this)}).put(request);
         }
     }
 });

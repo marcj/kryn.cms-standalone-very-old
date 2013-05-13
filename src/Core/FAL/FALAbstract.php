@@ -14,6 +14,7 @@ abstract class FALAbstract
 {
     /**
      * Current name of the mount point. (in fact, the folder name in media/<folder>)
+     *
      * @var string
      */
     private $mountPoint = '';
@@ -27,6 +28,7 @@ abstract class FALAbstract
 
     /**
      * Constructor
+     *
      * @param string $pMountPoint The mount name for this layer. (in fact, the folder name in media/<folder>)
      * @param array  $pParams
      */
@@ -34,14 +36,16 @@ abstract class FALAbstract
     {
         $this->setMountPoint($pMountPoint);
 
-        if ($pParams)
+        if ($pParams) {
             $this->params = $pParams;
+        }
     }
 
     /**
      * Gets a value of the params.
      *
      * @param  string $pKey
+     *
      * @return mixed
      */
     public function getParam($pKey)
@@ -84,6 +88,7 @@ abstract class FALAbstract
      * Returns the content hash as md5.
      *
      * @param $pPath
+     *
      * @return string
      */
     public function getMd5($pPath)
@@ -96,6 +101,7 @@ abstract class FALAbstract
      * Creates also the full folder path if the they doesnt exist.
      *
      * @param  string $pPath
+     *
      * @return bool
      */
     abstract public function createFile($pPath, $pContent = false);
@@ -105,6 +111,7 @@ abstract class FALAbstract
      * Creates also the full folder path if the they doesnt exist.
      *
      * @param  string $pPath
+     *
      * @return bool
      */
     abstract public function createFolder($pPath);
@@ -117,6 +124,7 @@ abstract class FALAbstract
      *
      * @param  string                    $pPath
      * @param  string                    $pContent
+     *
      * @throws \FileNotWritableException If file is not writable.
      * @return bool
      */
@@ -126,6 +134,7 @@ abstract class FALAbstract
      * Gets the content of a file.
      *
      * @param  string      $pPath
+     *
      * @return bool|string
      */
     abstract public function getContent($pPath);
@@ -181,7 +190,9 @@ abstract class FALAbstract
      * Returns the file count inside $pFolderPath
      *
      * @static
+     *
      * @param  string $pFolderPath
+     *
      * @return mixed
      */
     abstract public function getCount($pFolderPath);
@@ -190,6 +201,7 @@ abstract class FALAbstract
      * Disk usage
      *
      * @param  string     $pPath
+     *
      * @return array|bool [size(bytes), fileCount, folderCount]
      */
     abstract public function getSize($pPath);
@@ -198,6 +210,7 @@ abstract class FALAbstract
      * Checks if a file exists.
      *
      * @param  string $pPath
+     *
      * @return bool
      */
     abstract public function fileExists($pPath);
@@ -208,6 +221,7 @@ abstract class FALAbstract
      *
      * @param  string $pPathSource
      * @param  string $pPathTarget
+     *
      * @return bool
      */
     abstract public function copy($pPathSource, $pPathTarget);
@@ -217,6 +231,7 @@ abstract class FALAbstract
      *
      * @param  string $pPathSource
      * @param  string $pPathTarget
+     *
      * @return bool
      */
     abstract public function move($pPathSource, $pPathTarget);
@@ -228,6 +243,7 @@ abstract class FALAbstract
      * @param  string  $pPattern      Preg regex
      * @param  integer $pDepth        Maximum depth. -1 for unlimited.
      * @param  integer $pCurrentDepth Internal
+     *
      * @return array   Files array
      */
     abstract public function search($pPath, $pPattern, $pDepth = -1, $pCurrentDepth = 1);
@@ -238,6 +254,7 @@ abstract class FALAbstract
      * Removes a file or folder (recursive).
      *
      * @param  string   $pPath
+     *
      * @return bool|int
      */
     abstract public function remove($pPath);
@@ -246,6 +263,7 @@ abstract class FALAbstract
      * Returns true if public access is permitted, false if denied and -1 if has not been defined
      *
      * @param  string   $pPath
+     *
      * @return bool|int
      */
     abstract public function getPublicAccess($pPath);
@@ -255,6 +273,7 @@ abstract class FALAbstract
      *
      * @param  string $pPath
      * @param  bool   $pAccess true if allow, false if deny and -1 if remove the rule
+     *
      * @return bool
      */
     abstract public function setPublicAccess($pPath, $pAccess = false);

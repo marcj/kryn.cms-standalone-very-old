@@ -15,6 +15,7 @@ use Core\Models\Base\LogQuery as BaseLogQuery;
  * long as it does not already exist in the output directory.
  *
  */
-class LogQuery extends BaseLogQuery {
+class LogQuery extends BaseLogQuery
+{
 
 } // LogQuery

@@ -12,16 +12,16 @@ class ObjectView extends \Core\ORM\ORMAbstract
     public function getItem($pPk, $pOptions = null)
     {
 
-        $path    = $pPk['path'];
+        $path = $pPk['path'];
 
-        $module  = $path;
+        $module = $path;
         $subPath = '';
-        if ( ($pos = strpos($path, '/')) !== false) {
+        if (($pos = strpos($path, '/')) !== false) {
             $module = substr($path, 0, $pos);
-            $subPath = substr($path, $pos+1);
+            $subPath = substr($path, $pos + 1);
         }
 
-        $file    = '/module/'.$module.'/view/'.$subPath;
+        $file = '/module/' . $module . '/view/' . $subPath;
         $fileObj = SystemFile::getFile($file);
 
         return $fileObj;
@@ -91,8 +91,9 @@ class ObjectView extends \Core\ORM\ORMAbstract
     {
         $pPath = str_replace('.', '/', $pPath); //debug
 
-        if (substr($pPath, -1) == '/')
+        if (substr($pPath, -1) == '/') {
             $pPath = substr($pPath, 0, -1);
+        }
 
     }
 
@@ -104,14 +105,16 @@ class ObjectView extends \Core\ORM\ORMAbstract
 
         $result = null;
 
-        $path    = $pPk['path'];
-        if ($pDepth === null) $pDepth = 1;
+        $path = $pPk['path'];
+        if ($pDepth === null) {
+            $pDepth = 1;
+        }
 
-        $module  = $path;
+        $module = $path;
         $subPath = '';
-        if ( ($pos = strpos($path, '/')) !== false) {
+        if (($pos = strpos($path, '/')) !== false) {
             $module = substr($path, 0, $pos);
-            $subPath = substr($path, $pos+1);
+            $subPath = substr($path, $pos + 1);
         }
 
         $c = 0;
@@ -123,18 +126,26 @@ class ObjectView extends \Core\ORM\ORMAbstract
 
             $result = array();
             foreach (\Core\Kryn::$extensions as $extension) {
-                $directory = '/module/'.$extension.'/view/';
+                $directory = '/module/' . $extension . '/view/';
                 $file = SystemFile::getFile($directory);
-                if (!$file) continue;
+                if (!$file) {
+                    continue;
+                }
                 $file['name'] = $extension;
-                $file['path'] = $extension.'/';
-                if ($offset && $offset > $c) continue;
-                if ($limit && $limit < $c) continue;
-                if ($pCondition && !\Core\Object::satisfy($file, $pCondition)) continue;
+                $file['path'] = $extension . '/';
+                if ($offset && $offset > $c) {
+                    continue;
+                }
+                if ($limit && $limit < $c) {
+                    continue;
+                }
+                if ($pCondition && !\Core\Object::satisfy($file, $pCondition)) {
+                    continue;
+                }
                 $c++;
 
                 if ($pDepth > 0) {
-                    $children = self::getBranch(array('path' => $extension), $pCondition, $pDepth-1);
+                    $children = self::getBranch(array('path' => $extension), $pCondition, $pDepth - 1);
                     $file['_childrenCount'] = count($children);
                     if ($pDepth > 1 && $file['type'] == 'dir') {
                         $file['_children'] = $children;
@@ -145,21 +156,27 @@ class ObjectView extends \Core\ORM\ORMAbstract
 
         } else {
 
-            $directory = '/module/'.$module.'/view/'.$subPath;
-            $files     = SystemFile::getFiles($directory);
+            $directory = '/module/' . $module . '/view/' . $subPath;
+            $files = SystemFile::getFiles($directory);
 
             foreach ($files as $file) {
-                if ($pCondition && !\Core\Object::satisfy($file, $pCondition)) continue;
+                if ($pCondition && !\Core\Object::satisfy($file, $pCondition)) {
+                    continue;
+                }
 
                 $c++;
-                if ($offset && $offset >= $c) continue;
-                if ($limit && $limit < $c) continue;
+                if ($offset && $offset >= $c) {
+                    continue;
+                }
+                if ($limit && $limit < $c) {
+                    continue;
+                }
 
-                $fPath = $module.'/'.substr($file['path'], strlen('/module/'.$module.'/view/'));
+                $fPath = $module . '/' . substr($file['path'], strlen('/module/' . $module . '/view/'));
                 $file['path'] = $fPath;
 
                 if ($pDepth > 0) {
-                    $children = self::getBranch(array('path' => $fPath), $pCondition, $pDepth-1);
+                    $children = self::getBranch(array('path' => $fPath), $pCondition, $pDepth - 1);
                     $file['_childrenCount'] = count($children);
                     if ($pDepth > 1 && $file['type'] == 'dir') {
                         $file['_children'] = $children;

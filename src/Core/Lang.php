@@ -26,7 +26,7 @@ class Lang
         preg_match('/^nplurals=([0-9]+);/', $pluralForm, $match);
 
         $res['pluralCount'] = intval($match[1]);
-        $res['pluralForm']  = $pluralForm;
+        $res['pluralForm'] = $pluralForm;
 
         return $res;
     }
@@ -90,7 +90,7 @@ class Lang
 
     public static function getPluralPhpFunctionFile($lang)
     {
-        if (!TempFile::exists('core_gettext_plural_fn_' . $lang . '.php')){
+        if (!TempFile::exists('core_gettext_plural_fn_' . $lang . '.php')) {
             $pluralForm = Lang::getPluralForm($lang, true);
 
             $code = "<?php \nfunction gettext_plural_fn_$lang(\$n){\n";
@@ -116,7 +116,7 @@ class Lang
         while (($buffer = fgets($fh)) !== false) {
 
             if (preg_match('/^msgctxt "(((\\\\.)|[^"])*)"/', $buffer, $match)) {
-                $lastWasPlural     = false;
+                $lastWasPlural = false;
                 $nextIsThisContext = $match[1];
             }
 
@@ -126,9 +126,9 @@ class Lang
                     $inHeader = true;
                 } else {
                     $inHeader = false;
-                    $lastId   = $match[1];
+                    $lastId = $match[1];
                     if ($nextIsThisContext) {
-                        $lastId            = $nextIsThisContext . "\004" . $lastId;
+                        $lastId = $nextIsThisContext . "\004" . $lastId;
                         $nextIsThisContext = false;
                     }
 
@@ -137,28 +137,28 @@ class Lang
 
             if (preg_match('/^msgstr "(((\\\\.)|[^"])*)"/', $buffer, $match)) {
                 if ($inHeader == false) {
-                    $lastWasPlural                                  = false;
+                    $lastWasPlural = false;
                     $res['translations'][self::evalString($lastId)] = self::evalString($match[1]);
                 }
             }
 
             if (preg_match('/^msgid_plural "(((\\\\.)|[^"])*)"/', $buffer, $match)) {
                 if ($inHeader == false) {
-                    $lastWasPlural                             = true;
+                    $lastWasPlural = true;
                     $res['plurals'][self::evalString($lastId)] = self::evalString($match[1]);
                 }
             }
 
             if (preg_match('/^msgstr\[([0-9]+)\] "(((\\\\.)|[^"])*)"/', $buffer, $match)) {
                 if ($inHeader == false) {
-                    $lastPluralId                                                  = intval($match[1]);
+                    $lastPluralId = intval($match[1]);
                     $res['translations'][self::evalString($lastId)][$lastPluralId] = self::evalString($match[2]);
                 }
             }
 
             if (preg_match('/^"(((\\\\.)|[^"])*)"/', $buffer, $match)) {
                 if ($inHeader == true) {
-                    $fp                                       = strpos($match[1], ': ');
+                    $fp = strpos($match[1], ': ');
                     $res['header'][substr($match[1], 0, $fp)] = str_replace('\n', '', substr($match[1], $fp + 2));
                 } else {
                     if (is_array($res['translations'][$lastId])) {
@@ -206,7 +206,7 @@ class Lang
 
         if ($current) {
 
-            $current['header']['Plural-Forms']     = $pluralForms;
+            $current['header']['Plural-Forms'] = $pluralForms;
             $current['header']['PO-Revision-Date'] = date('Y-m-d H:iO');
 
             fwrite($fh, 'msgid ""' . "\n" . 'msgstr ""' . "\n");
@@ -240,7 +240,7 @@ class Lang
                 if (strpos($key, "\004") !== false) {
                     //we have a context
                     $context = self::toPoString(substr($key, 0, strpos($key, "\004")));
-                    $id      = self::toPoString(substr($key, strpos($key, "\004") + 1));
+                    $id = self::toPoString(substr($key, strpos($key, "\004") + 1));
                     fwrite($fh, 'msgctxt ' . $context . "\n");
                     fwrite($fh, 'msgid ' . $id . "\n");
                 } else {
@@ -301,7 +301,7 @@ class Lang
                     require_once($class);
                     $className = str_replace(PATH_MODULE . '' . $mod . '/', '', $class);
                     $className = str_replace('.class.php', '', $className);
-                    $tempObj   = new $className();
+                    $tempObj = new $className();
                     if ($tempObj->columns) {
                         self::extractFrameworkFields($tempObj->columns);
                     }
@@ -327,7 +327,7 @@ class Lang
     {
         foreach ($pFields as $field) {
             $GLOBALS['moduleTempLangs'][$field['label']] = $field['label'];
-            $GLOBALS['moduleTempLangs'][$field['desc']]  = $field['desc'];
+            $GLOBALS['moduleTempLangs'][$field['desc']] = $field['desc'];
         }
     }
 

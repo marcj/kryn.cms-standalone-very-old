@@ -15,7 +15,8 @@ var admin_system_development_database = new Class({
 
         new Element('div', {
             style: 'padding: 2px; 0px;',
-            html: _('Current database is:') + ' <b>' + ka.settings.system.db_type + '</b> @ ' + ka.settings.system.db_server
+            html: _('Current database is:') + ' <b>' + ka.settings.system.db_type + '</b> @ ' +
+                ka.settings.system.db_server
         }).inject(this.sqlEntry);
 
         this.sqlArea = new Element('textarea', {
@@ -36,12 +37,13 @@ var admin_system_development_database = new Class({
                 }
             }).inject(this.sqlEntry);
 
-        this.sqlEntryActions = new Element('div', {style: 'text-align: right; position: relative;'}).inject(this.sqlEntry);
+        this.sqlEntryActions =
+            new Element('div', {style: 'text-align: right; position: relative;'}).inject(this.sqlEntry);
 
-        this.sqlStatus = new Element('div', {style: 'position: absolute; left: 5px; top: 2px; color: gray;'}).inject(this.sqlEntryActions);
+        this.sqlStatus = new Element('div',
+            {style: 'position: absolute; left: 5px; top: 2px; color: gray;'}).inject(this.sqlEntryActions);
 
         this.goSql = new ka.Button(_('Execute')).addEvent('click', this.goSql.bind(this)).inject(this.sqlEntryActions);
-
 
         new Element('div', {style: 'padding: 2px; 0px;', html: _('Result:')}).inject(this.sqlEntry);
 
@@ -59,12 +61,15 @@ var admin_system_development_database = new Class({
 
         this.sqlStatus.set('html', _('Loading ...'));
         var start = new Date().get('time');
-        new Request.JSON({url: _pathAdmin + 'admin/system/tools/database/execute', noCache: 1, onComplete: function (res) {
+        new Request.JSON({url: _pathAdmin +
+            'admin/system/tools/database/execute', noCache: 1, onComplete: function (res) {
             var end = new Date().get('time');
 
             var difftime = (end - start).toFixed(2);
 
-            this.sqlStatus.set('html', _('%sms execution time').replace('%s', res.exectime.toFixed(2)) + ', ' + _('%sms fetching time').replace('%s', res.fetchtime.toFixed(2)) + ', ' + _('%sms request time').replace('%s', difftime));
+            this.sqlStatus.set('html', _('%sms execution time').replace('%s', res.exectime.toFixed(2)) + ', ' +
+                _('%sms fetching time').replace('%s', res.fetchtime.toFixed(2)) + ', ' +
+                _('%sms request time').replace('%s', difftime));
 
             this.renderResult(res);
 
@@ -76,8 +81,10 @@ var admin_system_development_database = new Class({
         if (pRes.error) {
 
             this.sqlResult.empty();
-            var t = new Element('div', {text: _('An error has occurred') + ': ', style: 'padding: 15px;'}).inject(this.sqlResult);
-            new Element('div', {html: '<span style="color: gray;">' + pRes.error + "</span>", style: 'padding: 15px;'}).inject(this.sqlResult);
+            var t = new Element('div',
+                {text: _('An error has occurred') + ': ', style: 'padding: 15px;'}).inject(this.sqlResult);
+            new Element('div', {html: '<span style="color: gray;">' + pRes.error +
+                "</span>", style: 'padding: 15px;'}).inject(this.sqlResult);
 
         } else {
             if (pRes.items && pRes.items.length == 0) {
@@ -88,8 +95,8 @@ var admin_system_development_database = new Class({
                 var columns = [];
                 this.sqlResult.empty();
 
-
-                var table = new Element('table', {'class': 'ka-Table-head ka-Table-body', cellspacing: 0, cellpadding: 2}).inject(this.sqlResult);
+                var table = new Element('table',
+                    {'class': 'ka-Table-head ka-Table-body', cellspacing: 0, cellpadding: 2}).inject(this.sqlResult);
                 var thead = new Element('thead').inject(table);
                 var tr = new Element('tr').inject(thead);
 

@@ -2,11 +2,9 @@ ka.Combobox = new Class({
 
     Extends: ka.Select,
 
-    createLayout: function(){
+    createLayout: function () {
 
         this.parent();
-
-
 
     },
 

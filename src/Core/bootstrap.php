@@ -2,7 +2,7 @@
 global $_start;
 global $_time;
 
-$_time  = time();
+$_time = time();
 $_start = microtime(true);
 chdir(__DIR__ . '/../../');
 

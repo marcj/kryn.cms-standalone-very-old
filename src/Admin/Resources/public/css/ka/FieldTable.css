@@ -1,4 +1,3 @@
-
 .ka-fieldTable-hide-definition .ka-fieldTable-definition {
     display: none;
 }
@@ -18,7 +17,6 @@
     display: block;
 }
 
-
 .ka-fieldTable-showDefinition-show .ka-fieldTable-definition {
     display: block;
 }
@@ -26,7 +24,6 @@
 .ka-fieldTable-showDefinition-show-sub > .ka-fieldTable-definition {
     display: block;
 }
-
 
 .ka-fieldTable-children .ka-fieldTable-item {
     border: 1px solid silver;

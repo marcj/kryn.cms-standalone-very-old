@@ -8,16 +8,16 @@ ka.TabPane = new Class({
             'class': 'kwindow-win-tabPane' + (pFull ? ' ka-tabPane-full' : '')
         }).inject(pParent);
 
-        if (pUseThisAsWindowHeader){
+        if (pUseThisAsWindowHeader) {
             this.buttonGroup = pUseThisAsWindowHeader.addSmallTabGroup();
             this.box.addClass('ka-tabPane-tabsInWindowHeader');
-        } else if (!pFull){
+        } else if (!pFull) {
             this.buttonGroup = new ka.SmallTabGroup(this.box);
         }
 
         this.paneBox = new Element('div', {'class': 'kwindow-win-tabPane-pane ka-scrolling'}).inject(this.box);
 
-        if (pFull && !pUseThisAsWindowHeader){
+        if (pFull && !pUseThisAsWindowHeader) {
             this.buttonGroup = new ka.SmallTabGroup(this.box);
             new Element('div', {style: 'clear: both'}).inject(this.box);
         }
@@ -26,12 +26,12 @@ ka.TabPane = new Class({
         this.buttons = [];
     },
 
-    getTabs: function(){
+    getTabs: function () {
 
         var tabs = this.paneBox.getChildren('.ka-tabPane-pane');
         var result = [];
 
-        Array.each(tabs, function(tab){
+        Array.each(tabs, function (tab) {
             result.push({
                 pane: tab,
                 button: tab.button,
@@ -42,7 +42,7 @@ ka.TabPane = new Class({
         return result;
     },
 
-    toElement: function(){
+    toElement: function () {
         return this.box;
     },
 
@@ -55,9 +55,11 @@ ka.TabPane = new Class({
         this.buttonGroup.rerender();
     },
 
-    getSelected: function(){
+    getSelected: function () {
 
-        if (this.index == -1) return;
+        if (this.index == -1) {
+            return;
+        }
 
         return {
             pane: this.panes[this.index],
@@ -90,7 +92,7 @@ ka.TabPane = new Class({
         res.id = id;
         res.pane.id = id;
 
-        if (this.index == -1){
+        if (this.index == -1) {
             this.to(0);
         }
 
@@ -117,7 +119,7 @@ ka.TabPane = new Class({
 
     },
 
-    remove: function(pId){
+    remove: function (pId) {
 
         this.buttons[pId].destroy();
         this.panes[pId].destroy();

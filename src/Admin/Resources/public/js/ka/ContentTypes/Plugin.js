@@ -7,12 +7,11 @@ ka.ContentTypes.Plugin = new Class({
 
     icon: '&#xe271;',
 
-
     options: {
 
     },
 
-    createLayout: function(){
+    createLayout: function () {
 
         this.main = new Element('div', {
             'class': 'ka-normalize ka-content-plugin'
@@ -30,7 +29,7 @@ ka.ContentTypes.Plugin = new Class({
 
     },
 
-    openDialog: function(){
+    openDialog: function () {
         this.dialog = new ka.Dialog(this.main.getDocument().body, {
             title: t('Edit plugin'),
             minWidth: '80%',
@@ -40,7 +39,7 @@ ka.ContentTypes.Plugin = new Class({
             withButtons: true
         });
 
-        this.dialog.addEvent('apply', function(){
+        this.dialog.addEvent('apply', function () {
             this.applyValue();
         }.bind(this));
 
@@ -50,14 +49,14 @@ ka.ContentTypes.Plugin = new Class({
 
         this.dialogPluginChoser.setValue(this.value);
 
-        this.dialogPluginChoser.addEvent('change', function(){
+        this.dialogPluginChoser.addEvent('change', function () {
             this.dialog.center();
         }.bind(this));
 
         this.dialog.center(true);
     },
 
-    applyValue: function(){
+    applyValue: function () {
 
         this.dialog.close();
 
@@ -76,18 +75,22 @@ ka.ContentTypes.Plugin = new Class({
      * @param {String|Object} pValue
      * @return {Object}
      */
-    normalizeValue: function(pValue){
+    normalizeValue: function (pValue) {
 
-        if (typeOf(pValue) == 'object') return pValue;
+        if (typeOf(pValue) == 'object') {
+            return pValue;
+        }
 
-        if (typeOf(pValue) == 'string' && JSON.validate(pValue)){
+        if (typeOf(pValue) == 'string' && JSON.validate(pValue)) {
             return JSON.decode(pValue);
         }
-        if (typeOf(pValue) != 'string') return {};
+        if (typeOf(pValue) != 'string') {
+            return {};
+        }
 
-        var module  = pValue.substr(0, pValue.indexOf('::'));
-        var plugin  = pValue.substr(module.length+2, pValue.substr(module.length+2).indexOf('::'));
-        var options = pValue.substr(module.length+plugin.length+4);
+        var module = pValue.substr(0, pValue.indexOf('::'));
+        var plugin = pValue.substr(module.length + 2, pValue.substr(module.length + 2).indexOf('::'));
+        var options = pValue.substr(module.length + plugin.length + 4);
 
         options = JSON.validate(options) ? JSON.decode(options) : {};
 
@@ -98,15 +101,16 @@ ka.ContentTypes.Plugin = new Class({
         };
     },
 
-    renderValue: function(){
+    renderValue: function () {
 
         this.inner.empty();
 
-        var module  = this.value.module;
-        var plugin  = this.value.plugin;
+        var module = this.value.module;
+        var plugin = this.value.plugin;
         var options = this.value.options;
 
-        if (ka.settings.configs[module] && ka.settings.configs[module].plugins && ka.settings.configs[module].plugins[plugin]){
+        if (ka.settings.configs[module] && ka.settings.configs[module].plugins &&
+            ka.settings.configs[module].plugins[plugin]) {
             var pluginConfig = ka.settings.configs[module].plugins[plugin];
 
             new Element('div', {
@@ -147,11 +151,11 @@ ka.ContentTypes.Plugin = new Class({
 
     },
 
-    getEditorConfig: function(){
+    getEditorConfig: function () {
 
     },
 
-    setValue: function(pValue){
+    setValue: function (pValue) {
         if (!pValue) {
             this.value = null;
             return;
@@ -160,7 +164,7 @@ ka.ContentTypes.Plugin = new Class({
         this.renderValue();
     },
 
-    getValue: function(){
+    getValue: function () {
         return typeOf(this.value) == 'string' ? this.value : JSON.encode(this.value);
     }
 

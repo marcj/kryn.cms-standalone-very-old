@@ -2,13 +2,15 @@
 
 namespace Core\Config;
 
-use Core\Kryn;
 use Admin\Utils;
+use Core\Kryn;
 
 /**
  * Class Asset
  *
- * Paths are relative to `@bundlePath/Resources/public`.
+ * Paths are relative to `
+ *
+ * @bundlePath/Resources/public`.
  */
 class Assets extends Model implements \IteratorAggregate
 {
@@ -97,12 +99,12 @@ class Assets extends Model implements \IteratorAggregate
         if (null === $this->assets) {
             preg_match('/(\@[a-zA-Z0-9\-_\.\\\\]+)/', $this->getPath(), $match);
 
-            $bundleName   = $match ? $match[1] : '';
-            $prefixPath   = $bundleName ? Kryn::getBundleDir($bundleName) . 'Resources/public/' : '';
+            $bundleName = $match ? $match[1] : '';
+            $prefixPath = $bundleName ? Kryn::getBundleDir($bundleName) . 'Resources/public/' : '';
             $offset = strlen($prefixPath);
 
-            $path   = Kryn::resolvePath($this->getPath(), 'Resources/public');
-            $files  = find($path, '', $this->getRecursive());
+            $path = Kryn::resolvePath($this->getPath(), 'Resources/public');
+            $files = find($path, '', $this->getRecursive());
             foreach ($files as $file) {
                 $asset = new Asset();
                 $file = ($bundleName ? $bundleName . '/' : '') . substr($file, $offset);
@@ -117,7 +119,7 @@ class Assets extends Model implements \IteratorAggregate
 
     public function getIterator()
     {
-        return new \ArrayIterator($this->getAssets() ?: array());
+        return new \ArrayIterator($this->getAssets() ? : array());
     }
 
 

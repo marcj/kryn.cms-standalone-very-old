@@ -7,27 +7,23 @@ ka.ObjectVersionGraph = new Class({
         object: null //object url
     },
 
-    initialize: function(pContainer, pOptions){
+    initialize: function (pContainer, pOptions) {
         this.setOptions(pOptions);
         this.container = pContainer;
         this.loadVersions();
     },
 
-    loadVersions: function(){
+    loadVersions: function () {
 
         this.container.set('text', t('Loading ...'));
 
         var objectKey = ka.getObjectKey(this.options.object);
 
-        this.lr = new Request.JSON({url: _path+'admin/object-version',
+        this.lr = new Request.JSON({url: _path + 'admin/object-version',
             noCache: true,
-            onComplete: function(pResponse){
-
-
-
+            onComplete: function (pResponse) {
 
             }.bind(this)}).get({uri: this.options.object});
-
 
     }
 

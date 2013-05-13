@@ -1,5 +1,5 @@
 ka.FieldTypes.Headline = new Class({
-    
+
     Extends: ka.FieldAbstract,
 
     options: {
@@ -8,12 +8,14 @@ ka.FieldTypes.Headline = new Class({
 
     container: null,
 
-    getContainer: function(){
-        if (this.container) return this.container;
+    getContainer: function () {
+        if (this.container) {
+            return this.container;
+        }
 
         this.container = this.fieldInstance.fieldPanel;
 
-        if (this.fieldInstance.main.get('colspan') == 2){
+        if (this.fieldInstance.main.get('colspan') == 2) {
             this.container = this.fieldInstance.main;
         } else if (this.fieldInstance.main.get('tag') == 'td') {
             this.fieldInstance.main.destroy();
@@ -25,13 +27,15 @@ ka.FieldTypes.Headline = new Class({
         return this.container;
     },
 
-    createLayout: function(){
+    createLayout: function () {
         this.setValue(this.options.label);
     },
 
-    setValue: function(pValue){
+    setValue: function (pValue) {
 
-        if (typeOf(pValue) == 'null') return;
+        if (typeOf(pValue) == 'null') {
+            return;
+        }
 
         this.getContainer().empty();
 
@@ -39,7 +43,7 @@ ka.FieldTypes.Headline = new Class({
             text: this.options.label
         }).inject(this.getContainer());
 
-        if (this.options.desc){
+        if (this.options.desc) {
             new Element('div', {
                 'class': 'desc',
                 html: this.options.desc
@@ -47,7 +51,7 @@ ka.FieldTypes.Headline = new Class({
         }
     },
 
-    getValue: function(){
+    getValue: function () {
         return this.getContainer().get('text');
     }
 });

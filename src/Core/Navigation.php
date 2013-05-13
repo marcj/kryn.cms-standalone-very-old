@@ -17,6 +17,7 @@ use Core\Models\NodeQuery;
 /**
  * Navigation class
  * Layer between Layouts and navigation (pages)
+ *
  * @author MArc Schmidt <marc@Kryn.org>
  */
 
@@ -29,10 +30,12 @@ class Navigation
 
     public static function get($pOptions)
     {
-        $view = $pOptions['template'] ?: $pOptions['view'];
+        $view = $pOptions['template'] ? : $pOptions['view'];
         $withFolders = ($pOptions['folders'] == 1) ? true : false;
 
-        $cacheKey = 'core/navigation/' . Kryn::$page->getDomainId().'.'.Kryn::$page->getId() . '_'.md5(json_encode($pOptions));
+        $cacheKey = 'core/navigation/' . Kryn::$page->getDomainId() . '.' . Kryn::$page->getId() . '_' . md5(
+            json_encode($pOptions)
+        );
 
         $navigation = false;
         $fromCache = false;
@@ -48,8 +51,9 @@ class Navigation
         if (!$pOptions['noCache'] && Kryn::$domainProperties['core']['cacheNavigations'] !== 0) {
 
             $cache = Kryn::getDistributedCache($cacheKey);
-            if ($cache && is_array($cache) && $cache['html'] !== null && $cache['mtime'] == $mtime)
+            if ($cache && is_array($cache) && $cache['html'] !== null && $cache['mtime'] == $mtime) {
                 return $cache['html'];
+            }
 
         }
 
@@ -65,7 +69,9 @@ class Navigation
             if ($pOptions['id'] + 0 > 0) {
                 $navigation =& Kryn::getPage($pOptions['id'] + 0);
 
-                if (!$navigation) return null;
+                if (!$navigation) {
+                    return null;
+                }
             }
 
             if ($pOptions['level'] > 1) {
@@ -73,10 +79,11 @@ class Navigation
                 $currentLevel = count(Kryn::$breadcrumbs) + 1;
                 $page = self::arrayLevel(Kryn::$breadcrumbs, $pOptions['level']);
 
-                if ($page && $page->getId() > 0)
+                if ($page && $page->getId() > 0) {
                     $navigation = Kryn::getPage($page->getId());
-                elseif ($pOptions['level'] == $currentLevel + 1)
+                } elseif ($pOptions['level'] == $currentLevel + 1) {
                     $navigation = Kryn::$page;
+                }
             }
 
             if ($pOptions['level'] == 1) {

@@ -52,13 +52,15 @@ ka.LayoutHorizontal = new Class({
      * @param {ka.LayoutVertical|Element} pContainer
      * @param {Object} pOptions
      */
-    initialize: function(pContainer, pOptions){
+    initialize: function (pContainer, pOptions) {
 
         this.setOptions(pOptions);
 
-        if (typeOf(pContainer) == 'null') throw 'pContainer is null.';
+        if (typeOf(pContainer) == 'null') {
+            throw 'pContainer is null.';
+        }
 
-        if (instanceOf(pContainer, ka.LayoutVertical)){
+        if (instanceOf(pContainer, ka.LayoutVertical)) {
             this.vertical = pContainer;
         } else {
             this.vertical = new ka.LayoutVertical(pContainer, {rows: [], gridLayout: true, fixed: this.options.fixed});
@@ -66,45 +68,47 @@ ka.LayoutHorizontal = new Class({
 
         this.container = this.vertical.addHorizontal(this, this.options.height);
 
-        if (this.container && this.container.get('tag') == 'div'){
+        if (this.container && this.container.get('tag') == 'div') {
             //we have no gridLayout, so create a layout with one row and row flexible column.
-            this.layout = new ka.Layout(this.container, {gridLayout: true, layout: [{columns: [null]}]});
+            this.layout = new ka.Layout(this.container, {gridLayout: true, layout: [
+                {columns: [null]}
+            ]});
         }
 
         this.renderColumns();
 
     },
 
-    getLayout: function(){
+    getLayout: function () {
         return this.vertical.getLayout();
     },
 
-    getColumn: function(pColumn){
-        return this.columns[pColumn-1];
+    getColumn: function (pColumn) {
+        return this.columns[pColumn - 1];
     },
 
-    toElement: function(){
+    toElement: function () {
         return this.main;
     },
 
-    renderColumns: function(){
+    renderColumns: function () {
 
-        Array.each(this.options.columns, function(column){
+        Array.each(this.options.columns, function (column) {
 
             this.addColumn(column);
 
         }.bind(this));
     },
 
-    getVertical: function(){
+    getVertical: function () {
         return this.vertical;
     },
 
-    getContainer: function(){
+    getContainer: function () {
         return this.layout ? this.layout.getCell(1, 1) : this.container;
     },
 
-    addColumn: function(pWidth){
+    addColumn: function (pWidth) {
 
         var td = new Element('td', {
             width: pWidth,

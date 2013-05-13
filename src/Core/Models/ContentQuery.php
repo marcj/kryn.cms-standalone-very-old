@@ -15,6 +15,7 @@ use Core\Models\Base\ContentQuery as BaseContentQuery;
  * long as it does not already exist in the output directory.
  *
  */
-class ContentQuery extends BaseContentQuery {
+class ContentQuery extends BaseContentQuery
+{
 
 } // ContentQuery

@@ -69,7 +69,9 @@ body {
 }
 
 /* ie9 hack for gradients */
-:root div, :root span, :root a { filter:none \0/IE9; }
+:root div, :root span, :root a {
+    filter: none    \0/   IE9;
+}
 
 .ka-admin a img,
 .ka-admin a:link img {
@@ -135,12 +137,12 @@ span.selectable span, div.selectable div {
 .ka-main-menu:after {
     width: 10px;
     content: '';
-    background-image: -moz-linear-gradient(left,rgba(0, 0, 0, 0),rgba(0, 0, 0, 0.2));
-    background-image: -ms-linear-gradient(left,rgba(0, 0, 0, 0),rgba(0, 0, 0, 0.2));
-    background-image: -webkit-gradient(linear,0 0,100% 0,from(rgba(0, 0, 0, 0)),to(rgba(0, 0, 0, 0.2)));
-    background-image: -webkit-linear-gradient(left,rgba(0, 0, 0, 0),rgba(0, 0, 0, 0.2));
-    background-image: -o-linear-gradient(left,rgba(0, 0, 0, 0),rgba(0, 0, 0, 0.2));
-    background-image: linear-gradient(left,rgba(0, 0, 0, 0),rgba(0, 0, 0, 0.2));
+    background-image: -moz-linear-gradient(left, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.2));
+    background-image: -ms-linear-gradient(left, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.2));
+    background-image: -webkit-gradient(linear, 0 0, 100% 0, from(rgba(0, 0, 0, 0)), to(rgba(0, 0, 0, 0.2)));
+    background-image: -webkit-linear-gradient(left, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.2));
+    background-image: -o-linear-gradient(left, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.2));
+    background-image: linear-gradient(left, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.2));
     background-repeat: repeat-x;
     position: absolute;
     top: 0;
@@ -297,7 +299,6 @@ a.ka-menu-item-childopener:hover {
     padding-right: 26px;
 }
 
-
 div.ka-mainLinks a.ka-menu-item-childopener img,
 div.ka-mainLinks a.ka-menu-item-childopener:link img {
     vertical-align: middle;
@@ -381,11 +382,11 @@ a.ka-main-menu-item:hover {
     padding-right: 5px;
     font-size: 16px;
 }
+
 .ka-iconbar-item.icon-users span {
     padding-left: 5px;
     font-size: 12px;
 }
-
 
 a.ka-main-menu-item-open,
 a.ka-main-menu-item-open:link {
@@ -479,18 +480,16 @@ a.ka-main-menu-item-open:link {
 }
 
 a.ka-create-search-index-icon.green {
-	 background-position: left -19px;
+    background-position: left -19px;
 }
 
-
 a.ka-create-search-index-icon.yellow {
-     background-position: left -38px;
+    background-position: left -38px;
 }
 
 a.ka-create-search-index-icon.red {
-     background-position: left -57px;
+    background-position: left -57px;
 }
-
 
 .ka-mini-search {
     position: absolute;
@@ -507,7 +506,6 @@ a.ka-create-search-index-icon.red {
     overflow: auto;
     -webkit-overflow-scrolling: touch;
 }
-
 
 .ka-mini-search-loading {
     padding: 5px;
@@ -529,13 +527,11 @@ a.ka-create-search-index-icon.red {
     padding-left: 19px;
 }
 
-
 .ka-mini-search-results a,
 .ka-mini-search-results a:link {
     display: block;
     margin-bottom: 2px;
 }
-
 
 .ka-linkcontext-main {
     position: absolute;
@@ -548,13 +544,11 @@ a.ka-create-search-index-icon.red {
     -moz-border-radius-bottomright: 5px;
 }
 
-
-
 .ka-linkcontext-sub {
-	box-shadow: 1px 1px silver;
+    box-shadow: 1px 1px silver;
     background-color: #444;
     padding: 2px 0px;
-	border: 2px solid silver;
+    border: 2px solid silver;
     -moz-border-radius-topleft: 5px;
     -moz-border-radius-topright: 5px;
     z-index: 120000;
@@ -568,7 +562,6 @@ a.ka-create-search-index-icon.red {
     cursor: pointer;
     border-bottom: 1px solid #777;
 }
-
 
 .ka-linkcontext-main a:hover {
     color: white;
@@ -593,11 +586,6 @@ a.ka-create-search-index-icon.red {
     -moz-border-radius-bottomright: 0px;
 }
 
-
-
-
-
-
 .ka-pages-tree-elementPropertyToolbar {
     position: absolute;
     left: 0px;
@@ -606,9 +594,9 @@ a.ka-create-search-index-icon.red {
     border-top: 2px solid #aaa;
     -moz-border-radius-topleft: 3px;
     -moz-border-radius-topright: 3px;
-/*
-    overflow: auto;
-*/
+    /*
+        overflow: auto;
+    */
     background-color: #cacaca;
 }
 
@@ -619,11 +607,10 @@ a.ka-create-search-index-icon.red {
     color: #666;
     background-color: #bbb;
     margin-bottom: 1px;
-    clear:both;
+    clear: both;
     cursor: pointer;
 
 }
-
 
 .ka-pages-tree-elementPropertyToolbarContent {
     height: 0px;
@@ -645,8 +632,6 @@ a.ka-create-search-index-icon.red {
     padding-top: 3px;
 }
 
-
-
 .ka-pages-tree-elementPropertyToolbarToggler {
     position: absolute;
     left: 0px;
@@ -667,12 +652,9 @@ a.ka-create-search-index-icon.red {
     margin-bottom: 3px;
 }
 
-
 .ka-pages-tree-elementPropertyToolbar select {
     margin: 1px;
 }
-
-
 
 .ka-searchcontext {
     position: absolute;
@@ -715,9 +697,9 @@ a.ka-create-search-index-icon.red {
 }
 
 .ka-searchcontext-arrow {
-	position: absolute;
-	right: 10px;
-	top: -12px;
+    position: absolute;
+    right: 10px;
+    top: -12px;
     width: 15px;
     height: 8px;
 }
@@ -766,13 +748,17 @@ a.ka-create-search-index-icon.red {
 }
 
 @-webkit-keyframes blink {
-  from { opacity: 1.0; }
-  to { opacity: 0.0; }
+    from {
+        opacity: 1.0;
+    }
+    to {
+        opacity: 0.0;
+    }
 }
 
 .blink {
-  -webkit-animation-name: blink;
-  -webkit-animation-iteration-count: infinite;
-  -webkit-animation-timing-function: cubic-bezier(1.0,0,0,1.0);
-  -webkit-animation-duration: 2s;
+    -webkit-animation-name: blink;
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-timing-function: cubic-bezier(1.0, 0, 0, 1.0);
+    -webkit-animation-duration: 2s;
 }

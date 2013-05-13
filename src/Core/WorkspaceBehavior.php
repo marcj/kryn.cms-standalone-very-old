@@ -356,7 +356,7 @@ if (\$this->isModified() && !\$this->isColumnModified(" . $this->getColumnConsta
     protected function addDoBackupRecord(&$script)
     {
         $table = $this->getTable();
-        $versionTable =  '\\' . $this->versionTablePhpName;
+        $versionTable = '\\' . $this->versionTablePhpName;
         if ($table->getNamespace()) {
             $versionTable = '\\' . $table->getNamespace() . $versionTable;
         }
@@ -371,7 +371,7 @@ if (\$this->isModified() && !\$this->isColumnModified(" . $this->getColumnConsta
         $items = static::create(null, $criteria)->find($con);
 
         foreach ($items as $item) {
-            $version = new '.$versionTable.';
+            $version = new ' . $versionTable . ';
 ';
 
         foreach ($this->table->getColumns() as $col) {

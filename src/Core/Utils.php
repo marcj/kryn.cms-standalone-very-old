@@ -48,7 +48,7 @@ class Utils
             "-webkit-border-bottom-right-radius",
             "-webkit-border-radius",
         );
-        $from     = array(
+        $from = array(
             "border-top-left-radius",
             "border-top-right-radius",
             "border-bottom-left-radius",
@@ -61,10 +61,10 @@ class Utils
             $content .= "\n\n/* file: $assetPath */\n\n";
 
             $cssFile = Kryn::resolvePublicPath($assetPath); //admin/css/style.css
-            $cssDir  = dirname($cssFile) . '/'; //admin/css/...
-            $cssDir  = str_repeat('../', substr_count($includePath, '/')) . $cssDir;
+            $cssDir = dirname($cssFile) . '/'; //admin/css/...
+            $cssDir = str_repeat('../', substr_count($includePath, '/')) . $cssDir;
 
-            if (file_exists($file = 'web/bundles/' . $cssFile) || file_exists($file = 'web/' . $cssFile)){
+            if (file_exists($file = 'web/bundles/' . $cssFile) || file_exists($file = 'web/' . $cssFile)) {
                 $h = fopen($file, "r");
                 if ($h) {
                     while (!feof($h) && $h) {
@@ -106,7 +106,7 @@ class Utils
 
         chdir(PATH);
 
-        $key                        = 'kryn' === getArgv(1) ? 'backend' : 'frontend';
+        $key = 'kryn' === getArgv(1) ? 'backend' : 'frontend';
         \Core\Utils::$latency[$key] = microtime(true) - $_start;
 
         $error = error_get_last();
@@ -165,8 +165,8 @@ class Utils
             );
 
             if (Kryn::$config['displayDetailedRestErrors']) {
-                $response['file']       = $pFile;
-                $response['line']       = $pLine;
+                $response['file'] = $pFile;
+                $response['line'] = $pLine;
                 $response['backstrace'] = $pBacktrace ? $pBacktrace : debug_backtrace();
             }
 
@@ -215,16 +215,16 @@ class Utils
         $data['loadCodemirror'] = true;
 
         $traces = array();
-        $count  = count($backtrace);
+        $count = count($backtrace);
         foreach ($backtrace as $trace) {
             $trace['file'] = substr($trace['file'], strlen(PATH));
-            $trace['id']   = $count--;
+            $trace['id'] = $count--;
             // if ($trace['file'] == 'core/bootstrap.php' && $trace['line'] == 74) continue;
             if ($trace['file'] == 'src/Core/global/internal.global.php' && $trace['line'] == 40) {
                 continue;
             }
 
-            $trace['code']    = self::getFileContent($trace['file'], $trace['line'], 5);
+            $trace['code'] = self::getFileContent($trace['file'], $trace['line'], 5);
             $trace['relLine'] = $trace['line'] - 5;
             //$trace['args_string'] = implode(', ', $trace['args']);
             $traces[] = $trace;
@@ -336,7 +336,7 @@ class Utils
             return true;
         }
 
-        $now     = ceil(microtime(true) * 1000);
+        $now = ceil(microtime(true) * 1000);
         $timeout = $now + $pTimeout;
 
         dbDelete('system_app_lock', 'timeout <= ' . $now);

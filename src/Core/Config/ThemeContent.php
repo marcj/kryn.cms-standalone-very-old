@@ -2,7 +2,8 @@
 
 namespace Core\Config;
 
-class ThemeContent extends Model {
+class ThemeContent extends Model
+{
     /**
      * @var string
      */
@@ -13,7 +14,8 @@ class ThemeContent extends Model {
      */
     protected $file;
 
-    public function setupObject(){
+    public function setupObject()
+    {
         $this->label = $this->element->getElementsByTagName('label')->item(0)->nodeValue;
         $this->file = $this->element->getElementsByTagName('file')->item(0)->nodeValue;
     }

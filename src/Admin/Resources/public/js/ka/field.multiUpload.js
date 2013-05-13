@@ -12,7 +12,6 @@ ka.field_multiUpload = new Class({
         this.parentField = pParentField;
         this.parentField.getValue = this.getValue.bind(this);
 
-
         this.uploadedFileNum = 0;
         this.uploadedFiles = {};
 
@@ -25,7 +24,6 @@ ka.field_multiUpload = new Class({
 
     _renderMultiUpload: function () {
 
-
         this.parentField.fieldPanel.setStyle('float', 'left');
 
         this.parentField.input = new Element('input', {
@@ -34,18 +32,19 @@ ka.field_multiUpload = new Class({
             'type': 'text'
         }).inject(this.parentField.fieldPanel);
 
-
         this.uploadBtnId = 'uploadBtn_' + Math.ceil(Math.random() * 100) + '_' + Math.ceil(Math.random() * 100);
         this.uploadBtn = new Element('div', {
             'title': this.options.buttontitle,
             'class': 'kwindow-win-buttonWrapper multiUpload-uploadBtnDiv',
-            'style': 'background : transparent url(' + _path + 'bundles/admin/images/admin-files-uploadFile.png) center center no-repeat;cursor:pointer;' }).inject(this.parentField.main);
+            'style': 'background : transparent url(' + _path +
+                'bundles/admin/images/admin-files-uploadFile.png) center center no-repeat;cursor:pointer;' }).inject(this.parentField.main);
 
         new Element('span', { 'id': this.uploadBtnId }).inject(this.uploadBtn);
         new Element('br', { 'style': 'clear:both;'}).inject(this.parentField.main);
         new Element('hr').inject(this.parentField.main);
 
-        this.uploadedFileContainer = new Element('div', { 'class': 'multiUpload-fileContainer'}).inject(this.parentField.main);
+        this.uploadedFileContainer =
+            new Element('div', { 'class': 'multiUpload-fileContainer'}).inject(this.parentField.main);
         this.fireEvent('render', [this.parentField.main, this.uploadedFileContainer]);
 
     },
@@ -54,7 +53,8 @@ ka.field_multiUpload = new Class({
 
         ka.uploads[this.win.id] = new SWFUpload({
 
-            upload_url: _path + this.options.uploadpath + "?" + window._session.tokenid + "=" + window._session.sessionid,
+            upload_url: _path + this.options.uploadpath + "?" + window._session.tokenid + "=" +
+                window._session.sessionid,
 
             file_post_name: "file",
             flash_url: _path + "admin/swfupload.swf",
@@ -100,11 +100,12 @@ ka.field_multiUpload = new Class({
         ka.uploads[this.win.id].startUpload();
     },
 
-
     _addUploadedFileToPanel: function (pFile, pSecParam) {
 
         //remove empty icon and class if existing
-        if (this.parentField.emptyIcon) this.parentField.emptyIcon.destroy();
+        if (this.parentField.emptyIcon) {
+            this.parentField.emptyIcon.destroy();
+        }
         this.parentField.input.set('class', this.parentField.input.retrieve('oldClass'));
 
         _this = this;
@@ -121,7 +122,8 @@ ka.field_multiUpload = new Class({
 
         //container for each uploaded file
         new Element('br', { 'style': 'clear:both;'}).inject(this.uploadedFileContainer, 'top');
-        fileContainer = new Element('div', { 'class': 'multiUpload-fileContainer'}).inject(this.uploadedFileContainer, 'top');
+        fileContainer =
+            new Element('div', { 'class': 'multiUpload-fileContainer'}).inject(this.uploadedFileContainer, 'top');
         //name and del btn container
         fileNameDiv = new Element('div', { 'class': 'multiUpload-fileName', 'text': fileName}).inject(fileContainer);
 
@@ -137,9 +139,9 @@ ka.field_multiUpload = new Class({
             _this.removeUploadedFile(this.storeKey);
         });
 
-
         //store information in object
-        this.uploadedFiles['UFN' + this.uploadedFileNum] = { 'name': fileName, 'fileContainer': fileContainer, childFields: {} };
+        this.uploadedFiles['UFN' + this.uploadedFileNum] =
+        { 'name': fileName, 'fileContainer': fileContainer, childFields: {} };
 
         //check if the multiupload hast child input elments
         if (this.options.childs) {
@@ -147,10 +149,10 @@ ka.field_multiUpload = new Class({
                 if (this.options.small) {
                     pChildVal.small = true;
                 }
-                this.uploadedFiles['UFN' + this.uploadedFileNum].childFields[pChildKey] = new ka.Field(pChildVal, pChildKey + '-' + this.uploadedFileNum).inject(fileContainer);
+                this.uploadedFiles['UFN' + this.uploadedFileNum].childFields[pChildKey] =
+                    new ka.Field(pChildVal, pChildKey + '-' + this.uploadedFileNum).inject(fileContainer);
             }.bind(this));
         }
-
 
         this.fireEvent('upload', [this.uploadedFileNum, this.uploadedFiles]);
         this.uploadedFileNum++;
@@ -161,11 +163,11 @@ ka.field_multiUpload = new Class({
 
         //tooltip
         if (!this.uploadedFiles[pStoreKey].fileContainer.toolTip) {
-            this.uploadedFiles[pStoreKey].fileContainer.toolTip = new ka.Tooltip(this.uploadedFiles[pStoreKey].fileContainer, _('Delete ...'));
+            this.uploadedFiles[pStoreKey].fileContainer.toolTip =
+                new ka.Tooltip(this.uploadedFiles[pStoreKey].fileContainer, _('Delete ...'));
         }
         this.uploadedFiles[pStoreKey].fileContainer.toolTip.setText(_('Delete ...'));
         this.uploadedFiles[pStoreKey].fileContainer.toolTip.show();
-
 
         new Request.JSON({ url: _path + this.options.deletepath,
             onComplete: function (pRes) {
@@ -175,12 +177,10 @@ ka.field_multiUpload = new Class({
 
                 this.fireEvent('remove', [ pStoreKey, pRes]);
 
-
             }.bind(this)
         }).post({ 'path': this.options.savepath, 'name': this.uploadedFiles[pStoreKey].name });
 
     },
-
 
     isEmpty: function () {
         var childsAreEmpty = false;
@@ -213,7 +213,6 @@ ka.field_multiUpload = new Class({
             }
 
             res[counter].name = pFile.name;
-
 
             $H(pFile.childFields).each(function (pChild, pChildKey) {
                 logger('childKey:' + pChildKey);

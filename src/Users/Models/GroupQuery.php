@@ -15,6 +15,7 @@ use Users\Models\Base\GroupQuery as BaseGroupQuery;
  * long as it does not already exist in the output directory.
  *
  */
-class GroupQuery extends BaseGroupQuery {
+class GroupQuery extends BaseGroupQuery
+{
 
 } // GroupQuery

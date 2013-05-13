@@ -67,13 +67,16 @@ class SearchIndexer
 
     public static function getIndexedPages4AllDomains()
     {
-        $items = dbExfetch('
-            SELECT max(d.domain) as domain, max(d.lang) as lang, count(s.domain_id)+0 as indexedcount
-            FROM %pfx%system_domains d
-            LEFT OUTER JOIN %pfx%system_search s ON (s.domain_id = d.id AND s.mdate > 0 AND (blacklist IS NULL OR blacklist = 0) )
+        $items = dbExfetch(
+            '
+                        SELECT max(d.domain) as domain, max(d.lang) as lang, count(s.domain_id)+0 as indexedcount
+                        FROM %pfx%system_domains d
+                        LEFT OUTER JOIN %pfx%system_search s ON (s.domain_id = d.id AND s.mdate > 0 AND (blacklist IS NULL OR blacklist = 0) )
 
-            GROUP BY d.id
-        ', -1);
+                        GROUP BY d.id
+                    ',
+            -1
+        );
 
         return $items;
     }
@@ -81,13 +84,17 @@ class SearchIndexer
     public static function getNewUnindexedPages()
     {
         $res['access'] = self::hasPermission();
-        if ($res['access'] == false) return $res;
+        if ($res['access'] == false) {
+            return $res;
+        }
 
-        $dres = dbExec('
-        SELECT p.id, p.title, p.domain_id FROM %pfx%system_page p
-        WHERE p.type = 0 AND p.id NOT IN( SELECT page_id FROM %pfx%system_search )
-        AND (p.unsearchable != 1 OR p.unsearchable IS NULL)
-        ');
+        $dres = dbExec(
+            '
+                    SELECT p.id, p.title, p.domain_id FROM %pfx%system_page p
+                    WHERE p.type = 0 AND p.id NOT IN( SELECT page_id FROM %pfx%system_search )
+                    AND (p.unsearchable != 1 OR p.unsearchable IS NULL)
+                    '
+        );
 
         $res['pages'] = array();
 
@@ -113,14 +120,19 @@ class SearchIndexer
     public static function getWaitlist()
     {
         $res['access'] = self::hasPermission();
-        if ($res['access'] == false) return $res;
+        if ($res['access'] == false) {
+            return $res;
+        }
 
         $blacklistTimeout = time() - krynSearch::$blacklistTimeout;
 
-        $res['pages'] = dbExfetch('
-            SELECT s.url, d.domain, d.master, d.lang, d.path FROM %pfx%system_search s, %pfx%system_domains d WHERE
-            d.id = s.domain_id AND s.mdate = 0 AND (s.blacklist IS NULL OR  s.blacklist < ' . $blacklistTimeout . ' )'
-            , -1);
+        $res['pages'] = dbExfetch(
+            '
+                        SELECT s.url, d.domain, d.master, d.lang, d.path FROM %pfx%system_search s, %pfx%system_domains d WHERE
+                        d.id = s.domain_id AND s.mdate = 0 AND (s.blacklist IS NULL OR  s.blacklist < ' . $blacklistTimeout . ' )'
+            ,
+            -1
+        );
 
         return $res;
     }
@@ -128,16 +140,21 @@ class SearchIndexer
     public static function getIndex()
     {
         $res['access'] = self::hasPermission();
-        if ($res['access'] == false) return $res;
+        if ($res['access'] == false) {
+            return $res;
+        }
 
         $blacklistTimeout = time() - krynSearch::$blacklistTimeout;
         $nextCheckTimeout = time() - krynSearch::$minWaitTimeTillNextCrawl;
 
-        $res['pages'] = dbExfetch('
-            SELECT s.url, d.domain, d.master, d.lang, d.path FROM %pfx%system_search s, %pfx%system_domains d WHERE
-            d.id = s.domain_id AND s.mdate < ' . $nextCheckTimeout . '  AND (s.blacklist IS NULL OR  s.blacklist < ' .
-                                  $blacklistTimeout . ' )'
-            , -1);
+        $res['pages'] = dbExfetch(
+            '
+                        SELECT s.url, d.domain, d.master, d.lang, d.path FROM %pfx%system_search s, %pfx%system_domains d WHERE
+                        d.id = s.domain_id AND s.mdate < ' . $nextCheckTimeout . '  AND (s.blacklist IS NULL OR  s.blacklist < ' .
+                $blacklistTimeout . ' )'
+            ,
+            -1
+        );
 
         return $res;
     }
@@ -155,7 +172,9 @@ class SearchIndexer
 
         $id = getArgv('crawlerId', 1);
         $crawler = PATH_MODULE . "admin/crawler.php";
-        if (!file_exists($crawler)) false;
+        if (!file_exists($crawler)) {
+            false;
+        }
         include($crawler);
 
         if (!$currentCrawler || $currentCrawler['id'] == $id || time() - $currentCrawler['time'] > $timeout) {

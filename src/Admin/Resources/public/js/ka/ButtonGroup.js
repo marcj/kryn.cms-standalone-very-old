@@ -2,7 +2,6 @@ ka.ButtonGroup = new Class({
 
     Implements: [Events, Options],
 
-
     options: {
         onlyIcons: false
     },
@@ -17,7 +16,7 @@ ka.ButtonGroup = new Class({
         }).inject(pParent);
     },
 
-    toElement: function(){
+    toElement: function () {
         return this.box;
     },
 
@@ -59,11 +58,11 @@ ka.ButtonGroup = new Class({
             wrapper.setStyle('padding', '3px 0px');
         }
 
-        if (typeOf(pIcon) == 'string'){
+        if (typeOf(pIcon) == 'string') {
             if (this.options.onlyIcons) {
                 wrapper.addClass('ka-buttonGroup-item-only-icon');
             }
-            if (pIcon.substr(0,1) == '#'){
+            if (pIcon.substr(0, 1) == '#') {
                 wrapper.addClass('ka-buttonGroup-item-with-icon');
                 wrapper.addClass(pIcon.substr(1));
             } else {
@@ -120,7 +119,7 @@ ka.ButtonGroup = new Class({
         return wrapper;
     },
 
-    setPressed: function(pPressed){
+    setPressed: function (pPressed) {
 
         this.box.getChildren().each(function (button) {
             button.setPressed(pPressed);

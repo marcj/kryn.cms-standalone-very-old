@@ -1,6 +1,6 @@
 var admin_backend_chooser = new Class({
 
-    Implements: [Events,Options],
+    Implements: [Events, Options],
 
     options: {
         cookie: 'kFieldChooser',
@@ -10,12 +10,12 @@ var admin_backend_chooser = new Class({
         objectOptions: {}
 
         /*
-        <objectId>: {
-            <objectbrowserOptions>
-        }
-        files:
+         <objectId>: {
+         <objectbrowserOptions>
+         }
+         files:
 
-        */
+         */
     },
 
     objectChooserInstance: {},
@@ -33,12 +33,15 @@ var admin_backend_chooser = new Class({
         this.cookie = (this.win.params.cookie) ? this.win.params.cookie : '';
         this.cookie = 'kFieldChooser_' + this.cookie + '_';
 
-        if (!this.options.browserOptions)
+        if (!this.options.browserOptions) {
             this.options.browserOptions = {};
+        }
 
         this.bottomBar = this.win.addBottomBar();
         this.bottomBar.addButton(t('Close'), this.win.close.bind(this.win));
-        this.bottomBar.addButton(t('Choose'), function(){this.choose();}.bind(this));
+        this.bottomBar.addButton(t('Choose'), function () {
+            this.choose();
+        }.bind(this));
 
         this._createLayout();
     },
@@ -55,43 +58,43 @@ var admin_backend_chooser = new Class({
         this.tapPane.addEvent('change', this.changeTab.bind(this));
 
         /*
-        if (this.options.pages) {
-            this.createPages();
-            if (this.win.params.domain) {
-                this.renderDomain(this.win.params.domain);
-            } else {
-                if (this.options.only_language) {//only view pages from this langauge and doesnt appear the language-selectbox
-                    this.language = this.options.only_language;
-                    this.loadPages();
-                } else {
-                    this.createLanguageBox();
-                }
-            }
-        }*/
+         if (this.options.pages) {
+         this.createPages();
+         if (this.win.params.domain) {
+         this.renderDomain(this.win.params.domain);
+         } else {
+         if (this.options.only_language) {//only view pages from this langauge and doesnt appear the language-selectbox
+         this.language = this.options.only_language;
+         this.loadPages();
+         } else {
+         this.createLanguageBox();
+         }
+         }
+         }*/
 
         var needDomainSelection = false;
         var needLanguageSelection = false;
 
-
-        if (this.options.objects){
-            Array.each(this.options.objects, function(objectKey){
+        if (this.options.objects) {
+            Array.each(this.options.objects, function (objectKey) {
 
                 var object = ka.getObjectDefinition(objectKey);
 
                 this.createObjectChooser(objectKey);
 
-                if (object.multiLanguage)
+                if (object.multiLanguage) {
                     needLanguageSelection = true;
-                if (object.domainDepended)
+                }
+                if (object.domainDepended) {
                     needDomainSelection = true;
+                }
 
             }.bind(this));
         }
 
-
         var domainRight = 1;
 
-        if (needLanguageSelection){
+        if (needLanguageSelection) {
             this.sLanguage = new ka.Select(this.win.titleGroups);
 
             document.id(this.sLanguage).setStyles({
@@ -100,7 +103,7 @@ var admin_backend_chooser = new Class({
                 'top': 0,
                 'width': 110
             });
-            domainRight =+ 134;
+            domainRight = +134;
 
             this.sLanguage.addEvent('change', this.changeLanguage.bind(this));
 
@@ -111,7 +114,7 @@ var admin_backend_chooser = new Class({
             }.bind(this));
         }
 
-        if (needDomainSelection){
+        if (needDomainSelection) {
             this.sDomain = new ka.Select(this.win.titleGroups);
 
             document.id(this.sDomain).setStyles({
@@ -124,46 +127,47 @@ var admin_backend_chooser = new Class({
             this.sDomain.addEvent('change', this.changeDomain.bind(this));
 
             Object.each(ka.settings.domains, function (domain) {
-                this.sDomain.add(domain.id, '['+domain.lang+'] '+ domain.domain);
+                this.sDomain.add(domain.id, '[' + domain.lang + '] ' + domain.domain);
             }.bind(this));
         }
-
 
         this.changeTab(0);
     },
 
-    changeTab: function(pTabIndex){
+    changeTab: function (pTabIndex) {
 
         var objectKey = this.pane2ObjectId[pTabIndex];
-        if (!objectKey) return;
+        if (!objectKey) {
+            return;
+        }
 
         var definition = ka.getObjectDefinition(objectKey);
 
-        if (definition.multiLanguage)
+        if (definition.multiLanguage) {
             this.sLanguage.setStyle('visibility', 'visible');
-        else if (this.sLanguage)
+        }
+        else if (this.sLanguage) {
             this.sLanguage.setStyle('visibility', 'hidden');
+        }
 
-        if (definition.domainDepended)
+        if (definition.domainDepended) {
             this.sDomain.setStyle('visibility', 'visible');
-        else if (this.sDomain)
+        }
+        else if (this.sDomain) {
             this.sDomain.setStyle('visibility', 'hidden');
-
-
-    },
-
-    changeDomain: function(){
-
-
+        }
 
     },
 
-    changeLanguage: function(){
-
+    changeDomain: function () {
 
     },
 
-    createObjectChooser: function(pObjectKey){
+    changeLanguage: function () {
+
+    },
+
+    createObjectChooser: function (pObjectKey) {
 
         var objectDefinition = ka.getObjectDefinition(pObjectKey);
 
@@ -172,22 +176,23 @@ var admin_backend_chooser = new Class({
 
         var objectOptions = this.options.browserOptions[pObjectKey];
 
-        if (this.options.objects.length == 1 && !objectOptions){
+        if (this.options.objects.length == 1 && !objectOptions) {
             objectOptions = this.options.browserOptions;
         }
 
-        if (!objectOptions)
+        if (!objectOptions) {
             objectOptions = {};
+        }
 
         objectOptions.multi = this.options.multi;
 
-        if (objectDefinition.browserInterface == 'custom' && objectDefinition.browserInterfaceClass){
+        if (objectDefinition.browserInterface == 'custom' && objectDefinition.browserInterfaceClass) {
 
             var chooserClass = window[objectDefinition.browserInterfaceClass];
 
             var chooserClass = ka.getClass(objectDefinition.browserInterfaceClass);
 
-            if (!chooserClass){
+            if (!chooserClass) {
                 this.win._alert(t("Can't find chooser class '%class%' in object '%object%'.")
                     .replace('%class%', objectDefinition.browserInterfaceClass)
                     .replace('%object%', pObjectKey)
@@ -199,7 +204,7 @@ var admin_backend_chooser = new Class({
                     this.win
                 );
             }
-        } else if (objectDefinition.nested){
+        } else if (objectDefinition.nested) {
 
             objectOptions.type = 'tree';
             objectOptions.objectKey = pObjectKey;
@@ -219,13 +224,13 @@ var admin_backend_chooser = new Class({
 
         }
 
-        if (this.objectChooserInstance[pObjectKey] && this.objectChooserInstance[pObjectKey].addEvent){
+        if (this.objectChooserInstance[pObjectKey] && this.objectChooserInstance[pObjectKey].addEvent) {
 
-            this.objectChooserInstance[pObjectKey].addEvent('select', function(){
+            this.objectChooserInstance[pObjectKey].addEvent('select', function () {
                 this.deselectAll(pObjectKey);
             }.bind(this));
 
-            this.objectChooserInstance[pObjectKey].addEvent('instantSelect', function(){
+            this.objectChooserInstance[pObjectKey].addEvent('instantSelect', function () {
                 this.choose(pObjectKey);
             }.bind(this));
 
@@ -233,11 +238,11 @@ var admin_backend_chooser = new Class({
 
     },
 
-    deselectAll: function(pWithoutThisObjectKey){
+    deselectAll: function (pWithoutThisObjectKey) {
 
-        Object.each(this.objectChooserInstance, function(obj, objectKey){
+        Object.each(this.objectChooserInstance, function (obj, objectKey) {
 
-            if (obj && objectKey != pWithoutThisObjectKey && obj.deselect){
+            if (obj && objectKey != pWithoutThisObjectKey && obj.deselect) {
                 obj.deselect();
             }
 
@@ -245,21 +250,23 @@ var admin_backend_chooser = new Class({
 
     },
 
-    choose: function(pObjectKey){
+    choose: function (pObjectKey) {
 
-        if (!pObjectKey)
+        if (!pObjectKey) {
             pObjectKey = this.pane2ObjectId[this.tapPane.index];
+        }
 
-        if (pObjectKey && this.objectChooserInstance[pObjectKey] && this.objectChooserInstance[pObjectKey].getValue){
+        if (pObjectKey && this.objectChooserInstance[pObjectKey] && this.objectChooserInstance[pObjectKey].getValue) {
 
             var selected = this.objectChooserInstance[pObjectKey].getValue();
 
-            if (typeOf(selected) == 'undefined')
+            if (typeOf(selected) == 'undefined') {
                 return false;
+            }
 
-            if (typeOf(selected) == 'object'){
+            if (typeOf(selected) == 'object') {
                 selected = ka.getObjectUrlId(pObjectKey, selected);
-                selected = 'object://'+pObjectKey+'/'+selected;
+                selected = 'object://' + pObjectKey + '/' + selected;
             }
 
             this.saveCookie();

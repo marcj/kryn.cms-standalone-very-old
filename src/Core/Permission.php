@@ -12,9 +12,8 @@
 
 namespace Core;
 
-use Users\Models\User;
-use Core\Models\AclQuery;
 use Core\Models\Acl;
+use Core\Models\AclQuery;
 
 class Permission
 {
@@ -95,19 +94,23 @@ class Permission
      *
      *
      * @static
-     * @param $pObjectKey
+     *
+     * @param        $pObjectKey
      * @param  int   $pMode
      * @param  bool  $pForce
+     *
      * @return mixed
      *
      */
-    public static function &getRules($pObjectKey, $pMode = 1, $pTargetType = null, $pTargetId = null, $pForce = false) {
+    public static function &getRules($pObjectKey, $pMode = 1, $pTargetType = null, $pTargetId = null, $pForce = false)
+    {
 
         $pObjectKey = str_replace('.', '\\', $pObjectKey);
 
         if (static::getCaching()) {
-            if (self::$cache[$pObjectKey.'_'.$pMode] && $pForce == false)
-                return self::$cache[$pObjectKey.'_'.$pMode];
+            if (self::$cache[$pObjectKey . '_' . $pMode] && $pForce == false) {
+                return self::$cache[$pObjectKey . '_' . $pMode];
+            }
         }
 
         if ($pTargetType === null && Kryn::getClient()->hasSession()) {
@@ -133,10 +136,12 @@ class Permission
         }
 
         if ($pTargetType == self::GROUP) {
-            $inGroups = $pTargetId+0;
+            $inGroups = $pTargetId + 0;
         }
 
-        if (!$inGroups) $inGroups = '0';
+        if (!$inGroups) {
+            $inGroups = '0';
+        }
 
         $pMode += 0;
 
@@ -153,12 +158,12 @@ class Permission
         }
 
         $query = "
-                SELECT constraint_type, constraint_code, mode, access, sub, fields FROM ".pfx."system_acl
+                SELECT constraint_type, constraint_code, mode, access, sub, fields FROM " . pfx . "system_acl
                 WHERE
                 object = ? AND
                 (mode = ? OR mode = 0) AND
                 (
-                    ".implode(' OR ', $targets)."
+                    " . implode(' OR ', $targets) . "
                 )
                 ORDER BY prio DESC
         ";
@@ -179,10 +184,12 @@ class Permission
         dbFree($res);
 
         if (static::getCaching()) {
-            self::$cache[$pObjectKey.'_'.$pMode] = $rules;
+            self::$cache[$pObjectKey . '_' . $pMode] = $rules;
 
-            return self::$cache[$pObjectKey.'_'.$pMode];
-        } else return $rules;
+            return self::$cache[$pObjectKey . '_' . $pMode];
+        } else {
+            return $rules;
+        }
     }
 
     public static function removeObjectRules($pObjectKey)
@@ -200,22 +207,27 @@ class Permission
      *
      * @param  string $pObjectKey
      * @param  string $pTable
+     *
      * @return array
      */
     public static function getListingCondition($pObjectKey, $pTable = '')
     {
         $rules =& self::getRules($pObjectKey, 1);
 
-        if (count($rules) == 0) return false;
+        if (count($rules) == 0) {
+            return false;
+        }
 
-        if (self::$cache['sqlList_' . $pObjectKey])
+        if (self::$cache['sqlList_' . $pObjectKey]) {
             return self::$cache['sqlList_' . $pObjectKey];
+        }
 
         $condition = '';
         $result = '';
 
-        if (!$pTable)
+        if (!$pTable) {
             $pTable = Object::getTable($pObjectKey);
+        }
 
         $primaryList = Object::getPrimaryList($pObjectKey);
         $isNested = Object::isNested($pObjectKey);
@@ -224,7 +236,7 @@ class Permission
         $lastBracket = '';
 
         $allowList = array();
-        $denyList  = array();
+        $denyList = array();
 
         $conditionObject = array();
 
@@ -243,12 +255,13 @@ class Permission
                 $condition = array('1', '=', '1');
             } elseif ($rule['sub']) {
 
-                if ($rule['constraint_type'] == '2')
+                if ($rule['constraint_type'] == '2') {
                     $pkCondition = dbConditionToSql($rule['constraint_code'], $pTable);
-                else
+                } else {
                     $pkCondition = dbQuote($primaryKey, $pTable) . ' = ' . $rule['constraint_code'];
+                }
 
-                $childrenCondition  = "($pTable.lft > (SELECT lft FROM $pTable WHERE $pkCondition ORDER BY lft ) AND ";
+                $childrenCondition = "($pTable.lft > (SELECT lft FROM $pTable WHERE $pkCondition ORDER BY lft ) AND ";
                 $childrenCondition .= "$pTable.rgt < (SELECT rgt FROM $pTable WHERE $pkCondition ORDER BY rgt DESC))";
                 $condition = array($condition, 'OR', $childrenCondition);
 
@@ -256,8 +269,9 @@ class Permission
 
             if ($rule['access'] == 1) {
 
-                if ($conditionObject)
+                if ($conditionObject) {
                     $conditionObject[] = 'OR';
+                }
 
                 $conditionObject[] = $condition;
 
@@ -270,8 +284,9 @@ class Permission
 
             if ($rule['access'] != 1) {
 
-                if ($denyList)
+                if ($denyList) {
                     $denyList[] = 'AND NOT';
+                }
 
                 $denyList[] = $condition;
 
@@ -300,28 +315,54 @@ class Permission
 
     }
 
-    public static function checkList($pObjectKey, $pTargetType = null, $pTargetId = null,
-                                     $pRootHasAccess = false){
+    public static function checkList(
+        $pObjectKey,
+        $pTargetType = null,
+        $pTargetId = null,
+        $pRootHasAccess = false
+    ) {
         return self::check($pObjectKey, null, null, self::LISTING, $pTargetType, $pTargetId, $pRootHasAccess);
     }
 
-    public static function checkListExact($pObjectKey, $pObjectId, $pTargetType = null, $pTargetId = null,
-                                     $pRootHasAccess = false){
+    public static function checkListExact(
+        $pObjectKey,
+        $pObjectId,
+        $pTargetType = null,
+        $pTargetId = null,
+        $pRootHasAccess = false
+    ) {
         return self::check($pObjectKey, $pObjectId, null, self::LISTING, $pTargetType, $pTargetId, $pRootHasAccess);
     }
 
-    public static function checkUpdate($pObjectKey, $pFields = null, $pTargetType = null, $pTargetId = null,
-                                       $pRootHasAccess = false){
+    public static function checkUpdate(
+        $pObjectKey,
+        $pFields = null,
+        $pTargetType = null,
+        $pTargetId = null,
+        $pRootHasAccess = false
+    ) {
         return self::check($pObjectKey, null, $pFields, self::UPDATE, $pTargetType, $pTargetId, $pRootHasAccess);
     }
 
-    public static function checkUpdateExact($pObjectKey, $pObjectId, $pFields = null, $pTargetType = null, $pTargetId = null,
-                                       $pRootHasAccess = false){
+    public static function checkUpdateExact(
+        $pObjectKey,
+        $pObjectId,
+        $pFields = null,
+        $pTargetType = null,
+        $pTargetId = null,
+        $pRootHasAccess = false
+    ) {
         return self::check($pObjectKey, $pObjectId, $pFields, self::UPDATE, $pTargetType, $pTargetId, $pRootHasAccess);
     }
 
-    public static function checkAdd($pObjectKey, $pObjectId, $pFields = null, $pTargetType = null, $pTargetId = null,
-                                       $pRootHasAccess = false){
+    public static function checkAdd(
+        $pObjectKey,
+        $pObjectId,
+        $pFields = null,
+        $pTargetType = null,
+        $pTargetId = null,
+        $pRootHasAccess = false
+    ) {
         return self::check($pObjectKey, $pObjectId, $pFields, self::ADD, $pTargetType, $pTargetId, $pRootHasAccess);
     }
 
@@ -342,28 +383,103 @@ class Permission
     }
     */
 
-    public static function setObjectList($pObjectKey, $pTargetType, $pTargetId, $pAccess, $pFields = null, $pWithSub = false)
-    {
-        return self::setObject(self::LISTING, $pObjectKey, self::CONSTRAINT_ALL, null, $pWithSub, $pTargetType, $pTargetId, $pAccess, $pFields);
+    public static function setObjectList(
+        $pObjectKey,
+        $pTargetType,
+        $pTargetId,
+        $pAccess,
+        $pFields = null,
+        $pWithSub = false
+    ) {
+        return self::setObject(
+            self::LISTING,
+            $pObjectKey,
+            self::CONSTRAINT_ALL,
+            null,
+            $pWithSub,
+            $pTargetType,
+            $pTargetId,
+            $pAccess,
+            $pFields
+        );
     }
 
-    public static function setObjectListExact($pObjectKey, $pObjectPk, $pTargetType, $pTargetId, $pAccess, $pFields = null, $pWithSub = false)
-    {
-        return self::setObject(self::LISTING, $pObjectKey, self::CONSTRAINT_EXACT, $pObjectPk, $pWithSub, $pTargetType, $pTargetId, $pAccess, $pFields);
+    public static function setObjectListExact(
+        $pObjectKey,
+        $pObjectPk,
+        $pTargetType,
+        $pTargetId,
+        $pAccess,
+        $pFields = null,
+        $pWithSub = false
+    ) {
+        return self::setObject(
+            self::LISTING,
+            $pObjectKey,
+            self::CONSTRAINT_EXACT,
+            $pObjectPk,
+            $pWithSub,
+            $pTargetType,
+            $pTargetId,
+            $pAccess,
+            $pFields
+        );
     }
 
-    public static function setObjectListCondition($pObjectKey, $pCondition, $pTargetType, $pTargetId, $pAccess, $pFields = null, $pWithSub = false)
-    {
-        return self::setObject(self::LISTING, $pObjectKey, self::CONSTRAINT_CONDITION, $pCondition, $pWithSub, $pTargetType, $pTargetId, $pAccess, $pFields);
+    public static function setObjectListCondition(
+        $pObjectKey,
+        $pCondition,
+        $pTargetType,
+        $pTargetId,
+        $pAccess,
+        $pFields = null,
+        $pWithSub = false
+    ) {
+        return self::setObject(
+            self::LISTING,
+            $pObjectKey,
+            self::CONSTRAINT_CONDITION,
+            $pCondition,
+            $pWithSub,
+            $pTargetType,
+            $pTargetId,
+            $pAccess,
+            $pFields
+        );
     }
 
-    public static function setObjectUpdate($pObjectKey, $pTargetType, $pTargetId, $pAccess, $pFields = null, $pWithSub = false)
-    {
-        return self::setObject(self::UPDATE, $pObjectKey, self::CONSTRAINT_ALL, null, $pWithSub, $pTargetType, $pTargetId, $pAccess, $pFields);
+    public static function setObjectUpdate(
+        $pObjectKey,
+        $pTargetType,
+        $pTargetId,
+        $pAccess,
+        $pFields = null,
+        $pWithSub = false
+    ) {
+        return self::setObject(
+            self::UPDATE,
+            $pObjectKey,
+            self::CONSTRAINT_ALL,
+            null,
+            $pWithSub,
+            $pTargetType,
+            $pTargetId,
+            $pAccess,
+            $pFields
+        );
     }
 
-    public static function setObject($pMode, $pObjectKey, $pConstraintType, $pConstraintCode, $pWithSub = false,
-                                     $pTargetType, $pTargetId, $pAccess, $pFields = null){
+    public static function setObject(
+        $pMode,
+        $pObjectKey,
+        $pConstraintType,
+        $pConstraintCode,
+        $pWithSub = false,
+        $pTargetType,
+        $pTargetId,
+        $pAccess,
+        $pFields = null
+    ) {
 
         $acl = new Acl();
 
@@ -373,11 +489,12 @@ class Permission
         $acl->setSub($pWithSub);
         $acl->setAccess($pAccess);
 
-        if ($pFields)
+        if ($pFields) {
             $acl->setFields(json_encode($pFields));
+        }
 
         $acl->setObject($pObjectKey);
-        $acl->setConstraintCode(is_array($pConstraintCode)?json_encode($pConstraintCode):$pConstraintCode);
+        $acl->setConstraintCode(is_array($pConstraintCode) ? json_encode($pConstraintCode) : $pConstraintCode);
         $acl->setConstraintType($pConstraintType);
 
         $query = new AclQuery();
@@ -387,9 +504,9 @@ class Permission
         $query->orderByPrio(\Criteria::DESC);
         $highestPrio = $query->findOne();
 
-        $acl->setPrio($highestPrio+1);
+        $acl->setPrio($highestPrio + 1);
 
-        self::$cache[$pObjectKey.'_'.$pMode] = null;
+        self::$cache[$pObjectKey . '_' . $pMode] = null;
 
         $acl->save();
 
@@ -397,41 +514,58 @@ class Permission
     }
 
     /**
-     * @param $pObjectKey
-     * @param $pObjectId
+     * @param       $pObjectKey
+     * @param       $pObjectId
      * @param  bool $pField
      * @param  int  $pMode
      * @param  bool $pRootHasAccess
      * @param  bool $pAsParent
+     *
      * @return bool
      */
-    public static function check($pObjectKey, $pPk, $pField = false, $pMode = 1,
-                                 $pTargetType, $pTargetId,
-                                 $pRootHasAccess = false, $pAsParent = false) {
+    public static function check(
+        $pObjectKey,
+        $pPk,
+        $pField = false,
+        $pMode = 1,
+        $pTargetType,
+        $pTargetId,
+        $pRootHasAccess = false,
+        $pAsParent = false
+    ) {
 
-        if (($pTargetId === null && $pTargetType === null) && Kryn::getAdminClient() && Kryn::getAdminClient()->hasSession()) {
+        if (($pTargetId === null && $pTargetType === null) && Kryn::getAdminClient() && Kryn::getAdminClient(
+        )->hasSession()
+        ) {
             $pTargetId = Kryn::getAdminClient()->getUserId();
             $pTargetType = static::USER;
-        } elseif (($pTargetId === null && $pTargetType === null) && Kryn::getClient() && Kryn::getClient()->hasSession()) {
+        } elseif (($pTargetId === null && $pTargetType === null) && Kryn::getClient() && Kryn::getClient()->hasSession()
+        ) {
             $pTargetId = Kryn::getClient()->getUserId();
             $pTargetType = static::USER;
         }
 
-        if ($pTargetType === null)
+        if ($pTargetType === null) {
             $pTargetType = self::USER;
+        }
 
-        if ($pTargetId == 1) return true;
+        if ($pTargetId == 1) {
+            return true;
+        }
 
         //var_dump('type: '.(($pTargetType == self::GROUP)?'group':'user').', id: '.$pTargetId.', mode: '.$pMode);
         $rules =& self::getRules($pObjectKey, $pMode, $pTargetType, $pTargetId);
 
-        if (count($rules) == 0) return false;
+        if (count($rules) == 0) {
+            return false;
+        }
 
         if ($pPk) {
             $pPk = Object::getObjectUrlId($pObjectKey, $pPk);
 
-            if (self::$cache['checkAckl_' . $pObjectKey . '_' . $pPk . '__' . $pField])
+            if (self::$cache['checkAckl_' . $pObjectKey . '_' . $pPk . '__' . $pField]) {
                 return self::$cache['checkAckl_' . $pObjectKey . '_' . $pPk . '__' . $pField];
+            }
         }
 
         $access = false;
@@ -446,9 +580,9 @@ class Permission
 
         $fIsArray = is_array($pField);
         if ($fIsArray) {
-            $fCount   = count($pField);
+            $fCount = count($pField);
 
-            $fKey   = key($pField);
+            $fKey = key($pField);
             $fValue = current($pField);
         }
 
@@ -463,18 +597,23 @@ class Permission
 
             foreach ($rules as $acl) {
 
-                if ($parent_acl && $acl['sub'] == 0) continue;
+                if ($parent_acl && $acl['sub'] == 0) {
+                    continue;
+                }
 
                 //print $acl['id'].', '.$acl['code'] .' == '. $currentObjectPk.'<br/>';
                 if ($acl['constraint_type'] == 2 && $pPk &&
-                    ($objectItem = Object::get($pObjectKey, $currentObjectPk))){
-                    if (!Object::satisfy($objectItem, $acl['constraint_code'])) continue;
+                    ($objectItem = Object::get($pObjectKey, $currentObjectPk))
+                ) {
+                    if (!Object::satisfy($objectItem, $acl['constraint_code'])) {
+                        continue;
+                    }
                 }
 
                 if (
                     $acl['constraint_type'] != 1 ||
                     ($currentObjectPk && $acl['constraint_type'] == 1 && $acl['constraint_code'] == $currentObjectPk)
-                ){
+                ) {
 
                     $fieldKey = $pField;
 
@@ -485,7 +624,7 @@ class Permission
                             if (is_string($fKey) && is_array($acl['fields'][$fKey])) {
                                 //this field has limits
 
-                                if ( ($fieldAcl = $acl['fields'][$fKey]) !== null) {
+                                if (($fieldAcl = $acl['fields'][$fKey]) !== null) {
 
                                     if (is_array($fieldAcl[0])) {
 
@@ -494,7 +633,7 @@ class Permission
                                         foreach ($fieldAcl as $fRule) {
 
                                             if ($fields[$fKey]['type'] == 'object') {
-                                                $uri = $fields[$fKey]['object'].'/'.$fValue;
+                                                $uri = $fields[$fKey]['object'] . '/' . $fValue;
                                                 $satisfy = Object::satisfyFromUrl($uri, $fRule['condition']);
                                             } else {
                                                 $satisfy = Object::satisfy($pField, $fRule['condition']);
@@ -506,8 +645,9 @@ class Permission
                                         }
 
                                         //if no field rules fits, we consider the whole rule
-                                        if ($acl['access'] != 2)
+                                        if ($acl['access'] != 2) {
                                             return ($acl['access'] == 1) ? true : false;
+                                        }
 
                                     } else {
 
@@ -520,8 +660,9 @@ class Permission
                                             //
                                             //if access = 2 then wo do not know it, cause 2 means 'inherited', so maybe
                                             //a other rule has more detailed rule
-                                            if ($acl['access'] != 2)
+                                            if ($acl['access'] != 2) {
                                                 return ($acl['access'] == 1) ? true : false;
+                                            }
                                         }
                                     }
                                 }
@@ -532,14 +673,18 @@ class Permission
                         }
 
                         if (!is_array($fieldKey)) {
-                            if ($acl['fields'] && ($fieldAcl = $acl['fields'][$fieldKey]) !== null && !is_array($acl['fields'][$fieldKey])) {
+                            if ($acl['fields'] && ($fieldAcl = $acl['fields'][$fieldKey]) !== null && !is_array(
+                                $acl['fields'][$fieldKey]
+                            )
+                            ) {
                                 return ($fieldAcl == 1) ? true : false;
                             } else {
                                 //$pField is not exactly defined, so we set $access to $acl['access']
                                 //and maybe a rule with the same code has the field defined
                                 // if access = 2 then this rule is only for exactly define fields
-                                if ($acl['access'] != 2)
+                                if ($acl['access'] != 2) {
                                     return ($acl['access'] == 1) ? true : false;
+                                }
                             }
                         }
                     } else {
@@ -550,7 +695,7 @@ class Permission
 
             if ($definition['nested'] && $pPk) {
                 if (!$currentObjectPk = krynObjects::getParentId($pObjectKey, $currentObjectPk)) {
-                    return $pRootHasAccess?true:$access;
+                    return $pRootHasAccess ? true : $access;
                 }
 
                 $parent_acl = true;
@@ -559,8 +704,9 @@ class Permission
             }
         }
 
-        if ($pPk)
+        if ($pPk) {
             self::$cache['checkAckl_' . $pObjectKey . '_' . $pPk . '__' . $pField] = $access;
+        }
 
         return $access;
     }
@@ -575,7 +721,8 @@ class Permission
      * @return array
      * @internal
      */
-    public static function &getItem($pObject, $pCode) {
+    public static function &getItem($pObject, $pCode)
+    {
 
         self::normalizeCode($pCode);
         $acls =& self::getRules($pObject);
@@ -593,63 +740,65 @@ class Permission
         return false;
     }
 
-/*
-    public static function set($pType, $pTargetType, $pTargetId, $pCode, $pActions, $pWithSub)
-    {
-        self::normalizeCode($pCode);
-        $pType += 0;
-        $pTargetType += $pTargetType;
-        $pTargetId += $pTargetId;
-        $pCode = esc($pCode);
+    /*
+        public static function set($pType, $pTargetType, $pTargetId, $pCode, $pActions, $pWithSub)
+        {
+            self::normalizeCode($pCode);
+            $pType += 0;
+            $pTargetType += $pTargetType;
+            $pTargetId += $pTargetId;
+            $pCode = esc($pCode);
 
-        self::removeAcl($pType, $pTargetType, $pTargetId, $pCode);
+            self::removeAcl($pType, $pTargetType, $pTargetId, $pCode);
 
-        if ($pWithSub)
-            $pCode .= '%';
+            if ($pWithSub)
+                $pCode .= '%';
 
-        $pCode = '[' . implode(',', $pActions) . ']';
+            $pCode = '[' . implode(',', $pActions) . ']';
 
-        $last_id = dbInsert('system_acl', array(
-            'type' => $pType,
-            'target_type' => $pTargetType,
-            'target_id' => $pTargetId,
-            'code' => $pCode
-        ));
+            $last_id = dbInsert('system_acl', array(
+                'type' => $pType,
+                'target_type' => $pTargetType,
+                'target_id' => $pTargetId,
+                'code' => $pCode
+            ));
 
-        self::$cache[$pType] = null;
+            self::$cache[$pType] = null;
 
-        return $last_id;
-    }
+            return $last_id;
+        }
 
-    public static function remove($pType, $pTargetType, $pTargetId, $pCode)
-    {
-        self::normalizeCode($pCode);
+        public static function remove($pType, $pTargetType, $pTargetId, $pCode)
+        {
+            self::normalizeCode($pCode);
 
-        $pType += 0;
-        $pTargetType += $pTargetType;
-        $pTargetId += $pTargetId;
-        $pCode = esc($pCode);
+            $pType += 0;
+            $pTargetType += $pTargetType;
+            $pTargetId += $pTargetId;
+            $pCode = esc($pCode);
 
-        dbDelete('system_acl', "1=1
-         AND type = $pType
-         AND target_type = $pTargetType
-         AND target_id = $pTargetId
-         AND code LIKE '$pCode%'");
+            dbDelete('system_acl', "1=1
+             AND type = $pType
+             AND target_type = $pTargetType
+             AND target_id = $pTargetId
+             AND code LIKE '$pCode%'");
 
-        self::$cache[$pType] = null;
+            self::$cache[$pType] = null;
 
-    }
-*/
+        }
+    */
 
     public static function normalizeCode(&$pCode)
     {
         $pCode = str_replace('//', '/', $pCode);
 
-        if (substr($pCode, 0, 1) != '/')
+        if (substr($pCode, 0, 1) != '/') {
             $pCode = '/' . $pCode;
+        }
 
-        if (substr($pCode, -1) == '/')
+        if (substr($pCode, -1) == '/') {
             $pCode = substr($pCode, 0, -1);
+        }
 
     }
 

@@ -2,6 +2,7 @@
 
 /**
  * krynSearch class
+ *
  * @internal
  * @author Kryn.labs <info@krynlabs.com>
  */
@@ -35,17 +36,25 @@ class SearchEngine
         if (isset($_REQUEST['forceSearchIndex']) && $_REQUEST['forceSearchIndex']) {
 
             //force could only be enabled with correct search_index_key for this domain
-            $validation = dbExFetch("SELECT id FROM %pfx%system_domains WHERE id = " . Kryn::$domain->getId() .
-                " AND search_index_key = '" . esc($_REQUEST['forceSearchIndex']) . "'", 1);
+            $validation = dbExFetch(
+                "SELECT id FROM %pfx%system_domains WHERE id = " . Kryn::$domain->getId() .
+                    " AND search_index_key = '" . esc($_REQUEST['forceSearchIndex']) . "'",
+                1
+            );
 
-            if (!empty($validation) && $validation['id'] == Kryn::$domain->getId())
+            if (!empty($validation) && $validation['id'] == Kryn::$domain->getId()) {
                 self::$forceSearchIndex = $_REQUEST['forceSearchIndex'];
+            }
 
         }
 
-        if (getArgv(1) == 'admin' || Kryn::$page->getId() + 0 == 0) return;
+        if (getArgv(1) == 'admin' || Kryn::$page->getId() + 0 == 0) {
+            return;
+        }
 
-        if (Kryn::$page->getUnsearchable() == 1) return;
+        if (Kryn::$page->getUnsearchable() == 1) {
+            return;
+        }
 
         if (getArgv('kVersionId') || getArgv('kryn_framework_version_id')) {
             return 6;
@@ -61,8 +70,9 @@ class SearchEngine
         $a = '/' . Kryn::getRequestedPath(true);
         $b = $cache['url'];
 
-        if ($cache && $b === "")
+        if ($cache && $b === "") {
             $b = '/';
+        }
 
         self::$pageUrl = $a;
 
@@ -95,18 +105,21 @@ class SearchEngine
 
         //we now ready to index this content
         $index->setUrl(self::$pageUrl)
-              ->setTitle(Kryn::$domain->getTitle())
-              ->setMd5($contentMd5)
-              ->setMdate(time())
-              ->setNodeId(Kryn::$page->getId())
-              ->setDomainId(Kryn::$domain->getId())
-              ->setContent($indexedContent);
+            ->setTitle(Kryn::$domain->getTitle())
+            ->setMd5($contentMd5)
+            ->setMdate(time())
+            ->setNodeId(Kryn::$page->getId())
+            ->setDomainId(Kryn::$domain->getId())
+            ->setContent($indexedContent);
 
         $index->save();
 
-        Kryn::setCache($cashkey, array(
-            'url' => $a
-        ));
+        Kryn::setCache(
+            $cashkey,
+            array(
+                 'url' => $a
+            )
+        );
 
         self::getLinksInContent($pContent);
 
@@ -116,7 +129,8 @@ class SearchEngine
 
     public static function stripContent($pContent)
     {
-        $arSearch = array('@<script[^>]*>.*</script>@Uis', // javascript
+        $arSearch = array(
+            '@<script[^>]*>.*</script>@Uis', // javascript
             '@<style[^>]*>.*</style>@Uis', //  style tags
             '@<\!--unsearchable-begin-->.*<\!--unsearchable-end-->@Uis', //unsearchable html comment
             '@<!--.*-->@Uis', // comments
@@ -154,8 +168,9 @@ class SearchEngine
                 || (strpos($value[1], 'http://' . Kryn::$domain->getRealDomain()) === false &&
                     (strpos($value[1], 'http://') === 0) || strpos($value[1], 'https://') === 0)
                 || strpos($value[1], 'user:logout') !== false
-            )
+            ) {
                 continue;
+            }
 
             //restore case-sensitivity
             $value[1] = $linkBackup;
@@ -164,30 +179,37 @@ class SearchEngine
                 $value[1] = substr($value[1], strlen(Kryn::$domain->getPath()));
             }
 
-            if ($value[1] == '')
+            if ($value[1] == '') {
                 $value[1] = '/';
+            }
 
             //add slash
             if (strpos($value[1], 'http://') !== 0 && strpos($value[1], 'https://') !== 0 &&
                 strpos($value[1], '/') !== 0
-            )
+            ) {
                 $value[1] = '/' . $value[1];
+            }
 
             //remove last slash
-            if (strrpos($value[1], '/') == strlen($value[1]) - 1)
+            if (strrpos($value[1], '/') == strlen($value[1]) - 1) {
                 $value[1] = substr($value[1], 0, strlen($value[1]) - 1);
+            }
 
             //if absolute link transform to relative
             if (strpos($value[1], 'http://') === 0 || strpos($value[1], 'https://') === 0) {
-                $value[1] = substr($value[1], stripos($value[1], Kryn::$domain->getDomain() . $cfg['path']) +
-                                              strlen(Kryn::$domain->getDomain() . $cfg['path']) - 1);
+                $value[1] = substr(
+                    $value[1],
+                    stripos($value[1], Kryn::$domain->getDomain() . $cfg['path']) +
+                        strlen(Kryn::$domain->getDomain() . $cfg['path']) - 1
+                );
             }
 
             $value[1] = str_replace('//', '/', $value[1]);
             $value[1] = str_replace('//', '/', $value[1]);
 
-            if (substr($value[1], -1) == '/')
+            if (substr($value[1], -1) == '/') {
                 $value[1] = substr($value[1], 0, -1);
+            }
 
             if (!isset($arInserted[Kryn::$domain->getId() . '_' . $value[1]]) &&
                 !isset($arInserted[Kryn::$domain->getId() . '_' . $value[1]]) && strlen($value[1]) > 0
@@ -205,10 +227,13 @@ class SearchEngine
 
     public static function getSearchIndexOverview($pPageId)
     {
-        $indexes = dbExFetch("
-            SELECT url, title , mdate, md5
-            FROM %pfx%system_search
-            WHERE node_id =" . esc($pPageId) . " AND mdate > 0 ORDER BY url, mdate DESC", -1);
+        $indexes = dbExFetch(
+            "
+                        SELECT url, title , mdate, md5
+                        FROM %pfx%system_search
+                        WHERE node_id =" . esc($pPageId) . " AND mdate > 0 ORDER BY url, mdate DESC",
+            -1
+        );
 
         $arIndexes = array();
         foreach ($indexes as $page) {

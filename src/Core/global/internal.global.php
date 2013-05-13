@@ -12,6 +12,7 @@
 
 /**
  * Internal functions
+ *
  * @author MArc Schmidt <marc@Kryn.org>
  * @internal
  */
@@ -31,8 +32,9 @@ function coreUtilsExceptionHandler($pException)
 
 function coreUtilsShutdownHandler()
 {
-    if (\Core\Kryn::getClient())
+    if (\Core\Kryn::getClient()) {
         \Core\Kryn::getClient()->syncStore();
+    }
 
     if (\Core\Kryn::getAdminClient() && \Core\Kryn::getAdminClient() != \Core\Kryn::getClient()) {
         \Core\Kryn::getAdminClient()->syncStore();
@@ -61,22 +63,29 @@ if (get_magic_quotes_gpc()) {
  * @param  [type]  $pMsg  [description]
  * @param  boolean $pFile [description]
  * @param  boolean $pLine [description]
+ *
  * @return [type]         [description]
  */
 function errorDbHandler($pCode, $pMsg, $pFile = false, $pLine = false)
 {
     global $errorHandlerInside, $client, $cfg;
 
-    if ($errorHandlerInside) return;
-    if ($pCode == 8) return;
+    if ($errorHandlerInside) {
+        return;
+    }
+    if ($pCode == 8) {
+        return;
+    }
 
     $errorHandlerInside = true;
     $username = $client->user['username'] ? $client->user['username'] : 'Unknown';
     $ip = $_SERVER['REMOTE_ADDR'];
 
     $msg =
-        '[' . date('d.m.y H:i:s') . '] (' . $ip . ') ' . $username . ", $pCode: $pMsg" . (($pFile) ? " in $pFile on $pLine\n" : '') .
-        "\n";
+        '[' . date(
+            'd.m.y H:i:s'
+        ) . '] (' . $ip . ') ' . $username . ", $pCode: $pMsg" . (($pFile) ? " in $pFile on $pLine\n" : '') .
+            "\n";
 
     if (array_key_exists('krynInstaller', $GLOBALS) && $GLOBALS['krynInstaller'] == true) {
         @error_log($msg, 3, 'install.log');
@@ -100,13 +109,16 @@ function errorDbHandler($pCode, $pMsg, $pFile = false, $pLine = false)
             $pCode = preg_replace('/\W/', '-', $pCode);
             $msg = htmlspecialchars($pMsg);
 
-            dbInsert('system_log', array(
-                'date' => time(),
-                'ip' => $ip,
-                'username' => $username,
-                'code' => $pCode,
-                'message' => htmlspecialchars($pMsg)
-            ));
+            dbInsert(
+                'system_log',
+                array(
+                     'date' => time(),
+                     'ip' => $ip,
+                     'username' => $username,
+                     'code' => $pCode,
+                     'message' => htmlspecialchars($pMsg)
+                )
+            );
         }
     }
     $errorHandlerInside = false;

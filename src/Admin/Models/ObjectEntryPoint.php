@@ -11,10 +11,13 @@ class ObjectEntryPoint extends \Core\ORM\ORMAbstract
     {
 
         $entryPoint = Utils::getEntryPoint($pPk['path']);
-        if ($entryPoint)
-            return array('path' => $pPk['path'],
-                      'type' => $entryPoint['type'],
-                      'title' => $entryPoint['title']? $entryPoint['title'].' ('.$pPk['path'].')' : $pPk['path']);
+        if ($entryPoint) {
+            return array(
+                'path' => $pPk['path'],
+                'type' => $entryPoint['type'],
+                'title' => $entryPoint['title'] ? $entryPoint['title'] . ' (' . $pPk['path'] . ')' : $pPk['path']
+            );
+        }
 
     }
 
@@ -82,8 +85,9 @@ class ObjectEntryPoint extends \Core\ORM\ORMAbstract
     {
         $pPath = str_replace('.', '/', $pPath); //debug
 
-        if (substr($pPath, -1) == '/')
+        if (substr($pPath, -1) == '/') {
             $pPath = substr($pPath, 0, -1);
+        }
 
     }
 
@@ -92,11 +96,12 @@ class ObjectEntryPoint extends \Core\ORM\ORMAbstract
      */
     public function setChildren($pPath, &$pItem, $pDepth)
     {
-        $children = $this->getBranch(array('path' => $pPath), null, $pDepth-1);
+        $children = $this->getBranch(array('path' => $pPath), null, $pDepth - 1);
 
         if ($children && count($children) > 0) {
-            if ($pDepth > 1)
+            if ($pDepth > 1) {
                 $pItem['_children'] = $children;
+            }
             $pItem['_childrenCount'] = count($children);
         } else {
             $pItem['_childrenCount'] = 0;
@@ -118,7 +123,7 @@ class ObjectEntryPoint extends \Core\ORM\ORMAbstract
                 $item = array(
                     'path' => $key,
                     'type' => $entryPoint['type'],
-                    'title' => $entryPoint['title']? $entryPoint['title'].' ('.$key.')' : $key,
+                    'title' => $entryPoint['title'] ? $entryPoint['title'] . ' (' . $key . ')' : $key,
                 );
 
                 $this->setChildren($key, $item, $pDepth);
@@ -126,15 +131,19 @@ class ObjectEntryPoint extends \Core\ORM\ORMAbstract
             }
 
             foreach (\Core\Kryn::$extensions as $extension) {
-                if ($extension == 'admin') continue;
+                if ($extension == 'admin') {
+                    continue;
+                }
                 $config = \Core\Kryn::getModuleConfig($extension);
 
                 foreach ($config['entryPoints'] as $key => $entryPoint) {
-                    $item = array('path' => $extension.'/'.$key,
-                                  'type' => $entryPoint['type'],
-                                  'title' => $entryPoint['title']? $entryPoint['title'].' ('.$key.')' : $key);
+                    $item = array(
+                        'path' => $extension . '/' . $key,
+                        'type' => $entryPoint['type'],
+                        'title' => $entryPoint['title'] ? $entryPoint['title'] . ' (' . $key . ')' : $key
+                    );
 
-                    $this->setChildren($extension.'/'.$key, $item, $pDepth);
+                    $this->setChildren($extension . '/' . $key, $item, $pDepth);
 
                     $result[] = $item;
                 }
@@ -148,11 +157,13 @@ class ObjectEntryPoint extends \Core\ORM\ORMAbstract
             if ($entryPoint && $entryPoint['children'] && count($entryPoint['children']) > 0) {
 
                 foreach ($entryPoint['children'] as $key => $entryPoint) {
-                    $item = array('path' => $pPk['path'].'/'.$key,
-                                  'type' => $entryPoint['type'],
-                                  'title' => $entryPoint['title']? $entryPoint['title'].' ('.$key.')' : $key);
+                    $item = array(
+                        'path' => $pPk['path'] . '/' . $key,
+                        'type' => $entryPoint['type'],
+                        'title' => $entryPoint['title'] ? $entryPoint['title'] . ' (' . $key . ')' : $key
+                    );
 
-                    $this->setChildren($pPk['path'].'/'.$key, $item, $pDepth);
+                    $this->setChildren($pPk['path'] . '/' . $key, $item, $pDepth);
 
                     $result[] = $item;
                 }

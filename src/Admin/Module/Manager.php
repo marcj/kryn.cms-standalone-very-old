@@ -93,9 +93,9 @@ class Manager
     public static function getInstalled()
     {
         foreach (Kryn::$bundles as $mod) {
-            $config                     = self::loadInfo($mod);
-            $res[$mod]                  = $config;
-            $res[$mod]['activated']     = array_search($mod, Kryn::$config['bundles']) !== false ? 1 : 0;
+            $config = self::loadInfo($mod);
+            $res[$mod] = $config;
+            $res[$mod]['activated'] = array_search($mod, Kryn::$config['bundles']) !== false ? 1 : 0;
             $res[$mod]['serverVersion'] = wget(Kryn::$config['repoServer'] . "/?version=" . $mod);
             $res[$mod]['serverCompare'] =
                 self::versionCompareToServer($res[$mod]['version'], $res[$mod]['serverVersion']);
@@ -138,7 +138,7 @@ class Manager
             $object = new $class();
 
             if ($composer = $object->getComposer()) {
-                $res[$object->getClassName()]              = $composer;
+                $res[$object->getClassName()] = $composer;
                 $res[$object->getClassName()]['activated'] = 'Core\CoreBundle' === $class || array_search(
                     $object->getClassName(),
                     Kryn::$config['bundles']
@@ -162,7 +162,7 @@ class Manager
         */
 
         $pModuleName = str_replace(".", "", $pModuleName);
-        $configFile  = \Core\Kryn::getBundleDir($pModuleName) . "config.json";
+        $configFile = \Core\Kryn::getBundleDir($pModuleName) . "config.json";
 
         $extract = false;
 
@@ -207,11 +207,11 @@ class Manager
             if (file_exists(PATH_WEB . $pType)) {
                 $pType = PATH_WEB . $pType;
             }
-            $zipFile     = $pType;
-            $bname       = basename($pType);
-            $t           = explode("-", $bname);
+            $zipFile = $pType;
+            $bname = basename($pType);
+            $t = explode("-", $bname);
             $pModuleName = $t[0];
-            $extract     = true;
+            $extract = true;
         }
 
         if ($extract) {
@@ -219,7 +219,7 @@ class Manager
             include_once 'File/Archive.php';
             $toDir = "data/packages/modules/$pModuleName/";
             $zipFile .= "/";
-            $res        = File_Archive::extract($zipFile, $toDir);
+            $res = File_Archive::extract($zipFile, $toDir);
             $configFile = "data/packages/modules/$pModuleName/module/$pModuleName/config.json";
             if ($pModuleName == 'core') {
                 $configFile = "data/packages/modules/kryn/core/config.json";
@@ -230,7 +230,7 @@ class Manager
             if (!file_exists($configFile)) {
                 return false;
             }
-            $json   = file_get_contents($configFile);
+            $json = file_get_contents($configFile);
             $config = json_decode($json, true);
             unset($config['noConfig']);
 
@@ -278,18 +278,18 @@ class Manager
 
         foreach (Kryn::$configs as $key => $config) {
             $version = '0';
-            $name    = $key;
+            $name = $key;
             $version = wget(Kryn::$config['repoServer'] . "/?version=$name");
             if ($version && $version != '' && self::versionCompareToServer(
                 $config->getVersion(),
                 $version['content']
             ) == '<'
             ) {
-                $res['found']       = true;
-                $temp               = array();
+                $res['found'] = true;
+                $temp = array();
                 $temp['newVersion'] = $version;
-                $temp['name']       = $name;
-                $res['modules'][]   = $temp;
+                $temp['name'] = $name;
+                $res['modules'][] = $temp;
             }
         }
 
@@ -385,7 +385,7 @@ class Manager
     public function uninstall($pName, $pRemoveFiles = true, $pWithoutOrmUpdate = false)
     {
         Manager::prepareName($pName);
-        $config          = self::getConfig($pName);
+        $config = self::getConfig($pName);
         $hasPropelModels = SystemFile::exists(\Core\Kryn::resolvePath($pName, 'Resources/config') . 'model.xml');
 
         \Core\Event::fire('admin/module/manager/uninstall/pre', $pName);

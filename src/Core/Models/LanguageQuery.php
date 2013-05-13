@@ -15,6 +15,7 @@ use Core\Models\Base\LanguageQuery as BaseLanguageQuery;
  * long as it does not already exist in the output directory.
  *
  */
-class LanguageQuery extends BaseLanguageQuery {
+class LanguageQuery extends BaseLanguageQuery
+{
 
 } // LanguageQuery

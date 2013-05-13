@@ -3,9 +3,6 @@
 namespace Admin\Controller;
 
 use Core\Kryn;
-
-use Core\Config\Asset;
-use Core\Config\Assets;
 use Core\Permission;
 use Propel\Runtime\Map\TableMap;
 
@@ -82,7 +79,7 @@ class Backend
     public function getCustomJs()
     {
         $module = getArgv('module', 2);
-        $code   = getArgv('code', 2);
+        $code = getArgv('code', 2);
 
         if ($module == 'admin') {
             $file = "web/bundles/admin/js/$code.js";
@@ -158,9 +155,9 @@ class Backend
         }
 
         if ($loadKeys == false || in_array('upload_max_filesize', $loadKeys)) {
-            $v                          = ini_get('upload_max_filesize');
-            $v2                         = ini_get('post_max_size');
-            $b                          = $this->return_bytes(($v < $v2) ? $v : $v2);
+            $v = ini_get('upload_max_filesize');
+            $v2 = ini_get('post_max_size');
+            $b = $this->return_bytes(($v < $v2) ? $v : $v2);
             $res['upload_max_filesize'] = $b;
         }
 
@@ -210,7 +207,7 @@ class Backend
                 TableMap::TYPE_STUDLYPHPNAME
             );
 
-            $langs        = dbToKeyIndex($tlangs, 'code');
+            $langs = dbToKeyIndex($tlangs, 'code');
             $res['langs'] = $langs;
         }
 
@@ -219,7 +216,7 @@ class Backend
 
     public function return_bytes($val)
     {
-        $val  = trim($val);
+        $val = trim($val);
         $last = strtolower($val[strlen($val) - 1]);
         switch ($last) {
             // The 'G' modifier is available since PHP 5.1.0
@@ -242,7 +239,7 @@ class Backend
     public function loadCss()
     {
         header('Content-Type: text/css');
-        $expires= 60 * 60 * 24 * 14;
+        $expires = 60 * 60 * 24 * 14;
         header('Pragma: public');
         header('Cache-Control: max-age=' . $expires);
         header('Expires: ' . gmdate('D, d M Y H:i:s', time() + $expires) . ' GMT');
@@ -251,7 +248,7 @@ class Backend
             ini_set("zlib.output_compression", 1);
         }
 
-        $oFile     = 'web/cache/admin.style-compiled.css';
+        $oFile = 'web/cache/admin.style-compiled.css';
         $md5String = '';
 
         foreach (Kryn::$configs as $bundleConfig) {
@@ -264,9 +261,9 @@ class Backend
             }
         }
 
-        $handle       = @fopen($oFile, 'r');
+        $handle = @fopen($oFile, 'r');
         $fileUpToDate = false;
-        $md5Line      = '//' . md5($md5String) . "\n";
+        $md5Line = '//' . md5($md5String) . "\n";
 
         if ($handle) {
             $line = fgets($handle);
@@ -289,7 +286,7 @@ class Backend
     {
 
         header('Content-Type: application/x-javascript');
-        $expires= 60 * 60 * 24 * 14;
+        $expires = 60 * 60 * 24 * 14;
         header('Pragma: public');
         header('Cache-Control: max-age=' . $expires);
         header('Expires: ' . gmdate('D, d M Y H:i:s', time() + $expires) . ' GMT');
@@ -299,12 +296,12 @@ class Backend
         }
 
         chdir('web/');
-        $oFile     = 'cache/admin.script-compiled.js';
+        $oFile = 'cache/admin.script-compiled.js';
         $sourceMap = $oFile . '.map';
-        $cmdTest   = 'java -version';
-        $closure   = 'vendor/google/closure-compiler/compiler.jar';
-        $compiler  = escapeshellarg(realpath('../'.$closure));
-        $cmd       = 'java -jar ' . $compiler . ' --js_output_file ' . escapeshellarg($oFile);
+        $cmdTest = 'java -version';
+        $closure = 'vendor/google/closure-compiler/compiler.jar';
+        $compiler = escapeshellarg(realpath('../' . $closure));
+        $cmd = 'java -jar ' . $compiler . ' --js_output_file ' . escapeshellarg($oFile);
         $returnVal = 0;
         $debugMode = false;
 
@@ -316,8 +313,8 @@ class Backend
             exit;
         }
 
-        $files     = array();
-        $assets    = array();
+        $files = array();
+        $assets = array();
         $md5String = '';
 
         chdir('../');
@@ -326,17 +323,17 @@ class Backend
                 $path = Kryn::resolvePath($assetPath, 'Resources/public');
                 if (file_exists($path)) {
                     $assets[] = $assetPath;
-                    $files[]  = '--js ' . escapeshellarg(Kryn::resolvePublicPath($assetPath));
-                    $mtime    = filemtime($path);
+                    $files[] = '--js ' . escapeshellarg(Kryn::resolvePublicPath($assetPath));
+                    $mtime = filemtime($path);
                     $md5String .= ">$path.$mtime<";
                 }
             }
         }
         chdir('web/');
 
-        $handle       = @fopen($oFile, 'r');
+        $handle = @fopen($oFile, 'r');
         $fileUpToDate = false;
-        $md5Line      = '//' . md5($md5String) . "\n";
+        $md5Line = '//' . md5($md5String) . "\n";
 
         if ($handle) {
             $line = fgets($handle);
@@ -424,7 +421,7 @@ class Backend
                     //}
                 } else {
                     $value['children'] = $childs;
-                    $links[$key]       = $value;
+                    $links[$key] = $value;
                 }
 
             } else {

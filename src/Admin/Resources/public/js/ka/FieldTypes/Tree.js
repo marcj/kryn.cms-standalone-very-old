@@ -104,18 +104,15 @@ ka.FieldTypes.Tree = new Class({
          */
         iconMap: null,
 
-
         /**
          * Enabled the selection.
          * @var {Boolean}
          */
         selectable: true,
 
-
         treeInterface: '',
 
         treeInterfaceClass: '',
-
 
         labelTemplate: false,
         objectFields: ''
@@ -125,41 +122,51 @@ ka.FieldTypes.Tree = new Class({
 
     definition: {},
 
-    createLayout: function(){
+    createLayout: function () {
 
-
-        if (!this.options.objectKey)
+        if (!this.options.objectKey) {
             throw '`objectKey` option in ka.Field `tree` required.';
+        }
 
         this.definition = ka.getObjectDefinition(this.options.objectKey);
 
-        if (!this.definition) throw 'Object not found '+this.options.object;
-        if (!this.definition.nested) throw 'Object is not a nested set '+this.options.object;
+        if (!this.definition) {
+            throw 'Object not found ' + this.options.object;
+        }
+        if (!this.definition.nested) {
+            throw 'Object is not a nested set ' + this.options.object;
+        }
 
         console.log(this.definition);
 
-        if (!this.options.labelTemplate){
+        if (!this.options.labelTemplate) {
             this.options.labelTemplate = this.definition.labelTemplate;
         }
 
-        if (!this.options.rootObject)
+        if (!this.options.rootObject) {
             this.options.rootObject = this.definition.nestedRootObject;
+        }
 
-        if (!this.options.treeInterface)
+        if (!this.options.treeInterface) {
             this.options.treeInterface = this.definition.treeInterface;
+        }
 
-        if (!this.options.treeInterfaceClass)
+        if (!this.options.treeInterfaceClass) {
             this.options.treeInterfaceClass = this.definition.treeInterfaceClass;
+        }
 
-        if (null === this.options.scopeChooser)
+        if (null === this.options.scopeChooser) {
             this.options.scopeChooser = this.definition.nestedRootObject ? true : false;
+        }
 
-        if (!this.options.moveable)
-            this.options.moveable = typeOf(this.definition.treeMoveable) !== 'null' ? this.definition.treeMoveable : true;
+        if (!this.options.moveable) {
+            this.options.moveable =
+                typeOf(this.definition.treeMoveable) !== 'null' ? this.definition.treeMoveable : true;
+        }
 
-        if (!this.options.scope){
+        if (!this.options.scope) {
 
-            if (this.options.scopeChooser){
+            if (this.options.scopeChooser) {
                 var options = {
                     object: this.options.rootObject,
                     objectLanguage: this.options.scopeLanguage
@@ -167,28 +174,27 @@ ka.FieldTypes.Tree = new Class({
 
                 this.scopeField = new ka.Select(this.fieldInstance.fieldPanel, options);
 
-                this.scopeField.addEvent('change', function(){
+                this.scopeField.addEvent('change', function () {
                     this.loadTree(this.scopeField.getValue());
                 }.bind(this));
             } else {
 
                 //load all scope entries
-                new Request.JSON({url: this.getUrl()+':roots',
-                onComplete: function(pResponse){
+                new Request.JSON({url: this.getUrl() + ':roots',
+                    onComplete: function (pResponse) {
 
-                    this.treesContainer.empty();
-                    this.trees = [];
+                        this.treesContainer.empty();
+                        this.trees = [];
 
-                    if (pResponse.data){
-                        Array.each(pResponse.data, function(item){
-                            this.addTree(item);
-                        }.bind(this));
-                    } else {
-                        this.addTree();
-                    }
+                        if (pResponse.data) {
+                            Array.each(pResponse.data, function (item) {
+                                this.addTree(item);
+                            }.bind(this));
+                        } else {
+                            this.addTree();
+                        }
 
-
-                }.bind(this)}).get();
+                    }.bind(this)}).get();
 
             }
 
@@ -199,11 +205,12 @@ ka.FieldTypes.Tree = new Class({
         }
     },
 
-    getUrl: function(){
-        return _pathAdmin + (this.options.entryPoint ? this.options.entryPoint : 'admin/object/' + ka.urlEncode(this.options.objectKey) )+'/';
+    getUrl: function () {
+        return _pathAdmin + (this.options.entryPoint ? this.options.entryPoint :
+            'admin/object/' + ka.urlEncode(this.options.objectKey) ) + '/';
     },
 
-    loadTree: function(pScope){
+    loadTree: function (pScope) {
 
         this.treesContainer.empty();
 
@@ -212,16 +219,16 @@ ka.FieldTypes.Tree = new Class({
         this.addTree(pScope);
     },
 
-    addTree: function(pScope){
+    addTree: function (pScope) {
 
         var clazz = ka.ObjectTree;
 
-        if (this.options.treeInterface && this.options.treeInterface != 'default'){
-            if (!this.options.treeInterfaceClass){
+        if (this.options.treeInterface && this.options.treeInterface != 'default') {
+            if (!this.options.treeInterfaceClass) {
                 throw 'TreeInterface class in "treeInterfaceClass" is not defined.'
             } else {
-                if (!(clazz = ka.getClass(this.options.treeInterfaceClass))){
-                    throw 'Class does not exist '+this.options.treeInterfaceClass;
+                if (!(clazz = ka.getClass(this.options.treeInterfaceClass))) {
+                    throw 'Class does not exist ' + this.options.treeInterfaceClass;
                 }
             }
         }
@@ -233,13 +240,13 @@ ka.FieldTypes.Tree = new Class({
         tree.addEvent('select', this.selected);
 
         var proxyMethods = ['deselect', 'getItem', 'select'];
-        proxyMethods.each(function(method){
+        proxyMethods.each(function (method) {
             this.fieldInstance[method] = tree[method];
         }.bind(this));
 
         var proxyEvents = ['ready', 'childrenLoaded', 'select'];
-        proxyEvents.each(function(event){
-            tree.addEvent(event, function(){
+        proxyEvents.each(function (event) {
+            tree.addEvent(event, function () {
                 var args = Array.from(arguments);
                 args.push(tree);
                 this.fieldInstance.fireEvent(event, args);
@@ -251,60 +258,66 @@ ka.FieldTypes.Tree = new Class({
         return tree;
     },
 
-    getSelectedTree: function(){
+    getSelectedTree: function () {
 
         var selected = null;
-        Array.each(this.trees, function(tree){
-            if (selected) return;
-            if (tree.hasSelected()) selected = tree;
+        Array.each(this.trees, function (tree) {
+            if (selected) {
+                return;
+            }
+            if (tree.hasSelected()) {
+                selected = tree;
+            }
         });
 
         return selected;
 
     },
 
-    deselect: function(){
-        Array.each(this.trees, function(tree){
+    deselect: function () {
+        Array.each(this.trees, function (tree) {
             tree.deselect();
         });
     },
 
-    reloadParentBranch: function(pPk, pObjectKey){
-        Array.each(this.trees, function(tree){
+    reloadParentBranch: function (pPk, pObjectKey) {
+        Array.each(this.trees, function (tree) {
             tree.reloadParentBranch(pPk, pObjectKey);
         });
     },
 
-    reloadBranch: function(pPk, pObjectKey){
-        Array.each(this.trees, function(tree){
+    reloadBranch: function (pPk, pObjectKey) {
+        Array.each(this.trees, function (tree) {
             tree.reloadBranch(pPk, pObjectKey);
         });
     },
 
-    getTrees: function(){
+    getTrees: function () {
         return this.trees;
     },
 
-    getTree: function(){
+    getTree: function () {
         return this.trees[0];
     },
 
-    selected: function(pItem, pDom){
+    selected: function (pItem, pDom) {
         this.fireEvent('select', [pItem, pDom]);
     },
 
-    setValue: function(pValue){
+    setValue: function (pValue) {
 
-        Array.each(this.trees, function(tree){
+        Array.each(this.trees, function (tree) {
             tree.setValue(pValue);
         });
     },
 
-    getValue: function(){
+    getValue: function () {
         var value = null;
-        Array.each(this.trees, function(tree){
-            if (value !== null) return;
-            if (tree.hasSelected()){
+        Array.each(this.trees, function (tree) {
+            if (value !== null) {
+                return;
+            }
+            if (tree.hasSelected()) {
                 value = tree.getValue();
             }
         });

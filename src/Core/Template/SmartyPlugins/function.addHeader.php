@@ -9,14 +9,16 @@
  * -------------------------------------------------------------
  */
 
-function smarty_function_addHeader( $params, &$smarty )
+function smarty_function_addHeader($params, &$smarty)
 {
     if ($params && $params['content'] && strlen($params['content'])) {
-        if($params['replaceWithBrace'])
+        if ($params['replaceWithBrace']) {
             $params['content'] = str_replace($params['replaceWithBrace'], '{', $params['content']);
+        }
 
-        if($params['replaceWithClosingBrace'])
+        if ($params['replaceWithClosingBrace']) {
             $params['content'] = str_replace($params['replaceWithClosingBrace'], '}', $params['content']);
+        }
 
         Core\Kryn::getResponse()->addHeader($params['content']);
     }

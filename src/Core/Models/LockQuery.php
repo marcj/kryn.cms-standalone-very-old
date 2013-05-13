@@ -15,6 +15,7 @@ use Core\Models\Base\LockQuery as BaseLockQuery;
  * long as it does not already exist in the output directory.
  *
  */
-class LockQuery extends BaseLockQuery {
+class LockQuery extends BaseLockQuery
+{
 
 } // LockQuery

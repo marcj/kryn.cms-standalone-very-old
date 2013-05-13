@@ -31,7 +31,7 @@ var admin_system_settings = new Class({
 
     },
 
-    renderData: function(pResponse){
+    renderData: function (pResponse) {
 
         var data = pResponse.data;
 
@@ -246,70 +246,71 @@ var admin_system_settings = new Class({
 
         };
 
-        Object.each(ka.settings.configs, function(config){
+        Object.each(ka.settings.configs, function (config) {
 
             //map FAL driver
-            if (config.falDriver){
-                if (!fields.__media__.children.mounts.fields.driver.items)
+            if (config.falDriver) {
+                if (!fields.__media__.children.mounts.fields.driver.items) {
                     fields.__media__.children.mounts.fields.driver.items = {};
+                }
 
-                if (!fields.__media__.children.mounts.fields.driver.children)
+                if (!fields.__media__.children.mounts.fields.driver.children) {
                     fields.__media__.children.mounts.fields.driver.children = {};
+                }
 
-                Object.each(config.falDriver, function(driver, key){
+                Object.each(config.falDriver, function (driver, key) {
                     fields.__media__.children.mounts.fields.driver.items[driver.class] = driver.title;
 
-                    if (driver.properties){
-                        Object.each(driver.properties, function(property){
-                           property.needValue = driver.class;
+                    if (driver.properties) {
+                        Object.each(driver.properties, function (property) {
+                            property.needValue = driver.class;
                         });
-                        ka.addFieldKeyPrefix(driver.properties, 'driverOptions['+driver.class+']')
+                        ka.addFieldKeyPrefix(driver.properties, 'driverOptions[' + driver.class + ']')
                         Object.append(fields.__media__.children.mounts.fields.driver.children, driver.properties);
                     }
                 });
-           }
+            }
 
             //map Auth driver
-            if (config.clientDriver){
+            if (config.clientDriver) {
 
-                Object.each(config.clientDriver, function(driver, key){
+                Object.each(config.clientDriver, function (driver, key) {
                     fields.__client__.children['client[class]'].items[driver.class] = driver.title;
 
-                    if (driver.properties){
-                        Object.each(driver.properties, function(property){
+                    if (driver.properties) {
+                        Object.each(driver.properties, function (property) {
                             property.needValue = driver.class;
                         });
                         var properties = Object.clone(driver.properties);
-                        ka.addFieldKeyPrefix(properties, 'client[config]['+driver.class+']')
+                        ka.addFieldKeyPrefix(properties, 'client[config][' + driver.class + ']')
                         Object.append(fields.__client__.children['client[class]'].children, properties);
                     }
                 });
             }
 
             //map cache driver
-            if (config.cacheDriver){
+            if (config.cacheDriver) {
 
-                Object.each(config.cacheDriver, function(driver, key){
+                Object.each(config.cacheDriver, function (driver, key) {
                     fields.__system__.children['cache[class]'].items[driver.class] = driver.title;
 
-                    if (driver.properties){
-                        Object.each(driver.properties, function(property){
+                    if (driver.properties) {
+                        Object.each(driver.properties, function (property) {
                             property.needValue = driver.class;
                         });
                         var properties = Object.clone(driver.properties);
-                        ka.addFieldKeyPrefix(properties, 'cache[config]['+driver.class+']')
+                        ka.addFieldKeyPrefix(properties, 'cache[config][' + driver.class + ']')
                         Object.append(fields.__system__.children['cache[class]'].children, properties);
                     }
 
-
                     fields.__client__.children['client[store][class]'].items[driver.class] = driver.title;
 
-                    if (driver.properties){
-                        Object.each(driver.properties, function(property){
+                    if (driver.properties) {
+                        Object.each(driver.properties, function (property) {
                             property.needValue = driver.class;
                         });
                         var properties = Object.clone(driver.properties);
-                        ka.addFieldKeyPrefix(properties, 'client[store][config]['+driver.class+']')
+                        ka.addFieldKeyPrefix(properties, 'client[store][config][' + driver.class + ']')
                         Object.append(fields.__client__.children['client[store][class]'].children, properties);
                     }
                 });
@@ -332,27 +333,25 @@ var admin_system_settings = new Class({
 
     },
 
-
-
-    save: function(){
+    save: function () {
 
         var data = this.fieldObject.getValue();
 
         //map config
 
-        data.client.config = data.client.config ? data.client.config[data.client.class]:{};
-        data.cache.config = data.cache.config ? data.cache.config[data.cache.class]:{};
-
+        data.client.config = data.client.config ? data.client.config[data.client.class] : {};
+        data.cache.config = data.cache.config ? data.cache.config[data.cache.class] : {};
 
         this.saveBtn.startTip(t('Saving ...'));
 
-        if (this.lastSave)
+        if (this.lastSave) {
             this.lastSave.cancel();
+        }
 
-        this.lastSave = new Request.JSON({url: _path+'admin/system/config', onComplete: function(pResponse){
+        this.lastSave = new Request.JSON({url: _path + 'admin/system/config', onComplete: function (pResponse) {
 
-            if (pResponse.error){
-                this.win.alert(pResponse.error+': '+pResponse.message);
+            if (pResponse.error) {
+                this.win.alert(pResponse.error + ': ' + pResponse.message);
                 this.saveBtn.stopTip(t('Failed'));
             } else {
                 this.saveBtn.stopTip(t('Done'));
@@ -360,7 +359,6 @@ var admin_system_settings = new Class({
 
         }.bind(this)}).post(data);
     },
-
 
     changeType: function (pType) {
         Object.each(this.tabButtons, function (button, id) {
@@ -372,9 +370,12 @@ var admin_system_settings = new Class({
     },
 
     load: function () {
-        if (this.lr) this.lr.cancel();
+        if (this.lr) {
+            this.lr.cancel();
+        }
 
-        this.lr = new Request.JSON({url: _pathAdmin + 'admin/system/config', noCache: 1, onComplete: this.renderData}).get();
+        this.lr =
+            new Request.JSON({url: _pathAdmin + 'admin/system/config', noCache: 1, onComplete: this.renderData}).get();
 
     },
 
@@ -383,8 +384,12 @@ var admin_system_settings = new Class({
         var dontGo = false;
 
         Object.each(this.fields, function (field, key) {
-            if (!field) return;
-            if (dontGo) return;
+            if (!field) {
+                return;
+            }
+            if (dontGo) {
+                return;
+            }
             if (!field.isOk()) {
                 dontGo = true;
                 var parent = field.main.getParent();
@@ -401,12 +406,16 @@ var admin_system_settings = new Class({
         var obj = this.auth_params_objects[ auth_class ];
 
         if (obj) {
-            if (!obj.isOk()) return;
+            if (!obj.isOk()) {
+                return;
+            }
             req['auth_params'] = obj.getValue();
         }
-        if (dontGo) return;
+        if (dontGo) {
+            return;
+        }
 
-        if (!this.databaseFieldObj.isOk()){
+        if (!this.databaseFieldObj.isOk()) {
             this.changeType('database');
             return;
         }
@@ -414,10 +423,9 @@ var admin_system_settings = new Class({
         req['database'] = {};
 
         var values = this.databaseFieldObj.getValue();
-        Object.each(values, function(val, key){
+        Object.each(values, function (val, key) {
             req['database'][key] = val;
         })
-
 
         this.saveButton.startTip(_('Saving ...'));
 
@@ -427,7 +435,8 @@ var admin_system_settings = new Class({
             this.ls.cancel();
         }
 
-        this.ls = new Request.JSON({url: _pathAdmin + 'admin/system/settings/saveSettings', noCache: 1, onComplete: function (r) {
+        this.ls = new Request.JSON({url: _pathAdmin +
+            'admin/system/settings/saveSettings', noCache: 1, onComplete: function (r) {
             if (r.needPw) {
                 this.saveButton.startTip(_('Wating ...'));
                 this.win._passwordPrompt(_('Please enter your password'), '', this.saveCommunity.bind(this));
@@ -446,7 +455,8 @@ var admin_system_settings = new Class({
         if (this.lsc) {
             this.lsc.cancel();
         }
-        this.lsc = new Request.JSON({url: _pathAdmin + 'admin/system/settings/saveCommunity', noCache: 1, onComplete: function (r) {
+        this.lsc = new Request.JSON({url: _pathAdmin +
+            'admin/system/settings/saveCommunity', noCache: 1, onComplete: function (r) {
             this.loader.hide();
             if (r == 2) {
                 this.saveButton.stopTip(_('Error'));

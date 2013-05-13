@@ -20,25 +20,30 @@ class KrynUsers extends ClientAbstract
 
         $userColumn = 'username';
 
-        if ($this->config['emailLogin'] && strpos($pLogin, '@') !== false && strpos($pLogin, '.') !== false)
+        if ($this->config['emailLogin'] && strpos($pLogin, '@') !== false && strpos($pLogin, '.') !== false) {
             $userColumn = 'email';
+        }
 
-        $row = dbExfetch("
-            SELECT id, passwd, passwd_salt
-            FROM ".pfx."system_user
+        $row = dbExfetch(
+            "
+                        SELECT id, passwd, passwd_salt
+                        FROM " . pfx . "system_user
             WHERE
                 id > 0
                 AND $userColumn = ?
                 AND passwd IS NOT NULL AND passwd != ''
                 AND passwd_salt IS NOT NULL AND passwd_salt != ''
                 AND (auth_class IS NULL OR auth_class = 'kryn')",
-            $login);
+            $login
+        );
 
         if ($row['id'] > 0) {
 
             $hash = self::getHashedPassword($pPassword, $row['passwd_salt']);
 
-            if (!$hash || $hash != $row['passwd']) return false;
+            if (!$hash || $hash != $row['passwd']) {
+                return false;
+            }
             return $row['id'];
         }
 

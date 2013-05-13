@@ -2,11 +2,10 @@
 
 namespace Core;
 
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-
 use Core\Models\ContentQuery;
 use Core\Models\Node;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class PageController extends Controller
 {
@@ -35,10 +34,13 @@ class PageController extends Controller
         if (Kryn::$page->getType() == 1) {
             $to = Kryn::$page->getLink();
             if (!$to) {
-                Kryn::internalError(t('Redirect failed'), tf('Current page with title %s has no target link.', Kryn::$page->getTitle()));
+                Kryn::internalError(
+                    t('Redirect failed'),
+                    tf('Current page with title %s has no target link.', Kryn::$page->getTitle())
+                );
             }
 
-            if ($to+0 > 0) {
+            if ($to + 0 > 0) {
                 return new RedirectResponse(self::getPageUrl($to), 301);
             } else {
                 header("HTTP/1.1 301 Moved Permanently");
@@ -53,9 +55,9 @@ class PageController extends Controller
 
     public static function getSlotContents($pPageId, $pSlotId)
     {
-        $cacheKey     = 'core/contents/'.$pPageId.'.'.$pSlotId;
-        $cache        = Kryn::getFastCache($cacheKey);
-        $cacheCreated = Kryn::getCache($cacheKey.'.created');
+        $cacheKey = 'core/contents/' . $pPageId . '.' . $pSlotId;
+        $cache = Kryn::getFastCache($cacheKey);
+        $cacheCreated = Kryn::getCache($cacheKey . '.created');
 
         if (!$cache || $cache['created'] != $cacheCreated) {
 
@@ -65,20 +67,21 @@ class PageController extends Controller
                 ->orderByRank()
                 ->find();
 
-            $cache['data']    = serialize($contents);
+            $cache['data'] = serialize($contents);
             $cache['created'] = microtime();
             Kryn::setFastCache($cacheKey, $cache);
-            Kryn::setCache($cacheKey.'.created', $cache['created']);
+            Kryn::setCache($cacheKey . '.created', $cache['created']);
         }
 
-        return $contents ?: unserialize($cache['data']);
+        return $contents ? : unserialize($cache['data']);
 
     }
 
     public static function getSlotHtml($pSlotId, $pSlotProperties)
     {
-        if (!self::$slotContents[$pSlotId])
+        if (!self::$slotContents[$pSlotId]) {
             self::$slotContents[$pSlotId] = self::getSlotContents(Kryn::$page->getId(), $pSlotId);
+        }
 
         return Render::renderContents(self::$slotContents[$pSlotId], $pSlotProperties);
 
@@ -90,11 +93,12 @@ class PageController extends Controller
      * @param  string $pObjectKey
      * @param  string $pObjectPk
      * @param  array  $pPlugin
+     *
      * @return string
      */
     public static function getPublicUrl($pObjectKey, $pObjectPk, $pPlugin = null)
     {
-        return Node::getUrl($pObjectPk['id']+0);
+        return Node::getUrl($pObjectPk['id'] + 0);
     }
 
     /**

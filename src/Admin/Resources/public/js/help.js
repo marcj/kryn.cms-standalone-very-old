@@ -81,8 +81,8 @@ var admin_help = new Class({
                     style: 'display: block; text-decoration: none;'
 
                 }).addEvent('click', function () {
-                    this.loadHelp(faq.open);
-                }.bind(this)).inject(container);
+                        this.loadHelp(faq.open);
+                    }.bind(this)).inject(container);
 
             }.bind(this));
 

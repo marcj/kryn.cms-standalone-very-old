@@ -10,16 +10,16 @@ ka.LayoutSplitter = new Class({
     direction: 'left',
     cell: null,
 
-
-    initialize: function(pCell, pDirection, pOptions){
+    initialize: function (pCell, pDirection, pOptions) {
 
         this.setOptions(pOptions);
 
         this.cell = pCell;
         this.direction = pDirection;
 
-        if (!this.options.container)
+        if (!this.options.container) {
             this.options.container = pCell;
+        }
 
         this.renderLayout();
 
@@ -27,19 +27,17 @@ ka.LayoutSplitter = new Class({
 
     },
 
-    renderLayout: function(){
+    renderLayout: function () {
 
         this.main = new Element('div', {
             'class': 'ka-Splitter-main'
         }).inject(this.options.container);
 
-        this.main.addClass('ka-Splitter-main-'+this.direction.toLowerCase());
-
+        this.main.addClass('ka-Splitter-main-' + this.direction.toLowerCase());
 
     },
 
-
-    mapEvent: function(){
+    mapEvent: function () {
 
         var diffX = 0;
 
@@ -57,7 +55,9 @@ ka.LayoutSplitter = new Class({
 
         var key = map[this.direction.toLowerCase()];
 
-        if (!key) key = this.direction.toLowerCase();
+        if (!key) {
+            key = this.direction.toLowerCase();
+        }
 
         var height, width, x, y, newHeight, newWidth, newY, newX, max;
         var minWidth = this.options.min ? this.options.min : 5;
@@ -69,57 +69,65 @@ ka.LayoutSplitter = new Class({
             handle: this.main,
             style: false,
             modifiers: {
-                x: !['s', 'n'].contains(key)?'dragX':null,
-                y: !['e', 'w'].contains(key)?'dragY':null
+                x: !['s', 'n'].contains(key) ? 'dragX' : null,
+                y: !['e', 'w'].contains(key) ? 'dragY' : null
             },
             snap: 0,
-            onBeforeStart: function(pElement){
+            onBeforeStart: function (pElement) {
                 pElement.dragX = 0;
                 pElement.dragY = 0;
                 height = pElement.getStyle('height').toInt();
-                width  = pElement.getStyle('width').toInt();
-                y  = pElement.getStyle('top').toInt();
-                x  = pElement.getStyle('left').toInt();
+                width = pElement.getStyle('width').toInt();
+                y = pElement.getStyle('top').toInt();
+                x = pElement.getStyle('left').toInt();
 
                 newWidth = newHeight = newY = newX = null;
 
                 max = ka.adminInterface.getDesktop().getSize();
             },
-            onDrag: function(pElement){
+            onDrag: function (pElement) {
 
-                if (key === 'n' || key == 'ne' || key == 'nw'){
-                    newHeight = height-pElement.dragY;
-                    newY = y+pElement.dragY;
+                if (key === 'n' || key == 'ne' || key == 'nw') {
+                    newHeight = height - pElement.dragY;
+                    newY = y + pElement.dragY;
                 }
 
-                if (key === 's' || key == 'se' || key == 'sw')
-                    newHeight = height+pElement.dragY;
-
-                if (key === 'e' || key == 'se' || key == 'ne')
-                    newWidth = width+pElement.dragX;
-
-                if (key === 'w' || key == 'sw' || key == 'nw'){
-                    newWidth = width-pElement.dragX;
-                    newX = x+pElement.dragX;
+                if (key === 's' || key == 'se' || key == 'sw') {
+                    newHeight = height + pElement.dragY;
                 }
 
-                if (newWidth !== null && (newWidth > max.x || newWidth < minWidth) )
+                if (key === 'e' || key == 'se' || key == 'ne') {
+                    newWidth = width + pElement.dragX;
+                }
+
+                if (key === 'w' || key == 'sw' || key == 'nw') {
+                    newWidth = width - pElement.dragX;
+                    newX = x + pElement.dragX;
+                }
+
+                if (newWidth !== null && (newWidth > max.x || newWidth < minWidth)) {
                     newWidth = newX = null;
+                }
 
-                if (newHeight !== null && (newHeight > max.y || newHeight < minHeight))
+                if (newHeight !== null && (newHeight > max.y || newHeight < minHeight)) {
                     newHeight = newY = null;
+                }
 
-                if (newX !== null && newX > 0)
+                if (newX !== null && newX > 0) {
                     pElement.setStyle('left', newX);
+                }
 
-                if (newY !== null && newY > 0)
+                if (newY !== null && newY > 0) {
                     pElement.setStyle('top', newY);
+                }
 
-                if (newWidth !== null)
+                if (newWidth !== null) {
                     pElement.setStyle('width', newWidth);
+                }
 
-                if (newHeight !== null)
+                if (newHeight !== null) {
                     pElement.setStyle('height', newHeight);
+                }
 
                 self.cell.fireEvent('resize');
 
@@ -128,7 +136,6 @@ ka.LayoutSplitter = new Class({
         };
 
         new Drag(this.cell.get('tag') == 'td' ? this.cell : this.cell.getParent('td'), options);
-
 
     }
 });

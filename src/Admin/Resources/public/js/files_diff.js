@@ -40,8 +40,8 @@ var admin_files_diff = new Class({
                 this.loadFineDiff();
             }.bind(this)
         }).get({
-            path: path
-        });
+                path: path
+            });
     },
 
     loadFineDiff: function () {
@@ -54,9 +54,9 @@ var admin_files_diff = new Class({
                 this.prepareDiff(res);
             }.bind(this)
         }).get({
-            from: this.win.params.filefrom.path,
-            to: this.win.params.fileto.path
-        });
+                from: this.win.params.filefrom.path,
+                to: this.win.params.fileto.path
+            });
     },
 
     prepareDiff: function (opCodes) {
@@ -133,7 +133,9 @@ var admin_files_diff = new Class({
     escapeChars: function (s) {
         var mod = s;
 
-        mod = mod.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/ /g, "&nbsp;").replace(/\n/g, "&para;<br />");
+        mod =
+            mod.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/ /g,
+                "&nbsp;").replace(/\n/g, "&para;<br />");
 
         return mod;
     },

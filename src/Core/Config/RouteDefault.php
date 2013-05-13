@@ -2,7 +2,8 @@
 
 namespace Core\Config;
 
-class RouteDefault extends SimpleModel {
+class RouteDefault extends SimpleModel
+{
     /**
      * @var string
      */

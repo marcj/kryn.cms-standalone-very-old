@@ -1,8 +1,8 @@
 ka.SmallTabGroup = new Class({
-   Extends: ka.TabGroup,
-   'className': 'ka-tabGroup-small',
+    Extends: ka.TabGroup,
+    'className': 'ka-tabGroup-small',
 
-    addButton: function (pTitle, pOnClick, pImageSrc){
+    addButton: function (pTitle, pOnClick, pImageSrc) {
 
         var button = new Element('a', {
             'class': 'ka-tabGroup-item gradient',

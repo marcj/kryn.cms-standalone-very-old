@@ -31,7 +31,6 @@ SWFUpload.prototype.initSWFUpload = function (settings) {
         this.movieName = "SWFUpload_" + SWFUpload.movieCount++;
         this.movieElement = null;
 
-
         // Setup global control tracking
         SWFUpload.instances[this.movieName] = this;
 
@@ -98,7 +97,8 @@ SWFUpload.completeURL = function (url) {
         return url;
     }
 
-    var currentURL = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ":" + window.location.port : "");
+    var currentURL = window.location.protocol + "//" + window.location.hostname +
+        (window.location.port ? ":" + window.location.port : "");
 
     var indexSlash = window.location.pathname.lastIndexOf("/");
     if (indexSlash <= 0) {
@@ -111,7 +111,6 @@ SWFUpload.completeURL = function (url) {
 
 };
 
-
 /* ******************** */
 /* Instance Members  */
 /* ******************** */
@@ -120,7 +119,8 @@ SWFUpload.completeURL = function (url) {
 // settings are set, getting a default value if one was not assigned.
 SWFUpload.prototype.initSettings = function () {
     this.ensureDefault = function (settingName, defaultValue) {
-        this.settings[settingName] = (this.settings[settingName] == undefined) ? defaultValue : this.settings[settingName];
+        this.settings[settingName] =
+            (this.settings[settingName] == undefined) ? defaultValue : this.settings[settingName];
     };
 
     // Upload backend settings
@@ -186,7 +186,9 @@ SWFUpload.prototype.initSettings = function () {
 
     // Update the flash url if needed
     if (!!this.settings.prevent_swf_caching) {
-        this.settings.flash_url = this.settings.flash_url + (this.settings.flash_url.indexOf("?") < 0 ? "?" : "&") + "preventswfcaching=" + new Date().getTime();
+        this.settings.flash_url =
+            this.settings.flash_url + (this.settings.flash_url.indexOf("?") < 0 ? "?" : "&") + "preventswfcaching=" +
+                new Date().getTime();
     }
 
     if (!this.settings.preserve_relative_urls) {
@@ -229,7 +231,12 @@ SWFUpload.prototype.loadFlash = function () {
 // Private: getFlashHTML generates the object tag needed to embed the flash in to the document
 SWFUpload.prototype.getFlashHTML = function () {
     // Flash Satay object syntax: http://www.alistapart.com/articles/flashsatay
-    return ['<object id="', this.movieName, '" type="application/x-shockwave-flash" data="', this.settings.flash_url, '" width="', this.settings.button_width, '" height="', this.settings.button_height, '" class="swfupload">', '<param name="wmode" value="', this.settings.button_window_mode, '" />', '<param name="movie" value="', this.settings.flash_url, '" />', '<param name="quality" value="high" />', '<param name="menu" value="false" />', '<param name="allowScriptAccess" value="always" />', '<param name="flashvars" value="' + this.getFlashVars() + '" />', '</object>'].join("");
+    return ['<object id="', this.movieName, '" type="application/x-shockwave-flash" data="', this.settings.flash_url,
+        '" width="', this.settings.button_width, '" height="', this.settings.button_height, '" class="swfupload">',
+        '<param name="wmode" value="', this.settings.button_window_mode, '" />', '<param name="movie" value="',
+        this.settings.flash_url, '" />', '<param name="quality" value="high" />', '<param name="menu" value="false" />',
+        '<param name="allowScriptAccess" value="always" />',
+        '<param name="flashvars" value="' + this.getFlashVars() + '" />', '</object>'].join("");
 };
 
 // Private: getFlashVars builds the parameter string that will be passed
@@ -240,7 +247,28 @@ SWFUpload.prototype.getFlashVars = function () {
     var httpSuccessString = this.settings.http_success.join(",");
 
     // Build the parameter string
-    return ["movieName=", encodeURIComponent(this.movieName), "&amp;uploadURL=", encodeURIComponent(this.settings.upload_url), "&amp;useQueryString=", encodeURIComponent(this.settings.use_query_string), "&amp;requeueOnError=", encodeURIComponent(this.settings.requeue_on_error), "&amp;httpSuccess=", encodeURIComponent(httpSuccessString), "&amp;assumeSuccessTimeout=", encodeURIComponent(this.settings.assume_success_timeout), "&amp;params=", encodeURIComponent(paramString), "&amp;filePostName=", encodeURIComponent(this.settings.file_post_name), "&amp;fileTypes=", encodeURIComponent(this.settings.file_types), "&amp;fileTypesDescription=", encodeURIComponent(this.settings.file_types_description), "&amp;fileSizeLimit=", encodeURIComponent(this.settings.file_size_limit), "&amp;fileUploadLimit=", encodeURIComponent(this.settings.file_upload_limit), "&amp;fileQueueLimit=", encodeURIComponent(this.settings.file_queue_limit), "&amp;debugEnabled=", encodeURIComponent(this.settings.debug_enabled), "&amp;buttonImageURL=", encodeURIComponent(this.settings.button_image_url), "&amp;buttonWidth=", encodeURIComponent(this.settings.button_width), "&amp;buttonHeight=", encodeURIComponent(this.settings.button_height), "&amp;buttonText=", encodeURIComponent(this.settings.button_text), "&amp;buttonTextTopPadding=", encodeURIComponent(this.settings.button_text_top_padding), "&amp;buttonTextLeftPadding=", encodeURIComponent(this.settings.button_text_left_padding), "&amp;buttonTextStyle=", encodeURIComponent(this.settings.button_text_style), "&amp;buttonAction=", encodeURIComponent(this.settings.button_action), "&amp;buttonDisabled=", encodeURIComponent(this.settings.button_disabled), "&amp;buttonCursor=", encodeURIComponent(this.settings.button_cursor)
+    return ["movieName=", encodeURIComponent(this.movieName), "&amp;uploadURL=",
+        encodeURIComponent(this.settings.upload_url), "&amp;useQueryString=",
+        encodeURIComponent(this.settings.use_query_string), "&amp;requeueOnError=",
+        encodeURIComponent(this.settings.requeue_on_error), "&amp;httpSuccess=", encodeURIComponent(httpSuccessString),
+        "&amp;assumeSuccessTimeout=", encodeURIComponent(this.settings.assume_success_timeout), "&amp;params=",
+        encodeURIComponent(paramString), "&amp;filePostName=", encodeURIComponent(this.settings.file_post_name),
+        "&amp;fileTypes=", encodeURIComponent(this.settings.file_types), "&amp;fileTypesDescription=",
+        encodeURIComponent(this.settings.file_types_description), "&amp;fileSizeLimit=",
+        encodeURIComponent(this.settings.file_size_limit), "&amp;fileUploadLimit=",
+        encodeURIComponent(this.settings.file_upload_limit), "&amp;fileQueueLimit=",
+        encodeURIComponent(this.settings.file_queue_limit), "&amp;debugEnabled=",
+        encodeURIComponent(this.settings.debug_enabled), "&amp;buttonImageURL=",
+        encodeURIComponent(this.settings.button_image_url), "&amp;buttonWidth=",
+        encodeURIComponent(this.settings.button_width), "&amp;buttonHeight=",
+        encodeURIComponent(this.settings.button_height), "&amp;buttonText=",
+        encodeURIComponent(this.settings.button_text), "&amp;buttonTextTopPadding=",
+        encodeURIComponent(this.settings.button_text_top_padding), "&amp;buttonTextLeftPadding=",
+        encodeURIComponent(this.settings.button_text_left_padding), "&amp;buttonTextStyle=",
+        encodeURIComponent(this.settings.button_text_style), "&amp;buttonAction=",
+        encodeURIComponent(this.settings.button_action), "&amp;buttonDisabled=",
+        encodeURIComponent(this.settings.button_disabled), "&amp;buttonCursor=",
+        encodeURIComponent(this.settings.button_cursor)
     ].join("");
 };
 
@@ -267,7 +295,8 @@ SWFUpload.prototype.buildParamString = function () {
     if (typeof(postParams) === "object") {
         for (var name in postParams) {
             if (postParams.hasOwnProperty(name)) {
-                paramStringPairs.push(encodeURIComponent(name.toString()) + "=" + encodeURIComponent(postParams[name].toString()));
+                paramStringPairs.push(encodeURIComponent(name.toString()) + "=" +
+                    encodeURIComponent(postParams[name].toString()));
             }
         }
     }
@@ -283,7 +312,6 @@ SWFUpload.prototype.destroy = function () {
     try {
         // Make sure Flash is done before we try to remove it
         this.cancelUpload(null, false);
-
 
         // Remove the SWFUpload DOM nodes
         var movieElement = null;
@@ -320,13 +348,11 @@ SWFUpload.prototype.destroy = function () {
         this.eventQueue = null;
         this.movieName = null;
 
-
         return true;
     } catch (ex2) {
         return false;
     }
 };
-
 
 // Public: displayDebugInfo prints out settings and configuration
 // information about this SWFUpload instance.
@@ -334,13 +360,51 @@ SWFUpload.prototype.destroy = function () {
 // SWFUpload in production.
 SWFUpload.prototype.displayDebugInfo = function () {
     this.debug([
-        "---SWFUpload Instance Info---\n", "Version: ", SWFUpload.version, "\n", "Movie Name: ", this.movieName, "\n", "Settings:\n", "\t", "upload_url:               ", this.settings.upload_url, "\n", "\t", "flash_url:                ", this.settings.flash_url, "\n", "\t", "use_query_string:         ", this.settings.use_query_string.toString(), "\n", "\t", "requeue_on_error:         ", this.settings.requeue_on_error.toString(), "\n", "\t", "http_success:             ", this.settings.http_success.join(", "), "\n", "\t", "assume_success_timeout:   ", this.settings.assume_success_timeout, "\n", "\t", "file_post_name:           ", this.settings.file_post_name, "\n", "\t", "post_params:              ", this.settings.post_params.toString(), "\n", "\t", "file_types:               ", this.settings.file_types, "\n", "\t", "file_types_description:   ", this.settings.file_types_description, "\n", "\t", "file_size_limit:          ", this.settings.file_size_limit, "\n", "\t", "file_upload_limit:        ", this.settings.file_upload_limit, "\n", "\t", "file_queue_limit:         ", this.settings.file_queue_limit, "\n", "\t", "debug:                    ", this.settings.debug.toString(), "\n",
+        "---SWFUpload Instance Info---\n", "Version: ", SWFUpload.version, "\n", "Movie Name: ", this.movieName, "\n",
+        "Settings:\n", "\t", "upload_url:               ", this.settings.upload_url, "\n", "\t",
+        "flash_url:                ", this.settings.flash_url, "\n", "\t", "use_query_string:         ",
+        this.settings.use_query_string.toString(), "\n", "\t", "requeue_on_error:         ",
+        this.settings.requeue_on_error.toString(), "\n", "\t", "http_success:             ",
+        this.settings.http_success.join(", "), "\n", "\t", "assume_success_timeout:   ",
+        this.settings.assume_success_timeout, "\n", "\t", "file_post_name:           ", this.settings.file_post_name,
+        "\n", "\t", "post_params:              ", this.settings.post_params.toString(), "\n", "\t",
+        "file_types:               ", this.settings.file_types, "\n", "\t", "file_types_description:   ",
+        this.settings.file_types_description, "\n", "\t", "file_size_limit:          ", this.settings.file_size_limit,
+        "\n", "\t", "file_upload_limit:        ", this.settings.file_upload_limit, "\n", "\t",
+        "file_queue_limit:         ", this.settings.file_queue_limit, "\n", "\t", "debug:                    ",
+        this.settings.debug.toString(), "\n",
 
         "\t", "prevent_swf_caching:      ", this.settings.prevent_swf_caching.toString(), "\n",
 
-        "\t", "button_placeholder_id:    ", this.settings.button_placeholder_id.toString(), "\n", "\t", "button_placeholder:       ", (this.settings.button_placeholder ? "Set" : "Not Set"), "\n", "\t", "button_image_url:         ", this.settings.button_image_url.toString(), "\n", "\t", "button_width:             ", this.settings.button_width.toString(), "\n", "\t", "button_height:            ", this.settings.button_height.toString(), "\n", "\t", "button_text:              ", this.settings.button_text.toString(), "\n", "\t", "button_text_style:        ", this.settings.button_text_style.toString(), "\n", "\t", "button_text_top_padding:  ", this.settings.button_text_top_padding.toString(), "\n", "\t", "button_text_left_padding: ", this.settings.button_text_left_padding.toString(), "\n", "\t", "button_action:            ", this.settings.button_action.toString(), "\n", "\t", "button_disabled:          ", this.settings.button_disabled.toString(), "\n",
+        "\t", "button_placeholder_id:    ", this.settings.button_placeholder_id.toString(), "\n", "\t",
+        "button_placeholder:       ", (this.settings.button_placeholder ? "Set" : "Not Set"), "\n", "\t",
+        "button_image_url:         ", this.settings.button_image_url.toString(), "\n", "\t",
+        "button_width:             ", this.settings.button_width.toString(), "\n", "\t", "button_height:            ",
+        this.settings.button_height.toString(), "\n", "\t", "button_text:              ",
+        this.settings.button_text.toString(), "\n", "\t", "button_text_style:        ",
+        this.settings.button_text_style.toString(), "\n", "\t", "button_text_top_padding:  ",
+        this.settings.button_text_top_padding.toString(), "\n", "\t", "button_text_left_padding: ",
+        this.settings.button_text_left_padding.toString(), "\n", "\t", "button_action:            ",
+        this.settings.button_action.toString(), "\n", "\t", "button_disabled:          ",
+        this.settings.button_disabled.toString(), "\n",
 
-        "\t", "custom_settings:          ", this.settings.custom_settings.toString(), "\n", "Event Handlers:\n", "\t", "swfupload_loaded_handler assigned:  ", (typeof this.settings.swfupload_loaded_handler === "function").toString(), "\n", "\t", "file_dialog_start_handler assigned: ", (typeof this.settings.file_dialog_start_handler === "function").toString(), "\n", "\t", "file_queued_handler assigned:       ", (typeof this.settings.file_queued_handler === "function").toString(), "\n", "\t", "file_queue_error_handler assigned:  ", (typeof this.settings.file_queue_error_handler === "function").toString(), "\n", "\t", "upload_start_handler assigned:      ", (typeof this.settings.upload_start_handler === "function").toString(), "\n", "\t", "upload_progress_handler assigned:   ", (typeof this.settings.upload_progress_handler === "function").toString(), "\n", "\t", "upload_error_handler assigned:      ", (typeof this.settings.upload_error_handler === "function").toString(), "\n", "\t", "upload_success_handler assigned:    ", (typeof this.settings.upload_success_handler === "function").toString(), "\n", "\t", "upload_complete_handler assigned:   ", (typeof this.settings.upload_complete_handler === "function").toString(), "\n", "\t", "debug_handler assigned:             ", (typeof this.settings.debug_handler === "function").toString(), "\n"
+        "\t", "custom_settings:          ", this.settings.custom_settings.toString(), "\n", "Event Handlers:\n", "\t",
+        "swfupload_loaded_handler assigned:  ",
+        (typeof this.settings.swfupload_loaded_handler === "function").toString(), "\n", "\t",
+        "file_dialog_start_handler assigned: ",
+        (typeof this.settings.file_dialog_start_handler === "function").toString(), "\n", "\t",
+        "file_queued_handler assigned:       ", (typeof this.settings.file_queued_handler === "function").toString(),
+        "\n", "\t", "file_queue_error_handler assigned:  ",
+        (typeof this.settings.file_queue_error_handler === "function").toString(), "\n", "\t",
+        "upload_start_handler assigned:      ", (typeof this.settings.upload_start_handler === "function").toString(),
+        "\n", "\t", "upload_progress_handler assigned:   ",
+        (typeof this.settings.upload_progress_handler === "function").toString(), "\n", "\t",
+        "upload_error_handler assigned:      ", (typeof this.settings.upload_error_handler === "function").toString(),
+        "\n", "\t", "upload_success_handler assigned:    ",
+        (typeof this.settings.upload_success_handler === "function").toString(), "\n", "\t",
+        "upload_complete_handler assigned:   ",
+        (typeof this.settings.upload_complete_handler === "function").toString(), "\n", "\t",
+        "debug_handler assigned:             ", (typeof this.settings.debug_handler === "function").toString(), "\n"
     ].join(""));
 };
 
@@ -365,7 +429,6 @@ SWFUpload.prototype.getSetting = function (name) {
     return "";
 };
 
-
 // Private: callFlash handles function calls made to the Flash element.
 // Calls are made with a setTimeout for some functions to work around
 // bugs in the ExternalInterface library.
@@ -377,7 +440,8 @@ SWFUpload.prototype.callFlash = function (functionName, argumentArray) {
 
     // Flash's method if calling ExternalInterface methods (code adapted from MooTools).
     try {
-        returnString = movieElement.CallFunction('<invoke name="' + functionName + '" returntype="javascript">' + __flash__argumentsToXML(argumentArray, 0) + '</invoke>');
+        returnString = movieElement.CallFunction('<invoke name="' + functionName + '" returntype="javascript">' +
+            __flash__argumentsToXML(argumentArray, 0) + '</invoke>');
         returnValue = eval(returnString);
     } catch (ex) {
         throw "Call to " + functionName + " failed";
@@ -413,7 +477,6 @@ SWFUpload.prototype.selectFile = function () {
 SWFUpload.prototype.selectFiles = function () {
     this.callFlash("SelectFiles");
 };
-
 
 // Public: startUpload starts uploading the first file in the queue unless
 // the optional parameter 'fileID' specifies the ID 
@@ -762,19 +825,16 @@ SWFUpload.prototype.cleanUp = function (movieElement) {
 
 };
 
-
 /* This is a chance to do something before the browse window opens */
 SWFUpload.prototype.fileDialogStart = function () {
     this.queueEvent("file_dialog_start_handler");
 };
-
 
 /* Called when a file is successfully added to the queue. */
 SWFUpload.prototype.fileQueued = function (file) {
     file = this.unescapeFilePostParams(file);
     this.queueEvent("file_queued_handler", file);
 };
-
 
 /* Handle errors that occur when an attempt to queue a file fails. */
 SWFUpload.prototype.fileQueueError = function (file, errorCode, message) {
@@ -813,7 +873,6 @@ SWFUpload.prototype.returnUploadStart = function (file) {
     this.callFlash("ReturnUploadStart", [returnValue]);
 };
 
-
 SWFUpload.prototype.uploadProgress = function (file, bytesComplete, bytesTotal) {
     file = this.unescapeFilePostParams(file);
     this.queueEvent("upload_progress_handler", [file, bytesComplete, bytesTotal]);
@@ -839,7 +898,6 @@ SWFUpload.prototype.uploadComplete = function (file) {
 SWFUpload.prototype.debug = function (message) {
     this.queueEvent("debug_handler", message);
 };
-
 
 /* **********************************
  Debug Console

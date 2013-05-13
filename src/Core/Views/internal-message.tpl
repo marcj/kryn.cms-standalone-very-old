@@ -1,8 +1,9 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
     <title>[[404 - Not found]]</title>
-    <base href="{Kryn::getBaseUrl()}" />
+    <base href="{Kryn::getBaseUrl()}"/>
     <style type="text/css">
         body {
             color: white;
@@ -35,8 +36,10 @@
 </head>
 <body>
 <div id="error">
-    <img src="core/images/logo_white.png" />
+    <img src="core/images/logo_white.png"/>
+
     <h2>{$title}</h2>
+
     <div class="msg">{$msg}
     </div>
 </div>

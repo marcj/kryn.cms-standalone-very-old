@@ -70,7 +70,7 @@
     border-bottom: 1px solid silver;
 }
 
-.tinyMceExternalToolbarParent  {
+.tinyMceExternalToolbarParent {
     position: fixed;
     left: 0px;
     top: 0px;
@@ -105,10 +105,8 @@ body .o2k7Skin table {
     background-position: left -18px;
 }
 
-
 body .ka-layoutBox-main img,
-body .ka-layoutContent-main img
- {
+body .ka-layoutContent-main img {
     padding: 0px;
     border: 0px;
     background-color: transparent;

@@ -23,7 +23,7 @@
  *
  * @param string     $pValue
  * @param int|string $pType 1=(default) normal escape, 2=remove all except a-zA-Z0-9-_, or PDO::PARAM_*=
- *                   PDO::PARAM_STR, PDO::PARAM_INT, etc
+ *                          PDO::PARAM_STR, PDO::PARAM_INT, etc
  *
  * @global
  * @return string Escaped string
@@ -45,15 +45,16 @@ function esc($pValue, $pType = 1)
  * Quotes $pValue. Adds $pTable to the beginning if set.
  *
  * @param string|array $pValue Possible is "test, bla, blub" or just "foo". If array("foo", "bar") it returns a array again
- * @param $pTable
+ * @param              $pTable
  *
  * @return mixed
  */
 function dbQuote($pValue, $pTable = '')
 {
     if (is_array($pValue)) {
-        foreach ($pValue as &$value)
+        foreach ($pValue as &$value) {
             $value = dbQuote($value);
+        }
 
         return $pValue;
     }
@@ -65,7 +66,7 @@ function dbQuote($pValue, $pTable = '')
     }
 
     if ($pTable && strpos($pValue, '.') === false) {
-        return dbQuote($pTable).'.'.dbQuote($pValue);
+        return dbQuote($pTable) . '.' . dbQuote($pValue);
     }
 
     return preg_replace('/[^a-zA-Z0-9-_]/', '', $pValue);;
@@ -110,7 +111,9 @@ function dbRollback()
         $activeLock = false;
     }
 
-    if (!$activeTransaction) return;
+    if (!$activeTransaction) {
+        return;
+    }
     dbExec('ROLLBACK');
     $activeTransaction = false;
 }
@@ -160,7 +163,6 @@ function dbExFetchAll($pQuery, $pParams = null)
 }
 
 
-
 /**
  * Executes an SQL query and returns the PDOStatement.
  * Do not forget to closeCursor().
@@ -176,15 +178,18 @@ function dbQuery($pQuery, $pParams = null)
 {
     global $dbLastInsertedTable;
 
-    if (preg_match('/[\s\n\t]*INSERT[\t\n ]+INTO[\t\n ]+([a-z0-9\_\-]+)/is', $pQuery, $matches))
+    if (preg_match('/[\s\n\t]*INSERT[\t\n ]+INTO[\t\n ]+([a-z0-9\_\-]+)/is', $pQuery, $matches)) {
         $dbLastInsertedTable = $matches[1];
+    }
 
     if ($pParams !== null) {
         $stm = dbConnection()->prepare($pQuery);
 
-        if (!is_array($pParams)) $pParams = array($pParams);
+        if (!is_array($pParams)) {
+            $pParams = array($pParams);
+        }
         $stm->execute($pParams);
-		return dbConnection()->getDataFetcher($stm);
+        return dbConnection()->getDataFetcher($stm);
     } else {
         return dbConnection()->query($pQuery);
     }
@@ -196,8 +201,9 @@ function dbQuery($pQuery, $pParams = null)
  *
  * If $pParams is given a prepared statement is used.
  *
- * @param $pQuery
+ * @param        $pQuery
  * @param array  $pParams The parameters to bind to the query
+ *
  * @return int
  */
 
@@ -213,21 +219,24 @@ function dbExec($pQuery, $pParams = null)
 /**
  *
  *
- * @param $pTable
- * @param $pCount
+ * @param      $pTable
+ * @param      $pCount
  * @param bool $pWhere
+ *
  * @return array
  */
 function dbTableLang($pTable, $pCount = -1, $pWhere = false)
 {
-    if ($_REQUEST['lang'])
+    if ($_REQUEST['lang']) {
         $lang = esc($_REQUEST['lang']);
-    else
+    } else {
         $lang = Core\Kryn::$language;
-    if ($pWhere)
+    }
+    if ($pWhere) {
         $pWhere = " lang = '$lang' AND " . $pWhere;
-    else
+    } else {
         $pWhere = "lang = '$lang'";
+    }
 
     return dbTableFetch($pTable, $pCount, $pWhere);
 }
@@ -236,8 +245,8 @@ function dbTableLang($pTable, $pCount = -1, $pWhere = false)
 /**
  * Returns first item based on pWhere, pTable.
  *
- * @param string  $pTable The table name based on your extension table definition.
- * @param mixed   $pWhere condition object or string
+ * @param string  $pTable  The table name based on your extension table definition.
+ * @param mixed   $pWhere  condition object or string
  * @param string  $pFields Comma separated list of the columns
  *
  * @return array
@@ -246,13 +255,16 @@ function dbTableFetch($pTable, $pWhere = '', $pFields = '*')
 {
     $table = dbTableName($pTable);
 
-    if ($pFields != '*')
+    if ($pFields != '*') {
         $pFields = dbQuote($pFields);
+    }
 
     $sql = "SELECT $pFields FROM $table";
     $data = array();
     if ($pWhere !== '') {
-        if (is_array($pWhere)) $pWhere = dbConditionToSql($pWhere, $data);
+        if (is_array($pWhere)) {
+            $pWhere = dbConditionToSql($pWhere, $data);
+        }
         $sql .= " WHERE $pWhere";
     }
 
@@ -262,8 +274,8 @@ function dbTableFetch($pTable, $pWhere = '', $pFields = '*')
 /**
  * Returns a list of items from pTable limited with pWhere.
  *
- * @param string  $pTable The table name based on your extension table definition.
- * @param mixed   $pWhere condition object or string
+ * @param string  $pTable  The table name based on your extension table definition.
+ * @param mixed   $pWhere  condition object or string
  * @param string  $pFields Comma separated list of the columns
  *
  * @return array
@@ -272,13 +284,16 @@ function dbTableFetchAll($pTable, $pWhere = '', $pFields = '*')
 {
     $table = dbTableName($pTable);
 
-    if ($pFields != '*')
+    if ($pFields != '*') {
         $pFields = dbQuote($pFields);
+    }
 
     $data = array();
     $sql = "SELECT $pFields FROM $table";
     if ($pWhere !== '') {
-        if (is_array($pWhere)) $pWhere = dbConditionToSql($pWhere, $data);
+        if (is_array($pWhere)) {
+            $pWhere = dbConditionToSql($pWhere, $data);
+        }
         $sql .= " WHERE $pWhere";
     }
 
@@ -291,18 +306,19 @@ function dbTableFetchAll($pTable, $pWhere = '', $pFields = '*')
  * framework won't add the prefix at the beginning.
  *
  * @param $pTable
+ *
  * @return string
  */
 function dbTableName($pTable)
 {
-    return strtolower((substr($pTable,0,1) == '/')?$pTable:Core\Kryn::$config['database']['prefix'].$pTable);
+    return strtolower((substr($pTable, 0, 1) == '/') ? $pTable : Core\Kryn::$config['database']['prefix'] . $pTable);
 }
 
 /**
  * Inserts the values based on pFields into the table pTable.
  *
  * @param string $pTable  The table name based on your extension table definition
- * @param array  $pData Array as a key-value pair. key is the column name and the value is the value. More infos under http://www.Core\Kryn.org/docu/developer/framework-database
+ * @param array  $pData   Array as a key-value pair. key is the column name and the value is the value. More infos under http://www.Core\Kryn.org/docu/developer/framework-database
  *
  * @return integer The last_insert_id() (if you use auto_increment/sequences)
  */
@@ -319,10 +335,11 @@ function dbInsert($pTable, $pData)
         . ' (' . implode(', ', $cols) . ')'
         . ' VALUES (' . implode(', ', $values) . ')';
 
-    if (dbExec($query, array_values($pData)))
+    if (dbExec($query, array_values($pData))) {
         return dbLastId();
-    else
+    } else {
         return false;
+    }
 }
 
 /**
@@ -336,10 +353,11 @@ function dbInsert($pTable, $pData)
 function dbToKeyIndex(&$pItems, $pIndex)
 {
     $res = array();
-    if (count($pItems) > 0)
+    if (count($pItems) > 0) {
         foreach ($pItems as $item) {
             $res[$item[$pIndex]] = $item;
         }
+    }
 
     return $res;
 }
@@ -353,7 +371,7 @@ function dbToKeyIndex(&$pItems, $pIndex)
 
 function dbError()
 {
-    return dbConnection()->errorCode ();
+    return dbConnection()->errorCode();
 }
 
 /**
@@ -367,6 +385,7 @@ function dbErrorInfo()
 {
     return dbConnection()->errorInfo();
 }
+
 /**
  * Returns PDO::lastInsertId
  *
@@ -382,15 +401,17 @@ function dbLastId()
         } catch (\Exception $e) {
             return 0;
         }
-    } else return dbConnection()->lastInsertId();
+    } else {
+        return dbConnection()->lastInsertId();
+    }
 }
 
 /**
  * Update a row or rows with the values based on pFields into the table pTable.
  *
- * @param string       $pTable   The table name based on your extension table definition
+ * @param string       $pTable     The table name based on your extension table definition
  * @param string|array $pCondition Define the limitation as a SQL or as a array ('field' => 'value')
- * @param array        $pData  Array as a key-value pair. key is the column name and the value is the value. More infos under http://www.Core\Kryn.org/docu/developer/framework-database
+ * @param array        $pData      Array as a key-value pair. key is the column name and the value is the value. More infos under http://www.Core\Kryn.org/docu/developer/framework-database
  *
  * @return type
  */
@@ -400,21 +421,21 @@ function dbUpdate($pTable, $pCondition = array(), $pData = array())
 
     $fields = array();
     foreach ($pData as $column => $value) {
-        $fields[] = $column.' = ?';
+        $fields[] = $column . ' = ?';
     }
 
     $data = array_merge(array_values($pData), array_values($pCondition));
 
-    $sql  = 'UPDATE ' . $table . ' SET ' . implode(', ', $fields)
-          .' WHERE ' . implode('=? AND ', array_keys($pCondition)) . '= ?';
+    $sql = 'UPDATE ' . $table . ' SET ' . implode(', ', $fields)
+        . ' WHERE ' . implode('=? AND ', array_keys($pCondition)) . '= ?';
 
-    return dbExec($sql, $data)?true:false;
+    return dbExec($sql, $data) ? true : false;
 }
 
 /**
  * Deletes rows from the table based on the pWhere
  *
- * @param string $pTable The table name based on your extension table definition
+ * @param string       $pTable The table name based on your extension table definition
  * @param string|array $pWhere Do not forget this, otherwise the table will be truncated. You can use array as in
  *
  * @return bool
@@ -425,10 +446,12 @@ function dbDelete($pTable, $pWhere = '')
 
     $data = array();
     $sql = "DELETE FROM " . $table . "";
-    if (is_string($pWhere) && $pWhere)
+    if (is_string($pWhere) && $pWhere) {
         $sql .= " WHERE $pWhere ";
-    if (is_array($pWhere))
-        $sql .= " WHERE ".dbConditionToSql($pWhere, $data);
+    }
+    if (is_array($pWhere)) {
+        $sql .= " WHERE " . dbConditionToSql($pWhere, $data);
+    }
 
     return dbExec($sql, $data);
 }
@@ -437,6 +460,7 @@ function dbDelete($pTable, $pWhere = '')
  * Returns the number of rows affected by the last SQL statement
  *
  * @param $pStatement
+ *
  * @return int
  */
 function dbNumRows($pStatement)
@@ -448,12 +472,14 @@ function dbNumRows($pStatement)
  * Closes the cursor, enabling the statement to be executed again
  *
  * @param $pStatement
+ *
  * @return bool
  */
 function dbFree($pStatement)
 {
-    if ($pStatement && $pStatement instanceof \PDOStatement)
+    if ($pStatement && $pStatement instanceof \PDOStatement) {
         return $pStatement->closeCursor();
+    }
 }
 
 /**
@@ -465,7 +491,7 @@ function dbFree($pStatement)
  */
 function dbFetch($pStatement)
 {
-    return !$pStatement?false:$pStatement->fetch(PDO::FETCH_ASSOC);
+    return !$pStatement ? false : $pStatement->fetch(PDO::FETCH_ASSOC);
 }
 
 /**
@@ -477,7 +503,7 @@ function dbFetch($pStatement)
  */
 function dbFetchAll($pStatement)
 {
-    return !$pStatement?false:$pStatement->fetchAll(PDO::FETCH_ASSOC);
+    return !$pStatement ? false : $pStatement->fetchAll(PDO::FETCH_ASSOC);
 }
 
 /**
@@ -510,20 +536,24 @@ function dbOrderToSql($pValues, $pTable = '')
     $sql = ' ORDER BY ';
 
     if (count($pValues) == 1 && !is_array($pValues[0])) {
-        return $sql.dbQuote(key($pValues), $pTable).' '.((strtolower(current($pValues))=='asc')?'ASC':'DESC');
+        return $sql . dbQuote(key($pValues), $pTable) . ' ' . ((strtolower(
+            current($pValues)
+        ) == 'asc') ? 'ASC' : 'DESC');
     }
 
     if (is_numeric(key($pValues[0]))) {
 
         foreach ($pValues as $order) {
-            $sql .= dbQuote($order['field'], $pTable).' '.((strtolower($order['direction'])=='asc')?'ASC':'DESC').',';
+            $sql .= dbQuote($order['field'], $pTable) . ' ' . ((strtolower(
+                $order['direction']
+            ) == 'asc') ? 'ASC' : 'DESC') . ',';
         }
     }
 
     if (!is_numeric(key($pValues[0]))) {
 
         foreach ($pValues as $key => $order) {
-            $sql .= dbQuote($key, $pTable).' '.((strtolower($order)=='asc')?'ASC':'DESC').',';
+            $sql .= dbQuote($key, $pTable) . ' ' . ((strtolower($order) == 'asc') ? 'ASC' : 'DESC') . ',';
         }
     }
 
@@ -531,7 +561,7 @@ function dbOrderToSql($pValues, $pTable = '')
 }
 
 /**####################################################################################################################
-   ####################################################################################################################
+####################################################################################################################
  *
  *  DEPRECATED
  *
@@ -555,8 +585,9 @@ function dbCount($pTable, $pWhere = false)
     if (Core\Kryn::$config['database']['type'] == 'pgsql') {
 
         $sql = "SELECT 1 FROM $table";
-        if ($pWhere != false)
+        if ($pWhere != false) {
             $sql .= " WHERE $pWhere ";
+        }
 
         $res = dbQuery($sql);
 
@@ -567,9 +598,10 @@ function dbCount($pTable, $pWhere = false)
         return $count;
 
     } else {
-        $sql = "SELECT count(*) as ".dbQuote('counter')." FROM $table";
-        if ($pWhere != false)
+        $sql = "SELECT count(*) as " . dbQuote('counter') . " FROM $table";
+        if ($pWhere != false) {
             $sql .= " WHERE $pWhere ";
+        }
 
         $row = dbExfetch($sql);
 
@@ -590,6 +622,7 @@ function dbCount($pTable, $pWhere = false)
  * => returns array( "title, category_id", "'foo', 2" )
  *
  * @param  array $pValues
+ *
  * @return string
  */
 function dbValuesToCommaSeperated($pValues)
@@ -608,7 +641,7 @@ function dbValuesToCommaSeperated($pValues)
 
         $fields[] = $fieldName;
 
-        $values[] = is_numeric($val) ? $val : "'".esc($val)."'";
+        $values[] = is_numeric($val) ? $val : "'" . esc($val) . "'";
     }
 
     return array(
@@ -620,8 +653,9 @@ function dbValuesToCommaSeperated($pValues)
 /**
  * Extracts all field names from a Order array.
  *
- * @param $pValues
+ * @param        $pValues
  * @param string $pTable
+ *
  * @return array
  */
 function dbExtractOrderFields($pValues, $pTable = '')
@@ -658,6 +692,7 @@ function dbExtractOrderFields($pValues, $pTable = '')
  * @param array  $pCondition
  * @param string $pObjectKey
  * @param string $pTable Adds the table name in front of the field names. ($pTable.<column>)
+ *
  * @return bool|string
  */
 function dbPrimaryKeyToCondition($pCondition, $pObjectKey = null, $pTable = '')
@@ -679,7 +714,10 @@ function dbPrimaryKeyToCondition($pCondition, $pObjectKey = null, $pTable = '')
     //
     // pk:
     // [ ["bla" => 1], ["bla" => 2] ]
-    if (is_array($pCondition) && array_key_exists(0, $pCondition) && is_array($pCondition[0]) && is_numeric(key($pCondition)) && is_numeric(key($pCondition[0]))) {
+    if (is_array($pCondition) && array_key_exists(0, $pCondition) && is_array($pCondition[0]) && is_numeric(
+        key($pCondition)
+    ) && is_numeric(key($pCondition[0]))
+    ) {
         //its already a condition object
         return $pCondition;
     }
@@ -696,21 +734,29 @@ function dbPrimaryKeyToCondition($pCondition, $pObjectKey = null, $pTable = '')
 
                 foreach ($group as $primKey => $primValue) {
 
-                    if (!is_string($primKey))
+                    if (!is_string($primKey)) {
                         $primKey = $primaries[$primKey];
+                    }
 
-                    if ($cGroup) $cGroup[] = 'and';
+                    if ($cGroup) {
+                        $cGroup[] = 'and';
+                    }
                     $cGroup[] = array(dbQuote($primKey, $pTable), '=', $primValue);
                 }
             } else {
 
-                if (!is_string($idx))
+                if (!is_string($idx)) {
                     $primKey = $primaries[0];
+                }
 
-                if ($cGroup) $cGroup[] = 'and';
+                if ($cGroup) {
+                    $cGroup[] = 'and';
+                }
                 $cGroup[] = array(dbQuote($primKey, $pTable), '=', $group);
             }
-            if ($result) $result[] = 'or';
+            if ($result) {
+                $result[] = 'or';
+            }
             $result[] = $cGroup;
         }
 
@@ -719,7 +765,9 @@ function dbPrimaryKeyToCondition($pCondition, $pObjectKey = null, $pTable = '')
         $group = array();
 
         foreach ($pCondition as $primKey => $primValue) {
-            if ($group) $group[] = 'and';
+            if ($group) {
+                $group[] = 'and';
+            }
             $group[] = array(dbQuote($primKey, $pTable), '=', $primValue);
         }
         $result[] = $group;
@@ -782,24 +830,46 @@ function dbPrimaryKeyToCondition($pCondition, $pObjectKey = null, $pTable = '')
  */
 function dbConditionToSql($pConditions, &$pData, $pTablePrefix = '', $pObjectKey = '', &$pFieldNames = null)
 {
-    if ($pConditions === NULL) return '';
-    if (!is_array($pConditions) && $pConditions !== false && $pConditions !== null) $pConditions = array($pConditions);
+    if ($pConditions === null) {
+        return '';
+    }
+    if (!is_array($pConditions) && $pConditions !== false && $pConditions !== null) {
+        $pConditions = array($pConditions);
+    }
 
     if (is_array($pConditions) && !is_numeric(key($pConditions))) {
         //array( 'bla' => 'hui' );
         //we have a structure like in dbPrimaryKeyToConditionToSql, so call it
-        return dbConditionToSql(dbPrimaryKeyToCondition($pConditions, $pObjectKey), $pData, $pTablePrefix, $pObjectKey, $pFieldNames);
+        return dbConditionToSql(
+            dbPrimaryKeyToCondition($pConditions, $pObjectKey),
+            $pData,
+            $pTablePrefix,
+            $pObjectKey,
+            $pFieldNames
+        );
     }
 
     if (is_array($pConditions[0]) && !is_numeric(key($pConditions[0]))) {
         //array( array('bla' => 'bla', ... );
         //we have a structure like in dbPrimaryKeyToConditionToSql, so call it
-        return dbConditionToSql(dbPrimaryKeyToCondition($pConditions, $pObjectKey), $pData, $pTablePrefix, $pObjectKey, $pFieldNames);
+        return dbConditionToSql(
+            dbPrimaryKeyToCondition($pConditions, $pObjectKey),
+            $pData,
+            $pTablePrefix,
+            $pObjectKey,
+            $pFieldNames
+        );
     }
 
     if (!is_array($pConditions[0])) {
         //array( 1, 2, 3 );
-        return dbConditionToSql(dbPrimaryKeyToCondition($pConditions, $pObjectKey), $pData, $pTablePrefix, $pObjectKey, $pFieldNames);
+        return dbConditionToSql(
+            dbPrimaryKeyToCondition($pConditions, $pObjectKey),
+            $pData,
+            $pTablePrefix,
+            $pObjectKey,
+            $pFieldNames
+        );
     }
 
     return dbFullConditionToSql($pConditions, $pData, $pTablePrefix, $pFieldNames);
@@ -810,7 +880,8 @@ function dbConditionToSql($pConditions, &$pData, $pTablePrefix = '', $pObjectKey
  *
  *
  * @experimental Do not Use this.
- * @param $pConditions
+ *
+ * @param        $pConditions
  * @param string $pTablePrefix
  * @param string $pObjectKey
  */
@@ -820,7 +891,7 @@ function dbFullConditionToCriteria($pConditions, $pObjectKey)
 
     $conds = array();
     $where = array();
-    $peer = $pObjectKey.'Peer';
+    $peer = $pObjectKey . 'Peer';
 
     $dbMap = Propel::getDatabaseMap($peer::DATABASE_NAME);
     $tableMap = $dbMap->getTable($peer::TABLE_NAME);
@@ -840,22 +911,25 @@ function dbFullConditionToCriteria($pConditions, $pObjectKey)
                 $firstCriterion = null;
                 foreach ($condition as $sub) {
                     if (is_string($sub)) {
-                        if (strtolower($sub) == 'or')
+                        if (strtolower($sub) == 'or') {
                             $criteria->_or();
+                        }
                     } else {
                         $f = $sub[0];
 
-                        if (($pos = strpos($f, '.')) === false && $pObjectKey)
-                            $field = $pObjectKey.'.'.$f;
-                        else
+                        if (($pos = strpos($f, '.')) === false && $pObjectKey) {
+                            $field = $pObjectKey . '.' . $f;
+                        } else {
                             $tableMap->getColumn($f)->getFullyQualifiedName();
+                        }
 
                         $nCriterion = new \Criterion($criteria, $f, $sub[2], $sub[1]);
 
-                        if (!$firstCriterion)
+                        if (!$firstCriterion) {
                             $firstCriterion = $nCriterion;
-                        else
+                        } else {
                             $firstCriterion->addAnd($nCriterion);
+                        }
                     }
                 }
 
@@ -912,10 +986,6 @@ function dbFullConditionToCriteria($pConditions, $pObjectKey)
 //                }
 
 
-
-
-
-
                 //$criteria->$lastOperator($lastCriteria);
 
             } elseif (is_array($condition)) {
@@ -923,10 +993,11 @@ function dbFullConditionToCriteria($pConditions, $pObjectKey)
                 //$lastCriteria = new \Criterion();
                 $field = $condition[0];
 
-                if (($pos = strpos($field, '.')) === false && $pObjectKey)
-                    $field = $pObjectKey.'.'.$field;
-                else
+                if (($pos = strpos($field, '.')) === false && $pObjectKey) {
+                    $field = $pObjectKey . '.' . $field;
+                } else {
                     $tableMap->getColumn($field)->getFullyQualifiedName();
+                }
 
                 $criteria->$lastOperator($field, $condition[2], $condition[1]);
                 //$result .= dbConditionSingleField($condition, $pData, $pTablePrefix, $pFieldNames);
@@ -948,8 +1019,12 @@ function dbFullConditionToCriteria($pConditions, $pObjectKey)
 
 function dbConditionToCriteria($pConditions, $pObjectKey = '')
 {
-    if ($pConditions === NULL) return '';
-    if (!is_array($pConditions) && $pConditions !== false && $pConditions !== null) $pConditions = array($pConditions);
+    if ($pConditions === null) {
+        return '';
+    }
+    if (!is_array($pConditions) && $pConditions !== false && $pConditions !== null) {
+        $pConditions = array($pConditions);
+    }
 
     if (is_array($pConditions) && !is_numeric(key($pConditions))) {
         //array( 'bla' => 'hui' );
@@ -993,11 +1068,11 @@ function dbFullConditionToSql($pConditions, &$pData, $pTablePrefix, &$pFieldName
         foreach ($pConditions as $condition) {
 
             if (is_array($condition) && is_array($condition[0])) {
-                $result .= ' ('.dbFullConditionToSql($condition, $pData, $pTablePrefix, $pFieldNames).')';
+                $result .= ' (' . dbFullConditionToSql($condition, $pData, $pTablePrefix, $pFieldNames) . ')';
             } elseif (is_array($condition)) {
                 $result .= dbConditionSingleField($condition, $pData, $pTablePrefix, $pFieldNames);
             } elseif (is_string($condition)) {
-                $result .= ' '.$condition.' ';
+                $result .= ' ' . $condition . ' ';
             }
 
         }
@@ -1010,45 +1085,54 @@ function dbFullConditionToSql($pConditions, &$pData, $pTablePrefix, &$pFieldName
  * Helper function for dbFullConditionToSql()
  *
  * @internal
+ *
  * @param array  $pCondition
  * @param array  &$pData
  * @param string $pTable
  * @param array  &$pFieldNames
+ *
  * @return string
  */
 function dbConditionSingleField($pCondition, &$pData, $pTable = '', &$pFieldNames = null)
 {
-    if ($pCondition[0] === NULL) return '';
+    if ($pCondition[0] === null) {
+        return '';
+    }
 
     if (!is_numeric($pCondition[0])) {
         if (($pos = strpos($pCondition[0], '.')) === false) {
-            $result = ($pTable?dbQuote($pTable).'.':'').dbQuote($pCondition[0]).' ';
-            if ($pFieldNames !== null) $pFieldNames[] = $pCondition[0];
+            $result = ($pTable ? dbQuote($pTable) . '.' : '') . dbQuote($pCondition[0]) . ' ';
+            if ($pFieldNames !== null) {
+                $pFieldNames[] = $pCondition[0];
+            }
         } else {
-            $result = dbQuote(substr($pCondition[0], 0, $pos)).'.'.dbQuote(substr($pCondition[0], $pos)).' ';
-            if ($pFieldNames !== null) $pFieldNames[] = substr($pCondition[0], $pos);
+            $result = dbQuote(substr($pCondition[0], 0, $pos)) . '.' . dbQuote(substr($pCondition[0], $pos)) . ' ';
+            if ($pFieldNames !== null) {
+                $pFieldNames[] = substr($pCondition[0], $pos);
+            }
         }
     } else {
         $result = $pCondition[0];
     }
 
-    if (strtolower($pCondition[1]) == 'regexp')
-        $result .= Core\Kryn::$config['database']['type']=='mysql'?'REGEXP':'~';
-    else
+    if (strtolower($pCondition[1]) == 'regexp') {
+        $result .= Core\Kryn::$config['database']['type'] == 'mysql' ? 'REGEXP' : '~';
+    } else {
         $result .= $pCondition[1];
+    }
 
     if (!is_numeric($pCondition[0])) {
-        if ($pCondition[2] !== NULL) {
-            $pData[':p'.(count($pData)+1)] = $pCondition[2];
-            $p = ':p'.count($pData);
+        if ($pCondition[2] !== null) {
+            $pData[':p' . (count($pData) + 1)] = $pCondition[2];
+            $p = ':p' . count($pData);
             if (strtolower($pCondition[1]) == 'in') {
                 $result .= " ($p)";
             } else {
-                $result .= ' '.$p;
+                $result .= ' ' . $p;
             }
         }
     } else {
-        $result .= ' '.($pCondition[0]+0);
+        $result .= ' ' . ($pCondition[0] + 0);
     }
 
     return $result;
@@ -1060,12 +1144,13 @@ function dbConditionSingleField($pCondition, &$pData, $pTable = '', &$pFieldName
  * Since a condition object can contains nested other conditions, this function is very helpful.
  *
  * @param $pCondition
+ *
  * @return array
  */
 function dbExtractConditionFields($pCondition)
 {
     $fields = array();
-    $data   = array();
+    $data = array();
 
     dbConditionToSql($pCondition, $data, null, null, $fields);
 

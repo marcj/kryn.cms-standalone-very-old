@@ -4,50 +4,50 @@ namespace Users\Controller\Admin;
 
 class Groups extends \Admin\ObjectCrud
 {
-    public $fields = array (
-  '__General__' =>
-  array (
-    'label' => 'General',
-    'type' => 'tab',
-    'children' =>
-    array (
-      'name' =>
-      array (
-        'key' => 'name',
-        'label' => 'Name',
-        'type' => 'text',
-      ),
-      'description' =>
-      array (
-        'key' => 'desc',
-        'label' => 'Description',
-        'type' => 'text',
-      ),
-    ),
-  ),
-);
+    public $fields = array(
+        '__General__' =>
+        array(
+            'label' => 'General',
+            'type' => 'tab',
+            'children' =>
+            array(
+                'name' =>
+                array(
+                    'key' => 'name',
+                    'label' => 'Name',
+                    'type' => 'text',
+                ),
+                'description' =>
+                array(
+                    'key' => 'desc',
+                    'label' => 'Description',
+                    'type' => 'text',
+                ),
+            ),
+        ),
+    );
 
-    public $columns = array (
-  'name' =>
-  array (
-    'type' => 'text',
-    'label' => 'Name',
-  ),
-  'description' =>
-  array (
-    'type' => 'text',
-    'label' => '!!No title defined!!',
-  ),
-);
+    public $columns = array(
+        'name' =>
+        array(
+            'type' => 'text',
+            'label' => 'Name',
+        ),
+        'description' =>
+        array(
+            'type' => 'text',
+            'label' => '!!No title defined!!',
+        ),
+    );
 
     public $itemLayout = '{name}
 <div style="color: silver">{if description.length > 20}{description.substr(0,20)}...{else}{description}{/if}</div>';
 
     public $itemsPerPage = 10;
 
-    public $order = array (
-  'name' => 'asc',
-);
+    public $order = array(
+        'name' => 'asc',
+    );
 
     public $addIcon = '#icon-plus-5';
 

@@ -2,4 +2,6 @@
 
 namespace Core\FAL\Exceptions;
 
-class NotADirectoryException extends \Exception {}
+class NotADirectoryException extends \Exception
+{
+}

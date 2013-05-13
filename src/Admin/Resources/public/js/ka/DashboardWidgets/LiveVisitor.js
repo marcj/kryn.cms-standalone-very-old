@@ -7,7 +7,7 @@ ka.DashboardWidgets.LiveVisitor = new Class({
         this.header = new Element('h3', {
             text: ka.tc('dashboardWidget.liveVisitor', 'Live Visitor')
         })
-        .inject(this.main);
+            .inject(this.main);
 
         this.visitor = new Element('div', {
             style: 'padding-top: 25px; text-align: center; font-size: 62px;',

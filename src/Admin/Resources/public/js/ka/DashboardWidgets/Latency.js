@@ -7,7 +7,7 @@ ka.DashboardWidgets.Latency = new Class({
         this.header = new Element('h3', {
             text: ka.tc('dashboardWidget.latency', 'Latency')
         })
-        .inject(this.main);
+            .inject(this.main);
 
         new Element('div', {
             style: 'padding: 5px; text-align: center;',
@@ -32,7 +32,8 @@ ka.DashboardWidgets.Latency = new Class({
 
     update: function (value) {
 
-        this.latency.set('text', value.frontend+'ms');
-        this.other.set('text', value.backend + 'ms / '+value.database+'ms / '+value.session+'ms / '+value.cache+'ms');
+        this.latency.set('text', value.frontend + 'ms');
+        this.other.set('text',
+            value.backend + 'ms / ' + value.database + 'ms / ' + value.session + 'ms / ' + value.cache + 'ms');
     }
 });

@@ -71,8 +71,8 @@ class EntryPoint extends Model
     {
         if (null === $this->children) {
             $childrenElement = $this->getDirectChild('children');
-            $this->children  = array();
-            $children        = $childrenElement->childNodes;
+            $this->children = array();
+            $children = $childrenElement->childNodes;
             if ($children) {
                 foreach ($children as $child) {
                     if ('entryPoint' === $child->nodeName) {
@@ -118,7 +118,7 @@ class EntryPoint extends Model
         if (null === $this->fullPath) {
             $path[] = $this->getPath();
             $instance = $this;
-            while ($instance = $instance->getParentInstance()){
+            while ($instance = $instance->getParentInstance()) {
                 if (!($instance instanceof EntryPoint)) {
                     break;
                 }
@@ -152,7 +152,7 @@ class EntryPoint extends Model
     public function getChild($path)
     {
         $this->children = $this->children ? : $this->getChildren();
-        $first          = (false === ($pos = strpos($path, '/'))) ? $path : substr($path, 0, $pos);
+        $first = (false === ($pos = strpos($path, '/'))) ? $path : substr($path, 0, $pos);
 
         foreach ($this->children as $child) {
             if ($first == $child->getPath()) {

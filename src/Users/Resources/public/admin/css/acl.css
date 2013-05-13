@@ -1,6 +1,3 @@
-
-
-
 .users-acl-left {
     position: absolute;
     left: 0px;
@@ -11,7 +8,6 @@
     background-color: white;
     overflow: auto;
 }
-
 
 .users-acl-right {
     position: absolute;
@@ -36,7 +32,6 @@ input.users-acl-query {
     top: 0px;
     width: 184px;
 }
-
 
 .users-acl-entrypoint-list {
     position: absolute;
@@ -82,7 +77,6 @@ input.users-acl-query {
     border-radius: 4px;
 }
 
-
 .users-acl-entrypoint-rule {
     margin: 10px;
     border: 1px solid silver;
@@ -99,7 +93,6 @@ input.users-acl-query {
     -webkit-border-radius: 3px;
     border-radius: 3px;
 }
-
 
 .users-acl-object-list {
     position: absolute;
@@ -201,13 +194,13 @@ input.users-acl-query {
 .users-acl-object-rules-filter > .ka-tabGroup > .ka-tabGroup-item:link {
     padding: 0px 5px;
 }
+
 .users-acl-object-rules-filter > .ka-tabGroup {
     position: absolute;
     bottom: -1px;
     left: -4px;
     font-weight: normal;
 }
-
 
 .users-acl-object-rule {
     position: relative;
@@ -216,7 +209,6 @@ input.users-acl-query {
     overflow: hidden;
     cursor: default;
 }
-
 
 .users-acl-object-rule-subline {
     color: #888;
@@ -274,7 +266,6 @@ input.users-acl-query {
     left: -2px;
 }
 
-
 .users-acl-object-rule-titlespan img {
     position: relative;
     top: 2px;
@@ -287,12 +278,9 @@ input.users-acl-query {
     padding: 2px;
 }
 
-
 .users-acl-object-list .ka-list-combine-item h2 {
     font-size: 12px;
 }
-
-
 
 .users-acl-rule-fields-item {
     border: 1px solid silver;
@@ -312,33 +300,6 @@ input.users-acl-query {
     position: relative;
     left: 11px;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /*
 input.users-acl-search {

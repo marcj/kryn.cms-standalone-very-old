@@ -11,7 +11,8 @@ var admin_system_module_add = new Class({
             html: _('Checking extensioncode: ') + pName + '<br />' + _('Please wait ...')
         }).inject(this.win.content);
 
-        new Request.JSON({url: _pathAdmin + 'admin/system/module/addCheckCode', noCache: 1, onComplete: function (pResult) {
+        new Request.JSON({url: _pathAdmin +
+            'admin/system/module/addCheckCode', noCache: 1, onComplete: function (pResult) {
             var res = pResult.data;
             if (res['status'] == 'exist') {
                 this.win._prompt(_('Extensioncode already in use. Please choose another:'), pName, function (res) {
@@ -34,10 +35,10 @@ var admin_system_module_add = new Class({
                 }).inject(this.win.content);
 
                 new Element('div', {
-                    text: 'inc/module/'+pName
+                    text: 'inc/module/' + pName
                 }).inject(d);
                 new Element('div', {
-                    text: 'inc/module/'+pName + '/config.json'
+                    text: 'inc/module/' + pName + '/config.json'
                 }).inject(d);
                 new Element('div', {
                     text: pName

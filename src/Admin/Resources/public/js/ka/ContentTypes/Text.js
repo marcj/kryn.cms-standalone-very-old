@@ -4,8 +4,7 @@ ka.ContentTypes.Text = new Class({
 
     Extends: ka.ContentAbstract,
 
-    icon : '&#xe2dd;',
-
+    icon: '&#xe2dd;',
 
     options: {
 
@@ -104,10 +103,10 @@ ka.ContentTypes.Text = new Class({
         configs: {
             simple: {
                 toolbar: [
-                    ['Bold','Italic', 'Underline','Strike'],
-                    ['Undo','Redo'],
-                    ['NumberedList','BulletedList','-','Outdent','Indent'],
-                    ['Link','Unlink'],
+                    ['Bold', 'Italic', 'Underline', 'Strike'],
+                    ['Undo', 'Redo'],
+                    ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent'],
+                    ['Link', 'Unlink'],
                     ['Format'],
                     '/',
                     [ 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord'],
@@ -116,26 +115,26 @@ ka.ContentTypes.Text = new Class({
             },
             standard: {
                 toolbar: [
-                    ['Bold','Italic', 'Underline','Strike'],
-                    ['Styles','Format','Font','FontSize'],
-                    ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock', 'Blockquote'],
+                    ['Bold', 'Italic', 'Underline', 'Strike'],
+                    ['Styles', 'Format', 'Font', 'FontSize'],
+                    ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', 'Blockquote'],
                     '/',
-                    ['Undo','Redo'],
-                    ['NumberedList','BulletedList','-','Outdent','Indent'],
-                    ['Link','Unlink','Anchor'],
-                    ['Image','Flash','Table','HorizontalRule','Smiley'],
+                    ['Undo', 'Redo'],
+                    ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent'],
+                    ['Link', 'Unlink', 'Anchor'],
+                    ['Image', 'Flash', 'Table', 'HorizontalRule', 'Smiley'],
                     [ 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord']
                 ]
             },
             full: {
                 toolbarGroups: [
-                    { name: 'document',	   groups: [ 'mode', 'document', 'doctools' ] },
-                    { name: 'clipboard',   groups: [ 'clipboard', 'undo' ] },
-                    { name: 'editing',     groups: [ 'find', 'selection', 'spellchecker' ] },
+                    { name: 'document', groups: [ 'mode', 'document', 'doctools' ] },
+                    { name: 'clipboard', groups: [ 'clipboard', 'undo' ] },
+                    { name: 'editing', groups: [ 'find', 'selection', 'spellchecker' ] },
                     { name: 'forms' },
                     '/',
                     { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
-                    { name: 'paragraph',   groups: [ 'list', 'indent', 'blocks', 'align' ] },
+                    { name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align' ] },
                     { name: 'links' },
                     { name: 'insert' },
                     '/',
@@ -150,7 +149,7 @@ ka.ContentTypes.Text = new Class({
 
     },
 
-    createLayout: function(){
+    createLayout: function () {
 
         this.outer = new Element('div', {
             'class': 'ka-content-text'
@@ -160,7 +159,6 @@ ka.ContentTypes.Text = new Class({
             contentEditable: true,
             'class': 'selectable'
         }).inject(this.outer);
-
 
         var config = this.getEditorConfig();
         this.checkChange = this.checkChange.bind(this);
@@ -179,80 +177,88 @@ ka.ContentTypes.Text = new Class({
 
     },
 
-    checkChange: function(){
+    checkChange: function () {
 
-        if (this.ready){
-            if (this.oldData != this.editor.getData())
+        if (this.ready) {
+            if (this.oldData != this.editor.getData()) {
                 this.contentInstance.fireChange();
+            }
         }
 
     },
 
-    focus: function(){
+    focus: function () {
         this.main.focus();
     },
 
-    getEditorConfig: function(){
+    getEditorConfig: function () {
 
         var config = this.options.configs[this.options.preset] || {};
 
         config.toolbarLocation = this.options.toolbarLocation;
         config.autoGrow_onStartup = true;
 
-        if (this.options.removeButtons)
+        if (this.options.removeButtons) {
             config.removeButtons = this.options.removeButtons;
+        }
 
         config.extraPlugins = '';
-        if (this.options.extraPlugins)
+        if (this.options.extraPlugins) {
             config.extraPlugins = this.options.extraPlugins;
+        }
 
         config.extraPlugins += ',autogrow';
 
-        if (this.options.contentsCss){
-            if (typeOf(this.options.contentsCss) == 'string'){
-                if (this.options.contentsCss.substr(0,1) != '/')
-                    this.options.contentsCss = _path+this.options.contentsCss;
+        if (this.options.contentsCss) {
+            if (typeOf(this.options.contentsCss) == 'string') {
+                if (this.options.contentsCss.substr(0, 1) != '/') {
+                    this.options.contentsCss = _path + this.options.contentsCss;
+                }
 
-                config.contentsCss = _path+this.options.contentsCss
-            } else if (typeOf(this.options.contentsCss) == 'array'){
+                config.contentsCss = _path + this.options.contentsCss
+            } else if (typeOf(this.options.contentsCss) == 'array') {
 
                 config.contentsCss = [];
-                Array.each(this.options.contentsCss, function(css){
+                Array.each(this.options.contentsCss, function (css) {
 
-                    if (css.substr(0,1) != '/')
-                        css = _path+css;
+                    if (css.substr(0, 1) != '/') {
+                        css = _path + css;
+                    }
                     config.contentsCss.push(css);
                 });
             }
         }
 
-
-        Object.each(this.options.customConfig, function(v,k){
+        Object.each(this.options.customConfig, function (v, k) {
             config[k] = v;
         });
 
         return config;
     },
 
-    setValue: function(pValue){
+    setValue: function (pValue) {
         this.value = pValue;
-        if (this.ready)
+        if (this.ready) {
             this.editor.setData(this.value);
+        }
     },
 
-    getValue: function(){
-        if (!this.ready)
+    getValue: function () {
+        if (!this.ready) {
             return this.value;
-        else return this.editor.getData();
+        }
+        else {
+            return this.editor.getData();
+        }
     },
 
-    editorReady: function(){
+    editorReady: function () {
         this.ready = true;
 
-        var toolbar = document.id('cke_'+this.editor.name);
+        var toolbar = document.id('cke_' + this.editor.name);
         toolbar.addClass('kryn_cke_toolbar');
 
-        if (this.value){
+        if (this.value) {
             this.editor.setData(this.value);
             this.oldData = this.editor.getData();
         }

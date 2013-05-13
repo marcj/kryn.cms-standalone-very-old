@@ -7,7 +7,7 @@ ka.DashboardWidgets.LatencyChart = new Class({
         this.header = new Element('h3', {
             text: ka.tc('dashboardWidget.latency', 'Latency')
         })
-        .inject(this.main);
+            .inject(this.main);
 
         this.div = new Element('div', {
             style: 'padding: 5px; text-align: center;'
@@ -39,25 +39,27 @@ ka.DashboardWidgets.LatencyChart = new Class({
         //this.deRegisterStream();
         length = Math.max(value.backend.length, value.frontend.length);
 
-        for (; i <length; i++) labels.push('');
+        for (; i < length; i++) {
+            labels.push('');
+        }
 
         var ctx = this.canvas.getContext("2d");
         this.chart = new Chart(ctx).Line({
-            labels : labels,
-            datasets : [
+            labels: labels,
+            datasets: [
                 {
-                    fillColor : "rgba(220,220,220,0.5)",
-                    strokeColor : "rgba(220,220,220,1)",
-                    pointColor : "rgba(220,220,220,1)",
-                    pointStrokeColor : "#fff",
-                    data : value.backend.reverse()
+                    fillColor: "rgba(220,220,220,0.5)",
+                    strokeColor: "rgba(220,220,220,1)",
+                    pointColor: "rgba(220,220,220,1)",
+                    pointStrokeColor: "#fff",
+                    data: value.backend.reverse()
                 },
                 {
-                    fillColor : "rgba(151,187,205,0.3)",
-                    strokeColor : "rgba(151,187,205,0.8)",
-                    pointColor : "rgba(151,187,205,0.7)",
-                    pointStrokeColor : "#fff",
-                    data : value.frontend.reverse()
+                    fillColor: "rgba(151,187,205,0.3)",
+                    strokeColor: "rgba(151,187,205,0.8)",
+                    pointColor: "rgba(151,187,205,0.7)",
+                    pointStrokeColor: "#fff",
+                    data: value.frontend.reverse()
                 }
             ]
         }, {

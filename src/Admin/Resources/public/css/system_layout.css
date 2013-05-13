@@ -21,7 +21,6 @@
     overflow-y: scroll;
 }
 
-
 .admin-layout-left a,
 .admin-layout-left a:link {
     display: block;
@@ -29,12 +28,10 @@
     padding: 2px 5px;
 }
 
-
 .admin-layout-theme-items a.active,
 .admin-layout-theme-items a.active:link {
     background-color: #ddd;
 }
-
 
 .admin-layout-theme-items a:hover {
     background-color: #f6f6f6;

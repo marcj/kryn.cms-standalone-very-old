@@ -10,7 +10,7 @@ ka.ButtonBar = new Class({
         this.box.destroy();
     },
 
-    toElement: function(){
+    toElement: function () {
         return this.box;
     },
 

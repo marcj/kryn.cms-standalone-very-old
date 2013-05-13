@@ -9,19 +9,19 @@ ka.ui.Speedmeter = new Class({
     options: {
     },
 
-    initialize: function(container, options) {
+    initialize: function (container, options) {
         this.container = container;
         this.setOptions(options);
         this.create();
     },
 
     create: function () {
-        this.id = 'gauge_' + ((Math.random())+'').substr(2);
+        this.id = 'gauge_' + ((Math.random()) + '').substr(2);
         this.main = new Element('div', {
             id: this.id,
             'class': 'ka-ui-Speedmeter'
         }).inject(this.container);
-        this.gauge =  new JustGage(Object.merge({
+        this.gauge = new JustGage(Object.merge({
             id: this.id,
             value: 0,
             min: 0,

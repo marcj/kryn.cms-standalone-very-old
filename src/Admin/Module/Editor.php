@@ -2,9 +2,9 @@
 
 namespace Admin\Module;
 
+use Admin\Module\Manager;
 use Core\Kryn;
 use Core\SystemFile;
-use Admin\Module\Manager;
 
 class Editor
 {
@@ -21,15 +21,20 @@ class Editor
 
         $path = "core/config.json";
 
-        if ($pName != 'core')
+        if ($pName != 'core') {
             $path = PATH_MODULE . "$pName/config.json";
+        }
 
         if (!file_exists($path) && !touch($path)) {
-            throw new \FileNotWritableException(tf('Can not create %s for module %s.', $path ,$pName));
+            throw new \FileNotWritableException(tf('Can not create %s for module %s.', $path, $pName));
         }
 
         if (!is_writeable($path)) {
-            throw new \FileNotWritableException(tf('The config file %s for module %s is not writeable.', $path ,$pName));
+            throw new \FileNotWritableException(tf(
+                'The config file %s for module %s is not writeable.',
+                $path,
+                $pName
+            ));
         }
 
         return file_put_contents($path, $json);
@@ -63,30 +68,35 @@ class Editor
     {
         Manager::prepareName($pName);
 
-        $classes   = find(\Core\Kryn::getModuleDir($pName) . '/*', true);
-        $windows   = array();
+        $classes = find(\Core\Kryn::getModuleDir($pName) . '/*', true);
+        $windows = array();
         $whiteList = array('\Admin\ObjectCrud');
 
         foreach ($classes as $class) {
 
             $content = SystemFile::getContent($class);
 
-            if (preg_match('/class[\s\t]+([a-zA-Z0-9_]+)[\s\t]+extends[\s\t]+([a-zA-Z0-9_\\\\]*)[\s\t\n]*{/', $content, $matches)) {
+            if (preg_match(
+                '/class[\s\t]+([a-zA-Z0-9_]+)[\s\t]+extends[\s\t]+([a-zA-Z0-9_\\\\]*)[\s\t\n]*{/',
+                $content,
+                $matches
+            )
+            ) {
                 if (in_array($matches[2], $whiteList)) {
 
                     $clazz = $matches[1];
 
                     preg_match('/namespace ([a-zA-Z0-9_\\\\]*)/', $content, $namespace);
                     $namespace = $namespace[1];
-                    if ($namespace)
-                        $clazz = $namespace.'\\'.$clazz;
+                    if ($namespace) {
+                        $clazz = $namespace . '\\' . $clazz;
+                    }
 
-                    $clazz = '\\'.$clazz;
+                    $clazz = '\\' . $clazz;
 
                     $windows[$class] = $clazz;
                 }
             }
-
         }
 
         return $windows;
@@ -97,8 +107,9 @@ class Editor
         Manager::prepareName($pName);
 
         $config = $this->getConfig($pName);
-        if (!$config)
+        if (!$config) {
             throw new \ModuleNotFoundException(tf('Module %s not found.', $pName));
+        }
 
         return $config['plugins'];
     }
@@ -139,10 +150,10 @@ class Editor
     {
         Manager::prepareName($pName);
 
-        $path = \Core\Kryn::getModuleDir($pName).'model.xml';
+        $path = \Core\Kryn::getModuleDir($pName) . 'model.xml';
 
         if (!file_exists($path)) {
-            throw new \FileNotExistException(tf('The config file %s for %s does not exist.', $path ,$pName));
+            throw new \FileNotExistException(tf('The config file %s for %s does not exist.', $path, $pName));
         }
 
         return file_get_contents($path);
@@ -153,14 +164,14 @@ class Editor
     {
         Manager::prepareName($pName);
 
-        $path = \Core\Kryn::getModuleDir($pName).'model.xml';
+        $path = \Core\Kryn::getModuleDir($pName) . 'model.xml';
 
         if (!is_writable($path)) {
-            throw new \FileNotWritableException(tf('The model file %s for %s is not writable.', $path ,$pName));
+            throw new \FileNotWritableException(tf('The model file %s for %s is not writable.', $path, $pName));
         }
 
         if (!@file_put_contents($path, $pModel)) {
-            throw new \FileIOErrorException(tf('Can not write model file %s for %s.', $path ,$pName));
+            throw new \FileIOErrorException(tf('Can not write model file %s for %s.', $path, $pName));
         }
 
         return true;
@@ -175,15 +186,24 @@ class Editor
      * @param  xml        $pDatabase
      * @param  xml        $pRefColumn
      * @param  string     $pModuleKey
+     *
      * @return array|bool
      */
-    public function getColumnFromField($pObject, $pFieldKey, $pField, &$pTable, &$pDatabase, &$pRefColumn = null,
-                                       $pModuleKey = ''){
+    public function getColumnFromField(
+        $pObject,
+        $pFieldKey,
+        $pField,
+        &$pTable,
+        &$pDatabase,
+        &$pRefColumn = null,
+        $pModuleKey = ''
+    ) {
 
         $columns = array();
-        $column  = array();
-        if ($pRefColumn)
+        $column = array();
+        if ($pRefColumn) {
             $column =& $pRefColumn;
+        }
 
         $object = \Core\Object::getDefinition($pObject);
 
@@ -212,7 +232,9 @@ class Editor
 
                 $column['type'] = 'VARCHAR';
 
-                if ($pField['maxlength']) $column['size'] = $pField['maxlength'];
+                if ($pField['maxlength']) {
+                    $column['size'] = $pField['maxlength'];
+                }
                 break;
 
             case 'page':
@@ -254,10 +276,13 @@ class Editor
 
                 $column['type'] = 'INTEGER';
 
-                if ($pField['maxlength']) $column['size'] = $pField['maxlength'];
+                if ($pField['maxlength']) {
+                    $column['size'] = $pField['maxlength'];
+                }
 
-                if ($pField['number_type'])
+                if ($pField['number_type']) {
                     $column['type'] = $pField['number_type'];
+                }
 
                 break;
 
@@ -279,8 +304,9 @@ class Editor
             case 'date':
             case 'datetime':
 
-                if ($pField['asUnixTimestamp'] === false)
-                    $column['type'] = $pField['type'] == 'date'? 'DATE':'TIMESTAMP';
+                if ($pField['asUnixTimestamp'] === false) {
+                    $column['type'] = $pField['type'] == 'date' ? 'DATE' : 'TIMESTAMP';
+                }
 
                 $column['type'] = 'BIGINT';
 
@@ -289,34 +315,46 @@ class Editor
             case 'object':
 
                 $foreignObject = \Core\Object::getDefinition($pField['object']);
-                if (!$foreignObject) continue;
+                if (!$foreignObject) {
+                    continue;
+                }
 
                 $relationName = ucfirst($pFieldKey);
-                if ($pField['objectRelationName'])
+                if ($pField['objectRelationName']) {
                     $relationName = $pField['objectRelationName'];
+                }
 
                 if ($pField['objectRelation'] == 'nTo1') {
 
-                    $leftPrimaries  = \Core\Object::getPrimaryList($pObject);
+                    $leftPrimaries = \Core\Object::getPrimaryList($pObject);
                     $rightPrimaries = \Core\Object::getPrimaries($pField['object']);
 
                     $foreignObject = \Core\Object::getDefinition($pField['object']);
 
-                    if (!$foreignObject['table'])
+                    if (!$foreignObject['table']) {
                         continue;
+                    }
 
-                    $foreigns = $pTable->xpath('foreign-key[@foreignTable=\''.$foreignObject['table'].'\']');
-                    if ($foreigns) $foreignKey = current($foreigns);
-                    else $foreignKey = $pTable->addChild('foreign-key');
+                    $foreigns = $pTable->xpath('foreign-key[@foreignTable=\'' . $foreignObject['table'] . '\']');
+                    if ($foreigns) {
+                        $foreignKey = current($foreigns);
+                    }
+                    else {
+                        $foreignKey = $pTable->addChild('foreign-key');
+                    }
 
                     $foreignKey['phpName'] = $relationName;
                     $foreignKey['foreignTable'] = $foreignObject['table'];
 
                     if (count($rightPrimaries) == 1) {
 
-                        $references = $pTable->xpath('reference[@local=\''.$pFieldKey.'\']');
-                        if ($references) $reference = current($references);
-                        else $reference = $foreignKey->addChild('reference');
+                        $references = $pTable->xpath('reference[@local=\'' . $pFieldKey . '\']');
+                        if ($references) {
+                            $reference = current($references);
+                        }
+                        else {
+                            $reference = $foreignKey->addChild('reference');
+                        }
 
                         $reference['local'] = camelcase2Underscore($pFieldKey);
                         $reference['foreign'] = key($rightPrimaries);
@@ -325,15 +363,26 @@ class Editor
 
                         //add left primary keys
                         foreach ($rightPrimaries as $key => $def) {
-                            $references = $pTable->xpath('reference[@local=\''.$pFieldKey.'_'.$key.'\']');
-                            if ($references) $reference = current($references);
-                            else $reference = $foreignKey->addChild('reference');
+                            $references = $pTable->xpath('reference[@local=\'' . $pFieldKey . '_' . $key . '\']');
+                            if ($references) {
+                                $reference = current($references);
+                            }
+                            else {
+                                $reference = $foreignKey->addChild('reference');
+                            }
 
-                            $reference['local'] = camelcase2Underscore($pFieldKey).'_'.$key;
+                            $reference['local'] = camelcase2Underscore($pFieldKey) . '_' . $key;
                             $reference['foreign'] = $key;
 
                             //create additional fields
-                            $this->getColumnFromField($pObject, underscore2Camelcase($pFieldKey.'_'.$key), $def, $pTable, $pDatabase, $pModuleKey);
+                            $this->getColumnFromField(
+                                $pObject,
+                                underscore2Camelcase($pFieldKey . '_' . $key),
+                                $def,
+                                $pTable,
+                                $pDatabase,
+                                $pModuleKey
+                            );
                         }
                     }
 
@@ -341,12 +390,14 @@ class Editor
 
                     //n-n, we need a extra table
 
-                    $probablyName = camelcase2Underscore($pModuleKey).'_'.camelcase2Underscore(\Core\Object::getName($pObject)).'_'.camelcase2Underscore($pFieldKey).'_relation';
+                    $probablyName = camelcase2Underscore($pModuleKey) . '_' . camelcase2Underscore(
+                        \Core\Object::getName($pObject)
+                    ) . '_' . camelcase2Underscore($pFieldKey) . '_relation';
 
                     $tableName = $pField['objectRelationTable'] ? $pField['objectRelationTable'] : $probablyName;
 
                     //search if we've already the table defined.
-                    $tables = $pDatabase->xpath('table[@name=\''.$tableName.'\']');
+                    $tables = $pDatabase->xpath('table[@name=\'' . $tableName . '\']');
 
                     if (!$tables) {
                         $relationTable = $pDatabase->addChild('table');
@@ -364,10 +415,12 @@ class Editor
                     $leftPrimaries = \Core\Object::getPrimaries($pObject);
                     foreach ($leftPrimaries as $key => $primary) {
 
-                        $name = strtolower(\Core\Object::getName($pObject)).'_'.$key;
-                        $cols = $relationTable->xpath('column[@name=\''.$name.'\']');
+                        $name = strtolower(\Core\Object::getName($pObject)) . '_' . $key;
+                        $cols = $relationTable->xpath('column[@name=\'' . $name . '\']');
                         $foreignKeys[$object['table']][$key] = $name;
-                        if ($cols) continue;
+                        if ($cols) {
+                            continue;
+                        }
 
                         $col = $relationTable->addChild('column');
                         $col['name'] = $name;
@@ -381,10 +434,12 @@ class Editor
                     $rightPrimaries = \Core\Object::getPrimaries($pField['object']);
                     foreach ($rightPrimaries as $key => $primary) {
 
-                        $name = camelcase2Underscore(\Core\Object::getName($pField['object'])).'_'.$key;
+                        $name = camelcase2Underscore(\Core\Object::getName($pField['object'])) . '_' . $key;
                         $foreignKeys[$foreignObject['table']][$key] = $name;
-                        $cols = $relationTable->xpath('column[@name=\''.$name.'\']');
-                        if ($cols) continue;
+                        $cols = $relationTable->xpath('column[@name=\'' . $name . '\']');
+                        if ($cols) {
+                            continue;
+                        }
 
                         $col = $relationTable->addChild('column');
                         $col['name'] = $name;
@@ -397,31 +452,43 @@ class Editor
                     //foreign keys
                     foreach ($foreignKeys as $table => $keys) {
 
-                        $foreigns = $relationTable->xpath('foreign-key[@foreignTable=\''.$table.'\']');
-                        if ($foreigns) $foreignKey = current($foreigns);
-                        else $foreignKey = $relationTable->addChild('foreign-key');
+                        $foreigns = $relationTable->xpath('foreign-key[@foreignTable=\'' . $table . '\']');
+                        if ($foreigns) {
+                            $foreignKey = current($foreigns);
+                        }
+                        else {
+                            $foreignKey = $relationTable->addChild('foreign-key');
+                        }
 
                         $foreignKey['foreignTable'] = $table;
 
                         if ($table == $foreignObject['table']) {
                             $foreignKey['phpName'] = ucfirst($pFieldKey);
                         } else {
-                            $foreignKey['phpName'] = ucfirst($pFieldKey).\Core\Object::getName($pObject);
+                            $foreignKey['phpName'] = ucfirst($pFieldKey) . \Core\Object::getName($pObject);
                         }
 
                         if ($object['workspace']) {
                             $references = $foreignKey->xpath('reference[@local=\'workspace_id\']');
-                            if ($references) $reference = current($references);
-                            else $reference = $foreignKey->addChild('reference');
+                            if ($references) {
+                                $reference = current($references);
+                            }
+                            else {
+                                $reference = $foreignKey->addChild('reference');
+                            }
                             $reference['local'] = 'workspace_id';
                             $reference['foreign'] = 'workspace_id';
                         }
 
                         foreach ($keys as $k => $v) {
 
-                            $references = $foreignKey->xpath('reference[@local=\''.$v.'\']');
-                            if ($references) $reference = current($references);
-                            else $reference = $foreignKey->addChild('reference');
+                            $references = $foreignKey->xpath('reference[@local=\'' . $v . '\']');
+                            if ($references) {
+                                $reference = current($references);
+                            }
+                            else {
+                                $reference = $foreignKey->addChild('reference');
+                            }
 
                             $reference['local'] = $v;
                             $reference['foreign'] = $k;
@@ -433,19 +500,31 @@ class Editor
                     if ($object['workspace']) {
 
                         $behaviors = $relationTable->xpath('behavior[@name=\'workspace\']');
-                        if ($behaviors) $behavior = current($behaviors);
-                        else $behavior = $relationTable->addChild('behavior');
+                        if ($behaviors) {
+                            $behavior = current($behaviors);
+                        }
+                        else {
+                            $behavior = $relationTable->addChild('behavior');
+                        }
                         $behavior['name'] = 'workspace';
                     }
 
                     $vendors = $relationTable->xpath('vendor[@type=\'mysql\']');
-                    if ($vendors) $vendor = current($vendors);
-                    else $vendor = $relationTable->addChild('vendor');
+                    if ($vendors) {
+                        $vendor = current($vendors);
+                    }
+                    else {
+                        $vendor = $relationTable->addChild('vendor');
+                    }
                     $vendor['type'] = 'mysql';
 
                     $params = $vendor->xpath('parameter[@name=\'Charset\']');
-                    if ($params) $param = current($params);
-                    else $param = $vendor->addChild('parameter');
+                    if ($params) {
+                        $param = current($params);
+                    }
+                    else {
+                        $param = $vendor->addChild('parameter');
+                    }
 
                     $param['name'] = 'Charset';
                     $param['value'] = 'utf8';
@@ -461,11 +540,16 @@ class Editor
 
         }
 
-        if ($pField['empty'] === 0 || $pField['empty'] === false)
+        if ($pField['empty'] === 0 || $pField['empty'] === false) {
             $column['required'] = "true";
+        }
 
-        if ($pField['primaryKey']) $column['primaryKey'] = "true";
-        if ($pField['autoIncrement']) $column['autoIncrement'] = "true";
+        if ($pField['primaryKey']) {
+            $column['primaryKey'] = "true";
+        }
+        if ($pField['autoIncrement']) {
+            $column['autoIncrement'] = "true";
+        }
 
         $columns[camelcase2Underscore($pFieldKey)] = $column;
 
@@ -490,18 +574,23 @@ class Editor
         Manager::prepareName($pName);
         $config = $this->getConfig($pName);
 
-        if (!$object = $config['objects'][$pObject])
+        if (!$object = $config['objects'][$pObject]) {
             throw new \Exception(tf('Object %s in %s does not exist.', $pObject, $pName));
+        }
 
-        if ($config['objects'][$pObject]['dataModel'] != 'propel') return false;
+        if ($config['objects'][$pObject]['dataModel'] != 'propel') {
+            return false;
+        }
 
-        $path = \Core\Kryn::getModuleDir($pName)."model.xml";
+        $path = \Core\Kryn::getModuleDir($pName) . "model.xml";
 
-        if (!file_exists($path) && !touch($path))
+        if (!file_exists($path) && !touch($path)) {
             throw new \FileNotWritableException(tf('The module folder of module %s is not writable.', $pName));
+        }
 
-        if (!is_writable($path))
-            throw new \FileNotWritableException(tf('The model file %s for %s is not writable.', $path ,$pName));
+        if (!is_writable($path)) {
+            throw new \FileNotWritableException(tf('The model file %s for %s is not writable.', $path, $pName));
+        }
 
         if (file_exists($path) && filesize($path)) {
             $xml = @simplexml_load_file($path);
@@ -516,34 +605,54 @@ class Editor
         $xml['namespace'] = ucfirst($pName);
 
         //search if we've already the table defined.
-        $tables = $xml->xpath('table[@name=\''.$object['table'].'\']');
+        $tables = $xml->xpath('table[@name=\'' . $object['table'] . '\']');
 
-        if (!$tables) $objectTable = $xml->addChild('table');
-        else $objectTable = current($tables);
+        if (!$tables) {
+            $objectTable = $xml->addChild('table');
+        }
+        else {
+            $objectTable = current($tables);
+        }
 
-        if (!$object['table']) throw new \Exception(tf('The object %s has no table defined.', $pObject));
+        if (!$object['table']) {
+            throw new \Exception(tf('The object %s has no table defined.', $pObject));
+        }
 
         $objectTable['name'] = $object['table'];
-        $objectTable['phpName'] = $object['propelClassName'] ?: ucfirst($pObject);
+        $objectTable['phpName'] = $object['propelClassName'] ? : ucfirst($pObject);
 
         $columnsDefined = array();
 
         foreach ($object['fields'] as $fieldKey => $field) {
 
-            $columns = $this->getColumnFromField(ucfirst($pName).'\\'.$pObject, $fieldKey, $field, $objectTable, $xml, $null, $pName);
+            $columns = $this->getColumnFromField(
+                ucfirst($pName) . '\\' . $pObject,
+                $fieldKey,
+                $field,
+                $objectTable,
+                $xml,
+                $null,
+                $pName
+            );
 
-            if (!$columns) continue;
+            if (!$columns) {
+                continue;
+            }
 
             foreach ($columns as $key => $column) {
                 //column exist?
-                $eColumns = $objectTable->xpath('column[@name =\''.$key.'\']');
+                $eColumns = $objectTable->xpath('column[@name =\'' . $key . '\']');
 
                 if ($eColumns) {
 
                     $newCol = current($eColumns);
-                    if ($newCol['custom'] == true) continue;
+                    if ($newCol['custom'] == true) {
+                        continue;
+                    }
 
-                } else $newCol = $objectTable->addChild('column');
+                } else {
+                    $newCol = $objectTable->addChild('column');
+                }
 
                 $newCol['name'] = $key;
                 $columnsDefined[] = $key;
@@ -557,19 +666,31 @@ class Editor
 
         if ($object['workspace']) {
             $behaviors = $objectTable->xpath('behavior[@name=\'workspace\']');
-            if ($behaviors) $behavior = current($behaviors);
-            else $behavior = $objectTable->addChild('behavior');
+            if ($behaviors) {
+                $behavior = current($behaviors);
+            }
+            else {
+                $behavior = $objectTable->addChild('behavior');
+            }
             $behavior['name'] = 'workspace';
         }
 
         $vendors = $objectTable->xpath('vendor[@type=\'mysql\']');
-        if ($vendors) $vendor = current($vendors);
-        else $vendor = $objectTable->addChild('vendor');
+        if ($vendors) {
+            $vendor = current($vendors);
+        }
+        else {
+            $vendor = $objectTable->addChild('vendor');
+        }
         $vendor['type'] = 'mysql';
 
         $params = $vendor->xpath('parameter[@name=\'Charset\']');
-        if ($params) $param = current($params);
-        else $param = $vendor->addChild('parameter');
+        if ($params) {
+            $param = current($params);
+        }
+        else {
+            $param = $vendor->addChild('parameter');
+        }
 
         $param['name'] = 'Charset';
         $param['value'] = 'utf8';
@@ -590,8 +711,9 @@ class Editor
 
         $config = $this->getConfig($pName);
 
-        if (getArgv('owner') > 0)
+        if (getArgv('owner') > 0) {
             $config['owner'] = getArgv('owner');
+        }
 
         $config['title'] = getArgv('title');
         $config['desc'] = getArgv('desc');
@@ -618,12 +740,16 @@ class Editor
 
     public function saveWindowDefinition($pClass)
     {
-        if (substr($pClass, 0, 1) != '\\')
-            $pClass = '\\'.$pClass;
+        if (substr($pClass, 0, 1) != '\\') {
+            $pClass = '\\' . $pClass;
+        }
 
-        $actualPath = str_replace('\\', '/', lcfirst(substr($pClass, 1))).'.class.php';
+        $actualPath = str_replace('\\', '/', lcfirst(substr($pClass, 1))) . '.class.php';
         $fSlash = strpos($actualPath, '/');
-        $actualPath = \Core\Kryn::getModuleDir(substr($actualPath, 0, $fSlash)).'controller/'.substr($actualPath, $fSlash+1);
+        $actualPath = \Core\Kryn::getModuleDir(substr($actualPath, 0, $fSlash)) . 'controller/' . substr(
+            $actualPath,
+            $fSlash + 1
+        );
 
         $general = getArgv('general');
         $path = $general['file'];
@@ -631,20 +757,22 @@ class Editor
         $sourcecode = "<?php\n\n";
 
         $lSlash = strrpos($pClass, '\\');
-        $className = $lSlash !== -1 ? substr($pClass, $lSlash+1) : $pClass;
+        $className = $lSlash !== -1 ? substr($pClass, $lSlash + 1) : $pClass;
 
         $parentClass = '\Admin\ObjectCrud';
 
         $namespace = substr(substr($pClass, 1), 0, $lSlash);
-        if (substr($namespace, -1) == '\\')
+        if (substr($namespace, -1) == '\\') {
             $namespace = substr($namespace, 0, -1);
+        }
 
         $sourcecode .= "namespace $namespace;\n \n";
 
-        $sourcecode .= 'class '.$className.' extends '.$parentClass." {\n\n";
+        $sourcecode .= 'class ' . $className . ' extends ' . $parentClass . " {\n\n";
 
-        if (count($fields = getArgv('fields')) > 0)
+        if (count($fields = getArgv('fields')) > 0) {
             $this->addVar($sourcecode, 'fields', $fields);
+        }
 
         $listing = getArgv('list');
         foreach ($listing as $listVarName => $listVar) {
@@ -659,7 +787,9 @@ class Editor
         $general = getArgv('general');
         $blacklist = array('class', 'file');
         foreach ($general as $varName => $var) {
-            if (array_search($varName, $blacklist) !== false) continue;
+            if (array_search($varName, $blacklist) !== false) {
+                continue;
+            }
             $this->addVar($sourcecode, $varName, $var);
         }
 
@@ -680,7 +810,7 @@ class Editor
 
     public function addMethod(&$pSourceCode, $pSource)
     {
-        $pSourceCode .= substr($pSource, 6, -4)."\n";
+        $pSourceCode .= substr($pSource, 6, -4) . "\n";
 
     }
 
@@ -688,39 +818,52 @@ class Editor
     {
         $val = var_export(self::toVar($pVar), true);
 
-        if (is_array($pVar))
+        if (is_array($pVar)) {
             $val = preg_replace("/' => \n\s+array \(/", "' => array (", $val);
+        }
 
         $pSourceCode .=
             "    "
-            .$pVisibility.($pStatic?' static':'').' $'.$pName.' = '.$val
-            .";\n\n";
+                . $pVisibility . ($pStatic ? ' static' : '') . ' $' . $pName . ' = ' . $val
+                . ";\n\n";
 
     }
 
     public function toVar($pValue)
     {
-        if ($pValue == 'true')   return true;
-        if ($pValue == 'false')  return false;
-        if (is_numeric($pValue)) return $pValue+0;
+        if ($pValue == 'true') {
+            return true;
+        }
+        if ($pValue == 'false') {
+            return false;
+        }
+        if (is_numeric($pValue)) {
+            return $pValue + 0;
+        }
         return $pValue;
     }
 
     public function getWindowDefinition($pClass)
     {
-        if (substr($pClass, 0, 1) != '\\')
-            $pClass = '\\'.$pClass;
+        if (substr($pClass, 0, 1) != '\\') {
+            $pClass = '\\' . $pClass;
+        }
 
-        if (!class_exists($pClass)) throw new \ClassNotFoundException(tf('Class %s not found.', $pClass));
+        if (!class_exists($pClass)) {
+            throw new \ClassNotFoundException(tf('Class %s not found.', $pClass));
+        }
 
         $reflection = new \ReflectionClass($pClass);
         $path = substr($reflection->getFileName(), strlen(PATH));
 
         $content = explode("\n", SystemFile::getContent($path));
 
-        $actualPath = str_replace('\\', '/', lcfirst(substr($pClass, 1))).'.class.php';
+        $actualPath = str_replace('\\', '/', lcfirst(substr($pClass, 1))) . '.class.php';
         $fSlash = strpos($actualPath, '/');
-        $actualPath = \Core\Kryn::getModuleDir(substr($actualPath, 0, $fSlash)).'controller/'.substr($actualPath, $fSlash+1);
+        $actualPath = \Core\Kryn::getModuleDir(substr($actualPath, 0, $fSlash)) . 'controller/' . substr(
+            $actualPath,
+            $fSlash + 1
+        );
 
         $res = array(
             'class' => $pClass,
@@ -732,8 +875,9 @@ class Editor
         );
 
         $obj = new $pClass(null, true);
-        foreach ($obj as $k => $v)
+        foreach ($obj as $k => $v) {
             $res['properties'][$k] = $v;
+        }
 
         $parent = $reflection->getParentClass();
         $parentClass = $parent->name;
@@ -744,13 +888,16 @@ class Editor
             if ($method->class == $pClass) {
 
                 $code = '';
-                if ($code) $code = "    $code\n";
-                for ($i = $method->getStartLine()-1; $i < $method->getEndLine(); $i++) {
-                    $code .= $content[$i]."\n";
+                if ($code) {
+                    $code = "    $code\n";
+                }
+                for ($i = $method->getStartLine() - 1; $i < $method->getEndLine(); $i++) {
+                    $code .= $content[$i] . "\n";
                 }
 
-                if ($doc = $method->getDocComment())
+                if ($doc = $method->getDocComment()) {
                     $code = "    $doc\n$code";
+                }
 
                 $res['methods'][$method->name] = str_replace("\r", '', $code);
             }
@@ -771,13 +918,17 @@ class Editor
      * Extracts parent's class information.
      *
      * @internal
+     *
      * @param $pParentClass
      * @param $pMethods
+     *
      * @throws \ClassNotFoundException
      */
     public static function extractParentClassInformation($pParentClass, &$pMethods)
     {
-        if (!class_exists($pParentClass)) throw new \ClassNotFoundException();
+        if (!class_exists($pParentClass)) {
+            throw new \ClassNotFoundException();
+        }
 
         $reflection = new \ReflectionClass($pParentClass);
         $parentPath = substr($reflection->getFileName(), strlen(PATH));
@@ -787,21 +938,25 @@ class Editor
 
         $methods = $parentReflection->getMethods();
         foreach ($methods as $method) {
-            if ($pMethods[$method->name]) continue;
+            if ($pMethods[$method->name]) {
+                continue;
+            }
 
             if ($method->class == $pParentClass) {
 
                 $code = '';
-                for ($i = $method->getStartLine()-1; $i < $method->getEndLine(); $i++) {
+                for ($i = $method->getStartLine() - 1; $i < $method->getEndLine(); $i++) {
 
-                    $code .= $parentContent[$i]."\n";
-                    if (strpos($parentContent[$i], '{'))
+                    $code .= $parentContent[$i] . "\n";
+                    if (strpos($parentContent[$i], '{')) {
                         break;
+                    }
 
                 }
 
-                if ($doc = $method->getDocComment())
+                if ($doc = $method->getDocComment()) {
                     $code = "    $doc\n$code";
+                }
 
                 $pMethods[$method->name] = str_replace("\r", '', $code);
             }
@@ -828,16 +983,17 @@ class Editor
      */
     public function newWindow($pClass, $pModule, $pForce = false)
     {
-        if (substr($pClass, 0, 1) != '\\')
-            $pClass = '\\'.$pClass;
+        if (substr($pClass, 0, 1) != '\\') {
+            $pClass = '\\' . $pClass;
+        }
 
         if (class_exists($pClass) && !$pForce) {
             $reflection = new \ReflectionClass($pClass);
             throw new \FileAlreadyExistException(tf('Class already exist in %s', $reflection->getFileName()));
         }
 
-        $actualPath = str_replace('\\', '/', substr($pClass, 1)).'.class.php';
-        $actualPath = \Core\Kryn::getModuleDir($pModule).'controller/'.$actualPath;
+        $actualPath = str_replace('\\', '/', substr($pClass, 1)) . '.class.php';
+        $actualPath = \Core\Kryn::getModuleDir($pModule) . 'controller/' . $actualPath;
 
         if (file_exists($actualPath) && !$pForce) {
             throw new \FileAlreadyExistException(tf('File already exist, %s', $actualPath));
@@ -846,17 +1002,18 @@ class Editor
         $sourcecode = "<?php\n\n";
 
         $lSlash = strrpos($pClass, '\\');
-        $className = $lSlash !== -1 ? substr($pClass, $lSlash+1) : $pClass;
+        $className = $lSlash !== -1 ? substr($pClass, $lSlash + 1) : $pClass;
 
         $parentClass = '\Admin\ObjectCrud';
 
-        $namespace = ucfirst($pModule).substr($pClass, 0, $lSlash);
-        if (substr($namespace, -1) == '\\')
+        $namespace = ucfirst($pModule) . substr($pClass, 0, $lSlash);
+        if (substr($namespace, -1) == '\\') {
             $namespace = substr($namespace, 0, -1);
+        }
 
         $sourcecode .= "namespace $namespace;\n \n";
 
-        $sourcecode .= 'class '.$className.' extends '.$parentClass." {\n\n";
+        $sourcecode .= 'class ' . $className . ' extends ' . $parentClass . " {\n\n";
 
         $sourcecode .= "}\n";
 

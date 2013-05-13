@@ -50,9 +50,8 @@
     color: #444;
 }
 
-
 .ka-objectTree-item-over {
-    
+
 }
 
 .ka-objectTree-add {
@@ -110,7 +109,6 @@
     z-index: 7000000;
 }
 
-
 .ka-objectTree-dropElement {
     border-bottom: 1px dashed gray;
 }
@@ -159,7 +157,6 @@
     color: white;
 }
 
-
 .ka-objectTree-context a.noaction,
 .ka-objectTree-context a.noaction:link,
 .ka-objectTree-context a.noaction:hover,
@@ -178,7 +175,6 @@
 .ka-objectTree-context a.indented {
     padding-left: 20px;
 }
-
 
 a.ka-objectTree-positionChooser-item,
 a.ka-objectTree-positionChooser-item:link {

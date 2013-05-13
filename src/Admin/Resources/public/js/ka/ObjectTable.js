@@ -10,10 +10,9 @@ ka.ObjectTable = new Class({
         itemsPerPage: 20
     },
 
-
     currentPage: 1,
 
-    initialize: function(pContainer, pChooserBrowserOptions, pWindowInstance, pObjectKey){
+    initialize: function (pContainer, pChooserBrowserOptions, pWindowInstance, pObjectKey) {
 
         this.container = pContainer;
 
@@ -30,13 +29,13 @@ ka.ObjectTable = new Class({
         this.setOptions(pChooserBrowserOptions);
         this.win = pWindowInstance;
 
-        if (this._createLayout()){
+        if (this._createLayout()) {
             this.loadPage(1);
         }
 
     },
 
-    _createLayout: function(){
+    _createLayout: function () {
 
         this.subcontainer.empty();
 
@@ -44,7 +43,7 @@ ka.ObjectTable = new Class({
 
         var objectDefinition = ka.getObjectDefinition(this.objectKey);
 
-        if (!objectDefinition.browserColumns || Object.getLength(objectDefinition.browserColumns) == 0){
+        if (!objectDefinition.browserColumns || Object.getLength(objectDefinition.browserColumns) == 0) {
             new Element('div', {
                 text: tf('The object %s does not have any browser columns defined.', this.objectKey),
                 style: 'padding: 50px; color: gray; text-align: center;'
@@ -52,8 +51,8 @@ ka.ObjectTable = new Class({
             return false;
         }
 
-        Object.each(objectDefinition.browserColumns, function(column, key){
-            columns.include([column.label?column.label:key, column.width?column.width:null]);
+        Object.each(objectDefinition.browserColumns, function (column, key) {
+            columns.include([column.label ? column.label : key, column.width ? column.width : null]);
         });
 
         this.table = new ka.Table(columns, {
@@ -63,7 +62,7 @@ ka.ObjectTable = new Class({
 
         this.table.body.setStyle('padding-bottom', 24);
 
-        this.table.addEvent('select', function(){
+        this.table.addEvent('select', function () {
             this.fireEvent('select');
         }.bind(this));
 
@@ -83,8 +82,8 @@ ka.ObjectTable = new Class({
             'class': 'ka-autoChooser-searchBtn gradient',
             text: t('Search')
         })
-        .addEvent('click', this.toggleSearch.bind(this))
-        .inject(this.absBar);
+            .addEvent('click', this.toggleSearch.bind(this))
+            .inject(this.absBar);
 
         this.searchPane = new Element('div', {
             'class': 'ka-autoChooser-searchPane'
@@ -93,34 +92,36 @@ ka.ObjectTable = new Class({
         this.absBar.setStyle('bottom', -25);
 
         this.imgToLeft = new Element('img', {
-            src: _path+ 'bundles/admin/images/icons/control_back.png'
+            src: _path + 'bundles/admin/images/icons/control_back.png'
         })
-        .addEvent('click', this.pageToLeft.bind(this))
-        .inject(this.pagination);
+            .addEvent('click', this.pageToLeft.bind(this))
+            .inject(this.pagination);
 
         this.iCurrentPage = new Element('input', {
             value: '-',
             maxlength: 5
         })
-        .addEvent('keydown', function(e){
+            .addEvent('keydown', function (e) {
 
-            if (e.control == false && e.meta == false && e.key.length == 1 && !e.key.test(/[0-9]/))
-                e.stop();
+                if (e.control == false && e.meta == false && e.key.length == 1 && !e.key.test(/[0-9]/)) {
+                    e.stop();
+                }
 
-            if (e.key == 'enter')
-                this.loadPage(this.iCurrentPage.value);
+                if (e.key == 'enter') {
+                    this.loadPage(this.iCurrentPage.value);
+                }
 
-        }.bind(this))
-        .addEvent('keyup', function(e){
-            this.value = this.value.replace(/[^0-9]+/, '');
-        })
-        .addEvent('blur', function(e){
-            if (this.value == ''){
-                this.value = 1;
-                this.loadPage(this.iCurrentPage.value);
-            }
-        })
-        .inject(this.pagination);
+            }.bind(this))
+            .addEvent('keyup', function (e) {
+                this.value = this.value.replace(/[^0-9]+/, '');
+            })
+            .addEvent('blur', function (e) {
+                if (this.value == '') {
+                    this.value = 1;
+                    this.loadPage(this.iCurrentPage.value);
+                }
+            })
+            .inject(this.pagination);
 
         new Element('span', {
             text: '/'
@@ -131,19 +132,19 @@ ka.ObjectTable = new Class({
         }).inject(this.pagination);
 
         this.imgToRight = new Element('img', {
-            src: _path+ 'bundles/admin/images/icons/control_play.png'
+            src: _path + 'bundles/admin/images/icons/control_play.png'
         })
-        .addEvent('click', this.pageToRight.bind(this))
-        .inject(this.pagination);
+            .addEvent('click', this.pageToRight.bind(this))
+            .inject(this.pagination);
 
         this.absBar.tween('bottom', 0);
 
         return true;
     },
 
-    toggleSearch: function(){
+    toggleSearch: function () {
 
-        if(this.searchBtn.hasClass('ka-autoChooser-searchBtn-expanded')){
+        if (this.searchBtn.hasClass('ka-autoChooser-searchBtn-expanded')) {
             this.subcontainer.tween('bottom', 0);
             this.searchPane.dispose()
             this.searchBtn.removeClass('ka-autoChooser-searchBtn-expanded');
@@ -155,28 +156,34 @@ ka.ObjectTable = new Class({
 
     },
 
-    pageToLeft: function(){
+    pageToLeft: function () {
 
-        if (this.currentPage<=1) return false;
+        if (this.currentPage <= 1) {
+            return false;
+        }
         this.loadPage(--this.currentPage);
 
     },
 
-    pageToRight: function(){
+    pageToRight: function () {
 
-        if (this.currentPage>=this.maxPages) return false;
+        if (this.currentPage >= this.maxPages) {
+            return false;
+        }
         this.loadPage(++this.currentPage);
 
     },
 
-    deselect: function(){
+    deselect: function () {
         this.table.deselect();
     },
 
-    getValue: function(){
+    getValue: function () {
 
         var tr = this.table.selected();
-        if (!tr) return;
+        if (!tr) {
+            return;
+        }
 
         var item = tr.retrieve('item');
 
@@ -184,15 +191,16 @@ ka.ObjectTable = new Class({
 
     },
 
-    loadPage: function(pPage){
+    loadPage: function (pPage) {
 
         //first get count, fire there then real _loadPage() which loads the items then
         this.getCount(pPage);
     },
 
-    getCount: function(pPage){
+    getCount: function (pPage) {
 
-        this.lr = new Request.JSON({url: _path+'admin/object-browser-count/'+this.objectKey.replace('\\', '.'), noCache: 1, onComplete: function(pRes){
+        this.lr = new Request.JSON({url: _path + 'admin/object-browser-count/' +
+            this.objectKey.replace('\\', '.'), noCache: 1, onComplete: function (pRes) {
 
             this.itemsCount = pRes.data;
             this._loadPage(pPage);
@@ -201,19 +209,21 @@ ka.ObjectTable = new Class({
 
     },
 
-    _loadPage: function(pPage){
+    _loadPage: function (pPage) {
 
-        if (this.lr) this.lr.cancel();
+        if (this.lr) {
+            this.lr.cancel();
+        }
 
         var offset = 0;
-        if (pPage){
+        if (pPage) {
             offset = (pPage * this.options.itemsPerPage) - this.options.itemsPerPage;
         }
 
         var fields = [];
 
         var objectDefinition = ka.getObjectDefinition(this.objectKey);
-        Object.each(objectDefinition.browserColumns, function(column, key){
+        Object.each(objectDefinition.browserColumns, function (column, key) {
             fields.push(key);
         });
 
@@ -223,39 +233,39 @@ ka.ObjectTable = new Class({
             fields: fields.join(',')
         }
 
-        this.lr = new Request.JSON({url: _path+'admin/object-browser/'+this.objectKey.replace('\\', '.'), noCache: 1, onComplete: function(pRes){
+        this.lr = new Request.JSON({url: _path + 'admin/object-browser/' +
+            this.objectKey.replace('\\', '.'), noCache: 1, onComplete: function (pRes) {
 
             this.renderResult(pRes.data);
-            this.renderActions(pPage, Math.ceil(this.itemsCount/this.options.itemsPerPage), this.itemsCount);
+            this.renderActions(pPage, Math.ceil(this.itemsCount / this.options.itemsPerPage), this.itemsCount);
 
         }.bind(this)}).get(req);
 
     },
 
-    renderActions: function(pPage, pMaxPages, pMaxItems){
+    renderActions: function (pPage, pMaxPages, pMaxItems) {
 
         this.currentPage = pPage;
         this.maxPages = pMaxPages;
-        this.sMaxPages.set('text', pMaxPages+' ('+pMaxItems+')');
+        this.sMaxPages.set('text', pMaxPages + ' (' + pMaxItems + ')');
         this.iCurrentPage.value = pPage;
 
-        this.imgToLeft.setStyle('opacity', (pPage == 1)?0.5:1);
-        this.imgToRight.setStyle('opacity', (pPage == pMaxPages)?0.5:1);
-
+        this.imgToLeft.setStyle('opacity', (pPage == 1) ? 0.5 : 1);
+        this.imgToRight.setStyle('opacity', (pPage == pMaxPages) ? 0.5 : 1);
 
     },
 
-    renderResult: function(pItems){
+    renderResult: function (pItems) {
 
         this.table.empty();
         var objectDefinition = ka.getObjectDefinition(this.objectKey);
 
         var value;
-        Array.each(pItems, function(item){
+        Array.each(pItems, function (item) {
 
-            var row  = [];
+            var row = [];
 
-            Object.each(objectDefinition.browserColumns, function(column, key){
+            Object.each(objectDefinition.browserColumns, function (column, key) {
 
                 //value = ka.getObjectLabel(item, column, key, this.objectKey);
 
@@ -266,7 +276,7 @@ ka.ObjectTable = new Class({
                     this.objectKey
                 );
                 row.include(value);
-                
+
             }.bind(this));
 
             var tr = this.table.addRow(row);

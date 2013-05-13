@@ -18,11 +18,11 @@ var admin_system_module_view = new Class({
             this.win.params.type = 0;
         }
 
-
         this.loading = new ka.Loader(this.win.content);
         this.loading.show();
 
-        new Request.JSON({url: _pathAdmin + 'admin/system/module/getInstallInfo/', noCache: 1, onComplete: function (res) {
+        new Request.JSON({url: _pathAdmin +
+            'admin/system/module/getInstallInfo/', noCache: 1, onComplete: function (res) {
             this.loading.hide();
 
             this.currentValues = res;
@@ -72,7 +72,6 @@ var admin_system_module_view = new Class({
         }.bind(this));
     },
 
-
     renderContent: function (pItem) {
         this.item = pItem;
 
@@ -91,43 +90,41 @@ var admin_system_module_view = new Class({
             style: 'margin-bottom: 0px; font-size: 13px; font-weight: bold;'
         }).inject(this.win.content);
 
-
         if (pItem.owner_name) {
             pItem.module.cached_owner_name = pItem.owner_name;
             pItem.module.cached_category_title = pItem.category_title;
         }
 
-
         if (pItem.module.cached_owner_name) {
 
             new Element('div', {
                 style: 'padding: 5px;',
-                html: _('from') + ' <b>' + pItem.module.cached_owner_name + '</b> ' + _('in category') + ' <b>' + _(pItem.module.cached_category_title) + '</b>'
+                html: _('from') + ' <b>' + pItem.module.cached_owner_name + '</b> ' + _('in category') + ' <b>' +
+                    _(pItem.module.cached_category_title) + '</b>'
             }).inject(this.win.content);
 
         }
-
 
         var d = new Element('div', {
             style: 'padding: 5px;'
         }).inject(this.win.content)
 
-
         var table = new Element('table', {cellspacing: 2, cellpadding: 0, width: '100%'}).inject(d);
         var tablebody = new Element('tbody').inject(table);
-
 
         var tr = new Element('tr').inject(tablebody);
         var td = new Element('td', {height: 20, html: _('Extensioncode')}).inject(tr);
         var td = new Element('td', {text: pItem.module.extensionCode}).inject(tr);
 
-        var td = new Element('td', {rowspan: 5, width: 150, html: '<img style="padding: 3px; border: 1px solid #ddd;" src="http://download.kryn.org/extThump?extension=' + pItem.name + '" width="150"/>'}).inject(tr);
+        var td = new Element('td',
+            {rowspan: 5, width: 150, html: '<img style="padding: 3px; border: 1px solid #ddd;" src="http://download.kryn.org/extThump?extension=' +
+                pItem.name + '" width="150"/>'}).inject(tr);
 
         var tr = new Element('tr').inject(tablebody);
         var td = new Element('td', {height: 20, html: _('Server version')}).inject(tr);
-        var td = new Element('td', {html: (pItem.serverVersion) ? pItem.serverVersion : '<span style="color: gray;">' + _('Cannot retrieve latest version') + '</span>'
+        var td = new Element('td', {html: (pItem.serverVersion) ? pItem.serverVersion :
+            '<span style="color: gray;">' + _('Cannot retrieve latest version') + '</span>'
         }).inject(tr);
-
 
         var tr = new Element('tr').inject(tablebody);
         var td = new Element('td', {colspan: 2}).inject(tr);
@@ -135,7 +132,6 @@ var admin_system_module_view = new Class({
             style: 'margin: 5px 5px 5px 0px; border: 1px solid #ccc; background-color: #f3f3f3; padding: 5px;',
             html: desc
         }).inject(td);
-
 
         if (pItem.installed) {
             var tr = new Element('tr').inject(tablebody);
@@ -147,16 +143,15 @@ var admin_system_module_view = new Class({
                 td.setStyle('color', 'green');
             }
             if (pItem.serverCompare == '>') {
-                new Element('img', { title: _('Local version newer than server version!'), src: '/inc/admin/images/icons/error.png' }).inject(td);
+                new Element('img',
+                    { title: _('Local version newer than server version!'), src: '/inc/admin/images/icons/error.png' }).inject(td);
             }
         }
-
 
         if (this.win.params.type != 1 && this.win.params.type != 0) {
 
             var tr = new Element('tr').inject(tablebody);
             var border2 = new Element('td', {colspan: 2}).inject(tr);
-
 
             new Element('div', {
                 html: _('You view a locale installation package!'),
@@ -169,7 +164,6 @@ var admin_system_module_view = new Class({
                 html: _('Package version: %s').replace('%s', pItem.module.version)
             }).inject(border2);
         }
-
 
         var tr = new Element('tr').inject(tablebody);
         var td = new Element('td', {colspan: 2, style: 'padding-left: 5px;'}).inject(tr);
@@ -194,7 +188,9 @@ var admin_system_module_view = new Class({
             }
         }
 
-        if ((pItem.installedModule && pItem.serverVersion && pItem.installedModule.version != pItem.serverVersion) || ( ( this.win.params.type != 1 && this.win.params.type != 0) && pItem.module.version != pItem.installedModule.version )) {
+        if ((pItem.installedModule && pItem.serverVersion && pItem.installedModule.version != pItem.serverVersion) ||
+            ( ( this.win.params.type != 1 && this.win.params.type != 0) &&
+                pItem.module.version != pItem.installedModule.version )) {
 
             if (pItem.serverCompare == '>') {
                 new ka.Button(_('Downgrade')).addEvent('click', this.confirmDowngrade.bind(this)).inject(td);
@@ -209,13 +205,11 @@ var admin_system_module_view = new Class({
 
         var tabPane = new ka.TabPane(border);
 
-
         var descPane = tabPane.addPane(_('General'));
 
         var table = new Element('table').inject(descPane.pane);
         var tbody = new Element('tbody').inject(table);
         var tr = new Element('tr').inject(tbody);
-
 
         var tags = '';
         if (pItem.module.tags) {
@@ -228,7 +222,6 @@ var admin_system_module_view = new Class({
         var td = new Element('td', {width: 150, text: _('Tags:')}).inject(tr);
         var td = new Element('td', {style: 'color: gray;', text: (tags != "") ? tags : _('No tags')}).inject(tr);
 
-
         var tr = new Element('tr').inject(tbody);
 
         var td = new Element('td', {width: 150, valign: 'top', text: _('Last publish:')}).inject(tr);
@@ -236,10 +229,10 @@ var admin_system_module_view = new Class({
 
         var tr = new Element('tr').inject(tbody);
         var td = new Element('td', {valign: 'top', text: _('Dependency:')}).inject(tr);
-        var td = new Element('td', {text: (pItem.module.depends && pItem.module.depends != "") ? pItem.module.depends : _('No dependency')}).inject(tr);
+        var td = new Element('td', {text: (pItem.module.depends && pItem.module.depends != "") ? pItem.module.depends :
+            _('No dependency')}).inject(tr);
 
         var dbPane = tabPane.addPane(_('Database'));
-
 
         var table = new Element('table').inject(dbPane.pane);
         var tbody = new Element('tbody').inject(table);
@@ -265,13 +258,11 @@ var admin_system_module_view = new Class({
 
         tabPane.to(0);
 
-
         if (pItem.serverVersion == false) {
             new Element('div', {
                 html: _('Cannot connect to Server to retrieve latest version.')
             }).inject(border);
         }
-
 
     },
 
@@ -285,7 +276,8 @@ var admin_system_module_view = new Class({
         this.loading.show();
 
         //this.boxNavi.hide();
-        new Request.JSON({url: _pathAdmin + 'admin/system/module/getPrepareInstall/', noCache: 1, onComplete: function (res) {
+        new Request.JSON({url: _pathAdmin +
+            'admin/system/module/getPrepareInstall/', noCache: 1, onComplete: function (res) {
             _this.loading.hide();
 
             //todo re comment out in kryn.cms 0.9
@@ -327,11 +319,14 @@ var admin_system_module_view = new Class({
         this.loading = new ka.Loader(this.win.content);
         this.loading.show();
 
-        new Request.JSON({url: _pathAdmin + 'admin/system/module/installModule/', noCache: 1, onComplete: function (res) {
+        new Request.JSON({url: _pathAdmin +
+            'admin/system/module/installModule/', noCache: 1, onComplete: function (res) {
 
             if (this.currentValues && this.currentValues.module.category == 13 && this.installMode)//layout
             {
-                ka.helpsystem.newBubble(_('New themes installed'), _('You have installed a new theme package. Please read the article <ka:help id="admin/use-theme-packages">Use theme packages</ka:help> to check out what you can do.'), 30000);//30sec
+                ka.helpsystem.newBubble(_('New themes installed'),
+                    _('You have installed a new theme package. Please read the article <ka:help id="admin/use-theme-packages">Use theme packages</ka:help> to check out what you can do.'),
+                    30000);//30sec
             }
 
             new Request.JSON({url: _pathAdmin + 'admin/system/module/dbInit/', noCache: 1, onComplete: function (res) {
@@ -356,15 +351,14 @@ var admin_system_module_view = new Class({
             this.win.params.type = 1;
         }
 
-
         this.isUpdate = true;
 
         this.loading = new ka.Loader(this.win.content);
         this.loading.show();
 
-        new Request.JSON({url: _pathAdmin + 'admin/system/module/getPrepareInstall/', noCache: 1, onComplete: function (res) {
+        new Request.JSON({url: _pathAdmin +
+            'admin/system/module/getPrepareInstall/', noCache: 1, onComplete: function (res) {
             _this.loading.hide();
-
 
             if (res.needPackages) {
                 _this.renderDepends(res);
@@ -379,7 +373,6 @@ var admin_system_module_view = new Class({
     },
 
     renderDepends: function (pValues, pInstall) {
-
 
         this.win.content.empty();
 
@@ -410,11 +403,9 @@ var admin_system_module_view = new Class({
             style: 'padding-top: 5px; padding-bottom: 5px;'
         }).inject(this.win.content);
 
-
         new ka.Button(_('Cancel')).addEvent('click', this.loadInfos.bind(this)).inject(div);
 
         this.dependsGoNext = new ka.Button(_('Next')).addEvent('click', function () {
-
 
             if (!this.item.installed) {
                 this.install();
@@ -454,17 +445,13 @@ var admin_system_module_view = new Class({
 
         return;
 
-
     },
-
 
     _renderDepends: function (pRes, pDiv) {
 
         var ul = new Element('ul').inject(pDiv);
 
-
         $H(pRes.depends_ext).each(function (extInfo, extKey) {
-
 
             var li = new Element('li', {
                 style: 'padding: 2px'
@@ -479,7 +466,6 @@ var admin_system_module_view = new Class({
                 style: 'font-weight: bold;'
             }).inject(li);
 
-
             var img = 'error';
 
             if (extInfo.installed) {
@@ -492,7 +478,8 @@ var admin_system_module_view = new Class({
 
             if (extInfo.needUpdate && extInfo.server_version && !extInfo.server_version_not_ok) {
                 new Element('span', {
-                    html: _('will be updated from %1 to %2').replace('%1', extInfo.installedVersion).replace('%2', extInfo.toVersion),
+                    html: _('will be updated from %1 to %2').replace('%1', extInfo.installedVersion).replace('%2',
+                        extInfo.toVersion),
                     style: 'color: green; font-weight: normal;'
                 }).inject(titel);
             }
@@ -546,7 +533,6 @@ var admin_system_module_view = new Class({
                         text: _('Please install the installation package manual via installation files.')
                     }).inject(li);
 
-
                     /*
                      this.dependsStatus[ extKey ] = 'needfile';
 
@@ -590,11 +576,9 @@ var admin_system_module_view = new Class({
 
         }.bind(this));
 
-
     },
 
     checkDepends: function (pName, pType, pDiv) {
-
 
         pDiv.empty();
 
@@ -602,7 +586,8 @@ var admin_system_module_view = new Class({
 
         this.dependsGoNext.hide();
 
-        new Request.JSON({url: _pathAdmin + 'admin/system/module/getPrepareInstall/', noCache: 1, onComplete: function (res) {
+        new Request.JSON({url: _pathAdmin +
+            'admin/system/module/getPrepareInstall/', noCache: 1, onComplete: function (res) {
             this.dependsGoNext.show();
 
             pDiv.empty();
@@ -650,7 +635,6 @@ var admin_system_module_view = new Class({
          */
 
     },
-
 
     /*
      _checkDepends: function(){
@@ -742,7 +726,6 @@ var admin_system_module_view = new Class({
     _checkDependsIsFinished: function () {
         var allOk = true;
 
-
         //check if the fields are empty
         if (this.needFiles.length > 0) {
             this.needFiles.each(function (item) {
@@ -751,7 +734,6 @@ var admin_system_module_view = new Class({
                 }
             }.bind(this));
         }
-
 
         //check whether a dependency exist
 
@@ -762,7 +744,8 @@ var admin_system_module_view = new Class({
 
             div.set('html', _('Check dependency ...'));
 
-            new Request.JSON({url: _pathAdmin + 'admin/system/module/getDependExtension', noCache: 1, onComplete: function (pRes) {
+            new Request.JSON({url: _pathAdmin +
+                'admin/system/module/getDependExtension', noCache: 1, onComplete: function (pRes) {
 
                 if (pRes.ok == true) {
 
@@ -777,16 +760,15 @@ var admin_system_module_view = new Class({
                 } else {
 
                     this.filesOk.erase(extKey);
-                    div.set('text', _('This installation file contains not the correct version. Please select this right one.'));
+                    div.set('text',
+                        _('This installation file contains not the correct version. Please select this right one.'));
 
                     //new ka.Field
-
 
                 }
                 this._checkDependsIsFinished();
 
             }.bind(this)}).post({name: extKey, file: field.getValue(), version: version});
-
 
         }.bind(this));
 
@@ -844,7 +826,6 @@ var admin_system_module_view = new Class({
             style: 'padding-top: 5px; padding-bottom: 5px;'
         }).inject(this.win.content);
 
-
         new ka.Button(_('Cancel')).addEvent('click', this.loadInfos.bind(this)).inject(div);
 
         if (this.isUpdate) {
@@ -852,7 +833,6 @@ var admin_system_module_view = new Class({
         } else {
             new ka.Button(_('Install now')).addEvent('click', this._install.bind(this, false)).inject(div);
         }
-
 
         var div = new Element('div', {
             style: 'padding-top: 5px; padding-bottom: 5px;'
@@ -877,7 +857,13 @@ var admin_system_module_view = new Class({
             var ol = new Element('ol').inject(div);
             pValues.modifiedFiles.each(function (item, key) {
                 var li = new Element('li', {
-                    html: item + ' <a href="javascript:;" onclick="ka.wm.open(\'admin/files/edit/\', {file: {path: \'' + item + '\'}})">' + _('Old') + '</a> | ' + '<a href="javascript:;" onclick="ka.wm.open(\'admin/files/edit/\', {file: {path: \'data/packages/modules/' + this.win.params.name + '/' + item + '\'}})">' + _('New') + '</a> | ' + '<a href="javascript:;" onclick="ka.wm.open(\'admin/files/diff/\', {filefrom: {path: \'' + item + '\'}, fileto: {path: \'data/packages/modules/' + this.win.params.name + '/' + item + '\'}})">' + _('Diff') + '</a>'
+                    html: item + ' <a href="javascript:;" onclick="ka.wm.open(\'admin/files/edit/\', {file: {path: \'' +
+                        item + '\'}})">' + _('Old') + '</a> | ' +
+                        '<a href="javascript:;" onclick="ka.wm.open(\'admin/files/edit/\', {file: {path: \'data/packages/modules/' +
+                        this.win.params.name + '/' + item + '\'}})">' + _('New') + '</a> | ' +
+                        '<a href="javascript:;" onclick="ka.wm.open(\'admin/files/diff/\', {filefrom: {path: \'' +
+                        item + '\'}, fileto: {path: \'data/packages/modules/' + this.win.params.name + '/' + item +
+                        '\'}})">' + _('Diff') + '</a>'
                 }).inject(ol);
                 _this.checkboxes.include(item, new Element('input', {
                     type: 'checkbox'
@@ -953,8 +939,8 @@ var admin_system_module_view = new Class({
 
         this.removeCheckboxes = new Hash();
 
-        new Request.JSON({url: _pathAdmin + 'admin/system/module/getChangedFiles', noCache: 1, onComplete: function (res) {
-
+        new Request.JSON({url: _pathAdmin +
+            'admin/system/module/getChangedFiles', noCache: 1, onComplete: function (res) {
 
             if (res.modifiedFiles.length > 0) {
                 this.loader.hide();

@@ -15,6 +15,7 @@ use Core\Models\Base\WorkspaceQuery as BaseWorkspaceQuery;
  * long as it does not already exist in the output directory.
  *
  */
-class WorkspaceQuery extends BaseWorkspaceQuery {
+class WorkspaceQuery extends BaseWorkspaceQuery
+{
 
 } // WorkspaceQuery

@@ -2,9 +2,8 @@
 
 namespace Admin;
 
-use Core\Kryn;
-
 use Core\Config\EntryPoint;
+use Core\Kryn;
 
 class Utils
 {
@@ -28,7 +27,9 @@ class Utils
         $config = Kryn::getConfig($pName);
 
         Kryn::invalidateCache($pName);
-        if (!$config) return false;
+        if (!$config) {
+            return false;
+        }
 
         //TODO,
 //        if ($config->getCaches()) {
@@ -67,11 +68,11 @@ class Utils
         $bundleName = $code;
         if (false !== ($pos = strpos($code, '/'))) {
             $bundleName = substr($code, 0, strpos($code, '/'));
-            $path       = substr($code, strpos($code, '/') + 1);
+            $path = substr($code, strpos($code, '/') + 1);
         }
 
         $bundleName = ucfirst($bundleName) . 'Bundle';
-        $config     = Kryn::getConfig($bundleName);
+        $config = Kryn::getConfig($bundleName);
 
         if ($config) {
 

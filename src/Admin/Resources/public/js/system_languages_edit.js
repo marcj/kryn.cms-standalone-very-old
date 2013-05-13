@@ -1,16 +1,17 @@
 var admin_system_languages_edit = new Class({
 
-   initialize: function( pWin ){
-       this.win = pWin;
+    initialize: function (pWin) {
+        this.win = pWin;
 
-       this.mod = this.win.params.module;
-       this.createLayout();
-   },
+        this.mod = this.win.params.module;
+        this.createLayout();
+    },
 
-    createLayout: function(){
+    createLayout: function () {
 
         this.bar = this.win.addButtonGroup();
-        this.saveBtn = this.bar.addButton(_('Save'), _path+'bundles/admin/images/button-save.png', this.save.bind(this));
+        this.saveBtn =
+            this.bar.addButton(_('Save'), _path + 'bundles/admin/images/button-save.png', this.save.bind(this));
 
         this.languageSelect = new ka.Select();
         this.languageSelect.addEvent('change', this.extractLanguage.bind(this));
@@ -18,7 +19,7 @@ var admin_system_languages_edit = new Class({
         this.languageSelect.setStyle('top', 0);
         this.languageSelect.setStyle('margin-left', 8);
 
-        Object.each(ka.settings.langs, function (lang, id){
+        Object.each(ka.settings.langs, function (lang, id) {
             this.languageSelect.add(id, lang.langtitle + ' (' + lang.title + ', ' + id + ')');
         }.bind(this));
 
@@ -32,8 +33,9 @@ var admin_system_languages_edit = new Class({
                 return;
             }
             var title = ka.settings.configs[this.win.params.module]['title']['en'];
-            if (ka.settings.configs[this.win.params.module][_session.lang] )
+            if (ka.settings.configs[this.win.params.module][_session.lang]) {
                 title = ka.settings.configs[this.win.params.module]['title'][_session.lang];
+            }
 
             this.win.clearTitle();
             this.win.setTitle(title);
@@ -44,7 +46,9 @@ var admin_system_languages_edit = new Class({
 
     extractLanguage: function () {
         this.win._confirm(_('Really change language ? Unsaved data will be lost.'), function (res) {
-            if (res) this._extractLanguage();
+            if (res) {
+                this._extractLanguage();
+            }
         }.bind(this));
     },
 
@@ -69,7 +73,8 @@ var admin_system_languages_edit = new Class({
 
         this.saveBtn.startTip(_('Saving ...'));
         translations = JSON.encode(translations);
-        this.lr = new Request.JSON({url: _pathAdmin + 'admin/system/module/editor/language', noCache: 1, onComplete: function (res) {
+        this.lr = new Request.JSON({url: _pathAdmin +
+            'admin/system/module/editor/language', noCache: 1, onComplete: function (res) {
             if (!res.data) {
                 this.win._alert(t('Permission denied to the language file. Please check your permissions.'));
             }
@@ -78,8 +83,9 @@ var admin_system_languages_edit = new Class({
     },
 
     _extractLanguage: function () {
-        this.lr = new Request.JSON({url: _pathAdmin + 'admin/system/module/editor/language/extract', noCache: 1, onComplete: function (pResponse) {
-            if (pResponse.data){
+        this.lr = new Request.JSON({url: _pathAdmin +
+            'admin/system/module/editor/language/extract', noCache: 1, onComplete: function (pResponse) {
+            if (pResponse.data) {
                 this.extractedLanguages = pResponse.data;
                 this.loadLanguage(true);
             }
@@ -87,7 +93,8 @@ var admin_system_languages_edit = new Class({
     },
 
     loadLanguage: function (pRenderExtractedLangs) {
-        this.lr = new Request.JSON({url: _pathAdmin + 'admin/system/module/editor/language', noCache: 1, onComplete: function (pResponse) {
+        this.lr = new Request.JSON({url: _pathAdmin +
+            'admin/system/module/editor/language', noCache: 1, onComplete: function (pResponse) {
             this._renderLangs(pResponse.data, pRenderExtractedLangs);
         }.bind(this)}).get({name: this.mod, lang: this.languageSelect.getValue()});
     },
@@ -143,7 +150,6 @@ var admin_system_languages_edit = new Class({
             if (typeOf(translation) == 'array') {
                 // plural
 
-
                 this.langInputs[key] = {};
 
                 inputOl = new Element('ol', {style: 'padding-left: 15px'});
@@ -177,7 +183,8 @@ var admin_system_languages_edit = new Class({
 
                 for (i = 0; i < pLangs.pluralCount; i++) {
 
-                    value = (pLangs.translations[key] && pLangs.translations[key][i]) ? pLangs.translations[key][i] : '';
+                    value =
+                        (pLangs.translations[key] && pLangs.translations[key][i]) ? pLangs.translations[key][i] : '';
 
                     inputLi = new Element('li').inject(inputOl);
                     this.langInputs[key][i] = new Element('input', {

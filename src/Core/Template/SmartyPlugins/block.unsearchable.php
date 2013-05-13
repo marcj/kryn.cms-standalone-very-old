@@ -15,10 +15,11 @@ function smarty_block_unsearchable($params, $content, &$smarty)
     }
 
     $crawlLinks = false;
-    if($params && $params['crawlLinks'] == true)
+    if ($params && $params['crawlLinks'] == true) {
         $crawlLinks = true;
+    }
 
     //if( $crawlLinks )
-        //krynSearch::getLinksInContent($content);
-    return '<!--unsearchable-begin-->'.$content.'<!--unsearchable-end-->';
+    //krynSearch::getLinksInContent($content);
+    return '<!--unsearchable-begin-->' . $content . '<!--unsearchable-end-->';
 }

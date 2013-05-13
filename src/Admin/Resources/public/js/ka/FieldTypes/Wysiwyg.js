@@ -101,10 +101,10 @@ ka.FieldTypes.Wysiwyg = new Class({
         configs: {
             simple: {
                 toolbar: [
-                    ['Bold','Italic', 'Underline','Strike'],
-                    ['Undo','Redo'],
-                    ['NumberedList','BulletedList','-','Outdent','Indent'],
-                    ['Link','Unlink'],
+                    ['Bold', 'Italic', 'Underline', 'Strike'],
+                    ['Undo', 'Redo'],
+                    ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent'],
+                    ['Link', 'Unlink'],
                     ['Format'],
                     [ 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord'],
                     ['Source']
@@ -112,26 +112,26 @@ ka.FieldTypes.Wysiwyg = new Class({
             },
             standard: {
                 toolbar: [
-                    ['Bold','Italic', 'Underline','Strike'],
-                    ['Styles','Format','Font','FontSize'],
-                    ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock', 'Blockquote'],
+                    ['Bold', 'Italic', 'Underline', 'Strike'],
+                    ['Styles', 'Format', 'Font', 'FontSize'],
+                    ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', 'Blockquote'],
                     '/',
-                    ['Undo','Redo'],
-                    ['NumberedList','BulletedList','-','Outdent','Indent'],
-                    ['Link','Unlink','Anchor'],
-                    ['Image','Flash','Table','HorizontalRule','Smiley'],
+                    ['Undo', 'Redo'],
+                    ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent'],
+                    ['Link', 'Unlink', 'Anchor'],
+                    ['Image', 'Flash', 'Table', 'HorizontalRule', 'Smiley'],
                     [ 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord']
                 ]
             },
             full: {
                 toolbarGroups: [
-                    { name: 'document',	   groups: [ 'mode', 'document', 'doctools' ] },
-                    { name: 'clipboard',   groups: [ 'clipboard', 'undo' ] },
-                    { name: 'editing',     groups: [ 'find', 'selection', 'spellchecker' ] },
+                    { name: 'document', groups: [ 'mode', 'document', 'doctools' ] },
+                    { name: 'clipboard', groups: [ 'clipboard', 'undo' ] },
+                    { name: 'editing', groups: [ 'find', 'selection', 'spellchecker' ] },
                     { name: 'forms' },
                     '/',
                     { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
-                    { name: 'paragraph',   groups: [ 'list', 'indent', 'blocks', 'align' ] },
+                    { name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align' ] },
                     { name: 'links' },
                     { name: 'insert' },
                     '/',
@@ -146,21 +146,24 @@ ka.FieldTypes.Wysiwyg = new Class({
 
     },
 
-    createLayout: function(){
+    createLayout: function () {
 
         this.main = new Element('div', {
             contentEditable: "true",
             'class': 'selectable ka-field-wysiwyg'
         }).inject(this.fieldInstance.fieldPanel);
 
-        if (this.options.inputHeight)
+        if (this.options.inputHeight) {
             this.main.setStyle('height', this.options.inputHeight);
+        }
 
-        if (this.options.inputWidth)
+        if (this.options.inputWidth) {
             this.main.setStyle('width', this.options.inputWidth);
+        }
 
-        if (this.options['class'])
+        if (this.options['class']) {
             this.main.addClass(this.options['class']);
+        }
 
         var config = this.getEditorConfig();
 
@@ -179,77 +182,84 @@ ka.FieldTypes.Wysiwyg = new Class({
 
     },
 
-    checkChange: function(){
+    checkChange: function () {
 
-        if (this.ready){
-            if (this.oldData != this.editor.getData())
+        if (this.ready) {
+            if (this.oldData != this.editor.getData()) {
                 this.fieldInstance.fireChange();
+            }
         }
 
     },
 
-    getEditorConfig: function(){
+    getEditorConfig: function () {
 
         var config = this.options.configs[this.options.preset] || {};
 
         config.toolbarLocation = this.options.toolbarLocation;
         config.autoGrow_onStartup = true;
 
-        if (this.options.removeButtons)
+        if (this.options.removeButtons) {
             config.removeButtons = this.options.removeButtons;
+        }
 
         config.extraPlugins = '';
-        if (this.options.extraPlugins)
+        if (this.options.extraPlugins) {
             config.extraPlugins = this.options.extraPlugins;
+        }
 
         config.extraPlugins += ',autogrow';
 
-        if (this.options.contentsCss){
-            if (typeOf(this.options.contentsCss) == 'string'){
-                if (this.options.contentsCss.substr(0,1) != '/')
-                    this.options.contentsCss = _path+this.options.contentsCss;
+        if (this.options.contentsCss) {
+            if (typeOf(this.options.contentsCss) == 'string') {
+                if (this.options.contentsCss.substr(0, 1) != '/') {
+                    this.options.contentsCss = _path + this.options.contentsCss;
+                }
 
-                config.contentsCss = _path+this.options.contentsCss
-            } else if (typeOf(this.options.contentsCss) == 'array'){
+                config.contentsCss = _path + this.options.contentsCss
+            } else if (typeOf(this.options.contentsCss) == 'array') {
 
                 config.contentsCss = [];
-                Array.each(this.options.contentsCss, function(css){
+                Array.each(this.options.contentsCss, function (css) {
 
-                    if (css.substr(0,1) != '/')
-                        css = _path+css;
+                    if (css.substr(0, 1) != '/') {
+                        css = _path + css;
+                    }
                     config.contentsCss.push(css);
                 });
             }
         }
 
-
-        Object.each(this.options.customConfig, function(v,k){
+        Object.each(this.options.customConfig, function (v, k) {
             config[k] = v;
         });
 
         return config;
     },
 
-    editorReady: function(){
+    editorReady: function () {
         this.ready = true;
         //this.main.inject(this.fieldInstance.fieldPanel);
     },
 
-    toElement: function(){
+    toElement: function () {
         return this.main;
     },
 
-    setValue: function(pValue){
+    setValue: function (pValue) {
         this.value = pValue;
-        if (this.ready){
+        if (this.ready) {
             this.editor.setData(this.value);
             this.oldValue = this.editor.getData();
         }
     },
 
-    getValue: function(){
-        if (!this.ready)
+    getValue: function () {
+        if (!this.ready) {
             return this.value;
-        else return this.editor.getData();
+        }
+        else {
+            return this.editor.getData();
+        }
     }
 });

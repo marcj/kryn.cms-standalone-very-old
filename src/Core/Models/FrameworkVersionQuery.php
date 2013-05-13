@@ -15,6 +15,7 @@ use Core\Models\Base\FrameworkVersionQuery as BaseFrameworkVersionQuery;
  * long as it does not already exist in the output directory.
  *
  */
-class FrameworkVersionQuery extends BaseFrameworkVersionQuery {
+class FrameworkVersionQuery extends BaseFrameworkVersionQuery
+{
 
 } // FrameworkVersionQuery

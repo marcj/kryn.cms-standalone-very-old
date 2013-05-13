@@ -32,9 +32,11 @@ ka.WindowCombine = new Class({
         this.renderLayoutTable();
 
         this.mainLayout = new ka.Layout(this.combineContainer, {
-            layout: [{
-                columns: [300, null]
-            }],
+            layout: [
+                {
+                    columns: [300, null]
+                }
+            ],
             splitter: [
                 [1, 1, 'right']
             ]
@@ -44,13 +46,13 @@ ka.WindowCombine = new Class({
             transition: Fx.Transitions.Cubic.easeOut
         });
 
-        this.mainLeft = this.mainLayout.getCell(1,1);
+        this.mainLeft = this.mainLayout.getCell(1, 1);
         this.mainLeft.set('tween', {duration: 100});
 
-        this.mainRight = this.mainLayout.getCell(1,2);
+        this.mainRight = this.mainLayout.getCell(1, 2);
         this.mainRight.addClass('ka-list-combine-right');
 
-        if (this.classProperties.asNested){
+        if (this.classProperties.asNested) {
 
             this.treeContainer = new Element('div', {
                 'class': 'ka-windowCombine-treeContainer ka-objectTree-container'
@@ -64,8 +66,8 @@ ka.WindowCombine = new Class({
             this.mainLeftItems = new Element('div', {
                 'class': 'ka-list-combine-items'
             })
-            .addEvent('scroll', this.checkScrollPosition.bind(this, true))
-            .inject(this.mainLeft, 'top');
+                .addEvent('scroll', this.checkScrollPosition.bind(this, true))
+                .inject(this.mainLeft, 'top');
 
             this.mainLeftSearch = new Element('div', {
                 'class': 'ka-list-combine-searchpane'
@@ -93,7 +95,9 @@ ka.WindowCombine = new Class({
             }).inject(this.mainLeft);
 
             new ka.Button(t('Select all')).addEvent('click', function () {
-                if (!this.checkboxes) return;
+                if (!this.checkboxes) {
+                    return;
+                }
                 if (this.checkedAll) {
                     $$(this.checkboxes).set('checked', false);
                     this.checkedAll = false;
@@ -103,7 +107,8 @@ ka.WindowCombine = new Class({
                 }
             }.bind(this)).inject(this.mainLeftDeleter);
 
-            new ka.Button(t('Remove selected')).addEvent('click', this.removeSelected.bind(this)).inject(this.mainLeftDeleter);
+            new ka.Button(t('Remove selected')).addEvent('click',
+                this.removeSelected.bind(this)).inject(this.mainLeftDeleter);
 
             //window.addEvent('resize', this.checkScrollPosition.bind(this));
 
@@ -114,8 +119,9 @@ ka.WindowCombine = new Class({
 
             this.win.addEvent('resize', this.checkScrollPosition.bind(this, true));
 
-            document.addEvent('keydown', function(e){this.leftItemsDown.call(this, e)}.bind(this));
-
+            document.addEvent('keydown', function (e) {
+                this.leftItemsDown.call(this, e)
+            }.bind(this));
 
             this.renderSearchPane();
             this.createItemLoader();
@@ -126,8 +132,12 @@ ka.WindowCombine = new Class({
 
     leftItemsDown: function (pE) {
 
-        if (!this.win.inFront) return;
-        if (this.ready2ChangeThroughKeyboard == false) return;
+        if (!this.win.inFront) {
+            return;
+        }
+        if (this.ready2ChangeThroughKeyboard == false) {
+            return;
+        }
 
         pE = new Event(pE);
 
@@ -149,7 +159,6 @@ ka.WindowCombine = new Class({
                 this.mainLeftItems.scrollTo(0, this.mainLeftItems.getScrollSize().y + 50);
             }
 
-
             /*if( !newTarget )
              newTarget = this.mainLeftItems.getElement('.ka-list-combine-item');
              */
@@ -169,7 +178,9 @@ ka.WindowCombine = new Class({
              */
         }
 
-        if (!newTarget) return;
+        if (!newTarget) {
+            return;
+        }
 
         var pos = newTarget.getPosition(this.mainLeftItems);
         var size = newTarget.getSize();
@@ -192,24 +203,24 @@ ka.WindowCombine = new Class({
 
     },
 
-    checkClassProperties: function(){
+    checkClassProperties: function () {
 
-        if (!this.classProperties.asNested){
+        if (!this.classProperties.asNested) {
             return this.parent();
         }
 
         return true;
     },
 
-    deselect: function(){
-        if (this.mainLeftItems){
+    deselect: function () {
+        if (this.mainLeftItems) {
             var active = this.mainLeftItems.getElement('.active');
             if (active) {
                 active.removeClass('active');
             }
         }
 
-        if (this.nestedField){
+        if (this.nestedField) {
             //deselect current trees
             this.nestedField.getFieldObject().deselect();
         }
@@ -220,7 +231,8 @@ ka.WindowCombine = new Class({
 
         this.viewActionBar = new ka.ButtonGroup(this.topActionBar, {onlyIcons: true});
         this.viewListBtn = this.viewActionBar.addButton(t('Grid'), '#icon-list-9', this.setView.bind(this, 'list'));
-        this.viewCompactBtn = this.viewActionBar.addButton(t('Compact'), '#icon-layout', this.setView.bind(this, 'compact'));
+        this.viewCompactBtn =
+            this.viewActionBar.addButton(t('Compact'), '#icon-layout', this.setView.bind(this, 'compact'));
         this.viewListBtn.setPressed(true);
     },
 
@@ -274,7 +286,7 @@ ka.WindowCombine = new Class({
         btn.setPressed(true);
     },
 
-    openAddItem: function(){
+    openAddItem: function () {
         this.add();
     },
 
@@ -310,10 +322,10 @@ ka.WindowCombine = new Class({
             this.reload();
         }.bind(this));
 
-
         this.sortSelect.setValue(this.sortField + '______' + ((this.sortDirection == 'DESC') ? 'desc' : 'asc'));
 
-        new Element('div', {style: 'color: gray; padding-left: 4px; padding-top:3px;', html: _('Use * as wildcard')}).inject(this.mainLeftSearch);
+        new Element('div',
+            {style: 'color: gray; padding-left: 4px; padding-top:3px;', html: _('Use * as wildcard')}).inject(this.mainLeftSearch);
 
         var table = new Element('table').inject(this.mainLeftSearch);
 
@@ -333,7 +345,6 @@ ka.WindowCombine = new Class({
                 }
 
                 var field = Object.clone(this.classProperties.filterFields[ mkey ]);
-
 
                 var title = field.label;
                 field.label = t(title);
@@ -377,7 +388,6 @@ ka.WindowCombine = new Class({
         }
     },
 
-
     doSearch: function () {
 
         if (this.lastTimer) {
@@ -401,9 +411,12 @@ ka.WindowCombine = new Class({
 
     checkScrollPosition: function (pRecheck, pAndScrollToSelect) {
 
-        if (this.loadingNewItems) return;
+        if (this.loadingNewItems) {
+            return;
+        }
 
-        if (this.mainLeftItems.getScroll().y - (this.mainLeftItems.getScrollSize().y - this.mainLeftItems.getSize().y) == 0) {
+        if (this.mainLeftItems.getScroll().y -
+            (this.mainLeftItems.getScrollSize().y - this.mainLeftItems.getSize().y) == 0) {
             this.loadMore(pAndScrollToSelect);
         } else if (this.maxItems > 0 && (this.mainLeftItems.getScrollSize().y - this.mainLeftItems.getSize().y) == 0) {
             this.loadMore(pAndScrollToSelect);
@@ -428,7 +441,8 @@ ka.WindowCombine = new Class({
 
     loadMore: function (pAndScrollToSelect) {
         if (this.loadedCount < this.maxItems) {
-            this.loadItems(this.loadedCount, (this.classProperties.itemsPerPage) ? this.classProperties.itemsPerPage : 5, pAndScrollToSelect);
+            this.loadItems(this.loadedCount,
+                (this.classProperties.itemsPerPage) ? this.classProperties.itemsPerPage : 5, pAndScrollToSelect);
         }
     },
 
@@ -453,7 +467,7 @@ ka.WindowCombine = new Class({
 
     clear: function () {
 
-        if (this.classProperties.asNested){
+        if (this.classProperties.asNested) {
 
             this.mainLeft.empty();
 
@@ -473,7 +487,7 @@ ka.WindowCombine = new Class({
             return;
         }
 
-        if (this.classProperties.asNested){
+        if (this.classProperties.asNested) {
             return this.renderLayoutNested(this.treeContainer);
         } else {
             this.clear();
@@ -484,10 +498,9 @@ ka.WindowCombine = new Class({
 
     loadItems: function (pFrom, pMax, pAndScrollToSelect) {
 
-
-        if (this.maxItems === null){
-            return this.loadCount(function(count){
-                if (count == 0){
+        if (this.maxItems === null) {
+            return this.loadCount(function (count) {
+                if (count == 0) {
                     this.itemLoaderNoItems();
                 } else {
                     this.loadItems(pFrom, pMax, pAndScrollToSelect);
@@ -522,99 +535,108 @@ ka.WindowCombine = new Class({
         this.order[this.sortField] = this.sortDirection;
 
         this.lastRequest = new Request.JSON({url: _pathAdmin + this.getEntryPoint(),
-        noCache: true, onComplete: function (response) {
+            noCache: true, onComplete: function (response) {
 
-            if (response.error){
-                this.itemLoader.set('html', t('Something went wrong :-('));
-                return;
-            }
+                if (response.error) {
+                    this.itemLoader.set('html', t('Something went wrong :-('));
+                    return;
+                }
 
-            if (typeOf(response.data) != 'array') response.data = [];
+                if (typeOf(response.data) != 'array') {
+                    response.data = [];
+                }
 
-            var count = response.data.length;
+                var count = response.data.length;
 
-            if (!count && (this.from == 0 || !this.from)) {
-                this.itemLoaderNoItems();
-            }
+                if (!count && (this.from == 0 || !this.from)) {
+                    this.itemLoaderNoItems();
+                }
 
-            if (!Object.getLength(response.data)) return;
+                if (!Object.getLength(response.data)) {
+                    return;
+                }
 
-            this.renderCombineItems(response.data, pFrom);
+                this.renderCombineItems(response.data, pFrom);
 
-            if (this.from == null || pFrom < this.from) {
-                this.from = pFrom;
-            } else if (pFrom == null) {
-                this.from = 0;
-            }
+                if (this.from == null || pFrom < this.from) {
+                    this.from = pFrom;
+                } else if (pFrom == null) {
+                    this.from = 0;
+                }
 
-            if (!this.loadedCount || this.loadedCount < pFrom + count) {
-                this.loadedCount = pFrom + count;
-            }
+                if (!this.loadedCount || this.loadedCount < pFrom + count) {
+                    this.loadedCount = pFrom + count;
+                }
 
-            if (count > 0) {
-                if (this.loadedCount == this.maxItems) {
-                    this.itemLoaderEnd();
+                if (count > 0) {
+                    if (this.loadedCount == this.maxItems) {
+                        this.itemLoaderEnd();
+                    } else {
+                        this.itemLoaderStop();
+                    }
                 } else {
-                    this.itemLoaderStop();
+                    this.itemLoaderNoItems();
                 }
-            } else {
-                this.itemLoaderNoItems();
-            }
 
-            if (this.from > 0) {
-                this.prevItemLoaderStop();
-            } else {
-                this.prevItemLoaderNoItems();
-            }
-
-            this.itemsFrom.set('html', this.from + 1);
-            this.itemsLoaded.set('html', this.loadedCount);
-
-            if (pAndScrollToSelect) {
-                var target = this.mainLeftItems.getElement('.active');
-                if (target) {
-                    var pos = target.getPosition(this.mainLeftItems);
-
-                    this.mainLeftItems.scrollTo(0, pos.y - (this.mainLeftItems.getSize().y / 2));
-
-                }
-            } else {
                 if (this.from > 0) {
-                    if (this.mainLeftItems.getScroll().y < 5) {
-                        this.mainLeftItems.scrollTo(0, 5);
+                    this.prevItemLoaderStop();
+                } else {
+                    this.prevItemLoaderNoItems();
+                }
+
+                this.itemsFrom.set('html', this.from + 1);
+                this.itemsLoaded.set('html', this.loadedCount);
+
+                if (pAndScrollToSelect) {
+                    var target = this.mainLeftItems.getElement('.active');
+                    if (target) {
+                        var pos = target.getPosition(this.mainLeftItems);
+
+                        this.mainLeftItems.scrollTo(0, pos.y - (this.mainLeftItems.getSize().y / 2));
+
+                    }
+                } else {
+                    if (this.from > 0) {
+                        if (this.mainLeftItems.getScroll().y < 5) {
+                            this.mainLeftItems.scrollTo(0, 5);
+                        }
                     }
                 }
-            }
 
-            if (this.from > 0 && this.mainLeftItems.getScroll().y == 0) {
-                this.loadPrevious(true);
-            } else if (this.maxItems-this.loadedCount > 0 && (this.mainLeftItems.getScrollSize().y - this.mainLeftItems.getSize().y) == 0) {
-                this.loadMore(true);
-            }
+                if (this.from > 0 && this.mainLeftItems.getScroll().y == 0) {
+                    this.loadPrevious(true);
+                } else if (this.maxItems - this.loadedCount > 0 &&
+                    (this.mainLeftItems.getScrollSize().y - this.mainLeftItems.getSize().y) == 0) {
+                    this.loadMore(true);
+                }
 
-        }.bind(this)}).get({
-            offset: pFrom,
-            limit: pMax,
-            order: this.order,
-            language: (this.languageSelect) ? this.languageSelect.getValue() : false
-        });
+            }.bind(this)}).get({
+                offset: pFrom,
+                limit: pMax,
+                order: this.order,
+                language: (this.languageSelect) ? this.languageSelect.getValue() : false
+            });
     },
 
-    loadCount: function(pCallback){
+    loadCount: function (pCallback) {
 
-        if (this.lastCountRequest) this.lastCountRequest.cancel();
+        if (this.lastCountRequest) {
+            this.lastCountRequest.cancel();
+        }
 
-        this.lastCountRequest = new Request.JSON({url: _pathAdmin + this.getEntryPoint()+'/:count',
-        onComplete: function(response){
+        this.lastCountRequest = new Request.JSON({url: _pathAdmin + this.getEntryPoint() + '/:count',
+            onComplete: function (response) {
 
-            this.maxItems = response.data+0;
-            if (this.itemsMaxSpan)
-                this.itemsMaxSpan.set('html', this.maxItems);
+                this.maxItems = response.data + 0;
+                if (this.itemsMaxSpan) {
+                    this.itemsMaxSpan.set('html', this.maxItems);
+                }
 
-            if (pCallback)
-                pCallback(response.data);
+                if (pCallback) {
+                    pCallback(response.data);
+                }
 
-        }.bind(this)}).get();
+            }.bind(this)}).get();
 
     },
 
@@ -651,20 +673,27 @@ ka.WindowCombine = new Class({
 
     itemLoaderStop: function () {
         this.loadingNewItems = false;
-        if (!this.itemLoader) return;
+        if (!this.itemLoader) {
+            return;
+        }
         this.itemLoader.set('html', _('Scroll to the bottom to load more entries.'));
     },
 
     itemLoaderEnd: function () {
         this.loadingNewItems = false;
-        if (!this.itemLoader) return;
+        if (!this.itemLoader) {
+            return;
+        }
         this.itemLoader.set('html', _('No entries left.'));
     },
 
     itemLoaderStart: function () {
         this.loadingNewItems = true;
-        if (!this.itemLoader) return;
-        this.itemLoader.set('html', '<img src="' + _path + 'bundles/admin/images/loading.gif" />' + '<br />' + _('Loading entries ...'));
+        if (!this.itemLoader) {
+            return;
+        }
+        this.itemLoader.set('html',
+            '<img src="' + _path + 'bundles/admin/images/loading.gif" />' + '<br />' + _('Loading entries ...'));
     },
 
     itemLoaderNoItems: function () {
@@ -673,13 +702,18 @@ ka.WindowCombine = new Class({
 
     prevItemLoaderStart: function () {
         this.loadingNewItems = true;
-        if (!this.prevItemLoader) return;
-        this.prevItemLoader.set('html', '<img src="' + _path + 'bundles/admin/images/loading.gif" />' + '<br />' + _('Loading entries ...'));
+        if (!this.prevItemLoader) {
+            return;
+        }
+        this.prevItemLoader.set('html',
+            '<img src="' + _path + 'bundles/admin/images/loading.gif" />' + '<br />' + _('Loading entries ...'));
     },
 
     prevItemLoaderStop: function () {
         this.prevLoadingNewItems = false;
-        if (!this.prevItemLoader) return;
+        if (!this.prevItemLoader) {
+            return;
+        }
         this.prevItemLoader.setStyle('display', 'block');
         this.prevItemLoader.set('html', _('Scroll to the top to load previous entries.'));
     },
@@ -731,10 +765,10 @@ ka.WindowCombine = new Class({
         return res;
     },
 
-    nestedItemSelected: function(pItem, pDom){
+    nestedItemSelected: function (pItem, pDom) {
         //pDom.objectKey
         //pDom.id
-        if (pDom.objectKey == this.classProperties.object){
+        if (pDom.objectKey == this.classProperties.object) {
             this.loadItem(pItem);
         } else {
             this.loadRootItem(pItem);
@@ -802,7 +836,6 @@ ka.WindowCombine = new Class({
                         found = false;
                     }
 
-
                     if (!found) {
                         var split = res.getPrevious('.ka-list-combine-splititem');
                         if (split) {
@@ -838,12 +871,16 @@ ka.WindowCombine = new Class({
             this.sortField,
             this.classProperties['object']
         );
-        if (value == '') return _('-- No value --');
+        if (value == '') {
+            return _('-- No value --');
+        }
 
-        if (!this.classProperties.columns[this.sortField])
+        if (!this.classProperties.columns[this.sortField]) {
             return value;
+        }
 
-        if (!this.classProperties.columns[this.sortField]['type'] || this.classProperties.columns[this.sortField].type == "text") {
+        if (!this.classProperties.columns[this.sortField]['type'] ||
+            this.classProperties.columns[this.sortField].type == "text") {
 
             return '<b>' + ((typeOf(value) == 'string') ? value.substr(0, 1).toUpperCase() : value) + '</b>';
 
@@ -873,13 +910,15 @@ ka.WindowCombine = new Class({
 
     },
 
-    add: function(){
+    add: function () {
 
-        if (this.addBtn)
+        if (this.addBtn) {
             this.addBtn.setPressed(true);
+        }
 
-        if (this.addRootBtn)
+        if (this.addRootBtn) {
             this.addRootBtn.setPressed(false);
+        }
 
         this.win.setTitle(t('Add'));
 
@@ -901,19 +940,19 @@ ka.WindowCombine = new Class({
             this.currentRootAdd.destroy();
             delete this.currentRootAdd;
         }
-        if (this.currentRootEdit){
+        if (this.currentRootEdit) {
             this.currentRootEdit.destroy();
             delete this.currentRootEdit;
         }
 
         var win = {};
-        for (var i in this.win){
+        for (var i in this.win) {
             win[i] = this.win[i];
         }
 
         win.entryPoint = ka.entrypoint.getRelative(this.getEntryPoint(), this.classProperties.editEntrypoint);
 
-        win.getTitleGroupContainer = function(){
+        win.getTitleGroupContainer = function () {
             return this.combineActionBar;
         }.bind(this);
 
@@ -923,14 +962,15 @@ ka.WindowCombine = new Class({
 
     },
 
+    addNestedRoot: function () {
 
-    addNestedRoot: function(){
-
-        if (this.addBtn)
+        if (this.addBtn) {
             this.addBtn.setPressed(false);
+        }
 
-        if (this.addRootBtn)
+        if (this.addRootBtn) {
             this.addRootBtn.setPressed(true);
+        }
 
         this.win.setTitle(this.addRootBtn.get('title'));
 
@@ -949,7 +989,7 @@ ka.WindowCombine = new Class({
             delete this.currentAdd;
         }
 
-        if (this.currentRootEdit){
+        if (this.currentRootEdit) {
             this.currentRootEdit.destroy();
             delete this.currentRootEdit;
         }
@@ -960,13 +1000,13 @@ ka.WindowCombine = new Class({
         }
 
         var win = {};
-        for (var i in this.win){
+        for (var i in this.win) {
             win[i] = this.win[i];
         }
 
         win.entryPoint = ka.entrypoint.getRelative(this.getEntryPoint(), this.classProperties.nestedRootAddEntrypoint);
 
-        win.getTitleGroupContainer = function(){
+        win.getTitleGroupContainer = function () {
             return this.combineActionBar;
         }.bind(this);
 
@@ -976,16 +1016,17 @@ ka.WindowCombine = new Class({
 
     },
 
-    addRootSaved: function(){
+    addRootSaved: function () {
         this.changeLanguage();
     },
-
 
     addSaved: function (pRequest, pResponse) {
 
         this.ignoreNextSoftLoad = true;
 
-        if (this.currentAdd.classProperties.primary.length > 1) return;
+        if (this.currentAdd.classProperties.primary.length > 1) {
+            return;
+        }
 
         this.lastLoadedItem = null;
         this._lastItems = null;
@@ -996,20 +1037,19 @@ ka.WindowCombine = new Class({
             selected: ka.getObjectUrlId(this.classProperties.object, pResponse.data)
         });
 
-        if (this.classProperties.asNested){
+        if (this.classProperties.asNested) {
 
-            if (pRequest._position == 'first'){
+            if (pRequest._position == 'first') {
                 this.nestedField.getFieldObject().reloadBranch(pRequest._pk, pRequest._targetObjectKey);
             } else {
                 this.nestedField.getFieldObject().reloadParentBranch(pRequest._pk, pRequest._targetObjectKey);
             }
 
         } else {
-            return this.loadCount(function(count){
+            return this.loadCount(function (count) {
                 this.loadAround(this.win.params.selected);
             }.bind(this));
         }
-
 
     },
 
@@ -1029,18 +1069,20 @@ ka.WindowCombine = new Class({
         }
     },
 
-    getRefWin: function(){
+    getRefWin: function () {
         var res = {};
         Object.each([
             'addEvent', 'removeEvent', 'extendHead', 'addSmallTabGroup', 'addButtonGroup', 'border',
             'inlineContainer', 'titleGroups', 'id', 'close', 'setTitle', '_confirm',
             'interruptClose'
-        ], function(id){
+        ], function (id) {
             res[id] = this.win[id];
-            if (typeOf(this.win[id]) == 'function')
+            if (typeOf(this.win[id]) == 'function') {
                 res[id] = this.win[id].bind(this.win);
-            else
+            }
+            else {
                 res[id] = this.win[id];
+            }
         }.bind(this));
         return res;
     },
@@ -1060,12 +1102,12 @@ ka.WindowCombine = new Class({
             this.currentAdd = null;
         }
 
-        if (this.currentRootEdit){
+        if (this.currentRootEdit) {
             this.currentRootEdit.destroy();
             this.currentRootEdit = null;
         }
 
-        if (this.currentRootAdd){
+        if (this.currentRootAdd) {
             this.currentRootAdd.destroy();
             delete this.currentRootAdd;
         }
@@ -1073,19 +1115,22 @@ ka.WindowCombine = new Class({
         if (!this.currentEdit) {
 
             this.setActiveItem(pItem);
-            if (this.addBtn)
+            if (this.addBtn) {
                 this.addBtn.setPressed(false);
-            if (this.addRootBtn)
+            }
+            if (this.addRootBtn) {
                 this.addRootBtn.setPressed(false);
+            }
 
             var win = {};
 
-            for (var i in this.win)
+            for (var i in this.win) {
                 win[i] = this.win[i];
+            }
 
             win.entryPoint = ka.entrypoint.getRelative(this.win.entryPoint, _this.classProperties.editEntrypoint);
             win.params = {item: pItem};
-            win.getTitleGroupContainer = function(){
+            win.getTitleGroupContainer = function () {
                 return this.combineActionBar;
             }.bind(this);
 
@@ -1105,8 +1150,9 @@ ka.WindowCombine = new Class({
                         this.currentEdit.winParams = {item: pItem};
                         this.currentEdit.loadItem();
 
-                        if (this.addBtn)
+                        if (this.addBtn) {
                             this.addBtn.setPressed(false);
+                        }
 
                         this.setActiveItem(pItem);
                     }
@@ -1116,8 +1162,9 @@ ka.WindowCombine = new Class({
                 this.currentEdit.winParams = {item: pItem};
                 this.currentEdit.loadItem();
 
-                if (this.addBtn)
+                if (this.addBtn) {
                     this.addBtn.setPressed(false);
+                }
 
                 this.setActiveItem(pItem);
             }
@@ -1135,7 +1182,7 @@ ka.WindowCombine = new Class({
             this.currentAdd = null;
         }
 
-        if (this.currentEdit){
+        if (this.currentEdit) {
             this.currentEdit.destroy();
             this.currentEdit = null;
         }
@@ -1144,20 +1191,24 @@ ka.WindowCombine = new Class({
 
             this.setActiveItem(pItem);
 
-            if (this.addBtn)
+            if (this.addBtn) {
                 this.addBtn.setPressed(false);
+            }
 
-            if (this.addRootBtn)
+            if (this.addRootBtn) {
                 this.addRootBtn.setPressed(false);
+            }
 
             var win = {};
 
-            for (var i in this.win)
+            for (var i in this.win) {
                 win[i] = this.win[i];
+            }
 
-            win.entryPoint = ka.entrypoint.getRelative(this.win.entryPoint, _this.classProperties.nestedRootEditEntrypoint);
+            win.entryPoint =
+                ka.entrypoint.getRelative(this.win.entryPoint, _this.classProperties.nestedRootEditEntrypoint);
             win.params = {item: pItem};
-            win.getTitleGroupContainer = function(){
+            win.getTitleGroupContainer = function () {
                 return this.combineActionBar;
             }.bind(this);
 
@@ -1177,8 +1228,9 @@ ka.WindowCombine = new Class({
                         this.currentRootEdit.winParams = {item: pItem};
                         this.currentRootEdit.loadItem();
 
-                        if (this.addBtn)
+                        if (this.addBtn) {
                             this.addBtn.setPressed(false);
+                        }
 
                         this.setActiveItem(pItem);
                     }
@@ -1188,8 +1240,9 @@ ka.WindowCombine = new Class({
                 this.currentRootEdit.winParams = {item: pItem};
                 this.currentRootEdit.loadItem();
 
-                if (this.addBtn)
+                if (this.addBtn) {
                     this.addBtn.setPressed(false);
+                }
 
                 this.setActiveItem(pItem);
             }
@@ -1236,14 +1289,14 @@ ka.WindowCombine = new Class({
         if (this.win.params && this.win.params.list && this.win.params.list.orderBy) {
             this.sortField = this.win.params.list.orderBy;
             this.sortDirection = this.win.params.list.orderByDirection;
-        } else if (this.win.params && this.win.params.list && this.win.params.list.order){
-            Object.each(this.win.params.list.order, function(order, field){
+        } else if (this.win.params && this.win.params.list && this.win.params.list.order) {
+            Object.each(this.win.params.list.order, function (order, field) {
                 this.sortField = field;
                 this.sortDirection = order;
             }.bind(this));
         }
 
-        if (this.classProperties.asNested){
+        if (this.classProperties.asNested) {
             if (this.win.params && this.win.params.selected) {
                 //todo
                 //this.nestedField.select(this.win.params.selected);
@@ -1279,7 +1332,7 @@ ka.WindowCombine = new Class({
         var list = {};
         list.order = this.order;
 
-        if (this.languageSelect){
+        if (this.languageSelect) {
             list.language = this.languageSelect.getValue()
         }
         var params = {
@@ -1287,7 +1340,7 @@ ka.WindowCombine = new Class({
             list: list
         };
 
-        if (selected){
+        if (selected) {
             params.selected = selected;
         }
 
@@ -1329,7 +1382,7 @@ ka.WindowCombine = new Class({
         this.loadItems(this.from, this.loadedCount);
     },
 
-    getEntryPoint: function(){
+    getEntryPoint: function () {
         return this.win.getEntryPoint();
     },
 
@@ -1345,39 +1398,40 @@ ka.WindowCombine = new Class({
             return;
         }
 
-        this.lastLoadAroundRequest = new Request.JSON({url: _pathAdmin + this.getEntryPoint(), noCache: true, onComplete: function (response) {
+        this.lastLoadAroundRequest =
+            new Request.JSON({url: _pathAdmin + this.getEntryPoint(), noCache: true, onComplete: function (response) {
 
-            var position = response.data;
+                var position = response.data;
 
-            if (typeOf(position) == 'number') {
-                var range = (this.classProperties.itemsPerPage) ? this.classProperties.itemsPerPage : 5;
+                if (typeOf(position) == 'number') {
+                    var range = (this.classProperties.itemsPerPage) ? this.classProperties.itemsPerPage : 5;
 
-                var from = position;
-                if (position < range) {
-                    from = 0;
+                    var from = position;
+                    if (position < range) {
+                        from = 0;
+                    } else {
+                        from = position - Math.floor(range / 2);
+                    }
+
+                    this.clearItemList();
+                    this.loadItems(from, range);
                 } else {
-                    from = position - Math.floor(range / 2);
+                    this.loadItems(0, 1);
                 }
 
-                this.clearItemList();
-                this.loadItems(from, range);
-            } else {
-                this.loadItems(0, 1);
-            }
-
-        }.bind(this)}).get({
-            getPosition: pPrimaries,
-            order: this.order,
-            filter: this.searchEnable,
-            language: (this.languageSelect) ? this.languageSelect.getValue() : false,
-            filterVals: (this.searchEnable) ? this.getSearchVals() : ''
-        });
+            }.bind(this)}).get({
+                    getPosition: pPrimaries,
+                    order: this.order,
+                    filter: this.searchEnable,
+                    language: (this.languageSelect) ? this.languageSelect.getValue() : false,
+                    filterVals: (this.searchEnable) ? this.getSearchVals() : ''
+                });
     },
 
     saved: function (pItem, pRes) {
         this.ignoreNextSoftLoad = true;
 
-        if (this.classProperties.asNested){
+        if (this.classProperties.asNested) {
 
             this.reloadTreeItem();
 
@@ -1389,9 +1443,9 @@ ka.WindowCombine = new Class({
         }
     },
 
-    reloadTreeItem: function(){
+    reloadTreeItem: function () {
         var selected = this.nestedField.getFieldObject().getSelectedTree();
-        if (selected){
+        if (selected) {
             selected.reloadParentOfActive();
         }
     },
@@ -1432,16 +1486,22 @@ ka.WindowCombine = new Class({
             var c = 1;
             Object.each(this.classProperties.columns, function (bla, id) {
 
-                if (id == "title" && titleAdded) return;
-                if (id == "name" && nameAdded) return;
+                if (id == "title" && titleAdded) {
+                    return;
+                }
+                if (id == "name" && nameAdded) {
+                    return;
+                }
 
-                if (c > 2) return;
+                if (c > 2) {
+                    return;
+                }
 
                 if (c == 2) {
                     layout += ', ';
                 }
 
-                layout += "<span>{"+id+"}</span>";
+                layout += "<span>{" + id + "}</span>";
                 c++;
 
             }.bind(this));
@@ -1500,7 +1560,6 @@ ka.WindowCombine = new Class({
             }
         }
 
-
         if (this.currentEdit && this.currentEdit.classProperties) {
 
             var oneIsFalse = false;
@@ -1515,7 +1574,6 @@ ka.WindowCombine = new Class({
                 item.addClass('active');
             }
         }
-
 
         if (this.needSelection) {
 

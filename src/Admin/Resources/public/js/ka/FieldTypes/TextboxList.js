@@ -1,5 +1,5 @@
 ka.FieldTypes.TextboxList = new Class({
-    
+
     Extends: ka.FieldAbstract,
 
     options: {
@@ -11,22 +11,22 @@ ka.FieldTypes.TextboxList = new Class({
 
     },
 
-    createLayout: function(){
+    createLayout: function () {
 
         this.select = new ka.TextboxList(this.fieldInstance.fieldPanel, this.options);
 
-        document.id(this.select).setStyle('width', this.options.inputWidth?
-            this.options.inputWidth:'100%');
+        document.id(this.select).setStyle('width', this.options.inputWidth ?
+            this.options.inputWidth : '100%');
 
         this.select.addEvent('change', this.fieldInstance.fireChange);
 
     },
 
-    setValue: function(pValue){
+    setValue: function (pValue) {
         this.select.setValue(pValue);
     },
 
-    getValue: function(){
+    getValue: function () {
         return this.select.getValue();
     }
 });

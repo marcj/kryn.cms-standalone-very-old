@@ -72,7 +72,7 @@ class Field extends Model
     {
         $operation = substr($method, 0, 3);
         $varName = lcfirst(substr($method, 3));
-        if (!$this->$varName){
+        if (!$this->$varName) {
             if ('get' === $operation) {
                 return $this->options[$varName];
             } else if ('set' === $operation) {
@@ -118,7 +118,7 @@ class Field extends Model
         foreach ($children as $key => $field) {
             if ($field instanceof Field) {
                 $this->children[] = $field;
-            } else if(is_array($field)) {
+            } else if (is_array($field)) {
                 $instance = new Field();
                 $instance->fromArray($field);
                 if (null === $instance->getId()) {

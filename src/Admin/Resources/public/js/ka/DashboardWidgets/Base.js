@@ -34,13 +34,13 @@ ka.DashboardWidgets.Base = new Class({
         this.deRegisterStream();
     },
 
-    deRegisterStream: function(){
+    deRegisterStream: function () {
         if (null !== this.streamPath) {
             ka.deRegisterStream(this.streamPath, this.update);
         }
     },
 
-    registerStream: function(){
+    registerStream: function () {
         if (null !== this.streamPath) {
             ka.registerStream(this.streamPath, this.update);
         }

@@ -48,7 +48,7 @@ ka.wm = {
     },
 
     getWindow: function (pId) {
-        if (pId == -1){
+        if (pId == -1) {
             pId == ka.wm.lastWindow;
         }
         return ka.wm.windows[ pId ];
@@ -75,7 +75,7 @@ ka.wm = {
 
     setFrontWindow: function (pWindow) {
         Object.each(ka.wm.windows, function (win, winId) {
-            if (win && pWindow.id != winId){
+            if (win && pWindow.id != winId) {
                 win.toBack();
             }
         });
@@ -85,10 +85,13 @@ ka.wm = {
     loadWindow: function (pEntryPoint, pLink, pParentWindowId, pParams, pInline) {
         var instance = Object.getLength(ka.wm.windows) + 1;
 
-        if (pParentWindowId == -1)
+        if (pParentWindowId == -1) {
             pParentWindowId = ka.wm.lastWindow ? ka.wm.lastWindow.id : false;
+        }
 
-        if (pParentWindowId && !ka.wm.getWindow(pParentWindowId)) throw 'Parent window not found.';
+        if (pParentWindowId && !ka.wm.getWindow(pParentWindowId)) {
+            throw 'Parent window not found.';
+        }
 
         ka.wm.windows[instance] = new ka.Window(pEntryPoint, pLink, instance, pParams, pInline, pParentWindowId);
         ka.wm.windows[instance].toFront();
@@ -99,7 +102,7 @@ ka.wm = {
     close: function (pWindow) {
 
         var parent = pWindow.getParentId();
-        if (parent){
+        if (parent) {
             parent = ka.wm.getWindow(parent);
             parent.removeChildren();
         }
@@ -111,7 +114,7 @@ ka.wm = {
 
         delete ka.wm.windows[pWindow.id];
 
-        if (parent){
+        if (parent) {
             parent.toFront();
         } else {
             ka.wm.bringLastWindow2Front();
@@ -121,18 +124,20 @@ ka.wm = {
         ka.wm.reloadHashtag();
     },
 
-    bringLastWindow2Front: function(){
+    bringLastWindow2Front: function () {
 
         var lastWindow;
 
         Object.each(ka.wm.windows, function (win) {
-            if (!win) return;
-            if (!lastWindow || win.border.getStyle('z-index') > lastWindow.border.getStyle('z-index')){
+            if (!win) {
+                return;
+            }
+            if (!lastWindow || win.border.getStyle('z-index') > lastWindow.border.getStyle('z-index')) {
                 lastWindow = win;
             }
         });
 
-        if (lastWindow){
+        if (lastWindow) {
             lastWindow.toFront();
         }
     },
@@ -140,8 +145,12 @@ ka.wm = {
     getWindowsCount: function () {
         var count = 0;
         Object.each(ka.wm.windows, function (win, winId) {
-            if (!win) return;
-            if (win.inline) return;
+            if (!win) {
+                return;
+            }
+            if (win.inline) {
+                return;
+            }
             count++;
         });
         return count;
@@ -160,36 +169,40 @@ ka.wm = {
         var openWindows = 0;
         Object.each(ka.wm.windows, function (win) {
 
-            if (win.getParentId()) return;
+            if (win.getParentId()) {
+                return;
+            }
             var menuItem = ka.adminInterface.getMenuItem(win.getEntryPoint());
 
             if (menuItem) {
                 menuItem.object.addClass('ka-main-menu-item-open');
             }
 
-            if (win.isInFront()){
+            if (win.isInFront()) {
                 openWindows++;
-                if (win.getEntryPoint() == 'admin/nodes/frontend')
+                if (win.getEntryPoint() == 'admin/nodes/frontend') {
                     return ka.adminInterface.frontendLink.addClass('ka-main-menu-item-active');
+                }
 
                 var menuItem = ka.adminInterface.getMenuItem(win.getEntryPoint());
 
                 atLeastOneActive = true;
                 if (menuItem) {
                     menuItem.object.addClass('ka-main-menu-item-active');
-                } else if (!ka.wm.tempItems[win.getId()]){
+                } else if (!ka.wm.tempItems[win.getId()]) {
                     var item = ka.adminInterface.addTempLink(win);
                     item.addClass('ka-main-menu-item-active');
                     ka.wm.tempItems[win.getId()] = item;
-                } if (menuItem = ka.wm.tempItems[win.getId()]){
-                    menuItem.set('text', win.getEntryPointDefinition().title+' » '+win.getTitle());
+                }
+                if (menuItem = ka.wm.tempItems[win.getId()]) {
+                    menuItem.set('text', win.getEntryPointDefinition().title + ' » ' + win.getTitle());
                     menuItem.addClass('ka-main-menu-item-active');
                 }
             }
 
         });
 
-        if (atLeastOneActive && ka.adminInterface.options.frontPage){
+        if (atLeastOneActive && ka.adminInterface.options.frontPage) {
             document.body.addClass('hide-scrollbar');
         }
 
@@ -212,37 +225,39 @@ ka.wm = {
         ka.wm.reloadHashtag();
     },
 
-    reloadHashtag: function(pForce){
+    reloadHashtag: function (pForce) {
 
         var hash = '';
 
         Object.each(ka.wm.windows, function (win) {
-            if (win.isInFront() && !win.isInline()){
-                hash = win.getEntryPoint()+( win.getParameter() ? '!'+JSON.encode(win.getParameter()) : '' );
+            if (win.isInFront() && !win.isInline()) {
+                hash = win.getEntryPoint() + ( win.getParameter() ? '!' + JSON.encode(win.getParameter()) : '' );
             }
         });
 
-        if (hash != window.location.hash){
+        if (hash != window.location.hash) {
             window.location.hash = hash;
         }
 
     },
 
-    handleHashtag: function(pForce){
-        if (ka.wm.hashHandled && !pForce) return;
+    handleHashtag: function (pForce) {
+        if (ka.wm.hashHandled && !pForce) {
+            return;
+        }
 
         ka.wm.hashHandled = true;
 
-        if (window.location.hash){
+        if (window.location.hash) {
 
             var first = window.location.hash.indexOf('!');
             var entryPoint = window.location.hash.substr(1);
             var parameters = null;
-            if (first !== -1){
-                entryPoint = entryPoint.substr(0, first-1);
+            if (first !== -1) {
+                entryPoint = entryPoint.substr(0, first - 1);
 
-                parameters = window.location.hash.substr(first+1);
-                if (parameters){
+                parameters = window.location.hash.substr(first + 1);
+                if (parameters) {
                     parameters = JSON.decode(parameters);
                 }
             }
@@ -251,7 +266,7 @@ ka.wm = {
         }
     },
 
-    removeActiveWindowInformation: function(){
+    removeActiveWindowInformation: function () {
         ka.adminInterface.mainMenuTopNavigation.getElements('a').removeClass('ka-main-menu-item-active');
         ka.adminInterface.mainMenu.getElements('a').removeClass('ka-main-menu-item-active');
         ka.adminInterface.mainMenuTopNavigation.getElements('a').removeClass('ka-main-menu-item-open');

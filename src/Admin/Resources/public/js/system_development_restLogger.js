@@ -1,11 +1,11 @@
 var admin_system_development_restLogger = new Class({
 
-    initialize: function(pWin){
+    initialize: function (pWin) {
 
         this.win = pWin;
 
         this.onCall = this.onCall.bind(this);
-        this.win.addEvent('close', function(){
+        this.win.addEvent('close', function () {
             window.removeEvent('restCall', this.onCall);
         }.bind(this));
 
@@ -13,7 +13,7 @@ var admin_system_development_restLogger = new Class({
 
     },
 
-    _createLayout: function(){
+    _createLayout: function () {
 
         this.win.content.empty();
 
@@ -32,17 +32,22 @@ var admin_system_development_restLogger = new Class({
 
     },
 
-    onCall: function(pData, pRequest){
+    onCall: function (pData, pRequest) {
 
-        if (typeOf(pData) != 'object') return;
+        if (typeOf(pData) != 'object') {
+            return;
+        }
 
-        if (!pRequest.data) pRequest.data = {};
+        if (!pRequest.data) {
+            pRequest.data = {};
+        }
 
         this.table.addRow([
             (new Date()).format('%H:%m:%S:%L'),
             pRequest.data.method || pRequest.options.method,
             pRequest.options.url,
-            '<pre style="line-height: 13px; white-space: pre-wrap;">'+pRequest.xhr.responseText.replace('<', '&lt;').replace('>', '&gt;')+'</pre>'
+            '<pre style="line-height: 13px; white-space: pre-wrap;">' +
+                pRequest.xhr.responseText.replace('<', '&lt;').replace('>', '&gt;') + '</pre>'
         ]);
     }
 

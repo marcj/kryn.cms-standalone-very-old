@@ -10,6 +10,7 @@ class Event
      * Adds $pFn to $pEventKey event.
      *
      * @static
+     *
      * @param string $pEventKey
      * @param mixed  $pFn       'myClass::staticFn', array($obj, 'methodName'), 'globalFunction'
      */
@@ -23,6 +24,7 @@ class Event
      * Triggers an event. Calls all functions mapped through krynEvent::listen().
      *
      * @static
+     *
      * @param string $pEventKey
      * @param mixed  $pArgument
      */

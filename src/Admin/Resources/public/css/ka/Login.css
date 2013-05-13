@@ -7,6 +7,7 @@
     background-color: #f5f5f5;
     border: 5px solid white;
 }
+
 .ka-login-middle .ka-Select-box,
 .ka-login-middle .ka-Select-box:link,
 .ka-login-middle .ka-Button,
@@ -17,12 +18,12 @@
     line-height: 40px;
     height: 40px;
 }
+
 .ka-login-middle .ka-Select-box,
 .ka-login-middle .ka-Select-box:link {
     line-height: 30px;
     height: 30px;
 }
-
 
 .ka-login-barrierTape {
     background-image: url(../../images/login-barrier-tape.gif);
@@ -90,6 +91,7 @@
     top: 6px;
     margin-left: 23px;
 }
+
 .ka-ai-loader-con {
     height: 30px;
     -moz-border-radius: 4px;
@@ -178,7 +180,6 @@
 .ka-login-input-username:focus {
 }
 
-
 .ka-login-middle .loginMessage {
     line-height: 16px;
     margin: 5px 15px;
@@ -205,15 +206,14 @@
     z-index: 131313124;
 }
 
-
 .ka-login-barrierTape-fullblock {
     top: 225px;
-    -ms-transform:rotate(350deg);
-    -o-transform:rotate(350deg);
-    -webkit-transform:rotate(350deg);
-    -moz-transform:rotate(350deg);
+    -ms-transform: rotate(350deg);
+    -o-transform: rotate(350deg);
+    -webkit-transform: rotate(350deg);
+    -moz-transform: rotate(350deg);
     transform: rotate(350deg);
-    filter: progid:DXImageTransform.Microsoft.Matrix(M11=0.984807753012208, M12=-0.173648177666931,M21=0.173648177666931, M22=0.984807753012208, sizingMethod='auto expand');
+    filter: progid:DXImageTransform.Microsoft.Matrix(M11=0.984807753012208, M12=-0.173648177666931, M21=0.173648177666931, M22=0.984807753012208, sizingMethod='auto expand');
     -ms-filter: "progid:DXImageTransform.Microsoft.Matrix(SizingMethod='auto expand', M11=0.984807753012208, M12=-0.173648177666931,M21=0.173648177666931, M22=0.984807753012208)";
 
 }

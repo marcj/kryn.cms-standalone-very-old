@@ -11,7 +11,7 @@ ka.Slot = new Class({
     slotParams: {},
     editor: null,
 
-    initialize: function(pDomSlot, pOptions, pEditor){
+    initialize: function (pDomSlot, pOptions, pEditor) {
 
         this.slot = pDomSlot;
         this.slot.kaSlotInstance = this;
@@ -27,11 +27,11 @@ ka.Slot = new Class({
 
     },
 
-    getEditor: function(){
+    getEditor: function () {
         return this.editor;
     },
 
-    renderLayout: function(){
+    renderLayout: function () {
 
         this.slot.empty();
 
@@ -56,45 +56,47 @@ ka.Slot = new Class({
         this.addActions();
     },
 
-    fireChange: function(){
+    fireChange: function () {
         this.fireEvent('change');
     },
 
-    loadContents: function(){
+    loadContents: function () {
         this.lastRq = new Request.JSON({url: _pathAdmin + 'admin/object/Core:Content', noCache: true,
-        onComplete: this.renderContents.bind(this)}).get({
-            _boxId: this.slotParams.id,
-            _nodeId: this.options.nodePk,
-            order: {sort: 'asc'}
-        });
+            onComplete: this.renderContents.bind(this)}).get({
+                _boxId: this.slotParams.id,
+                _nodeId: this.options.nodePk,
+                order: {sort: 'asc'}
+            });
     },
 
-    renderContents: function(pResponse){
+    renderContents: function (pResponse) {
 
-        Array.each(pResponse.data, function(content){
+        Array.each(pResponse.data, function (content) {
             this.addContent(content)
         }.bind(this));
 
         this.oldValue = this.getValue();
     },
 
-    toElement: function(){
+    toElement: function () {
         return this.slot;
     },
 
-    hasChanges: function(){
+    hasChanges: function () {
         return JSON.encode(this.oldValue) != JSON.encode(this.getValue());
     },
 
-    getValue: function(){
+    getValue: function () {
 
         var contents = [];
         var data;
 
-        this.slot.getChildren('.ka-content').each(function(content, idx){
-            if (!content.kaContentInstance) return;
+        this.slot.getChildren('.ka-content').each(function (content, idx) {
+            if (!content.kaContentInstance) {
+                return;
+            }
             data = content.kaContentInstance.getValue();
-            data.boxId  = this.slotParams.id;
+            data.boxId = this.slotParams.id;
             data.sortableId = idx;
             contents.push(data);
         }.bind(this));
@@ -103,32 +105,36 @@ ka.Slot = new Class({
 
     },
 
-    addActions: function(){
+    addActions: function () {
 
-        this.addContentBtn = new Element('a',{
+        this.addContentBtn = new Element('a', {
             href: 'javascript: ;',
             html: '&#xe109;',
             title: tc('nodeEditor', 'Add content to this slot')
         })
-        .addEvent('click', function(){ this.addContent(); }.bind(this))
-        .inject(this.headerActions);
+            .addEvent('click', function () {
+                this.addContent();
+            }.bind(this))
+            .inject(this.headerActions);
 
     },
 
-    addContent: function(pContent, pFocus){
+    addContent: function (pContent, pFocus) {
 
-        if (!pContent)
+        if (!pContent) {
             pContent = {type: 'text'};
+        }
 
-        if (!pContent.template){
+        if (!pContent.template) {
             pContent.template = 'core/content_default.tpl';
         }
 
         var content = new ka.Content(pContent, this);
         content.addEvent('change', this.fireChange);
 
-        if (pFocus)
+        if (pFocus) {
             content.focus();
+        }
 
         return content;
     }

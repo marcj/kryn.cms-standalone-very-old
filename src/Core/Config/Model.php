@@ -141,7 +141,7 @@ class Model implements \ArrayAccess
         $element = $this->getDirectChild($variableName);
         if ($element) {
             $setter = 'set' . ucfirst($variableName);
-            $value  = $element->nodeValue;
+            $value = $element->nodeValue;
 
             if (method_exists($this, $setter)) {
                 $this->$setter($value);
@@ -157,7 +157,7 @@ class Model implements \ArrayAccess
         $element = $this->element->attributes->getNamedItem($variableName);
         if ($element) {
             $setter = 'set' . ucfirst($variableName);
-            $value  = $element->nodeValue;
+            $value = $element->nodeValue;
 
             if (method_exists($this, $setter)) {
                 $this->$setter($value);
@@ -205,7 +205,7 @@ class Model implements \ArrayAccess
     public function getDirectChildren($tag)
     {
         $children = array();
-        $root     = $this->element->firstChild && $this->element->firstChild->nodeName == 'bundle'
+        $root = $this->element->firstChild && $this->element->firstChild->nodeName == 'bundle'
             ? $this->element->firstChild
             : $this->element;
 
@@ -253,9 +253,9 @@ class Model implements \ArrayAccess
      */
     public function toArray($element = null)
     {
-        $result    = array();
+        $result = array();
         $blacklist = array('config', 'element');
-        $element   = $element ? : $this;
+        $element = $element ? : $this;
 
         $reflection = new \ReflectionClass($this);
         $properties = $reflection->getDefaultProperties();

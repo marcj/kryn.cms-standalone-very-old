@@ -2,4 +2,6 @@
 
 namespace Core\Exceptions;
 
-class BundleNotFoundException extends \Exception {}
+class BundleNotFoundException extends \Exception
+{
+}

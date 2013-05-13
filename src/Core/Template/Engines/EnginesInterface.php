@@ -2,7 +2,8 @@
 
 namespace Core\Template\Engines;
 
-interface EnginesInterface {
+interface EnginesInterface
+{
 
     public function render($file, $data = null);
 

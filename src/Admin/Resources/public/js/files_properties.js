@@ -34,12 +34,10 @@ var admin_files_properties = new Class({
             lang: 'access'
         }).inject(this.win.content);
 
-
         this.panes['filesystem'] = new Element('div', {
             'class': 'admin-system-settings-pane',
             lang: 'filesystem'
         }).inject(this.win.content);
-
 
         this.panes['versions'] = new Element('div', {
             'class': 'admin-system-settings-pane',
@@ -111,7 +109,6 @@ var admin_files_properties = new Class({
 
     _load: function () {
 
-
         if (this.file.type == 'dir') {
             this.tabButtons['versions'].hide();
         }
@@ -125,7 +122,8 @@ var admin_files_properties = new Class({
         this.panes['general'].setStyle('padding', 6);
         this.panes['general'].empty();
 
-        this.generalTable = new Element('table', {width: '100%', cellpadding: 5, cellspacing: 0, 'class': 'admin-files'}).inject(this.panes['general']);
+        this.generalTable = new Element('table',
+            {width: '100%', cellpadding: 5, cellspacing: 0, 'class': 'admin-files'}).inject(this.panes['general']);
         this.generalTableBody = new Element('tbody').inject(this.generalTable);
 
         this.mkTr();
@@ -139,7 +137,7 @@ var admin_files_properties = new Class({
         if (this.file.type == 'dir') {
             tdClass += ' dir';
         } else {
-            tdClass += ' ' + this.file.path.substr(this.file.path.lastIndexOf('.')+1);
+            tdClass += ' ' + this.file.path.substr(this.file.path.lastIndexOf('.') + 1);
         }
         td.set('class', tdClass);
 
@@ -159,13 +157,12 @@ var admin_files_properties = new Class({
         this.mkTd(_('Path'));
         this.mkTd(this.file.path);
 
-
         this.mkDel();
         this.formatDate = '%A, %d. %B %Y, %H:%M:%S';
 
         this.mkTr();
         this.mkTd(_('Created'));
-        this.mkTd(this.file.ctime?(new Date(this.file.ctime * 1000).format(this.formatDate)):_('Not available'));
+        this.mkTd(this.file.ctime ? (new Date(this.file.ctime * 1000).format(this.formatDate)) : _('Not available'));
 
         this.mkTr();
         this.mkTd(_('Modified'));
@@ -183,7 +180,6 @@ var admin_files_properties = new Class({
             this.sizeTd = this.mkTd(ka.bytesToSize(this.file.size));
         }
 
-
         this.loadAccess();
         //this.loadFilestem();
         this.loadVersions();
@@ -194,12 +190,12 @@ var admin_files_properties = new Class({
         var p = this.panes['access'];
         p.set('html', _('Loading ...'));
 
-        new Request.JSON({url: _path+'admin/files/getAccess', noCache: 1, onComplete: this.renderAccess.bind(this)})
+        new Request.JSON({url: _path + 'admin/files/getAccess', noCache: 1, onComplete: this.renderAccess.bind(this)})
             .get({path: this.file.path});
 
     },
 
-    renderAccess: function(pResult){
+    renderAccess: function (pResult) {
         var p = this.panes['access'];
         p.empty();
 
@@ -215,7 +211,8 @@ var admin_files_properties = new Class({
             text: _('Public access'), help: 'admin/files-public-access'
         }).inject(p);
 
-        this.generalTable = new Element('table', {width: '100%', cellpadding: 5, cellspacing: 0, 'class': 'admin-files'}).inject(p);
+        this.generalTable =
+            new Element('table', {width: '100%', cellpadding: 5, cellspacing: 0, 'class': 'admin-files'}).inject(p);
         this.generalTableBody = new Element('tbody').inject(this.generalTable);
 
         this.mkTr();
@@ -234,10 +231,13 @@ var admin_files_properties = new Class({
 
         var td = this.mkTd(this.accessSelect);
 
-
         var val = '';
-        if (pResult.public) val = 'allow';
-        if (!pResult.public) val = 'deny';
+        if (pResult.public) {
+            val = 'allow';
+        }
+        if (!pResult.public) {
+            val = 'deny';
+        }
         this.accessSelect.setValue(val);
 
         new Element('div', {
@@ -249,7 +249,8 @@ var admin_files_properties = new Class({
             text: _('Intern access')
         }).inject(p);
 
-        this.generalTable = new Element('table', {width: '100%', cellpadding: 5, cellspacing: 0, 'class': 'ka-Table-head ka-Table-body'}).inject(p);
+        this.generalTable = new Element('table',
+            {width: '100%', cellpadding: 5, cellspacing: 0, 'class': 'ka-Table-head ka-Table-body'}).inject(p);
         this.accessTbody = new Element('tbody').inject(this.generalTable);
 
         //ka-Table-hea
@@ -280,13 +281,12 @@ var admin_files_properties = new Class({
             width: '30'
         }).inject(tr);
 
-
         this.addInternAclBtn = new ka.Button(new Element('img', {
             src: _path + 'bundles/admin/images/icons/add.png'
         }), null, _('Add new rule')).addEvent('click', this.addRule.bind(this)).inject(p);
 
-
-        this.applyInternalAclBtn = new ka.Button(_('Apply')).addEvent('click', this.applyInternalAcls.bind(this)).inject(p);
+        this.applyInternalAclBtn =
+            new ka.Button(_('Apply')).addEvent('click', this.applyInternalAcls.bind(this)).inject(p);
 
         if (pResult.internalAcls && typeOf(pResult.internalAcls) == 'array') {
             pResult.internalAcls.each(function (rule) {
@@ -312,7 +312,9 @@ var admin_files_properties = new Class({
         this.accessTbody.getElements('tr').each(function (tr, index) {
 
             var rule = tr.retrieve('rule');
-            if (!rule || rule.removed == true) return;
+            if (!rule || rule.removed == true) {
+                return;
+            }
 
             rules.include(rule.getValue());
 
@@ -340,7 +342,6 @@ var admin_files_properties = new Class({
 
         p.empty();
 
-
         if (this.file.writeaccess == 0) {
             new Element('div', {
                 text: _('You have no access to this file.'),
@@ -354,10 +355,10 @@ var admin_files_properties = new Class({
             style: 'color: gray; padding: 5px'
         }).inject(p);
 
-        this.generalTable = new Element('table', {width: '100%', cellpadding: 5, cellspacing: 0, 'class': 'admin-files'}).inject(p);
+        this.generalTable =
+            new Element('table', {width: '100%', cellpadding: 5, cellspacing: 0, 'class': 'admin-files'}).inject(p);
         this.generalTableBody = new Element('tbody').inject(this.generalTable);
         this.filePermissionTable = this.generalTable;
-
 
         this.mkTr();
 
@@ -368,22 +369,30 @@ var admin_files_properties = new Class({
 
         this.mkTr();
         this.mkTd(_('Owner'));
-        this.mkTd(new Element('input', {type: 'checkbox', checked: (this.file.perms.substr(1, 1) == 'r') ? true : false}));
-        this.mkTd(new Element('input', {type: 'checkbox', checked: (this.file.perms.substr(2, 1) == 'w') ? true : false}));
-        this.mkTd(new Element('input', {type: 'checkbox', checked: (this.file.perms.substr(3, 1) == 'x') ? true : false}));
+        this.mkTd(new Element('input',
+            {type: 'checkbox', checked: (this.file.perms.substr(1, 1) == 'r') ? true : false}));
+        this.mkTd(new Element('input',
+            {type: 'checkbox', checked: (this.file.perms.substr(2, 1) == 'w') ? true : false}));
+        this.mkTd(new Element('input',
+            {type: 'checkbox', checked: (this.file.perms.substr(3, 1) == 'x') ? true : false}));
 
         this.mkTr();
         this.mkTd(_('Group'));
-        this.mkTd(new Element('input', {type: 'checkbox', checked: (this.file.perms.substr(4, 1) == 'r') ? true : false}));
-        this.mkTd(new Element('input', {type: 'checkbox', checked: (this.file.perms.substr(5, 1) == 'w') ? true : false}));
-        this.mkTd(new Element('input', {type: 'checkbox', checked: (this.file.perms.substr(6, 1) == 'x') ? true : false}));
-
+        this.mkTd(new Element('input',
+            {type: 'checkbox', checked: (this.file.perms.substr(4, 1) == 'r') ? true : false}));
+        this.mkTd(new Element('input',
+            {type: 'checkbox', checked: (this.file.perms.substr(5, 1) == 'w') ? true : false}));
+        this.mkTd(new Element('input',
+            {type: 'checkbox', checked: (this.file.perms.substr(6, 1) == 'x') ? true : false}));
 
         this.mkTr();
         this.mkTd(_('Other'));
-        this.mkTd(new Element('input', {type: 'checkbox', checked: (this.file.perms.substr(7, 1) == 'r') ? true : false}));
-        this.mkTd(new Element('input', {type: 'checkbox', checked: (this.file.perms.substr(8, 1) == 'w') ? true : false}));
-        this.mkTd(new Element('input', {type: 'checkbox', checked: (this.file.perms.substr(9, 1) == 'x') ? true : false}));
+        this.mkTd(new Element('input',
+            {type: 'checkbox', checked: (this.file.perms.substr(7, 1) == 'r') ? true : false}));
+        this.mkTd(new Element('input',
+            {type: 'checkbox', checked: (this.file.perms.substr(8, 1) == 'w') ? true : false}));
+        this.mkTd(new Element('input',
+            {type: 'checkbox', checked: (this.file.perms.substr(9, 1) == 'x') ? true : false}));
 
         var p2 = new Element('div', {
             style: 'padding: 7px 0px; border-top: 1px solid silver'
@@ -394,27 +403,32 @@ var admin_files_properties = new Class({
             style: 'color: gray; padding: 5px'
         }).inject(p2);
 
-        this.generalTable = new Element('table', {width: '100%', cellpadding: 5, cellspacing: 0, 'class': 'admin-files'}).inject(p2);
+        this.generalTable =
+            new Element('table', {width: '100%', cellpadding: 5, cellspacing: 0, 'class': 'admin-files'}).inject(p2);
         this.generalTableBody = new Element('tbody').inject(this.generalTable);
 
         this.fileOwnerTable = this.generalTable;
 
         this.mkTr();
         this.mkTd(_('Owner id'));
-        this.mkTd(new Element('input', {'class': 'text', value: this.file.owner}).addEvent('keyup', this.getFileOwnerNames.bind(this))).setStyle('width', 160);
+        this.mkTd(new Element('input', {'class': 'text', value: this.file.owner}).addEvent('keyup',
+            this.getFileOwnerNames.bind(this))).setStyle('width', 160);
         this.fileOwnerNameTd = this.mkTd("").setStyle('color', 'gray');
 
         this.mkTr();
         this.mkTd(_('Group id'));
-        this.mkTd(new Element('input', {'class': 'text', value: this.file.group}).addEvent('keyup', this.getFileOwnerNames.bind(this))).setStyle('width', 160);
+        this.mkTd(new Element('input', {'class': 'text', value: this.file.group}).addEvent('keyup',
+            this.getFileOwnerNames.bind(this))).setStyle('width', 160);
 
         this.fileGroupNameTd = this.mkTd("").setStyle('color', 'gray');
 
         this.getFileOwnerNames();
 
-        this.applyFilesystemBtn = new ka.Button(_('Apply')).addEvent('click', this.applyFilesystem.bind(this)).inject(p);
+        this.applyFilesystemBtn =
+            new ka.Button(_('Apply')).addEvent('click', this.applyFilesystem.bind(this)).inject(p);
 
-        this.applyFilesystemSubBtn = new ka.Button(_('Apply with all subfiles')).addEvent('click', this.applyFilesystem.bind(this, true)).inject(p);
+        this.applyFilesystemSubBtn = new ka.Button(_('Apply with all subfiles')).addEvent('click',
+            this.applyFilesystem.bind(this, true)).inject(p);
 
         /*
          var p2 = new Element('div', {
@@ -445,107 +459,108 @@ var admin_files_properties = new Class({
     },
 
     /*
-    applyFilesystem: function (pAll) {
+     applyFilesystem: function (pAll) {
 
-        var button = this.applyFilesystemBtn;
-        var ownerinputs = this.fileOwnerTable.getElements('input');
+     var button = this.applyFilesystemBtn;
+     var ownerinputs = this.fileOwnerTable.getElements('input');
 
-        var req = {
-            path: this.file.path,
-            user: ownerinputs[0].value,
-            group: ownerinputs[1].value
-        };
+     var req = {
+     path: this.file.path,
+     user: ownerinputs[0].value,
+     group: ownerinputs[1].value
+     };
 
-        if (pAll == true) {
-            req.sub = 1;
-            button = this.applyFilesystemSubBtn;
-        }
+     if (pAll == true) {
+     req.sub = 1;
+     button = this.applyFilesystemSubBtn;
+     }
 
-        var inputs = this.filePermissionTable.getElements('input');
+     var inputs = this.filePermissionTable.getElements('input');
 
-        var chmodoctalUser = 0;
-        var chmodoctalGroup = 0;
-        var chmodoctalOther = 0;
+     var chmodoctalUser = 0;
+     var chmodoctalGroup = 0;
+     var chmodoctalOther = 0;
 
-        chmodoctalUser += (inputs[0].checked) ? 4 : 0;
-        chmodoctalUser += (inputs[1].checked) ? 2 : 0;
-        chmodoctalUser += (inputs[2].checked) ? 1 : 0;
+     chmodoctalUser += (inputs[0].checked) ? 4 : 0;
+     chmodoctalUser += (inputs[1].checked) ? 2 : 0;
+     chmodoctalUser += (inputs[2].checked) ? 1 : 0;
 
-        chmodoctalGroup += (inputs[3].checked) ? 4 : 0;
-        chmodoctalGroup += (inputs[4].checked) ? 2 : 0;
-        chmodoctalGroup += (inputs[5].checked) ? 1 : 0;
+     chmodoctalGroup += (inputs[3].checked) ? 4 : 0;
+     chmodoctalGroup += (inputs[4].checked) ? 2 : 0;
+     chmodoctalGroup += (inputs[5].checked) ? 1 : 0;
 
-        chmodoctalOther += (inputs[6].checked) ? 4 : 0;
-        chmodoctalOther += (inputs[7].checked) ? 2 : 0;
-        chmodoctalOther += (inputs[8].checked) ? 1 : 0;
+     chmodoctalOther += (inputs[6].checked) ? 4 : 0;
+     chmodoctalOther += (inputs[7].checked) ? 2 : 0;
+     chmodoctalOther += (inputs[8].checked) ? 1 : 0;
 
-        chmodoctal = chmodoctalUser + '' + chmodoctalGroup + '' + chmodoctalOther;
+     chmodoctal = chmodoctalUser + '' + chmodoctalGroup + '' + chmodoctalOther;
 
-        req.chmod = chmodoctal;
+     req.chmod = chmodoctal;
 
-        button.startTip(_('Set permissions ...'));
+     button.startTip(_('Set permissions ...'));
 
-        new Request.JSON({url: _path + 'admin/files/setFilesystem', onComplete: function (pOwnerNames) {
+     new Request.JSON({url: _path + 'admin/files/setFilesystem', onComplete: function (pOwnerNames) {
 
-            button.stopTip(_('done.'));
+     button.stopTip(_('done.'));
 
-        }.bind(this)}).post(req);
-    },
+     }.bind(this)}).post(req);
+     },
 
-    getNameIds: function () {
+     getNameIds: function () {
 
-        var inputs = this.getNameTable.getElements('input');
+     var inputs = this.getNameTable.getElements('input');
 
-        if (this.lastGetOwnerReq) {
-            this.lastGetOwnerReq.cancel();
-        }
+     if (this.lastGetOwnerReq) {
+     this.lastGetOwnerReq.cancel();
+     }
 
-        this.lastGetOwnerReq = new Request.JSON({url: _path + 'admin/files/getOwnerIds', onComplete: function (pOwnerNames) {
+     this.lastGetOwnerReq = new Request.JSON({url: _path + 'admin/files/getOwnerIds', onComplete: function (pOwnerNames) {
 
-            if (pOwnerNames.owner && pOwnerNames.owner > 0) {
-                this.getNameOwnerName.set('text', pOwnerNames.owner);
-            } else {
-                this.getNameOwnerName.set('text', _('Can not fetch user id.'));
-            }
+     if (pOwnerNames.owner && pOwnerNames.owner > 0) {
+     this.getNameOwnerName.set('text', pOwnerNames.owner);
+     } else {
+     this.getNameOwnerName.set('text', _('Can not fetch user id.'));
+     }
 
-            if (pOwnerNames.group && pOwnerNames.group > 0) {
-                this.getNameOwnerGroup.set('text', pOwnerNames.group);
-            } else {
-                this.getNameOwnerGroup.set('text', _('Can not fetch group nid.'));
-            }
+     if (pOwnerNames.group && pOwnerNames.group > 0) {
+     this.getNameOwnerGroup.set('text', pOwnerNames.group);
+     } else {
+     this.getNameOwnerGroup.set('text', _('Can not fetch group nid.'));
+     }
 
-        }.bind(this)}).post({owner: inputs[0].value, group: inputs[1].value});
-
-
-    },
-
-    getFileOwnerNames: function () {
-
-        var inputs = this.fileOwnerTable.getElements('input');
-
-        new Request.JSON({url: _path + 'admin/files/getOwnerNames', onComplete: function (pOwnerNames) {
-
-            if (pOwnerNames) {
-                this.fileOwnerNameTd.set('text', pOwnerNames.owner);
-                this.fileGroupNameTd.set('text', pOwnerNames.group);
-            } else {
-                this.fileOwnerNameTd.set('text', _('Can not fetch owner names.'));
-                this.fileGroupNameTd.set('text', _('Can not fetch owner names.'));
-            }
-
-        }.bind(this)}).post({ownerid: inputs[0].value, groupid: inputs[1].value});
+     }.bind(this)}).post({owner: inputs[0].value, group: inputs[1].value});
 
 
-    },*/
+     },
+
+     getFileOwnerNames: function () {
+
+     var inputs = this.fileOwnerTable.getElements('input');
+
+     new Request.JSON({url: _path + 'admin/files/getOwnerNames', onComplete: function (pOwnerNames) {
+
+     if (pOwnerNames) {
+     this.fileOwnerNameTd.set('text', pOwnerNames.owner);
+     this.fileGroupNameTd.set('text', pOwnerNames.group);
+     } else {
+     this.fileOwnerNameTd.set('text', _('Can not fetch owner names.'));
+     this.fileGroupNameTd.set('text', _('Can not fetch owner names.'));
+     }
+
+     }.bind(this)}).post({ownerid: inputs[0].value, groupid: inputs[1].value});
+
+
+     },*/
 
     saveAccess: function () {
 
         var val = this.accessSelect.value;
 
-        this.lastSizeRq = new Request.JSON({url: _pathAdmin + 'admin/files/setPublicAccess', onComplete: function (res) {
-            ka.helpsystem.newBubble(_('File access saved'), this.file.path, 3000);
+        this.lastSizeRq =
+            new Request.JSON({url: _pathAdmin + 'admin/files/setPublicAccess', onComplete: function (res) {
+                ka.helpsystem.newBubble(_('File access saved'), this.file.path, 3000);
 
-        }.bind(this)}).post({path: this.file.path, access: val});
+            }.bind(this)}).post({path: this.file.path, access: val});
 
     },
 
@@ -553,7 +568,6 @@ var admin_files_properties = new Class({
 
         var p = this.panes['versions'];
         p.empty();
-
 
         if (this.file.writeaccess == 0) {
             new Element('div', {
@@ -563,7 +577,6 @@ var admin_files_properties = new Class({
             return;
         }
 
-
         this.versionsTable = new ka.Table([
             [_('ID'), 30],
             [_('Date'), 90],
@@ -572,31 +585,28 @@ var admin_files_properties = new Class({
             [_('Actions')]
         ]).inject(p);
         /*
-        this.generalTableBody = new Element('tbody').inject(this.generalTable);
+         this.generalTableBody = new Element('tbody').inject(this.generalTable);
 
-        this.mkTr();
+         this.mkTr();
 
-        this.mkTh(_('ID'));
-        this.mkTh(_('Date'));
-        this.mkTh(_('Size'));
-        this.mkTh(_('Creator'));
-        this.mkTh(_('Actions'));
-*/
-        this.lastSizeRq = new Request.JSON({url: _pathAdmin + 'admin/files/getVersions', onComplete: function (pVersions) {
+         this.mkTh(_('ID'));
+         this.mkTh(_('Date'));
+         this.mkTh(_('Size'));
+         this.mkTh(_('Creator'));
+         this.mkTh(_('Actions'));
+         */
+        this.lastSizeRq =
+            new Request.JSON({url: _pathAdmin + 'admin/files/getVersions', onComplete: function (pVersions) {
 
-            this.renderVersions(pVersions);
+                this.renderVersions(pVersions);
 
-        }.bind(this)}).post({path: this.file.path});
+            }.bind(this)}).post({path: this.file.path});
 
     },
 
     renderVersions: function (pVersions) {
 
-
         pVersions.each(function (version, id) {
-
-
-
 
             var div = new Element('div');
 
@@ -617,17 +627,20 @@ var admin_files_properties = new Class({
 
     recover: function (pVersion) {
 
-        this.win._confirm(_('The chosen version will be recovered to original path. The current file gets a new version.'), function (res) {
-            if (!res) return;
+        this.win._confirm(_('The chosen version will be recovered to original path. The current file gets a new version.'),
+            function (res) {
+                if (!res) {
+                    return;
+                }
 
+                this.lastSizeRq =
+                    new Request.JSON({url: _pathAdmin + 'admin/files/recoverVersion', onComplete: function (res) {
 
-            this.lastSizeRq = new Request.JSON({url: _pathAdmin + 'admin/files/recoverVersion', onComplete: function (res) {
+                        this.loadVersions();
+                        ka.helpsystem.newBubble(_('File recovered'), pVersion.path, 3000);
 
-                this.loadVersions();
-                ka.helpsystem.newBubble(_('File recovered'), pVersion.path, 3000);
-
-            }.bind(this)}).post({id: pVersion.id});
-        }.bind(this));
+                    }.bind(this)}).post({id: pVersion.id});
+            }.bind(this));
 
     },
 
@@ -655,7 +668,6 @@ var admin_files_properties = new Class({
     }
 
 });
-
 
 var files_properties_rule = new Class({
 
@@ -752,7 +764,6 @@ var files_properties_rule = new Class({
             title: _('Remove rule')
         }).addEvent('click', this.remove.bind(this)).inject(this.tdRemover);
 
-
         if (this.target_id > 0) {
             this.render();
         } else {
@@ -787,7 +798,6 @@ var files_properties_rule = new Class({
         this.iWrite.checked = this.actions.contains('write');
         this.iRead.checked = this.actions.contains('read');
         this.iWithsub.checked = this.withsub;
-
 
         this.tdLeft.set('text', _('Loading ...'));
 

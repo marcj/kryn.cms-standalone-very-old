@@ -25,12 +25,13 @@ var admin_system_development_logs = new Class({
             style: 'position: absolute; left: 0px; top: 0px; right: 0px; height: 55px; border-bottom: 1px solid #ddd; padding: 5px;'
         }).inject(p);
 
-
         this.btnDiv = new Element('div', {style: 'position: absolute; right: 15px; top: 15px;'}).inject(this.logsTop);
 
-        this.btnClearLogs = new ka.Button(_('Clear logs')).addEvent('click', this.clearLogs.bind(this)).inject(this.btnDiv);
+        this.btnClearLogs =
+            new ka.Button(_('Clear logs')).addEvent('click', this.clearLogs.bind(this)).inject(this.btnDiv);
 
-        this.btnRefresh = new ka.Button(_('Refresh')).addEvent('click', this.reloadLogsItems.bind(this)).inject(this.btnDiv);
+        this.btnRefresh =
+            new ka.Button(_('Refresh')).addEvent('click', this.reloadLogsItems.bind(this)).inject(this.btnDiv);
 
         this.btnDiv2 = new Element('div', {
             style: 'padding: 0px 17px; float: right;'
@@ -71,14 +72,12 @@ var admin_system_development_logs = new Class({
             ],
             table_key: 'id', table_label: 'title'
         }).addEvent('change', function (pValue) {
-            this.loadLogsItems(1);
-        }.bind(this)).inject(this.logsTop);
-
+                this.loadLogsItems(1);
+            }.bind(this)).inject(this.logsTop);
 
         this.logsTable = new Element('div', {
             style: 'position: absolute; left: 0px; top: 67px; right: 0px; bottom: 31px; overflow: auto;'
         }).inject(p);
-
 
         this.logsTable = new ka.Table().inject(this.logsTable);
         this.logsTable.setColumns([
@@ -89,14 +88,13 @@ var admin_system_development_logs = new Class({
             [_('Message')]
         ]);
 
-
         var myPath = _path + 'bundles/admin/images/icons/';
 
         this.logsCtrlPrevious = new Element('img', {
             src: myPath + 'control_back.png'
         }).addEvent('click', function () {
-            this.loadLogsItems(parseInt(this.logsCurrentPage) - 1);
-        }.bind(this)).inject(bottomBar.box);
+                this.loadLogsItems(parseInt(this.logsCurrentPage) - 1);
+            }.bind(this)).inject(bottomBar.box);
 
         this.logsCtrlText = new Element('span', {
             text: 1,
@@ -106,9 +104,8 @@ var admin_system_development_logs = new Class({
         this.logsCtrlNext = new Element('img', {
             src: myPath + 'control_play.png'
         }).addEvent('click', function () {
-            this.loadLogsItems(parseInt(this.logsCurrentPage) + 1);
-        }.bind(this)).inject(bottomBar.box);
-
+                this.loadLogsItems(parseInt(this.logsCurrentPage) + 1);
+            }.bind(this)).inject(bottomBar.box);
 
         this.loadLogsItems();
     },
@@ -135,7 +132,6 @@ var admin_system_development_logs = new Class({
 
     renderLogCtrls: function () {
 
-
         this.logsCtrlPrevious.setStyle('opacity', 1);
         this.logsCtrlNext.setStyle('opacity', 1);
 
@@ -159,23 +155,28 @@ var admin_system_development_logs = new Class({
 
     loadLogsItems: function (pPage, pAgain) {
 
-        if (!pPage) pPage = 1;
+        if (!pPage) {
+            pPage = 1;
+        }
 
-        if (this.lastrq) this.lastrq.cancel();
+        if (this.lastrq) {
+            this.lastrq.cancel();
+        }
 
-        this.lastrq = new Request.JSON({url: _pathAdmin + 'admin/system/tools/logs', noCache: 1, onComplete: function (res) {
+        this.lastrq =
+            new Request.JSON({url: _pathAdmin + 'admin/system/tools/logs', noCache: 1, onComplete: function (res) {
 
-            this.logsCurrentPage = pPage;
-            this.logsMaxPages = res.maxPages;
-            this.renderLogCtrls();
+                this.logsCurrentPage = pPage;
+                this.logsMaxPages = res.maxPages;
+                this.renderLogCtrls();
 
-            this.logsTable.setValues(res.items);
+                this.logsTable.setValues(res.items);
 
-            if (pAgain == true && this.liveLog.checked) {
-                this.lastLiveLogTimer = this.reloadLogsItems.delay(1000, this, true);
-            }
+                if (pAgain == true && this.liveLog.checked) {
+                    this.lastLiveLogTimer = this.reloadLogsItems.delay(1000, this, true);
+                }
 
-        }.bind(this)}).post({page: pPage, area: this.logsAreaSelect.getValue()});
+            }.bind(this)}).post({page: pPage, area: this.logsAreaSelect.getValue()});
 
     }
 });

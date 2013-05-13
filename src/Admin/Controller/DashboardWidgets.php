@@ -31,7 +31,7 @@ class DashboardWidgets
 
     public static function uptime(&$response)
     {
-        $uptime  = `uptime`;
+        $uptime = `uptime`;
         $matches = array();
         preg_match('/up ([^,]*),/', $uptime, $matches);
         $response['admin/uptime'] = $matches[1];
@@ -51,8 +51,8 @@ class DashboardWidgets
             );
 
             $availIdx = 4;
-            $usedIdx  = 3;
-            $nameIdx  = 9;
+            $usedIdx = 3;
+            $nameIdx = 9;
         } else if ('linux' === strtolower(PHP_OS)) {
             $sysctl = `df -l --block-size=1K`;
             preg_match_all(
@@ -63,20 +63,24 @@ class DashboardWidgets
             );
 
             $availIdx = 4;
-            $usedIdx  = 3;
-            $nameIdx  = 6;
+            $usedIdx = 3;
+            $nameIdx = 6;
         }
 
         $result = array();
         $blacklist = array('/boot', '/dev', '/run', '/run/lock', '/run/shm');
         foreach ($matches as $match) {
 
-            if (count($result) > 2) break;
+            if (count($result) > 2) {
+                break;
+            }
 
             $avail = $match[$availIdx] + 0;
-            $user  = $match[$usedIdx] + 0;
-            $name  = $match[$nameIdx];
-            if (in_array($name, $blacklist)) continue;
+            $user = $match[$usedIdx] + 0;
+            $name = $match[$nameIdx];
+            if (in_array($name, $blacklist)) {
+                continue;
+            }
 
             //anything under 1gb
             if (1000 * 1024 > $avail) {
@@ -90,7 +94,7 @@ class DashboardWidgets
                 'size' => $user + $avail
             );
         }
-        return array_values($result) ?: array();
+        return array_values($result) ? : array();
     }
 
     /**
@@ -98,9 +102,9 @@ class DashboardWidgets
      */
     public static function getRamUsed()
     {
-        $cpuUsage  = str_replace(' ', '', `ps -A -o rss`);
+        $cpuUsage = str_replace(' ', '', `ps -A -o rss`);
         $processes = explode("\n", $cpuUsage);
-        $ramSize   = array_sum($processes);
+        $ramSize = array_sum($processes);
         return $ramSize;
     }
 
@@ -108,7 +112,7 @@ class DashboardWidgets
     {
         $lastLatency = \Core\Kryn::getFastCache('core/latency');
 
-        $result =array(
+        $result = array(
             'frontend' => 0,
             'backend' => 0,
             'database' => 0,
@@ -126,7 +130,7 @@ class DashboardWidgets
     public static function latencies(&$response)
     {
         $lastLatency = \Core\Kryn::getFastCache('core/latency');
-        $result =array(
+        $result = array(
             'frontend' => 0,
             'backend' => 0,
             'database' => 0,
@@ -134,7 +138,7 @@ class DashboardWidgets
             'cache' => 0
         );
         foreach ($result as $key => &$value) {
-            $value = $lastLatency[$key] ?: array();
+            $value = $lastLatency[$key] ? : array();
         }
         $response['admin/latencies'] = $result;
     }
@@ -145,12 +149,12 @@ class DashboardWidgets
     public static function getRamSize()
     {
         if ('darwin' == strtolower(PHP_OS)) {
-            $sysctl  = `sysctl hw.memsize`;
+            $sysctl = `sysctl hw.memsize`;
             $matches = array();
             preg_match('/hw.memsize: ([0-9\.]*)/', $sysctl, $matches);
             return ($matches[1] + 0) / 1024;
         } else if ('linux' === strtolower(PHP_OS)) {
-            $sysctl  = `free`;
+            $sysctl = `free`;
             $matches = array();
             preg_match('/Mem:\s+([0-9\.]*)/', $sysctl, $matches);
             return ($matches[1] + 0);
@@ -162,7 +166,7 @@ class DashboardWidgets
     public static function getCpuCoreCount()
     {
         if ('darwin' === strtolower(PHP_OS)) {
-            $sysctl  = `sysctl hw.ncpu`;
+            $sysctl = `sysctl hw.ncpu`;
             $matches = array();
             preg_match('/hw.ncpu: ([0-9\.]*)/', $sysctl, $matches);
             return $matches[1] + 0;
@@ -176,9 +180,9 @@ class DashboardWidgets
 
     public static function getCpuUsage()
     {
-        $cpuUsage  = str_replace(' ', '', `ps -A -o %cpu`);
+        $cpuUsage = str_replace(' ', '', `ps -A -o %cpu`);
         $processes = explode("\n", $cpuUsage);
-        $cpuUsage  = array_sum($processes);
+        $cpuUsage = array_sum($processes);
         return $cpuUsage / self::getCpuCoreCount();
     }
 

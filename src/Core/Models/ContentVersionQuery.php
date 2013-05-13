@@ -15,6 +15,7 @@ use Core\Models\Base\ContentVersionQuery as BaseContentVersionQuery;
  * long as it does not already exist in the output directory.
  *
  */
-class ContentVersionQuery extends BaseContentVersionQuery {
+class ContentVersionQuery extends BaseContentVersionQuery
+{
 
 } // ContentVersionQuery

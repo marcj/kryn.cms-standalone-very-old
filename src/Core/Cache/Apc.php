@@ -41,8 +41,9 @@ class Apc implements CacheInterface
      */
     public function testConfig($pConfig)
     {
-        if (!function_exists('apc_store'))
+        if (!function_exists('apc_store')) {
             throw new \Exception('The module Apc is not activated in your PHP environment.');
+        }
 
         return true;
     }

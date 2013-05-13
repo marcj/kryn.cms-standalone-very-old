@@ -22,17 +22,22 @@ class Files implements CacheInterface
     {
         $this->testConfig($pConfig);
 
-        if (!$pConfig['path']) $pConfig['path'] = \Core\Kryn::getTempFolder().'cache-object/';
+        if (!$pConfig['path']) {
+            $pConfig['path'] = \Core\Kryn::getTempFolder() . 'cache-object/';
+        }
         $this->path = $pConfig['path'];
 
-        if (Controller::getFastestCacheClass() == '\Core\Cache\Files')
+        if (Controller::getFastestCacheClass() == '\Core\Cache\Files') {
             $this->useJson = true;
+        }
 
-        if (substr($this->path, -1) != '/')
+        if (substr($this->path, -1) != '/') {
             $this->path .= '/';
+        }
 
-        if (isset($pConfig['prefix']))
+        if (isset($pConfig['prefix'])) {
             $this->prefix = $pConfig['prefix'];
+        }
 
     }
 
@@ -41,7 +46,9 @@ class Files implements CacheInterface
      */
     public function testConfig($pConfig)
     {
-        if (!$pConfig['path']) $pConfig['path'] = \Core\Kryn::getTempFolder().'cache-object/';
+        if (!$pConfig['path']) {
+            $pConfig['path'] = \Core\Kryn::getTempFolder() . 'cache-object/';
+        }
 
         if (!is_dir($pConfig['path'])) {
             if (!mkdir($pConfig['path'])) {
@@ -49,8 +56,9 @@ class Files implements CacheInterface
             }
         }
 
-        if (!is_writable($pConfig['path']))
+        if (!is_writable($pConfig['path'])) {
             throw new \Exception('Cache folder is not writable: ' . $pConfig['path']);
+        }
 
         return true;
     }
@@ -72,13 +80,15 @@ class Files implements CacheInterface
     {
         $path = $this->getPath($pKey);
 
-        if (!file_exists($path)) return false;
+        if (!file_exists($path)) {
+            return false;
+        }
         $h = fopen($path, 'r');
 
         $maxTries = 400; //wait max. 2 seconds, otherwise force it
-        $tries    = 0;
+        $tries = 0;
         while (!flock($h, LOCK_SH) and $tries <= $maxTries) {
-            usleep(1000*5); //5ms
+            usleep(1000 * 5); //5ms
             $tries++;
         }
 
@@ -108,7 +118,9 @@ class Files implements CacheInterface
             mkdirr(dirname($path));
         }
 
-        if (!file_exists($path)) touch($path);
+        if (!file_exists($path)) {
+            touch($path);
+        }
 
         if (!$this->useJson) {
             $pValue = '<' . "?php \nreturn " . var_export($pValue, true) . ";\n";
@@ -123,9 +135,9 @@ class Files implements CacheInterface
         }
 
         $maxTries = 400; //wait max. 2 seconds, otherwise force it
-        $tries    = 0;
+        $tries = 0;
         while (!flock($h, LOCK_EX) and $tries <= $maxTries) {
-            usleep(1000*5); //5ms
+            usleep(1000 * 5); //5ms
             $tries++;
         }
 

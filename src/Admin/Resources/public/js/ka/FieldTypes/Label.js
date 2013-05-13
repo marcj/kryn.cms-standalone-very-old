@@ -1,12 +1,12 @@
 ka.FieldTypes.Label = new Class({
-    
+
     Extends: ka.FieldAbstract,
 
     container: null,
 
-    createLayout: function(){
+    createLayout: function () {
         //remove main if ka.Field is a table item
-        if (this.fieldInstance.main.get('tag') == 'td'){
+        if (this.fieldInstance.main.get('tag') == 'td') {
             this.fieldInstance.main.destroy();
 
             this.fieldInstance.title.set('colspan', 2);
@@ -16,14 +16,16 @@ ka.FieldTypes.Label = new Class({
         this.setValue(this.options.label);
     },
 
-    setValue: function(pValue){
+    setValue: function (pValue) {
 
-        if (typeOf(pValue) == 'null') return;
+        if (typeOf(pValue) == 'null') {
+            return;
+        }
 
         this.fieldInstance.titleText.set('text', pValue);
     },
 
-    getValue: function(){
+    getValue: function () {
         return this.fieldInstance.titleText.get('text');
     }
 });

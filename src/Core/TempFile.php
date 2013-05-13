@@ -38,7 +38,9 @@ class TempFile extends WebFile
      * Returns the instance of the local file layer.
      *
      * @static
+     *
      * @param  string $pPath
+     *
      * @return object
      */
     public static function getLayer($pPath = null)
@@ -46,7 +48,9 @@ class TempFile extends WebFile
         $class = '\Core\FAL\Local';
         $params['root'] = Kryn::getTempFolder();
 
-        if (isset(static::$fsObjects[$class])) return static::$fsObjects[$class];
+        if (isset(static::$fsObjects[$class])) {
+            return static::$fsObjects[$class];
+        }
 
         static::$fsObjects[$class] = new $class('', $params);
 

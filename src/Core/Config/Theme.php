@@ -2,7 +2,8 @@
 
 namespace Core\Config;
 
-class Theme extends Model {
+class Theme extends Model
+{
     /**
      * @var string
      */
@@ -18,7 +19,8 @@ class Theme extends Model {
      */
     protected $layouts;
 
-    public function setupObject(){
+    public function setupObject()
+    {
 
         $layouts = $this->element->getElementsByTagName('layout');
         foreach ($layouts as $layout) {

@@ -15,6 +15,7 @@ use Core\Models\Base\FileQuery as BaseFileQuery;
  * long as it does not already exist in the output directory.
  *
  */
-class FileQuery extends BaseFileQuery {
+class FileQuery extends BaseFileQuery
+{
 
 } // FileQuery

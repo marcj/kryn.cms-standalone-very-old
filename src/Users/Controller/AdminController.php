@@ -31,21 +31,23 @@ class AdminController extends Server
      * @param  int       $pType
      * @param  int       $pId
      * @param  bool      $pAsCount
+     *
      * @return array|int
      */
     public function loadAcl($pType, $pId, $pAsCount = false)
     {
-        $pType = ($pType == 'user') ? 0:1;
+        $pType = ($pType == 'user') ? 0 : 1;
 
-        $where = 'target_type = '.($pType+0);
-        $where .= ' AND target_id = '.($pId+0);
+        $where = 'target_type = ' . ($pType + 0);
+        $where .= ' AND target_id = ' . ($pId + 0);
 
         $where .= " ORDER BY prio DESC";
 
-        if (!$pAsCount)
+        if (!$pAsCount) {
             return dbTableFetchAll('system_acl', $where);
-        else
+        } else {
             return dbCount('system_acl', $where);
+        }
 
     }
 
@@ -55,6 +57,7 @@ class AdminController extends Server
      * @param  int   $pTargetId
      * @param  int   $pTargetType
      * @param  array $pRules
+     *
      * @return bool
      */
     public function saveAcl($pTargetId, $pTargetType, $pRules)
@@ -62,12 +65,17 @@ class AdminController extends Server
         $pTargetId += 0;
         $pTargetType += 0;
 
-        dbDelete('system_acl', array(
-            'target_type' => $pTargetType,
-            'target_id' => $pTargetId
-        ));
+        dbDelete(
+            'system_acl',
+            array(
+                 'target_type' => $pTargetType,
+                 'target_id' => $pTargetId
+            )
+        );
 
-        if (count($pRules) == 0) return true;
+        if (count($pRules) == 0) {
+            return true;
+        }
 
         $i = 1;
         foreach ($pRules as $rule) {
@@ -86,6 +94,7 @@ class AdminController extends Server
     /**
      *
      * @internal
+     *
      * @param $pItems
      * @param $pType
      */
@@ -101,15 +110,16 @@ class AdminController extends Server
 
     public static function load($pType, $pId, $pAsCount = false)
     {
-        $where = 'target_type = '.($pType+0);
-        $where .= ' AND target_id = '.($pId+0);
+        $where = 'target_type = ' . ($pType + 0);
+        $where .= ' AND target_id = ' . ($pId + 0);
 
         $where .= " ORDER BY prio DESC";
 
-        if (!$pAsCount)
-            return dbTableFetch( 'system_acl', DB_FETCH_ALL, $where );
-        else
-            return dbCount( 'system_acl', $where );
+        if (!$pAsCount) {
+            return dbTableFetch('system_acl', DB_FETCH_ALL, $where);
+        } else {
+            return dbCount('system_acl', $where);
+        }
 
     }
 
@@ -128,9 +138,12 @@ class AdminController extends Server
 
         if ($q) {
             $userFilter = array(
-                array('username', 'like', "$q%"), 'OR',
-                array('first_name', 'like', "$q%"), 'OR',
-                array('last_name', 'like', "$q%"), 'OR',
+                array('username', 'like', "$q%"),
+                'OR',
+                array('first_name', 'like', "$q%"),
+                'OR',
+                array('last_name', 'like', "$q%"),
+                'OR',
                 array('email', 'like', "$q%"),
             );
             $groupFilter = array(
@@ -138,24 +151,34 @@ class AdminController extends Server
             );
         }
 
-        $users = \Core\Object::getList('Users\\User', $userFilter, array(
-            'limit' => 10,
-            'fields' => 'id,username,email,groupMembership.name,firstName,lastName'
-        ));
+        $users = \Core\Object::getList(
+            'Users\\User',
+            $userFilter,
+            array(
+                 'limit' => 10,
+                 'fields' => 'id,username,email,groupMembership.name,firstName,lastName'
+            )
+        );
 
         self::setAclCount($users, 0);
 
-        $groups = \Core\Object::getList('Users\\Group', $groupFilter, array(
-            'fields' => 'name',
-            'limit' => 10
-        ));
+        $groups = \Core\Object::getList(
+            'Users\\Group',
+            $groupFilter,
+            array(
+                 'fields' => 'name',
+                 'limit' => 10
+            )
+        );
 
         self::setAclCount($groups, 1);
 
-        json( array(
-            'users' => $users,
-            'groups' => $groups
-        ));
+        json(
+            array(
+                 'users' => $users,
+                 'groups' => $groups
+            )
+        );
     }
 
 }

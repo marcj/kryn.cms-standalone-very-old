@@ -31,8 +31,9 @@ class Config
 
         $blacklist[] = 'passwd_hash_key';
 
-        if (!getArgv('sessiontime'))
+        if (!getArgv('sessiontime')) {
             $_REQUEST['sessiontime'] = 3600;
+        }
 
         foreach ($_POST as $key => $value) {
             if (!in_array($key, $blacklist)) {
@@ -44,8 +45,9 @@ class Config
 
         dbUpdate('system_langs', array('visible' => 1), array('visible' => 0));
         $langs = getArgv('languages');
-        foreach ($langs as $l)
+        foreach ($langs as $l) {
             dbUpdate('system_langs', array('code' => $l), array('visible' => 1));
+        }
 
         return true;
     }
@@ -57,8 +59,9 @@ class Config
         $pw = md5(getArgv('passwd'));
         $email = getArgv('email', 1);
         $json = wget("http://www.kryn.org/rpc?t=checkLogin&email=$email&pw=$pw");
-        if ($json === false)
+        if ($json === false) {
             json(2);
+        }
         $res = json_decode($json, true);
         if ($res['status'] >= 1) {
             $cfg['communityEmail'] = $email;

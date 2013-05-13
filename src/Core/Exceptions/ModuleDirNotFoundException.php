@@ -2,4 +2,6 @@
 
 namespace Core\Exceptions;
 
-class ModuleDirNotFoundException extends \Exception {}
+class ModuleDirNotFoundException extends \Exception
+{
+}

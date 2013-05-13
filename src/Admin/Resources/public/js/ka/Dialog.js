@@ -29,7 +29,7 @@ ka.Dialog = new Class({
 
     canClosed: true,
 
-    initialize: function(pParent, pOptions){
+    initialize: function (pParent, pOptions) {
         if ('null' === typeOf(pParent)) {
             throw 'First argument has to be a HTMLElement or ka.Window instance. Null given.';
         }
@@ -41,12 +41,14 @@ ka.Dialog = new Class({
         this.setOptions(pOptions);
         this.renderLayout();
 
-        if (instanceOf(pParent, ka.Window)){
+        if (instanceOf(pParent, ka.Window)) {
             this.window = pParent;
             this.window.addEvent('resize', this.center);
         } else {
             this.container.getDocument().getWindow().addEvent('resize', this.center);
-            if (!this.container.getDocument().hiddenCount) this.container.getDocument().hiddenCount = 0;
+            if (!this.container.getDocument().hiddenCount) {
+                this.container.getDocument().hiddenCount = 0;
+            }
             this.container.getDocument().hiddenCount++;
             this.container.getDocument().body.addClass('hide-scrollbar');
 
@@ -54,13 +56,14 @@ ka.Dialog = new Class({
         }
     },
 
-    renderLayout: function(){
+    renderLayout: function () {
         this.overlay = new Element('div', {
             'class': 'ka-admin ka-dialog-overlay'
         })
 
-        if (this.options.autoDisplay)
+        if (this.options.autoDisplay) {
             this.overlay.inject(this.container);
+        }
 
         this.overlay.kaDialog = this;
 
@@ -72,45 +75,49 @@ ka.Dialog = new Class({
             'class': 'ka-dialog-content'
         }).inject(this.main);
 
-        if (typeOf(this.options.content) == 'string'){
+        if (typeOf(this.options.content) == 'string') {
             this.content.set('text', this.options.content);
-        } else if (typeOf(this.options.content) == 'element'){
+        } else if (typeOf(this.options.content) == 'element') {
             this.options.content.inject(this.content);
         }
 
-        ['minWidth', 'maxWidth', 'minHeight', 'maxHeight', 'height', 'width'].each(function(item){
-            if (typeOf(this.options[item]) != 'null')
+        ['minWidth', 'maxWidth', 'minHeight', 'maxHeight', 'height', 'width'].each(function (item) {
+            if (typeOf(this.options[item]) != 'null') {
                 this.main.setStyle(item, this.options[item]);
+            }
         }.bind(this));
 
-        if (!this.options.noBottom){
+        if (!this.options.noBottom) {
             this.bottom = new Element('div', {
                 'class': 'ka-dialog-bottom'
             }).inject(this.main);
         }
 
-        if (this.options.fixed){
+        if (this.options.fixed) {
             this.overlay.addClass('ka-dialog-fixed');
         }
 
-        if (this.options.absolute){
-            if (this.bottom) this.bottom.addClass('ka-dialog-bottom-absolute');
+        if (this.options.absolute) {
+            if (this.bottom) {
+                this.bottom.addClass('ka-dialog-bottom-absolute');
+            }
             this.content.addClass('ka-dialog-content-absolute');
-            if (this.options.noBottom)
+            if (this.options.noBottom) {
                 this.content.addClass('ka-dialog-content-no-bottom');
+            }
         }
 
-        if (this.options.withButtons && this.bottom){
-            if (this.options.cancelButton){
+        if (this.options.withButtons && this.bottom) {
+            if (this.options.cancelButton) {
                 this.cancelButton = this.addButton(t('Cancel'))
-                    .addEvent('click', function(){
+                    .addEvent('click', function () {
                         this.closeAnimated(true);
                     }.bind(this));
             }
 
-            if (this.options.applyButton){
+            if (this.options.applyButton) {
                 this.applyButton = this.addButton(t('Apply'))
-                    .addEvent('click', function(){
+                    .addEvent('click', function () {
                         this.fireEvent('apply');
                         this.closeAnimated(true);
                     }.bind(this))
@@ -122,72 +129,76 @@ ka.Dialog = new Class({
         this.center();
     },
 
-    setStyle: function(p1, p2){
+    setStyle: function (p1, p2) {
         return this.main.setStyle(p1, p2);
     },
 
-    setStyles: function(p1, p2){
+    setStyles: function (p1, p2) {
         return this.main.setStyles(p1, p2);
     },
 
-    getCancelButton: function(){
+    getCancelButton: function () {
         return this.cancelButton;
     },
 
-    getApplyButton: function(){
+    getApplyButton: function () {
         return this.applyButton;
     },
 
-    getContentContainer: function(){
+    getContentContainer: function () {
         return this.content;
     },
 
-
-    setContent: function(pHtml){
+    setContent: function (pHtml) {
         this.getContentContainer().set('html', pHtml);
     },
 
-    setText: function(pText){
+    setText: function (pText) {
         this.getContentContainer().set('text', pText);
     },
 
-    addButton: function(pTitle){
+    addButton: function (pTitle) {
         return new ka.Button(pTitle).inject(this.bottom);
     },
 
-    closeAnimated: function(pInternal){
+    closeAnimated: function (pInternal) {
         return this.close(pInternal, true);
     },
 
-    cancelClosing: function(){
+    cancelClosing: function () {
         this.cancelNextClosing = true;
     },
 
-    close: function(pInternal, pAnimated){
+    close: function (pInternal, pAnimated) {
 
-        if (this.cancelNextClosing){
+        if (this.cancelNextClosing) {
             delete this.cancelNextClosing;
             return;
         }
 
-        if (pInternal)
+        if (pInternal) {
             this.main.fireEvent('preClose');
+        }
 
-        if (!this.canClosed) return;
+        if (!this.canClosed) {
+            return;
+        }
 
-        if (pAnimated){
+        if (pAnimated) {
             var dsize = this.main.getSize();
 
-            if (!this.fxOut){
+            if (!this.fxOut) {
                 this.fxOut = new Fx.Morph(this.main, {
                     transition: this.options.animatedTransitionOut,
                     duration: this.options.animatedDuration
                 });
             }
 
-            this.fxOut.addEvent('complete', function(){
+            this.fxOut.addEvent('complete', function () {
                 this.overlay.destroy();
-                if (this.lastFocusedElement) this.lastFocusedElement.focus();
+                if (this.lastFocusedElement) {
+                    this.lastFocusedElement.focus();
+                }
                 this.fireEvent('postClose');
             }.bind(this));
 
@@ -198,33 +209,37 @@ ka.Dialog = new Class({
             this.main.dispose();
         }
 
-        if (this.window){
+        if (this.window) {
             this.window.removeEvent('resize', this.center);
         } else {
             this.container.getDocument().getWindow().removeEvent('resize', this.center);
         }
 
-        if (pInternal)
+        if (pInternal) {
             this.fireEvent('close');
+        }
 
-        if (!pAnimated){
+        if (!pAnimated) {
             this.overlay.destroy();
-            if (this.lastFocusedElement) this.lastFocusedElement.focus();
+            if (this.lastFocusedElement) {
+                this.lastFocusedElement.focus();
+            }
         }
 
         this.container.getDocument().hiddenCount--;
-        if (this.container.getDocument().hiddenCount == 0)
+        if (this.container.getDocument().hiddenCount == 0) {
             this.container.getDocument().body.removeClass('hide-scrollbar');
+        }
     },
 
     /**
      * @param {Boolean} pCanClosed
      */
-    setCanClosed: function(pCanClosed){
+    setCanClosed: function (pCanClosed) {
         this.canClosed = pCanClosed;
     },
 
-    getBottomContainer: function(){
+    getBottomContainer: function () {
         return this.bottom;
     },
 
@@ -233,10 +248,11 @@ ka.Dialog = new Class({
      *
      * @param {Boolean} pAnimated position the dialog out of the viewport and animate it into it.
      */
-    center: function(pAnimated){
-        if (!this.overlay.getParent()){
-            if (this.options.autoDisplay)
+    center: function (pAnimated) {
+        if (!this.overlay.getParent()) {
+            if (this.options.autoDisplay) {
                 this.overlay.inject(this.container);
+            }
         }
 
         var size = this.container.getSize();
@@ -245,9 +261,9 @@ ka.Dialog = new Class({
         var left = (size.x.toInt() / 2 - dsize.x.toInt() / 2);
         this.main.setStyle('left', left);
 
-        if (pAnimated){
+        if (pAnimated) {
             this.main.setStyle('top', dsize.y * -1);
-            if (!this.fx){
+            if (!this.fx) {
                 this.fx = new Fx.Morph(this.main, {
                     transition: this.options.animatedTransition,
                     duration: this.options.animatedDuration
@@ -259,7 +275,7 @@ ka.Dialog = new Class({
         }
     },
 
-    toElement: function(){
+    toElement: function () {
         return this.main;
     }
 

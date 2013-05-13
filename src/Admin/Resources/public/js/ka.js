@@ -1,23 +1,26 @@
-if (typeof ka == 'undefined') window.ka = {};
+if (typeof ka == 'undefined') {
+    window.ka = {};
+}
 
 ka.clipboard = {};
-ka.settings  = {};
+ka.settings = {};
 
-ka.performance  = false;
+ka.performance = false;
 ka.streamParams = {};
 
 ka.uploads = {};
-ka._links  = {};
+ka._links = {};
 
-PATH     = _path;
+PATH = _path;
 PATH_WEB = PATH;
-
 
 ka._ = function (p) {
     return t(p);
 };
 
-if (typeOf(ka.langs) != 'object') this.langs = {};
+if (typeOf(ka.langs) != 'object') {
+    this.langs = {};
+}
 
 /**
  * Prints all kind of stuff into console.log.
@@ -26,10 +29,12 @@ if (typeOf(ka.langs) != 'object') this.langs = {};
  *
  * @params {*}
  */
-ka.logger = function(){
+ka.logger = function () {
     if (typeOf(console) != "undefined") {
         var args = arguments;
-        if (args.length == 1) args = args[0];
+        if (args.length == 1) {
+            args = args[0];
+        }
         console.log(args);
     }
 };
@@ -39,14 +44,14 @@ ka.logger = function(){
  * @type {Boolean}
  */
 ka.mobile = (false
- || navigator.userAgent.match(/Android/i)
- || navigator.userAgent.match(/iPhone/i)
- || navigator.userAgent.match(/webOS/i)
- || navigator.userAgent.match(/iPad/i)
- || navigator.userAgent.match(/iPod/i)
- || navigator.userAgent.match(/BlackBerry/i)
- || navigator.userAgent.match(/Windows Phone/i)
-);
+    || navigator.userAgent.match(/Android/i)
+    || navigator.userAgent.match(/iPhone/i)
+    || navigator.userAgent.match(/webOS/i)
+    || navigator.userAgent.match(/iPad/i)
+    || navigator.userAgent.match(/iPod/i)
+    || navigator.userAgent.match(/BlackBerry/i)
+    || navigator.userAgent.match(/Windows Phone/i)
+    );
 
 /**
  * Opens the frontend in a new tab.
@@ -65,25 +70,31 @@ ka.openFrontend = function () {
  * @param int    pCount   the count for plural
  * @param string pContext the message id of the context (msgctxt)
  */
-ka.t = function(pMsg, pPlural, pCount, pContext) {
+ka.t = function (pMsg, pPlural, pCount, pContext) {
     return _kml2html(ka.translate(pMsg, pPlural, pCount, pContext));
 }
 
-ka.translate = function(pMsg, pPlural, pCount, pContext) {
-    if (!ka && parent) ka = parent.ka;
-    if (ka && !ka.lang && parent && parent.ka) ka.lang = parent.ka.lang;
+ka.translate = function (pMsg, pPlural, pCount, pContext) {
+    if (!ka && parent) {
+        ka = parent.ka;
+    }
+    if (ka && !ka.lang && parent && parent.ka) {
+        ka.lang = parent.ka.lang;
+    }
     var id = (!pContext) ? pMsg : pContext + "\004" + pMsg;
 
-    if (ka.lang && ka.lang[id]){
+    if (ka.lang && ka.lang[id]) {
         if (typeOf(ka.lang[id]) == 'array') {
-            if (pCount){
-                var fn = 'gettext_plural_fn_'+ka.lang['__lang'];
-                var plural = window[fn](pCount)+0;
+            if (pCount) {
+                var fn = 'gettext_plural_fn_' + ka.lang['__lang'];
+                var plural = window[fn](pCount) + 0;
 
-                if (pCount && ka.lang[id][plural])
+                if (pCount && ka.lang[id][plural]) {
                     return ka.lang[id][plural].replace('%d', pCount);
-                else
+                }
+                else {
                     return ((pCount === null || pCount === false || pCount === 1) ? pMsg : pPlural);
+                }
             } else {
                 return ka.lang[id][0];
             }
@@ -95,11 +106,12 @@ ka.translate = function(pMsg, pPlural, pCount, pContext) {
     }
 }
 
-ka.tf = function(){
+ka.tf = function () {
     var args = Array.from(arguments);
     var text = args.shift();
-    if (typeOf(text) != 'string')
+    if (typeOf(text) != 'string') {
         throw 'First argument has to be a string.';
+    }
 
     return text.sprintf.apply(text, args);
 }
@@ -110,7 +122,7 @@ ka.tf = function(){
  * @param string pContext the message id of the context
  * @param string pMsg     message id
  */
-ka.tc = function(pContext, pMsg) {
+ka.tc = function (pContext, pMsg) {
     return t(pMsg, null, null, pContext);
 }
 
@@ -118,74 +130,79 @@ ka._kml2html = function (pRes) {
 
     var kml = ['ka:help'];
     if (pRes) {
-        pRes = pRes.replace(/<ka:help\s+id="(.*)">(.*)<\/ka:help>/g, '<a href="javascript:;" onclick="ka.wm.open(\'admin/help\', {id: \'$1\'}); return false;">$2</a>');
+        pRes = pRes.replace(/<ka:help\s+id="(.*)">(.*)<\/ka:help>/g,
+            '<a href="javascript:;" onclick="ka.wm.open(\'admin/help\', {id: \'$1\'}); return false;">$2</a>');
     }
     return pRes;
 }
 
-ka.findWindow = function(pElement){
+ka.findWindow = function (pElement) {
 
-    if (!typeOf(pElement)){
+    if (!typeOf(pElement)) {
         throw 'ka.findWindow(): pElement is not an element.';
     }
 
     var window = pElement.getParent('.kwindow-border');
 
-    return window?window.windowInstance:false;
+    return window ? window.windowInstance : false;
 
 }
 
 ka.entrypoint = {
 
-    open: function(pEntrypoint, pOptions, pSource, pInline, pDependWindowId){
+    open: function (pEntrypoint, pOptions, pSource, pInline, pDependWindowId) {
 
         var entrypoint = ka.entrypoint.get(pEntrypoint);
 
-        if (!entrypoint){
-            throw 'Can not be found entrypoint: '+pEntrypoint;
+        if (!entrypoint) {
+            throw 'Can not be found entrypoint: ' + pEntrypoint;
             return false;
         }
 
-        if (['custom', 'iframe', 'list', 'edit', 'add', 'combine'].contains(entrypoint.type)){
+        if (['custom', 'iframe', 'list', 'edit', 'add', 'combine'].contains(entrypoint.type)) {
             ka.wm.open(pEntrypoint, pOptions, pDependWindowId, pInline, pSource);
-        } else if(entrypoint.type == 'function'){
+        } else if (entrypoint.type == 'function') {
             ka.entrypoint.exec(entrypoint, pOptions, pSource);
         }
 
-
     },
 
-    getRelative: function(pCurrent, pEntryPoint){
+    getRelative: function (pCurrent, pEntryPoint) {
 
-        if (typeOf(pEntryPoint) != 'string' || !pEntryPoint) return pCurrent;
+        if (typeOf(pEntryPoint) != 'string' || !pEntryPoint) {
+            return pCurrent;
+        }
 
-        if (pEntryPoint.substr(0,1) == '/')
+        if (pEntryPoint.substr(0, 1) == '/') {
             return pEntryPoint;
+        }
 
-        var current = pCurrent+'';
-        if (current.substr(current.length-1, 1) != '/')
+        var current = pCurrent + '';
+        if (current.substr(current.length - 1, 1) != '/') {
             current += '/';
+        }
 
-        return current+pEntryPoint;
-
+        return current + pEntryPoint;
 
     },
 
     //executes a entry point from type function
-    exec: function(pEntrypoint, pOptions, pSource){
+    exec: function (pEntrypoint, pOptions, pSource) {
 
-        if (pEntrypoint.functionType == 'global'){
-            if (window[pEntrypoint.functionName]){
+        if (pEntrypoint.functionType == 'global') {
+            if (window[pEntrypoint.functionName]) {
                 window[pEntrypoint.functionName](pOptions);
             }
-        } else if(pEntrypoint.functionType == 'code'){
+        } else if (pEntrypoint.functionType == 'code') {
             eval(pEntrypoint.functionCode);
         }
 
     },
 
-    get: function(path){
-        if (typeOf(path) != 'string') return;
+    get: function (path) {
+        if (typeOf(path) != 'string') {
+            return;
+        }
         console.log('get', path);
 
         var splitted = path.split('/');
@@ -201,8 +218,8 @@ ka.entrypoint = {
 
         config = ka.settings.configs[extension];
 
-        if (!config){
-            throw 'Config not found for module '+extension;
+        if (!config) {
+            throw 'Config not found for module ' + extension;
         }
 
         tempEntry = config.entryPoints[splitted.shift()]
@@ -211,17 +228,20 @@ ka.entrypoint = {
         }
         path.push(tempEntry['label']);
 
-        while(item = splitted.shift()){
-            if (tempEntry.children && tempEntry.children[item]){
+        while (item = splitted.shift()) {
+            if (tempEntry.children && tempEntry.children[item]) {
                 tempEntry = tempEntry.children[item];
                 path.push(tempEntry['label']);
             } else {
                 notFound = true;
                 break;
             }
-        };
+        }
+        ;
 
-        if (notFound) return null;
+        if (notFound) {
+            return null;
+        }
 
         tempEntry._path = path;
         tempEntry._module = extension;
@@ -237,12 +257,11 @@ ka.entrypoint = {
  * @param {String} value
  * @returns {string} Safe for innerHTML usage.
  */
-ka.htmlEntities = function (value){
+ka.htmlEntities = function (value) {
     return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-
-ka.newBubble = function(pTitle, pText, pDuration){
+ka.newBubble = function (pTitle, pText, pDuration) {
     return ka.helpsystem.newBubble(pTitle, pText, pDuration);
 }
 
@@ -268,12 +287,13 @@ ka.newBubble = function(pTitle, pText, pDuration){
  * @param {Array} pFields Reference to object.
  * @param {String} pPrefix
  */
-ka.addFieldKeyPrefix = function(pFields, pPrefix){
-    Object.each(pFields, function(field, key){
-        pFields[pPrefix+'['+key+']'] = field;
+ka.addFieldKeyPrefix = function (pFields, pPrefix) {
+    Object.each(pFields, function (field, key) {
+        pFields[pPrefix + '[' + key + ']'] = field;
         delete pFields[key];
-        if (pFields.children)
+        if (pFields.children) {
             ka.addFieldKeyPrefix(field.children, pPrefix);
+        }
     });
 }
 
@@ -283,14 +303,14 @@ ka.addFieldKeyPrefix = function(pFields, pPrefix){
  * @param {String} pClassPath
  * @return {Class|Function}
  */
-ka.getClass = function(pClassPath){
+ka.getClass = function (pClassPath) {
     pClassPath = pClassPath.replace('[\'', '.');
     pClassPath = pClassPath.replace('\']', '.');
 
-    if (pClassPath.indexOf('.') > 0 ){
+    if (pClassPath.indexOf('.') > 0) {
         var path = pClassPath.split('.');
         var clazz = null;
-        Array.each(path, function(item){
+        Array.each(path, function (item) {
             clazz = clazz ? clazz[item] : window[item];
         });
         return clazz;
@@ -307,22 +327,22 @@ ka.getClass = function(pClassPath){
  * @param {String} pValue
  * @return {STring}
  */
-ka.urlEncode = function(pValue){
+ka.urlEncode = function (pValue) {
 
-    if (typeOf(pValue) == 'string'){
+    if (typeOf(pValue) == 'string') {
         return encodeURIComponent(pValue.replace(/\//g, '%252F')); //fix apache default setting
-    } else if (typeOf(pValue) == 'array'){
+    } else if (typeOf(pValue) == 'array') {
         var result = '';
-        Array.each(pValue, function(item){
-            result += ka.urlEncode(item)+',';
+        Array.each(pValue, function (item) {
+            result += ka.urlEncode(item) + ',';
         });
-        return result.substr(0, result.length-1);
-    } else if (typeOf(pValue) == 'object'){
+        return result.substr(0, result.length - 1);
+    } else if (typeOf(pValue) == 'object') {
         var result = '';
-        Array.each(pValue, function(item, key){
-            result += key+'='+ka.urlEncode(item)+',';
+        Array.each(pValue, function (item, key) {
+            result += key + '=' + ka.urlEncode(item) + ',';
         });
-        return result.substr(0, result.length-1);
+        return result.substr(0, result.length - 1);
     }
 
     return pValue;
@@ -334,17 +354,19 @@ ka.urlEncode = function(pValue){
  * @param {String} pValue
  * @return {String}
  */
-ka.urlDecode = function(pValue){
-    if (typeOf(pValue) != 'string') return pValue;
+ka.urlDecode = function (pValue) {
+    if (typeOf(pValue) != 'string') {
+        return pValue;
+    }
 
     try {
         return decodeURIComponent(pValue.replace(/%25252F/g, '%2F'));
-    } catch(e){
+    } catch (e) {
         return pValue;
     }
 }
 
-ka.normalizeObjectKey = function(objectKey) {
+ka.normalizeObjectKey = function (objectKey) {
     return objectKey.replace('\\', ':').replace('.', ':').replace('/', ':').toLowerCase();
 }
 
@@ -357,18 +379,22 @@ ka.normalizeObjectKey = function(objectKey) {
  * @param {String} pPath
  * @return {String}
  */
-ka.mediaPath = function(pPath){
+ka.mediaPath = function (pPath) {
 
-    if (typeOf(pPath) != 'string') return pPath;
+    if (typeOf(pPath) != 'string') {
+        return pPath;
+    }
 
-    if (pPath.substr(0,1) == '#') return pPath;
+    if (pPath.substr(0, 1) == '#') {
+        return pPath;
+    }
 
-    if (pPath.substr(0,1) == '/'){
-        return _path+pPath.substr(1);
-    } else if (pPath.substr(0,7) == 'http://'){
+    if (pPath.substr(0, 1) == '/') {
+        return _path + pPath.substr(1);
+    } else if (pPath.substr(0, 7) == 'http://') {
         return pPath;
     } else {
-        return _path+''+pPath;
+        return _path + '' + pPath;
     }
 
 }
@@ -379,13 +405,14 @@ ka.mediaPath = function(pPath){
  * @param {String} pObjectKey
  * @return {Array}
  */
-ka.getObjectPrimaryList = function(pObjectKey){
+ka.getObjectPrimaryList = function (pObjectKey) {
     var def = ka.getObjectDefinition(pObjectKey);
 
     var res = [];
-    Object.each(def.fields, function(field, key){
-        if (field.primaryKey)
+    Object.each(def.fields, function (field, key) {
+        if (field.primaryKey) {
             res.push(key);
+        }
     });
 
     return res;
@@ -397,10 +424,10 @@ ka.getObjectPrimaryList = function(pObjectKey){
  * @param {String} pObjectKey
  * @param {Object} pItem Always a object with the primary key => value pairs.
  */
-ka.getObjectPk = function(pObjectKey, pItem){
+ka.getObjectPk = function (pObjectKey, pItem) {
     var pks = ka.getObjectPrimaryList(pObjectKey);
     var result = {};
-    Array.each(pks, function(pk){
+    Array.each(pks, function (pk) {
         result[pk] = pItem[pk];
     });
     return result;
@@ -412,17 +439,18 @@ ka.getObjectPk = function(pObjectKey, pItem){
  * @param {String} pUri Internal uri
  * @return {String}
  */
-ka.getCroppedObjectId = function(pUri){
+ka.getCroppedObjectId = function (pUri) {
     if ('string' !== typeOf(pUri)) {
         return pUri;
     }
 
-    if (pUri.indexOf('object://') == 0)
+    if (pUri.indexOf('object://') == 0) {
         pUri = pUri.substr(9);
+    }
 
     var idx = pUri.indexOf('/');
 
-    return pUri.substr(idx+1);
+    return pUri.substr(idx + 1);
 }
 
 /**
@@ -433,20 +461,24 @@ ka.getCroppedObjectId = function(pUri){
  * @param {Array}  pItem
  * @return {String} urlencoded internal uri part of the id.
  */
-ka.getObjectUrlId = function(pObjectKey, pItem){
-    if (!pItem) throw 'pItem missing.';
+ka.getObjectUrlId = function (pObjectKey, pItem) {
+    if (!pItem) {
+        throw 'pItem missing.';
+    }
     var pks = ka.getObjectPrimaryList(pObjectKey);
 
-    if (pks.length == 0 ) throw pObjectKey+' does not have primary keys.';
+    if (pks.length == 0) {
+        throw pObjectKey + ' does not have primary keys.';
+    }
 
     var urlId = '';
-    if (pks.length == 1 && typeOf(pItem) != 'object'){
-        return ka.urlEncode(pItem)+'';
+    if (pks.length == 1 && typeOf(pItem) != 'object') {
+        return ka.urlEncode(pItem) + '';
     } else {
-        Array.each(pks, function(pk){
-            urlId += ka.urlEncode(pItem[pk])+',';
+        Array.each(pks, function (pk) {
+            urlId += ka.urlEncode(pItem[pk]) + ',';
         });
-        return urlId.substr(0, urlId.length-1);
+        return urlId.substr(0, urlId.length - 1);
     }
 
 }
@@ -460,8 +492,8 @@ ka.getObjectUrlId = function(pObjectKey, pItem){
  * @param {String} pId Has to be urlencoded (use ka.urlEncode())
  * @return {String}
  */
-ka.getObjectUrl = function(pObjectKey, pId){
-    return 'object://'+pObjectKey+'/'+pId;
+ka.getObjectUrl = function (pObjectKey, pId) {
+    return 'object://' + pObjectKey + '/' + pId;
 }
 
 /**
@@ -469,14 +501,19 @@ ka.getObjectUrl = function(pObjectKey, pId){
  *
  * @param pUrl
  */
-ka.getObjectKey = function(pUrl){
-    if (typeOf(pUrl) != 'string') throw 'pUrl is not a string';
+ka.getObjectKey = function (pUrl) {
+    if (typeOf(pUrl) != 'string') {
+        throw 'pUrl is not a string';
+    }
 
-    if (pUrl.indexOf('object://') == 0)
+    if (pUrl.indexOf('object://') == 0) {
         pUrl = pUrl.substr(9);
+    }
 
     var idx = pUrl.indexOf('/');
-    if (idx == -1) return pUrl;
+    if (idx == -1) {
+        return pUrl;
+    }
 
     return pUrl.substr(0, idx);
 }
@@ -498,14 +535,16 @@ ka.getObjectKey = function(pUrl){
  * @param  {String} pUrl   object://user/1
  * @return {String|Object}  If we have only one pk, it returns a string, otherwise an array.
  */
-ka.getObjectId = function(pUrl){
-    if (typeOf(pUrl) != 'string') return pUrl;
+ka.getObjectId = function (pUrl) {
+    if (typeOf(pUrl) != 'string') {
+        return pUrl;
+    }
     var res = [];
 
-    if (pUrl.indexOf('object://') != -1){
-        var id = pUrl.substr(10+pUrl.substr('object://'.length).indexOf('/'));
-    } else if (pUrl.indexOf('/') != -1){
-        var id = pUrl.substr(pUrl.indexOf('/')+1);
+    if (pUrl.indexOf('object://') != -1) {
+        var id = pUrl.substr(10 + pUrl.substr('object://'.length).indexOf('/'));
+    } else if (pUrl.indexOf('/') != -1) {
+        var id = pUrl.substr(pUrl.indexOf('/') + 1);
     } else {
         var id = pUrl;
     }
@@ -517,11 +556,11 @@ ka.getObjectId = function(pUrl){
 
     var keys = objectUri.split('/');
 
-    if (keys.length > 1){
+    if (keys.length > 1) {
         var result = [];
-        Array.each(keys, function(key){
+        Array.each(keys, function (key) {
             var pk = {};
-            Array.each(key.split(','), function(id, pos){
+            Array.each(key.split(','), function (id, pos) {
                 pk[pks[pos]] = ka.urlDecode(id);
             });
             result.push(pk);
@@ -530,7 +569,7 @@ ka.getObjectId = function(pUrl){
     } else {
         var result = {};
 
-        Array.each(objectUri.split(','), function(id, pos){
+        Array.each(objectUri.split(','), function (id, pos) {
             result[pks[pos]] = ka.urlDecode(id);
         });
 
@@ -551,54 +590,60 @@ ka.getObjectId = function(pUrl){
  * @param {Function} pCb the callback function.
  *
  */
-ka.getObjectLabel = function(pUri, pCb){
+ka.getObjectLabel = function (pUri, pCb) {
 
     var objectKey = ka.getObjectKey(pUri);
 
-    if (ka.getObjectLabelBusy[objectKey]){
+    if (ka.getObjectLabelBusy[objectKey]) {
         ka.getObjectLabel.delay(10, ka.getObjectLabel, [pUri, pCb]);
         return;
     }
 
-    if (ka.getObjectLabelQTimer[objectKey])
+    if (ka.getObjectLabelQTimer[objectKey]) {
         clearTimeout(ka.getObjectLabelQTimer[objectKey]);
+    }
 
-    if (!ka.getObjectLabelQ[objectKey])
+    if (!ka.getObjectLabelQ[objectKey]) {
         ka.getObjectLabelQ[objectKey] = {};
+    }
 
-    if (!ka.getObjectLabelQ[objectKey][pUri])
+    if (!ka.getObjectLabelQ[objectKey][pUri]) {
         ka.getObjectLabelQ[objectKey][pUri] = [];
+    }
 
     ka.getObjectLabelQ[objectKey][pUri].push(pCb);
 
-    ka.getObjectLabelQTimer[objectKey] = (function(){
+    ka.getObjectLabelQTimer[objectKey] = (function () {
 
         ka.getObjectLabelBusy = true;
 
-        var uri = 'object://'+ka.urlEncode(ka.normalizeObjectKey(objectKey))+'/';
-        Object.each(ka.getObjectLabelQ[objectKey], function(cbs, requestedUri){
-            uri += ka.getCroppedObjectId(requestedUri)+'/';
+        var uri = 'object://' + ka.urlEncode(ka.normalizeObjectKey(objectKey)) + '/';
+        Object.each(ka.getObjectLabelQ[objectKey], function (cbs, requestedUri) {
+            uri += ka.getCroppedObjectId(requestedUri) + '/';
         });
-        if (uri.substr(uri.length-1, 1)==';')
-            uri = uri.substr(0, uri.length-1);
+        if (uri.substr(uri.length - 1, 1) == ';') {
+            uri = uri.substr(0, uri.length - 1);
+        }
 
         new Request.JSON({url: _pathAdmin + 'admin/objects',
             noCache: 1, noErrorReporting: true,
-            onComplete: function(pResponse){
+            onComplete: function (pResponse) {
 
                 var result, id, cb;
 
-                Object.each(pResponse.data, function(item, pk){
+                Object.each(pResponse.data, function (item, pk) {
 
-                    if (item === null) return;
+                    if (item === null) {
+                        return;
+                    }
 
-                    id = 'object://'+objectKey+'/'+pk;
+                    id = 'object://' + objectKey + '/' + pk;
                     result = ka.getObjectLabelByItem(objectKey, item);
 
                     //TODO, search solution for this
 
-                    if (ka.getObjectLabelQ[objectKey][id]){
-                        while( (cb = ka.getObjectLabelQ[objectKey][id].pop()) ){
+                    if (ka.getObjectLabelQ[objectKey][id]) {
+                        while ((cb = ka.getObjectLabelQ[objectKey][id].pop())) {
                             cb(result);
                         }
                     }
@@ -606,8 +651,8 @@ ka.getObjectLabel = function(pUri, pCb){
                 });
 
                 //call the callback of invalid requests with false argument.
-                Object.each(ka.getObjectLabelQ[objectKey], function(cbs){
-                    cbs.each(function(cb){
+                Object.each(ka.getObjectLabelQ[objectKey], function (cbs) {
+                    cbs.each(function (cb) {
                         cb.attempt(false);
                     });
                 });
@@ -634,35 +679,43 @@ ka.getObjectLabelQTimer = {};
  * @param {Object} pDefinition overwrite definitions stored in the pObjectKey
  * @return {String}
  */
-ka.getObjectLabelByItem = function(pObjectKey, pItem, pMode, pDefinition){
+ka.getObjectLabelByItem = function (pObjectKey, pItem, pMode, pDefinition) {
 
     var definition = ka.getObjectDefinition(pObjectKey);
-    if (!definition) throw 'Definition not found '+pObjectKey;
+    if (!definition) {
+        throw 'Definition not found ' + pObjectKey;
+    }
 
     var template = (pDefinition && pDefinition.labelTemplate) ? pDefinition.labelTemplate : definition.labelTemplate;
     var label = (pDefinition && pDefinition.labelField) ? pDefinition.labelField : definition.labelField;
 
-    if (pDefinition){
-        ['fieldTemplate', 'fieldLabel', 'treeTemplate', 'treeLabel'].each(function(map){
-            if (typeOf(pDefinition[map]) !== 'null') definition[map] = pDefinition[map];
+    if (pDefinition) {
+        ['fieldTemplate', 'fieldLabel', 'treeTemplate', 'treeLabel'].each(function (map) {
+            if (typeOf(pDefinition[map]) !== 'null') {
+                definition[map] = pDefinition[map];
+            }
         });
     }
 
     /* field ui */
-    if (pMode == 'field' && definition.fieldTemplate)
+    if (pMode == 'field' && definition.fieldTemplate) {
         template = definition.fieldTemplate;
+    }
 
-    if (pMode == 'field' && definition.fieldLabel)
+    if (pMode == 'field' && definition.fieldLabel) {
         label = definition.fieldLabel;
+    }
 
     /* tree */
-    if (pMode == 'tree' && definition.treeTemplate)
+    if (pMode == 'tree' && definition.treeTemplate) {
         template = definition.treeTemplate;
+    }
 
-    if (pMode == 'tree' && definition.treeLabel)
+    if (pMode == 'tree' && definition.treeLabel) {
         label = definition.treeLabel;
+    }
 
-    if (!template){
+    if (!template) {
         //we only have an label field, so return it
         return mowla.fetch('{label}', {label: pItem[label]});
     }
@@ -680,12 +733,14 @@ ka.getObjectLabelByItem = function(pObjectKey, pItem, pMode, pDefinition){
  *
  * @return {Object}
  */
-ka.getObjectLabels = function(pFields, pItem, pObjectKey, pRelationsAsArray){
+ka.getObjectLabels = function (pFields, pItem, pObjectKey, pRelationsAsArray) {
 
     var data = pItem, dataKey;
-    Object.each(pFields, function(field, fieldId){
+    Object.each(pFields, function (field, fieldId) {
         dataKey = fieldId;
-        if (pRelationsAsArray && dataKey.indexOf('.') > 0) dataKey = dataKey.split('.')[0];
+        if (pRelationsAsArray && dataKey.indexOf('.') > 0) {
+            dataKey = dataKey.split('.')[0];
+        }
 
         data[dataKey] = ka.getObjectFieldLabel(pItem, field, fieldId, pObjectKey, pRelationsAsArray);
     }.bind(this));
@@ -704,13 +759,15 @@ ka.getObjectLabels = function(pFields, pItem, pObjectKey, pRelationsAsArray){
  *
  * @return {String} Safe HTML. Escapted with ka.htmlEntities()
  */
-ka.getObjectFieldLabel = function(pValue, pField, pFieldId, pObjectKey, pRelationsAsArray){
+ka.getObjectFieldLabel = function (pValue, pField, pFieldId, pObjectKey, pRelationsAsArray) {
 
     var fields = ka.getObjectDefinition(pObjectKey);
-    if (!fields) throw 'Object not found '+pObjectKey;
+    if (!fields) {
+        throw 'Object not found ' + pObjectKey;
+    }
 
     var fieldId = pFieldId;
-    if (typeOf(pFieldId) == 'string' && pFieldId.indexOf('.') > 0){
+    if (typeOf(pFieldId) == 'string' && pFieldId.indexOf('.') > 0) {
         fieldId = pFieldId.split('.')[0];
     }
 
@@ -718,22 +775,26 @@ ka.getObjectFieldLabel = function(pValue, pField, pFieldId, pObjectKey, pRelatio
     var field = fields[fieldId];
 
     var showAsField = pField || field;
-    if (!showAsField.type){
-        Object.each(field, function(v, i){
-            if (!showAsField[i])
+    if (!showAsField.type) {
+        Object.each(field, function (v, i) {
+            if (!showAsField[i]) {
                 showAsField[i] = v;
+            }
         });
     }
 
     pValue = Object.clone(pValue);
 
-    if (!field) return ka.htmlEntities(typeOf(pValue[fieldId]) != 'null' ? pValue[fieldId] : '');
+    if (!field) {
+        return ka.htmlEntities(typeOf(pValue[fieldId]) != 'null' ? pValue[fieldId] : '');
+    }
 
     var value = pValue[fieldId] || '';
 
-    if (showAsField.type == 'predefined'){
-        if (ka.getObjectDefinition(showAsField.object))
+    if (showAsField.type == 'predefined') {
+        if (ka.getObjectDefinition(showAsField.object)) {
             showAsField = ka.getObjectDefinition(showAsField.object).fields[showAsField.field];
+        }
     }
 
     if (showAsField.format == 'timestamp') {
@@ -751,8 +812,8 @@ ka.getObjectFieldLabel = function(pValue, pField, pFieldId, pObjectKey, pRelatio
 
     //relations
     var label, relation;
-    if (field.type == 'object' || !field.type){
-        if (pFieldId.indexOf('.') > 0){
+    if (field.type == 'object' || !field.type) {
+        if (pFieldId.indexOf('.') > 0) {
             relation = pFieldId.split('.')[0];
             label = pFieldId.split('.')[1];
         } else {
@@ -762,10 +823,10 @@ ka.getObjectFieldLabel = function(pValue, pField, pFieldId, pObjectKey, pRelatio
         }
     }
 
-    if (typeOf(pValue[relation]) == 'object'){
+    if (typeOf(pValue[relation]) == 'object') {
         //to-one relation
         value = {};
-        if (pRelationsAsArray){
+        if (pRelationsAsArray) {
             value[label] = pValue[relation][label];
             return ka.htmlEntities(value);
         } else {
@@ -773,15 +834,15 @@ ka.getObjectFieldLabel = function(pValue, pField, pFieldId, pObjectKey, pRelatio
         }
     }
 
-    if (typeOf(pValue[relation]) == 'array'){
+    if (typeOf(pValue[relation]) == 'array') {
         //to-many relation
         //we join by pField['join'] char, default is ', '
         value = [];
-        Array.each(pValue[relation], function(relValue){
+        Array.each(pValue[relation], function (relValue) {
             value.push(relValue[label]);
         });
         var joined = value.join(pField['join'] || ', ');
-        if (pRelationsAsArray){
+        if (pRelationsAsArray) {
             value = {};
             value[label] = joined;
             return ka.htmlEntities(value);
@@ -791,10 +852,11 @@ ka.getObjectFieldLabel = function(pValue, pField, pFieldId, pObjectKey, pRelatio
     }
 
     if (field.type == 'select') {
-        value = pValue[pFieldId +'_'+ pField.table_label] || pValue[pFieldId +'_'+ pField.tableLabel] || pValue[pFieldId + '__label'];
+        value = pValue[pFieldId + '_' + pField.table_label] || pValue[pFieldId + '_' + pField.tableLabel] ||
+            pValue[pFieldId + '__label'];
     }
 
-    if (showAsField.type && showAsField.type.toLowerCase() == 'imagemap'){
+    if (showAsField.type && showAsField.type.toLowerCase() == 'imagemap') {
         //TODO
     }
 
@@ -810,10 +872,12 @@ ka.getObjectFieldLabel = function(pValue, pField, pFieldId, pObjectKey, pRelatio
  * @param {String} pKey
  * @return {String} Or false, if the module does not exist/its not activated.
  */
-ka.getExtensionTitle = function(pKey){
+ka.getExtensionTitle = function (pKey) {
 
     var config = ka.settings.configs[pKey];
-    if (!config) return false;
+    if (!config) {
+        return false;
+    }
 
     return config.title;
 }
@@ -842,7 +906,9 @@ ka.alreadyLocked = function (pWin, pResult) {
 
 ka.bytesToSize = function (bytes) {
     var sizes = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB'];
-    if (!bytes) return '0 Bytes';
+    if (!bytes) {
+        return '0 Bytes';
+    }
     var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
     if (i == 0) {
         return (bytes / Math.pow(1024, i)) + ' ' + sizes[i];
@@ -865,20 +931,22 @@ ka.loadSettings = function (keyLimitation, cb) {
 }
 
 ka.loadLanguage = function (pLang) {
-    if (!pLang) pLang = 'en';
+    if (!pLang) {
+        pLang = 'en';
+    }
     window._session.lang = pLang;
 
     Cookie.write('kryn_language', pLang);
 
     Asset.javascript(_pathAdmin + 'ui/languagePluralForm?lang=' + pLang);
 
-    new Request.JSON({url: _pathAdmin + 'admin/ui/language?lang=' + pLang, async: false, noCache: 1, onComplete: function(pResponse){
+    new Request.JSON({url: _pathAdmin + 'admin/ui/language?lang=' +
+        pLang, async: false, noCache: 1, onComplete: function (pResponse) {
         ka.lang = pResponse.data;
         Locale.define('en-US', 'Date', ka.lang);
     }}).get();
 
 }
-
 
 ka.saveUserSettings = function () {
     if (ka.lastSaveUserSettings) {
@@ -887,8 +955,9 @@ ka.saveUserSettings = function () {
 
     ka.settings.user = new Hash(ka.settings.user);
 
-    ka.lastSaveUserSettings = new Request.JSON({url: _pathAdmin + 'admin/backend/user-settings', noCache: 1, onComplete: function (res) {
-    }}).post({ settings: JSON.encode(ka.settings.user) });
+    ka.lastSaveUserSettings =
+        new Request.JSON({url: _pathAdmin + 'admin/backend/user-settings', noCache: 1, onComplete: function (res) {
+        }}).post({ settings: JSON.encode(ka.settings.user) });
 }
 
 ka.resetWindows = function () {
@@ -896,7 +965,6 @@ ka.resetWindows = function () {
     ka.saveUserSettings();
     ka.wm.resizeAll();
 }
-
 
 ka.addStreamParam = function (pKey, pVal) {
     ka.streamParams[pKey] = pVal;
@@ -907,7 +975,7 @@ ka.removeStreamParam = function (pKey) {
 }
 
 /**
- * 
+ *
  * @param path
  * @param callback
  */
@@ -922,7 +990,7 @@ ka.registerStream = function (path, callback) {
 ka.streamRegistered = {};
 /**
  * Register a callback to a stream path.
- * 
+ *
  * @param {String}   path
  * @param {Function} callback
  */
@@ -969,7 +1037,7 @@ ka.loadStream = function () {
                     } else {
                         window.fireEvent('stream', res.data);
                         Object.each(ka.streamRegistered, function (cbs, path) {
-                            Array.each(cbs, function(cb){
+                            Array.each(cbs, function (cb) {
                                 cb(res.data[path], res.data);
                             });
                         });
@@ -1001,11 +1069,13 @@ ka.closeDialogsBodys = [];
 ka.closeDialog = function () {
 
     var killedOne = false;
-    Array.each(ka.closeDialogsBodys, function(body){
-        if (killedOne) return;
+    Array.each(ka.closeDialogsBodys, function (body) {
+        if (killedOne) {
+            return;
+        }
 
         var last = document.body.getLast('.ka-dialog-overlay');
-        if (last){
+        if (last) {
             killedOne = true;
             last.close();
         }
@@ -1019,13 +1089,13 @@ ka.openDialog = function (item) {
 
     var target = document.body;
 
-    if (item.target && item.target.getWindow())
+    if (item.target && item.target.getWindow()) {
         target = item.target.getWindow().document.body;
+    }
 
-
-    if (!ka.closeDialogsBodys.contains(target))
+    if (!ka.closeDialogsBodys.contains(target)) {
         ka.closeDialogsBodys.push(target);
-
+    }
 
     var autoPositionLastOverlay = new Element('div', {
         'class': 'ka-dialog-overlay',
@@ -1033,16 +1103,18 @@ ka.openDialog = function (item) {
         styles: {
             opacity: 0.001
         }
-    }).addEvent('click', function (e) {
+    }).addEvent('click',function (e) {
 
-        ka.closeDialog();
-        e.stopPropagation();
-        this.fireEvent('close');
-        if (item.onClose) item.onClose();
+            ka.closeDialog();
+            e.stopPropagation();
+            this.fireEvent('close');
+            if (item.onClose) {
+                item.onClose();
+            }
 
-    }).inject(target);
+        }).inject(target);
 
-    autoPositionLastOverlay.close = function(){
+    autoPositionLastOverlay.close = function () {
         autoPositionLastOverlay.destroy();
         delete autoPositionLastOverlay;
     };
@@ -1060,7 +1132,9 @@ ka.openDialog = function (item) {
 
     item.element.inject(target);
 
-    if (!item.offset) item.offset = {};
+    if (!item.offset) {
+        item.offset = {};
+    }
 
     if (!item.primary) {
         item.primary = {
@@ -1108,20 +1182,20 @@ ka.openDialog = function (item) {
     return autoPositionLastOverlay;
 }
 
-ka.getPrimariesForObject = function(pObjectKey){
+ka.getPrimariesForObject = function (pObjectKey) {
 
     var definition = ka.getObjectDefinition(pObjectKey);
 
     var result = {};
 
     if (!definition) {
-        logger('Can not found object definition for object "'+pObjectKey+'"');
+        logger('Can not found object definition for object "' + pObjectKey + '"');
         return;
     }
 
-    Object.each(definition.fields, function(field, fieldKey){
+    Object.each(definition.fields, function (field, fieldKey) {
 
-        if (field.primaryKey){
+        if (field.primaryKey) {
             result[fieldKey] = Object.clone(field);
         }
 
@@ -1130,20 +1204,20 @@ ka.getPrimariesForObject = function(pObjectKey){
     return result;
 }
 
-ka.getPrimaryListForObject = function(pObjectKey){
+ka.getPrimaryListForObject = function (pObjectKey) {
 
     var definition = ka.getObjectDefinition(pObjectKey);
 
     var result = [];
 
     if (!definition) {
-        logger('Can not found object definition for object "'+pObjectKey+'"');
+        logger('Can not found object definition for object "' + pObjectKey + '"');
         return;
     }
 
-    Object.each(definition.fields, function(field, fieldKey){
+    Object.each(definition.fields, function (field, fieldKey) {
 
-        if (field.primaryKey){
+        if (field.primaryKey) {
             result.push(fieldKey);
         }
 
@@ -1158,21 +1232,22 @@ ka.getPrimaryListForObject = function(pObjectKey){
  * @param pObjectKey
  * @returns {Object}
  */
-ka.getObjectDefinition = function(pObjectKey){
-    if (typeOf(pObjectKey) != 'string') throw 'pObjectKey is not a string: '+pObjectKey;
+ka.getObjectDefinition = function (pObjectKey) {
+    if (typeOf(pObjectKey) != 'string') {
+        throw 'pObjectKey is not a string: ' + pObjectKey;
+    }
 
     pObjectKey = ka.normalizeObjectKey(pObjectKey).toLowerCase();
 
-    var module = (""+pObjectKey.split(':')[0]).toLowerCase();
+    var module = ("" + pObjectKey.split(':')[0]).toLowerCase();
     var name = pObjectKey.split(':')[1];
 
-    if (ka.settings.configs[module] && ka.settings.configs[module]['objects'][name]){
+    if (ka.settings.configs[module] && ka.settings.configs[module]['objects'][name]) {
         var config = ka.settings.configs[module]['objects'][name];
         config._key = pObjectKey;
         return config;
     }
 }
-
 
 ka.getFieldCaching = function () {
     return {
@@ -1220,7 +1295,6 @@ ka.getFieldCaching = function () {
     }
 }
 
-
 ka.renderLayoutElements = function (pDom, pClassObj) {
 
     var layoutBoxes = {};
@@ -1244,7 +1318,7 @@ ka.renderLayoutElements = function (pDom, pClassObj) {
     return layoutBoxes;
 }
 
-ka.pregQuote = function(str){
+ka.pregQuote = function (str) {
     // http://kevin.vanzonneveld.net
     // +   original by: booeyOH
     // +   improved by: Ates Goral (http://magnetiq.com)
@@ -1257,7 +1331,7 @@ ka.pregQuote = function(str){
     // *     example 3: preg_quote("\\.+*?[^]$(){}=!<>|:");
     // *     returns 3: '\\\.\+\*\?\[\^\]\$\(\)\{\}\=\!\<\>\|\:'
 
-    return (str+'').replace(/([\\\.\+\*\?\[\^\]\$\(\)\{\}\=\!\<\>\|\:])/g, "\\$1");
+    return (str + '').replace(/([\\\.\+\*\?\[\^\]\$\(\)\{\}\=\!\<\>\|\:])/g, "\\$1");
 }
 
 initWysiwyg = function (pElement, pOptions) {
@@ -1283,27 +1357,28 @@ initWysiwyg = function (pElement, pOptions) {
  * @param {Element} element
  * @param {Number} opacity
  */
-ka.generateNoise = function(element, opacity) {
-    if (!"getContent" in document.createElement('canvas')) return false;
+ka.generateNoise = function (element, opacity) {
+    if (!"getContent" in document.createElement('canvas')) {
+        return false;
+    }
 
     var
         canvas = document.createElement("canvas")
-      , c2d = canvas.getContext("2d")
-      , x
-      , y
-      , r
-      , g
-      , b
-      , opacity = opacity || .2;
+        , c2d = canvas.getContext("2d")
+        , x
+        , y
+        , r
+        , g
+        , b
+        , opacity = opacity || .2;
 
     canvas.width = canvas.height = 100;
 
-
     for (x = 0; x < canvas.width; x++) {
         for (y = 0; y < canvas.height; y++) {
-            r = Math.floor( Math.random() * 80 );
-            g = Math.floor( Math.random() * 80 );
-            b = Math.floor( Math.random() * 80 );
+            r = Math.floor(Math.random() * 80);
+            g = Math.floor(Math.random() * 80);
+            b = Math.floor(Math.random() * 80);
 
             c2d.fillStyle = "rgba(" + r + "," + g + "," + b + "," + opacity + ")";
             c2d.fillRect(x, y, 1, 1);

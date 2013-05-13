@@ -36,7 +36,9 @@ class SystemFile extends WebFile
      * Returns the instance of the local file layer.
      *
      * @static
+     *
      * @param  string $pPath
+     *
      * @return object
      */
     public static function getLayer($pPath = null)
@@ -45,7 +47,9 @@ class SystemFile extends WebFile
 
         $params['root'] = './';
 
-        if (static::$fsObjects[$class]) return static::$fsObjects[$class];
+        if (static::$fsObjects[$class]) {
+            return static::$fsObjects[$class];
+        }
 
         static::$fsObjects[$class] = new $class('', $params);
 

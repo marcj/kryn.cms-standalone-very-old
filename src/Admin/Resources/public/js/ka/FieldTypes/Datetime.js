@@ -1,14 +1,14 @@
 ka.FieldTypes.Datetime = new Class({
-    
+
     Extends: ka.FieldAbstract,
 
-    createLayout: function(){
+    createLayout: function () {
 
         this.wrapper = new Element('div', {
             'class': 'ka-input-wrapper',
             style: this.options.style,
             styles: {
-                'width': this.options.inputWidth=='100%'?null:this.options.inputWidth,
+                'width': this.options.inputWidth == '100%' ? null : this.options.inputWidth,
                 'height': this.options.inputHeight
             }
         }).inject(this.fieldInstance.fieldPanel);
@@ -24,8 +24,9 @@ ka.FieldTypes.Datetime = new Class({
         this.options.time = true;
         this.datePicker = new ka.DatePicker(this.input, this.options);
 
-        if (this.options.inputWidth)
+        if (this.options.inputWidth) {
             this.input.setStyle('width', this.options.inputWidth);
+        }
 
         if (this.win) {
             this.win.addEvent('resize', this.datePicker.updatePos.bind(this.datePicker));
@@ -35,16 +36,16 @@ ka.FieldTypes.Datetime = new Class({
         this.datePicker.addEvent('change', this.fieldInstance.fireChange);
 
         if (this.options['default']) {
-            var time = new Date(this.field['default']=='now'?null:this.field['default']).getTime();
+            var time = new Date(this.field['default'] == 'now' ? null : this.field['default']).getTime();
             this.setValue(time, true);
         }
     },
 
-    setValue: function(pValue){
+    setValue: function (pValue) {
         this.datePicker.setTime((pValue != 0) ? pValue : false);
     },
 
-    getValue: function(){
+    getValue: function () {
         return this.datePicker.getTime();
     }
 });

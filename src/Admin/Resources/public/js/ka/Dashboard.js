@@ -8,7 +8,7 @@ ka.Dashboard = new Class({
 
     widgets: [],
 
-    initialize: function(container, options) {
+    initialize: function (container, options) {
         this.container = container;
         this.createLayout(container);
         this.container.getDocument().body.addClass('ka-Dashboard-active');
@@ -33,16 +33,16 @@ ka.Dashboard = new Class({
             'ka.DashboardWidgets.Uptime',
             'ka.DashboardWidgets.Load',
             'ka.DashboardWidgets.Space'
-        ].each(function(clazz){
-            clazz = ka.getClass(clazz);
-            this.widgets.push(new clazz(this.main));
-        }.bind(this));
+        ].each(function (clazz) {
+                clazz = ka.getClass(clazz);
+                this.widgets.push(new clazz(this.main));
+            }.bind(this));
 
         this.main.tween('opacity', 1);
     },
 
     destroy: function () {
-        Array.each(this.widgets, function(widget){
+        Array.each(this.widgets, function (widget) {
             widget.destroy();
         });
         this.container.getDocument().body.removeClass('ka-Dashboard-active');

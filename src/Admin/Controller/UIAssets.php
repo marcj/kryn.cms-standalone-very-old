@@ -4,8 +4,6 @@ namespace Admin\Controller;
 
 use Core\Kryn;
 use Core\Lang;
-use Core\SystemFile;
-
 use Core\Models\LanguageQuery;
 use Propel\Runtime\Map\TableMap;
 
@@ -43,8 +41,9 @@ class UIAssets
     {
         $lang = esc($pLang, 2);
 
-        if (!Kryn::isValidLanguage($lang))
+        if (!Kryn::isValidLanguage($lang)) {
             $lang = 'en';
+        }
 
         Kryn::getAdminClient()->getSession()->setLanguage($lang);
         Kryn::getAdminClient()->syncStore();
@@ -54,10 +53,15 @@ class UIAssets
         if (getArgv('javascript') == 1) {
             header('Content-Type: text/javascript');
             print "if( typeof(ka)=='undefined') window.ka = {}; ka.lang = " . json_encode(Kryn::$lang);
-            print "\nLocale.define('en-US', 'Date', " . Kryn::getInstance()->renderView('@AdminBundle/mootools-locale.tpl') . ");";
+            print "\nLocale.define('en-US', 'Date', " . Kryn::getInstance()->renderView(
+                '@AdminBundle/mootools-locale.tpl'
+            ) . ");";
             exit;
         } else {
-            Kryn::$lang['mootools'] = json_decode(Kryn::getInstance()->renderView('@AdminBundle/mootools-locale.tpl'), true);
+            Kryn::$lang['mootools'] = json_decode(
+                Kryn::getInstance()->renderView('@AdminBundle/mootools-locale.tpl'),
+                true
+            );
 
             return Kryn::$lang;
         }
@@ -99,15 +103,16 @@ class UIAssets
             }
         }
 
-        foreach ($cssFiles as $cssFile)
+        foreach ($cssFiles as $cssFile) {
             $md5Hash .= filemtime($cssFile) . '.';
+        }
 
         $md5Hash = md5($md5Hash);
 
         print "/* Kryn.cms combined admin css file: $md5Hash */\n\n";
 
-        $cacheDir  = PATH_WEB_CACHE . '';
-        $cacheFile = $cacheDir.'admin.cachedCss_' . $md5Hash . '.css';
+        $cacheDir = PATH_WEB_CACHE . '';
+        $cacheFile = $cacheDir . 'admin.cachedCss_' . $md5Hash . '.css';
 
         if (false && file_exists($cacheFile)) {
             readFile($cacheFile);
@@ -116,29 +121,32 @@ class UIAssets
             foreach ($cssFiles as $assetPath => $cssFile) {
                 $content .= "\n\n/* file: $assetPath */\n\n";
 
-                $dir = '../../'.substr(dirname($cssFile),4).'/';
+                $dir = '../../' . substr(dirname($cssFile), 4) . '/';
                 $h = fopen($cssFile, "r");
                 if ($h) {
                     while (!feof($h) && $h) {
                         $buffer = fgets($h, 4096);
 
-                        $buffer = preg_replace('/url\(\'([^\/].*)\'\)/', 'url(\''.$dir.'$1\')', $buffer);
-                        $buffer = preg_replace('/url\((?!data:image)([^\/\'].*)\)/', 'url('.$dir.'$1)', $buffer);
+                        $buffer = preg_replace('/url\(\'([^\/].*)\'\)/', 'url(\'' . $dir . '$1\')', $buffer);
+                        $buffer = preg_replace('/url\((?!data:image)([^\/\'].*)\)/', 'url(' . $dir . '$1)', $buffer);
 
                         $content .= $buffer;
                         $newLine = str_replace($from, $toWebkit, $buffer);
-                        if ($newLine != $buffer)
+                        if ($newLine != $buffer) {
                             $content .= $newLine;
+                        }
                         $newLine = str_replace($from, $toGecko, $buffer);
-                        if ($newLine != $buffer)
+                        if ($newLine != $buffer) {
                             $content .= $newLine;
+                        }
                     }
                     fclose($h);
                 }
             }
 
-            foreach (glob($cacheDir . 'admin.cachedCss_*.css') as $cache)
+            foreach (glob($cacheDir . 'admin.cachedCss_*.css') as $cache) {
                 @unlink($cache);
+            }
 
             file_put_contents($cacheFile, $content);
             print $content;
@@ -152,12 +160,14 @@ class UIAssets
             if (strpos($jsFile, '*') !== -1) {
                 $folderFiles = find(PATH_WEB . $jsFile, false);
                 foreach ($folderFiles as $file) {
-                    if (!array_search($file, $pFiles))
+                    if (!array_search($file, $pFiles)) {
                         $pFiles[] = $file;
+                    }
                 }
             } else {
-                if (file_exists($jsFile))
+                if (file_exists($jsFile)) {
                     $pFiles[] = $jsFile;
+                }
             }
         }
 

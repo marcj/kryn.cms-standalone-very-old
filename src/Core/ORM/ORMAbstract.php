@@ -2,8 +2,6 @@
 
 namespace Core\ORM;
 
-use Core\Config\Object;
-
 /**
  * ORM Abstract class for objects.
  *
@@ -27,11 +25,11 @@ use Core\Config\Object;
  */
 abstract class ORMAbstract
 {
-  const
-    MANY_TO_ONE = 'nTo1',
-    ONE_TO_MANY = '1ToN',
-    ONE_TO_ONE = '1To1',
-    MANY_TO_MANY = 'nToM';
+    const
+        MANY_TO_ONE = 'nTo1',
+        ONE_TO_MANY = '1ToN',
+        ONE_TO_ONE = '1To1',
+        MANY_TO_MANY = 'nToM';
 
     /**
      * Cached primary key order.
@@ -66,8 +64,9 @@ abstract class ORMAbstract
         $this->objectKey = \Core\Object::getClassName($objectKey);
         $this->definition = $definition;
         foreach ($this->definition->getFields() as $field) {
-            if ($field->isPrimaryKey())
+            if ($field->isPrimaryKey()) {
                 $this->primaryKeys[] = $field->getId();
+            }
         }
     }
 
@@ -80,9 +79,11 @@ abstract class ORMAbstract
      * Returns a field definition.
      *
      * @param  string $pFieldKey
+     *
      * @return array
      */
-    public function &getField($pFieldKey){
+    public function &getField($pFieldKey)
+    {
         return $this->definition['fields'][$pFieldKey];
     }
 
@@ -119,6 +120,7 @@ abstract class ORMAbstract
      *  if the only primary key is named `id`.
      *
      * @param  mixed $pPk
+     *
      * @return array A single primary key as array. Example: array('id' => 1).
      */
     public function normalizePrimaryKey($pPk)
@@ -129,7 +131,7 @@ abstract class ORMAbstract
         } elseif (is_numeric(key($pPk))) {
             $result = array();
             $length = count($this->primaryKeys);
-            for ($i=0; $i<$length; $i++) {
+            for ($i = 0; $i < $length; $i++) {
                 $result[$this->primaryKeys[$i]] = $pPk[$i];
             }
         } else {
@@ -138,7 +140,9 @@ abstract class ORMAbstract
 
         if (count($this->primaryKeys) > count($result)) {
             foreach ($this->primaryKeys as $pk) {
-                if (!$result[$pk]) $result[$pk] = null;
+                if (!$result[$pk]) {
+                    $result[$pk] = null;
+                }
             }
         }
 
@@ -166,11 +170,14 @@ abstract class ORMAbstract
      * 1,45/2,45 => array(array(id => 1, pid = 45), array(id => 2, pid=>45))
      *
      * @param  string $pPk
+     *
      * @return array  Always a array with primary keys as arrays too. So $return[0] is the first primary key array. Example array(array('id' => 4))
      */
     public function primaryStringToArray($pPk)
     {
-        if ($pPk === '') return false;
+        if ($pPk === '') {
+            return false;
+        }
         $groups = explode('/', $pPk);
 
         $result = array();
@@ -184,9 +191,13 @@ abstract class ORMAbstract
 
                 if ($ePos = strpos($value, '=')) {
                     $key = substr($value, 0, $ePos);
-                    $value = substr($value, $ePos+1);
-                    if (!in_array($key, $this->primaryKeys)) continue;
-                } elseif (!$this->primaryKeys[$pos]) continue;
+                    $value = substr($value, $ePos + 1);
+                    if (!in_array($key, $this->primaryKeys)) {
+                        continue;
+                    }
+                } elseif (!$this->primaryKeys[$pos]) {
+                    continue;
+                }
 
                 $key = $this->primaryKeys[$pos];
 
@@ -195,12 +206,15 @@ abstract class ORMAbstract
 
             if (count($this->primaryKeys) > count($item)) {
                 foreach ($this->primaryKeys as $pk) {
-                    if (!$item[$pk]) $item[$pk] = null;
+                    if (!$item[$pk]) {
+                        $item[$pk] = null;
+                    }
                 }
             }
 
-            if (count($item) > 0)
+            if (count($item) > 0) {
                 $result[] = $item;
+            }
         }
 
         return $result;
@@ -218,6 +232,7 @@ abstract class ORMAbstract
      *
      *
      * @abstract
+     *
      * @param array $pPk
      * @param array $pOptions
      *
@@ -243,6 +258,7 @@ abstract class ORMAbstract
      *
      *
      * @abstract
+     *
      * @param array $pCondition Condition object as it is described in function dbConditionToSql() #Extended.
      * @param array $pOptions
      */
@@ -251,6 +267,7 @@ abstract class ORMAbstract
     /**
      *
      * @abstract
+     *
      * @param array $pPk
      *
      */
@@ -258,6 +275,7 @@ abstract class ORMAbstract
 
     /**
      * @abstract
+     *
      * @param array  $pValues
      * @param array  $pTargetPk If nested set
      * @param string $pPosition `first` (child), `last` (last child), `prev` (sibling), `next` (sibling)
@@ -271,8 +289,10 @@ abstract class ORMAbstract
      * Updates an object entry.  This means, all fields which are not defined will be saved as NULL.
      *
      * @abstract
+     *
      * @param  array                  $pPk
      * @param  array                  $pValues
+     *
      * @throws \ObjectItemNotModified
      */
     abstract public function update($pPk, $pValues);
@@ -282,14 +302,17 @@ abstract class ORMAbstract
      * not be overwritten.
      *
      * @abstract
+     *
      * @param  array                  $pPk
      * @param  array                  $pValues
+     *
      * @throws \ObjectItemNotModified
      */
     abstract public function patch($pPk, $pValues);
 
     /**
      * @abstract
+     *
      * @param array $pCondition
      *
      * @return int
@@ -324,6 +347,7 @@ abstract class ORMAbstract
      * @param  array                    $pTargetPk        Full PK as array
      * @param  string                   $pPosition        `first` (child), `last` (last child), `prev` (sibling), `next` (sibling)
      * @param                           $pTargetObjectKey
+     *
      * @throws \NotImplementedException
      */
     public function move($pPk, $pTargetPk, $pPosition = 'first', $pTargetObjectKey = null)
@@ -349,6 +373,7 @@ abstract class ORMAbstract
      * @param  int                      $pDepth     Started with one. One means, only the first level, no children at all.
      * @param  mixed                    $pScope
      * @param  array                    $pOptions
+     *
      * @throws \NotImplementedException
      * @throws \Exception
      *
@@ -356,16 +381,18 @@ abstract class ORMAbstract
      */
     public function getBranch($pPk = null, $pCondition = null, $pDepth = 1, $pScope = null, $pOptions = null)
     {
-        if (!$this->definition['nested']) throw new \Exception(t('Object %s it not a nested set.', $this->objectKey));
+        if (!$this->definition['nested']) {
+            throw new \Exception(t('Object %s it not a nested set.', $this->objectKey));
+        }
         throw new \NotImplementedException(t('getBranch is not implemented.'));
     }
-
 
 
     /**
      * Returns the parent if exists otherwise false.
      *
      * @param  array                    $pPk
+     *
      * @throws \NotImplementedException
      * @return mixed
      */
@@ -381,6 +408,7 @@ abstract class ORMAbstract
      * Each entry has to have also '_objectKey' as value.
      *
      * @param  array                    $pPk
+     *
      * @throws \NotImplementedException
      */
     public function getParents($pPk)
@@ -393,13 +421,16 @@ abstract class ORMAbstract
      * Returns parent's pk, if exists, otherwise null.
      *
      * @param  array $pPk
+     *
      * @return array
      */
     public function getParentId($pPk)
     {
         $object = $this->getParent($pPk);
 
-        if (!$object) return null;
+        if (!$object) {
+            return null;
+        }
 
         if (count($this->primaryKeys) == 1) {
             return $object[key($this->primaryKeys)];

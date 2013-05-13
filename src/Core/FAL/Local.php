@@ -12,24 +12,28 @@ class Local extends FALAbstract
 {
     /**
      * Current root folder.
+     *
      * @var string
      */
     private $root = PATH_WEB;
 
     /**
      * Default permission modes for directories.
+     *
      * @var integer
      */
-    public $dirMode  = 0700;
+    public $dirMode = 0700;
 
     /**
      * Default permission modes for files.
+     *
      * @var integer
      */
     public $fileMode = 0600;
 
     /**
      * Defines whether we chmod the edited file or not.
+     *
      * @var bool
      */
     public $changeMode = true;
@@ -45,11 +49,13 @@ class Local extends FALAbstract
     {
         $root = $this->getRoot();
 
-        if (substr($root, -1) != '/')
+        if (substr($root, -1) != '/') {
             $root .= '/';
+        }
 
-        if (substr($pPath, 0, 1) == '/')
+        if (substr($pPath, 0, 1) == '/') {
             $pPath = substr($pPath, 1);
+        }
 
         return $root . $pPath;
     }
@@ -58,6 +64,7 @@ class Local extends FALAbstract
      * Sets file permissions on file/folder recursively.
      *
      * @param  string                           $pPath
+     *
      * @throws \FileOperationPermittedException
      * @return bool
      */
@@ -65,27 +72,44 @@ class Local extends FALAbstract
     {
         $path = $this->getFullPath($pPath);
 
-        if (!file_exists($path)) return false;
+        if (!file_exists($path)) {
+            return false;
+        }
 
-        if ($this->groupName)
+        if ($this->groupName) {
             if (!chgrp($path, $this->groupName)) {
-                throw new \FileOperationPermittedException(tf('Operation to chgrp the file %s to %s is permitted.', $path, $this->groupName));
+                throw new \FileOperationPermittedException(tf(
+                    'Operation to chgrp the file %s to %s is permitted.',
+                    $path,
+                    $this->groupName
+                ));
             }
+        }
 
         if (is_dir($path)) {
 
-            if (!chmod($path, $this->dirMode))
-                throw new \FileOperationPermittedException(tf('Operation to chmod the folder %s to %o is permitted.', $path, $this->dirMode));
+            if (!chmod($path, $this->dirMode)) {
+                throw new \FileOperationPermittedException(tf(
+                    'Operation to chmod the folder %s to %o is permitted.',
+                    $path,
+                    $this->dirMode
+                ));
+            }
 
-            $sub = find($path.'/*', false);
+            $sub = find($path . '/*', false);
             if (is_array($sub)) {
                 foreach ($sub as $path) {
                     $this->setPermission(substr($path, 0, strlen($this->getRoot())));
                 }
             }
         } elseif (is_file($path)) {
-            if (!chmod($path, $this->fileMode))
-                throw new \FileOperationPermittedException(tf('Operation to chmod the file %s to %o is permitted.', $path, $this->fileMode));
+            if (!chmod($path, $this->fileMode)) {
+                throw new \FileOperationPermittedException(tf(
+                    'Operation to chmod the file %s to %o is permitted.',
+                    $path,
+                    $this->fileMode
+                ));
+            }
         }
 
         return true;
@@ -100,28 +124,28 @@ class Local extends FALAbstract
     public function loadConfig()
     {
         $this->fileMode = 600;
-        $this->dirMode  = 700;
+        $this->dirMode = 700;
 
         if (Kryn::$config['fileGroupPermission'] == 'rw') {
             $this->fileMode += 60;
-            $this->dirMode  += 70;
+            $this->dirMode += 70;
         } elseif (Kryn::$config['fileGroupPermission'] == 'r') {
             $this->fileMode += 40;
-            $this->dirMode  += 50;
+            $this->dirMode += 50;
         }
 
         if (Kryn::$config['fileEveryonePermission'] == 'rw') {
             $this->fileMode += 6;
-            $this->dirMode  += 7;
+            $this->dirMode += 7;
         } elseif (Kryn::$config['fileEveryonePermission'] == 'r') {
             $this->fileMode += 4;
-            $this->dirMode  += 5;
+            $this->dirMode += 5;
         }
 
         $this->fileMode = octdec($this->fileMode);
-        $this->dirMode  = octdec($this->dirMode);
+        $this->dirMode = octdec($this->dirMode);
         $this->groupName = Kryn::$config['fileGroupName'];
-        $this->changeMode = (Kryn::$config['fileNoChangeMode']+0 == 0); //if fileNoChangeMode=false, changeMode will be true
+        $this->changeMode = (Kryn::$config['fileNoChangeMode'] + 0 == 0); //if fileNoChangeMode=false, changeMode will be true
     }
 
     /**
@@ -130,13 +154,16 @@ class Local extends FALAbstract
     public function __construct($pMountPoint, $pParams = null)
     {
         parent::__construct($pMountPoint, $pParams);
-        if ($pParams && $pParams['root']) $this->setRoot($pParams['root']);
+        if ($pParams && $pParams['root']) {
+            $this->setRoot($pParams['root']);
+        }
 
         $this->loadConfig();
     }
 
     /**
      * Gets current root folder for this local layer.
+     *
      * @param string $pRoot
      */
     public function setRoot($pRoot)
@@ -146,6 +173,7 @@ class Local extends FALAbstract
 
     /**
      * Sets current root folder for this local layer.
+     *
      * @return string
      */
     public function getRoot()
@@ -160,15 +188,21 @@ class Local extends FALAbstract
     {
         $path = $this->getFullPath($pPath);
 
-        if (!file_exists(dirname($path)))
+        if (!file_exists(dirname($path))) {
             $this->createFolder(dirname($pPath));
+        }
 
         if (!file_exists($path)) {
             if (($res = file_put_contents($path, $pContent) === false)) {
-                if (is_writable(dirname($path)))
+                if (is_writable(dirname($path))) {
                     throw new \FileIOException(tf('Can not create file %s', $path));
-                else
-                    throw new \FileNotWritableException(tf('Can not create the file %s in %s, since it is not writeable.', $path, dirname($path)));
+                } else {
+                    throw new \FileNotWritableException(tf(
+                        'Can not create the file %s in %s, since it is not writeable.',
+                        $path,
+                        dirname($path)
+                    ));
+                }
             }
             $this->setPermission($pPath);
         }
@@ -178,6 +212,7 @@ class Local extends FALAbstract
 
     /**
      * @param  string                           $pPath The full absolute path
+     *
      * @return bool
      * @throws \FileOperationPermittedException
      * @throws \FileIOException
@@ -187,15 +222,27 @@ class Local extends FALAbstract
         is_dir(dirname($pPath)) or $this->_createFolder(dirname($pPath));
 
         if (!is_dir($pPath)) {
-            if (!@mkdir($pPath))
+            if (!@mkdir($pPath)) {
                 throw new \FileIOException(tf('Can not create folder %s.', $pPath));
+            }
 
-            if ($this->groupName)
-                if (!@chgrp($pPath, $this->groupName))
-                    throw new \FileOperationPermittedException(tf('Operation to chgrp the folder %s to %s is permitted.', $pPath, $this->groupName));
+            if ($this->groupName) {
+                if (!@chgrp($pPath, $this->groupName)) {
+                    throw new \FileOperationPermittedException(tf(
+                        'Operation to chgrp the folder %s to %s is permitted.',
+                        $pPath,
+                        $this->groupName
+                    ));
+                }
+            }
 
-            if (!chmod($pPath, $this->dirMode))
-                throw new \FileOperationPermittedException(tf('Operation to chmod the folder %s to %o is permitted.', $pPath, $this->dirMode));
+            if (!chmod($pPath, $this->dirMode)) {
+                throw new \FileOperationPermittedException(tf(
+                    'Operation to chmod the folder %s to %o is permitted.',
+                    $pPath,
+                    $this->dirMode
+                ));
+            }
         }
 
         return is_dir($pPath);
@@ -206,8 +253,9 @@ class Local extends FALAbstract
      */
     public function createFolder($pPath)
     {
-        if (!file_exists($path = $this->getFullPath($pPath)))
+        if (!file_exists($path = $this->getFullPath($pPath))) {
             return $this->_createFolder($path);
+        }
 
         return false;
     }
@@ -219,18 +267,19 @@ class Local extends FALAbstract
     {
         $path = $this->getFullPath($pPath);
 
-        if (!file_exists($path) )
+        if (!file_exists($path)) {
             $fileCreated = $this->createFile($pPath);
-
-        else if (!is_writable($path))
+        } else if (!is_writable($path)) {
             throw new \FileNotWritableException(tf('File %s is not writable.', $path));
+        }
 
         $res = file_put_contents($path, $pContent);
 
-        if (!$fileCreated && $this->changeMode)
+        if (!$fileCreated && $this->changeMode) {
             $this->setPermission($pPath);
+        }
 
-        return $res === false?false:true;
+        return $res === false ? false : true;
     }
 
     /**
@@ -241,22 +290,28 @@ class Local extends FALAbstract
         $path = $this->getFullPath($path);
         $path = str_replace('..', '', $path);
 
-        if (!file_exists($path))
+        if (!file_exists($path)) {
             return false;
+        }
 
         if (!is_dir($path)) {
             throw new Exceptions\NotADirectoryException();
         };
 
-        if (substr($path,-1) != '/')
+        if (substr($path, -1) != '/') {
             $path .= '/';
+        }
 
         $h = @opendir($path);
-        if (file_exists($path) && !$h) return 3;
+        if (file_exists($path) && !$h) {
+            return 3;
+        }
 
         $items = array();
         while ($file = readdir($h)) {
-            if ($file == '.' || $file == '..') continue;
+            if ($file == '.' || $file == '..') {
+                continue;
+            }
             $file = $path . $file;
 
             $item['path'] = substr($file, strlen($this->getRoot()) - 1);
@@ -285,17 +340,20 @@ class Local extends FALAbstract
     public function getFile($path)
     {
         $path = $this->getFullPath($path);
-        if(!file_exists($path))
-
+        if (!file_exists($path)) {
             return false;
+        }
 
-        if (!is_readable($path)) return -1;
+        if (!is_readable($path)) {
+            return -1;
+        }
 
-        $type = (is_dir($path))?'dir':'file';
+        $type = (is_dir($path)) ? 'dir' : 'file';
 
         $name = basename($path);
-        if($path == $this->getRoot())
+        if ($path == $this->getRoot()) {
             $name = '/';
+        }
 
         $ctime = filectime($path);
         $mtime = filemtime($path);
@@ -309,13 +367,13 @@ class Local extends FALAbstract
         }
 
         return array(
-            'path'  => substr($path, strlen($this->getRoot()) - 1),
-            'name'  => $name,
-            'type'  => $type,
+            'path' => substr($path, strlen($this->getRoot()) - 1),
+            'name' => $name,
+            'type' => $type,
             'ctime' => $ctime,
             'extension' => $extension,
             'mtime' => $mtime,
-            'size'  => filesize($path)
+            'size' => filesize($path)
         );
     }
 
@@ -328,7 +386,7 @@ class Local extends FALAbstract
         $fileCount = 0;
         $folderCount = 0;
 
-        $path = $this->getRoot().$pPath;
+        $path = $this->getRoot() . $pPath;
 
         if ($h = opendir($path)) {
             while (false !== ($file = readdir($h))) {
@@ -361,7 +419,7 @@ class Local extends FALAbstract
      */
     public function fileExists($pPath)
     {
-        return file_exists($this->getRoot().$pPath);
+        return file_exists($this->getRoot() . $pPath);
     }
 
     /**
@@ -369,7 +427,7 @@ class Local extends FALAbstract
      */
     public function getCount($pFolderPath)
     {
-        return count(glob($this->getRoot().$pFolderPath.'/*'));
+        return count(glob($this->getRoot() . $pFolderPath . '/*'));
     }
 
     /**
@@ -377,8 +435,10 @@ class Local extends FALAbstract
      */
     public function copy($pPathSource, $pPathTarget)
     {
-        if (!file_exists($this->getRoot().$pPathSource)) return false;
-        return copyr($this->getRoot().$pPathSource, $this->getRoot().$pPathTarget);
+        if (!file_exists($this->getRoot() . $pPathSource)) {
+            return false;
+        }
+        return copyr($this->getRoot() . $pPathSource, $this->getRoot() . $pPathTarget);
     }
 
     /**
@@ -386,7 +446,7 @@ class Local extends FALAbstract
      */
     public function move($pPathSource, $pPathTarget)
     {
-        return rename($this->getRoot().$pPathSource, $this->getRoot().$pPathTarget);
+        return rename($this->getRoot() . $pPathSource, $this->getRoot() . $pPathTarget);
     }
 
     /**
@@ -394,7 +454,7 @@ class Local extends FALAbstract
      */
     public function getMd5($pPath)
     {
-        return md5_file($this->getRoot().$pPath);
+        return md5_file($this->getRoot() . $pPath);
     }
 
     /**
@@ -402,15 +462,18 @@ class Local extends FALAbstract
      */
     public function getContent($pPath)
     {
-        $pPath = $this->getRoot().$pPath;
+        $pPath = $this->getRoot() . $pPath;
 
-        if (!file_exists($pPath)) return false;
+        if (!file_exists($pPath)) {
+            return false;
+        }
 
         $handle = @fopen($pPath, "r");
         $fs = @filesize($pPath);
 
-        if ($fs > 0)
+        if ($fs > 0) {
             $content = @fread($handle, $fs);
+        }
 
         @fclose($handle);
 
@@ -429,14 +492,15 @@ class Local extends FALAbstract
         $q = str_replace('/', '\/', $pPattern);
 
         foreach ($files as $file) {
-            if (preg_match('/^'.$q.'/i', $file['name'], $match) !== 0) {
+            if (preg_match('/^' . $q . '/i', $file['name'], $match) !== 0) {
                 $result[] = $file;
             }
             if ($file['type'] == 'dir' && ($pDepth == -1 || $pCurrentDepth < $pDepth)) {
-                $newPath = $pPath . ($pPath=='/'?'':'/') . $file['name'];
-                $more = $this->search($newPath, $pPattern, $pDepth, $pCurrentDepth+1);
-                if (is_array($more))
+                $newPath = $pPath . ($pPath == '/' ? '' : '/') . $file['name'];
+                $more = $this->search($newPath, $pPattern, $pDepth, $pCurrentDepth + 1);
+                if (is_array($more)) {
                     $result = array_merge($result, $more);
+                }
             }
         }
 
@@ -448,7 +512,7 @@ class Local extends FALAbstract
      */
     public function getPublicUrl($pPath)
     {
-        return '/'.$this->getRoot().$pPath;
+        return '/' . $this->getRoot() . $pPath;
     }
 
     /**
@@ -456,7 +520,7 @@ class Local extends FALAbstract
      */
     public function remove($pPath)
     {
-        $path = $this->getRoot().$pPath;
+        $path = $this->getRoot() . $pPath;
 
         if (is_dir($path)) {
             delDir($path);
@@ -471,9 +535,11 @@ class Local extends FALAbstract
      */
     public function getPublicAccess($pPath)
     {
-        $path = $this->getRoot().$pPath;
+        $path = $this->getRoot() . $pPath;
 
-        if (!file_exists($path)) return false;
+        if (!file_exists($path)) {
+            return false;
+        }
 
         if (!is_dir($path)) {
             $htaccess = dirname($path) . '/' . '.htaccess';
@@ -494,7 +560,7 @@ class Local extends FALAbstract
 
                     //TODO, what is $res?
                     if ($name == $match[1] || (is_dir($match[1]) && $match[1] == "*")) {
-                        return strtolower($match[2])=='allow'?true:false;
+                        return strtolower($match[2]) == 'allow' ? true : false;
                     }
                 }
             }
@@ -508,7 +574,7 @@ class Local extends FALAbstract
      */
     public function setPublicAccess($pPath, $pAccess = false)
     {
-        $path = $this->getRoot().$pPath;
+        $path = $this->getRoot() . $pPath;
 
         if (!is_dir($path) == 'file') {
             $htaccess = dirname($path) . '/' . '.htaccess';
@@ -535,7 +601,7 @@ class Local extends FALAbstract
         $content = preg_replace('/<Files ' . $filenameesc . '>\W*(\w*) from all[^<]*<\/Files>/i', '', $content);
 
         if ($pAccess !== -1) {
-            $access = $pAccess==true?'Allow':'Deny';
+            $access = $pAccess == true ? 'Allow' : 'Deny';
             $content .= "\n<Files $filename>\n\t$access from all\n</Files>";
         }
 

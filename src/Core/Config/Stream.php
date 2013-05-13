@@ -99,7 +99,8 @@ class Stream extends Model
         return $this->method;
     }
 
-    public function run(&$response) {
+    public function run(&$response)
+    {
         $callable = array($this->getClass(), $this->getMethod());
 
         $parameters = array(&$response);

@@ -1,5 +1,5 @@
 ka.FieldTypes.Condition = new Class({
-    
+
     Extends: ka.FieldAbstract,
 
     options: {
@@ -10,37 +10,40 @@ ka.FieldTypes.Condition = new Class({
 
     dateConditions: ['= NOW()', '!=  NOW()', '<  NOW()', '>  NOW()', '<=  NOW()', '>=  NOW()'],
 
-    createLayout: function(){
+    createLayout: function () {
 
         this.main = new Element('div', {
             'class': 'ka-field-condition-container'
         }).inject(this.fieldInstance.fieldPanel);
 
         new ka.Button(t('Add condition'))
-        .addEvent('click', this.addCondition.bind(this, this.main))
-        .inject(this.fieldInstance.fieldPanel);
+            .addEvent('click', this.addCondition.bind(this, this.main))
+            .inject(this.fieldInstance.fieldPanel);
 
         new ka.Button(t('Add group'))
-        .addEvent('click', this.addGroup.bind(this, this.main))
-        .inject(this.fieldInstance.fieldPanel);
+            .addEvent('click', this.addGroup.bind(this, this.main))
+            .inject(this.fieldInstance.fieldPanel);
 
-        if (this.options.startWith){
-            for(var i=0; i<this.options.startWith;i++)
+        if (this.options.startWith) {
+            for (var i = 0; i < this.options.startWith; i++) {
                 this.addCondition(this.main);
+            }
         }
 
     },
-    
-   reRender: function(pTarget){
+
+    reRender: function (pTarget) {
 
         pTarget.getChildren().removeClass('ka-field-condition-withoutRel');
 
         var first = pTarget.getFirst();
-        if (first) first.addClass('ka-field-condition-withoutRel');
+        if (first) {
+            first.addClass('ka-field-condition-withoutRel');
+        }
 
     },
 
-    addCondition: function(pTarget, pValues, pCondition){
+    addCondition: function (pTarget, pValues, pCondition) {
 
         var div = new Element('div', {
             'class': 'ka-field-condition-item'
@@ -68,12 +71,13 @@ ka.FieldTypes.Condition = new Class({
 
         div.relSelect = relSelect;
 
-        if (pCondition)
+        if (pCondition) {
             relSelect.setValue(pCondition.toUpperCase());
+        }
 
         var td = new Element('td', {style: 'width: 25%'}).inject(tr);
 
-        if (this.options.fields || this.options.field){
+        if (this.options.fields || this.options.field) {
             div.iLeft = new ka.Select(td, {
                 customValue: true
             });
@@ -82,13 +86,14 @@ ka.FieldTypes.Condition = new Class({
 
             objectDefinition = ka.getObjectDefinition(this.options.object);
 
-            if (this.options.field){
+            if (this.options.field) {
 
-                div.iLeft.add(this.options.field, objectDefinition.fields[this.options.field].label||this.options.field);
+                div.iLeft.add(this.options.field,
+                    objectDefinition.fields[this.options.field].label || this.options.field);
                 div.iLeft.setEnabled(false);
 
             } else {
-                Object.each(objectDefinition.fields, function(def, key){
+                Object.each(objectDefinition.fields, function (def, key) {
                     div.iLeft.add(key, def.label || key);
                 }.bind(this));
             }
@@ -97,9 +102,9 @@ ka.FieldTypes.Condition = new Class({
             div.iLeft = new ka.Field({type: 'text', noWrapper: 1}, td);
         }
 
-
-        if (pValues)
+        if (pValues) {
             div.iLeft.setValue(pValues[0]);
+        }
 
         var td = new Element('td', {style: 'width: 41px; text-align: center'}).inject(tr);
 
@@ -107,28 +112,28 @@ ka.FieldTypes.Condition = new Class({
             type: 'select',
             noWrapper: true,
             items: ['=', '!=', '<', '>', '<=', '>=', 'LIKE', 'IN', 'NOT IN', 'REGEXP',
-            '= CURRENT_USER', '!= CURRENT_USER']
+                '= CURRENT_USER', '!= CURRENT_USER']
         }, td);
 
-        if (pValues)
+        if (pValues) {
             div.iMiddle.setValue(pValues[1]);
+        }
 
         div.rightTd = new Element('td', {style: 'width: 25%'}).inject(tr);
 
         div.iRight = new ka.Field({type: 'text', noWrapper: 1}, div.rightTd);
-        if (pValues)
+        if (pValues) {
             div.iRight.setValue(pValues[2]);
+        }
 
-
-        if (this.options.fields || this.options.field){
+        if (this.options.fields || this.options.field) {
             div.iLeft.addEvent('change', this.updateRightTdField.bind(this, div));
             div.iMiddle.addEvent('change', this.updateRightTdField.bind(this, div));
 
             this.updateRightTdField(div);
         }
 
-        var actions = new Element('td', {style: 'width: '+parseInt((16*4)+3)+'px'}).inject(tr);
-
+        var actions = new Element('td', {style: 'width: ' + parseInt((16 * 4) + 3) + 'px'}).inject(tr);
 
         new Element('a', {
             'class': 'text-button-icon',
@@ -136,27 +141,23 @@ ka.FieldTypes.Condition = new Class({
             html: '&#xe2ca;',
             href: 'javascript: ;'
         }).addEvent('click', function () {
-            if (div.getPrevious()){
-                div.inject(div.getPrevious(), 'before');
-                this.reRender(pTarget);
-            }
-        }.bind(this)).inject(actions);
-
-
+                if (div.getPrevious()) {
+                    div.inject(div.getPrevious(), 'before');
+                    this.reRender(pTarget);
+                }
+            }.bind(this)).inject(actions);
 
         new Element('a', {
             'class': 'text-button-icon',
             title: t('Move down'),
             html: '&#xe2cc;',
             href: 'javascript: ;'
-        }).addEvent('click', function(){
-            if (div.getNext()){
-                div.inject(div.getNext(), 'after');
-                this.reRender(pTarget);
-            }
-        }.bind(this)).inject(actions);
-
-
+        }).addEvent('click', function () {
+                if (div.getNext()) {
+                    div.inject(div.getNext(), 'after');
+                    this.reRender(pTarget);
+                }
+            }.bind(this)).inject(actions);
 
         new Element('a', {
             'class': 'text-button-icon',
@@ -164,9 +165,9 @@ ka.FieldTypes.Condition = new Class({
             html: '&#xe26b;',
             href: 'javascript: ;'
         }).addEvent('click', function () {
-            div.destroy();
-            this.reRender(pTarget);
-        }.bind(this)).inject(actions);
+                div.destroy();
+                this.reRender(pTarget);
+            }.bind(this)).inject(actions);
 
         new Element('td', {
             'class': 'ka-field-condition-leftBracket',
@@ -177,28 +178,29 @@ ka.FieldTypes.Condition = new Class({
 
     },
 
-    updateRightTdField: function(div){
+    updateRightTdField: function (div) {
 
         var chosenField = div.iLeft.getValue();
 
         var fieldDefinition = Object.clone(objectDefinition.fields[chosenField]);
 
-        if (div.iRight)
+        if (div.iRight) {
             var backupedValue = div.iRight.getValue();
+        }
 
         delete div.iRight;
 
         div.rightTd.empty();
 
-        if (fieldDefinition.primaryKey){
-            if (['=', '!=', 'IN', 'NOT IN'].contains(div.iMiddle.getValue())){
-                    fieldDefinition = {
-                        type: 'object',
-                        object: this.options.object,
-                        withoutObjectWrapper: true
-                    };
+        if (fieldDefinition.primaryKey) {
+            if (['=', '!=', 'IN', 'NOT IN'].contains(div.iMiddle.getValue())) {
+                fieldDefinition = {
+                    type: 'object',
+                    object: this.options.object,
+                    withoutObjectWrapper: true
+                };
 
-                if (div.iMiddle.getValue() == 'IN'){
+                if (div.iMiddle.getValue() == 'IN') {
                     fieldDefinition.multi = 1;
                 }
             } else {
@@ -206,52 +208,58 @@ ka.FieldTypes.Condition = new Class({
             }
         }
 
-        if (div.iMiddle.getValue() == 'IN' || div.iMiddle.getValue() == 'NOT IN'){
-            if (fieldDefinition.type == 'select')
+        if (div.iMiddle.getValue() == 'IN' || div.iMiddle.getValue() == 'NOT IN') {
+            if (fieldDefinition.type == 'select') {
                 fieldDefinition.type = 'textlist';
-            else
+            }
+            else {
                 fieldDefinition.multi = 1;
+            }
         }
 
-        if (['LIKE', 'REGEXP'].contains(div.iMiddle.getValue())){
+        if (['LIKE', 'REGEXP'].contains(div.iMiddle.getValue())) {
             fieldDefinition = {type: 'text'};
         }
 
-        if (fieldDefinition.type == 'object' && fieldDefinition.object == 'user'){
-            ['= CURRENT_USER', '!= CURRENT_USER'].each(function(item){
+        if (fieldDefinition.type == 'object' && fieldDefinition.object == 'user') {
+            ['= CURRENT_USER', '!= CURRENT_USER'].each(function (item) {
                 div.iMiddle.getFieldObject().getObject().showOption(item);
             });
         } else {
-            ['= CURRENT_USER', '!= CURRENT_USER'].each(function(item){
+            ['= CURRENT_USER', '!= CURRENT_USER'].each(function (item) {
                 div.iMiddle.getFieldObject().getObject().hideOption(item);
             });
         }
 
-        if (fieldDefinition.type == 'date'|| fieldDefinition.type == 'datetime'){
-            this.dateConditions.each(function(item){div.iMiddle.getFieldObject().getObject().add(item);});
+        if (fieldDefinition.type == 'date' || fieldDefinition.type == 'datetime') {
+            this.dateConditions.each(function (item) {
+                div.iMiddle.getFieldObject().getObject().add(item);
+            });
         } else {
-            this.dateConditions.each(function(item){div.iMiddle.getFieldObject().getObject().remove(item);});
+            this.dateConditions.each(function (item) {
+                div.iMiddle.getFieldObject().getObject().remove(item);
+            });
         }
 
         fieldDefinition.noWrapper = true;
         fieldDefinition.fieldWidth = '100%';
 
-        if (!this.dateConditions.contains(div.iMiddle.getValue())){
+        if (!this.dateConditions.contains(div.iMiddle.getValue())) {
 
             div.iRight = new ka.Field(
                 fieldDefinition, div.rightTd
             );
 
-            div.iRight.code = div.iMiddle.getValue()+'_'+chosenField;
+            div.iRight.code = div.iMiddle.getValue() + '_' + chosenField;
 
-            if (backupedValue)
+            if (backupedValue) {
                 div.iRight.setValue(backupedValue);
+            }
         }
 
     },
 
-
-    addGroup: function(pTarget, pValues, pCondition){
+    addGroup: function (pTarget, pValues, pCondition) {
 
         var div = new Element('div', {
             'class': 'ka-field-condition-group'
@@ -268,8 +276,9 @@ ka.FieldTypes.Condition = new Class({
         relSelect.add('OR', 'OR');
         div.relSelect = relSelect;
 
-        if (pCondition)
+        if (pCondition) {
             relSelect.setValue(pCondition.toUpperCase());
+        }
 
         var con = new Element('div', {
             'class': 'ka-field-condition-container'
@@ -277,101 +286,105 @@ ka.FieldTypes.Condition = new Class({
         div.container = con;
 
         new ka.Button(t('Add condition'))
-        .addEvent('click', this.addCondition.bind(this, con))
-        .inject(con, 'before');
+            .addEvent('click', this.addCondition.bind(this, con))
+            .inject(con, 'before');
 
         new ka.Button(t('Add group'))
-        .addEvent('click', this.addGroup.bind(this, con))
-        .inject(con, 'before');
+            .addEvent('click', this.addGroup.bind(this, con))
+            .inject(con, 'before');
 
-        var actions = new Element('span', {style: 'position: relative; top: 3px; width: '+parseInt((16*4)+3)+'px'}).inject(con, 'before');
+        var actions = new Element('span',
+            {style: 'position: relative; top: 3px; width: ' + parseInt((16 * 4) + 3) + 'px'}).inject(con, 'before');
 
-        new Element('img', {src: _path+ PATH_WEB + '/admin/images/icons/arrow_up.png'})
-        .addEvent('click', function(){
-            if (div.getPrevious()){
-                div.inject(div.getPrevious(), 'before');
-                this.reRender(pTarget);
-            }
-        }.bind(this))
-        .inject(actions);
+        new Element('img', {src: _path + PATH_WEB + '/admin/images/icons/arrow_up.png'})
+            .addEvent('click', function () {
+                if (div.getPrevious()) {
+                    div.inject(div.getPrevious(), 'before');
+                    this.reRender(pTarget);
+                }
+            }.bind(this))
+            .inject(actions);
 
-        new Element('img', {src: _path+ PATH_WEB + '/admin/images/icons/arrow_down.png'})
-        .addEvent('click', function(){
-            if (div.getNext()){
-                div.inject(div.getNext(), 'after');
-                this.reRender(pTarget);
-            }
-        }.bind(this))
-        .inject(actions);
+        new Element('img', {src: _path + PATH_WEB + '/admin/images/icons/arrow_down.png'})
+            .addEvent('click', function () {
+                if (div.getNext()) {
+                    div.inject(div.getNext(), 'after');
+                    this.reRender(pTarget);
+                }
+            }.bind(this))
+            .inject(actions);
 
-        new Element('img', {src: _path+ PATH_WEB + '/admin/images/icons/delete.png'})
-        .addEvent('click', function(){
-            this.win._confirm(t('Really delete?'), function(a){
-                if (!a) return;
-                div.destroy();
-                this.reRender(pTarget);
-            }.bind(this));
-        }.bind(this))
-        .inject(actions);
+        new Element('img', {src: _path + PATH_WEB + '/admin/images/icons/delete.png'})
+            .addEvent('click', function () {
+                this.win._confirm(t('Really delete?'), function (a) {
+                    if (!a) {
+                        return;
+                    }
+                    div.destroy();
+                    this.reRender(pTarget);
+                }.bind(this));
+            }.bind(this))
+            .inject(actions);
 
         this.reRender(pTarget);
 
         this.renderValues(pValues, con);
     },
 
-    renderValues: function (pValue, pTarget, pLastRel){
-        if (typeOf(pValue) == 'array'){
+    renderValues: function (pValue, pTarget, pLastRel) {
+        if (typeOf(pValue) == 'array') {
 
             var lastRel = pLastRel || '';
 
-            Array.each(pValue, function(item){
+            Array.each(pValue, function (item) {
 
-                if (typeOf(item) == 'array' && typeOf(item[0]) == 'array'){
+                if (typeOf(item) == 'array' && typeOf(item[0]) == 'array') {
                     //item is a group
                     this.addGroup(pTarget, item, lastRel);
 
-                } else if(typeOf(item) == 'array'){
+                } else if (typeOf(item) == 'array') {
                     //item is a condition
                     this.addCondition(pTarget, item, lastRel);
 
-                } else if(typeOf(item) == 'string'){
+                } else if (typeOf(item) == 'string') {
                     lastRel = item;
                 }
             }.bind(this));
         }
     },
 
-
-    setValue: function(pValue){
+    setValue: function (pValue) {
         this.main.empty();
 
-        if (typeOf(pValue) == 'string'){
+        if (typeOf(pValue) == 'string') {
             try {
                 pValue = JSON.decode(pValue);
-            } catch(e){
+            } catch (e) {
 
             }
         }
 
-        if(typeOf(pValue) == 'array' && typeOf(pValue[0]) == 'string')
+        if (typeOf(pValue) == 'array' && typeOf(pValue[0]) == 'string') {
             pValue = [pValue];
+        }
 
-        if (typeOf(pValue) == 'array'){
+        if (typeOf(pValue) == 'array') {
             this.renderValues(pValue, this.main);
         }
 
     },
 
-    extractValues: function(pTarget){
+    extractValues: function (pTarget) {
 
         var result = [];
 
-        pTarget.getChildren().each(function(item){
+        pTarget.getChildren().each(function (item) {
 
-            if (item.hasClass('ka-field-condition-item')){
+            if (item.hasClass('ka-field-condition-item')) {
 
-                if (!item.hasClass('ka-field-condition-withoutRel'))
+                if (!item.hasClass('ka-field-condition-withoutRel')) {
                     result.push(item.relSelect.getValue());
+                }
 
                 result.push([
                     item.iLeft.getValue(),
@@ -380,9 +393,10 @@ ka.FieldTypes.Condition = new Class({
                 ]);
             }
 
-            if (item.hasClass('ka-field-condition-group')){
-                if (!item.hasClass('ka-field-condition-withoutRel'))
+            if (item.hasClass('ka-field-condition-group')) {
+                if (!item.hasClass('ka-field-condition-withoutRel')) {
                     result.push(item.relSelect.getValue());
+                }
                 result.push(extractValues(item.container));
             }
 
@@ -391,7 +405,7 @@ ka.FieldTypes.Condition = new Class({
         return result;
     },
 
-    getValue: function(){
+    getValue: function () {
         return this.extractValues(this.main);
     }
 

@@ -7,7 +7,6 @@
     border: 1px solid #ccc;
 }
 
-
 .admin-files-sidebar-image-active {
     border: 2px solid #555;
     margin: 6px 4px;
@@ -22,7 +21,6 @@
     bottom: 0px;
     font-size: 12px;
 }
-
 
 .admin-files-edit-fileContainer .CodeMirror-scroll {
     position: absolute;

@@ -5,5 +5,6 @@ namespace Core\Template\Engines;
 /**
  * Template engine None.
  */
-class Tpl extends Smarty {
+class Tpl extends Smarty
+{
 }

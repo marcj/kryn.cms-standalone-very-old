@@ -2,8 +2,8 @@
 
 namespace Core\Models;
 
-use Core\Models\Base\Node as BaseNode;
 use Core\Kryn;
+use Core\Models\Base\Node as BaseNode;
 
 /**
  * Skeleton subclass for representing a row from the 'kryn_system_node' table.
@@ -22,13 +22,14 @@ class Node extends BaseNode
      * Same as getChildren but returns only visible pages and non-folder nodes
      *
      * @param  boolean                 $pWithFolders
+     *
      * @return \PropelObjectCollection
      */
     public function getLinks($pWithFolders = false)
     {
         if ($this->collNestedGetLinks === null) {
 
-            $types = $pWithFolders ? array(0,1,2) : array(0,1);
+            $types = $pWithFolders ? array(0, 1, 2) : array(0, 1);
             $this->collNestedGetLinks = NodeQuery::create()
                 ->childrenOf($this)
                 ->filterByVisible(1)
@@ -49,7 +50,7 @@ class Node extends BaseNode
     {
         $links = $this->getLinks();
 
-        return count($links)!==0;
+        return count($links) !== 0;
 
     }
 
@@ -111,19 +112,20 @@ class Node extends BaseNode
      * @param integer|Node $pPage
      * @param boolean      $pForceFullUrl No matter if the page' domain differs from the current domain, we always
      *                                    return the full URL (means with http://<domain>[/<language>]/<urn>)
+     *
      * @return string|void
      * @static
      */
     public static function getUrl($pPage, $pForceFullUrl = false)
     {
-        $id       = $pPage instanceof Node ? $pPage->getId() : $pPage+0;
-        $domainId = $pPage instanceof Node ? $pPage->getDomainId() : Kryn::getDomainOfPage($pPage+0);
+        $id = $pPage instanceof Node ? $pPage->getId() : $pPage + 0;
+        $domainId = $pPage instanceof Node ? $pPage->getDomainId() : Kryn::getDomainOfPage($pPage + 0);
 
         $urls =& Kryn::getCachedPageToUrl($domainId);
-        $url  = $urls[$id];
+        $url = $urls[$id];
 
         if ($pForceFullUrl || !Kryn::$domain || $domainId != Kryn::$domain->getId()) {
-            $domain = Kryn::$domain ?: Kryn::getDomain($domainId);
+            $domain = Kryn::$domain ? : Kryn::getDomain($domainId);
 
             $domainName = $domain->getRealDomain();
             if ($domain->getMaster() != 1) {
@@ -136,11 +138,13 @@ class Node extends BaseNode
         }
 
         //crop last /
-        if (substr($url, -1) == '/')
+        if (substr($url, -1) == '/') {
             $url = substr($url, 0, -1);
+        }
 
-        if ($url == '/')
+        if ($url == '/') {
             $url = '.';
+        }
 
         return $url;
     }
@@ -153,14 +157,16 @@ class Node extends BaseNode
      */
     public function isActive()
     {
-        if( $this->getId() == \Core\Kryn::$page->getId() ) return true;
+        if ($this->getId() == \Core\Kryn::$page->getId()) {
+            return true;
+        }
 
-        $url  = self::getUrl(\Core\Kryn::$page);
+        $url = self::getUrl(\Core\Kryn::$page);
         $purl = self::getUrl($this);
 
         if ($url && $purl) {
-            $pos = strpos( $url, $purl );
-            if ($url == '/' || $pos != 0  || $pos === false) {
+            $pos = strpos($url, $purl);
+            if ($url == '/' || $pos != 0 || $pos === false) {
                 return false;
             } else {
                 return true;

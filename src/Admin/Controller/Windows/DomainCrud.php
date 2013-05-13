@@ -4,24 +4,24 @@ namespace Admin\Controller\Windows;
 
 class DomainCrud extends \Admin\ObjectCrud
 {
-    public $fields = array (
-  '__General__' => array (
-    'label' => 'General',
-    'type' => 'tab',
-    'children' => array (
-      'domain' => array (
-        'type' => 'predefined',
-        'object' => 'Core\\Domain',
-        'field' => 'domain',
-      ),
-      'master' => array (
-        'type' => 'predefined',
-        'object' => 'Core\\Domain',
-        'field' => 'master',
-      ),
-    ),
-  ),
-);
+    public $fields = array(
+        '__General__' => array(
+            'label' => 'General',
+            'type' => 'tab',
+            'children' => array(
+                'domain' => array(
+                    'type' => 'predefined',
+                    'object' => 'Core\\Domain',
+                    'field' => 'domain',
+                ),
+                'master' => array(
+                    'type' => 'predefined',
+                    'object' => 'Core\\Domain',
+                    'field' => 'master',
+                ),
+            ),
+        ),
+    );
 
     public $defaultLimit = 15;
 

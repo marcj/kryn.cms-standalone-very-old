@@ -15,6 +15,7 @@ use Core\Models\Base\SearchStatsQuery as BaseSearchStatsQuery;
  * long as it does not already exist in the output directory.
  *
  */
-class SearchStatsQuery extends BaseSearchStatsQuery {
+class SearchStatsQuery extends BaseSearchStatsQuery
+{
 
 } // SearchStatsQuery

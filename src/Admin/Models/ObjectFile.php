@@ -2,8 +2,8 @@
 
 namespace Admin\Models;
 
-use Core\WebFile;
 use Core\Kryn;
+use Core\WebFile;
 
 class ObjectFile extends \Core\ORM\Propel
 {
@@ -24,13 +24,13 @@ class ObjectFile extends \Core\ORM\Propel
 
         foreach ($groups as $group) {
 
-            $item          = array();
+            $item = array();
             $primaryGroups = explode(',', $group);
 
             foreach ($primaryGroups as $pos => $value) {
 
                 if ($ePos = strpos($value, '=')) {
-                    $key   = substr($value, 0, $ePos);
+                    $key = substr($value, 0, $ePos);
                     $value = substr($value, $ePos + 1);
                     if (!in_array($key, $this->primaryKeys)) {
                         continue;
@@ -68,7 +68,7 @@ class ObjectFile extends \Core\ORM\Propel
     public function mapPrimaryKey(&$pPrimaryKey)
     {
         if (!is_numeric($pPrimaryKey['id'])) {
-            $file              = WebFile::getFile(urldecode($pPrimaryKey['id']));
+            $file = WebFile::getFile(urldecode($pPrimaryKey['id']));
             $pPrimaryKey['id'] = $file['id'];
         }
     }
@@ -124,7 +124,7 @@ class ObjectFile extends \Core\ORM\Propel
         if (is_array($pPrimaryKey)) {
             $path = is_numeric($pPrimaryKey['id']) ? WebFile::getPath($pPrimaryKey['id']) : $pPrimaryKey['id'];
         } else {
-            $path = $pPrimaryKey ?: '/';
+            $path = $pPrimaryKey ? : '/';
         }
 
         if (!$path) {
@@ -137,7 +137,9 @@ class ObjectFile extends \Core\ORM\Propel
     {
         $path = is_numeric($pPk['id']) ? WebFile::getPath($pPk['id']) : $pPk['id'];
 
-        if ('/' === $path) return array();
+        if ('/' === $path) {
+            return array();
+        }
 
         $result = array();
 
@@ -179,9 +181,9 @@ class ObjectFile extends \Core\ORM\Propel
 
         $files = WebFile::getFiles($path);
 
-        $c      = 0;
+        $c = 0;
         $offset = $pOptions['offset'];
-        $limit  = $pOptions['limit'];
+        $limit = $pOptions['limit'];
         $result = array();
 
         foreach ($files as $file) {

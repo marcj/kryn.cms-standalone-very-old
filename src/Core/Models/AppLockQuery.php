@@ -15,6 +15,7 @@ use Core\Models\Base\AppLockQuery as BaseAppLockQuery;
  * long as it does not already exist in the output directory.
  *
  */
-class AppLockQuery extends BaseAppLockQuery {
+class AppLockQuery extends BaseAppLockQuery
+{
 
 } // AppLockQuery

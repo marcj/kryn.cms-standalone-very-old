@@ -2,14 +2,12 @@
 
 namespace Admin;
 
+use Admin\Controller\ObjectCrudController;
+use Core\Config\EntryPoint;
 use Core\Config\Field;
 use Core\Config\Model;
 use Core\Kryn;
 use Core\Object;
-use Admin\Controller\ObjectCrudController;
-
-use Core\Config\EntryPoint;
-use Symfony\Component\Routing\Exception\InvalidParameterException;
 
 class ObjectCrud
 {
@@ -430,9 +428,9 @@ class ObjectCrud
                 if (is_numeric($key)) {
                     //no special definition
                     $fieldKey = $val;
-                    $field    = $this->fields[$val];
+                    $field = $this->fields[$val];
                 } else {
-                    $field    = $val;
+                    $field = $val;
                     $fieldKey = $key;
                 }
 
@@ -465,9 +463,9 @@ class ObjectCrud
 
     public function getInfo()
     {
-        $vars      = get_object_vars($this);
+        $vars = get_object_vars($this);
         $blacklist = array('objectDefinition', 'entryPoint');
-        $result    = array();
+        $result = array();
 
         foreach ($vars as $var => $val) {
             if (in_array($var, $blacklist)) {
@@ -666,14 +664,14 @@ class ObjectCrud
 
         $options['permissionCheck'] = $this->permissionCheck;
         */
-        $obj        = \Core\Object::getClass($this->object);
+        $obj = \Core\Object::getClass($this->object);
         $primaryKey = $obj->normalizePrimaryKey($pPk);
-        $items      = $this->getItems();
+        $items = $this->getItems();
 
         $position = 0;
 
         if (count($primaryKey) == 1) {
-            $singlePrimaryKey   = key($primaryKey);
+            $singlePrimaryKey = key($primaryKey);
             $singlePrimaryValue = current($primaryKey);
         }
 
@@ -719,10 +717,10 @@ class ObjectCrud
      */
     public function getItems($pFilter = null, $pLimit = null, $pOffset = null)
     {
-        $options                    = array();
+        $options = array();
         $options['permissionCheck'] = $this->getPermissionCheck();
-        $options['offset']          = $pOffset;
-        $options['limit']           = $pLimit ? $pLimit : $this->defaultLimit;
+        $options['offset'] = $pOffset;
+        $options['limit'] = $pLimit ? $pLimit : $this->defaultLimit;
 
         $condition = $this->getCondition();
 
@@ -803,7 +801,7 @@ class ObjectCrud
     {
         //use default fields from object definition
         $definition = $this->objectDefinition;
-        $fields     = array();
+        $fields = array();
 
         if ($pFields && $this->getAllowCustomSelectFields()) {
             if (is_array($pFields)) {
@@ -857,10 +855,10 @@ class ObjectCrud
         $pLimit = null,
         $pOffset = null
     ) {
-        $options                    = array();
+        $options = array();
         $options['permissionCheck'] = $this->getPermissionCheck();
-        $options['offset']          = $pOffset;
-        $options['limit']           = $pLimit ? $pLimit : $this->defaultLimit;
+        $options['offset'] = $pOffset;
+        $options['limit'] = $pLimit ? $pLimit : $this->defaultLimit;
 
         $condition = $this->getCondition();
 
@@ -934,7 +932,7 @@ class ObjectCrud
             $condition = !$condition ? $extraCondition : array($condition, 'AND', $extraCondition);
         }
 
-        $options['order']           = $this->getOrder();
+        $options['order'] = $this->getOrder();
         $options['permissionCheck'] = $this->getPermissionCheck();
 
         $options['fields'] = array_keys($this->getColumns());
@@ -953,7 +951,7 @@ class ObjectCrud
 
     public function getParent($pPk)
     {
-        $options    = array('permissionCheck' => $this->getPermissionCheck());
+        $options = array('permissionCheck' => $this->getPermissionCheck());
         $primaryKey = Object::normalizePkString($this->object, $pPk);
 
         return \Core\Object::getParent($this->object, $primaryKey, $options);
@@ -962,7 +960,7 @@ class ObjectCrud
 
     public function getParents($pPk)
     {
-        $options    = array('permissionCheck' => $this->getPermissionCheck());
+        $options = array('permissionCheck' => $this->getPermissionCheck());
         $primaryKey = Object::normalizePkString($this->object, $pPk);
 
         return \Core\Object::getParents($this->object, $primaryKey, $options);
@@ -1216,7 +1214,7 @@ class ObjectCrud
      */
     public function remove($pPk)
     {
-        $this->primaryKey           = $pPk;
+        $this->primaryKey = $pPk;
         $options['permissionCheck'] = $this->getPermissionCheck();
 
         return \Core\Object::remove($this->object, $pPk, $options);
@@ -1235,7 +1233,7 @@ class ObjectCrud
     {
         $this->primaryKey = $pPk;
 
-        $options['fields']          = '';
+        $options['fields'] = '';
         $options['permissionCheck'] = $this->getPermissionCheck();
 
         //collect values
@@ -1273,7 +1271,7 @@ class ObjectCrud
     {
         $this->primaryKey = $pPk;
 
-        $options['fields']          = '';
+        $options['fields'] = '';
         $options['permissionCheck'] = $this->getPermissionCheck();
 
         //collect values
@@ -1369,11 +1367,11 @@ class ObjectCrud
      */
     public function prepareRow(&$pItem)
     {
-        $visible    = true;
-        $editable   = $this->edit;
+        $visible = true;
+        $editable = $this->edit;
         $deleteable = $this->remove;
 
-        $pItem['_editable']   = $editable;
+        $pItem['_editable'] = $editable;
         $pItem['_deleteable'] = $deleteable;
 
     }
@@ -1543,7 +1541,7 @@ class ObjectCrud
      */
     public function setFields($fields)
     {
-        $this->fields  = $fields;
+        $this->fields = $fields;
         $this->_fields = array();
         $this->prepareFieldItem($this->fields);
     }

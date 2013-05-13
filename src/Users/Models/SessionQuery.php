@@ -15,6 +15,7 @@ use Users\Models\Base\SessionQuery as BaseSessionQuery;
  * long as it does not already exist in the output directory.
  *
  */
-class SessionQuery extends BaseSessionQuery {
+class SessionQuery extends BaseSessionQuery
+{
 
 } // SessionQuery

@@ -48,47 +48,55 @@ ka.FieldForm = new Class({
         this.main = document.id(pContainer);
         this.definition = pFieldDefinition;
 
-        if (Object.getLength(pFieldDefinition) == 0) return false;
+        if (Object.getLength(pFieldDefinition) == 0) {
+            return false;
+        }
 
         this.parseLevel(pFieldDefinition, this.main);
 
         //parse all fields which have 'againstField'
-        Object.each(this.fields, function(obj, id){
+        Object.each(this.fields, function (obj, id) {
 
             obj.addEvent('change', this.fireChange);
 
-            if(obj.field.againstField){
-                if (typeOf(obj.field.againstField) == 'array'){
+            if (obj.field.againstField) {
+                if (typeOf(obj.field.againstField) == 'array') {
 
-                    var check = function(){
+                    var check = function () {
 
                         var visible = false;
-                        Array.each(obj.field.againstField, function(fieldKey){
-                            if(self.getVisibility(self.fields[fieldKey], obj))
+                        Array.each(obj.field.againstField, function (fieldKey) {
+                            if (self.getVisibility(self.fields[fieldKey], obj)) {
                                 visible = true;
+                            }
                         });
 
-                        if (visible) obj.show(); else obj.hide();
+                        if (visible) {
+                            obj.show();
+                        } else {
+                            obj.hide();
+                        }
 
                         self.updateChildrenContainerVisibility(this);
                     };
 
-                    Array.each(obj.field.againstField, function(fieldKey){
+                    Array.each(obj.field.againstField, function (fieldKey) {
                         this.fields[fieldKey].addEvent('check-depends', check);
                     }.bind(this));
 
                     check();
 
-                    Array.each(obj.field.againstField, function(fieldKey){
+                    Array.each(obj.field.againstField, function (fieldKey) {
                         this.updateChildrenContainerVisibility(this.fields[fieldKey]);
                     }.bind(this));
 
                 } else {
-                    if (this.fields[obj.field.againstField]){
-                        this.fields[obj.field.againstField].addEvent('check-depends', function(){
+                    if (this.fields[obj.field.againstField]) {
+                        this.fields[obj.field.againstField].addEvent('check-depends', function () {
                             this.updateVisibility(this.fields[obj.field.againstField], obj);
-                            if (obj.hasParent())
+                            if (obj.hasParent()) {
                                 self.updateChildrenContainerVisibility(obj.getParent());
+                            }
                         }.bind(this));
                         this.fields[obj.field.againstField].fireEvent('check-depends');
                     } else {
@@ -103,13 +111,13 @@ ka.FieldForm = new Class({
      * Returns all field instances from type 'tab'.
      * @return {Object}
      */
-    getTabButtons: function(){
+    getTabButtons: function () {
 
         var res = {};
 
-        Object.each(this.definition, function(item, key){
+        Object.each(this.definition, function (item, key) {
 
-            if (item.type == 'tab'){
+            if (item.type == 'tab') {
                 res[key] = this.fields[key];
             }
 
@@ -130,12 +138,13 @@ ka.FieldForm = new Class({
     /**
      * Fires a change event and handles some internal stuff.
      */
-    fireChange: function(){
+    fireChange: function () {
 
         this.fireEvent('change');
 
-        if (this.options.saveButton !== false)
+        if (this.options.saveButton !== false) {
             this.options.saveButton.setEnabled(this.isValid());
+        }
     },
 
     /**
@@ -149,7 +158,9 @@ ka.FieldForm = new Class({
     parseLevel: function (pLevel, pContainer, pDependField) {
         var self = this;
 
-        if (pDependField && !pDependField.children) pDependField.children = {};
+        if (pDependField && !pDependField.children) {
+            pDependField.children = {};
+        }
 
         Object.each(pLevel, function (field, id) {
 
@@ -159,73 +170,85 @@ ka.FieldForm = new Class({
             }
 
             //json to objects
-            Object.each(field, function(item,itemId){
-                if(typeOf(item) != 'string') return;
+            Object.each(field, function (item, itemId) {
+                if (typeOf(item) != 'string') {
+                    return;
+                }
                 var newItem = false;
 
                 try {
 
                     //check if json array
-                    if (item.substr(0,1) == '[' && item.substr(item.length-1) == ']'&&
-                        item.substr(0,2) != '[[' && item.substr(item.length-2) != ']]')
+                    if (item.substr(0, 1) == '[' && item.substr(item.length - 1) == ']' &&
+                        item.substr(0, 2) != '[[' && item.substr(item.length - 2) != ']]') {
                         newItem = JSON.decode(item);
+                    }
 
                     //check if json object
-                    if (item.substr(0,1) == '{' && item.substr(item.length-1,1) == '}')
+                    if (item.substr(0, 1) == '{' && item.substr(item.length - 1, 1) == '}') {
                         newItem = JSON.decode(item);
+                    }
 
-                } catch(e){}
+                } catch (e) {
+                }
 
-                if (newItem)
+                if (newItem) {
                     field[itemId] = newItem;
+                }
 
             });
 
-            if (typeOf(field.tableItem) == 'null' && this.options.allTableItems && field.type != 'tab')
+            if (typeOf(field.tableItem) == 'null' && this.options.allTableItems && field.type != 'tab') {
                 field.tableItem = 1;
+            }
 
-            if (typeOf(field.small) == 'null' && this.options.allSmall && field.type != 'tab')
+            if (typeOf(field.small) == 'null' && this.options.allSmall && field.type != 'tab') {
                 field.small = 1;
+            }
 
-            if (this.options.tableItemLabelWidth)
+            if (this.options.tableItemLabelWidth) {
                 field.tableItemLabelWidth = this.options.tableItemLabelWidth;
+            }
 
             var target = pContainer.getElement('*[id=' + field.target + ']') ||
-                         pContainer.getElement('*[id=' + id + ']') ||
-                         pContainer.getElement('*[id=__default__]');
+                pContainer.getElement('*[id=' + id + ']') ||
+                pContainer.getElement('*[id=__default__]');
 
-            if (!target)
+            if (!target) {
                 target = pContainer;
+            }
 
-            if (field.children)
+            if (field.children) {
                 field.depends = field.children;
-            
-            if( field.type == 'tab'){
+            }
+
+            if (field.type == 'tab') {
                 var tab;
 
-                if (!pDependField && !this.firstLevelTabPane){
-                    if (this.options.firstLevelTabPane){
+                if (!pDependField && !this.firstLevelTabPane) {
+                    if (this.options.firstLevelTabPane) {
                         this.firstLevelTabPane = this.options.firstLevelTabPane;
                     } else {
-                        if (this.options.tabsInWindowHeader){
+                        if (this.options.tabsInWindowHeader) {
                             this.firstLevelTabPane = new ka.TabPane(target, true, this.refs.win);
                         } else {
                             this.firstLevelTabPane = new ka.TabPane(target, field.tabFullPage ? true : false);
                         }
                     }
-                } else if(pDependField){
+                } else if (pDependField) {
                     //this tabPane is not on first level
-                    if (!target.tabPane)
-                        target.tabPane = new ka.TabPane(target, field.tabFullPage?true:false);
+                    if (!target.tabPane) {
+                        target.tabPane = new ka.TabPane(target, field.tabFullPage ? true : false);
+                    }
                 }
 
-                if (pDependField){
+                if (pDependField) {
                     pDependField.tabPane.addPane(field.label, field.icon);
                 } else {
                     tab = this.firstLevelTabPane.addPane(field.label, field.icon);
                 }
 
-                if (field.layout){
+                if (field.layout) {
                     tab.pane.set('html', field.layout);
                 }
 
@@ -233,17 +256,22 @@ ka.FieldForm = new Class({
                 obj.childContainer = tab.pane;
                 obj.parent = pDependField;
                 obj.depends = {};
-                obj.toElement = function(){return tab.button; };
+                obj.toElement = function () {
+                    return tab.button;
+                };
 
-                obj.setValue = function(){return true;};
-                obj.getValue = function(){return true;};
+                obj.setValue = function () {
+                    return true;
+                };
+                obj.getValue = function () {
+                    return true;
+                };
                 obj.field = field;
                 obj.handleChildsMySelf = true;
 
             } else {
                 obj = new ka.Field(field, target, id);
             }
-
 
             if (pDependField) {
                 obj.parent = pDependField;
@@ -252,13 +280,13 @@ ka.FieldForm = new Class({
 
             if (field.depends) {
 
-                if (!obj.childContainer){
+                if (!obj.childContainer) {
                     obj.prepareChildContainer();
                 }
 
                 this.parseLevel(field.depends, obj.childContainer, obj);
 
-                if (!obj.handleChildsMySelf){
+                if (!obj.handleChildsMySelf) {
 
                     obj.addEvent('check-depends', function () {
 
@@ -268,7 +296,9 @@ ka.FieldForm = new Class({
                                 subid = sub.id;
                             }
 
-                            if (sub.field.againstField && sub.field.againstField != id) return;
+                            if (sub.field.againstField && sub.field.againstField != id) {
+                                return;
+                            }
 
                             self.updateVisibility(this, sub);
 
@@ -284,13 +314,14 @@ ka.FieldForm = new Class({
 
             this.attachField(id, obj);
 
-            if (pDependField)
+            if (pDependField) {
                 pDependField.children[id] = obj;
+            }
 
         }.bind(this));
     },
 
-    attachField: function(pId, pObj){
+    attachField: function (pId, pObj) {
         this.fields[pId] = pObj;
     },
 
@@ -298,15 +329,19 @@ ka.FieldForm = new Class({
      * Updates the visibility of the children container.
      * @param pObj
      */
-    updateChildrenContainerVisibility: function(pObj){
+    updateChildrenContainerVisibility: function (pObj) {
 
-        if (pObj.handleChildsMySelf) return;
+        if (pObj.handleChildsMySelf) {
+            return;
+        }
 
-        if (!pObj.childContainer) return;
+        if (!pObj.childContainer) {
+            return;
+        }
 
         var hasVisibleChilds = false;
 
-        Object.each(pObj.children, function(sub) {
+        Object.each(pObj.children, function (sub) {
             if (!sub.isHidden()) {
                 hasVisibleChilds = true;
             }
@@ -326,25 +361,30 @@ ka.FieldForm = new Class({
      * @param pTarget
      * @param pField
      */
-    updateVisibility: function(pTarget, pField){
+    updateVisibility: function (pTarget, pField) {
 
         var visible = this.getVisibility(pTarget, pField);
-        if (visible)
+        if (visible) {
             pField.show();
-        else
+        }
+        else {
             pField.hide();
+        }
     },
 
-    setVisibility: function(pTarget, pVisible){
+    setVisibility: function (pTarget, pVisible) {
 
         var field = pTarget;
-        if (typeOf(pTarget) == 'string')
+        if (typeOf(pTarget) == 'string') {
             field = this.getField(pTarget);
+        }
 
-        if (pVisible)
+        if (pVisible) {
             field.show();
-        else
+        }
+        else {
             field.hide();
+        }
 
     },
 
@@ -355,12 +395,18 @@ ka.FieldForm = new Class({
      * @param pField
      * @return {Boolean}
      */
-    getVisibility: function(pTarget, pField){
+    getVisibility: function (pTarget, pField) {
 
-        if (pTarget.isHidden()) return false;
+        if (pTarget.isHidden()) {
+            return false;
+        }
 
-        if (typeOf(pField.field.needValue) == 'null') return true;
-        if (pField.field.needValue === '') return true;
+        if (typeOf(pField.field.needValue) == 'null') {
+            return true;
+        }
+        if (pField.field.needValue === '') {
+            return true;
+        }
 
         if (typeOf(pField.field.needValue) == 'array') {
             if (pField.field.needValue.contains(pTarget.getValue())) {
@@ -376,12 +422,12 @@ ka.FieldForm = new Class({
             }
         } else if (typeOf(pField.field.needValue) == 'string' || typeOf(pField.field.needValue) == 'number') {
             var c = 'javascript:';
-            if (typeOf(pField.field.needValue) == 'string' && pField.field.needValue.substr(0,c.length) == c){
+            if (typeOf(pField.field.needValue) == 'string' && pField.field.needValue.substr(0, c.length) == c) {
 
                 var evalString = pField.field.needValue.substr(c);
                 var value = pTarget.getValue();
                 var result = eval(evalString);
-                return (result)?true:false;
+                return (result) ? true : false;
 
             } else {
                 if (pField.field.needValue == pTarget.getValue()) {
@@ -401,16 +447,18 @@ ka.FieldForm = new Class({
      *
      * @return {Boolean}
      */
-    checkValid: function(){
+    checkValid: function () {
 
         var ok = true;
         Object.each(this.fields, function (field, id) {
 
-            if (id.substr(0,2) == '__' && id.substr(id.length-2) == '__')
+            if (id.substr(0, 2) == '__' && id.substr(id.length - 2) == '__') {
                 return;
+            }
 
-            if (field.isHidden())
+            if (field.isHidden()) {
                 return;
+            }
 
             if (!field.checkValid()) {
                 ok = false;
@@ -433,11 +481,13 @@ ka.FieldForm = new Class({
         var ok = true;
         Object.each(this.fields, function (field, id) {
 
-            if (id.substr(0,2) == '__' && id.substr(id.length-2) == '__')
+            if (id.substr(0, 2) == '__' && id.substr(id.length - 2) == '__') {
                 return;
+            }
 
-            if (field.isHidden())
+            if (field.isHidden()) {
                 return;
+            }
 
             if (!field.isValid()) {
                 ok = false;
@@ -458,11 +508,13 @@ ka.FieldForm = new Class({
         var fields = {};
         Object.each(this.fields, function (field, id) {
 
-            if (id.substr(0,2) == '__' && id.substr(id.length-2) == '__')
+            if (id.substr(0, 2) == '__' && id.substr(id.length - 2) == '__') {
                 return;
+            }
 
-            if (field.isHidden())
+            if (field.isHidden()) {
                 return;
+            }
 
             if (!field.isValid()) {
                 fields[id] = field;
@@ -528,19 +580,23 @@ ka.FieldForm = new Class({
 
         if (pField) {
 
-            if (this.fields[pField])
+            if (this.fields[pField]) {
                 res = this.fields[pField].getValue();
-            else
+            }
+            else {
                 return null;
+            }
 
         } else {
             Object.each(this.fields, function (obj, id) {
 
-                if (id.substr(0,2) == '__' && id.substr(id.length-2) == '__')
+                if (id.substr(0, 2) == '__' && id.substr(id.length - 2) == '__') {
                     return;
+                }
 
-                if (obj.isHidden())
+                if (obj.isHidden()) {
                     return;
+                }
 
                 if (id.indexOf('[') != -1) {
                     var items = id.split('[');
@@ -557,8 +613,9 @@ ka.FieldForm = new Class({
                             if (typeOf(val) !== 'null'
                                 && (val !== '' || this.options.withEmptyFields)
                                 && (val !== obj.options['default'] || obj.options.returnDefault)
-                                )
+                                ) {
                                 last[key] = val;
+                            }
 
                         } else {
                             last[key] = {};
@@ -572,7 +629,7 @@ ka.FieldForm = new Class({
                     if (typeOf(val) !== 'null'
                         && (val !== '' || this.options.withEmptyFields)
                         && (val !== obj.options['default'] || obj.options.returnDefault)
-                        ){
+                        ) {
                         res[id] = val;
                     }
                 }

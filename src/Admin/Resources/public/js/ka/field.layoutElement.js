@@ -141,15 +141,18 @@ ka.field_layoutElement = new Class({
 
         var selected = 0;
 
-        if (!this.layoutElement) return;
-        if (!this.layoutElement.layoutBoxes) return;
+        if (!this.layoutElement) {
+            return;
+        }
+        if (!this.layoutElement.layoutBoxes) {
+            return;
+        }
 
         Object.each(this.layoutElement.layoutBoxes, function (box, id) {
             box.deselectAll(pContent);
         });
 
     },
-
 
     getBaseUrl: function () {
         return _baseUrl;

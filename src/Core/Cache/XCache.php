@@ -18,8 +18,9 @@ class XCache implements CacheInterface
      */
     public function testConfig($pConfig)
     {
-        if (!function_exists('xcache_set'))
+        if (!function_exists('xcache_set')) {
             throw new \Exception('The module Apc is not activated in your PHP environment.');
+        }
 
         return true;
     }

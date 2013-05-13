@@ -11,12 +11,12 @@ var users_acl = new Class({
 
     currentAcls: [],
 
-    initialize: function(pWin){
+    initialize: function (pWin) {
         this.win = pWin;
         this.createLayout();
     },
 
-    createLayout: function(){
+    createLayout: function () {
 
         this.win.extendHead();
 
@@ -34,17 +34,19 @@ var users_acl = new Class({
             'class': 'text gradient users-acl-query',
             type: 'text'
         })
-        .addEvent('keyup', function(){
-            if (this.timeout) clearTimeout(this.timeout);
-            this.timeout = this.loadList.delay(100, this);
-        }.bind(this))
-        .addEvent('mousedown', function(e){
-            e.stopPropagation();
-        })
-        .inject(this.win.titleGroups);
+            .addEvent('keyup', function () {
+                if (this.timeout) {
+                    clearTimeout(this.timeout);
+                }
+                this.timeout = this.loadList.delay(100, this);
+            }.bind(this))
+            .addEvent('mousedown', function (e) {
+                e.stopPropagation();
+            })
+            .inject(this.win.titleGroups);
 
         this.qImage = new Element('img', {
-            src: _path+ PATH_WEB + '/admin/images/icon-search-loupe.png',
+            src: _path + PATH_WEB + '/admin/images/icon-search-loupe.png',
             style: 'position: absolute; left: 11px; top: 8px;'
         }).inject(this.win.titleGroups);
 
@@ -67,12 +69,12 @@ var users_acl = new Class({
         this.loadList();
     },
 
-    loadObjectRules: function(pObjectKey){
+    loadObjectRules: function (pObjectKey) {
 
 
         //ka.getObjectDefinition(pObjectKey);
         this.currentObject = pObjectKey;
-        logger('loadObjectRules: '+this.currentObject);
+        logger('loadObjectRules: ' + this.currentObject);
 
         this.btnAddExact.setStyle('display', 'none');
 
@@ -83,7 +85,7 @@ var users_acl = new Class({
 
         this.currentDefinition = ka.getObjectDefinition(pObjectKey);
 
-        if (this.currentDefinition.nested){
+        if (this.currentDefinition.nested) {
 
             var options = {
                 type: 'tree',
@@ -92,15 +94,15 @@ var users_acl = new Class({
                 move: false,
                 withContext: false,
                 noWrapper: true,
-                onReady: function(){
+                onReady: function () {
                     this.renderTreeRules();
                 }.bind(this),
-                onChildrenLoaded: function(){
+                onChildrenLoaded: function () {
                     this.renderTreeRules();
                 }.bind(this)
             };
 
-            if (this.currentDefinition.nestedRootObject){
+            if (this.currentDefinition.nestedRootObject) {
 
                 var objectChooser = new Element('div').inject(this.objectsExactContainer);
                 var objectTreeContainer = new Element('div').inject(this.objectsExactContainer);
@@ -109,7 +111,7 @@ var users_acl = new Class({
                     object: this.currentDefinition.nestedRootObject
                 });
 
-                field.addEvent('change', function(){
+                field.addEvent('change', function () {
                     objectTreeContainer.getChildren().destroy();
 
                     options.scope = field.getValue();
@@ -119,7 +121,7 @@ var users_acl = new Class({
 
                 }.bind(this));
 
-                field.addEvent('ready', function(){
+                field.addEvent('ready', function () {
                     field.fireEvent('change', field.getValue());
                 });
             } else {
@@ -143,19 +145,24 @@ var users_acl = new Class({
 
     },
 
-    mapObjectTreeEvent: function(){
+    mapObjectTreeEvent: function () {
 
-        document.id(this.lastObjectTree.getFieldObject().getTree()).addEvent('mouseover', function(pEvent){
+        document.id(this.lastObjectTree.getFieldObject().getTree()).addEvent('mouseover', function (pEvent) {
 
             var target = pEvent.target;
-            if (!target) return false;
-
-            if (!target.hasClass('ka-objectTree-item') && !(target = target.getParent('.ka-objectTree-item')))
+            if (!target) {
                 return false;
+            }
+
+            if (!target.hasClass('ka-objectTree-item') && !(target = target.getParent('.ka-objectTree-item'))) {
+                return false;
+            }
 
             delete target.isMouseOut;
 
-            if (target.lastPlusSign) return target.lastPlusSign.fade('show');
+            if (target.lastPlusSign) {
+                return target.lastPlusSign.fade('show');
+            }
 
             target.lastPlusSign = new Element('a', {
                 href: 'javascript:;',
@@ -166,32 +173,35 @@ var users_acl = new Class({
 
             target.set('fade', {link: 'cancel'});
 
-            target.lastPlusSign.addEvent('click', function(e){
+            target.lastPlusSign.addEvent('click', function (e) {
                 e.stopPropagation();
                 this.openEditRuleDialog(this.currentObject, {constraint_type: 1, constraint_code: target.id});
             }.bind(this));
 
         }.bind(this));
 
-        document.id(this.lastObjectTree.getFieldObject().getTree()).addEvent('mouseout', function(pEvent){
+        document.id(this.lastObjectTree.getFieldObject().getTree()).addEvent('mouseout', function (pEvent) {
 
             var target = pEvent.target;
-            if (!target) return false;
-
-            if (!target.hasClass('ka-objectTree-item') && !(target = target.getParent('.ka-objectTree-item')))
+            if (!target) {
                 return false;
+            }
+
+            if (!target.hasClass('ka-objectTree-item') && !(target = target.getParent('.ka-objectTree-item'))) {
+                return false;
+            }
 
             target.isMouseOut = true;
 
-            target.lastTimer = (function(){
-                if (target.lastPlusSign && target.isMouseOut){
+            target.lastTimer = (function () {
+                if (target.lastPlusSign && target.isMouseOut) {
                     target.lastPlusSign.fade('hide');
                 }
             }).delay(30);
 
         });
 
-        this.lastObjectTree.addEvent('select', function(item, dom){
+        this.lastObjectTree.addEvent('select', function (item, dom) {
 
             if (!dom.rules) {
                 this.lastObjectTree.getFieldObject().getTree().deselect();
@@ -204,25 +214,32 @@ var users_acl = new Class({
 
     },
 
-    renderTreeRules: function(){
+    renderTreeRules: function () {
 
+        Array.each(this.currentAcls, function (rule) {
+            if (rule.object.toLowerCase() != this.currentObject.toLowerCase()) {
+                return;
+            }
 
-        Array.each(this.currentAcls, function(rule){
-            if (rule.object.toLowerCase() != this.currentObject.toLowerCase()) return;
-
-            if (rule.constraint_type == 1){
+            if (rule.constraint_type == 1) {
 
                 var item = this.lastObjectTree.getFieldObject().getTree().getItem(rule.constraint_code);
 
-                if (!item) return false;
+                if (!item) {
+                    return false;
+                }
 
-                if (!item.rules) item.rules = [];
+                if (!item.rules) {
+                    item.rules = [];
+                }
 
-                if (item.rules.contains(rule)) return;
+                if (item.rules.contains(rule)) {
+                    return;
+                }
 
                 item.rules.push(rule);
 
-                if (rule.sub && !item.usersAclSubLine){
+                if (rule.sub && !item.usersAclSubLine) {
                     item.usersAclSubLine = new Element('div', {
                         style: 'position: absolute;top: 15px; bottom: 0px; border-right: 1px solid gray;'
                     }).inject(item);
@@ -231,19 +248,19 @@ var users_acl = new Class({
                         style: 'position: absolute; top: 0px; bottom: 0px; border-right: 1px solid gray;'
                     }).inject(item.getNext());
 
-                    [item.usersAclSubLine, item.usersAclSubLineChildren].each(function(dom){
-                        dom.setStyle('left', item.getStyle('padding-left').toInt()+7);
+                    [item.usersAclSubLine, item.usersAclSubLineChildren].each(function (dom) {
+                        dom.setStyle('left', item.getStyle('padding-left').toInt() + 7);
                     });
                 }
 
-                if (!item.usersAclCounter){
+                if (!item.usersAclCounter) {
                     item.usersAclCounter = new Element('span', {
                         text: '(1)',
                         style: 'color: green;'
                     }).inject(item.span);
                     item.usersAclCounter.ruleCount = 1;
                 } else {
-                    item.usersAclCounter.set('text', ' ('+(item.usersAclCounter.ruleCount++)+')');
+                    item.usersAclCounter.set('text', ' (' + (item.usersAclCounter.ruleCount++) + ')');
                 }
 
             }
@@ -252,7 +269,7 @@ var users_acl = new Class({
 
     },
 
-    renderObjectRules: function(){
+    renderObjectRules: function () {
 
         logger(this.currentAcls);
         this.currentAcls.sortOn('prio', Array.DESCENDING);
@@ -273,91 +290,100 @@ var users_acl = new Class({
 
         var all = 0;
 
-        Array.each(this.currentAcls, function(rule){
-            if (rule.object.toLowerCase() != this.currentObject.toLowerCase()) return;
+        Array.each(this.currentAcls, function (rule) {
+            if (rule.object.toLowerCase() != this.currentObject.toLowerCase()) {
+                return;
+            }
 
             all++;
             modeCounter[parseInt(rule.mode)]++;
 
-            if (rule.constraint_type == 2){
+            if (rule.constraint_type == 2) {
                 ruleCounter.custom++;
-            } else if (rule.constraint_type == 1){
+            } else if (rule.constraint_type == 1) {
                 ruleCounter.exact++;
-            } else
+            } else {
                 ruleCounter.all++;
+            }
 
-            if (rule.constraint_type >= 1){
+            if (rule.constraint_type >= 1) {
 
-                if (!ruleGrouped[rule.constraint_type][rule.constraint_code])
+                if (!ruleGrouped[rule.constraint_type][rule.constraint_code]) {
                     ruleGrouped[rule.constraint_type][rule.constraint_code] = [];
+                }
 
                 ruleGrouped[rule.constraint_type][rule.constraint_code].push(rule);
             }
 
         }.bind(this));
 
+        this.selectModes.setLabel(-1, tc('usersAclModes', 'All rules') + ' (' + all + ')');
+        this.selectModes.setLabel(0, tc('usersAclModes', 'Combined') + ' (' + modeCounter[0] + ')');
+        this.selectModes.setLabel(1, tc('usersAclModes', 'List') + ' (' + modeCounter[1] + ')');
+        this.selectModes.setLabel(2, tc('usersAclModes', 'View') + ' (' + modeCounter[2] + ')');
+        this.selectModes.setLabel(3, tc('usersAclModes', 'Add') + ' (' + modeCounter[3] + ')');
+        this.selectModes.setLabel(4, tc('usersAclModes', 'Edit') + ' (' + modeCounter[4] + ')');
+        this.selectModes.setLabel(5, tc('usersAclModes', 'Delete') + ' (' + modeCounter[5] + ')');
 
-        this.selectModes.setLabel(-1,  tc('usersAclModes', 'All rules')+' ('+all+')');
-        this.selectModes.setLabel(0,  tc('usersAclModes', 'Combined')+' ('+modeCounter[0]+')');
-        this.selectModes.setLabel(1,  tc('usersAclModes', 'List')+' ('+modeCounter[1]+')');
-        this.selectModes.setLabel(2,  tc('usersAclModes', 'View')+' ('+modeCounter[2]+')');
-        this.selectModes.setLabel(3,  tc('usersAclModes', 'Add')+' ('+modeCounter[3]+')');
-        this.selectModes.setLabel(4,  tc('usersAclModes', 'Edit')+' ('+modeCounter[4]+')');
-        this.selectModes.setLabel(5,  tc('usersAclModes', 'Delete')+' ('+modeCounter[5]+')');
-
-        if (!this.currentDefinition.nested){
+        if (!this.currentDefinition.nested) {
             this.objectsExactContainer.empty();
 
-            Object.each(ruleGrouped[1], function(rules, code){
+            Object.each(ruleGrouped[1], function (rules, code) {
 
                 var div = new Element('div', {
                     'class': 'ka-list-combine-item'
                 }).inject(this.objectsExactContainer);
 
-                div.addEvent('click', function(){this.filterRules(1, code, null)}.bind(this));
+                div.addEvent('click', function () {
+                    this.filterRules(1, code, null)
+                }.bind(this));
 
                 var title = new Element('span', {
-                    text: 'object://'+this.currentObject+'/'+code
+                    text: 'object://' + this.currentObject + '/' + code
                 }).inject(div);
 
                 this.loadObjectLabel(title);
                 title = new Element('span', {
-                    text: ' ('+rules.length+')'
+                    text: ' (' + rules.length + ')'
                 }).inject(div);
 
             }.bind(this));
         }
 
         this.objectsCustomContainer.empty();
-        Object.each(ruleGrouped[2], function(rules, code){
+        Object.each(ruleGrouped[2], function (rules, code) {
 
             var div = new Element('div', {
                 'class': 'ka-list-combine-item'
             }).inject(this.objectsCustomContainer);
-            div.addEvent('click', function(){ this.filterRules(2, code, div)}.bind(this));
+            div.addEvent('click', function () {
+                this.filterRules(2, code, div)
+            }.bind(this));
 
             var span = new Element('span').inject(div);
             this.humanReadableCondition(code, span);
-            span = new Element('span', {text: ' ('+rules.length+')'}).inject(div);
+            span = new Element('span', {text: ' (' + rules.length + ')'}).inject(div);
 
         }.bind(this));
 
+        this.objectsAllCount.set('text', '(' + ruleCounter.all + ')');
+        this.objectsCustomSplitCount.set('text', '(' + ruleCounter.custom + ')');
+        this.objectsExactSplitCount.set('text', '(' + ruleCounter.exact + ')');
 
-        this.objectsAllCount.set('text', '('+ruleCounter.all+')');
-        this.objectsCustomSplitCount.set('text', '('+ruleCounter.custom+')');
-        this.objectsExactSplitCount.set('text', '('+ruleCounter.exact+')');
+        Array.each(this.currentAcls, function (rule) {
+            if (rule.object.toLowerCase() != this.currentObject.toLowerCase()) {
+                return;
+            }
 
-        Array.each(this.currentAcls, function(rule){
-            if (rule.object.toLowerCase() != this.currentObject.toLowerCase()) return;
-
-            if (this.currentConstraint == -1){
+            if (this.currentConstraint == -1) {
                 this.renderObjectRulesAdd(rule);
             }
 
         }.bind(this));
 
-        if (this.rulesSort)
+        if (this.rulesSort) {
             delete this.rulesSort;
+        }
 
         this.rulesSort = new Sortables(this.objectRulesContainer, {
                 handle: '.users-acl-object-rule-mover',
@@ -370,45 +396,49 @@ var users_acl = new Class({
 
     },
 
-    filterRules: function(pConstraintType, pConstraintCode, pDomObject){
+    filterRules: function (pConstraintType, pConstraintCode, pDomObject) {
 
-        if (pDomObject){
+        if (pDomObject) {
             this.objectConstraintsContainer.getElements('.active').removeClass('active');
 
-            if (pDomObject){
-                if (pDomObject.hasClass('ka-list-combine-item')){
+            if (pDomObject) {
+                if (pDomObject.hasClass('ka-list-combine-item')) {
                     pDomObject.addClass('active');
-                    if (this.lastObjectTree)
+                    if (this.lastObjectTree) {
                         this.lastObjectTree.getFieldObject().getTree().deselect();
+                    }
                 }
             } else {
-                if (this.lastObjectTree)
+                if (this.lastObjectTree) {
                     this.lastObjectTree.getFieldObject().getTree().deselect();
+                }
             }
 
-            if (typeOf(pConstraintType) != 'null'){
+            if (typeOf(pConstraintType) != 'null') {
                 this.lastConstraintType = pConstraintType;
                 this.lastConstraintCode = pConstraintCode;
-            } else if (this.lastConstraintType){
+            } else if (this.lastConstraintType) {
                 pConstraintType = this.lastConstraintType;
                 pConstraintCode = this.lastConstraintCode;
             }
         } else {
             delete this.lastConstraintType;
             this.objectConstraintsContainer.getElements('.active').removeClass('active');
-            if (this.lastObjectTree)
+            if (this.lastObjectTree) {
                 this.lastObjectTree.getFieldObject().getTree().deselect();
+            }
         }
 
-        this.objectRulesContainer.getChildren().each(function(child){
+        this.objectRulesContainer.getChildren().each(function (child) {
 
             var show = false;
             var completelyHide = false;
 
-            if (typeOf(pConstraintType) != 'null'){
-                if (pConstraintType === false || child.rule.constraint_type == pConstraintType){
+            if (typeOf(pConstraintType) != 'null') {
+                if (pConstraintType === false || child.rule.constraint_type == pConstraintType) {
 
-                    if (pConstraintType === false || pConstraintType == 0 || (pConstraintType >= 1 && pConstraintCode == child.rule.constraint_code)){
+                    if (pConstraintType === false || pConstraintType == 0 ||
+                        (pConstraintType >= 1 && pConstraintCode == child.rule.constraint_code)) {
                         show = true;
                     }
                 }
@@ -416,35 +446,38 @@ var users_acl = new Class({
                 show = true;
             }
 
-            if (this.lastRulesModeFilter !== false){
-                if (this.lastRulesModeFilter != child.rule.mode){
+            if (this.lastRulesModeFilter !== false) {
+                if (this.lastRulesModeFilter != child.rule.mode) {
                     show = false;
                     completelyHide = true;
                 }
             }
 
-            if (show){
-                if (child.savedHeight){
+            if (show) {
+                if (child.savedHeight) {
                     child.morph({
                         'height': child.savedHeight,
                         paddingTop: 6,
                         paddingBottom: 6
                     });
-                } else
-                    child.savedHeight = child.getSize().y-12;
+                } else {
+                    child.savedHeight = child.getSize().y - 12;
+                }
 
                 child.addClass('ka-list-combine-item');
 
             } else {
 
-                if (!child.savedHeight)
-                    child.savedHeight = child.getSize().y-12;
+                if (!child.savedHeight) {
+                    child.savedHeight = child.getSize().y - 12;
+                }
 
-                if (completelyHide)
+                if (completelyHide) {
                     child.removeClass('ka-list-combine-item');
+                }
 
                 child.morph({
-                    'height': completelyHide==true?0:1,
+                    'height': completelyHide == true ? 0 : 1,
                     paddingTop: 0,
                     paddingBottom: 0
                 });
@@ -454,7 +487,7 @@ var users_acl = new Class({
 
     },
 
-    renderObjectRulesAdd: function(pRule){
+    renderObjectRulesAdd: function (pRule) {
 
         var div = new Element('div', {
             'class': 'ka-list-combine-item users-acl-object-rule'
@@ -464,57 +497,67 @@ var users_acl = new Class({
 
         new Element('img', {
             'class': 'users-acl-object-rule-mover',
-            src: _path+'users/admin/images/users-acl-item-mover.png'
+            src: _path + 'users/admin/images/users-acl-item-mover.png'
         }).inject(div);
 
-
         var status = 'accept';
-        if (pRule.access == 0){
+        if (pRule.access == 0) {
             status = 'exclamation';
-        } else if(pRule.access == 2){
+        } else if (pRule.access == 2) {
             status = 'arrow_turn_bottom_left';
         }
 
         new Element('img', {
             'class': 'users-acl-object-rule-status',
-            src: _path+'admin/images/icons/'+status+'.png'
+            src: _path + 'admin/images/icons/' + status + '.png'
         }).inject(div);
 
         var mode = 'arrow_in'; //0, combined
 
-        switch(pRule.mode){
-            case '1': mode = 'application_view_list'; break; //list
-            case '2': mode = 'application_form'; break; //view detail
-            case '3': mode = 'application_form_add'; break; //add
-            case '4': mode = 'application_form_edit'; break; //edit
-            case '5': mode = 'application_form_delete'; break; //delete
+        switch (pRule.mode) {
+            case '1':
+                mode = 'application_view_list';
+                break; //list
+            case '2':
+                mode = 'application_form';
+                break; //view detail
+            case '3':
+                mode = 'application_form_add';
+                break; //add
+            case '4':
+                mode = 'application_form_edit';
+                break; //edit
+            case '5':
+                mode = 'application_form_delete';
+                break; //delete
         }
 
         new Element('img', {
             'class': 'users-acl-object-rule-mode',
-            src: _path+'admin/images/icons/'+mode+'.png'
+            src: _path + 'admin/images/icons/' + mode + '.png'
         }).inject(div);
-
 
         var title = t('All objects');
 
-        if (pRule.constraint_type == 1)
-            title = 'object://'+this.currentObject+'/'+pRule.constraint_code;
-        if (pRule.constraint_type == 2)
+        if (pRule.constraint_type == 1) {
+            title = 'object://' + this.currentObject + '/' + pRule.constraint_code;
+        }
+        if (pRule.constraint_type == 2) {
             title = '';
+        }
 
         var title = new Element('span', {
             text: title
         }).inject(div);
 
-        if (pRule.constraint_type == 2){
+        if (pRule.constraint_type == 2) {
             var span = new Element('span').inject(title);
             this.humanReadableCondition(pRule.constraint_code, span);
-        } else if (pRule.constraint_type == 1){
+        } else if (pRule.constraint_type == 1) {
             this.loadObjectLabel(title);
         }
 
-        if (pRule.mode != 1 && pRule.mode <= 4){
+        if (pRule.mode != 1 && pRule.mode <= 4) {
 
             var fieldSubline = new Element('div', {
                 'class': 'users-acl-object-rule-subline'
@@ -522,22 +565,22 @@ var users_acl = new Class({
 
             var comma;
 
-            if (pRule.fields && pRule.fields != ''){
+            if (pRule.fields && pRule.fields != '') {
 
                 var definition = ka.getObjectDefinition(this.currentObject);
 
                 var fieldsObj = JSON.decode(pRule.fields);
 
                 var primaries = ka.getPrimaryListForObject(this.currentObject);
-                if (primaries){
+                if (primaries) {
                     var primaryField = primaries[0];
                     var primaryLabel = definition.fields[primaryField].label || primaryField;
                 }
 
-                Object.each(fieldsObj, function(def, key){
+                Object.each(fieldsObj, function (def, key) {
 
                     field = key;
-                    if(definition && definition.fields[field] && definition.fields[field].label){
+                    if (definition && definition.fields[field] && definition.fields[field].label) {
 
                         field = definition.fields[field].label;
 
@@ -546,21 +589,22 @@ var users_acl = new Class({
                         var imgSrc;
                         var subcomma;
 
-                        if (typeOf(def) == 'object' || typeOf(def) == 'array'){
+                        if (typeOf(def) == 'object' || typeOf(def) == 'array') {
 
                             new Element('span', {text: '['}).inject(fieldSubline);
 
                             var span = new Element('span').inject(fieldSubline);
 
-                            if (typeOf(def) == 'array'){
-                                Array.each(def, function(rule){
+                            if (typeOf(def) == 'array') {
+                                Array.each(def, function (rule) {
 
                                     var span = new Element('span').inject(fieldSubline);
                                     this.humanReadableCondition(rule.condition, span);
-                                    if (rule.access == 1){
-                                        new Element('img', {src: _path+'admin/images/icons/accept.png'}).inject(span);
+                                    if (rule.access == 1) {
+                                        new Element('img', {src: _path + 'admin/images/icons/accept.png'}).inject(span);
                                     } else {
-                                        new Element('img', {src: _path+'admin/images/icons/exclamation.png'}).inject(span);
+                                        new Element('img',
+                                            {src: _path + 'admin/images/icons/exclamation.png'}).inject(span);
                                     }
                                     subcomma = new Element('span', {text: ', '}).inject(fieldSubline);
 
@@ -568,16 +612,17 @@ var users_acl = new Class({
                             } else {
 
                                 var primaryLabel = '';
-                                Object.each(def, function(access, id){
+                                Object.each(def, function (access, id) {
 
                                     var span = new Element('span', {
-                                        text: primaryLabel+' = '+id
+                                        text: primaryLabel + ' = ' + id
                                     }).inject(span);
 
-                                    if (access == 1){
-                                        new Element('img', {src: _path+'admin/images/icons/accept.png'}).inject(span);
+                                    if (access == 1) {
+                                        new Element('img', {src: _path + 'admin/images/icons/accept.png'}).inject(span);
                                     } else {
-                                        new Element('img', {src: _path+'admin/images/icons/exclamation.png'}).inject(span);
+                                        new Element('img',
+                                            {src: _path + 'admin/images/icons/exclamation.png'}).inject(span);
                                     }
 
                                     new Element('img', {src: imgSrc}).inject(span);
@@ -586,19 +631,21 @@ var users_acl = new Class({
                                 }.bind(this));
                             }
 
-                            if (subcomma)
+                            if (subcomma) {
                                 subcomma.destroy();
+                            }
 
                             new Element('span', {text: ']'}).inject(fieldSubline);
 
-                        } else if (def == 0){
-                            imgSrc = _path+'admin/images/icons/exclamation.png';
-                        } else if(def){
-                            imgSrc = _path+'admin/images/icons/accept.png';
+                        } else if (def == 0) {
+                            imgSrc = _path + 'admin/images/icons/exclamation.png';
+                        } else if (def) {
+                            imgSrc = _path + 'admin/images/icons/accept.png';
                         }
 
-                        if (imgSrc)
+                        if (imgSrc) {
                             new Element('img', {src: imgSrc}).inject(fieldSubline);
+                        }
                     }
 
                     comma = new Element('span', {text: ', '}).inject(fieldSubline);
@@ -617,42 +664,45 @@ var users_acl = new Class({
         }).inject(div);
 
         new Element('img', {
-            src: _path+'admin/images/icons/pencil.png',
+            src: _path + 'admin/images/icons/pencil.png',
             title: t('Edit rule')
         })
-        .addEvent('click', function(){this.openEditRuleDialog(this.currentObject, div); }.bind(this))
-        .inject(actions);
+            .addEvent('click', function () {
+                this.openEditRuleDialog(this.currentObject, div);
+            }.bind(this))
+            .inject(actions);
 
         new Element('img', {
-            src: _path+'admin/images/icons/delete.png',
+            src: _path + 'admin/images/icons/delete.png',
             title: t('Delete rule')
         })
-        .addEvent('click', this.deleteObjectRule.bind(this, div))
-        .inject(actions);
-
+            .addEvent('click', this.deleteObjectRule.bind(this, div))
+            .inject(actions);
 
     },
 
-    loadObjectLabel: function(pDomObject){
+    loadObjectLabel: function (pDomObject) {
 
         var uri = pDomObject.get('text');
         var objectKey = ka.getObjectKey(uri);
-        var objectId  = ka.getCroppedObjectId(uri);
+        var objectId = ka.getCroppedObjectId(uri);
 
         //todo, maybe we have a template and extra fields for the label
         var definition = ka.getObjectDefinition(objectKey);
         var fields = definition.labelField;
 
-        new Request.JSON({url: _path+'admin/object/'+ka.urlEncode(objectKey)+'/'+objectId, onComplete: function(pResult){
+        new Request.JSON({url: _path + 'admin/object/' + ka.urlEncode(objectKey) + '/' +
+            objectId, onComplete: function (pResult) {
 
-            if (!pResult || pResult.error || !pResult.data){
-                pDomObject.set('text', 'Object not found. '+uri);
+            if (!pResult || pResult.error || !pResult.data) {
+                pDomObject.set('text', 'Object not found. ' + uri);
                 return;
-            };
+            }
+            ;
 
             var sFields = fields.split(',');
             var title = [];
-            Array.each(sFields, function(field){
+            Array.each(sFields, function (field) {
                 title.push(pResult.data[field]);
             });
 
@@ -663,40 +713,45 @@ var users_acl = new Class({
         //http://ilee/admin/objectGetLabel?url=object://news/3
     },
 
-    humanReadableCondition: function(pCondition, pDomObject){
+    humanReadableCondition: function (pCondition, pDomObject) {
 
-        if (typeOf(pCondition) == 'string')
+        if (typeOf(pCondition) == 'string') {
             pCondition = JSON.decode(pCondition);
+        }
 
-        if (typeOf(pCondition) != 'array') return;
+        if (typeOf(pCondition) != 'array') {
+            return;
+        }
 
         var field = '';
         var definition = ka.getObjectDefinition(this.currentObject);
 
         var span = new Element('span');
 
-        if (pCondition.length > 0){
+        if (pCondition.length > 0) {
 
-            Array.each(pCondition, function(condition){
+            Array.each(pCondition, function (condition) {
 
-                if (typeOf(condition) == 'string'){
-                    new Element('span', {text: ' '+((condition.toLowerCase()=='and')?t('and'):t('or'))+' '}).inject(span);
+                if (typeOf(condition) == 'string') {
+                    new Element('span',
+                        {text: ' ' + ((condition.toLowerCase() == 'and') ? t('and') : t('or')) + ' '}).inject(span);
                 } else {
 
-                    if (typeOf(condition[0]) == 'array'){
+                    if (typeOf(condition[0]) == 'array') {
                         //group
                         new Element('span', {text: '('}).inject(span);
-                        var sub= new Element('span').inject(span);
+                        var sub = new Element('span').inject(span);
                         this.humanReadableCondition(condition, sub);
                         new Element('span', {text: ')'}).inject(span);
 
                     } else {
 
                         field = condition[0];
-                        if(definition && definition.fields[field] && definition.fields[field].label)
+                        if (definition && definition.fields[field] && definition.fields[field].label) {
                             field = definition.fields[field].label;
+                        }
 
-                        new Element('span', {text: field+' '+condition[1]+' '+condition[2]}).inject(span);
+                        new Element('span', {text: field + ' ' + condition[1] + ' ' + condition[2]}).inject(span);
                     }
                 }
 
@@ -711,20 +766,22 @@ var users_acl = new Class({
 
     },
 
-    addObjectsToList: function(pConfig, pExtKey){
+    addObjectsToList: function (pConfig, pExtKey) {
 
         new Element('div', {
             'class': 'ka-list-combine-splititem',
             text: ka.getExtensionTitle(pExtKey)
         }).inject(this.objectList);
 
-        Object.each(pConfig.objects, function(object, objectKey){
+        Object.each(pConfig.objects, function (object, objectKey) {
 
             var div = new Element('div', {
                 'class': 'ka-list-combine-item'
             })
-            .addEvent('click', function(){this.loadObjectRules(pExtKey+'\\'+objectKey)}.bind(this))
-            .inject(this.objectList);
+                .addEvent('click', function () {
+                    this.loadObjectRules(pExtKey + '\\' + objectKey)
+                }.bind(this))
+                .inject(this.objectList);
 
             var h2 = new Element('h2', {
                 text: object.label || objectKey
@@ -734,30 +791,30 @@ var users_acl = new Class({
                 style: 'font-weight: normal; color: silver;'
             }).inject(h2);
 
-            if (object.desc){
-                new Element('div',{
+            if (object.desc) {
+                new Element('div', {
                     'class': 'subline',
                     text: object.desc
                 }).inject(div);
             }
 
-            this.objectDivs[pExtKey.toLowerCase()+'\\'+objectKey.toLowerCase()] = div;
+            this.objectDivs[pExtKey.toLowerCase() + '\\' + objectKey.toLowerCase()] = div;
 
         }.bind(this));
 
     },
 
-    loadObjects: function(){
+    loadObjects: function () {
 
         this.objectList = new Element('div', {
             'class': 'users-acl-object-list'
         })
-        .inject(this.objectTab.pane);
+            .inject(this.objectTab.pane);
 
         this.objectConstraints = new Element('div', {
             'class': 'users-acl-object-constraints'
         })
-        .inject(this.objectTab.pane);
+            .inject(this.objectTab.pane);
 
         this.objectRulesFilter = new Element('div', {
             'class': 'users-acl-object-constraints-title'
@@ -773,88 +830,94 @@ var users_acl = new Class({
         }).inject(this.objectRulesFilter);
 
         new ka.Button(t('Deselect'))
-        .addEvent('click', function(){this.filterRules()}.bind(this))
-        .inject(div);
+            .addEvent('click', function () {
+                this.filterRules()
+            }.bind(this))
+            .inject(div);
 
         this.objectConstraintsContainer = new Element('div', {
             'class': 'users-acl-object-constraints-container'
         })
-        .inject(this.objectConstraints);
+            .inject(this.objectConstraints);
 
         var allDiv = new Element('div', {
             'class': 'ka-list-combine-item'
         }).inject(this.objectConstraintsContainer);
 
-        allDiv.addEvent('click', function(){this.filterRules(0, null, allDiv)}.bind(this));
+        allDiv.addEvent('click', function () {
+            this.filterRules(0, null, allDiv)
+        }.bind(this));
 
         var h2 = new Element('div', {
             text: t('All objects')
         }).inject(allDiv);
 
-        this.objectsAllCount = new Element('span',{
+        this.objectsAllCount = new Element('span', {
             style: 'padding-left: 5px;',
             text: '(0)'
         }).inject(h2);
 
-        new Element('img' ,{
-            src: _path+ PATH_WEB + '/admin/images/icons/add.png',
+        new Element('img', {
+            src: _path + PATH_WEB + '/admin/images/icons/add.png',
             style: 'cursor: pointer; position: relative; top: -1px; float: right;',
             title: t('Add')
         })
-        .addEvent('click', function(e){
-            this.openEditRuleDialog(this.currentObject, {constraint_type: 0});
-            e.stop();
-        }.bind(this))
-        .inject(h2);
+            .addEvent('click', function (e) {
+                this.openEditRuleDialog(this.currentObject, {constraint_type: 0});
+                e.stop();
+            }.bind(this))
+            .inject(h2);
 
         this.objectsCustomSplit = new Element('div', {
             'class': 'ka-list-combine-splititem',
             text: t('Custom')
         }).inject(this.objectConstraintsContainer);
 
-        this.objectsCustomSplitCount = new Element('span',{
+        this.objectsCustomSplitCount = new Element('span', {
             style: 'color: gray; padding-left: 5px;',
             text: '(0)'
         }).inject(this.objectsCustomSplit);
 
-        this.objectsCustomContainer = new Element('div',{
+        this.objectsCustomContainer = new Element('div', {
         }).inject(this.objectConstraintsContainer);
 
-        new Element('img' ,{
-            src: _path+ PATH_WEB + '/admin/images/icons/add.png',
+        new Element('img', {
+            src: _path + PATH_WEB + '/admin/images/icons/add.png',
             style: 'cursor: pointer; position: relative; top: -1px; float: right;',
             title: t('Add')
         })
-        .addEvent('click', function(){
-            this.openEditRuleDialog(this.currentObject, {constraint_type: 2});
-        }.bind(this))
-        .inject(this.objectsCustomSplit);
+            .addEvent('click', function () {
+                this.openEditRuleDialog(this.currentObject, {constraint_type: 2});
+            }.bind(this))
+            .inject(this.objectsCustomSplit);
 
         this.objectsExactSplit = new Element('div', {
             'class': 'ka-list-combine-splititem',
-            text: t('Exact')+' '
+            text: t('Exact') + ' '
         }).inject(this.objectConstraintsContainer);
 
         this.objectsExactContainer = new Element('div', {
         }).inject(this.objectConstraintsContainer);
 
-        this.objectsExactSplitCount = new Element('span',{
+        this.objectsExactSplitCount = new Element('span', {
             style: 'color: gray; padding-left: 5px;',
             text: '(0)'
         }).inject(this.objectsExactSplit);
 
-        this.btnAddExact = new Element('img' ,{
-            src: _path+ PATH_WEB + '/admin/images/icons/add.png',
+        this.btnAddExact = new Element('img', {
+            src: _path + PATH_WEB + '/admin/images/icons/add.png',
             style: 'cursor: pointer; position: relative; top: -1px; float: right;',
             title: t('Add')
         })
-        .addEvent('click', function(){ this.openEditRuleDialog(this.currentObject, {constraint_type: 1})}.bind(this))
-        .inject(this.objectsExactSplit);
+            .addEvent('click', function () {
+                this.openEditRuleDialog(this.currentObject, {constraint_type: 1})
+            }.bind(this))
+            .inject(this.objectsExactSplit);
 
         this.objectRules = new Element('div', {
             'class': 'users-acl-object-rules'
         })
-        .inject(this.objectTab.pane);
+            .inject(this.objectTab.pane);
 
         this.objectRulesFilter = new Element('div', {
             'class': 'users-acl-object-rules-filter'
@@ -869,12 +932,12 @@ var users_acl = new Class({
             'class': 'users-acl-object-rules-info'
         }).inject(this.objectRulesFilter);
 
-        new Element('div',{
+        new Element('div', {
             text: t('Most important rule shall be on the top.')
         }).inject(this.objectRulesInfo);
 
         var div = new Element('div', {
-            text: t('Filter modes')+': ',
+            text: t('Filter modes') + ': ',
             style: 'line-height: 24px;'
         }).inject(this.objectRulesInfo);
 
@@ -883,61 +946,65 @@ var users_acl = new Class({
         document.id(this.selectModes).setStyle('width', 120);
 
         this.selectModes.addImage(-1, tc('usersAclModes', 'All rules'), 'admin/images/icons/tick.png');
-        this.selectModes.addImage(0,  tc('usersAclModes', 'Combined'), 'admin/images/icons/arrow_in.png');
-        this.selectModes.addImage(1,  tc('usersAclModes', 'List'), 'admin/images/icons/application_view_list.png');
-        this.selectModes.addImage(2,  tc('usersAclModes', 'View'), 'admin/images/icons/application_form.png');
-        this.selectModes.addImage(3,  tc('usersAclModes', 'Add'), 'admin/images/icons/application_form_add.png');
-        this.selectModes.addImage(4,  tc('usersAclModes', 'Edit'), 'admin/images/icons/application_form_edit.png');
-        this.selectModes.addImage(5,  tc('usersAclModes', 'Delete'), 'admin/images/icons/application_form_delete.png');
+        this.selectModes.addImage(0, tc('usersAclModes', 'Combined'), 'admin/images/icons/arrow_in.png');
+        this.selectModes.addImage(1, tc('usersAclModes', 'List'), 'admin/images/icons/application_view_list.png');
+        this.selectModes.addImage(2, tc('usersAclModes', 'View'), 'admin/images/icons/application_form.png');
+        this.selectModes.addImage(3, tc('usersAclModes', 'Add'), 'admin/images/icons/application_form_add.png');
+        this.selectModes.addImage(4, tc('usersAclModes', 'Edit'), 'admin/images/icons/application_form_edit.png');
+        this.selectModes.addImage(5, tc('usersAclModes', 'Delete'), 'admin/images/icons/application_form_delete.png');
 
         this.lastRulesModeFilter = false;
 
-        this.selectModes.addEvent('change', function(value){
+        this.selectModes.addEvent('change', function (value) {
 
-            if (value == -1)
+            if (value == -1) {
                 this.lastRulesModeFilter = false;
-            else
+            }
+            else {
                 this.lastRulesModeFilter = value;
+            }
 
             this.filterRules();
 
-        }. bind(this));
+        }.bind(this));
 
         this.objectRulesContainer = new Element('div', {
             'class': 'users-acl-object-rules-container'
         })
-        .inject(this.objectRules);
+            .inject(this.objectRules);
 
         this.addObjectsToList(ka.settings.configs.core, 'core');
         this.addObjectsToList(ka.settings.configs.users, 'users');
 
-        Object.each(ka.settings.configs, function(config, extKey){
+        Object.each(ka.settings.configs, function (config, extKey) {
 
-            if (!config.objects ||  extKey == 'users' || extKey == 'core' || typeOf(config.objects) != 'object') return;
+            if (!config.objects || extKey == 'users' || extKey == 'core' || typeOf(config.objects) != 'object') {
+                return;
+            }
             this.addObjectsToList(config, extKey);
 
         }.bind(this));
 
     },
 
-    applyEditRuleDialog: function(){
+    applyEditRuleDialog: function () {
 
         var value = this.editRuleKaObj.getValue();
 
         var oldScrollTop = this.objectRulesContainer.getScroll().y;
 
-        if (value.constraint_type == 2){
+        if (value.constraint_type == 2) {
             value.constraint_code = JSON.encode(value.constraint_code_condition);
             delete value.constraint_code_condition;
         }
-        if (value.constraint_type == 1){
+        if (value.constraint_type == 1) {
             value.constraint_code = value.constraint_code_exact;
             delete value.constraint_code_exact;
         }
 
-        if (!Object.getLength(value.fields)){
+        if (!Object.getLength(value.fields)) {
             delete value.fields;
-        }  else {
+        } else {
             value.fields = JSON.encode(value.fields);
         }
 
@@ -945,15 +1012,16 @@ var users_acl = new Class({
         value.target_type = this.currentTargetType;
         value.target_id = this.currentTargetRsn;
 
-        if (this.currentRuleDiv){
+        if (this.currentRuleDiv) {
             var pos = this.currentAcls.indexOf(this.currentRuleDiv.rule);
             value.prio = this.currentRuleDiv.rule.prio;
             this.currentAcls[pos] = value;
         } else {
 
             var newPrio = 1;
-            if (this.currentAcls.length > 0)
-                newPrio = this.currentAcls[0].prio+1;
+            if (this.currentAcls.length > 0) {
+                newPrio = this.currentAcls[0].prio + 1;
+            }
 
             oldScrollTop = 0;
             value.prio = newPrio;
@@ -965,7 +1033,6 @@ var users_acl = new Class({
         this.renderObjectRules();
         this.updateObjectRulesCounter();
 
-
         this.unsavedContent = true;
 
         this.editRuleDialog.close();
@@ -975,7 +1042,7 @@ var users_acl = new Class({
 
     },
 
-    deleteObjectRule: function(pDiv){
+    deleteObjectRule: function (pDiv) {
 
         var oldScrollTop = this.objectRulesContainer.getScroll().y;
 
@@ -992,10 +1059,9 @@ var users_acl = new Class({
 
     },
 
-    openEditRuleDialog: function(pObject, pRuleDiv){
+    openEditRuleDialog: function (pObject, pRuleDiv) {
 
-
-        this.currentRuleDiv = typeOf(pRuleDiv)=='element'?pRuleDiv:null;
+        this.currentRuleDiv = typeOf(pRuleDiv) == 'element' ? pRuleDiv : null;
 
         this.editRuleDialog = this.win.newDialog('', true);
 
@@ -1008,23 +1074,23 @@ var users_acl = new Class({
 
         //this.editRuleDialog.content
         new ka.Button(t('Cancel'))
-        .addEvent('click', function(){
-            this.editRuleDialog.close();
-        }.bind(this))
-        .inject(this.editRuleDialog.bottom);
+            .addEvent('click', function () {
+                this.editRuleDialog.close();
+            }.bind(this))
+            .inject(this.editRuleDialog.bottom);
 
         var applyTitle = t('Apply');
         var title = t('Edit rule');
 
-        if (typeOf(pRuleDiv) == 'object'){
+        if (typeOf(pRuleDiv) == 'object') {
             applyTitle = t('Add');
             title = t('Add rule');
         }
 
         new ka.Button(applyTitle)
-        .setButtonStyle('blue')
-        .addEvent('click', this.applyEditRuleDialog.bind(this))
-        .inject(this.editRuleDialog.bottom);
+            .setButtonStyle('blue')
+            .addEvent('click', this.applyEditRuleDialog.bind(this))
+            .inject(this.editRuleDialog.bottom);
 
         new Element('h2', {
             text: title
@@ -1098,14 +1164,14 @@ var users_acl = new Class({
 
             __fields__: {
                 label: t('Fields'),
-                needValue: ['0','2','3','4'],
+                needValue: ['0', '2', '3', '4'],
                 againstField: 'mode',
                 type: 'label'
             },
 
             fields: {
                 noWrapper: true,
-                needValue: ['0','2','3','4'],
+                needValue: ['0', '2', '3', '4'],
                 againstField: 'mode',
                 type: 'usersAclRuleFields',
                 object: pObject
@@ -1113,21 +1179,23 @@ var users_acl = new Class({
 
         };
 
-        if (!this.currentDefinition.nested)
+        if (!this.currentDefinition.nested) {
             delete fields.sub;
+        }
 
         this.editRuleKaObj = new ka.FieldForm(this.editRuleDialog.content, fields, {
-            allTableItems:1,
+            allTableItems: 1,
             tableItemLabelWidth: 180,
             returnDefault: true
         }, {win: this.win});
 
-        var rule = Object.clone(typeOf(pRuleDiv) == 'element'? pRuleDiv.rule : typeOf(pRuleDiv) == 'object'?pRuleDiv:{});
+        var rule = Object.clone(
+            typeOf(pRuleDiv) == 'element' ? pRuleDiv.rule : typeOf(pRuleDiv) == 'object' ? pRuleDiv : {});
 
-        if (rule.constraint_type == 2){
+        if (rule.constraint_type == 2) {
             rule.constraint_code_condition = rule.constraint_code;
         }
-        if (rule.constraint_type == 1){
+        if (rule.constraint_type == 1) {
             rule.constraint_code_exact = rule.constraint_code;
         }
 
@@ -1135,17 +1203,21 @@ var users_acl = new Class({
 
     },
 
-    clickEntrypoint: function(pEvent){
+    clickEntrypoint: function (pEvent) {
 
         this.entryPointList.getElements('a').removeClass('users-acl-entrypoint-rule-active');
         this.entryPointRuleContainer.empty();
 
-        if (!pEvent.target) return;
+        if (!pEvent.target) {
+            return;
+        }
 
         var element = pEvent.target;
-        if (element.get('tag') != 'a'){
+        if (element.get('tag') != 'a') {
             element = element.getParent('a');
-            if (!element) return;
+            if (!element) {
+                return;
+            }
         }
 
         element.addClass('users-acl-entrypoint-rule-active');
@@ -1154,39 +1226,39 @@ var users_acl = new Class({
 
     },
 
-    loadEntryPoints: function(){
+    loadEntryPoints: function () {
 
         this.currentEntrypointDoms = {};
 
         this.entryPointList = new Element('div', {
             'class': 'users-acl-entrypoint-list'
         })
-        .inject(this.entryPointTab.pane);
+            .inject(this.entryPointTab.pane);
 
         this.entryPointListContainer = new Element('div', {
             'style': 'padding-left: 15px;'
         })
-        .inject(this.entryPointList);
+            .inject(this.entryPointList);
 
         this.entryPointListContainer.addEvent('click', this.clickEntrypoint.bind(this));
 
         this.entryPointRuleContainer = new Element('div', {
             'class': 'users-acl-entrypoint-rule-container'
         })
-        .inject(this.entryPointTab.pane);
+            .inject(this.entryPointTab.pane);
 
         this.adminEntryPointDom = this.addEntryPointTree(ka.settings.configs['admin'], 'admin');
 
-        Object.each(ka.settings.configs, function(ext, extCode){
-            if( extCode != 'admin' && ext.entryPoints ){
-                this.addEntryPointTree( ext, 'admin/'+extCode );
+        Object.each(ka.settings.configs, function (ext, extCode) {
+            if (extCode != 'admin' && ext.entryPoints) {
+                this.addEntryPointTree(ext, 'admin/' + extCode);
             }
         }.bind(this));
     },
 
-    getEntryPointTitle: function(pNode){
+    getEntryPointTitle: function (pNode) {
 
-        switch(pNode.type){
+        switch (pNode.type) {
 
             case 'iframe':
             case 'custom':
@@ -1210,7 +1282,7 @@ var users_acl = new Class({
 
     },
 
-    getEntryPointIcon: function(pNode){
+    getEntryPointIcon: function (pNode) {
 
         /*
 
@@ -1225,7 +1297,7 @@ var users_acl = new Class({
          combine: t('[Window] Framework Combine')
 
          */
-        switch(pNode.type){
+        switch (pNode.type) {
 
             case 'list':
                 return 'admin/images/icons/application_view_list.png';
@@ -1255,21 +1327,23 @@ var users_acl = new Class({
 
     },
 
-    addEntryPointTree: function(pExtensionConfig, pExtensionKey){
+    addEntryPointTree: function (pExtensionConfig, pExtensionKey) {
 
-
-        var title = ka.getExtensionTitle( pExtensionKey=='admin'?pExtensionKey:pExtensionKey.substr(6));
+        var title = ka.getExtensionTitle(pExtensionKey == 'admin' ? pExtensionKey : pExtensionKey.substr(6));
 
         var target = new Element('div', {
             style: 'padding-top: 5px; margin-top: 5px; border-top: 1px dashed silver;'
-        }).inject( pExtensionKey=='admin'?this.entryPointListContainer:this.adminEntryPointDom.childContainer );
+        }).inject(pExtensionKey == 'admin' ? this.entryPointListContainer : this.adminEntryPointDom.childContainer);
 
-        var a = new Element('a', { href: 'javascript:;', text: title, title: '#'+pExtensionKey, style: 'font-weight: bold;'}).inject( target );
+        var a = new Element('a', { href: 'javascript:;', text: title, title: '#' +
+            pExtensionKey, style: 'font-weight: bold;'}).inject(target);
 
-        var childContainer = new Element('div', {'class': 'users-acl-tree-childcontainer', style: 'padding-left: 25px;'}).inject( a, 'after' );
+        var childContainer = new Element('div',
+            {'class': 'users-acl-tree-childcontainer', style: 'padding-left: 25px;'}).inject(a, 'after');
 
-        if(pExtensionKey == 'admin')
+        if (pExtensionKey == 'admin') {
             this.extContainer = childContainer;
+        }
 
         var path = pExtensionKey;
 
@@ -1282,33 +1356,36 @@ var users_acl = new Class({
 
     },
 
-    loadEntryPointChildren: function(pAdmin, pCode, pChildContainer){
+    loadEntryPointChildren: function (pAdmin, pCode, pChildContainer) {
 
-        Object.each(pAdmin, function(item, index){
+        Object.each(pAdmin, function (item, index) {
 
-            if(item.acl == false) return;
+            if (item.acl == false) {
+                return;
+            }
 
             var element = new Element('a', {
                 href: 'javascript:;',
                 text: t(item.title),
-                title: this.getEntryPointTitle(item)+', '+pCode+index
+                title: this.getEntryPointTitle(item) + ', ' + pCode + index
             }).inject(pChildContainer);
 
             new Element('img', {
-                src: _path+''+this.getEntryPointIcon(item)
+                src: _path + '' + this.getEntryPointIcon(item)
             }).inject(element, 'top');
 
-            var code = pCode+'/'+index;
+            var code = pCode + '/' + index;
             element.entryPath = code;
             this.currentEntrypointDoms[code] = element;
-            var childContainer = new Element('div', {'class': 'users-acl-tree-childcontainer', style: 'padding-left: 25px;'}).inject( pChildContainer );
+            var childContainer = new Element('div',
+                {'class': 'users-acl-tree-childcontainer', style: 'padding-left: 25px;'}).inject(pChildContainer);
 
             this.loadEntryPointChildren(item.children, code, childContainer);
 
         }.bind(this));
     },
 
-    loadList: function(){
+    loadList: function () {
 
         var q = this.query.value;
 
@@ -1320,38 +1397,39 @@ var users_acl = new Class({
         }).inject(this.left);
 
         var req = {};
-        if (q)
+        if (q) {
             req.q = q;
+        }
 
-        if (this.lastRq)
+        if (this.lastRq) {
             this.lastRq.cancel();
+        }
 
-        this.lastRq = new Request.JSON({url: _path+'admin/users/acl/search', noCache: 1,
+        this.lastRq = new Request.JSON({url: _path + 'admin/users/acl/search', noCache: 1,
             onComplete: this.renderList.bind(this)
         }).get(req);
 
-
     },
 
-    renderList: function(pItems){
+    renderList: function (pItems) {
 
-        if (pItems && typeOf(pItems) == 'object'){
+        if (pItems && typeOf(pItems) == 'object') {
 
             this.left.empty();
 
-            if (typeOf(pItems.users) == 'array' && pItems.users.length > 0){
+            if (typeOf(pItems.users) == 'array' && pItems.users.length > 0) {
                 new Element('div', {
                     'class': 'ka-list-combine-splititem',
                     text: t('Users')
                 }).inject(this.left);
 
-                Array.each(pItems.users, function(item){
+                Array.each(pItems.users, function (item) {
 
                     var div = new Element('div', {
                         'class': 'ka-list-combine-item'
                     })
-                    .addEvent('click', this.loadRules.bind(this, ['user', item, false]))
-                    .inject(this.left);
+                        .addEvent('click', this.loadRules.bind(this, ['user', item, false]))
+                        .inject(this.left);
 
                     this.userDivs[item.id] = div;
 
@@ -1360,7 +1438,7 @@ var users_acl = new Class({
                     }).inject(div);
 
                     new Element('span', {
-                        text: ' ('+item.ruleCount+')',
+                        text: ' (' + item.ruleCount + ')',
                         style: 'color: silver; font-size: 12px; font-weight: normal;'
                     }).inject(h2);
 
@@ -1369,21 +1447,25 @@ var users_acl = new Class({
                     }).inject(div);
 
                     var name = [];
-                    if (item.firstName) name.push(item.firstName);
-                    if (item.lastName) name.push(item.lastName);
+                    if (item.firstName) {
+                        name.push(item.firstName);
+                    }
+                    if (item.lastName) {
+                        name.push(item.lastName);
+                    }
 
                     new Element('span', {
                         text: name.join(' ')
                     }).inject(subline);
 
-                    if (item.email){
+                    if (item.email) {
                         new Element('span', {
-                            text: ' ('+item.email+')'
+                            text: ' (' + item.email + ')'
                         }).inject(subline);
                     }
 
                     var groups = [];
-                    Array.each(item.groupMembership, function(group){
+                    Array.each(item.groupMembership, function (group) {
                         groups.push(group.name);
                     });
 
@@ -1396,20 +1478,20 @@ var users_acl = new Class({
                 }.bind(this));
             }
 
-            if (typeOf(pItems.groups) == 'array' && pItems.groups.length > 0){
+            if (typeOf(pItems.groups) == 'array' && pItems.groups.length > 0) {
 
                 new Element('div', {
                     'class': 'ka-list-combine-splititem',
                     text: t('Groups')
                 }).inject(this.left);
 
-                Array.each(pItems.groups, function(item){
+                Array.each(pItems.groups, function (item) {
 
                     var div = new Element('div', {
                         'class': 'ka-list-combine-item'
                     })
-                    .addEvent('click', this.loadRules.bind(this, ['group', item, false]))
-                    .inject(this.left);
+                        .addEvent('click', this.loadRules.bind(this, ['group', item, false]))
+                        .inject(this.left);
 
                     this.groupDivs[item.id] = div;
 
@@ -1418,10 +1500,9 @@ var users_acl = new Class({
                     }).inject(div);
 
                     new Element('span', {
-                        text: ' ('+item.ruleCount+')',
+                        text: ' (' + item.ruleCount + ')',
                         style: 'color: silver; font-size: 12px; font-weight: normal;'
                     }).inject(h2);
-
 
                 }.bind(this));
 
@@ -1431,26 +1512,32 @@ var users_acl = new Class({
 
     },
 
-    loadRules: function(pType, pItem, pForce){
+    loadRules: function (pType, pItem, pForce) {
 
-        if (!pForce && typeOf(this.currentTargetType) != 'null' && this.unsavedContent){
-            this.win.confirm(t('There is unsaved content. Continue?'), function(a){
-                if (a) this.loadRules(pType, pItem, true);
+        if (!pForce && typeOf(this.currentTargetType) != 'null' && this.unsavedContent) {
+            this.win.confirm(t('There is unsaved content. Continue?'), function (a) {
+                if (a) {
+                    this.loadRules(pType, pItem, true);
+                }
             }.bind(this));
             return;
         }
 
-        var div = pType=='group'? this.groupDivs[pItem.id]:this.userDivs[pItem.id];
-        if (!div) return;
+        var div = pType == 'group' ? this.groupDivs[pItem.id] : this.userDivs[pItem.id];
+        if (!div) {
+            return;
+        }
 
         this.left.getElements('.ka-list-combine-item').removeClass('active');
         div.addClass('active');
 
         var title;
-        if (pType == 'user')
+        if (pType == 'user') {
             title = t('User %s').replace('%s', pItem['username']);
-        else
+        }
+        else {
             title = t('Group %s').replace('%s', pItem['name']);
+        }
 
         this.win.setTitle(title);
 
@@ -1458,14 +1545,15 @@ var users_acl = new Class({
 
     },
 
-    loadAcls: function(pType, pId){
+    loadAcls: function (pType, pId) {
 
-        if (this.lastOverlay)
+        if (this.lastOverlay) {
             this.lastOverlay.destroy();
+        }
 
         this.hideRules();
 
-        if (pId == 1){
+        if (pId == 1) {
 
             this.tabs.hide();
             this.actions.hide();
@@ -1486,21 +1574,22 @@ var users_acl = new Class({
 
         this.win.setLoading(true, null, {left: 216});
 
-        if (this.lrAcls)
+        if (this.lrAcls) {
             this.lrAcls.cancel();
+        }
 
-        this.currentTargetType = pType=='user'?0:1;
+        this.currentTargetType = pType == 'user' ? 0 : 1;
         this.currentTargetRsn = pId;
 
         this.lrAcls = new Request.JSON({
-            url: _path+'admin/users/acl',
+            url: _path + 'admin/users/acl',
             noCache: true,
             onComplete: this.setAcls.bind(this)
         }).get({type: pType, id: pId});
 
     },
 
-    hideRules: function(){
+    hideRules: function () {
         this.objectConstraints.setStyle('display', 'none');
         this.objectRules.setStyle('display', 'none');
 
@@ -1508,25 +1597,33 @@ var users_acl = new Class({
         this.entryPointRuleContainer.empty();
     },
 
-    showRules: function(){
+    showRules: function () {
         this.objectConstraints.setStyle('display', 'block');
         this.objectRules.setStyle('display', 'block');
     },
 
-    updateEntryPointRules: function(){
+    updateEntryPointRules: function () {
 
-        Object.each(this.currentEntrypointDoms, function(dom){
-            if (dom.ruleIcon) dom.ruleIcon.destroy();
-            if (dom.ruleLine) dom.ruleLine.destroy();
-            if (dom.ruleLineChildern) dom.ruleLineChildern.destroy();
+        Object.each(this.currentEntrypointDoms, function (dom) {
+            if (dom.ruleIcon) {
+                dom.ruleIcon.destroy();
+            }
+            if (dom.ruleLine) {
+                dom.ruleLine.destroy();
+            }
+            if (dom.ruleLineChildern) {
+                dom.ruleLineChildern.destroy();
+            }
             delete dom.rule;
         });
 
-        Array.each(this.currentAcls, function(rule){
+        Array.each(this.currentAcls, function (rule) {
 
-            if (rule.object != 'system_entrypoint') return;
+            if (rule.object != 'system_entrypoint') {
+                return;
+            }
 
-            if (this.currentEntrypointDoms[rule.constraint_code]){
+            if (this.currentEntrypointDoms[rule.constraint_code]) {
                 this.addEntryPointRuleToTree(rule);
             }
 
@@ -1534,9 +1631,9 @@ var users_acl = new Class({
 
     },
 
-    clickEntryPointRule: function(pDom){
+    clickEntryPointRule: function (pDom) {
 
-        if (pDom.rule){
+        if (pDom.rule) {
 
             this.showEntrypointRule(pDom);
 
@@ -1560,16 +1657,16 @@ var users_acl = new Class({
 
     },
 
-    showEntrypointRule: function(pDom){
+    showEntrypointRule: function (pDom) {
 
         this.entryPointRuleContainer.empty();
 
         var div = new Element('div', {
             'class': 'users-acl-entrypoint-rule'
         })
-        .inject(this.entryPointRuleContainer);
+            .inject(this.entryPointRuleContainer);
 
-        var title = new Element('div',{
+        var title = new Element('div', {
             text: pDom.get('text'),
             style: 'line-height: 14px; font-weight: bold; padding: 2px;'
         }).inject(div);
@@ -1597,18 +1694,23 @@ var users_acl = new Class({
             }
         };
 
-        var kaFields = new ka.FieldForm(fieldContainer, fields, {allTableItems:1, tableItemLabelWidth: 180}, {win: this.win});
+        var kaFields = new ka.FieldForm(fieldContainer, fields, {allTableItems: 1, tableItemLabelWidth: 180},
+            {win: this.win});
 
         var deleteRule = new ka.Button([t('Delete rule'), '#icon-minus-5']).inject(fieldContainer);
 
         deleteRule.addEvent('click', this.deleteEntrypointRule.bind(this, pDom));
 
-        kaFields.addEvent('change', function(){
+        kaFields.addEvent('change', function () {
 
-            Array.each(this.currentAcls, function(acl, index){
-                if (acl.object != 'system_entrypoint') return;
+            Array.each(this.currentAcls, function (acl, index) {
+                if (acl.object != 'system_entrypoint') {
+                    return;
+                }
 
-                if (acl.constraint_code != pDom.entryPath) return;
+                if (acl.constraint_code != pDom.entryPath) {
+                    return;
+                }
 
                 this.currentAcls[index] = Object.merge(pDom.rule, kaFields.getValue());
                 pDom.rule = this.currentAcls[index];
@@ -1620,7 +1722,7 @@ var users_acl = new Class({
 
     },
 
-    deleteEntrypointRule: function(pDom){
+    deleteEntrypointRule: function (pDom) {
 
         this.entryPointList.getElements('a').removeClass('users-acl-entrypoint-rule-active');
         this.entryPointRuleContainer.empty();
@@ -1634,67 +1736,83 @@ var users_acl = new Class({
 
     },
 
-    addEntryPointRuleToTree: function(pRule){
+    addEntryPointRuleToTree: function (pRule) {
 
         var dom = this.currentEntrypointDoms[pRule.constraint_code];
 
-        if (dom.ruleIcon) dom.ruleIcon.destroy();
-        if (dom.ruleLine) dom.ruleLine.destroy();
-        if (dom.ruleLineChildern) dom.ruleLineChildern.destroy();
+        if (dom.ruleIcon) {
+            dom.ruleIcon.destroy();
+        }
+        if (dom.ruleLine) {
+            dom.ruleLine.destroy();
+        }
+        if (dom.ruleLineChildern) {
+            dom.ruleLineChildern.destroy();
+        }
 
-        var accessIcon = pRule.access==1?'accept':'exclamation';
-        var accessColor = pRule.access==1?'green':'red';
+        var accessIcon = pRule.access == 1 ? 'accept' : 'exclamation';
+        var accessColor = pRule.access == 1 ? 'green' : 'red';
 
         dom.rule = pRule;
 
         dom.ruleIcon = new Element('img', {
-            src: _path + 'admin/images/icons/'+accessIcon+'.png',
+            src: _path + 'admin/images/icons/' + accessIcon + '.png',
             style: 'position: absolute; left: -13px; top: 4px; width: 10px;'
         }).inject(dom);
 
-        if (pRule.sub == 1){
+        if (pRule.sub == 1) {
 
             dom.ruleLine = new Element('div', {
-                style: 'position: absolute; left: -9px; height: 4px; top: 14px; width: 1px; border-right: 1px solid '+accessColor
+                style: 'position: absolute; left: -9px; height: 4px; top: 14px; width: 1px; border-right: 1px solid ' +
+                    accessColor
             }).inject(dom);
 
             var childContainer = dom.getNext();
-            if (!childContainer) return;
+            if (!childContainer) {
+                return;
+            }
 
             dom.ruleLineChildern = new Element('div', {
-                style: 'position: absolute; left: -4px; bottom: 0px; top: 0px; width: 1px; border-right: 1px solid '+accessColor
+                style: 'position: absolute; left: -4px; bottom: 0px; top: 0px; width: 1px; border-right: 1px solid ' +
+                    accessColor
             }).inject(childContainer);
         }
 
     },
 
-    updateObjectRulesCounter: function(){
-
+    updateObjectRulesCounter: function () {
 
         var counter = {};
 
-        Array.each(this.currentAcls, function(acl){
+        Array.each(this.currentAcls, function (acl) {
 
-            if (counter[acl.object.toLowerCase()])
+            if (counter[acl.object.toLowerCase()]) {
                 counter[acl.object.toLowerCase()]++;
-            else
+            }
+            else {
                 counter[acl.object.toLowerCase()] = 1;
+            }
 
         }.bind(this));
 
-        Object.each(this.objectDivs, function(dom, key){
-            if (!counter[key]) counter[key] = 0;
-            dom.count.set('text', ' ('+counter[key]+')');
+        Object.each(this.objectDivs, function (dom, key) {
+            if (!counter[key]) {
+                counter[key] = 0;
+            }
+            dom.count.set('text', ' (' + counter[key] + ')');
         });
-
 
     },
 
-    setAcls: function(pResponse){
+    setAcls: function (pResponse) {
 
-        if (pResponse.error) throw pResponse.error;
+        if (pResponse.error) {
+            throw pResponse.error;
+        }
 
-        if (!pResponse.data) pResponse.data = [];
+        if (!pResponse.data) {
+            pResponse.data = [];
+        }
 
         this.currentAcls = pResponse.data;
         this.loadedAcls = pResponse.data.clone(this.currentAcls);
@@ -1710,9 +1828,11 @@ var users_acl = new Class({
         this.unsavedContent = false;
     },
 
-    save: function(){
+    save: function () {
 
-        if (this.lastSaveRq) this.lastSaveRq.cancel();
+        if (this.lastSaveRq) {
+            this.lastSaveRq.cancel();
+        }
 
         this.btnSave.startTip(t('Saving ...'));
         this.win.setBlocked(true);
@@ -1723,7 +1843,7 @@ var users_acl = new Class({
             rules: this.currentAcls
         };
 
-        this.lastSaveRq = new Request.JSON({url: _path+'admin/users/acl', onComplete: function(){
+        this.lastSaveRq = new Request.JSON({url: _path + 'admin/users/acl', onComplete: function () {
 
             this.unsavedContent = false;
             this.btnSave.stopTip(t('Saved'));

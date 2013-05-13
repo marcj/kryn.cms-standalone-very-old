@@ -19,7 +19,6 @@
     margin-top: 18px;
 }
 
-
 .ka-Files-wrapper-fixed .ka-Files-body {
     margin: 0;
     position: absolute;
@@ -195,8 +194,8 @@
     z-index: 150000;
     box-shadow: 0px 0px 1px #ccc;
     -moz-border-radius: 5px;
-    box-shadow:1px 1px 2px #CCCCCC;
-    -moz-box-shadow:1px 1px 2px #CCCCCC;
+    box-shadow: 1px 1px 2px #CCCCCC;
+    -moz-box-shadow: 1px 1px 2px #CCCCCC;
     background-color: #f0f0f0;
 }
 
@@ -247,7 +246,6 @@
     font-size: 12px;
 }
 
-
 .admin-files-item-selected .admin-files-item-title-dimensions {
     color: white;
 }
@@ -292,7 +290,6 @@
     -webkit-border-radius: 5px;
     border-radius: 5px;
 }
-
 
 /* listType: miniatur */
 .admin-files-item-miniatur {
@@ -346,7 +343,6 @@ table.ka-files-search-table td {
     padding: 1px;
 }
 
-
 table.ka-files-search-table tr:hover td {
     background-color: #e5e5e5;
 }
@@ -380,6 +376,7 @@ table.ka-files-search-table tr:hover td {
     position: relative;
     border-radius: 2px;
 }
+
 /*
 .admin-files-infos .ka-objectTree-item-hover,
 .admin-files-infos .ka-objectTree-item-hover:link,

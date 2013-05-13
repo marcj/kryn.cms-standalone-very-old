@@ -11,8 +11,9 @@ class Layout extends Store
     {
         $items = self::getItems();
         foreach ($items as $k => $v) {
-            if ($k == $pId)
+            if ($k == $pId) {
                 return $v;
+            }
         }
     }
 
@@ -26,12 +27,14 @@ class Layout extends Store
             foreach ($config['themes'] as $themeTitle => $themeConfig) {
                 if ($themeConfig['layouts']) {
                     $c++;
-                    if ($c > $pOffset && (!$pLimit || $c <= $pLimit))
+                    if ($c > $pOffset && (!$pLimit || $c <= $pLimit)) {
                         $res[] = array('label' => $themeTitle, 'isSplit' => true);
+                    }
                     foreach ($themeConfig['layouts'] as $title => $file) {
                         $c++;
-                        if ($c > $pOffset && (!$pLimit || $c <= $pLimit))
-                            $res[$file] = array('label' => $title.' ('.$themeTitle.')');
+                        if ($c > $pOffset && (!$pLimit || $c <= $pLimit)) {
+                            $res[$file] = array('label' => $title . ' (' . $themeTitle . ')');
+                        }
                     }
                 }
             }

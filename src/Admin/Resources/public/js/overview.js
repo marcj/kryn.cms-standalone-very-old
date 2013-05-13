@@ -2,15 +2,16 @@ admin_overview = new Class({
     initialize: function (pWindow) {
         this.win = pWindow;
 
-
         this.topGroup = this.win.addSmallTabGroup();
         this.buttons = new Hash();
 
-
         this.addMenu = function (pConfig, pKey) {
 
-            if (!pConfig || !pConfig.widgets) return;
-            var titleTxt = (pConfig.title[window._session.lang]) ? pConfig.title[window._session.lang] : pConfig.title['en'];
+            if (!pConfig || !pConfig.widgets) {
+                return;
+            }
+            var titleTxt = (pConfig.title[window._session.lang]) ? pConfig.title[window._session.lang] :
+                pConfig.title['en'];
             var img = null;
             if (pConfig.icon_mini) {
                 img = _path + pConfig.icon_mini;
@@ -21,13 +22,14 @@ admin_overview = new Class({
 
         this.addMenu(ka.settings.configs['admin'], 'admin');
         Object.each(ka.settings.configs, function (config, extCode) {
-            if (extCode == 'admin') return;
+            if (extCode == 'admin') {
+                return;
+            }
 
             //checkaccess admin/users/widgets/widgetSessions/%
             this.addMenu(config, extCode);
 
         }.bind(this));
-
 
         //this.buttons['general'] = this.topGroup.addButton(_('General'), _path+ PATH_WEB + '/admin/images/admin-pages-viewType-general.png', this.viewType.bind(this,'general'));
         //this.buttons['system'] = this.topGroup.addButton(_('System'), _path+ PATH_WEB + '/admin/images/icons/computer.png', this.viewType.bind(this,'system'));
@@ -44,7 +46,6 @@ admin_overview = new Class({
             }).inject(this.win.content);
 
         }.bind(this));
-
 
         this.win.addEvent('close', function () {
             this.clearWidgets();
@@ -68,7 +69,6 @@ admin_overview = new Class({
 
         this.clearWidgets();
         this._widgets.clean();
-
 
         var widgetsLayout = ka.settings.configs[pExt].widgetsLayout;
         if (widgetsLayout) {
@@ -95,7 +95,8 @@ admin_overview = new Class({
             } else {
                 target = this.panes[pExt].getElement('[id=' + widget.position + ']');
                 if (!target) {
-                    this.win._alert(_('Can not find position %1 in the widgetsLayout from extension %2').replace('%1', widget.position).replace('%2', pExt));
+                    this.win._alert(_('Can not find position %1 in the widgetsLayout from extension %2').replace('%1',
+                        widget.position).replace('%2', pExt));
                 }
             }
 
@@ -107,7 +108,6 @@ admin_overview = new Class({
             this._widgets.include(widgetObj);
 
         }.bind(this));
-
 
     },
 
@@ -142,7 +142,6 @@ admin_overview = new Class({
         }
     },
 
-
     loadWidgets: function (pCategory) {
 
         pPane = (pCategory == 'overview') ? 'general' : 'statistic';
@@ -150,7 +149,8 @@ admin_overview = new Class({
         p.setStyle('padding', 10);
         p.empty();
 
-        new Request.JSON({url: _pathAdmin + 'admin/widgets/getWidgets/', noCache: 1, onComplete: function (pExtensions) {
+        new Request.JSON({url: _pathAdmin +
+            'admin/widgets/getWidgets/', noCache: 1, onComplete: function (pExtensions) {
 
             if (typeOf(pExtensions) == 'array') {
                 new Element('div', {
@@ -160,7 +160,6 @@ admin_overview = new Class({
             }
 
             $H(pExtensions).each(function (item, index) {
-
 
                 var h3 = new Element('h4', {
                     html: _(item.title),
@@ -192,7 +191,6 @@ admin_overview = new Class({
 
                     }).fireEvent('click').inject(h3, 'top');
 
-
                 var left = new Element('div', {
                     style: 'float: left; width: 49%;'
                 }).inject(container);
@@ -205,7 +203,6 @@ admin_overview = new Class({
 
                 item.widgets.each(function (widget) {
 
-
                     var target = (widget.position == 'right') ? right : left;
 
                     var widget = new ka.Widget(widget, target);
@@ -214,12 +211,9 @@ admin_overview = new Class({
 
                 }.bind(this));
 
-
             }.bind(this));
 
-
         }.bind(this)}).post({category: pCategory});
-
 
         //this.renderGeneral();
         //this.pullWidgets();
@@ -232,7 +226,6 @@ admin_overview = new Class({
             }.bind(this));
         }.bind(this));
     },
-
 
     pullWidget: function (pItem, pBoxId) {
 

@@ -2,8 +2,8 @@
 
 namespace Core\Render;
 
-use Core\Models\Content;
 use Core\Kryn;
+use Core\Models\Content;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
@@ -29,7 +29,7 @@ class TypePlugin implements TypeInterface
             }
 
             if ($pluginDef = $config->getPlugin($plugin['plugin'])) {
-                $clazz  = $pluginDef->getClass();
+                $clazz = $pluginDef->getClass();
                 $method = $pluginDef->getMethod();
 
                 if (class_exists($clazz)) {
@@ -45,7 +45,7 @@ class TypePlugin implements TypeInterface
 
                         ob_start();
                         $response = Kryn::getHttpKernel()->handle($request, HttpKernelInterface::SUB_REQUEST);
-                        $ob       = ob_get_clean();
+                        $ob = ob_get_clean();
 
                         if ($response instanceof Response) {
                             Kryn::sendResponse($response);

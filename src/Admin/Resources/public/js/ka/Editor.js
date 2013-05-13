@@ -10,7 +10,7 @@ ka.Editor = new Class({
     container: null,
     preview: 0,
 
-    initialize: function(pContainer, pOptions){
+    initialize: function (pContainer, pOptions) {
 
         this.setOptions(pOptions);
 
@@ -30,18 +30,18 @@ ka.Editor = new Class({
 
     },
 
-    contentMouseDown: function(pEvent, pElement){
+    contentMouseDown: function (pEvent, pElement) {
 
         var content = pElement.getParent('.ka-content');
         var value = content.kaContentInstance.getValue();
         var clone;
-        if (value.type == 'text'){
+        if (value.type == 'text') {
             clone = new Element('div', {
                 'class': 'ka-content'
             }).inject(content.getDocument().body);
 
             var outer = new Element('div', {
-                'class': 'ka-normalize ka-content-'+value.type
+                'class': 'ka-normalize ka-content-' + value.type
             }).inject(clone);
 
             var inner = new Element('div', {
@@ -63,14 +63,14 @@ ka.Editor = new Class({
         }
         clone.addClass('ka-content-onDrag');
 
-        this.startDragNDrop(pEvent, content, clone, function(pTarget){
+        this.startDragNDrop(pEvent, content, clone, function (pTarget) {
             content.inject(pTarget, 'after');
             this.checkChange();
         }.bind(this)
         );
     },
 
-    contentSidebarMouseDown: function(pEvent, pElement){
+    contentSidebarMouseDown: function (pEvent, pElement) {
 
         var content = pElement;
 
@@ -80,13 +80,15 @@ ka.Editor = new Class({
         }).inject(pElement.getDocument().body);
         clone.addClass('ka-editor-sidebar-draggable-active');
 
-        var removeBg = function(pTarget){
-            if (!pTarget) return;
+        var removeBg = function (pTarget) {
+            if (!pTarget) {
+                return;
+            }
             var slot = pTarget.hasClass('ka-slot') ? pTarget : pTarget.getParent('.ka-slot');
             slot.setStyle('background-color');
         }
 
-        this.startDragNDrop(pEvent, content, clone, function(pTarget){
+        this.startDragNDrop(pEvent, content, clone, function (pTarget) {
 
             this.highlightSlots(false);
             this.highlightSlotsBubbles(false);
@@ -99,25 +101,25 @@ ka.Editor = new Class({
             this.checkChange();
         }.bind(this));
 
-        this.lastDrag.addEvent('enter', function(element, droppable){
+        this.lastDrag.addEvent('enter', function (element, droppable) {
             var slot = droppable.hasClass('ka-slot') ? droppable : droppable.getParent('.ka-slot');
             slot.setStyle('background-color', 'rgba(34, 124, 160,0.4)');
         }.bind(this));
 
-        this.lastDrag.addEvent('leave', function(element, droppable){
+        this.lastDrag.addEvent('leave', function (element, droppable) {
             removeBg(droppable);
         }.bind(this));
 
-        var cleanUp = function(droppable){
+        var cleanUp = function (droppable) {
             this.highlightSlots(false);
             this.highlightSlotsBubbles(false);
             removeBg(droppable);
         }.bind(this);
 
-        this.lastDrag.addEvent('cancel', function(element, droppable){
+        this.lastDrag.addEvent('cancel', function (element, droppable) {
             cleanUp();
         }.bind(this));
-        this.lastDrag.addEvent('complete', function(element, droppable){
+        this.lastDrag.addEvent('complete', function (element, droppable) {
             cleanUp();
         }.bind(this));
 
@@ -125,10 +127,10 @@ ka.Editor = new Class({
         this.highlightSlotsBubbles(true);
     },
 
-    startDragNDrop: function(pEvent, pElement, pClone, pCallback){
+    startDragNDrop: function (pEvent, pElement, pClone, pCallback) {
 
         var content = pElement;
-        var clone   = pClone;
+        var clone = pClone;
 
         var position = pEvent.page;
         position.x--;
@@ -148,9 +150,9 @@ ka.Editor = new Class({
         this.lastDrag = new DOMWindow.Drag.Move(clone, {
             handle: '.ka-content-actionBar-move',
             droppables: droppables,
-            onEnter: function(element, droppable){
-                if (content != droppable){
-                    if (droppable.hasClass('ka-content')){
+            onEnter: function (element, droppable) {
+                if (content != droppable) {
+                    if (droppable.hasClass('ka-content')) {
                         self.currentHoveredElement = droppable;
                         self.currentHoveredElementY = droppable.getPosition(droppable.getDocument().body).y;
                         self.currentHoveredElementHeight = droppable.getSize().y;
@@ -166,35 +168,36 @@ ka.Editor = new Class({
 
                 self.updateDragPlaceholder();
             },
-            onDrag: function(element, event){
+            onDrag: function (element, event) {
                 self.updateDragPlaceholder(event);
             },
-            onLeave: function(element, droppable){
+            onLeave: function (element, droppable) {
                 delete self.currentHoveredElement;
             },
-            onDrop: function(element, droppable){
-                if (self.lastPlaceHolder){
+            onDrop: function (element, droppable) {
+                if (self.lastPlaceHolder) {
                     pCallback(self.lastPlaceHolder);
                     self.lastPlaceHolder.destroy();
                     delete self.lastPlaceHolder;
                 }
             },
-            onCancel: function(){
+            onCancel: function () {
                 clone.destroy();
             },
-            onComplete: function(){
+            onComplete: function () {
                 clone.destroy();
                 content.getDocument().body.removeClass('ka-editor-dragMode');
-                if (this.lastPlaceHolder){
+                if (this.lastPlaceHolder) {
                     this.lastPlaceHolder.destroy();
                     delete this.lastPlaceHolder;
                 }
 
             }.bind(this),
-            onStart: function(){
+            onStart: function () {
                 content.getDocument().body.addClass('ka-editor-dragMode');
-                if (content.getDocument().activeElement)
+                if (content.getDocument().activeElement) {
                     content.getDocument().activeElement.blur();
+                }
             }
         });
 
@@ -203,56 +206,59 @@ ka.Editor = new Class({
         return clone;
     },
 
-    updateDragPlaceholder: function(pEvent){
+    updateDragPlaceholder: function (pEvent) {
         if (!this.currentHoveredElement && !this.currentHoveredSlot) {
 
-            if (this.lastPlaceHolder){
+            if (this.lastPlaceHolder) {
                 this.lastPlaceHolder.destroy();
                 delete this.lastPlaceHolder;
             }
             return;
         }
 
-        if (!this.lastPlaceHolder){
+        if (!this.lastPlaceHolder) {
             this.lastPlaceHolder = new Element('div', {
                 'class': 'ka-editor-drag-placeholder'
             });
         }
 
         //upper area or bottom?
-        if (this.currentHoveredSlot){
+        if (this.currentHoveredSlot) {
             this.lastPlaceHolder.inject(this.currentHoveredSlot, 'top');
         } else {
             var injectPosition = 'after';
-            if (this.lastDrag.mouse.now.y-this.currentHoveredElementY < (this.currentHoveredElementHeight/2))
+            if (this.lastDrag.mouse.now.y - this.currentHoveredElementY < (this.currentHoveredElementHeight / 2)) {
                 injectPosition = 'before';
+            }
             this.lastPlaceHolder.inject(this.currentHoveredElement, injectPosition);
         }
     },
 
-
-    onOver: function(pEvent, pElement){
-        if (this.lastHoveredContentInstance)
+    onOver: function (pEvent, pElement) {
+        if (this.lastHoveredContentInstance) {
             this.lastHoveredContentInstance.onOut();
+        }
 
-        if (pElement.getDocument().body.hasClass('ka-editor-dragMode')) return;
+        if (pElement.getDocument().body.hasClass('ka-editor-dragMode')) {
+            return;
+        }
 
-        if (pElement && pElement.kaContentInstance){
+        if (pElement && pElement.kaContentInstance) {
             pElement.kaContentInstance.onOver(pEvent);
             this.lastHoveredContentInstance = pElement.kaContentInstance;
         }
     },
 
-    onOut: function(pEvent, pElement){
-        if (pElement && pElement.kaContentInstance){
+    onOut: function (pEvent, pElement) {
+        if (pElement && pElement.kaContentInstance) {
             pElement.kaContentInstance.onOut(pEvent);
             delete this.lastHoveredContentInstance;
         }
     },
 
-    adjustAnchors: function(){
+    adjustAnchors: function () {
 
-        this.container.getElements('a').each(function(a){
+        this.container.getElements('a').each(function (a) {
             if (a.href) {
                 a.href = a.href + ((a.href.indexOf('?') > 0) ? '&' : '?') + '_kryn_editor=1';
             }
@@ -260,9 +266,9 @@ ka.Editor = new Class({
 
     },
 
-    renderSidebar: function(){
+    renderSidebar: function () {
 
-        this.sidebar = new Element('div',{
+        this.sidebar = new Element('div', {
             'class': 'ka-editor-sidebar'
         }).inject(this.container);
 
@@ -272,8 +278,12 @@ ka.Editor = new Class({
             'class': 'icon ka-editor-sidebar-item ka-editor-sidebar-item-showslots',
             title: t('Show available slots')
         })
-            .addEvent('mouseenter', function(){ this.highlightSlots(true); }.bind(this))
-            .addEvent('mouseleave', function(){ this.highlightSlots(false); }.bind(this))
+            .addEvent('mouseenter', function () {
+                this.highlightSlots(true);
+            }.bind(this))
+            .addEvent('mouseleave', function () {
+                this.highlightSlots(false);
+            }.bind(this))
             .inject(this.sidebar);
 
         this.showPreview = new Element('a', {
@@ -282,10 +292,12 @@ ka.Editor = new Class({
             'class': 'icon ka-editor-sidebar-item ka-editor-sidebar-item-splitter',
             title: t('Toggle preview')
         })
-            .addEvent('click', function(){ this.togglePreview(); }.bind(this))
+            .addEvent('click', function () {
+                this.togglePreview();
+            }.bind(this))
             .inject(this.sidebar);
 
-        Object.each(ka.ContentTypes, function(content, type){
+        Object.each(ka.ContentTypes, function (content, type) {
             this.addContentTypeIcon(type, content);
         }.bind(this));
 
@@ -295,18 +307,20 @@ ka.Editor = new Class({
             title: t('Save changes'),
             'class': 'icon ka-editor-sidebar-item ka-editor-sidebar-item-save'
         })
-            .addEvent('click', function(){ this.save(); }.bind(this))
+            .addEvent('click', function () {
+                this.save();
+            }.bind(this))
             .inject(this.sidebar);
 
     },
 
-    getValue: function(){
+    getValue: function () {
         this.slots = this.container.getElements('.ka-slot');
 
         var contents = [];
 
-        Array.each(this.slots, function(slot){
-            if (slot.kaSlotInstance){
+        Array.each(this.slots, function (slot) {
+            if (slot.kaSlotInstance) {
                 contents = contents.concat(slot.kaSlotInstance.getValue());
             }
         });
@@ -314,34 +328,38 @@ ka.Editor = new Class({
         return contents;
     },
 
-    getUrl: function(){
-        return _path+'admin/object/Core:Node/'+window.currentNode.id+'?_method=patch';
+    getUrl: function () {
+        return _path + 'admin/object/Core:Node/' + window.currentNode.id + '?_method=patch';
     },
 
-    save: function(){
+    save: function () {
 
-        if (this.lastSaveRq) this.lastSaveRq.cancel();
+        if (this.lastSaveRq) {
+            this.lastSaveRq.cancel();
+        }
 
         var contents = this.getValue();
 
-        this.lastSaveRq = new Request.JSON({url: this.getUrl(), onComplete: function(pResponse){
+        this.lastSaveRq = new Request.JSON({url: this.getUrl(), onComplete: function (pResponse) {
 
         }.bind(this)}).post({content: contents});
 
     },
 
-    highlightSlotsBubbles: function(pHighlight){
-        if (!pHighlight){
-            if (this.lastBubbles)
+    highlightSlotsBubbles: function (pHighlight) {
+        if (!pHighlight) {
+            if (this.lastBubbles) {
                 this.lastBubbles.invoke('destroy');
-            if (this.lastBubbleTimer)
+            }
+            if (this.lastBubbleTimer) {
                 clearInterval(this.lastBubbleTimer);
+            }
             return;
         }
 
         this.lastBubbles = [];
 
-        this.slots.each(function(slot){
+        this.slots.each(function (slot) {
 
             var bubble = new Element('div', {
                 'class': 'ka-editor-slot-infobubble',
@@ -354,9 +372,9 @@ ka.Editor = new Class({
                 edge: 'centerBottom'
             });
 
-            bubble.kaEditorOriginTop = bubble.getStyle('top').toInt()-10;
+            bubble.kaEditorOriginTop = bubble.getStyle('top').toInt() - 10;
             bubble.setStyle('top', bubble.kaEditorOriginTop);
-            bubble.kaEditorIsOrigin  = true;
+            bubble.kaEditorIsOrigin = true;
 
             bubble.set('tween', {transition: Fx.Transitions.Quad.easeOut, duration: 1500});
 
@@ -366,12 +384,12 @@ ka.Editor = new Class({
 
         var delta = 8;
 
-        var jump = function(){
+        var jump = function () {
 
-            Array.each(this.lastBubbles, function(bubble){
+            Array.each(this.lastBubbles, function (bubble) {
 
-                if (bubble.kaEditorIsOrigin){
-                    bubble.tween('top', bubble.kaEditorOriginTop-delta);
+                if (bubble.kaEditorIsOrigin) {
+                    bubble.tween('top', bubble.kaEditorOriginTop - delta);
                     bubble.kaEditorIsOrigin = false;
                 } else {
                     bubble.tween('top', bubble.kaEditorOriginTop);
@@ -386,21 +404,21 @@ ka.Editor = new Class({
         this.lastBubbleTimer = jump.periodical(1500, this);
     },
 
-    highlightSave: function(pHighlight){
+    highlightSave: function (pHighlight) {
 
-        if (!pHighlight && this.lastTimer){
+        if (!pHighlight && this.lastTimer) {
             clearInterval(this.lastTimer);
             delete this.lastTimer;
             this.saveBtn.tween('color', '#ffffff');
             return;
-        } else if (this.lastTimer){
+        } else if (this.lastTimer) {
             return;
         }
 
         this.timerIdx = 0;
 
-        this.lastTimer = (function(){
-            if (++this.timerIdx%2){
+        this.lastTimer = (function () {
+            if (++this.timerIdx % 2) {
                 this.saveBtn.tween('color', '#2A8AEC');
             } else {
                 this.saveBtn.tween('color', '#ffffff');
@@ -409,10 +427,10 @@ ka.Editor = new Class({
 
     },
 
-    togglePreview: function(){
+    togglePreview: function () {
         var active = ++this.preview % 2;
 
-        if (active){
+        if (active) {
             this.showPreview.addClass('ka-editor-sidebar-item-active');
         } else {
             this.showPreview.removeClass('ka-editor-sidebar-item-active');
@@ -420,7 +438,7 @@ ka.Editor = new Class({
 
     },
 
-    addContentTypeIcon: function(pType, pContent){
+    addContentTypeIcon: function (pType, pContent) {
 
         var type = new pContent;
 
@@ -435,31 +453,33 @@ ka.Editor = new Class({
 
     },
 
-    highlightSlots: function(pEnter){
-        if (pEnter)
+    highlightSlots: function (pEnter) {
+        if (pEnter) {
             this.slots.addClass('ka-slot-highlight');
-        else
+        }
+        else {
             this.slots.removeClass('ka-slot-highlight');
+        }
     },
 
-    searchSlots: function(){
+    searchSlots: function () {
 
         this.slots = this.container.getElements('.ka-slot');
 
-        Array.each(this.slots, function(slot){
+        Array.each(this.slots, function (slot) {
             this.initSlot(slot);
         }.bind(this));
 
     },
 
-    hasChanges: function(){
+    hasChanges: function () {
 
         this.slots = this.container.getElements('.ka-slot');
 
         var hasChanges = false;
 
-        Array.each(this.slots, function(slot){
-            if (slot.kaSlotInstance){
+        Array.each(this.slots, function (slot) {
+            if (slot.kaSlotInstance) {
                 hasChanges |= slot.kaSlotInstance.hasChanges();
             }
         });
@@ -467,13 +487,13 @@ ka.Editor = new Class({
         return hasChanges;
     },
 
-    checkChange: function(){
+    checkChange: function () {
 
         this.highlightSave(this.hasChanges());
 
     },
 
-    initSlot: function(pDomSlot){
+    initSlot: function (pDomSlot) {
 
         pDomSlot.slotInstance = new ka.Slot(pDomSlot, this.options, this);
         pDomSlot.slotInstance.addEvent('change', this.checkChange);

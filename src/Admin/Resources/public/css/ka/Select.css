@@ -59,7 +59,6 @@
     background-color: #f8f8f8;
 }
 
-
 .ka-Select-box:active,
 .ka-Select-box-focus,
 .ka-Select-box:active > .ka-Select-arrow,
@@ -81,7 +80,6 @@
     background-color: transparent;
     border: 0;
 }
-
 
 .ka-Select-box-focus {
     border: 1px solid #3E9BCB;
@@ -158,7 +156,6 @@
     border-top: 1px solid #999;
 }
 
-
 .ka-Select-box-open,
 .ka-Select-box-open:hover {
     -moz-border-radius-bottomright: 0px;
@@ -194,7 +191,6 @@
     position: relative;
     white-space: nowrap;
 }
-
 
 .ka-Select-box-title img,
 .ka-select-chooser-item img {

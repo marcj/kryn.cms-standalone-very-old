@@ -4,7 +4,8 @@ namespace Core\Config;
 
 use Core\Kryn;
 
-class Configs implements \IteratorAggregate {
+class Configs implements \IteratorAggregate
+{
 
     /**
      * @var DOMElement[]
@@ -20,7 +21,9 @@ class Configs implements \IteratorAggregate {
     {
         foreach ($bundles as $bundleName) {
             $bundle = Kryn::getBundle($bundleName);
-            if (!$bundle) continue;
+            if (!$bundle) {
+                continue;
+            }
 
             $configs = $bundle->getConfig();
             $this->configElements = array_merge_recursive_distinct($this->configElements, $configs);
@@ -36,7 +39,8 @@ class Configs implements \IteratorAggregate {
      *
      * @return array
      */
-    public function parseConfig(array $configs){
+    public function parseConfig(array $configs)
+    {
         $bundleConfigs = array();
 
         foreach ($configs as $bundleName => $priorities) {
@@ -67,9 +71,10 @@ class Configs implements \IteratorAggregate {
      *
      * @return Config
      */
-    public function getConfig($bundleName) {
+    public function getConfig($bundleName)
+    {
         $bundle = Kryn::getBundle($bundleName);
-        if (!$bundle){
+        if (!$bundle) {
             return;
         }
 
@@ -83,8 +88,7 @@ class Configs implements \IteratorAggregate {
     public function toArray()
     {
         $result = array();
-        foreach ($this->configElements as $config)
-        {
+        foreach ($this->configElements as $config) {
             $result[strtolower($config->getName())] = $config->toArray();
         }
         return $result;
@@ -93,7 +97,8 @@ class Configs implements \IteratorAggregate {
     /**
      * @return Config[]
      */
-    public function getIterator() {
+    public function getIterator()
+    {
         return new \ArrayIterator($this->configElements);
     }
 }

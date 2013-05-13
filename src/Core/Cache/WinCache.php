@@ -17,8 +17,9 @@ class WinCache implements CacheInterface
      */
     public function testConfig($pConfig)
     {
-        if (!function_exists('wincache_ucache_get'))
+        if (!function_exists('wincache_ucache_get')) {
             throw new \Exception('The PECL wincache >= 1.1.0 is not activated in your PHP environment.');
+        }
 
         return true;
     }

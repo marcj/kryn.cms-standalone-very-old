@@ -1,8 +1,8 @@
 ka.FieldTypes.Number = new Class({
-    
+
     Extends: ka.FieldTypes.Input,
 
-    createLayout: function(){
+    createLayout: function () {
         this.parent();
 
         this.input.type = 'number';
@@ -13,8 +13,10 @@ ka.FieldTypes.Number = new Class({
 
     },
 
-    getValue: function(){
-        if (this.input.value === '') return '';
+    getValue: function () {
+        if (this.input.value === '') {
+            return '';
+        }
         return parseFloat(this.input.value);
     }
 });

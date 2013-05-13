@@ -46,6 +46,7 @@ class Store extends Server
 
     /**
      * The default order
+     *
      * @var string
      */
     public $order;
@@ -59,8 +60,9 @@ class Store extends Server
 
     public function exceptionHandler($pException)
     {
-        if (get_class($pException) != 'AccessDeniedException')
+        if (get_class($pException) != 'AccessDeniedException') {
             \Core\Utils::exceptionHandler($pException);
+        }
     }
 
     public function setEntryPoint($pEntryPoint)
@@ -81,7 +83,9 @@ class Store extends Server
     public function getItem($pId)
     {
         $res = array();
-        if (!$this->table) return $res;
+        if (!$this->table) {
+            return $res;
+        }
         $table = database::getTable($this->table);
 
         $id = $pId;
@@ -125,11 +129,13 @@ class Store extends Server
     public function getLimit($pFrom, $pCount)
     {
         $limit = '';
-        if ($pFrom > 0)
+        if ($pFrom > 0) {
             $limit = 'OFFSET ' . $pFrom;
+        }
 
-        if ($pCount > 0)
+        if ($pCount > 0) {
             $limit .= ' LIMIT ' . $pCount;
+        }
 
         return $limit;
     }
@@ -137,6 +143,7 @@ class Store extends Server
     /**
      * @param  int   $pOffset
      * @param  int   $pLimit
+     *
      * @return array
      */
     public function getItems($pOffset = 0, $pLimit = 0)
@@ -145,24 +152,27 @@ class Store extends Server
         $pOffset += 0;
         $pLimit += 0;
 
-        if (!$this->table && !$this->sql) throw new \MisconfigurationException('`table` or `sql` shall be defined.');
+        if (!$this->table && !$this->sql) {
+            throw new \MisconfigurationException('`table` or `sql` shall be defined.');
+        }
 
         $limit = $this->getLimit($pOffset, $pLimit);
 
         if ($this->sql) {
-            $sql = $this->sql.$limit;
+            $sql = $this->sql . $limit;
         } else {
-            $table = pfx.$this->table;
+            $table = pfx . $this->table;
 
             $where = $this->where;
-            if (!$where)
+            if (!$where) {
                 $where = $this->getItemsWhere();
+            }
 
             $where .= $this->getSearchWhere();
             $sql = ' SELECT ' . $this->tableKey . ', ' . $this->tableLabel . '
             FROM ' . $table .
-                   ' WHERE 1=1 ' . $where
-                   . $limit;
+                ' WHERE 1=1 ' . $where
+                . $limit;
         }
 
         $dbRes = dbQuery($sql);

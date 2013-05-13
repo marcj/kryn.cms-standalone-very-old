@@ -6,19 +6,19 @@ ka.Window = new Class({
     entryPoint: '',
     module: '',
 
-    inline : false,
-    link   : {},
-    params : {},
+    inline: false,
+    link: {},
+    params: {},
 
     children: null,
 
     initialize: function (pEntryPoint, pLink, pInstanceId, pParameter, pInline, pParentId) {
-        this.params     = pParameter;
-        this.id         = pInstanceId;
+        this.params = pParameter;
+        this.id = pInstanceId;
         this.entryPoint = pEntryPoint;
-        this.inline     = pInline;
-        this.link       = pLink;
-        this.parentId   = pParentId;
+        this.inline = pInline;
+        this.link = pLink;
+        this.parentId = pParentId;
 
         if (this.inline) {
             if (!ka.wm.getWindow(this.parentId)) {
@@ -29,7 +29,7 @@ ka.Window = new Class({
             }
         }
 
-        this.link   = pLink || {};
+        this.link = pLink || {};
         this.active = true;
         this.isOpen = true;
 
@@ -37,8 +37,8 @@ ka.Window = new Class({
 
         if (pEntryPoint) {
             this.loadContent();
-            this.addHotkey('esc', false, false, function(e){
-                (function(){
+            this.addHotkey('esc', false, false, function (e) {
+                (function () {
                     this.close(true);
                 }).delay(50, this);
             }.bind(this));
@@ -49,7 +49,7 @@ ka.Window = new Class({
      *
      * @returns {boolean}
      */
-    isInline: function(){
+    isInline: function () {
         return this.inline;
     },
 
@@ -57,7 +57,7 @@ ka.Window = new Class({
      *
      * @return {Object}
      */
-    getParameter: function(){
+    getParameter: function () {
         return this.params;
     },
 
@@ -65,36 +65,37 @@ ka.Window = new Class({
      *
      * @param {*} pParameter
      */
-    setParameter: function(pParameter){
+    setParameter: function (pParameter) {
         this.params = pParameter;
         ka.wm.reloadHashtag();
     },
 
-    getParentId: function(){
+    getParentId: function () {
         return this.parentId;
     },
 
-    getParent: function(){
+    getParent: function () {
         return ka.wm.getWindow(this.parentId);
     },
 
-    isInFront: function(){
+    isInFront: function () {
 
-        if (!this.children)
+        if (!this.children) {
             return this.inFront;
+        }
 
         return this.children.isInFront();
     },
 
-    setChildren: function(pWindow){
+    setChildren: function (pWindow) {
         this.children = pWindow;
     },
 
-    getChildren: function(){
+    getChildren: function () {
         return this.children;
     },
 
-    removeChildren: function(){
+    removeChildren: function () {
         delete this.children;
     },
 
@@ -137,7 +138,6 @@ ka.Window = new Class({
                 inlineSize.y = 450;
             }
 
-
             opener.inlineContainer.setStyles({
                 height: inlineSize.y - 25,
                 width: inlineSize.x
@@ -146,20 +146,21 @@ ka.Window = new Class({
         }
     },
 
-    setLoading: function(pState, pText, pOffset){
-        if (pState == true){
+    setLoading: function (pState, pText, pOffset) {
+        if (pState == true) {
 
-            if (!pText){
+            if (!pText) {
                 pText = t('Loading ...');
             }
 
-            if (this.loadingObj){
+            if (this.loadingObj) {
                 this.loadingObj.destroy();
                 delete this.loadingObj;
             }
 
-            if (this.loadingFx)
+            if (this.loadingFx) {
                 delete this.loadingFx;
+            }
 
             this.loadingObj = new ka.Loader(this.border, {
                 overlay: true,
@@ -168,9 +169,8 @@ ka.Window = new Class({
 
             var div = new Element('div', {
                 'class': 'ka-kwindow-loader-content gradient',
-                html: "<br/>"+pText
+                html: "<br/>" + pText
             }).inject(this.loadingObj.td);
-
 
             document.id(this.loadingObj).setStyles({'top': 25});
             this.loadingObj.transBg.setStyles({'top': 25});
@@ -180,7 +180,7 @@ ka.Window = new Class({
 
             this.loadingObj.getLoader().inject(div, 'top');
             this.loadingObj.getLoader().setStyle('line-height', 25);
-            
+
             this.loadingObj.transBg.setStyle('opacity', 0.05);
             div.setStyles({
                 'opacity': 0,
@@ -199,11 +199,11 @@ ka.Window = new Class({
             });
 
         } else {
-            if (this.loadingObj){
+            if (this.loadingObj) {
 
                 this.loadingFx.cancel();
 
-                this.loadingFx.addEvent('complete', function(){
+                this.loadingFx.addEvent('complete', function () {
 
                     this.loadingObj.destroy();
                     delete this.loadingObj;
@@ -219,7 +219,6 @@ ka.Window = new Class({
             }
         }
 
-
     },
 
     getOpener: function () {
@@ -227,14 +226,16 @@ ka.Window = new Class({
     },
 
     toBlockMode: function (pOpts, pCallback) {
-        if (!pOpts.id > 0) return;
+        if (!pOpts.id > 0) {
+            return;
+        }
 
         this.blockModeOverlay = new Element('div', {
             style: ''
         }).inject(this.blockModeContainer);
     },
 
-    alert: function(pText, pCallback){
+    alert: function (pText, pCallback) {
         return this._alert(pText, pCallback);
     },
 
@@ -255,7 +256,9 @@ ka.Window = new Class({
     },
 
     _passwordPrompt: function (pDesc, pDefaultValue, pCallback, pOpts) {
-        if (!pOpts) pOpts = {};
+        if (!pOpts) {
+            pOpts = {};
+        }
         pOpts.pw = 1;
         return this._prompt(pDesc, pDefaultValue, pCallback, pOpts);
     },
@@ -263,7 +266,9 @@ ka.Window = new Class({
     _prompt: function (pDesc, pDefaultValue, pCallback, pOpts) {
 
         var res = false;
-        if (!pOpts) pOpts = {};
+        if (!pOpts) {
+            pOpts = {};
+        }
         if (pOpts['confirm'] == 1) {
             res = true;
         }
@@ -284,44 +289,51 @@ ka.Window = new Class({
 
         if (pOpts['alert'] != 1) {
 
-            if (pCallback){
-                var closeEvent = function(){
+            if (pCallback) {
+                var closeEvent = function () {
                     pCallback(false);
                 }
                 main.addEvent('close', closeEvent);
             }
 
-            new ka.Button(t('Cancel')).addEvent('click', function(){
+            new ka.Button(t('Cancel')).addEvent('click', function () {
                 main.close();
             }.bind(this)).inject(main.bottom);
 
-            ok = new ka.Button(t('OK')).addEvent('keyup', function(e){
+            ok = new ka.Button(t('OK')).addEvent('keyup',function (e) {
                 e.stopPropagation();
                 e.stop();
-            }).addEvent('click', function(e){
-                if (e) {
-                    e.stop();
-                }
-                if (input && input.value != '') {
-                    res = input.value;
-                }
-                if (pCallback) main.removeEvent('close', closeEvent);
-                main.close();
-                if (pCallback) pCallback(res);
-            }.bind(this)).inject(main.bottom);
+            }).addEvent('click', function (e) {
+                    if (e) {
+                        e.stop();
+                    }
+                    if (input && input.value != '') {
+                        res = input.value;
+                    }
+                    if (pCallback) {
+                        main.removeEvent('close', closeEvent);
+                    }
+                    main.close();
+                    if (pCallback) {
+                        pCallback(res);
+                    }
+                }.bind(this)).inject(main.bottom);
         }
 
         if (pOpts && pOpts['alert'] == 1) {
 
-            if (pCallback)
+            if (pCallback) {
                 main.addEvent('close', pCallback);
+            }
 
             ok = new ka.Button('OK')
-            .addEvent('click', function(e){
-                if (e) e.stop();
-                main.close(true);
-            }.bind(this))
-            .inject(main.bottom);
+                .addEvent('click', function (e) {
+                    if (e) {
+                        e.stop();
+                    }
+                    main.close(true);
+                }.bind(this))
+                .inject(main.bottom);
         }
 
         if (pOpts['alert'] != 1 && pOpts['confirm'] != 1) {
@@ -344,7 +356,6 @@ ka.Window = new Class({
 
         return main;
     },
-
 
     /**
      * Creates a new dialog over the current window.
@@ -392,8 +403,9 @@ ka.Window = new Class({
     toBack: function () {
         this.title.removeClass('ka-kwindow-inFront');
 
-        if (!this.isInline() && (!this.children || !this.children.isInline()))
+        if (!this.isInline() && (!this.children || !this.children.isInline())) {
             this.border.setStyle('display', 'none');
+        }
 
         this.inFront = false;
     },
@@ -415,7 +427,7 @@ ka.Window = new Class({
         ka.wm.updateWindowBar();
     },
 
-    toFront: function(pOnlyZIndex) {
+    toFront: function (pOnlyZIndex) {
 
         if (this.active) {
             this.title.addClass('ka-kwindow-inFront');
@@ -425,20 +437,22 @@ ka.Window = new Class({
                 });
             }
 
-            if (this.getParent()){
+            if (this.getParent()) {
                 this.getParent().toFront(true);
             }
 
             ka.wm.zIndex++;
             this.border.setStyle('z-index', ka.wm.zIndex);
-            if (!this.isInline()){
+            if (!this.isInline()) {
                 ka.wm.zIndex++;
                 this.border.setStyle('z-index', ka.wm.zIndex);
             }
 
-            if (pOnlyZIndex) return true;
+            if (pOnlyZIndex) {
+                return true;
+            }
 
-            if (this.getChildren()){
+            if (this.getChildren()) {
                 this.getChildren().toFront();
                 this.getChildren().highlight();
                 return false;
@@ -461,18 +475,24 @@ ka.Window = new Class({
 
     addHotkey: function (pKey, pControlOrMeta, pAlt, pCallback) {
 
-        if (!this.hotkeyBinds) this.hotkeyBinds = [];
+        if (!this.hotkeyBinds) {
+            this.hotkeyBinds = [];
+        }
 
-        var bind = function(e){
-            if (document.activeElement){
-                if (document.activeElement.get('tag') != 'body' && !document.activeElement.hasClass('ka-Button')){
+        var bind = function (e) {
+            if (document.activeElement) {
+                if (document.activeElement.get('tag') != 'body' && !document.activeElement.hasClass('ka-Button')) {
                     return;
                 }
             }
             if (this.isInFront() && (!this.inOverlayMode)) {
 
-                if (pControlOrMeta && (!e.control && !e.meta)) return;
-                if (pAlt && !e.alt) return;
+                if (pControlOrMeta && (!e.control && !e.meta)) {
+                    return;
+                }
+                if (pAlt && !e.alt) {
+                    return;
+                }
                 if (e.key == pKey) {
                     pCallback(e);
                 }
@@ -485,9 +505,9 @@ ka.Window = new Class({
 
     },
 
-    removeHotkeys: function(){
+    removeHotkeys: function () {
 
-        Array.each(this.hotkeyBinds, function(bind){
+        Array.each(this.hotkeyBinds, function (bind) {
             document.removeEvent('keydown', bind);
         })
 
@@ -554,7 +574,9 @@ ka.Window = new Class({
 
     maximize: function (pDontRenew) {
 
-        if (this.inline || this.isPopup()) return;
+        if (this.inline || this.isPopup()) {
+            return;
+        }
 
         if (this.maximized) {
             //this.borderDragger.attach();
@@ -565,7 +587,7 @@ ka.Window = new Class({
             this.maximized = false;
             this.border.removeClass('kwindow-border-maximized');
 
-            Object.each(this.sizer, function(sizer){
+            Object.each(this.sizer, function (sizer) {
                 sizer.setStyle('display', 'block');
             });
 
@@ -585,7 +607,7 @@ ka.Window = new Class({
             this.maximizer.addClass('icon-shrink-3');
             this.maximized = true;
 
-            Object.each(this.sizer, function(sizer){
+            Object.each(this.sizer, function (sizer) {
                 sizer.setStyle('display', 'none');
             });
 
@@ -599,17 +621,21 @@ ka.Window = new Class({
     close: function (pInternal) {
 
         //search for dialogs
-        if (this.border){
+        if (this.border) {
             var dialogs = this.border.getChildren('.ka-kwindow-prompt');
-            if (!dialogs || !dialogs.length){
+            if (!dialogs || !dialogs.length) {
                 dialogs = this.border.getChildren('.ka-dialog-overlay');
             }
-            if (dialogs.length > 0){
+            if (dialogs.length > 0) {
 
-                var lastDialog = dialogs[dialogs.length-1];
-                if (lastDialog.kaDialog) lastDialog = lastDialog.kaDialog;
+                var lastDialog = dialogs[dialogs.length - 1];
+                if (lastDialog.kaDialog) {
+                    lastDialog = lastDialog.kaDialog;
+                }
 
-                if (lastDialog.canClosed === false) return;
+                if (lastDialog.canClosed === false) {
+                    return;
+                }
                 lastDialog.closeAnimated(true);
 
                 delete lastDialog;
@@ -618,7 +644,7 @@ ka.Window = new Class({
         }
 
         //search for children windows
-        if (this.getChildren()){
+        if (this.getChildren()) {
             this.getChildren().highlight();
             return false;
         }
@@ -626,13 +652,14 @@ ka.Window = new Class({
         if (pInternal) {
             this.interruptClose = false;
             this.fireEvent('close');
-            if (this.interruptClose == true) return;
+            if (this.interruptClose == true) {
+                return;
+            }
         }
 
         if (this.onClose) {
             this.onClose();
         }
-
 
         if (this.border) {
             if (this.getEntryPoint() == 'users/users/edit/') {
@@ -647,8 +674,8 @@ ka.Window = new Class({
 
         this.inFront = false;
 
-        if (this.dialogContainer){
-            this.addEvent('postClose', function(){
+        if (this.dialogContainer) {
+            this.addEvent('postClose', function () {
                 this.destroy();
             }.bind(this));
             this.dialogContainer.closeAnimated();
@@ -659,35 +686,38 @@ ka.Window = new Class({
         ka.wm.close(this);
     },
 
-    destroy: function(){
+    destroy: function () {
 
         this.removeHotkeys();
 
-        if (window['contentCantLoaded_' + this.customId])
+        if (window['contentCantLoaded_' + this.customId]) {
             delete window['contentCantLoaded_' + this.customId];
+        }
 
-        if (window['contentLoaded_' + this.customId])
+        if (window['contentLoaded_' + this.customId]) {
             delete window['contentLoaded_' + this.customId];
+        }
 
-        if (this.custom)
+        if (this.custom) {
             delete this.custom;
+        }
 
-        if (this.title){
+        if (this.title) {
             this.title.destroy();
             delete this.title;
         }
 
-        if (this.customCssAsset){
+        if (this.customCssAsset) {
             this.customCssAsset.destroy();
             delete this.customCssAsset;
         }
 
-        if (this.customJsAsset){
+        if (this.customJsAsset) {
             this.customJsAsset.destroy();
             delete this.customJsAsset;
         }
 
-        if (this.customJsClassAsset){
+        if (this.customJsClassAsset) {
             this.customJsClassAsset.destroy();
             delete this.customJsClassAsset;
         }
@@ -695,21 +725,21 @@ ka.Window = new Class({
         this.border.destroy();
     },
 
-    getEntryPoint: function(){
+    getEntryPoint: function () {
         return this.entryPoint;
     },
 
-    getId: function(){
+    getId: function () {
         return this.id;
     },
 
-    getEntryPointDefinition: function(){
+    getEntryPointDefinition: function () {
         return this.entryPointDefinition;
     },
 
-    getModule: function(){
-        if (!this.module){
-            if (this.getEntryPoint().indexOf('/') > 0){
+    getModule: function () {
+        if (!this.module) {
+            if (this.getEntryPoint().indexOf('/') > 0) {
                 this.module = this.getEntryPoint().substr(0, this.getEntryPoint().indexOf('/'));
             } else {
                 this.module = this.getEntryPoint();
@@ -718,18 +748,19 @@ ka.Window = new Class({
         return this.module;
     },
 
-    isPopup: function(){
+    isPopup: function () {
         return this.isPopup;
     },
 
     loadContent: function () {
 
-        if (this.getContentContainer())
+        if (this.getContentContainer()) {
             this.getContentContainer().empty();
+        }
 
         this.entryPointDefinition = ka.entrypoint.get(this.getEntryPoint());
 
-        if (!this.entryPointDefinition){
+        if (!this.entryPointDefinition) {
             this.close(true);
             logger(tf('Entry point `%s` not found.', this.getEntryPoint()));
             return;
@@ -739,13 +770,16 @@ ka.Window = new Class({
             var win = ka.wm.checkOpen(this.getEntryPoint(), this.id);
             if (win) {
                 this.close(true);
-                if (win.softOpen) win.softOpen(this.params);
+                if (win.softOpen) {
+                    win.softOpen(this.params);
+                }
                 win.toFront();
                 return;
             }
         }
 
-        var title = ka.settings.configs[ this.getModule() ]['label'] || ka.settings.configs[ this.getModule() ]['bundleName'];
+        var title = ka.settings.configs[ this.getModule() ]['label'] ||
+            ka.settings.configs[ this.getModule() ]['bundleName'];
 
         if (title != 'Kryn.cms') {
             new Element('span', {
@@ -791,11 +825,11 @@ ka.Window = new Class({
                 'class': 'kwindow-iframe',
                 frameborder: 0
             }).addEvent('load', function () {
-                this.iframe.contentWindow.win = this;
-                this.iframe.contentWindow.ka = ka;
-                this.iframe.contentWindow.wm = ka.wm;
-                this.iframe.contentWindow.fireEvent('kload');
-            }.bind(this)).inject(this.content);
+                    this.iframe.contentWindow.win = this;
+                    this.iframe.contentWindow.ka = ka;
+                    this.iframe.contentWindow.wm = ka.wm;
+                    this.iframe.contentWindow.fireEvent('kload');
+                }.bind(this)).inject(this.content);
             this.iframe.set('src', _path + this.entryPointDefinition.src);
         } else if (this.entryPointDefinition.type == 'custom') {
             this.renderCustom();
@@ -810,8 +844,9 @@ ka.Window = new Class({
         }
 
         if (this.entryPointDefinition.type != 'combine') {
-            if (this.dialogContainer)
+            if (this.dialogContainer) {
                 this.dialogContainer.center(true);
+            }
         }
 
         ka.wm.updateWindowBar();
@@ -838,7 +873,8 @@ ka.Window = new Class({
 
     print: function () {
         var size = this.border.getSize();
-        var popup = window.open('', '', 'width=' + size.x + ',height=' + size.y + ',menubar=yes,resizeable=yes,status=yes,toolbar=yes');
+        var popup = window.open('', '',
+            'width=' + size.x + ',height=' + size.y + ',menubar=yes,resizeable=yes,status=yes,toolbar=yes');
         var clone = this.content.clone();
         popup.document.open();
         popup.document.write('<head><title>Drucken</title></head><body></body>');
@@ -875,7 +911,7 @@ ka.Window = new Class({
     renderCustom: function () {
         var id = 'text';
 
-        var code = this.getEntryPoint().substr(this.getModule().length+1);
+        var code = this.getEntryPoint().substr(this.getModule().length + 1);
 
         var javascript = code.replace(/\//g, '_');
 
@@ -884,14 +920,16 @@ ka.Window = new Class({
         if (this.getModule() == 'admin') {
             this.customCssAsset = new Asset.css(_path + 'bundles/admin/css/' + javascript + '.css?noCache=' + noCache);
         } else {
-            this.customCssAsset = new Asset.css(_path + 'bundles/' + this.getModule() + '/admin/css/' + javascript + '.css?noCache=' + noCache);
+            this.customCssAsset =
+                new Asset.css(_path + 'bundles/' + this.getModule() + '/admin/css/' + javascript + '.css?noCache=' +
+                    noCache);
         }
 
         this.customId = parseInt(Math.random() * 100) + parseInt(Math.random() * 100);
 
         window['contentCantLoaded_' + this.customId] = function (pFile) {
             this.content.empty();
-            this._alert(t('Custom javascript file not found')+"\n" + pFile, function(){
+            this._alert(t('Custom javascript file not found') + "\n" + pFile, function () {
                 this.close(true);
             }.bind(this));
         }.bind(this);
@@ -900,16 +938,18 @@ ka.Window = new Class({
             this.content.empty();
             this.custom = new window[ this.getEntryPoint().replace(/\//g, '_') ](this);
 
-            if (this.dialogContainer)
+            if (this.dialogContainer) {
                 this.dialogContainer.center(true);
+            }
         }.bind(this);
 
         this.customJsClassAsset =
-            new Asset.javascript(_pathAdmin + 'admin/backend/custom-js?module=' + this.getModule() + '&code=' + javascript +
+            new Asset.javascript(_pathAdmin + 'admin/backend/custom-js?module=' + this.getModule() + '&code=' +
+                javascript +
                 '&onLoad=' + this.customId);
     },
 
-    toElement: function(){
+    toElement: function () {
         return this.border;
     },
 
@@ -937,7 +977,8 @@ ka.Window = new Class({
 
         this.titleAdditional = new Element('span', {'class': 'ka-kwindow-titlepath-additional'}).inject(this.titlePath);
 
-        this.titleGroups = new Element('div', {'class': 'kwindow-win-titleGroups'}).inject(this.mainLayout.getCell(2, 1));
+        this.titleGroups =
+            new Element('div', {'class': 'kwindow-win-titleGroups'}).inject(this.mainLayout.getCell(2, 1));
 
         this.createTitleBar();
 
@@ -945,8 +986,9 @@ ka.Window = new Class({
             this.title.setStyle('display', 'none');
             this.titleGroups.setStyle('display', 'none');
             this.titleBar.setStyle('display', 'none');
-            if (this.linker)
+            if (this.linker) {
                 this.linker.setStyle('display', 'none');
+            }
         }
 
         this.content = new Element('div', {'class': 'kwindow-win-content'}).inject(this.mainLayout.getCell(3, 1));
@@ -964,13 +1006,13 @@ ka.Window = new Class({
                 minHeight: this.link.minHeight
             });
             /*
-            this.getOpener().inlineContainer.empty();
-            this.border.addClass('kwindow-border-inline');
-            this.border.inject(this.getOpener().inlineContainer);
-            this.updateInlinePosition();
+             this.getOpener().inlineContainer.empty();
+             this.border.addClass('kwindow-border-inline');
+             this.border.inject(this.getOpener().inlineContainer);
+             this.updateInlinePosition();
 
-            this.getOpener().addEvent('resize', this.updateInlinePosition.bind(this));
-            */
+             this.getOpener().addEvent('resize', this.updateInlinePosition.bind(this));
+             */
 
             this.border.inject(this.dialogContainer.getContentContainer());
         } else {
@@ -991,7 +1033,7 @@ ka.Window = new Class({
         this.bottom.set('html', pVal);
     },
 
-    getTitleContaner: function(){
+    getTitleContaner: function () {
         return this.title;
     },
 
@@ -1008,11 +1050,11 @@ ka.Window = new Class({
         return new ka.SmallTabGroup(this.getTitleGroupContainer());
     },
 
-    getTitleGroupContainer: function(){
+    getTitleGroupContainer: function () {
         return this.titleGroups;
     },
 
-    getContentContainer: function(){
+    getContentContainer: function () {
         return this.content;
     },
 
@@ -1029,7 +1071,9 @@ ka.Window = new Class({
 
         this.bottomBar.addButton = function (pTitle, pOnClick) {
             var button = new ka.Button(pTitle).inject(this.bottomBar);
-            if (pOnClick) button.addEvent('click', pOnClick);
+            if (pOnClick) {
+                button.addEvent('click', pOnClick);
+            }
             return button;
         }.bind(this);
 
@@ -1043,7 +1087,7 @@ ka.Window = new Class({
             'class': 'kwindow-win-titleBar'
         }).inject(this.win);
 
-        if (!this.isPopup()){
+        if (!this.isPopup()) {
             this.maximizer = new Element('div', {
                 'class': 'kwindow-win-titleBarIcon icon-expand-4'
             }).addEvent('click', this.maximize.bind(this)).inject(this.titleBar);
@@ -1055,11 +1099,12 @@ ka.Window = new Class({
 
     },
 
-    setBlocked: function(pBlocked){
+    setBlocked: function (pBlocked) {
 
-        if (pBlocked)
+        if (pBlocked) {
             this.blockedOverlay = this.createOverlay();
-        else if(this.blockedOverlay){
+        }
+        else if (this.blockedOverlay) {
             this.blockedOverlay.destroy();
             delete this.blockedOverlay;
         }
@@ -1097,9 +1142,9 @@ ka.Window = new Class({
 
         this.sizer = {};
 
-        ['n', 'ne','e','se', 's', 'sw', 'w','nw'].each(function(item){
+        ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'].each(function (item) {
             this.sizer[item] = new Element('div', {
-                'class': 'ka-kwindow-sizer ka-kwindow-sizer-'+item
+                'class': 'ka-kwindow-sizer ka-kwindow-sizer-' + item
             }).inject(this.border);
         }.bind(this));
 
@@ -1109,7 +1154,7 @@ ka.Window = new Class({
         var minWidth = ( this.entryPointDefinition.minWidth > 0 ) ? this.entryPointDefinition.minWidth : 400;
         var minHeight = ( this.entryPointDefinition.minHeight > 0 ) ? this.entryPointDefinition.minHeight : 300;
 
-        Object.each(this.sizer, function(item, key){
+        Object.each(this.sizer, function (item, key) {
             item.setStyle('opacity', 0.01);
 
             var height, width, x, y, newHeight, newWidth, newY, newX, max;
@@ -1118,57 +1163,65 @@ ka.Window = new Class({
                 handle: item,
                 style: false,
                 modifiers: {
-                    x: !['s', 'n'].contains(key)?'dragX':null,
-                    y: !['e', 'w'].contains(key)?'dragY':null
+                    x: !['s', 'n'].contains(key) ? 'dragX' : null,
+                    y: !['e', 'w'].contains(key) ? 'dragY' : null
                 },
                 snap: 0,
-                onBeforeStart: function(pElement){
+                onBeforeStart: function (pElement) {
                     pElement.dragX = 0;
                     pElement.dragY = 0;
                     height = pElement.getStyle('height').toInt();
-                    width  = pElement.getStyle('width').toInt();
-                    y  = pElement.getStyle('top').toInt();
-                    x  = pElement.getStyle('left').toInt();
+                    width = pElement.getStyle('width').toInt();
+                    y = pElement.getStyle('top').toInt();
+                    x = pElement.getStyle('left').toInt();
 
                     newWidth = newHeight = newY = newX = null;
 
                     max = ka.adminInterface.desktopContainer.getSize();
                 },
-                onDrag: function(pElement, pEvent){
+                onDrag: function (pElement, pEvent) {
 
-                    if (key === 'n' || key == 'ne' || key == 'nw'){
-                        newHeight = height-pElement.dragY;
-                        newY = y+pElement.dragY;
-                    }
-                    
-                    if (key === 's' || key == 'se' || key == 'sw')
-                        newHeight = height+pElement.dragY;
-
-                    if (key === 'e' || key == 'se' || key == 'ne')
-                        newWidth = width+pElement.dragX;
-
-                    if (key === 'w' || key == 'sw' || key == 'nw'){
-                        newWidth = width-pElement.dragX;
-                        newX = x+pElement.dragX;
+                    if (key === 'n' || key == 'ne' || key == 'nw') {
+                        newHeight = height - pElement.dragY;
+                        newY = y + pElement.dragY;
                     }
 
-                    if (newWidth !== null && (newWidth > max.x || newWidth < minWidth) )
+                    if (key === 's' || key == 'se' || key == 'sw') {
+                        newHeight = height + pElement.dragY;
+                    }
+
+                    if (key === 'e' || key == 'se' || key == 'ne') {
+                        newWidth = width + pElement.dragX;
+                    }
+
+                    if (key === 'w' || key == 'sw' || key == 'nw') {
+                        newWidth = width - pElement.dragX;
+                        newX = x + pElement.dragX;
+                    }
+
+                    if (newWidth !== null && (newWidth > max.x || newWidth < minWidth)) {
                         newWidth = newX = null;
+                    }
 
-                    if (newHeight !== null && (newHeight > max.y || newHeight < minHeight))
+                    if (newHeight !== null && (newHeight > max.y || newHeight < minHeight)) {
                         newHeight = newY = null;
+                    }
 
-                    if (newX !== null && newX > 0)
+                    if (newX !== null && newX > 0) {
                         pElement.setStyle('left', newX);
+                    }
 
-                    if (newY !== null && newY > 0)
+                    if (newY !== null && newY > 0) {
                         pElement.setStyle('top', newY);
+                    }
 
-                    if (newWidth !== null)
+                    if (newWidth !== null) {
                         pElement.setStyle('width', newWidth);
+                    }
 
-                    if (newHeight !== null)
+                    if (newHeight !== null) {
                         pElement.setStyle('height', newHeight);
+                    }
 
                 }
 

@@ -15,6 +15,7 @@ use Core\Models\Base\AclQuery as BaseAclQuery;
  * long as it does not already exist in the output directory.
  *
  */
-class AclQuery extends BaseAclQuery {
+class AclQuery extends BaseAclQuery
+{
 
 } // AclQuery

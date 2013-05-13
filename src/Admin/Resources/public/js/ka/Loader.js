@@ -20,14 +20,14 @@ ka.Loader = new Class({
 
         this.setOptions(pOptions);
 
-        if (this.options.big){
+        if (this.options.big) {
             this.options.loader = 'bundles/admin/images/loader-sprites-64.png';
             this.options.spriteWidth = 64;
         }
 
         this.src = _path + this.options.loader;
 
-        if (this.options.absolute){
+        if (this.options.absolute) {
             this.main = new Element('div', {
                 'class': 'ka-loader-main-absolute'
             });
@@ -74,47 +74,51 @@ ka.Loader = new Class({
         }
     },
 
-    initAnimation: function(){
+    initAnimation: function () {
         this.loader.setStyles({
             width: this.options.spriteWidth,
             height: this.assetImage.height
         });
 
-        this.loader.setStyle('background-image', 'url('+this.src+')');
+        this.loader.setStyle('background-image', 'url(' + this.src + ')');
 
-        this.fps   = Math.round(100/9);
-        this.delay =  1 / this.fps;
+        this.fps = Math.round(100 / 9);
+        this.delay = 1 / this.fps;
 
         this.startAnimation();
     },
 
-    startAnimation: function(){
-        this.posX  = 0;
+    startAnimation: function () {
+        this.posX = 0;
         this.index = 0;
         this.continueAnimation();
     },
 
-    getLoader: function(){
+    getLoader: function () {
         return this.loader
     },
 
-    continueAnimation: function(){
+    continueAnimation: function () {
 
-        if (!this.toElement()) return;
+        if (!this.toElement()) {
+            return;
+        }
 
-        if (this.toElement().getStyle('display') == 'none') return;
+        if (this.toElement().getStyle('display') == 'none') {
+            return;
+        }
 
-        this.posX  += this.options.spriteWidth;
+        this.posX += this.options.spriteWidth;
         this.index += 1;
 
         if (this.index >= 8) {
-            this.posX  = 0;
+            this.posX = 0;
             this.index = 0;
         }
 
-        this.loader.setStyle('background-position', (-this.posX)+'px 0');
+        this.loader.setStyle('background-position', (-this.posX) + 'px 0');
 
-        this.lastAnimationTimer = this.continueAnimation.delay(this.delay*1000);
+        this.lastAnimationTimer = this.continueAnimation.delay(this.delay * 1000);
 
     },
 
@@ -122,7 +126,7 @@ ka.Loader = new Class({
         this.toElement().setStyle(p, p2);
     },
 
-    toElement: function(){
+    toElement: function () {
         return this.main ? this.main : this.loadingTable;
     },
 
@@ -140,7 +144,6 @@ ka.Loader = new Class({
 
     inject: function (pTarget, pWhere) {
         this.toElement().inject(pTarget, pWhere);
-
 
         if (this.transBg) {
             this.transBg.inject(this.main, 'before');

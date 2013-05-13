@@ -15,6 +15,7 @@ use Core\Models\Base\NodeAliasQuery as BaseNodeAliasQuery;
  * long as it does not already exist in the output directory.
  *
  */
-class NodeAliasQuery extends BaseNodeAliasQuery {
+class NodeAliasQuery extends BaseNodeAliasQuery
+{
 
 } // NodeAliasQuery

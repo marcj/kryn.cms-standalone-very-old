@@ -15,6 +15,7 @@ use Core\Models\Base\FsQuery as BaseFsQuery;
  * long as it does not already exist in the output directory.
  *
  */
-class FsQuery extends BaseFsQuery {
+class FsQuery extends BaseFsQuery
+{
 
 } // FsQuery

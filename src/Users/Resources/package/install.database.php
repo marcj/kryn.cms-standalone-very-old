@@ -1,16 +1,17 @@
 <?php
 
-if (!defined('KRYN_MANAGER')) return false;
-
-use Users\Models\SessionQuery;
-use Users\Models\UserGroupQuery;
-use Users\Models\UserQuery;
-use Users\Models\GroupQuery;
 use Core\Models\AclQuery;
 use Core\Models\WorkspaceQuery;
-
 use Users\Models\Group;
+use Users\Models\GroupQuery;
+use Users\Models\SessionQuery;
 use Users\Models\User;
+use Users\Models\UserGroupQuery;
+use Users\Models\UserQuery;
+
+if (!defined('KRYN_MANAGER')) {
+    return false;
+}
 
 SessionQuery::create()->deleteAll();
 UserGroupQuery::create()->deleteAll();
@@ -50,9 +51,9 @@ $liveWorkspace = WorkspaceQuery::create()->findOneById(1);
 $admin->addWorkspace($liveWorkspace);
 
 $settings = new \Core\Properties(array(
-    'userBg' => '/admin/images/userBgs/defaultImages/color-blue.jpg',
-    'adminLanguage' => 'en'
-));
+                                      'userBg' => '/admin/images/userBgs/defaultImages/color-blue.jpg',
+                                      'adminLanguage' => 'en'
+                                 ));
 
 $admin->setSettings($settings);
 $admin->save();

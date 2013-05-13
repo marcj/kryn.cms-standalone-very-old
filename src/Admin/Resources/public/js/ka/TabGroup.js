@@ -8,7 +8,7 @@ ka.TabGroup = new Class({
         }).inject(pParent);
     },
 
-    toElement: function(){
+    toElement: function () {
         return this.box;
     },
 
@@ -35,21 +35,25 @@ ka.TabGroup = new Class({
         items.removeClass('ka-tabGroup-item-first');
         items.removeClass('ka-tabGroup-item-last');
 
-        if (items.length > 0){
+        if (items.length > 0) {
 
             var lastItem, firstItem;
-            Array.each(items, function(item){
-                if (item.getStyle('display') != 'none'){
-                    if (!firstItem) firstItem = item;
+            Array.each(items, function (item) {
+                if (item.getStyle('display') != 'none') {
+                    if (!firstItem) {
+                        firstItem = item;
+                    }
                     lastItem = item;
                 }
             });
 
-            if (firstItem)
+            if (firstItem) {
                 firstItem.addClass('ka-tabGroup-item-first');
+            }
 
-            if (lastItem)
+            if (lastItem) {
                 lastItem.addClass('ka-tabGroup-item-last');
+            }
         }
 
     },
@@ -62,8 +66,8 @@ ka.TabGroup = new Class({
             text: pTitle
         }).inject(this.box);
 
-        if (typeOf(pIcon) == 'string' && pIcon){
-            if (pIcon.substr(0,1) == '#'){
+        if (typeOf(pIcon) == 'string' && pIcon) {
+            if (pIcon.substr(0, 1) == '#') {
                 button.addClass(pIcon.substr(1));
             } else {
                 new Element('img', {
@@ -80,7 +84,7 @@ ka.TabGroup = new Class({
 
     },
 
-    setPressed: function(pPressed){
+    setPressed: function (pPressed) {
 
         this.box.getChildren().each(function (button) {
             button.setPressed(pPressed);
@@ -88,7 +92,7 @@ ka.TabGroup = new Class({
 
     },
 
-    setMethods: function(pButton, pOnClick){
+    setMethods: function (pButton, pOnClick) {
         if (pOnClick) {
             pButton.addEvent('click', pOnClick);
         }
@@ -98,18 +102,18 @@ ka.TabGroup = new Class({
             pButton.setStyle('display', 'none');
             this.rerender();
 
-            if (pButton.tabPane && pButton.isPressed()){
+            if (pButton.tabPane && pButton.isPressed()) {
 
                 var items = this.box.getChildren('a');
                 var index = items.indexOf(pButton);
-                if (items[index+1])
-                    pButton.tabPane.to(index+1);
-                if (items[index-1])
-                    pButton.tabPane.to(index-1);
-
+                if (items[index + 1]) {
+                    pButton.tabPane.to(index + 1);
+                }
+                if (items[index - 1]) {
+                    pButton.tabPane.to(index - 1);
+                }
 
             }
-
 
         }.bind(this);
 
@@ -119,8 +123,8 @@ ka.TabGroup = new Class({
             this.rerender();
         }.bind(this);
 
-        pButton.isHidden = function(){
-            return pButton.getStyle('display')=='none';
+        pButton.isHidden = function () {
+            return pButton.getStyle('display') == 'none';
         };
 
         pButton.startTip = function (pText) {
@@ -147,7 +151,7 @@ ka.TabGroup = new Class({
             }
         }
 
-        pButton.isPressed = function(){
+        pButton.isPressed = function () {
             return pButton.hasClass('ka-tabGroup-item-active');
         }
 

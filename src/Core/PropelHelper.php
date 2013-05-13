@@ -6,13 +6,10 @@ use Core\Exceptions\BundleNotFoundException;
 use Propel\Generator\Command\ConfigConvertXmlCommand;
 use Propel\Generator\Command\MigrationDiffCommand;
 use Propel\Generator\Command\ModelBuildCommand;
-use Propel\Generator\Manager\ModelManager;
-use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\StreamOutput;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
 /**
@@ -165,11 +162,11 @@ class PropelHelper
         }
 
         $input = new ArrayInput(array(
-             '--input-dir' => $tmp . 'propel/',
-             '--output-dir' => $tmp . 'propel/build/classes/',
-             '--enable-package-object-model' => true,
-             '--verbose' => 'vvv'
-        ));
+                                     '--input-dir' => $tmp . 'propel/',
+                                     '--output-dir' => $tmp . 'propel/build/classes/',
+                                     '--enable-package-object-model' => true,
+                                     '--verbose' => 'vvv'
+                                ));
         $command = new ModelBuildCommand();
         $command->getDefinition()->addOption(
             new InputOption('--verbose', '-v|vv|vvv', InputOption::VALUE_NONE, '') //because migrationDiffCommand access this option
@@ -392,10 +389,10 @@ class PropelHelper
         file_put_contents($tmp . 'propel/buildtime-conf.xml', $xml);
 
         $input = new ArrayInput(array(
-             '--input-dir' => $tmp . 'propel/',
-             '--output-dir' => $tmp . 'propel/',
-             '--verbose' => 'vvv'
-        ));
+                                     '--input-dir' => $tmp . 'propel/',
+                                     '--output-dir' => $tmp . 'propel/',
+                                     '--verbose' => 'vvv'
+                                ));
         $command = new ConfigConvertXmlCommand();
         $command->getDefinition()->addOption(
             new InputOption('--verbose', '-v|vv|vvv', InputOption::VALUE_NONE, '') //because migrationDiffCommand access this option
@@ -530,11 +527,11 @@ class PropelHelper
             unlink($files[0]);
         }
         $input = new ArrayInput(array(
-             '--input-dir' => $tmp . 'propel/',
-             '--output-dir' => $tmp . 'propel/build/',
-             '--enable-package-object-model' => true,
-             '--verbose' => 'vvv'
-        ));
+                                     '--input-dir' => $tmp . 'propel/',
+                                     '--output-dir' => $tmp . 'propel/build/',
+                                     '--enable-package-object-model' => true,
+                                     '--verbose' => 'vvv'
+                                ));
         $command = new MigrationDiffCommand();
         $command->getDefinition()->addOption(
             new InputOption('--verbose', '-v|vv|vvv', InputOption::VALUE_NONE, '') //because migrationDiffCommand access this option

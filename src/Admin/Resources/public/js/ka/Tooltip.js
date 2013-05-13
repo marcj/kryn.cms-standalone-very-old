@@ -11,8 +11,9 @@ ka.Tooltip = new Class({
         this.text = pText;
         this.icon = pIcon;
 
-        if (!this.icon)
+        if (!this.icon) {
             this.icon = _path + 'bundles/admin/images/ka-tooltip-loading.gif';
+        }
 
         if (pDirection) {
             this.direction = pDirection;
@@ -22,7 +23,7 @@ ka.Tooltip = new Class({
         this.start();
     },
 
-    toElement: function(){
+    toElement: function () {
         return this.main;
     },
 
@@ -82,7 +83,9 @@ ka.Tooltip = new Class({
 
     stop: function (pText) {
 
-        if (this.stopped) return;
+        if (this.stopped) {
+            return;
+        }
         if (pText) {
             this.setText(pText);
             this.destroyTimer = (function () {
@@ -102,7 +105,7 @@ ka.Tooltip = new Class({
     },
 
     hide: function () {
-        new Fx.Tween(this.main).start('opacity', 0).chain(function(){
+        new Fx.Tween(this.main).start('opacity', 0).chain(function () {
             this.main.dispose();
         }.bind(this));
     },
@@ -115,10 +118,13 @@ ka.Tooltip = new Class({
         if (this.destroyTimer) {
             clearTimeout(this.destroyTimer);
             if (this.main) {
-                this.main.set('tween', {onComplete: function(){}});
+                this.main.set('tween', {onComplete: function () {
+                }});
             }
         }
-        if (!this.main) this.start();
+        if (!this.main) {
+            this.start();
+        }
         this.main.tween('opacity', 1);
         this.updatePosition();
         this.blink();

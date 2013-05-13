@@ -7,7 +7,9 @@ use Core\Kryn;
 /**
  * Class Asset
  *
- * Paths are relative to `@bundlePath/Resources/public`.
+ * Paths are relative to `
+ *
+ * @bundlePath/Resources/public`.
  */
 class Asset extends Model
 {

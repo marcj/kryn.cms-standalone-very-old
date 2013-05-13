@@ -26,6 +26,7 @@ abstract class Browse
      *
      *
      * @abstract
+     *
      * @param array $pCondition
      * @param array $pOptions
      */

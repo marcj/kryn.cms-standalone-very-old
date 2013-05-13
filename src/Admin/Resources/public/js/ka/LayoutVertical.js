@@ -52,14 +52,14 @@ ka.LayoutVertical = new Class({
     horizontals: [],
     rows: [],
 
-    initialize: function(pContainer, pOptions){
+    initialize: function (pContainer, pOptions) {
 
         this.setOptions(pOptions);
-        if (typeOf(pContainer) == 'null') throw 'pContainer is null.';
+        if (typeOf(pContainer) == 'null') {
+            throw 'pContainer is null.';
+        }
 
-
-
-        if (instanceOf(pContainer, ka.Layout)){
+        if (instanceOf(pContainer, ka.Layout)) {
             this.layout = pContainer;
             this.layout.setVertical(this);
         } else {
@@ -68,10 +68,10 @@ ka.LayoutVertical = new Class({
 
         this.container = this.layout.getMain();
 
-        if (this.options.gridLayout){
+        if (this.options.gridLayout) {
 
             //we use a table for main=tbody, rows will be TRs
-            if (this.container.get('tag') == 'table'){
+            if (this.container.get('tag') == 'table') {
                 this.table = this.container;
             } else {
                 this.table = new Element('table', {cellpadding: 0}).inject(this.container);
@@ -82,39 +82,39 @@ ka.LayoutVertical = new Class({
                 height: this.options.fixed ? '100%' : null
             });
 
-            this.container = (this.container.get('tag') == 'tbody') ? pContainer : new Element('tbody').inject(this.table);
+            this.container =
+                (this.container.get('tag') == 'tbody') ? pContainer : new Element('tbody').inject(this.table);
         }
 
         this.renderLayout();
 
     },
 
-    getTable: function(){
+    getTable: function () {
         return this.table;
     },
 
-    getLayout: function(){
+    getLayout: function () {
         return this.layout;
     },
 
-
-    toElement: function(){
+    toElement: function () {
         return this.main;
     },
 
-    renderLayout: function(){
+    renderLayout: function () {
 
-        Array.each(this.options.rows, function(height){
+        Array.each(this.options.rows, function (height) {
 
             this.addRow(height);
 
         }.bind(this));
     },
 
-    addRow: function(pHeight){
+    addRow: function (pHeight) {
         var row;
 
-        if (this.container.get('tag') == 'tbody'){
+        if (this.container.get('tag') == 'tbody') {
             row = new Element('tr', {height: pHeight}).inject(this.container);
         } else {
             row = new Element('div', {styles: {height: pHeight}}).inject(this.container);
@@ -125,26 +125,29 @@ ka.LayoutVertical = new Class({
         return row;
     },
 
-    getRow: function(pId){
-        return this.rows[pId-1];
+    getRow: function (pId) {
+        return this.rows[pId - 1];
     },
 
     /**
      * Makes sure that you get a DIV or TD. If the row is a 'tr' in a table, then we'll create a TD.
      * @param pId
      */
-    getContentRow: function(pId){
-        if (typeOf(this.rows[pId-1]) == 'null') throw 'Row not found %s'.replace('%s', pId);
+    getContentRow: function (pId) {
+        if (typeOf(this.rows[pId - 1]) == 'null') {
+            throw 'Row not found %s'.replace('%s', pId);
+        }
 
-        if (this.rows[pId-1].get('tag') == 'tr'){
-            var children = this.rows[pId-1].getChildren();
-            if (children.length > 0)
+        if (this.rows[pId - 1].get('tag') == 'tr') {
+            var children = this.rows[pId - 1].getChildren();
+            if (children.length > 0) {
                 return children[0];
+            }
             else {
                 var td = new Element('td', {
                     valign: 'top',
-                    height: this.rows[pId-1].get('height') ? this.rows[pId-1].get('height') : '100%'
-                }).inject(this.rows[pId-1]);
+                    height: this.rows[pId - 1].get('height') ? this.rows[pId - 1].get('height') : '100%'
+                }).inject(this.rows[pId - 1]);
 
                 var div = new Element('div', {
                     'class': 'ka-Layout-cell'
@@ -153,15 +156,15 @@ ka.LayoutVertical = new Class({
                 return div;
             }
         } else {
-            return this.rows[pId-1];
+            return this.rows[pId - 1];
         }
     },
 
-    getHorizontal: function(pId){
-        return this.horizontals[pId-1];
+    getHorizontal: function (pId) {
+        return this.horizontals[pId - 1];
     },
 
-    addHorizontal: function(pHorizontal, pHeight){
+    addHorizontal: function (pHorizontal, pHeight) {
 
         var container = this.addRow(pHeight);
         this.horizontals.push(pHorizontal);

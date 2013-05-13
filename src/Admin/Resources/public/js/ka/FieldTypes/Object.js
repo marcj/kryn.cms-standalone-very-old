@@ -1,5 +1,5 @@
 ka.FieldTypes.Object = new Class({
-    
+
     Extends: ka.FieldAbstract,
     options: {
         object: null,
@@ -8,37 +8,42 @@ ka.FieldTypes.Object = new Class({
         combobox: false
     },
 
-    createLayout: function(){
+    createLayout: function () {
 
-        if (typeOf(this.options.object) == 'string') this.options.objects = [this.options.object];
+        if (typeOf(this.options.object) == 'string') {
+            this.options.objects = [this.options.object];
+        }
 
         if (!this.options.objects || (typeOf(this.options.objects) == 'array' && this.options.objects.length == 0)) {
             //add all objects
             this.options.objects = [];
 
-            Object.each(ka.settings.configs, function(config, key){
-                if (config.objects){
-                    Object.each(config.objects, function(object, objectKey){
-                        this.options.objects.push(key+'\\'+objectKey);
+            Object.each(ka.settings.configs, function (config, key) {
+                if (config.objects) {
+                    Object.each(config.objects, function (object, objectKey) {
+                        this.options.objects.push(key + '\\' + objectKey);
                     }.bind(this));
                 }
             }.bind(this));
-        };
+        }
+        ;
 
         var definition = ka.getObjectDefinition(this.options.objects[0]);
 
-        if (!definition){
+        if (!definition) {
             this.fieldInstance.fieldPanel.set('text', t('Object not found %s').replace('%s', this.options.objects[0]));
-            throw 'Object not found '+this.options.objects[0];
+            throw 'Object not found ' + this.options.objects[0];
         }
 
-        if (definition.chooserFieldJavascriptClass){
+        if (definition.chooserFieldJavascriptClass) {
 
-            if (!window[definition.chooserFieldJavascriptClass]){
-                throw 'Can no load custom object field class "'+definition.chooserFieldJavascriptClass+'" for object '+this.options.objects[0];
+            if (!window[definition.chooserFieldJavascriptClass]) {
+                throw 'Can no load custom object field class "' + definition.chooserFieldJavascriptClass +
+                    '" for object ' + this.options.objects[0];
             }
 
-            this.customObj = new window[definition.chooserFieldJavascriptClass](this.field, this.fieldInstance.fieldPanel, this);
+            this.customObj =
+                new window[definition.chooserFieldJavascriptClass](this.field, this.fieldInstance.fieldPanel, this);
 
             this.customObj.addEvent('change', function () {
                 this.fireChange();
@@ -51,7 +56,7 @@ ka.FieldTypes.Object = new Class({
 
         } else {
 
-            if (this.options.objectRelation == 'nToM' || this.options.multi == 1){
+            if (this.options.objectRelation == 'nToM' || this.options.multi == 1) {
                 this.renderChooserMulti(this.options.objects);
             } else {
                 this.renderChooserSingle(this.options.objects);
@@ -60,8 +65,7 @@ ka.FieldTypes.Object = new Class({
 
     },
 
-
-    renderObjectTableNoItems: function(){
+    renderObjectTableNoItems: function () {
 
         var tr = new Element('tr').inject(this.chooserTable.tableBody);
         new Element('td', {
@@ -71,26 +75,27 @@ ka.FieldTypes.Object = new Class({
         }).inject(tr);
     },
 
-    renderObjectTable: function(){
+    renderObjectTable: function () {
 
         this.chooserTable.empty();
 
         this.objectTableLoaderQueue = {};
 
-        if (!this.objectId || this.objectId.length == 0){
+        if (!this.objectId || this.objectId.length == 0) {
             this.renderObjectTableNoItems();
         } else {
-            Array.each(this.objectId, function(id){
+            Array.each(this.objectId, function (id) {
 
                 var row = [];
 
                 var placeHolder = new Element('span');
                 row.include(placeHolder);
 
-                if (typeOf(id) == 'object')
+                if (typeOf(id) == 'object') {
                     id = ka.getObjectUrlId(this.options.object, id);
+                }
 
-                ka.getObjectLabel(ka.getObjectUrl(this.options.object, id), function(label){
+                ka.getObjectLabel(ka.getObjectUrl(this.options.object, id), function (label) {
                     placeHolder.set('html', label);
                 });
 
@@ -106,7 +111,7 @@ ka.FieldTypes.Object = new Class({
                 row.include(actionBar);
 
                 var tr = this.chooserTable.addRow(row);
-                remoteIcon.addEvent('click', function(){
+                remoteIcon.addEvent('click', function () {
                     tr.destroy();
                     this.updateThisValue();
                 }.bind(this));
@@ -117,18 +122,18 @@ ka.FieldTypes.Object = new Class({
         }
     },
 
-    updateThisValue: function(){
+    updateThisValue: function () {
 
         var rows = this.chooserTable.getRows();
 
         this.objectId = [];
-        Array.each(rows, function(row){
+        Array.each(rows, function (row) {
             this.objectId.push(row.kaFieldObjectId);
         }.bind(this));
 
     },
 
-    renderChooserSingle: function(){
+    renderChooserSingle: function () {
 
         var table = new Element('table', {
             style: 'width: 100%', cellpadding: 0, cellspacing: 0
@@ -148,36 +153,36 @@ ka.FieldTypes.Object = new Class({
         this.input.addClass('ka-input-disabled');
         this.input.disabled = true;
 
-        if (this.options.combobox){
+        if (this.options.combobox) {
             this.input.disabled = false;
-            this.input.addEvent('focus', function(){
+            this.input.addEvent('focus', function () {
                 this.input.removeClass('ka-input-disabled');
                 this._lastValue = this.input.value;
 
-                if (this.objectId){
+                if (this.objectId) {
                     this.lastObjectLabel = this.input.value;
                     this.lastObjectId = this.objectId;
                 }
             }.bind(this));
 
-            this.input.addEvent('blur', function(){
-                if (this.input.value == this.lastObjectLabel){
+            this.input.addEvent('blur', function () {
+                if (this.input.value == this.lastObjectLabel) {
                     this.objectId = this.lastObjectId;
                     this.input.addClass('ka-input-disabled');
                     return;
                 }
 
-                if (typeOf(this._lastValue) != 'null' && this.input.value != this._lastValue){
+                if (typeOf(this._lastValue) != 'null' && this.input.value != this._lastValue) {
                     //changed it, so we delete this.objectValue since its now a custom value
                     delete this.objectId;
                     this.input.removeClass('ka-input-disabled');
-                } else if (this.objectId){
+                } else if (this.objectId) {
                     this.input.addClass('ka-input-disabled');
                 }
             }.bind(this));
         }
 
-        if (this.options.inputWidth){
+        if (this.options.inputWidth) {
             this.input.setStyle('width', this.options.inputWidth);
         }
 
@@ -193,23 +198,27 @@ ka.FieldTypes.Object = new Class({
             browserOptions: this.options.browserOptions
         };
 
-        if (this.objectId)
+        if (this.objectId) {
             chooserParams.value = this.objectId;
+        }
 
-        if (this.options.cookie)
+        if (this.options.cookie) {
             chooserParams.cookie = this.options.cookie;
+        }
 
-        if (this.options.domain)
+        if (this.options.domain) {
             chooserParams.domain = this.options.domain;
-
+        }
 
         var button = new ka.Button(t('Choose')).addEvent('click', function () {
 
-            if (this.options.designMode) return;
-            ka.wm.openWindow('admin/backend/chooser', null, -1, chooserParams);
+                if (this.options.designMode) {
+                    return;
+                }
+                ka.wm.openWindow('admin/backend/chooser', null, -1, chooserParams);
 
-        }.bind(this))
-        .inject(rightTd);
+            }.bind(this))
+            .inject(rightTd);
 
         this.setValue = function (pVal, pIntern) {
 
@@ -222,8 +231,8 @@ ka.FieldTypes.Object = new Class({
 
             pVal = String.from(pVal);
 
-            if ((typeOf(pVal) == 'string' && pVal.substr(0, 'object://'.length) != 'object://')){
-                pVal = 'object://'+this.options.objects[0]+'/'+ka.urlEncode(pVal);
+            if ((typeOf(pVal) == 'string' && pVal.substr(0, 'object://'.length) != 'object://')) {
+                pVal = 'object://' + this.options.objects[0] + '/' + ka.urlEncode(pVal);
             }
             this.objectId = pVal;
 
@@ -233,12 +242,15 @@ ka.FieldTypes.Object = new Class({
 
         };
 
-        this.getValue = function(){
-            if (!this.objectId) return this.input.value;
+        this.getValue = function () {
+            if (!this.objectId) {
+                return this.input.value;
+            }
 
             var val = this.objectId;
 
-            if (this.options.withoutObjectWrapper && typeOf(val) == 'string' && val.substr(0, 'object://'.length) == 'object://'){
+            if (this.options.withoutObjectWrapper && typeOf(val) == 'string' &&
+                val.substr(0, 'object://'.length) == 'object://') {
                 return ka.getCroppedObjectId(val);
             }
             return val;
@@ -246,7 +258,7 @@ ka.FieldTypes.Object = new Class({
 
     },
 
-    renderChooserMulti: function(){
+    renderChooserMulti: function () {
 
         this.renderChooserColumns = [];
 
@@ -261,16 +273,22 @@ ka.FieldTypes.Object = new Class({
         this.renderObjectTableNoItems();
 
         //compatibility
-        if (this.options.domain){
-            if (!this.options.browserOptions) this.options.browserOptions = {};
-            if (!this.options.browserOptions.node) this.options.browserOptions.node = {};
+        if (this.options.domain) {
+            if (!this.options.browserOptions) {
+                this.options.browserOptions = {};
+            }
+            if (!this.options.browserOptions.node) {
+                this.options.browserOptions.node = {};
+            }
             this.options.browserOptions.node.domain = this.options.domain;
         }
 
         var chooserParams = {
             onSelect: function (pId) {
 
-                if (!this.objectId) this.objectId = [];
+                if (!this.objectId) {
+                    this.objectId = [];
+                }
 
                 this.objectId.include(ka.getCroppedObjectId(pId));
                 this.renderObjectTable();
@@ -282,48 +300,57 @@ ka.FieldTypes.Object = new Class({
             browserOptions: this.options.browserOptions
         };
 
-        if (this.objectId)
+        if (this.objectId) {
             chooserParams.value = this.objectId;
+        }
 
-        if (this.options.cookie)
+        if (this.options.cookie) {
             chooserParams.cookie = this.options.cookie;
+        }
 
-        if (this.options.domain)
+        if (this.options.domain) {
             chooserParams.domain = this.options.domain;
+        }
 
         var button = new ka.Button(t('Add')).addEvent('click', function () {
 
-            if (this.options.designMode) return;
+            if (this.options.designMode) {
+                return;
+            }
             ka.wm.open('admin/backend/chooser', chooserParams, -1, true);
 
         }.bind(this));
 
         button.inject(this.fieldInstance.fieldPanel);
 
-        this.setValue = function(pVal){
+        this.setValue = function (pVal) {
 
             this.objectId = pVal;
 
-            if (!this.objectId) this.objectId = [];
+            if (!this.objectId) {
+                this.objectId = [];
+            }
 
-            if (typeOf(this.objectId) != 'array') this.objectId = [this.objectId];
+            if (typeOf(this.objectId) != 'array') {
+                this.objectId = [this.objectId];
+            }
 
             this.renderObjectTable();
 
         }.bind(this);
 
-        this.getValue = function(){
+        this.getValue = function () {
             return this.objectId;
         };
 
     },
 
-    showLabel: function(pObjectUri){
+    showLabel: function (pObjectUri) {
 
-        ka.getObjectLabel(pObjectUri, function(pLabel){
-            if (pLabel === false){
+        ka.getObjectLabel(pObjectUri, function (pLabel) {
+            if (pLabel === false) {
                 if (!this.options.combobox) {
-                    this.input.value = 'not found: '+pObjectUri;
+                    this.input.value = 'not found: ' + pObjectUri;
                     this.input.removeClass('ka-input-disabled');
                     delete this.objectId;
                 } else {

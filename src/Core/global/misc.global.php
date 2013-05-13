@@ -12,23 +12,24 @@
 
 /**
  * Global misc functions
+ *
  * @author MArc Schmidt <marc@Kryn.org>
  */
 
 function resizeImageCached($pPath, $pResolution, $pThumb = false, $pFixSide = false)
 {
-    global $cfg;
 
     $pathPrefix = PATH_WEB;
-    if(strpos($pPath, '/') === 0)
+    if (strpos($pPath, '/') === 0) {
         $pathPrefix = '';
+    }
 
     $path = str_replace('..', '', $pathPrefix . $pPath);
 
     $mdate = filemtime($path);
 
     $cachepath = PATH_WEB_CACHE . '/' . Kryn::toModRewrite($path) . Kryn::toModRewrite($pResolution) . $mdate .
-                 basename($pPath);
+        basename($pPath);
 
     if (!file_exists($cachepath)) {
         resizeImage($path, $cachepath, $pResolution, $pThumb, $pFixSide);
@@ -44,14 +45,14 @@ function underscore2Camelcase($value)
 
 function char2Camelcase($value, $char = '_')
 {
-  $ex = explode($char, $value);
+    $ex = explode($char, $value);
 
-  $return = '';
-  foreach ($ex as $str) {
-    $return .= ucfirst($str);
-  }
+    $return = '';
+    foreach ($ex as $str) {
+        $return .= ucfirst($str);
+    }
 
-  return $return;
+    return $return;
 }
 
 function camelcase2Underscore($pValue)
@@ -116,7 +117,9 @@ function readFolder($pPath)
     if (is_dir($pPath)) {
         $h = opendir($pPath);
         while (false !== ($file = readdir($h))) {
-            if ($file == '.' || $file == '..' || $file == '.svn' || $file == '.DS_Store') continue;
+            if ($file == '.' || $file == '..' || $file == '.svn' || $file == '.DS_Store') {
+                continue;
+            }
             $path = $pPath . $file;
             if (is_dir($path)) {
                 $res[$path . '/'] = readFolder($path . '/');
@@ -146,7 +149,7 @@ function find($dir, $pattern = '', $recursive = true)
 
     if ($recursive) {
         foreach (glob("$dir/*", GLOB_BRACE | GLOB_ONLYDIR) as $sub_dir) {
-            $arr   = find($sub_dir, $pattern);
+            $arr = find($sub_dir, $pattern);
             $files = array_merge($files, $arr);
         }
     }
@@ -164,17 +167,19 @@ function find($dir, $pattern = '', $recursive = true)
  */
 function json_format($json)
 {
-    if (!is_string($json)) $json = json_encode($json);
+    if (!is_string($json)) {
+        $json = json_encode($json);
+    }
 
-    $result      = '';
-    $pos         = 0;
-    $strLen      = strlen($json);
-    $indentStr   = '    ';
-    $newLine     = "\n";
-    $prevChar    = '';
+    $result = '';
+    $pos = 0;
+    $strLen = strlen($json);
+    $indentStr = '    ';
+    $newLine = "\n";
+    $prevChar = '';
     $outOfQuotes = true;
 
-    for ($i=0; $i<=$strLen; $i++) {
+    for ($i = 0; $i <= $strLen; $i++) {
 
         // Grab the next character in the string.
         $char = substr($json, $i, 1);
@@ -187,8 +192,8 @@ function json_format($json)
             // output a new line and indent the next line.
         } elseif (($char == '}' || $char == ']') && $outOfQuotes) {
             $result .= $newLine;
-            $pos --;
-            for ($j=0; $j<$pos; $j++) {
+            $pos--;
+            for ($j = 0; $j < $pos; $j++) {
                 $result .= $indentStr;
             }
         } elseif ($char == ':' && $outOfQuotes) {
@@ -203,7 +208,7 @@ function json_format($json)
         if (($char == ',' || $char == '{' || $char == '[') && $outOfQuotes) {
             $result .= $newLine;
             if ($char == '{' || $char == '[') {
-                $pos ++;
+                $pos++;
             }
 
             for ($j = 0; $j < $pos; $j++) {
@@ -252,6 +257,7 @@ function delDir($dirName)
 
 /**
  * Sents a http request to $pUrl and returns the result.
+ *
  * @source
  *
  * @param string Complete URL
@@ -259,31 +265,36 @@ function delDir($dirName)
  * @param mixed  If is a array, the key-value pairs will be sent in the post block
  *
  * @return string returns the request result
-
  */
 function wget($pUrl, $pToFile = false, $pPostFiles = false)
 {
     $parsedurl = @parse_url($pUrl);
-    if (empty($parsedurl['host'])) return false;
+    if (empty($parsedurl['host'])) {
+        return false;
+    }
     $host = $parsedurl['host'];
     $documentpath = empty($parsedurl['path']) ? '/' : $documentpath = $parsedurl['path'];
 
-    if (!empty($parsedurl['query']))
+    if (!empty($parsedurl['query'])) {
         $documentpath .= '?' . $parsedurl['query'];
+    }
 
     $port = empty($parsedurl['port']) ? 80 : $port = $parsedurl['port'];
 
     $timeout = 15;
     $fp = fsockopen($host, $port, $errno, $errstr, $timeout);
-    if (!$fp)
+    if (!$fp) {
         return false;
+    }
 
-    srand((double) microtime() * 1000000);
+    srand((double)microtime() * 1000000);
     $boundary = "---------------------------" . substr(md5(rand(0, 32000)), 0, 10);
     $data = "--$boundary";
 
     if ($pPostFiles) {
-        if (!is_array($pPostFiles)) $pPostFiles = array($pPostFiles);
+        if (!is_array($pPostFiles)) {
+            $pPostFiles = array($pPostFiles);
+        }
         $i = 0;
         foreach ($pPostFiles as $file) {
             $i++;
@@ -345,7 +356,9 @@ Content-Type: application/x-www-form-urlencoded\r\n\r\n";
 
     if ($pToFile) {
         $h = fopen($pToFile, "w+");
-        if (!$h) return false;
+        if (!$h) {
+            return false;
+        }
         fputs($h, $result);
     }
 
@@ -374,16 +387,23 @@ Content-Type: application/x-www-form-urlencoded\r\n\r\n";
  * @return array
  * @author daniel@danielsmedegaardbuus.dk
  */
-function &array_merge_recursive_distinct(array &$array1, &$array2 = null) {
+function &array_merge_recursive_distinct(array &$array1, &$array2 = null)
+{
     $merged = $array1;
 
-    if (is_array($array2))
-        foreach ($array2 as $key => $val)
-            if (is_array($array2[$key]))
-                $merged[$key] = is_array($merged[$key]) ? array_merge_recursive_distinct($merged[$key], $array2[$key]) :
+    if (is_array($array2)) {
+        foreach ($array2 as $key => $val) {
+            if (is_array($array2[$key])) {
+                $merged[$key] = is_array($merged[$key]) ? array_merge_recursive_distinct(
+                    $merged[$key],
+                    $array2[$key]
+                ) :
                     $array2[$key];
-            else
+            } else {
                 $merged[$key] = $val;
+            }
+        }
+    }
 
     return $merged;
 }
@@ -455,8 +475,9 @@ function mime_content_type_for_name($pPath)
     );
 
     $ext = strtolower(array_pop(explode('.', $pPath)));
-    if (array_key_exists($ext, $mime_types))
+    if (array_key_exists($ext, $mime_types)) {
         return $mime_types[$ext];
+    }
     return false;
 }
 
@@ -464,10 +485,11 @@ function clearfolder($pFolder)
 {
     $items = find($pFolder, false);
     foreach ($items as $item) {
-        if (is_dir($item))
+        if (is_dir($item)) {
             deldir($item);
-        else
+        } else {
             unlink($item);
+        }
     }
 
 }
@@ -514,7 +536,6 @@ function resizeImage($pSource, $pTarget, $pResolution, $pThumb = false, $pFixSid
     }
 
 
-
     list($newWidth, $newHeight) = explode('x', $pResolution);
     $thumpWidth = $newWidth;
     $thumpHeight = $newHeight;
@@ -544,7 +565,18 @@ function resizeImage($pSource, $pTarget, $pResolution, $pThumb = false, $pFixSid
             imagecopyresampled($tempImg, $img, 0, 0, 0, 0, $_width, $thumpHeight, $oriWidth, $oriHeight);
             $_left = ($_width / 2) - ($thumpWidth / 2);
 
-            imagecopyresampled($thumpImage, $tempImg, 0, 0, $_left, 0, $thumpWidth, $thumpHeight, $thumpWidth, $thumpHeight);
+            imagecopyresampled(
+                $thumpImage,
+                $tempImg,
+                0,
+                0,
+                $_left,
+                0,
+                $thumpWidth,
+                $thumpHeight,
+                $thumpWidth,
+                $thumpHeight
+            );
 
         } else {
             $ratio = $thumpWidth / ($oriWidth / 100);
@@ -553,7 +585,18 @@ function resizeImage($pSource, $pTarget, $pResolution, $pThumb = false, $pFixSid
             imagealphablending($tempImg, false);
             imagecopyresampled($tempImg, $img, 0, 0, 0, 0, $thumpWidth, $_height, $oriWidth, $oriHeight);
             $_top = ($_height / 2) - ($thumpHeight / 2);
-            imagecopyresampled($thumpImage, $tempImg, 0, 0, 0, $_top, $thumpWidth, $thumpHeight, $thumpWidth, $thumpHeight);
+            imagecopyresampled(
+                $thumpImage,
+                $tempImg,
+                0,
+                0,
+                0,
+                $_top,
+                $thumpWidth,
+                $thumpHeight,
+                $thumpWidth,
+                $thumpHeight
+            );
         }
 
         if ($type == 3) {
@@ -562,7 +605,9 @@ function resizeImage($pSource, $pTarget, $pResolution, $pThumb = false, $pFixSid
             imagesavealpha($thumpImage, true);
         }
 
-        if ($pTarget === true) return $thumpImage;
+        if ($pTarget === true) {
+            return $thumpImage;
+        }
         $imagesave($thumpImage, $pTarget);
 
     } else {
@@ -590,7 +635,9 @@ function resizeImage($pSource, $pTarget, $pResolution, $pThumb = false, $pFixSid
             imagesavealpha($newImage, true);
         }
 
-        if ($pTarget === true) return $newImage;
+        if ($pTarget === true) {
+            return $newImage;
+        }
         $imagesave($newImage, $pTarget);
 
     }

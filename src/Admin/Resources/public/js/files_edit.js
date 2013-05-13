@@ -9,7 +9,8 @@ var admin_files_edit = new Class({
         if (this.win.params.file.name) {
             this.win.setTitle(this.win.params.file.name + ' ' + _('edit'));
         } else {
-            this.win.setTitle(this.win.params.file.path.substr(this.win.params.file.path.lastIndexOf('/')) + ' ' + _('edit'));
+            this.win.setTitle(this.win.params.file.path.substr(this.win.params.file.path.lastIndexOf('/')) + ' ' +
+                _('edit'));
         }
         this._createLayout();
     },
@@ -22,32 +23,36 @@ var admin_files_edit = new Class({
 
     renderCodeMirror: function (pContent) {
 
-        if (!pContent){
+        if (!pContent) {
             pContent = '';
         }
 
-        var type = this.win.params.file.path.substr(this.win.params.file.path.lastIndexOf('.')+1);
+        var type = this.win.params.file.path.substr(this.win.params.file.path.lastIndexOf('.') + 1);
         var lineNumbers = false;
         var json;
 
         var mode = 'htmlmixed';
 
-        if (type == 'css')
+        if (type == 'css') {
             mode = 'css';
+        }
 
-        if (type == 'js')
+        if (type == 'js') {
             mode = 'javascript';
+        }
 
-        if (['php', 'php3'].contains(type))
+        if (['php', 'php3'].contains(type)) {
             mode = 'php';
+        }
 
-        if (type == 'json'){
+        if (type == 'json') {
             mode = 'javascript';
             json = true;
         }
 
-        if (['php', 'javascript', 'htmlmixed', 'css'].contains(mode))
+        if (['php', 'javascript', 'htmlmixed', 'css'].contains(mode)) {
             lineNumbers = true;
+        }
 
         try {
             this.editor = CodeMirror(this.fileContainer, {
@@ -56,7 +61,7 @@ var admin_files_edit = new Class({
                 json: json,
                 mode: mode
             });
-        } catch(e){
+        } catch (e) {
             this.fileContainer.set('text', pContent);
         }
     },
@@ -72,10 +77,12 @@ var admin_files_edit = new Class({
 
     _createLayout: function () {
 
-        if (!this.__images.contains(this.win.params.file.path.substr(this.win.params.file.path.lastIndexOf('.')+1).toLowerCase())) {
+        if (!this.__images.contains(this.win.params.file.path.substr(this.win.params.file.path.lastIndexOf('.') +
+            1).toLowerCase())) {
             var boxNavi = this.win.addButtonGroup();
             this.fileSaveGrp = boxNavi;
-            this.saveBtn = boxNavi.addButton(_('Save'), _path + 'bundles/admin/images/button-save.png', this.save.bind(this));
+            this.saveBtn =
+                boxNavi.addButton(_('Save'), _path + 'bundles/admin/images/button-save.png', this.save.bind(this));
             this.fileContainer = new Element('div', {
                 value: t('Loading ...'),
                 'class': 'admin-files-edit-fileContainer'
@@ -92,7 +99,6 @@ var admin_files_edit = new Class({
             this.win.content.setStyle('overflow', 'hidden');
             //          boxNavi.addButton( scroller );
 
-
             this.imageDiv = new Element('div', {
                 style: 'position: absolute; bottom: 60px; top: 0px; left: 0px; right: 150px; overflow: auto; background-color: white'
             }).inject(this.win.content);
@@ -108,7 +114,6 @@ var admin_files_edit = new Class({
             this.sidebarActions = new Element('div', {
                 style: 'text-align: center; padding-top: 5px;'
             }).inject(this.bottom);
-
 
             var scroller = new Element('div', {
                 'class': 'kwindow-win-buttonGroup',
@@ -144,7 +149,6 @@ var admin_files_edit = new Class({
                 style: 'text-align: right; height: 20px; position: absolute; right: 10px; top: 4px;'
             }).inject(this.sidebarActions);
 
-
             new Element('img', {
                 src: _path + 'bundles/admin/images/icons/arrow_turn_left.png',
                 title: _('Rotate 90° left'),
@@ -163,7 +167,6 @@ var admin_files_edit = new Class({
                 style: 'margin-left: 12px; cursor: pointer;',
                 title: _('Rotate 90° right')
             }).addEvent('click', this.rotate.bind(this, 'right')).inject(this.sidebarActions);
-
 
             var resizeDiv = new Element('div', {
                 style: 'position: absolute; left: 0px; border-right: 1px solid #ddd; top: 1px; bottom: 1px; width:200px;'
@@ -202,7 +205,8 @@ var admin_files_edit = new Class({
 
             this.oriImagePath = path;
 
-            var path = _path+'admin/backend/showImage?'+Object.toQueryString({path: path, noCache: (new Date()).getTime()});
+            var path = _path + 'admin/backend/showImage?' +
+                Object.toQueryString({path: path, noCache: (new Date()).getTime()});
             this.img = new Element('img', {
                 src: path,
                 onLoad: fId + '()'
@@ -224,17 +228,18 @@ var admin_files_edit = new Class({
             this.lastRotateRq.cancel();
         }
 
-        this.lastRotateRq = new Request.JSON({url: _pathAdmin + 'admin/files/rotate', noCache: 1, onComplete: function () {
+        this.lastRotateRq =
+            new Request.JSON({url: _pathAdmin + 'admin/files/rotate', noCache: 1, onComplete: function () {
 
-            if (this._images[ this.oriImagePath ]) {
-                this._images[ this.oriImagePath ].src =
-                    _path + 'admin/backend/imageThumb/?'
-                        +Object.toQueryString({path: this.oriImagePath, mtime: (new Date).getTime()});
-            }
+                if (this._images[ this.oriImagePath ]) {
+                    this._images[ this.oriImagePath ].src =
+                        _path + 'admin/backend/imageThumb/?'
+                            + Object.toQueryString({path: this.oriImagePath, mtime: (new Date).getTime()});
+                }
 
-            loader.hide();
-            this.loadImage(this.oriImagePath);
-        }.bind(this)}).post({position: pPos, path: this.oriImagePath });
+                loader.hide();
+                this.loadImage(this.oriImagePath);
+            }.bind(this)}).post({position: pPos, path: this.oriImagePath });
     },
 
     resize: function (pWidth, pHeight) {
@@ -246,18 +251,18 @@ var admin_files_edit = new Class({
             this.lastRotateRq.cancel();
         }
 
-        this.lastRotateRq = new Request.JSON({url: _pathAdmin + 'admin/files/resize', noCache: 1, onComplete: function (pMtime) {
-            this.loadImage(this.oriImagePath);
+        this.lastRotateRq =
+            new Request.JSON({url: _pathAdmin + 'admin/files/resize', noCache: 1, onComplete: function (pMtime) {
+                this.loadImage(this.oriImagePath);
 
-            if (this._images[ this.oriImagePath ]) {
-                this._images[ this.oriImagePath ].src =
-                    _path + 'admin/backend/imageThumb/?'
-                        +Object.toQueryString({path: this.oriImagePath, mtime: (new Date).getTime()});
-            }
+                if (this._images[ this.oriImagePath ]) {
+                    this._images[ this.oriImagePath ].src =
+                        _path + 'admin/backend/imageThumb/?'
+                            + Object.toQueryString({path: this.oriImagePath, mtime: (new Date).getTime()});
+                }
 
-            loader.hide();
-        }.bind(this)}).post({width: pWidth, height: pHeight, path: this.oriImagePath });
-
+                loader.hide();
+            }.bind(this)}).post({width: pWidth, height: pHeight, path: this.oriImagePath });
 
     },
 
@@ -268,8 +273,9 @@ var admin_files_edit = new Class({
         }).inject(this.sidebar);
 
         var path = this.win.params.file.path.substr(0, this.win.params.file.path.lastIndexOf('/'));
-        if (!path)
+        if (!path) {
             path = '/';
+        }
 
         new Request.JSON({url: _pathAdmin + 'admin/files/getImages', noCache: 1, onComplete: function (res) {
             this.sidebar.empty();
@@ -278,11 +284,13 @@ var admin_files_edit = new Class({
                 res.each(function (item) {
 
                     this._images[item.path] = new Element('img', {
-                        'class': 'admin-files-sidebar-image' + ((item.path == this.oriImagePath) ? ' admin-files-sidebar-image-active' : ''),
-                        src: _pathAdmin + 'admin/backend/imageThumb/?'+Object.toQueryString({path: item.path, mtime: item.mtime})
+                        'class': 'admin-files-sidebar-image' +
+                            ((item.path == this.oriImagePath) ? ' admin-files-sidebar-image-active' : ''),
+                        src: _pathAdmin + 'admin/backend/imageThumb/?' +
+                            Object.toQueryString({path: item.path, mtime: item.mtime})
                     }).addEvent('click', function () {
-                        this._goToImage(item.path, true);
-                    }.bind(this)).inject(this.sidebar);
+                            this._goToImage(item.path, true);
+                        }.bind(this)).inject(this.sidebar);
 
                 }.bind(this));
             }
@@ -295,7 +303,9 @@ var admin_files_edit = new Class({
     _goToImage: function (pItem, pWithView) {
 
         var image = this._images[ pItem ];
-        if (!image) return;
+        if (!image) {
+            return;
+        }
 
         Object.each(this._images, function (item) {
             item.set('class', 'admin-files-sidebar-image');
@@ -330,7 +340,8 @@ var admin_files_edit = new Class({
         this.win.params = {file: {path: pImage}};
         this.win.setTitle(_('Image %s').replace('%s', pImage.substr(pImage.lastIndexOf('/'))));
 
-        var path = _path+'admin/backend/showImage?'+Object.toQueryString({path: pImage, noCache: (new Date()).getTime()});
+        var path = _path + 'admin/backend/showImage?' +
+            Object.toQueryString({path: pImage, noCache: (new Date()).getTime()});
         this.img = new Asset.image(path, {
             onLoad: function () {
                 this.td.empty();
@@ -354,7 +365,9 @@ var admin_files_edit = new Class({
 
         var faktor = step / 100;
 
-        if (!this.imgSize) return;
+        if (!this.imgSize) {
+            return;
+        }
 
         var newX = this.imgSize.x * faktor;
         this.img.width = newX;
@@ -378,7 +391,7 @@ var admin_files_edit = new Class({
             faktor = this.imgSize.x / size.x;
         }
 
-        if (this.imgSize.y/faktor > size.y) {
+        if (this.imgSize.y / faktor > size.y) {
             //height is still to height
             faktor = this.imgSize.y / size.y;
         }

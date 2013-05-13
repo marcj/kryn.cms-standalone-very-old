@@ -13,7 +13,6 @@ ka.Helpsystem = new Class({
 
     _update: function () {
 
-
         var size = ka.adminInterface.desktopContainer.getSize();
         var maxHeight = size.y - 10;
         var curHeight = 0;
@@ -21,11 +20,11 @@ ka.Helpsystem = new Class({
         for (var i = this.boxes.length - 1; i > 0; i--) {
             var box = this.boxes[i];
             var index = i;
-            
+
             curHeight += box.getSize().y;
 
             if (curHeight > maxHeight) {
-                box.setStyle('height', maxHeight-50);
+                box.setStyle('height', maxHeight - 50);
             }
         }
 
@@ -33,7 +32,9 @@ ka.Helpsystem = new Class({
 
     newBubble: function (pTitle, pText, pDelay) {
 
-        if (!ka.adminInterface.desktopContainer) return;
+        if (!ka.adminInterface.desktopContainer) {
+            return;
+        }
 
         var box = new Element('div', {
             'class': 'ka-helpsystem-bubble selectable',
@@ -56,7 +57,9 @@ ka.Helpsystem = new Class({
         }
 
         var delay = 4000; //4sec
-        if (pDelay) delay = pDelay;
+        if (pDelay) {
+            delay = pDelay;
+        }
 
         var die = (function () {
             box.set('tween', {onComplete: function () {

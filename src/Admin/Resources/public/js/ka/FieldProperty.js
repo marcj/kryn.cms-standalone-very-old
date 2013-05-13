@@ -201,7 +201,7 @@ ka.FieldProperty = new Class({
                 'objectRelationTable': {
                     needValue: 'nToM',
                     againstField: 'objectRelation',
-                    label :t('Relation table name (Optional)'),
+                    label: t('Relation table name (Optional)'),
                     desc: t('The columns of this table are based on the primary keys of left and right table. Propel ORM generates a new model based on this value. Default value is &lt;moduleKey&gt;_&lt;currentObjectKey&gt;_&lt;fieldKey&gt;')
                 },
 
@@ -246,7 +246,8 @@ ka.FieldProperty = new Class({
             desc: t('Use a px value or a % value. Example: 25%, 50, 35px')
         },
         primaryKey: {
-            needValue: ['text', 'password', 'number', 'checkbox', 'select', 'date', 'object', 'datetime', 'file', 'folder', 'page'],
+            needValue: ['text', 'password', 'number', 'checkbox', 'select', 'date', 'object', 'datetime', 'file',
+                'folder', 'page'],
             againstField: 'type',
             label: t('Primary key'),
             'default': false,
@@ -276,7 +277,8 @@ ka.FieldProperty = new Class({
                 },
                 inputWidth: {
                     label: t('Input element width'),
-                    needValue: ['text', 'number', 'password', 'object', 'file', 'folder', 'page', 'domain', 'datetime', 'date'],
+                    needValue: ['text', 'number', 'password', 'object', 'file', 'folder', 'page', 'domain', 'datetime',
+                        'date'],
                     againstField: 'type',
                     type: 'text'
                 },
@@ -311,7 +313,8 @@ ka.FieldProperty = new Class({
                     label: t('Default value. Use JSON notation for arrays and objects.')
                 },
                 'requiredRegex': {
-                    needValue: ['text','password', 'number', 'checkbox', 'select', 'date', 'datetime', 'file', 'folder'],
+                    needValue: ['text', 'password', 'number', 'checkbox', 'select', 'date', 'datetime', 'file', 'folder'
+                    ],
                     againstField: 'type',
                     type: 'text',
                     label: t('Required value as regular expression.'),
@@ -362,7 +365,7 @@ ka.FieldProperty = new Class({
 
     children: [], //instances of ka.FieldProperty
 
-    initialize: function(pKey, pDefinition, pContainer, pOptions, pWin){
+    initialize: function (pKey, pDefinition, pContainer, pOptions, pWin) {
 
         this.setOptions(pOptions);
         this.win = pWin;
@@ -375,11 +378,11 @@ ka.FieldProperty = new Class({
         this._createLayout();
     },
 
-    prepareFields: function(){
+    prepareFields: function () {
 
         this.kaFields = Object.clone(this.kaFields);
 
-        if (!this.options.withTableDefinition){
+        if (!this.options.withTableDefinition) {
             delete this.kaFields.primaryKey;
             delete this.kaFields.autoIncrement;
         } else {
@@ -391,11 +394,11 @@ ka.FieldProperty = new Class({
             delete this.kaFields.type.items.predefined;
         }
 
-        if (this.options.noActAsTableField){
+        if (this.options.noActAsTableField) {
             delete this.kaFields.__optional__.children.tableitem;
         }
 
-        if (this.options.asFrameworkFieldDefinition){
+        if (this.options.asFrameworkFieldDefinition) {
 
             delete this.kaFields.type.children.object_label;
             delete this.kaFields.type.children.object_label_map;
@@ -407,20 +410,22 @@ ka.FieldProperty = new Class({
         } else {
             //if not frameworkField
             delete this.kaFields.__optional__.children.target;
-            if (this.kaFields.__optional__.children.tableitem)
+            if (this.kaFields.__optional__.children.tableitem) {
                 delete this.kaFields.__optional__.children.tableitem;
+            }
 
         }
 
-        if (this.options.asFrameworkSearch){
+        if (this.options.asFrameworkSearch) {
             delete this.kaFields.__optional__.children.empty;
             delete this.kaFields.__optional__.children.target;
             delete this.kaFields.__optional__.children.needValue;
             delete this.kaFields.__optional__.children.againstField;
             delete this.kaFields.__optional__.children.required_regexp;
 
-            if(this.kaFields.__optional__.children.tableitem)
+            if (this.kaFields.__optional__.children.tableitem) {
                 delete this.kaFields.__optional__.children.tableitem;
+            }
 
             delete this.kaFields.type.items.window_list;
             delete this.kaFields.type.items.childrenSwitcher;
@@ -430,7 +435,7 @@ ka.FieldProperty = new Class({
             delete this.kaFields.type.items.tab;
         }
 
-        if (this.options.asFrameworkColumn){
+        if (this.options.asFrameworkColumn) {
             delete this.kaFields.__optional__;
             this.kaFields.type.label = t('Display type');
             this.kaFields.type.items = {
@@ -462,47 +467,49 @@ ka.FieldProperty = new Class({
                 }
 
             };
-        } else if (!this.options.withWidth){
+        } else if (!this.options.withWidth) {
             delete this.kaFields.width;
         }
 
-
-
-        if (typeOf(this.options.fieldTypes) == 'array'){
-            Object.each(this.kaFields.type.items, function(def, key){
-                if (!this.options.fieldTypes.contains(key))
+        if (typeOf(this.options.fieldTypes) == 'array') {
+            Object.each(this.kaFields.type.items, function (def, key) {
+                if (!this.options.fieldTypes.contains(key)) {
                     delete this.kaFields.type.items[key];
+                }
             }.bind(this));
         }
 
-        if (typeOf(this.options.fieldTypesBlacklist) == 'array'){
-            Array.each(this.options.fieldTypesBlacklist, function(key){
+        if (typeOf(this.options.fieldTypesBlacklist) == 'array') {
+            Array.each(this.options.fieldTypesBlacklist, function (key) {
                 delete this.kaFields.type.items[key];
             }.bind(this));
         }
 
-        if (this.kaFields.type.items.object){
+        if (this.kaFields.type.items.object) {
             this.kaFields.type.children.object.type = 'select';
             this.kaFields.type.children.object.items = {};
 
-            Object.each(ka.settings.configs, function(config, extensionKey){
-                if (config.objects){
-                    extensionKey = extensionKey.charAt(0).toUpperCase()+extensionKey.substr(1);
-                    Object.each(config.objects, function(object,object_key){
-                        object_key = object_key.charAt(0).toUpperCase()+object_key.substr(1);
-                        if ((this.options.asFrameworkFieldDefinition && object.selectable) || !this.options.asFrameworkFieldDefinition)
-                            this.kaFields.type.children.object.items[extensionKey+'\\'+object_key] = object.label+" ("+extensionKey+'\\'+object_key+")";
+            Object.each(ka.settings.configs, function (config, extensionKey) {
+                if (config.objects) {
+                    extensionKey = extensionKey.charAt(0).toUpperCase() + extensionKey.substr(1);
+                    Object.each(config.objects, function (object, object_key) {
+                        object_key = object_key.charAt(0).toUpperCase() + object_key.substr(1);
+                        if ((this.options.asFrameworkFieldDefinition && object.selectable) ||
+                            !this.options.asFrameworkFieldDefinition) {
+                            this.kaFields.type.children.object.items[extensionKey + '\\' + object_key] =
+                                object.label + " (" + extensionKey + '\\' + object_key + ")";
+                        }
                     }.bind(this));
                 }
             }.bind(this));
         }
     },
 
-    _createLayout: function(){
+    _createLayout: function () {
 
-        var count = this.container.getElements('.ka-fieldProperty-item').length+1;
+        var count = this.container.getElements('.ka-fieldProperty-item').length + 1;
 
-        if (this.options.asTableItem){
+        if (this.options.asTableItem) {
 
             this.main = new Element('tr', {
                 'class': 'ka-fieldProperty-item'
@@ -520,16 +527,16 @@ ka.FieldProperty = new Class({
 
             delete this.kaFields.key;
 
-            this.iKey.setValue(this.key?this.key:'property_'+count);
+            this.iKey.setValue(this.key ? this.key : 'property_' + count);
 
-            if (this.options.asFrameworkColumn || this.options.withWidth){
+            if (this.options.asFrameworkColumn || this.options.withWidth) {
                 this.tdWidth = new Element('td', {width: 80}).inject(this.main);
 
                 var width = Object.clone(this.kaFields.width);
                 width.noWrapper = true;
                 this.widthField = new ka.Field(width, this.tdWidth);
 
-                this.widthField.setValue(this.definition && this.definition.width?this.definition.width:'');
+                this.widthField.setValue(this.definition && this.definition.width ? this.definition.width : '');
 
             }
 
@@ -541,7 +548,7 @@ ka.FieldProperty = new Class({
             field.noWrapper = true;
             this.typeField = new ka.Field(field, this.tdType);
 
-            this.typeField.setValue(this.definition && this.definition.type?this.definition.type:'text');
+            this.typeField.setValue(this.definition && this.definition.type ? this.definition.type : 'text');
 
             this.tdProperties = new Element('td', {width: 150}).inject(this.main);
 
@@ -566,16 +573,15 @@ ka.FieldProperty = new Class({
                 allTableItems: this.options.allTableItems,
                 tableItemLabelWidth: this.options.tableItemLabelWidth,
                 withEmptyFields: false
-            }, {win:this.win});
+            }, {win: this.win});
 
             this.fieldObject.setValue(this.definition);
 
             this.fieldObject.addEvent('change', this.fireChange);
 
-
         }
 
-        if (!this.options.withoutChildren){
+        if (!this.options.withoutChildren) {
 
             new Element('a', {
                 style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 5px;",
@@ -586,20 +592,22 @@ ka.FieldProperty = new Class({
                 .inject(this.actionContainer);
         }
 
-        if (this.options.withActions){
+        if (this.options.withActions) {
 
             new Element('a', {
                 style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 5px;",
                 title: _('Remove'),
                 html: '&#xe26b;'
             })
-                .addEvent('click', function(){
-                    this.win._confirm(t('Really delete?'), function(ok){
-                        if(ok){
+                .addEvent('click', function () {
+                    this.win._confirm(t('Really delete?'), function (ok) {
+                        if (ok) {
                             this.fireEvent('delete');
                             this.removeEvents('change');
                             this.main.destroy();
-                            if (this.childContainer) this.childContainer.destroy();
+                            if (this.childContainer) {
+                                this.childContainer.destroy();
+                            }
                         }
                     }.bind(this));
                 }.bind(this))
@@ -610,30 +618,37 @@ ka.FieldProperty = new Class({
                 title: t('Move up'),
                 html: '&#xe2ca;'
             })
-                .addEvent('click', function(){
+                .addEvent('click', function () {
 
                     var previous = this.main.getPrevious('.ka-fieldProperty-item');
-                    if (!previous) return;
+                    if (!previous) {
+                        return;
+                    }
                     this.main.inject(previous, 'before');
 
-                    if (this.childContainer) this.childContainer.inject(this.main, 'after');
+                    if (this.childContainer) {
+                        this.childContainer.inject(this.main, 'after');
+                    }
 
                 }.bind(this))
                 .inject(this.actionContainer);
-
 
             new Element('a', {
                 style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
                 title: t('Move down'),
                 html: '&#xe2cc;'
             })
-                .addEvent('click', function(){
+                .addEvent('click', function () {
 
                     var next = this.main.getNext('.ka-fieldProperty-item');
-                    if (!next) return;
+                    if (!next) {
+                        return;
+                    }
                     this.main.inject(next.childContainer || next, 'after');
 
-                    if (this.childContainer) this.childContainer.inject(this.main, 'after');
+                    if (this.childContainer) {
+                        this.childContainer.inject(this.main, 'after');
+                    }
 
                 }.bind(this))
                 .inject(this.actionContainer);
@@ -642,7 +657,7 @@ ka.FieldProperty = new Class({
 
     },
 
-    openProperties: function(){
+    openProperties: function () {
 
         this.dialog = new ka.Dialog(this.win, {
             absolute: true,
@@ -662,7 +677,7 @@ ka.FieldProperty = new Class({
 
         var fieldContainer;
 
-        if (this.options.allTableItems){
+        if (this.options.allTableItems) {
             var table = new Element('table', {
                 width: '100%'
             }).inject(main);
@@ -679,29 +694,32 @@ ka.FieldProperty = new Class({
             tableItemLabelWidth: this.options.tableItemLabelWidth,
             saveButton: this.saveBtn,
             withEmptyFields: false
-        }, {win:this.win});
+        }, {win: this.win});
 
         this.fieldObject.setValue(this.definition);
 
         this.fieldObject.getField('type').setValue(this.typeField.getValue(), true);
 
-        if (this.options.asFrameworkColumn || this.options.withWidth){
+        if (this.options.asFrameworkColumn || this.options.withWidth) {
             this.fieldObject.getField('width').setValue(this.widthField.getValue(), true);
         }
 
         new ka.Button(t('Cancel'))
-            .addEvent('click', function(){ this.dialog.closeAnimated(); }.bind(this))
+            .addEvent('click', function () {
+                this.dialog.closeAnimated();
+            }.bind(this))
             .inject(this.dialog.bottom);
 
-        this.saveBtn.addEvent('click', function(){
-                if (!this.fieldObject.checkValid()){
+        this.saveBtn.addEvent('click', function () {
+                if (!this.fieldObject.checkValid()) {
                     return;
                 }
 
                 this.definition = this.fieldObject.getValue();
                 this.typeField.setValue(this.definition.type);
-                if (this.options.asFrameworkColumn || this.options.withWidth)
+                if (this.options.asFrameworkColumn || this.options.withWidth) {
                     this.widthField.setValue(this.definition.width);
+                }
 
                 this.dialog.close();
 
@@ -713,13 +731,13 @@ ka.FieldProperty = new Class({
         return;
     },
 
-    fireChange: function(){
+    fireChange: function () {
         this.fireEvent('change');
     },
 
-    addChild: function(pKey, pDefinition){
+    addChild: function (pKey, pDefinition) {
 
-        if (!this.childContainer){
+        if (!this.childContainer) {
 
             this.childContainer = new Element('tr').inject(this.main, 'after');
             this.main.childContainer = this.childContainer;
@@ -742,15 +760,17 @@ ka.FieldProperty = new Class({
 
     },
 
-    getValue: function(){
+    getValue: function () {
 
         var key;
 
-        if (this.options.asTableItem){
+        if (this.options.asTableItem) {
             key = this.iKey.getValue();
             var type = this.typeField.getValue();
 
-            if (!key) return;
+            if (!key) {
+                return;
+            }
 
             this.definition.type = type;
         } else {
@@ -760,41 +780,48 @@ ka.FieldProperty = new Class({
 
         var property = this.definition;
 
-        Object.each(property, function(pval, pkey){
+        Object.each(property, function (pval, pkey) {
 
-            if(typeOf(pval) != 'string') return;
+            if (typeOf(pval) != 'string') {
+                return;
+            }
 
             var newItem = false;
 
             try {
 
                 //check if json array
-                if (pval.substr(0,1) == '[' && pval.substr(pval.length-1) == ']'&&
-                    pval.substr(0,2) != '[[' && pval.substr(pval.length-2) != ']]')
+                if (pval.substr(0, 1) == '[' && pval.substr(pval.length - 1) == ']' &&
+                    pval.substr(0, 2) != '[[' && pval.substr(pval.length - 2) != ']]') {
                     newItem = JSON.decode(pval);
+                }
 
                 //check if json object
-                if (pval.substr(0,1) == '{' && pval.substr(pval.length-1,1) == '}')
+                if (pval.substr(0, 1) == '{' && pval.substr(pval.length - 1, 1) == '}') {
                     newItem = JSON.decode(pval);
+                }
 
-            } catch(e){}
+            } catch (e) {
+            }
 
-            if (newItem)
+            if (newItem) {
                 property[pkey] = newItem;
+            }
 
         }.bind(this));
 
-        if (!this.options.withoutChildren && this.childContainer){
+        if (!this.options.withoutChildren && this.childContainer) {
             property.children = {};
 
-            this.childContainer.getChildren('tr').each(function(child){
+            this.childContainer.getChildren('tr').each(function (child) {
                 var fieldProperty = child.retrieve('ka.FieldProperty');
                 var value = fieldProperty.getValue();
                 property.children[value.key] = value.definition;
             });
 
-            if (Object.getLength(property.children) === 0)
+            if (Object.getLength(property.children) === 0) {
                 delete property.children;
+            }
         }
 
         return {
@@ -803,37 +830,39 @@ ka.FieldProperty = new Class({
         };
     },
 
+    setValue: function (pKey, pDefinition) {
 
-    setValue: function(pKey, pDefinition){
-
-        if(pDefinition.type == 'select' && pDefinition.tableItems){
-            if (typeOf(pDefinition.tableItems) == 'object')
+        if (pDefinition.type == 'select' && pDefinition.tableItems) {
+            if (typeOf(pDefinition.tableItems) == 'object') {
                 pDefinition.items = Object.clone(pDefinition.tableItems);
+            }
 
-            if (typeOf(pDefinition.tableItems) == 'array')
+            if (typeOf(pDefinition.tableItems) == 'array') {
                 pDefinition.items = Array.clone(pDefinition.tableItems);
+            }
 
             delete pDefinition.tableItems;
         }
 
-        if (typeOf(pDefinition.items) == 'array'){
+        if (typeOf(pDefinition.items) == 'array') {
             var first = pDefinition.items[0];
-            if (typeOf(first) == 'object'){
+            if (typeOf(first) == 'object') {
                 var newItems = {};
-                Array.each(pDefinition.items, function(item){
+                Array.each(pDefinition.items, function (item) {
                     newItems[ item[pDefinition.table_key] ] = item[pDefinition.table_label];
                 });
                 pDefinition.items = newItems;
             }
         }
 
-        if (this.options.asTableItem){
+        if (this.options.asTableItem) {
             this.iKey.setValue(pKey);
             this.typeField.setValue(pDefinition.type);
             this.definition = pDefinition;
 
-            if (this.options.asFrameworkColumn || this.options.withWidth)
+            if (this.options.asFrameworkColumn || this.options.withWidth) {
                 this.widthField.setValue(pDefinition.width);
+            }
 
         } else {
             this.fieldObject.setValue(pDefinition);
@@ -842,12 +871,13 @@ ka.FieldProperty = new Class({
         delete this.children;
 
         this.children = [];
-        if (this.childDiv)
+        if (this.childDiv) {
             this.childDiv.empty();
+        }
 
-        if (!this.options.withoutChildren){
-            if (pDefinition.children){
-                Object.each(pDefinition.children, function(definition, key){
+        if (!this.options.withoutChildren) {
+            if (pDefinition.children) {
+                Object.each(pDefinition.children, function (definition, key) {
 
                     this.addChild(key, definition);
 

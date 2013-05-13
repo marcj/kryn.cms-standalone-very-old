@@ -4,7 +4,8 @@ namespace Core\Render;
 
 use Core\Models\Content;
 
-class TypeText implements TypeInterface {
+class TypeText implements TypeInterface
+{
 
     public function render(Content $content, $parameter)
     {

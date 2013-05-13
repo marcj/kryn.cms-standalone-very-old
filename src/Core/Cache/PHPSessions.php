@@ -40,13 +40,15 @@ class PHPSessions implements CacheInterface
         if ($this->config['ClientInstance']) {
             $this->tokenId = $this->config['ClientInstance']->getTokenId();
             $this->token = $this->config['ClientInstance']->getToken();
-        } else
+        } else {
             $this->tokenId = 'phpsession';
+        }
 
         session_name($this->tokenId);
 
-        if (!$this->token)
+        if (!$this->token) {
             return false;
+        }
 
         session_id($this->token);
         session_start();

@@ -1,16 +1,16 @@
 .kwindow-win-tabPane-pane {
-	padding: 10px;
-	margin:0px 5px;
+    padding: 10px;
+    margin: 0px 5px;
 }
 
 .kwindow-win-tabPane .kwindow-win-tabWrapperLast {
-	border-right: 0px;
+    border-right: 0px;
 }
 
 .kwindow-win-tabPane .kwindow-win-tabGroup {
-    border-left:1px solid #aaa;
-    border-right:1px solid #aaa;
-    border-top:1px solid #888;	
+    border-left: 1px solid #aaa;
+    border-right: 1px solid #aaa;
+    border-top: 1px solid #888;
 }
 
 .ka-tabPane-pane {
@@ -35,7 +35,6 @@
     position: relative;
     top: 0px;
 }
-
 
 .ka-tabPane-full > .kwindow-win-tabPane-pane > .ka-tabPane-pane {
     overflow: auto;

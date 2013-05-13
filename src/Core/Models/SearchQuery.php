@@ -15,6 +15,7 @@ use Core\Models\Base\SearchQuery as BaseSearchQuery;
  * long as it does not already exist in the output directory.
  *
  */
-class SearchQuery extends BaseSearchQuery {
+class SearchQuery extends BaseSearchQuery
+{
 
 } // SearchQuery

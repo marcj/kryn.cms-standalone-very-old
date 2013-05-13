@@ -27,7 +27,6 @@ var admin_system_backup = new Class({
         this.renderLayout();
         //TODO check if ka.settings.cronjob_key is setup. if not, create alert with link to system->settings
 
-
         this.fieldDefs = {
             method: {
                 label: _('Method'),
@@ -257,7 +256,8 @@ var admin_system_backup = new Class({
     renderLayout: function () {
 
         this.left = new Element('div', {
-            style: 'position: absolute; left: 0px; width: 200px; top: 0px;  overflow: auto;' + 'bottom: 0px; border-right: 1px solid silver; background-color: #f7f7f7;'
+            style: 'position: absolute; left: 0px; width: 200px; top: 0px;  overflow: auto;' +
+                'bottom: 0px; border-right: 1px solid silver; background-color: #f7f7f7;'
         }).inject(this.win.content);
 
         this.main = new Element('div', {
@@ -265,17 +265,21 @@ var admin_system_backup = new Class({
         }).inject(this.win.content);
 
         this.btnGrp = this.win.addButtonGroup();
-        this.btnNewBackup = this.btnGrp.addButton(_('New Backup'), _path + 'bundles/admin/images/icons/add.png', this.add.bind(this));
-        this.btnImport = this.btnGrp.addButton(_('Import'), _path + 'bundles/admin/images/icons/database_import.png', this.import.bind(this));
-
+        this.btnNewBackup =
+            this.btnGrp.addButton(_('New Backup'), _path + 'bundles/admin/images/icons/add.png', this.add.bind(this));
+        this.btnImport = this.btnGrp.addButton(_('Import'), _path + 'bundles/admin/images/icons/database_import.png',
+            this.import.bind(this));
 
         this.addGrp = this.win.addButtonGroup();
         this.addGrp.setStyle('margin-left', 130);
-        this.addSaveBtn = this.addGrp.addButton(_('Save'), _path + 'bundles/admin/images/button-save.png', this.save.bind(this));
+        this.addSaveBtn =
+            this.addGrp.addButton(_('Save'), _path + 'bundles/admin/images/button-save.png', this.save.bind(this));
 
-        this.addGenerateBtn = this.addGrp.addButton(_('Save and generate'), _path + 'bundles/admin/images/button-save-and-publish.png', this.generate.bind(this));
-        this.addDeleteBtn = this.addGrp.addButton(_('Delete'), _path + 'bundles/admin/images/icons/delete.png', this.remove.bind(this));
-
+        this.addGenerateBtn =
+            this.addGrp.addButton(_('Save and generate'), _path + 'bundles/admin/images/button-save-and-publish.png',
+                this.generate.bind(this));
+        this.addDeleteBtn =
+            this.addGrp.addButton(_('Delete'), _path + 'bundles/admin/images/icons/delete.png', this.remove.bind(this));
 
         this.addGrp.hide();
     },
@@ -299,14 +303,17 @@ var admin_system_backup = new Class({
 
     addPopenNotice: function () {
 
-        if (this.noAsyncSupport == true) return;
+        if (this.noAsyncSupport == true) {
+            return;
+        }
 
         this.noAsyncSupport = true;
 
         this.left.setStyle('border-bottom', '1px solid silver');
 
         this.notice = new Element('div', {
-            style: 'position: absolute; bottom: 0px; left:0px; width: 190px; padding: 5px;' + 'height: 40px;background-color: #eee; line-height: 20px;',
+            style: 'position: absolute; bottom: 0px; left:0px; width: 190px; padding: 5px;' +
+                'height: 40px;background-color: #eee; line-height: 20px;',
             html: _('Your server does not support asynchronous php executions. <ka:help id="admin/backup_no_popen_support">More</ka:help>')
         }).inject(this.win.content, 'top');
 
@@ -362,12 +369,15 @@ var admin_system_backup = new Class({
                 style: 'margin-bottom: 5px;'
             }).inject(this.lastZipList);
 
-
             Array.each(values.done, function (zip) {
 
                 var li = new Element('li', {
                     'class': 'ka-backup-ziplist-item',
-                    html: '<a title="' + _('Download') + '" target="_blank" href="' + _path + 'admin/system/backup/download/?file=' + zip.name + '&id=' + pId + '">' + zip.name + '</a><br /> <span style="color: gray">' + _('took %f seconds').replace('%f', zip.took_time.toFixed(2)) + ', ' + ka.bytesToSize(zip.size) + '</span>'
+                    html: '<a title="' + _('Download') + '" target="_blank" href="' + _path +
+                        'admin/system/backup/download/?file=' + zip.name + '&id=' + pId + '">' + zip.name +
+                        '</a><br /> <span style="color: gray">' +
+                        _('took %f seconds').replace('%f', zip.took_time.toFixed(2)) + ', ' + ka.bytesToSize(zip.size) +
+                        '</span>'
                 }).inject(this.lastZipList);
 
                 var div = new Element('div', {
@@ -399,7 +409,8 @@ var admin_system_backup = new Class({
 
         if (pItem.method != 'download') {
             new Element('div', {
-                text: _('Starts: ') + ( pItem.start == 'immediately' ? _('Immediately') : new Date(pItem.start_date * 1000).format('db'))
+                text: _('Starts: ') +
+                    ( pItem.start == 'immediately' ? _('Immediately') : new Date(pItem.start_date * 1000).format('db'))
             }).inject(div);
 
             var times = _('One times');
@@ -418,7 +429,8 @@ var admin_system_backup = new Class({
                 text: _('Each: ') + each + ', ' + times
             }).inject(div);
             new Element('div', {
-                text: _('Ends: ') + ( pItem.end == 'infinite' ? _('Infinite') : new Date(pItem.end_date * 1000).format('db'))
+                text: _('Ends: ') +
+                    ( pItem.end == 'infinite' ? _('Infinite') : new Date(pItem.end_date * 1000).format('db'))
             }).inject(div);
         } else {
             new Element('div', {
@@ -429,7 +441,6 @@ var admin_system_backup = new Class({
         new Element('div', {
             html: _('Generated %d backups.').replace('%d', '<b>' + (pItem.generated ? pItem.generated : 0) + '</b>')
         }).inject(div);
-
 
         if (pItem.working) {
             this.attachProgressBar(div);
@@ -453,7 +464,6 @@ var admin_system_backup = new Class({
                 }).inject(info, 'after');
             }
         }
-
 
         if (this.startNextBackupId == pId) {
             this.startBackup(pId);
@@ -479,7 +489,6 @@ var admin_system_backup = new Class({
             domain: 'Domain: %s',
             gatherDone: _('Creating zip file.')
         };
-
 
         update = function () {
             new Request.JSON({url: _path + 'admin/system/backup/state', onComplete: function (res) {
@@ -553,11 +562,16 @@ var admin_system_backup = new Class({
 
     remove: function () {
 
-        if (!this.lastSelect) return;
+        if (!this.lastSelect) {
+            return;
+        }
 
-        this.win._confirm(_('Do you really want to remove this backup? All generated backups will be deleted.'), function (res) {
-            if (res) this._remove();
-        }.bind(this));
+        this.win._confirm(_('Do you really want to remove this backup? All generated backups will be deleted.'),
+            function (res) {
+                if (res) {
+                    this._remove();
+                }
+            }.bind(this));
     },
 
     _remove: function () {
@@ -574,19 +588,21 @@ var admin_system_backup = new Class({
             this.loadItems();
         }.bind(this)}).post(req);
 
-
     },
-
 
     startBackup: function (pId) {
 
         var failed = function () {
-            ka.helpsystem.newBubble(_('Error during creating backup'), _('There was a error during the creating of the backup. Please check the log window to get more informations. Maybe you should consider to increase the max_execution_time of your server.'), 60000);
+            ka.helpsystem.newBubble(_('Error during creating backup'),
+                _('There was a error during the creating of the backup. Please check the log window to get more informations. Maybe you should consider to increase the max_execution_time of your server.'),
+                60000);
         };
 
         new Request.JSON({url: _path + 'admin/system/backup/start',
             onComplete: function (res) {
-                if (res != true) failed();
+                if (res != true) {
+                    failed();
+                }
             }
         }).get({id: pId});
         delete this.startNextBackupId;
@@ -638,7 +654,6 @@ var admin_system_backup = new Class({
             } else {
                 this.addSaveBtn.show();
             }
-
 
         } else {
             if ((!this.fields || this.fields.getValue('method') == 'download') && !this.lastSelect) {
@@ -692,9 +707,10 @@ var admin_system_backup = new Class({
         this.importProgressDiv.setStyle('display', 'block');
         this.importStatus.setText(_('Extracting backup informations ...'));
 
-        this.importExtractInformationsRq = new Request.JSON({url: _path + 'admin/system/backup/extractInfos', noCache: 1,
-            onComplete: this.renderBackupInfos.bind(this)
-        }).get({file: file});
+        this.importExtractInformationsRq =
+            new Request.JSON({url: _path + 'admin/system/backup/extractInfos', noCache: 1,
+                onComplete: this.renderBackupInfos.bind(this)
+            }).get({file: file});
 
     },
 
@@ -732,7 +748,8 @@ var admin_system_backup = new Class({
                     checked: true
                 }).inject(li);
                 new Element('span', {
-                    text: '[' + domain.lang + '] "' + domain.domain + '" ' + _('with %d nodes').replace('%d', domain.page_count),
+                    text: '[' + domain.lang + '] "' + domain.domain + '" ' +
+                        _('with %d nodes').replace('%d', domain.page_count),
                 }).inject(li);
             });
         }
@@ -766,7 +783,6 @@ var admin_system_backup = new Class({
             }.bind(this));
         }
 
-
         //files
 
         if (pInfos.countOfAllFiles > 0) {
@@ -783,7 +799,9 @@ var admin_system_backup = new Class({
                     checked: true
                 }).inject(li);
                 new Element('span', {
-                    html: _('Folder %s with %d files (%f)').replace('%s', '<span style="color: #555;">' + id + '/</span>').replace('%d', pInfos.countOfFiles[id]).replace('%f', ka.bytesToSize(pInfos.sizeOfFiles[id])),
+                    html: _('Folder %s with %d files (%f)').replace('%s',
+                            '<span style="color: #555;">' + id + '/</span>').replace('%d',
+                            pInfos.countOfFiles[id]).replace('%f', ka.bytesToSize(pInfos.sizeOfFiles[id])),
                 }).inject(li);
 
                 var fol = new Element('ol', {style: 'color: #666; line-height: 15px;'}).inject(li);

@@ -24,14 +24,17 @@ var DatePicker = new Class({
         this.dayNames = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
         this.daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
         this.format = 'dd.mm.yyyy';
-        this.monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-        this.monthNames = ['Januar', 'Februar', 'Maerz', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+        this.monthNames =
+            ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October',
+                'November', 'December'];
+        this.monthNames =
+            ['Januar', 'Februar', 'Maerz', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November',
+                'Dezember'];
         this.startDay = 1; // 1 = week starts on Monday, 7 = week starts on Sunday
         this.yearOrder = 'asc';
         this.yearRange = 10;
         this.yearStart = (new Date().getFullYear());
         this.withTime = 0;
-
 
         // Finds the entered date, or uses the current date
         if (dp.value != '') {
@@ -56,9 +59,14 @@ var DatePicker = new Class({
             options = [];
         }
         dp.options = {
-            monthNames: (options.monthNames && options.monthNames.length == 12 ? options.monthNames : this.monthNames) || this.monthNames,
-            daysInMonth: (options.daysInMonth && options.daysInMonth.length == 12 ? options.daysInMonth : this.daysInMonth) || this.daysInMonth,
-            dayNames: (options.dayNames && options.dayNames.length == 7 ? options.dayNames : this.dayNames) || this.dayNames,
+            monthNames: (
+                options.monthNames && options.monthNames.length == 12 ? options.monthNames : this.monthNames) ||
+                this.monthNames,
+            daysInMonth: (
+                options.daysInMonth && options.daysInMonth.length == 12 ? options.daysInMonth : this.daysInMonth) ||
+                this.daysInMonth,
+            dayNames: (options.dayNames && options.dayNames.length == 7 ? options.dayNames : this.dayNames) ||
+                this.dayNames,
             startDay: options.startDay || this.startDay,
             dayChars: options.dayChars || this.dayChars,
             format: options.format || this.format,
@@ -90,7 +98,9 @@ var DatePicker = new Class({
 
     /* create the calendar */
     create: function (dp) {
-        if (dp.calendar) return false;
+        if (dp.calendar) {
+            return false;
+        }
 
         // Hide select boxes while calendar is up
         if (window.ie6) {
@@ -129,20 +139,22 @@ var DatePicker = new Class({
         /* set the day to first of the month */
         var firstDay = (1 - (7 + date.getDay() - dp.options.startDay) % 7);
 
-
         if (dp.options.withTime) {
             var _this = this;
             /* create the time select boxes */
-            timeHour = new Element('select', {'id': dp.id + '_timeHourSelect', style: 'width: 46%'}).addEvent('change', function () {
-                _this.updateValues(dp)
-            });
+            timeHour = new Element('select', {'id': dp.id + '_timeHourSelect', style: 'width: 46%'}).addEvent('change',
+                function () {
+                    _this.updateValues(dp)
+                });
             for (var i = 0; i < 24; i++) {
                 var j = (i < 10) ? '0' + i : i;
                 new Element('option', {value: j, text: j, selected: (i == dp.hour)}).inject(timeHour);
             }
-            timeMinutes = new Element('select', {'id': dp.id + '_timeMinutesSelect', style: 'width: 46%'}).addEvent('change', function () {
-                _this.updateValues(dp)
-            });
+            timeMinutes =
+                new Element('select', {'id': dp.id + '_timeMinutesSelect', style: 'width: 46%'}).addEvent('change',
+                    function () {
+                        _this.updateValues(dp)
+                    });
             for (var i = 0; i < 60; i++) {
                 var j = (i < 10) ? '0' + i : i;
                 new Element('option', {value: j, text: j, selected: (j == dp.minute)}).inject(timeMinutes);
@@ -153,7 +165,9 @@ var DatePicker = new Class({
         monthSel = new Element('select', {'id': dp.id + '_monthSelect'});
         for (var m = 0; m < dp.options.monthNames.length; m++) {
             monthSel.options[m] = new Option(dp.options.monthNames[m], m);
-            if (dp.month == m) monthSel.options[m].selected = true;
+            if (dp.month == m) {
+                monthSel.options[m].selected = true;
+            }
         }
 
         /* create the year select box */
@@ -163,13 +177,17 @@ var DatePicker = new Class({
         if (dp.options.yearOrder == 'desc') {
             for (var y = dp.options.yearStart; y > (dp.options.yearStart - dp.options.yearRange - 1); y--) {
                 yearSel.options[i] = new Option(y, y);
-                if (dp.year == y) yearSel.options[i].selected = true;
+                if (dp.year == y) {
+                    yearSel.options[i].selected = true;
+                }
                 i++;
             }
         } else {
             for (var y = dp.options.yearStart; y < (dp.options.yearStart + dp.options.yearRange + 1); y++) {
                 yearSel.options[i] = new Option(y, y);
-                if (dp.year == y) yearSel.options[i].selected = true;
+                if (dp.year == y) {
+                    yearSel.options[i].selected = true;
+                }
                 i++;
             }
         }
@@ -193,7 +211,8 @@ var DatePicker = new Class({
         calDayNameRow = new Element('tr');
         for (var i = 0; i < dp.options.dayNames.length; i++) {
             calDayNameCell = new Element('th');
-            calDayNameCell.appendText(dp.options.dayNames[(dp.options.startDay + i) % 7].substr(0, dp.options.dayChars));
+            calDayNameCell.appendText(dp.options.dayNames[(dp.options.startDay + i) % 7].substr(0,
+                dp.options.dayChars));
             calDayNameCell.injectInside(calDayNameRow);
         }
         calDayNameRow.injectInside(calTableTbody);
@@ -203,7 +222,9 @@ var DatePicker = new Class({
             calDayRow = new Element('tr');
             for (i = 0; i < 7; i++) {
                 if ((firstDay <= dp.options.daysInMonth[dp.month]) && (firstDay > 0)) {
-                    calDayCell = new Element('td', {'class': dp.id + '_calDay', 'axis': dp.year + '|' + (parseInt(dp.month) + 1) + '|' + firstDay}).appendText(firstDay).injectInside(calDayRow);
+                    calDayCell = new Element('td',
+                        {'class': dp.id + '_calDay', 'axis': dp.year + '|' + (parseInt(dp.month) + 1) + '|' +
+                            firstDay}).appendText(firstDay).injectInside(calDayRow);
                 } else {
                     calDayCell = new Element('td', {'class': 'dp_empty'}).appendText(' ').injectInside(calDayRow);
                 }
@@ -289,9 +310,12 @@ var DatePicker = new Class({
         var dateStr = '';
 
         /* check the length of day */
-        if (day < 10) day = '0' + day;
-        if (month < 10) month = '0' + month;
-
+        if (day < 10) {
+            day = '0' + day;
+        }
+        if (month < 10) {
+            month = '0' + month;
+        }
 
         /* check the format & replace parts // thanks O'Rey */
         dateStr = dp.options.format.replace(/dd/i, day).replace(/mm/i, month).replace(/yyyy/i, year);
@@ -315,7 +339,11 @@ var DatePicker = new Class({
     remove: function (dp) {
         $clear(dp.interval);
         dp.active = false;
-        if (window.opera) dp.container.empty(); else if (dp.container) dp.container.destroy();
+        if (window.opera) {
+            dp.container.empty();
+        } else if (dp.container) {
+            dp.container.destroy();
+        }
         dp.calendar = false;
         dp.container = false;
         $$('select.dp_hide').removeClass('dp_hide');

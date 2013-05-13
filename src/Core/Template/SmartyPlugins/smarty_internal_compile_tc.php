@@ -4,9 +4,10 @@
  * Smarty Internal Plugin Compile Level
  *
  * Compiles the {tc} tag
- * @package Smarty
+ *
+ * @package    Smarty
  * @subpackage Compiler
- * @author MArc Schmidt <marc@kryn.org>
+ * @author     MArc Schmidt <marc@kryn.org>
  */
 
 /**
@@ -22,7 +23,7 @@ class Smarty_Internal_Compile_Tc extends Smarty_Internal_CompileBase
         $this->compiler = $compiler;
         $args = $this->getAttributes($compiler, $args);
 
-        return '<?php print tc('.$args['context'].','.$args['msg'].'); ?>';
+        return '<?php print tc(' . $args['context'] . ',' . $args['msg'] . '); ?>';
 
     }
 }

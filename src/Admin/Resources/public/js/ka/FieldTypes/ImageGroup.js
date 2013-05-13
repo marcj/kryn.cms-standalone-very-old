@@ -1,8 +1,8 @@
 ka.FieldTypes.ImageGroup = new Class({
-    
+
     Extends: ka.FieldAbstract,
 
-    createLayout: function(){
+    createLayout: function () {
 
         this.main = new Element('div', {
             style: 'padding: 5px;',
@@ -20,7 +20,7 @@ ka.FieldTypes.ImageGroup = new Class({
         this.imageGroup.addEvent('change', this.fieldInstance.fireChange);
     },
 
-    setValue: function(pValue){
+    setValue: function (pValue) {
         Object.each(this.imageGroupImages, function (button, tvalue) {
             button.removeClass('ka-buttonGroup-item');
             if (pValue == tvalue) {
@@ -29,7 +29,7 @@ ka.FieldTypes.ImageGroup = new Class({
         });
     },
 
-    getValue: function(){
+    getValue: function () {
         var value = null;
         Object.each(this.imageGroupImages, function (button, tvalue) {
             if (button.hasClass('ka-buttonGroup-item')) {

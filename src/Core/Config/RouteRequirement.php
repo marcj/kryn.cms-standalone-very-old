@@ -2,7 +2,8 @@
 
 namespace Core\Config;
 
-class RouteRequirement extends SimpleModel {
+class RouteRequirement extends SimpleModel
+{
     /**
      * @var string
      */

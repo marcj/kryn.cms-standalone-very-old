@@ -40,6 +40,7 @@ class Properties
      * Gets the value of $pPath
      *
      * @param  string $pPath slash delimited string
+     *
      * @return mixed
      */
     public function getByPath($pPath)
@@ -49,7 +50,9 @@ class Properties
         $data = $this->data;
 
         foreach ($path as $node) {
-            if (!$data[$node]) return false;
+            if (!$data[$node]) {
+                return false;
+            }
             $data = $data[$node];
         }
 
@@ -70,7 +73,9 @@ class Properties
         $data =& $this->data;
 
         foreach ($path as $node) {
-            if (!$data[$node]) $data[$node] = array();
+            if (!$data[$node]) {
+                $data[$node] = array();
+            }
             $data =& $data[$node];
         }
 

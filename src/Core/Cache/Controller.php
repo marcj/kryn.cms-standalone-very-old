@@ -59,16 +59,16 @@ class Controller
     /**
      * Constructor.
      *
-     * @param string $pClass  The class of the cache service.
-     * @param array  $pConfig Contains config values.
-     *                                          memcached and redis: array(
+     * @param string $pClass                            The class of the cache service.
+     * @param array  $pConfig                           Contains config values.
+     *                                                  memcached and redis: array(
      *                                              'servers' => array(
      *                                                  array('ip' => '12.12.12.12', 'port' => 6379
      *                                                  array('ip' => '12.12.12.13', 'port' => 6379
      *                                              )
      *                                            )
-     *                                          files: array('files_path' => '<path to store the cached files')
-     * @param bool $pWithInvalidationChecks Activates the invalidating mechanism
+     *                                                  files: array('files_path' => '<path to store the cached files')
+     * @param bool   $pWithInvalidationChecks           Activates the invalidating mechanism
      *
      * @throws \Exception
      */
@@ -102,16 +102,19 @@ class Controller
     {
         $class = '\Core\Cache\\';
 
-        if (function_exists('apc_store'))
-            return $class.'Apc';
+        if (function_exists('apc_store')) {
+            return $class . 'Apc';
+        }
 
-        if (function_exists('xcache_set'))
-            return $class.'XCache';
+        if (function_exists('xcache_set')) {
+            return $class . 'XCache';
+        }
 
-        if (function_exists('wincache_ucache_get'))
-            return $class.'WinCache';
+        if (function_exists('wincache_ucache_get')) {
+            return $class . 'WinCache';
+        }
 
-        return $class.'Files';
+        return $class . 'Files';
     }
 
     /**
@@ -122,7 +125,8 @@ class Controller
      *
      * @return ref to data
      */
-    public function &get($pKey, $pWithoutValidationCheck = false) {
+    public function &get($pKey, $pWithoutValidationCheck = false)
+    {
 
         if (!isset($this->cache[$pKey])) {
             $time = microtime(true);
@@ -139,7 +143,8 @@ class Controller
 
             if ($pWithoutValidationCheck == true) {
                 if (!$this->cache[$pKey]['value'] || !$this->cache[$pKey]['time']
-                    || $this->cache[$pKey]['timeout'] < microtime(true)) {
+                    || $this->cache[$pKey]['timeout'] < microtime(true)
+                ) {
                     return null;
                 }
 
@@ -165,12 +170,15 @@ class Controller
             }
         }
 
-        if ($this->withInvalidationChecks && !$pWithoutValidationCheck)
-            if (is_array($this->cache[$pKey]))
+        if ($this->withInvalidationChecks && !$pWithoutValidationCheck) {
+            if (is_array($this->cache[$pKey])) {
                 return $this->cache[$pKey]['value'];
-            else return null;
-        else
+            } else {
+                return null;
+            }
+        } else {
             return $this->cache[$pKey];
+        }
 
     }
 
@@ -178,11 +186,12 @@ class Controller
      * Returns the invalidation time.
      *
      * @param  string $pKey
+     *
      * @return string
      */
     public function getInvalidate($pKey)
     {
-        return $this->get('invalidate-'.$pKey, true);
+        return $this->get('invalidate-' . $pKey, true);
     }
 
     /**
@@ -193,10 +202,10 @@ class Controller
      */
     public function invalidate($pKey, $pTime = null)
     {
-        $this->cache['invalidate-'.$pKey] = $pTime;
+        $this->cache['invalidate-' . $pKey] = $pTime;
 
         $time = microtime(true);
-        $result = $this->instance->set('invalidate-'.$pKey, $pTime, 99999999, true);
+        $result = $this->instance->set('invalidate-' . $pKey, $pTime, 99999999, true);
         \Core\Utils::$latency['cache'][] = microtime(true) - $time;
         return $result;
     }
@@ -215,14 +224,17 @@ class Controller
      */
     public function set($pKey, $pValue, $pLifeTime = 3600, $pWithoutValidationData = false)
     {
-        if (!$pKey) return false;
+        if (!$pKey) {
+            return false;
+        }
 
-        if (!$pLifeTime)
+        if (!$pLifeTime) {
             $pLifeTime = 3600;
+        }
 
         if ($this->withInvalidationChecks && !$pWithoutValidationData) {
             $pValue = array(
-                'timeout' => microtime(true)+$pLifeTime,
+                'timeout' => microtime(true) + $pLifeTime,
                 'time' => microtime(true),
                 'value' => $pValue
             );
@@ -240,6 +252,7 @@ class Controller
      * Deletes the cache for specified cache-key.
      *
      * @param  string $pKey
+     *
      * @return bool
      */
     public function delete($pKey)

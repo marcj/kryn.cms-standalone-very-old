@@ -2,11 +2,10 @@
 
 namespace Core\Template;
 
-use Core\Exceptions\InvalidArgumentException;
-
 use Core\Kryn;
 
-class Engine {
+class Engine
+{
 
     private static $instances = array();
 
@@ -33,13 +32,13 @@ class Engine {
     public function render($view, $data = null)
     {
 
-        if (strpos($view, PATH) === 0){
+        if (strpos($view, PATH) === 0) {
             $view = substr($view, strlen(PATH));
         }
 
         try {
             return $this->engine->render($view, $data);
-        } catch (\Exception $e){
+        } catch (\Exception $e) {
             throw new TemplateException(sprintf('View `%s` raised a error.', $view), $e->getCode(), $e);
         }
     }

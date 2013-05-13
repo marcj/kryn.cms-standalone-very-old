@@ -15,6 +15,7 @@ use Core\Models\Base\NodeQuery as BaseNodeQuery;
  * long as it does not already exist in the output directory.
  *
  */
-class NodeQuery extends BaseNodeQuery {
+class NodeQuery extends BaseNodeQuery
+{
 
 } // NodeQuery

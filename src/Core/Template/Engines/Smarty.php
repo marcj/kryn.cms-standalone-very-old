@@ -5,7 +5,8 @@ namespace Core\Template\Engines;
 /**
  * Template engine None.
  */
-class Smarty implements EnginesInterface {
+class Smarty implements EnginesInterface
+{
 
     private static $instance;
 
@@ -28,17 +29,19 @@ class Smarty implements EnginesInterface {
 
             self::$instance->assign('random', mt_rand());
 
-            if (!is_dir($compileDir = \Core\Kryn::getTempFolder().'smarty-compile/'))
+            if (!is_dir($compileDir = \Core\Kryn::getTempFolder() . 'smarty-compile/')) {
                 mkdir($compileDir);
+            }
 
             self::$instance->compile_dir = $compileDir;
         }
         return self::$instance;
     }
 
-    public function render($file, $data = null){
+    public function render($file, $data = null)
+    {
         $smarty = self::getInstance();
-        $view   = $smarty->createTemplate($file, $data);
+        $view = $smarty->createTemplate($file, $data);
         return $view->fetch($file);
     }
 

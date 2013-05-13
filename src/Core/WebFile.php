@@ -12,8 +12,8 @@
 
 namespace Core;
 
-use Core\Models\FileQuery;
 use Core\Models\File;
+use Core\Models\FileQuery;
 
 /**
  * File
@@ -53,6 +53,7 @@ class WebFile
      * Returns the instance of the file layer object for the given path.
      *
      * @static
+     *
      * @param  string $pPath
      *
      * @return \Core\FAL\FALAbstract
@@ -67,10 +68,11 @@ class WebFile
         if ($pPath != '/') {
 
             $sPos = strpos(substr($pPath, 1), '/');
-            if ($sPos === false)
-                $firstFolder = substr($pPath,1);
-            else
+            if ($sPos === false) {
+                $firstFolder = substr($pPath, 1);
+            } else {
                 $firstFolder = substr($pPath, 1, $sPos);
+            }
 
             //if firstFolder a mounted folder?
             if (isset(Kryn::$config['mounts']) && $fs = Kryn::$config['mounts'][$firstFolder]) {
@@ -80,12 +82,15 @@ class WebFile
             }
         }
 
-        if (isset(static::$fsObjects[$class])) return static::$fsObjects[$class];
+        if (isset(static::$fsObjects[$class])) {
+            return static::$fsObjects[$class];
+        }
 
-        if (class_exists($class))
+        if (class_exists($class)) {
             static::$fsObjects[$class] = new $class($mountName, $params);
-        else
+        } else {
             throw new \ClassNotFoundException(tf('Class %s not found.', $class));
+        }
 
         return static::$fsObjects[$class];
 
@@ -99,6 +104,7 @@ class WebFile
      * Forces a / at the beginning, removes the trailing / if exists.
      *
      * @param  string $pPath
+     *
      * @return string
      */
     public static function normalizePath($pPath)
@@ -113,11 +119,13 @@ class WebFile
         $pPath = str_replace('..', '', $pPath);
         $pPath = str_replace('//', '/', $pPath);
 
-        if (substr($pPath, 0, 1) != '/')
-            $pPath = '/'.$pPath;
+        if (substr($pPath, 0, 1) != '/') {
+            $pPath = '/' . $pPath;
+        }
 
-        if (substr($pPath, -1) == '/')
+        if (substr($pPath, -1) == '/') {
             $pPath = substr($pPath, 0, -1);
+        }
 
         return $pPath;
     }
@@ -126,7 +134,9 @@ class WebFile
      * Removes unusual chars in file names.
      *
      * @static
+     *
      * @param  string $pName
+     *
      * @return string
      */
     public static function normalizeName($pName)
@@ -144,7 +154,9 @@ class WebFile
      * Gets the content of a file.
      *
      * @static
+     *
      * @param  string      $pPath
+     *
      * @return bool|string
      */
     public static function getContent($pPath)
@@ -162,8 +174,10 @@ class WebFile
      * the they doesnt exist.
      *
      * @static
+     *
      * @param  string $pPath
      * @param  string $pContent
+     *
      * @return bool
      */
     public static function setContent($pPath, $pContent)
@@ -178,7 +192,9 @@ class WebFile
      * Checks if a file exists.
      *
      * @static
+     *
      * @param  string $pPath
+     *
      * @return bool
      */
     public static function exists($pPath)
@@ -194,7 +210,9 @@ class WebFile
      * Creates also the full folder path if the they doesnt exist.
      *
      * @static
+     *
      * @param  string $pPath
+     *
      * @return bool
      */
     public static function createFile($pPath, $pContent)
@@ -210,7 +228,9 @@ class WebFile
      * Creates also the full folder path if the they doesnt exist.
      *
      * @static
+     *
      * @param  string $pPath
+     *
      * @return bool
      */
     public static function createFolder($pPath)
@@ -225,6 +245,7 @@ class WebFile
      * Removes a file/folder.
      *
      * @static
+     *
      * @param string $pPath
      *
      * @return bool
@@ -253,6 +274,7 @@ class WebFile
      *  )
      *
      * @static
+     *
      * @param string $pPath
      *
      * @return int|bool|array Return false if the file doenst exist,
@@ -265,7 +287,9 @@ class WebFile
         $path = static::normalizePath($pPath);
 
         $file = $fs->getFile($path);
-        if (!$file) return null;
+        if (!$file) {
+            return null;
+        }
 
         if (static::$checkObject) {
             $item = FileQuery::create()->filterByPath($pPath)->orderById()->findOne();
@@ -280,7 +304,7 @@ class WebFile
                 $id = $item->getId();
             }
 
-            $file['id'] = $id+0;
+            $file['id'] = $id + 0;
         }
 
         return $file;
@@ -304,6 +328,7 @@ class WebFile
      *  )
      *
      * @static
+     *
      * @param string $pPath
      *
      * @return int|bool|array Return false if the file doenst exist,
@@ -322,24 +347,30 @@ class WebFile
         }
 
         $items = $fs->getFiles(static::normalizePath($pPath));
-        if (!is_array($items)) return $items;
+        if (!is_array($items)) {
+            return $items;
+        }
 
-        if (count($items) == 0) return array();
+        if (count($items) == 0) {
+            return array();
+        }
 
         if (static::$checkMounts) {
 
-            if ($fs->getMountPoint())
-                foreach ($items as &$file)
-                    $file['path'] = $fs->getMountPoint().$file['path'];
+            if ($fs->getMountPoint()) {
+                foreach ($items as &$file) {
+                    $file['path'] = $fs->getMountPoint() . $file['path'];
+                }
+            }
 
             if ($pPath == '/') {
                 if (is_array(Kryn::$config['mounts'])) {
                     foreach (Kryn::$config['mounts'] as $folder => &$config) {
                         $magic = array(
-                            'path'  => '/'.$folder,
+                            'path' => '/' . $folder,
                             'mount' => true,
-                            'name'  => $folder,
-                            'icon'  => $config['icon'],
+                            'name' => $folder,
+                            'icon' => $config['icon'],
                             'ctime' => 0,
                             'mtime' => 0,
                             'type' => 'dir'
@@ -354,12 +385,12 @@ class WebFile
 
         if (static::$checkObject) {
             $where = array();
-            $vals  = array();
+            $vals = array();
             foreach ($items as &$file) {
-                $vals[]  = $file['path'];
+                $vals[] = $file['path'];
                 $where[] = 'path = ?';
             }
-            $sql = 'SELECT id, path FROM '.pfx.'system_file WHERE 1=0 OR '.implode(' OR ', $where);
+            $sql = 'SELECT id, path FROM ' . pfx . 'system_file WHERE 1=0 OR ' . implode(' OR ', $where);
 
             $res = dbQuery($sql, $vals);
             $path2id = array();
@@ -387,7 +418,9 @@ class WebFile
      * Returns the file count inside $pFolderPath
      *
      * @static
+     *
      * @param  string $pFolderPath
+     *
      * @return mixed
      */
     public static function getCount($pFolderPath)
@@ -402,8 +435,10 @@ class WebFile
      * If the source is a folder, it copies recursivly.
      *
      * @static
+     *
      * @param  string $pPathSource
      * @param  string $pPathTarget
+     *
      * @return bool
      */
     public static function copy($pFrom, $pTo)
@@ -416,8 +451,10 @@ class WebFile
      * Moves a file to new destinaton.
      *
      * @static
+     *
      * @param  string $pPathSource
      * @param  string $pPathTarget
+     *
      * @return bool
      */
     public static function move($pFrom, $pTo)
@@ -430,10 +467,12 @@ class WebFile
      * Searchs files in a path by a regex pattern.
      *
      * @static
+     *
      * @param  string  $pPath
      * @param  string  $pPattern      Preg regex
      * @param  integer $pDepth        Maximum depth. -1 for unlimited.
      * @param  integer $pCurrentDepth Internal
+     *
      * @return array   Files array
      */
     public static function search($pFrom, $pTo)
@@ -448,7 +487,9 @@ class WebFile
      * With HTTP or HTTPs, depends on Core\Kryn::$ssl.
      *
      * @static
+     *
      * @param  string $pPath
+     *
      * @return string
      */
     public static function getUrl($pPath)
@@ -457,10 +498,11 @@ class WebFile
         $url = $fs->getPublicUrl(static::normalizePath($pPath));
 
         //TODO, check if $url contains http(s)://, and then decide if we need to add it
-        if (strpos($url, 'http://') === 0 || strpos($url, 'https://') === 0)
+        if (strpos($url, 'http://') === 0 || strpos($url, 'https://') === 0) {
             return $url;
+        }
 
-        return 'http' . (\Core\Kryn::$ssl?'s':'') . '://'.$url;
+        return 'http' . (\Core\Kryn::$ssl ? 's' : '') . '://' . $url;
     }
 
     /**
@@ -468,16 +510,19 @@ class WebFile
      * Example: getPath(45) => '/myImageFolder/Picture1.png'
      *
      * @static
+     *
      * @param  integer|string $pId String for backward compatibility
+     *
      * @return string
      */
     public static function getPath($pId)
     {
-        if (!is_numeric($pId))
-            return PATH_WEB.$pId;
+        if (!is_numeric($pId)) {
+            return PATH_WEB . $pId;
+        }
 
         //page bases caching here
-        $sql = 'SELECT id, path FROM '.pfx.'system_file WHERE id = ' . ($pId+0);
+        $sql = 'SELECT id, path FROM ' . pfx . 'system_file WHERE id = ' . ($pId + 0);
         $item = dbExfetch($sql);
 
         return $item['path'];
@@ -514,10 +559,12 @@ class WebFile
         }
 
         $files = array();
-        $h = opendir(PATH_WEB.'trash/');
+        $h = opendir(PATH_WEB . 'trash/');
 
         while ($file = readdir($h)) {
-            if ($file == '.svn' || $file == '.' || $file == '..') continue;
+            if ($file == '.svn' || $file == '.' || $file == '..') {
+                continue;
+            }
             $files[] = $file;
         }
 
@@ -526,13 +573,15 @@ class WebFile
         $res = array();
         foreach ($files as $file) {
 
-            if ($file == '.htaccess') continue;
+            if ($file == '.htaccess') {
+                continue;
+            }
 
             $path = '/trash/' . $file;
 
-            $dbItem = dbTableFetch('system_file_log', 1, 'id = ' . ($file+0));
+            $dbItem = dbTableFetch('system_file_log', 1, 'id = ' . ($file + 0));
 
-            $item['name'] = basename($dbItem['path']).'-v'.$file;
+            $item['name'] = basename($dbItem['path']) . '-v' . $file;
             $item['path'] = str_replace(PATH_WEB, '', $path);
             $item['original_id'] = $dbItem['id'];
             $item['original_path'] = $dbItem['path'];
@@ -556,7 +605,8 @@ class WebFile
      *
      * @return \PHPImageWorkshop\Core\ImageWorkshopLayer
      */
-    public static function getResizeMax($pPath, $pWidth, $pHeight){
+    public static function getResizeMax($pPath, $pWidth, $pHeight)
+    {
 
         $content = \Core\WebFile::getContent($pPath);
         if (!$content) {
@@ -565,21 +615,21 @@ class WebFile
 
         $image = \PHPImageWorkshop\ImageWorkshop::initFromString($content);
 
-        $width  = $image->getWidth();
+        $width = $image->getWidth();
         $height = $image->getHeight();
 
         if ($width > $height) {
-            $newWidth  = $pWidth;
+            $newWidth = $pWidth;
         } else {
             $newHeight = $pHeight;
         }
 
         $image->resizeInPixel($newWidth, $newHeight, true);
 
-        if ($image->getHeight() > $pHeight){
+        if ($image->getHeight() > $pHeight) {
             $image->resizeInPixel(null, $pHeight, true);
         }
-        if ($image->getWidth() > $pWidth){
+        if ($image->getWidth() > $pWidth) {
             $image->resizeInPixel($pWidth, null, true);
         }
 
@@ -592,6 +642,7 @@ class WebFile
      * @param string $pPath
      * @param string $pResolution <width>x<height>
      * @param bool   $pResize
+     *
      * @return resource
      */
     public static function getThumbnail($pPath, $pResolution, $pResize = false)
@@ -613,7 +664,9 @@ class WebFile
         imagealphablending($image, false);
         imagesavealpha($image, true);
 
-        if (!$pResize && $thumbWidth >= $oriWidth && $thumbHeight > $oriHeight) return $image;
+        if (!$pResize && $thumbWidth >= $oriWidth && $thumbHeight > $oriHeight) {
+            return $image;
+        }
 
         if ($oriWidth > $oriHeight) {
 
@@ -633,7 +686,18 @@ class WebFile
             imagecopyresampled($tempImg, $image, 0, 0, 0, 0, $_width, $thumbHeight, $oriWidth, $oriHeight);
             $_left = ($_width / 2) - ($thumbWidth / 2);
 
-            imagecopyresampled($thumbImage, $tempImg, 0, 0, $_left, 0, $thumbWidth, $thumbHeight, $thumbWidth, $thumbHeight);
+            imagecopyresampled(
+                $thumbImage,
+                $tempImg,
+                0,
+                0,
+                $_left,
+                0,
+                $thumbWidth,
+                $thumbHeight,
+                $thumbWidth,
+                $thumbHeight
+            );
 
         } else {
             $ratio = $thumbWidth / ($oriWidth / 100);
@@ -642,7 +706,18 @@ class WebFile
             imagealphablending($tempImg, false);
             imagecopyresampled($tempImg, $image, 0, 0, 0, 0, $thumbWidth, $_height, $oriWidth, $oriHeight);
             $_top = ($_height / 2) - ($thumbHeight / 2);
-            imagecopyresampled($thumbImage, $tempImg, 0, 0, 0, $_top, $thumbWidth, $thumbHeight, $thumbWidth, $thumbHeight);
+            imagecopyresampled(
+                $thumbImage,
+                $tempImg,
+                0,
+                0,
+                0,
+                $_top,
+                $thumbWidth,
+                $thumbHeight,
+                $thumbWidth,
+                $thumbHeight
+            );
         }
 
         imagealphablending($thumbImage, false);

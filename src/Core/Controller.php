@@ -22,6 +22,7 @@ class Controller
     /**
      * Last checked cache key through isValidCache().
      * This gives us a performance gain since the renderCache() doesn't need
+     *
      * @var string
      */
     private $lastCheckedCacheKey = '';
@@ -43,7 +44,7 @@ class Controller
      * This data is used in $this->render() if you don't pass a data array.
      *
      * @param string $pKey
-     * @param mixed &$pValue
+     * @param mixed  &$pValue
      */
     public function assignByRef($pKey, &$pValue)
     {
@@ -55,6 +56,7 @@ class Controller
      * Returns true if the specified name has a value assigned.
      *
      * @param  string $pKey
+     *
      * @return bool
      */
     public function assigned($pKey)
@@ -91,6 +93,7 @@ class Controller
      *
      * @param  string $view
      * @param  array  $data Use this data instead of the data assigned through $this->assign()
+     *
      * @return string
      */
     public function renderView($view, $data = null)
@@ -105,7 +108,7 @@ class Controller
 
     public function getViewDir()
     {
-        $dir   = __DIR__;
+        $dir = __DIR__;
         $parts = explode('\\', __NAMESPACE__);
         for ($i = count($parts); $i > 1; $i--) {
             $dir .= '/..';
@@ -128,6 +131,7 @@ class Controller
      * Returns whether this cache is valid(exists) or not.
      *
      * @param  string  $pCacheKey
+     *
      * @return boolean
      */
     public function isValidCache($pCacheKey)
@@ -167,11 +171,13 @@ class Controller
             $data = $pData;
             if (is_callable($pData)) {
                 $data = call_user_func($pData, $pView);
-                if ($data === null) return null;
+                if ($data === null) {
+                    return null;
+                }
             }
 
             $cache = array(
-                'data'      => $data,
+                'data' => $data,
                 'fileMTime' => $mTime
             );
 
@@ -226,13 +232,13 @@ class Controller
                 }
             }
 
-            $content     = $this->renderView($pView, $data);
-            $response    = Kryn::getResponse();
-            $diff        = $oldResponse->diff($response);
+            $content = $this->renderView($pView, $data);
+            $response = Kryn::getResponse();
+            $diff = $oldResponse->diff($response);
 
-            $cache   = array(
-                'content'      => $content,
-                'fileMTime'    => $mTime,
+            $cache = array(
+                'content' => $content,
+                'fileMTime' => $mTime,
                 'responseDiff' => $diff
             );
 
@@ -240,8 +246,9 @@ class Controller
 
         }
 
-        if ($cache['responseDiff'])
+        if ($cache['responseDiff']) {
             Kryn::getResponse()->patch($cache['responseDiff']);
+        }
 
         return $cache['content'];
     }

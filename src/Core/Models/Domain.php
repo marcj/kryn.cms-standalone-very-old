@@ -46,23 +46,27 @@ class Domain extends BaseDomain
      * Returns the full url, with http/s, hostname and language prefix.
      *
      * @param  boolean $pSSL
+     *
      * @return string
      */
     public function getUrl($pSSL = null)
     {
-        if ($pSSL === null)
+        if ($pSSL === null) {
             $pSSL = \Core\Kryn::$ssl;
+        }
 
-        $url = $pSSL?'https://':'http://';
+        $url = $pSSL ? 'https://' : 'http://';
 
-        if ($domain = $this->getRealDomain())
+        if ($domain = $this->getRealDomain()) {
             $url .= $domain;
-        else
+        } else {
             $url .= $this->getDomain();
+        }
 
-        if ($this->getMaster() != 1)
-            $url .= '/'/$this->getLang();
+        if ($this->getMaster() != 1) {
+            $url .= '/' / $this->getLang();
+        }
 
-        return $url.'/';
+        return $url . '/';
     }
 } // Domain

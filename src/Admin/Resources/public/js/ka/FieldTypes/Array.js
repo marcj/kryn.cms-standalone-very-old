@@ -1,10 +1,9 @@
 ka.FieldTypes.Array = new Class({
-    
+
     Extends: ka.FieldAbstract,
 
     options: {
         asHash: false,
-
 
         /**
          *
@@ -19,7 +18,6 @@ ka.FieldTypes.Array = new Class({
          * @var {Array}
          */
         columns: [],
-
 
         /**
          * All ka.Field definitions in one big hash.
@@ -60,7 +58,6 @@ ka.FieldTypes.Array = new Class({
          */
         fields: {},
 
-
         /**
          * With how many items should we start?
          * @var {Number}
@@ -68,7 +65,7 @@ ka.FieldTypes.Array = new Class({
         startWith: 0
     },
 
-    createLayout: function(){
+    createLayout: function () {
 
         var table = new Element('table', {
             cellpadding: 2,
@@ -86,17 +83,16 @@ ka.FieldTypes.Array = new Class({
 
         }).inject(this.fieldInstance.fieldPanel);
 
-
         var tr = new Element('tr').inject(thead);
         Array.each(this.options.columns, function (col) {
 
             var td = new Element('th', {
                 valign: 'top',
-                text: typeOf(col) == 'object'?col.label:col
+                text: typeOf(col) == 'object' ? col.label : col
             }).inject(tr);
 
-            if (typeOf(col) == 'object'){
-                if (col.desc){
+            if (typeOf(col) == 'object') {
+                if (col.desc) {
                     new Element('div', {
                         'class': 'ka-field-array-column-desc',
                         text: col.desc
@@ -111,21 +107,19 @@ ka.FieldTypes.Array = new Class({
             style: 'width: 30px'
         }).inject(tr);
 
-
-        if (this.options.withOrder){
+        if (this.options.withOrder) {
             td.setStyle('width', 52);
         }
 
-        
-        if (!this.options.withoutAdd){
+        if (!this.options.withoutAdd) {
             new ka.Button(this.options.addText ? this.options.addText : [t('Add'), '#icon-plus-alt'])
-            .addEvent('click', this.addRow.bind(this, [null])).inject(actions);
+                .addEvent('click', this.addRow.bind(this, [null])).inject(actions);
         }
 
-        Object.each(this.options.fields, function(item, key){
-            if (!this.first){
+        Object.each(this.options.fields, function (item, key) {
+            if (!this.first) {
                 this.first = key;
-            } else if (!this.second){
+            } else if (!this.second) {
                 this.second = key;
             }
         }.bind(this));
@@ -139,78 +133,94 @@ ka.FieldTypes.Array = new Class({
         }
     },
 
-
-    isValid: function(){
+    isValid: function () {
 
         var valid = true;
 
         this.tbody.getChildren('tr').each(function (tr) {
 
-            if (!valid) return;
+            if (!valid) {
+                return;
+            }
 
             Object.each(tr.fields, function (field) {
-                if (!valid) return;
-                if (!field.isValid()) valid = false;
+                if (!valid) {
+                    return;
+                }
+                if (!field.isValid()) {
+                    valid = false;
+                }
             });
         });
 
         return valid;
     },
 
-    checkValid: function(){
+    checkValid: function () {
 
         var valid = true;
 
         this.tbody.getChildren('tr').each(function (tr) {
 
             Object.each(tr.fields, function (field) {
-                if (!field.checkValid()) valid = false;
+                if (!field.checkValid()) {
+                    valid = false;
+                }
             });
         });
 
         return valid;
     },
 
-    getValue: function(){
+    getValue: function () {
 
-        var res = this.options.asHash?{}:[];
+        var res = this.options.asHash ? {} : [];
 
         var ok = true;
 
         this.tbody.getChildren('tr').each(function (tr) {
-            if (ok == false) return;
+            if (ok == false) {
+                return;
+            }
 
-            var row = this.options.asArray?[]:{};
+            var row = this.options.asArray ? [] : {};
 
             Object.each(tr.fields, function (field, field_key) {
 
-                if (ok == false) return;
+                if (ok == false) {
+                    return;
+                }
 
                 if (!field.isValid()) {
                     ok = false;
                 } else {
 
-                    if (this.options.asArray){
-                        if (this.fieldLength == 1)
+                    if (this.options.asArray) {
+                        if (this.fieldLength == 1) {
                             row = field.getValue();
-                        else
+                        }
+                        else {
                             row.push(field.getValue());
-                    } else
+                        }
+                    } else {
                         row[field_key] = field.getValue();
+                    }
                 }
 
             }.bind(this));
 
-            if (this.options.asHash){
+            if (this.options.asHash) {
 
-                if (this.fieldLength > 2){
+                if (this.fieldLength > 2) {
 
                     var hash = {};
                     var i = -1;
 
-                    Object.each(row, function(rvalue, rkey){
+                    Object.each(row, function (rvalue, rkey) {
                         i++;
-                        if (i == 0) return;
+                        if (i == 0) {
+                            return;
+                        }
                         hash[rkey] = rvalue;
 
                     });
@@ -226,11 +236,12 @@ ka.FieldTypes.Array = new Class({
 
         }.bind(this));
 
-        if (ok == false) return;
+        if (ok == false) {
+            return;
+        }
 
         return res;
     },
-
 
     setValue: function (pValue) {
         this.tbody.empty();
@@ -239,15 +250,15 @@ ka.FieldTypes.Array = new Class({
             pValue = JSON.decode(pValue);
         }
 
-        if (this.options.asHash){
+        if (this.options.asHash) {
 
-            if (this.fieldLength > 2){
+            if (this.fieldLength > 2) {
 
                 Object.each(pValue, function (item, idx) {
 
                     var val = {};
                     val[this.first] = idx;
-                    Object.each(item, function(iV, iK){
+                    Object.each(item, function (iV, iK) {
                         val[iK] = iV;
                     });
                     this.addRow(val);
@@ -267,8 +278,8 @@ ka.FieldTypes.Array = new Class({
             }
         } else {
             Array.each(pValue, function (item) {
-                if (this.options.asArray){
-                    if (this.fieldLength == 1){
+                if (this.options.asArray) {
+                    if (this.fieldLength == 1) {
                         var nItem = {};
                         nItem[this.first] = item;
                         this.addRow(nItem);
@@ -276,7 +287,7 @@ ka.FieldTypes.Array = new Class({
 
                         var nItem = {};
                         var index = 0;
-                        Object.each(this.options.fields, function(def, key){
+                        Object.each(this.options.fields, function (def, key) {
                             nItem[key] = item[indexx];
                             index++;
                         });
@@ -292,7 +303,9 @@ ka.FieldTypes.Array = new Class({
 
     addRow: function (pValue) {
 
-        if (this.options.designMode) return;
+        if (this.options.designMode) {
+            return;
+        }
 
         var tr = new Element('tr').inject(this.tbody);
         tr.fields = {};
@@ -307,7 +320,7 @@ ka.FieldTypes.Array = new Class({
                 valign: 'top'
             }).inject(tr);
 
-            if (copy.children){
+            if (copy.children) {
                 var parseFields = {};
                 parseFields[field_key] = copy;
                 var nField = new ka.FieldForm(td, parseFields, {allTableItems: true}, {win: this.win});
@@ -317,7 +330,7 @@ ka.FieldTypes.Array = new Class({
 
             nField.addEvent('change', this.fieldInstance.fireChange);
 
-            if (pValue && pValue[field_key]){
+            if (pValue && pValue[field_key]) {
                 nField.setValue(pValue[field_key]);
             }
 
@@ -326,36 +339,37 @@ ka.FieldTypes.Array = new Class({
         }.bind(this));
 
         var td;
-        if (this.options.withOrder || !this.options.withoutRemove){
+        if (this.options.withOrder || !this.options.withoutRemove) {
             td = new Element('td', {valign: 'top'}).inject(tr);
         }
 
-        if (this.options.withOrder){
+        if (this.options.withOrder) {
 
             new Element('a', {
                 'class': 'text-button-icon',
                 title: t('Move up'),
                 html: '&#xe2ca;',
                 href: 'javascript: ;'
-            }).addEvent('click', function () {
-                if(tr.getPrevious())
-                    tr.inject(tr.getPrevious(), 'before');
-            }).inject(td);
-
+            }).addEvent('click',function () {
+                    if (tr.getPrevious()) {
+                        tr.inject(tr.getPrevious(), 'before');
+                    }
+                }).inject(td);
 
             new Element('a', {
                 'class': 'text-button-icon',
                 title: t('Move down'),
                 html: '&#xe2cc;',
                 href: 'javascript: ;'
-            }).addEvent('click', function(){
-                if(tr.getNext())
-                    tr.inject(tr.getNext(), 'after');
-            }).inject(td);
+            }).addEvent('click',function () {
+                    if (tr.getNext()) {
+                        tr.inject(tr.getNext(), 'after');
+                    }
+                }).inject(td);
 
         }
 
-        if (!this.options.withoutRemove){
+        if (!this.options.withoutRemove) {
             new Element('a', {
                 'class': 'text-button-icon',
                 title: t('Remove'),
@@ -363,11 +377,10 @@ ka.FieldTypes.Array = new Class({
                 href: 'javascript: ;'
             }).addEvent('click', function () {
 
-                this.fieldInstance.fireChange();
-                tr.destroy();
-            }.bind(this)).inject(td);
+                    this.fieldInstance.fireChange();
+                    tr.destroy();
+                }.bind(this)).inject(td);
         }
-
 
     }
 

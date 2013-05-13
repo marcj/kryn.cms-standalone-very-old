@@ -17,17 +17,16 @@ class Memcached implements CacheInterface
         $this->testConfig($pConfig);
         $this->noServerTest = false;
 
-        if (class_exists('Memcache'))
+        if (class_exists('Memcache')) {
             $this->connection = new Memcache;
-
-        else if (class_exists('Memcached'))
+        } else if (class_exists('Memcached')) {
             $this->connection = new Memcached;
-
-        else
+        } else {
             throw new \Exception('The module memcache or memcached is not activated in your PHP environment.');
+        }
 
         foreach ($this->config['servers'] as $server) {
-            $this->connection->addServer($server['ip'], $server['port']+0);
+            $this->connection->addServer($server['ip'], $server['port'] + 0);
         }
     }
 
@@ -36,11 +35,13 @@ class Memcached implements CacheInterface
      */
     public function testConfig($pConfig)
     {
-        if (!(class_exists('Memcache') || class_exists('Memcached')))
+        if (!(class_exists('Memcache') || class_exists('Memcached'))) {
             throw new \Exception('The php module memcache or memcached is not activated in your PHP environment.');
+        }
 
-        if (!$pConfig['servers'])
+        if (!$pConfig['servers']) {
             throw new \Exception('No servers set.');
+        }
 
         //TODO, test if all servers are reachable
         if (!$this->noServerTest) {
@@ -63,10 +64,11 @@ class Memcached implements CacheInterface
      */
     public function set($pKey, $pValue, $pTimeout = null)
     {
-        if ($this->connection instanceof Memcache)
+        if ($this->connection instanceof Memcache) {
             return $this->connection->set($pKey, $pValue, 0, $pTimeout);
-        else
+        } else {
             return $this->connection->set($pKey, $pValue, $pTimeout);
+        }
 
     }
 

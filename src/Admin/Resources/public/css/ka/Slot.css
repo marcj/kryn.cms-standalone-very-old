@@ -4,7 +4,7 @@
 
 .ka-slot-highlight {
     outline: 1px solid #003366;
-    background-color: rgba(34, 124, 160,0.1);
+    background-color: rgba(34, 124, 160, 0.1);
 }
 
 .ka-slot-header {
@@ -39,7 +39,6 @@
     line-height: 20px;
     color: white;
 }
-
 
 .ka-slot-header-actions a,
 .ka-slot-header-actions a:link {

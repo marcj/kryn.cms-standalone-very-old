@@ -12,11 +12,13 @@
 
 /**
  * Global important functions for working with Kryn.cms
+ *
  * @author MArc Schmidt <marc@Kryn.org>
  */
 
 /**
  * klog saves log informations to the log monitor.
+ *
  * @package    Kryn
  * @subpackage Log
  */
@@ -27,9 +29,9 @@ function klog($pArea, $pMsg)
 
 function convertSize($pSize)
 {
-    $units = array('b','kb','mb','gb','tb','pb');
+    $units = array('b', 'kb', 'mb', 'gb', 'tb', 'pb');
 
-    return @round($pSize / pow(1024, ($i=floor(log($pSize,1024)))),2).$units[$i];
+    return @round($pSize / pow(1024, ($i = floor(log($pSize, 1024)))), 2) . $units[$i];
 }
 
 function debugStop($pText = null)
@@ -40,20 +42,22 @@ function debugStop($pText = null)
 function debugPrint($pText = null, $pStop = null)
 {
     global $_start, $_lastDebugPoint;
-    $timeUsed = round((microtime(true)-$_start)*1000, 2);
+    $timeUsed = round((microtime(true) - $_start) * 1000, 2);
     $bytes = convertSize(memory_get_usage(true));
-    $last = $_lastDebugPoint ? '('.round((microtime(true)-$_lastDebugPoint)*1000, 2).'ms)' : '';
-    $text = is_string($pText) ? "\t(".$pText.')':'';
+    $last = $_lastDebugPoint ? '(' . round((microtime(true) - $_lastDebugPoint) * 1000, 2) . 'ms)' : '';
+    $text = is_string($pText) ? "\t(" . $pText . ')' : '';
     print "$bytes\t{$timeUsed}ms\t$last$text\n";
     $_lastDebugPoint = microtime(true);
-    if ($pStop === true) exit;
+    if ($pStop === true) {
+        exit;
+    }
 }
 
 /**
  * Returns the value in $_REQUEST[$pVal] but with the possibility to escape the
  * value with pEscape.
  *
- * @param string  $pVal
+ * @param string       $pVal
  * @param bool|integer $pEscape 1: Will be escaped with esc(), 2: will delete character beside a-Z0-9.
  *
  * @return string|array
@@ -64,17 +68,21 @@ function getArgv($pVal, $pEscape = false)
         static $exploded;
         if (!$exploded) {
             $url = \Core\Kryn::getRequest()->getPathInfo();
-            if (substr($url, 0, 1) == '/') $url = substr($url, 1);
+            if (substr($url, 0, 1) == '/') {
+                $url = substr($url, 1);
+            }
             $exploded = explode('/', $url);
         }
 
-        return $exploded[$pVal-1];
+        return $exploded[$pVal - 1];
     }
 
     if (isset($_REQUEST[$pVal])) {
         $_REQUEST[$pVal] = str_replace(chr(0), '', $_REQUEST[$pVal]);
 
-        if ($pEscape == false) return $_REQUEST[$pVal];
+        if ($pEscape == false) {
+            return $_REQUEST[$pVal];
+        }
         return esc($_REQUEST[$pVal], $pEscape);
     }
 }
@@ -91,11 +99,16 @@ function json($pValue)
     ob_end_clean();
     ob_clean();
 
-    if (php_sapi_name() !== 'cli' )
+    if (php_sapi_name() !== 'cli') {
         header('Content-Type: application/json; charset=utf-8');
+    }
 
-    if ($adminClient) $adminClient->syncStore();
-    if ($client) $client->syncStore();
+    if ($adminClient) {
+        $adminClient->syncStore();
+    }
+    if ($client) {
+        $client->syncStore();
+    }
 
     print json_format(json_encode($pValue));
 
@@ -131,10 +144,11 @@ function t($pMsg, $pPlural = '', $pCount = false, $pContext = '')
 
             if ($pCount) {
                 $plural = intval(@call_user_func('gettext_plural_fn_' . Core\Kryn::$lang['__lang'], $pCount));
-                if ($pCount && Core\Kryn::$lang[$id][$plural])
+                if ($pCount && Core\Kryn::$lang[$id][$plural]) {
                     return str_replace('%d', $pCount, Kryn::$lang[$id][$plural]);
-                else
+                } else {
                     return (($pCount === null || $pCount === false || $pCount === 1) ? $pMsg : $pPlural);
+                }
             } else {
                 return Core\Kryn::$lang[$id][0];
             }
@@ -162,15 +176,18 @@ function t($pMsg, $pPlural = '', $pCount = false, $pContext = '')
 function tpf()
 {
     $arguments = func_get_args();
-    $first  = array_shift($arguments);
+    $first = array_shift($arguments);
     $second = array_shift($arguments);
-    $count  = array_shift($arguments);
+    $count = array_shift($arguments);
     $translated = t($first, $second, $count);
     $sprintf[] = $translated;
     $sprintf[] = $count;
 
-    foreach ($arguments as &$arg)
-        if (is_array($arg)) $arg = json_encode($arg);
+    foreach ($arguments as &$arg) {
+        if (is_array($arg)) {
+            $arg = json_encode($arg);
+        }
+    }
 
     $sprintf = array_merge($sprintf, $arguments);
 
@@ -180,16 +197,19 @@ function tpf()
 /**
  * Return a translated formatted message $pMsg with sprintf.
  *
- * @param string $pMsg message id (msgid)
+ * @param string $pMsg  message id (msgid)
  * @param string $pData ...
  *
  * @return string
-*/
+ */
 function tf()
 {
     $arguments = func_get_args();
-    foreach ($arguments as &$arg)
-        if (is_array($arg)) $arg = json_encode($arg);
+    foreach ($arguments as &$arg) {
+        if (is_array($arg)) {
+            $arg = json_encode($arg);
+        }
+    }
     return t(call_user_func_array('sprintf', $arguments));
 }
 

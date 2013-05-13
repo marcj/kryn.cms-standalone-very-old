@@ -94,7 +94,7 @@ ka.Layout = new Class({
 
     cells: [],
 
-    initialize: function(pContainer, pOptions){
+    initialize: function (pContainer, pOptions) {
 
         this.setOptions(pOptions);
         this.container = pContainer;
@@ -103,7 +103,7 @@ ka.Layout = new Class({
             'class': 'ka-Layout-main'
         }).inject(pContainer);
 
-        if (this.options.fixed){
+        if (this.options.fixed) {
             this.main.addClass('ka-Layout-main-fixed');
         }
 
@@ -114,35 +114,41 @@ ka.Layout = new Class({
 
     },
 
-    getTable: function(){
+    getTable: function () {
         return document.id(this.getVertical().getTable());
     },
 
-    destroy: function(){
+    destroy: function () {
         this.main.destroy();
     },
 
-    mapConnections: function(){
-        Array.each(this.options.connections, function(connection){
+    mapConnections: function () {
+        Array.each(this.options.connections, function (connection) {
             this.connectCells(connection[0], connection[1]);
         }.bind(this));
     },
 
-    connectCells: function(pCell1, pCell2){
-        if (typeOf(pCell1) == 'array') pCell1 = this.getCell(pCell1[0], pCell1[1]);
-        if (typeOf(pCell2) == 'array') pCell2 = this.getCell(pCell2[0], pCell2[1]);
+    connectCells: function (pCell1, pCell2) {
+        if (typeOf(pCell1) == 'array') {
+            pCell1 = this.getCell(pCell1[0], pCell1[1]);
+        }
+        if (typeOf(pCell2) == 'array') {
+            pCell2 = this.getCell(pCell2[0], pCell2[1]);
+        }
 
-        if (pCell2.get('tag') != 'td') pCell2 = pCell2.getParent('td');
+        if (pCell2.get('tag') != 'td') {
+            pCell2 = pCell2.getParent('td');
+        }
 
-        pCell1.addEvent('resize', function(){
+        pCell1.addEvent('resize', function () {
             pCell2.setStyle('width', pCell1.getStyle('width'));
         }.bind(this));
 
         pCell1.fireEvent('resize');
     },
 
-    createResizer: function(){
-        Array.each(this.options.splitter, function(resize){
+    createResizer: function () {
+        Array.each(this.options.splitter, function (resize) {
             if ('array' === typeOf(resize)) {
                 new ka.LayoutSplitter(this.getCell(resize[0], resize[1]), resize[2]);
             } else {
@@ -151,13 +157,13 @@ ka.Layout = new Class({
         }.bind(this));
     },
 
-    getCell: function(pRow, pColumn){
+    getCell: function (pRow, pColumn) {
         var row, cell;
         if (row = this.getVertical().getHorizontal(pRow)) {
             if (cell = row.getColumn(pColumn)) {
                 return cell;
             } else {
-                throw 'Column ' + pColumn+ ' in row ' + pRow + ' does not exist.';
+                throw 'Column ' + pColumn + ' in row ' + pRow + ' does not exist.';
             }
         } else {
             throw 'Row ' + pRow + ' does not exist.';
@@ -169,33 +175,35 @@ ka.Layout = new Class({
         return this.getVertical().getRow(row);
     },
 
-    toElement: function(){
+    toElement: function () {
         return this.main;
     },
 
-    setVertical: function(pVertical){
+    setVertical: function (pVertical) {
         this.vertical = pVertical;
     },
 
-    getVertical: function(){
+    getVertical: function () {
         return this.vertical;
     },
 
-    getMain: function(){
+    getMain: function () {
         return this.main;
     },
 
-    renderLayout: function(){
-        if (!this.options.layout || !this.options.layout.length) return;
+    renderLayout: function () {
+        if (!this.options.layout || !this.options.layout.length) {
+            return;
+        }
 
-        if (!this.getVertical()){
+        if (!this.getVertical()) {
             this.setVertical(new ka.LayoutVertical(this, {rows: [], gridLayout: this.options.gridLayout}));
         }
 
         var horizontal;
 
-        Array.each(this.options.layout, function(row){
-            if (row.columns && row.columns.length > 0){
+        Array.each(this.options.layout, function (row) {
+            if (row.columns && row.columns.length > 0) {
                 horizontal = new ka.LayoutHorizontal(this.getVertical(), {
                     columns: row.columns,
                     height: row.height
