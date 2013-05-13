@@ -57,7 +57,7 @@ $id = $workspace->getId();
 if ($id != 1)
     dbUpdate('system_workspace', array('id' => $id), array('id' => 1));
 
-$defaultLayout = '@KrynDemoThemeBundle/layout_default.tpl';
+$defaultLayout = '@KrynDemoThemeBundle.krynDemoTheme/layout_default.tpl';
 $defaultContentTemplate = '@KrynDemoThemeBundle/content_default.tpl';
 $Nodes = array(
 
