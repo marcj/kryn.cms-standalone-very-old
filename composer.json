@@ -42,6 +42,7 @@
         "krynlabs/kryn-publication-bundle": "*",
         "krynlabs/kryn-demotheme-bundle": "*",
         "google/closure-compiler": "*",
-        "symfony/filesystem": "2.2.*"
+        "symfony/filesystem": "2.2.*",
+        "phpunit/phpunit": "3.7.*"
     }
 }

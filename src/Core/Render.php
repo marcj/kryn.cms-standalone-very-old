@@ -308,7 +308,7 @@ class Render
         Kryn::getEventDispatcher()->dispatch('core.render.content', new GenericEvent($pContent));
         Event::fire('preRenderContent', $argument);
 
-        $data = array_merge($data, $content->toArray(\BasePeer::TYPE_STUDLYPHPNAME));
+        $data = array_merge($data, $content->toArray(TableMap::TYPE_STUDLYPHPNAME));
 
         switch (strtolower($content->getType())) {
             case 'text':

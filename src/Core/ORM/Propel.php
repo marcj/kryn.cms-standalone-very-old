@@ -7,6 +7,7 @@ use Core\Config\Object as ConfigObject;
 
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\ModelCriteria;
+use Propel\Runtime\Map\RelationMap;
 use Propel\Runtime\Map\TableMap;
 use Propel\Runtime\Propel as RuntimePropel;
 
@@ -298,45 +299,8 @@ class Propel extends ORMAbstract
         }
     }
 
-    public function getSelectSql($pQuery)
-    {
-        $params = array();
-
-        $peer = $pQuery->getModelPeerName();
-
-        if (!$pQuery->hasSelectClause()) {
-            $peer::addSelectColumns($pQuery);
-        }
-
-        // Set the correct dbName
-        $pQuery->setDbName($peer::DATABASE_NAME);
-
-        $sql = \BasePeer::createSelectSql($pQuery, $params);
-
-        return array($sql, $params);
-    }
-
     public function getStm(ModelCriteria $pQuery, $pCondition = null)
     {
-
-//        if ($pCondition) {
-//            $pQuery->where($id.' != '.$id);
-//        }
-
-//        $con = RuntimePropel::getConnection($pQuery->getDbName());
-//
-//        $peer = $pQuery->getModelPeerName();
-//        $dbMap = RuntimePropel::getDatabaseMap($pQuery->getDbName());
-//
-//        $pQuery->find();
-//        $pQuery->setPrimaryTableName(constant($peer . '::TABLE_NAME'));
-//
-//        //only triggers all behaviors that has attached code via preSelect.
-//        \CoreRuntimePropelBasePeer::setIgnoreNextDoSelect(true);
-//        $peer::doSelectStmt($pQuery);
-//
-//        //build the sql
-//        list($sql, $params) = $this->getSelectSql($pQuery);
 
         $condition = '';
         $params = [];
@@ -418,7 +382,7 @@ class Propel extends ORMAbstract
     {
         if ($pRelations) {
             foreach ($pRelations as $name => $relation) {
-                if ($relation->getType() != \RelationMap::MANY_TO_MANY && $relation->getType() != \RelationMap::ONE_TO_MANY) {
+                if ($relation->getType() != RelationMap::MANY_TO_MANY && $relation->getType() != RelationMap::ONE_TO_MANY) {
 
                     $pQuery->{'join'.$name}($name);
                     //$pQuery->with($name);
@@ -461,7 +425,7 @@ class Propel extends ORMAbstract
         if ($pRelations) {
             foreach ($pRelations as $name => $relation) {
 
-                if ($relation->getType() != \RelationMap::MANY_TO_MANY && $relation->getType() != \RelationMap::ONE_TO_MANY) {
+                if ($relation->getType() != RelationMap::MANY_TO_MANY && $relation->getType() != RelationMap::ONE_TO_MANY) {
 
                     if (is_array($pRelationFields[$name])) {
 

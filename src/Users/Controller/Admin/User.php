@@ -233,14 +233,14 @@ class User extends \Admin\ObjectCrud
         )
     );
 
-    public function collectData($pPk)
+    public function collectData($pFields = null, $pData = null)
     {
-        $data = parent::collectData();
+        $data = parent::collectData($pFields = null, $pData = null);
 
         //save settings
         $settings = array();
-        if ($pPk) {
-            $item = $this->getItem($pPk);
+        if ($this->primaryKey) {
+            $item = $this->getItem($this->primaryKey);
             $settings = $item['settings'];
         }
 

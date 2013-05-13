@@ -19,6 +19,7 @@ use \Core\Object;
 
 use Admin\Utils;
 use Admin\ObjectCrud;
+use Propel\Runtime\Map\TableMap;
 
 class AdminController
 {
@@ -373,7 +374,7 @@ class AdminController
 
         $response->addJs(
             'window.currentNode = ' .
-                json_encode(Kryn::$page->toArray(\BasePeer::TYPE_STUDLYPHPNAME)) . ';',
+                json_encode(Kryn::$page->toArray(TableMap::TYPE_STUDLYPHPNAME)) . ';',
             'bottom'
         );
 
