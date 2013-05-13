@@ -222,10 +222,11 @@ class AdminController
                     ->addDeleteRoute('cache', 'clearCache')
 
                     ->addGetRoute('search', 'getSearch')
-                    ->addGetRoute('content/template', 'getContentTemplate')
-                    ->addPutRoute('content', 'saveContents')
+                    //->addPutRoute('content', 'saveContents')
 
                 ->done()
+
+                ->addGetRoute('content/template', 'getContentTemplate')
 
                 //->addGetRoute('editor', 'getKEditor')
 

@@ -63,7 +63,7 @@ abstract class ORMAbstract
      */
     public function __construct($objectKey, $definition)
     {
-        $this->objectKey = $objectKey;
+        $this->objectKey = \Core\Object::getClassName($objectKey);
         $this->definition = $definition;
         foreach ($this->definition->getFields() as $field) {
             if ($field->isPrimaryKey())

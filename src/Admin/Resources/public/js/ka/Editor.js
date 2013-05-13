@@ -315,7 +315,7 @@ ka.Editor = new Class({
     },
 
     getUrl: function(){
-        return _path+'admin/object/Core.Node/'+window.currentNode.id+'?_method=patch';
+        return _path+'admin/object/Core:Node/'+window.currentNode.id+'?_method=patch';
     },
 
     save: function(){

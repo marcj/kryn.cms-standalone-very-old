@@ -174,7 +174,7 @@ class Object
      */
     public static function getDefinition($pObjectKey)
     {
-        $pObjectKey = str_replace('.', '\\', $pObjectKey);
+        $pObjectKey = self::getClassName($pObjectKey);
         $temp       = explode('\\', $pObjectKey);
         $module     = strtolower($temp[0]);
         $name       = $temp[1];
@@ -196,7 +196,7 @@ class Object
      */
     public static function getName($pObjectKey)
     {
-        $pObjectKey = str_replace('.', '\\', $pObjectKey);
+        $pObjectKey = self::getClassName($pObjectKey);
         $pos        = strrpos($pObjectKey, '\\');
 
         return substr($pObjectKey, $pos + 1);
@@ -212,10 +212,17 @@ class Object
      */
     public static function getModule($pObjectKey)
     {
-        $pObjectKey = str_replace('.', '\\', $pObjectKey);
+        $pObjectKey = self::getClassName($pObjectKey);
         $pos        = strrpos($pObjectKey, '\\');
 
         return substr($pObjectKey, 0, $pos);
+    }
+
+    public static function getClassName($pObjectKey)
+    {
+        $pObjectKey = str_replace('.', '\\', $pObjectKey);
+        $pObjectKey = str_replace(':', '\\', $pObjectKey);
+        return $pObjectKey;
     }
 
     /**

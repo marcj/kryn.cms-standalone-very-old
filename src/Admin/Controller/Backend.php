@@ -327,7 +327,8 @@ class Backend
                 if (file_exists($path)) {
                     $assets[] = $assetPath;
                     $files[]  = '--js ' . escapeshellarg(Kryn::resolvePublicPath($assetPath));
-                    $md5String .= ">$path<";
+                    $mtime    = filemtime($path);
+                    $md5String .= ">$path.$mtime<";
                 }
             }
         }

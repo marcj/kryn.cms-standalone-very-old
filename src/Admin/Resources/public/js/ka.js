@@ -345,7 +345,7 @@ ka.urlDecode = function(pValue){
 }
 
 ka.normalizeObjectKey = function(objectKey) {
-    return objectKey.replace('.', '\\').toLowerCase();
+    return objectKey.replace('\\', ':').replace('.', ':').replace('/', ':').toLowerCase();
 }
 
 /**
@@ -575,7 +575,7 @@ ka.getObjectLabel = function(pUri, pCb){
 
         ka.getObjectLabelBusy = true;
 
-        var uri = 'object://'+ka.urlEncode(objectKey)+'/';
+        var uri = 'object://'+ka.urlEncode(ka.normalizeObjectKey(objectKey))+'/';
         Object.each(ka.getObjectLabelQ[objectKey], function(cbs, requestedUri){
             uri += ka.getCroppedObjectId(requestedUri)+'/';
         });
@@ -1160,9 +1160,11 @@ ka.getPrimaryListForObject = function(pObjectKey){
  */
 ka.getObjectDefinition = function(pObjectKey){
     if (typeOf(pObjectKey) != 'string') throw 'pObjectKey is not a string: '+pObjectKey;
-    pObjectKey = pObjectKey.toLowerCase();
-    var module = (""+pObjectKey.split('\\')[0]).toLowerCase();
-    var name = pObjectKey.split('\\')[1];
+
+    pObjectKey = ka.normalizeObjectKey(pObjectKey).toLowerCase();
+
+    var module = (""+pObjectKey.split(':')[0]).toLowerCase();
+    var name = pObjectKey.split(':')[1];
 
     if (ka.settings.configs[module] && ka.settings.configs[module]['objects'][name]){
         var config = ka.settings.configs[module]['objects'][name];
@@ -1173,7 +1175,6 @@ ka.getObjectDefinition = function(pObjectKey){
 
 
 ka.getFieldCaching = function () {
-
     return {
         'cache_type': {
             label: _('Cache storage'),
