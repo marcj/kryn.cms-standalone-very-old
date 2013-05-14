@@ -1772,12 +1772,97 @@ class Kryn extends Controller
         }
 
         //load main config, setup some constants and check some requirements.
-        require_once(__DIR__ . '/bootstrap.php');
+        require(__DIR__ . '/bootstrap.php');
+
+        /**
+         * Check and loading config.php or redirect to install.php
+         */
+        self::$config = array();
+        if (!file_exists(PATH . 'config.php') || !is_array(self::$config = include(PATH . 'config.php'))) {
+            header("Location: install.php");
+            exit;
+        }
+
+        if (!defined('pfx')) {
+            define('pfx', self::$config['database']['prefix']);
+        }
 
         self::checkStaticCaching();
 
-        //attach error handler, init propel, load module configs, initialise main controllers and setup the autoloader.
-        require_once(__DIR__ . '/bootstrap.startup.php');
+        self::getLoader()->add('', self::getTempFolder() . 'propel-classes/');
+
+        $http = 'http://';
+        if (isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == '1' || strtolower($_SERVER['HTTPS']) == 'on')) {
+            $http = 'https://';
+        }
+
+        $port = '';
+        if (($_SERVER['SERVER_PORT'] != 80 && $http == 'http://') ||
+            ($_SERVER['SERVER_PORT'] != 443 && $http == 'https://')
+        ) {
+            $port = ':' . $_SERVER['SERVER_PORT'];
+        }
+
+        self::setBaseUrl($http . $_SERVER['SERVER_NAME'] . $port . str_replace('index.php', '', $_SERVER['SCRIPT_NAME']));
+
+        /**
+         * Load active modules into Kryn::$extensions.
+         */
+        self::loadActiveModules();
+
+        if (isset($cfg['timezone'])) {
+            date_default_timezone_set($cfg['timezone']);
+        }
+
+        if (isset($cfg['locale'])) {
+            setlocale(LC_ALL, $cfg['locale']);
+        }
+
+
+        @ini_set('display_errors', 0);
+
+        if (self::$config['displayErrors']) {
+            @ini_set('display_errors', 1);
+        }
+
+        if (self::$config['displayErrors']) {
+            set_exception_handler("coreUtilsExceptionHandler");
+            set_error_handler(
+                "coreUtilsErrorHandler",
+                E_CORE_ERROR | E_COMPILE_ERROR | E_RECOVERABLE_ERROR | E_ERROR | E_CORE_ERROR | E_USER_ERROR | E_PARSE
+            );
+        }
+        register_shutdown_function('coreUtilsShutdownHandler');
+
+        /*
+         * Propel orm initialisation.
+         */
+        if (!PropelHelper::loadConfig()) {
+            PropelHelper::init();
+            PropelHelper::loadConfig();
+        }
+
+        /*
+         * Initialize the config.php values. Make some vars compatible to older versions etc.
+         */
+        self::initConfig();
+
+        /**
+         * Initialize caching controllers
+         */
+        self::initCache();
+
+        /*
+         * Load themes and configs
+         */
+        self::loadModuleConfigs();
+
+        /*
+         * Load current language
+         */
+        self::loadLanguage();
+
+        self::getLogger()->addDebug('Bootstrap loaded.');
     }
 
     /**
