@@ -1527,7 +1527,7 @@ class Kryn extends Controller
         }
 
         if (!$domain) {
-            $dispatcher->dispatch('core.domain-not-found', new GenericEvent($hostname));
+            $dispatcher->dispatch('core/domain-not-found', new GenericEvent($hostname));
 
             return;
         }
@@ -1960,16 +1960,16 @@ class Kryn extends Controller
         );
 
         $dispatcher->addListener(
-            'core.domain-not-found',
+            'core/domain-not-found',
             function (GenericEvent $event) {
-                Kryn::internalError(t('Domain not found'), tf('Domain `%s` not found.', $event->getSubject()));
+                throw new \LogicException(tf('Domain `%s` not found.', $event->getSubject()));
             }
         );
 
         $dispatcher->addListener(
-            'core.domain-no-start-page',
+            'core/domain-no-start-page',
             function () {
-                Kryn::internalError(null, tf('There is no start page for domain `%s`.', Kryn::$domain->getDomain()));
+                throw new \LogicException(tf('There is no start page for domain `%s`.', Kryn::$domain->getDomain()));
             }
         );
 
@@ -2351,7 +2351,7 @@ class Kryn extends Controller
             $pageId = Kryn::$domain->getStartnodeId();
 
             if (!$pageId > 0) {
-                self::getEventDispatcher()->dispatch('core.domain-no-start-page');
+                self::getEventDispatcher()->dispatch('core/domain-no-start-page');
             }
 
             Kryn::$isStartpage = true;
