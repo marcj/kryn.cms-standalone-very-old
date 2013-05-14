@@ -14,6 +14,7 @@ namespace Core;
 
 use Core\Models\Acl;
 use Core\Models\AclQuery;
+use Propel\Runtime\ActiveQuery\Criteria;
 
 class Permission
 {
@@ -498,10 +499,10 @@ class Permission
         $acl->setConstraintType($pConstraintType);
 
         $query = new AclQuery();
-        $query->select('prio');
+        $query->select('Prio');
         $query->filterByObject($pObjectKey);
         $query->filterByMode($pMode);
-        $query->orderByPrio(\Criteria::DESC);
+        $query->orderByPrio(Criteria::DESC);
         $highestPrio = $query->findOne();
 
         $acl->setPrio($highestPrio + 1);
@@ -554,7 +555,7 @@ class Permission
         }
 
         //var_dump('type: '.(($pTargetType == self::GROUP)?'group':'user').', id: '.$pTargetId.', mode: '.$pMode);
-        $rules =& self::getRules($pObjectKey, $pMode, $pTargetType, $pTargetId);
+        $rules = self::getRules($pObjectKey, $pMode, $pTargetType, $pTargetId);
 
         if (count($rules) == 0) {
             return false;
@@ -573,7 +574,7 @@ class Permission
         $currentObjectPk = Object::getObjectUrlId($pObjectKey, $pPk);
 
         $definition = Object::getDefinition($pObjectKey);
-        $fields =& $definition['fields'];
+        $fields = $definition->getFieldsArray();
 
         $not_found = true;
         $parent_acl = $pAsParent;
@@ -618,18 +619,12 @@ class Permission
                     $fieldKey = $pField;
 
                     if ($pField) {
-
                         if ($fIsArray && $fCount == 1) {
-
                             if (is_string($fKey) && is_array($acl['fields'][$fKey])) {
                                 //this field has limits
-
                                 if (($fieldAcl = $acl['fields'][$fKey]) !== null) {
-
                                     if (is_array($fieldAcl[0])) {
-
                                         //complex field rule, $fieldAcl = ([{access: no, condition: [['id', '>', 2], ..]}, {}, ..])
-
                                         foreach ($fieldAcl as $fRule) {
 
                                             if ($fields[$fKey]['type'] == 'object') {
@@ -693,8 +688,8 @@ class Permission
                 }
             }
 
-            if ($definition['nested'] && $pPk) {
-                if (!$currentObjectPk = krynObjects::getParentId($pObjectKey, $currentObjectPk)) {
+            if ($definition->isNested() && $pPk) {
+                if (!$currentObjectPk = Object::getParentPk($pObjectKey, $currentObjectPk)) {
                     return $pRootHasAccess ? true : $access;
                 }
 

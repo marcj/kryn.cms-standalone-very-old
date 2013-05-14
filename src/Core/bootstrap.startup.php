@@ -23,17 +23,6 @@ if (!\Core\PropelHelper::loadConfig()) {
     \Core\PropelHelper::loadConfig();
 }
 
-//Propel::setConfiguration(Core\PropelHelper::getConfig());
-//
-//if (!Propel::isInit()) {
-//    Propel::setLogger(new \Core\PropelLoggerProxy());
-//    Propel::initialize();
-//
-//    $con = Propel::getConnection();
-//    $con->useDebug(true);
-//    $con->setLogger(new \Core\PropelLoggerProxy());
-//}
-
 /*
  * Initialize the config.php values. Make some vars compatible to older versions etc.
  */

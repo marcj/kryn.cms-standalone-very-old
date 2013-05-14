@@ -2,20 +2,8 @@
 
 namespace Test\Models;
 
-use Test\Models\om\BaseItemCategory;
+use Test\Models\Base\ItemCategory as BaseItemCategory;
 
+class ItemCategory extends BaseItemCategory {
 
-/**
- * Skeleton subclass for representing a row from the 'kryn_test_item_category' table.
- *
- *
- *
- * You should add additional methods to this class to meet the
- * application requirements.  This class will only be generated as
- * long as it does not already exist in the output directory.
- *
- * @package    propel.generator.Test
- */
-class ItemCategory extends BaseItemCategory
-{
 }

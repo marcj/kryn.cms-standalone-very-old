@@ -97,7 +97,7 @@ class Propel extends ORMAbstract
 
                     $cols = $relation->getRightTable()->getColumns();
                     foreach ($cols as $col) {
-                        if ($relation->getType == \RelationMap::ONE_TO_ONE || $relation->getType == \RelationMap::MANY_TO_ONE) {
+                        if ($relation->getType == RelationMap::ONE_TO_ONE || $relation->getType == RelationMap::MANY_TO_ONE) {
                             $fields[$relationName . '.' . $col->getPhpName()] = $col;
                         } else {
                             $relationFields[ucfirst($relationName)][] = $col->getPhpName();
@@ -230,26 +230,6 @@ class Propel extends ORMAbstract
     }
 
     /**
-     * Returns the peer name.
-     *
-     * @param null $pName
-     *
-     * @return string
-     * @throws \ObjectNotFoundException
-     */
-    public function getPeerName($pName = null)
-    {
-        $objectKey = $pName ? $pName : $this->getPhpName();
-
-        $clazz = ucfirst($objectKey) . 'Peer';
-        if (!class_exists($clazz)) {
-            throw new \ObjectNotFoundException(tf('The object peer %s of %s does not exist.', $clazz, $objectKey));
-        }
-
-        return $clazz;
-    }
-
-    /**
      * Returns php class name.
      *
      * @param  string $pName
@@ -317,7 +297,6 @@ class Propel extends ORMAbstract
 
     public function getStm(ModelCriteria $pQuery, $pCondition = null)
     {
-
         $condition = '';
         $params = [];
 
@@ -337,14 +316,18 @@ class Propel extends ORMAbstract
 
         $pQuery->setPrimaryTableName(constant($tableMap . '::TABLE_NAME'));
 
-        $sql = $pQuery->createSelectSql($params);
+        $pQuery->externalBasePreSelect($con);
 
         if ($pCondition) {
             $id = (hexdec(uniqid()) / mt_rand()) + mt_rand();
             $pQuery->where($id . ' != ' . $id);
             $data = $params;
             $condition = dbConditionToSql($pCondition, $data, $pQuery->getPrimaryTableName());
-            $pQuery->where($condition, null, Criteria::RAW);
+        }
+
+        $sql = $pQuery->createSelectSql($params);
+
+        if ($pCondition) {
             $sql = str_replace($id . ' != ' . $id, '(' . $condition . ')', $sql);
         }
 
@@ -366,32 +349,6 @@ class Propel extends ORMAbstract
         }
 
         return $stmt;
-
-        /*
-                $pQuery->setPrimaryTableName(constant($this->getPeerName() . '::TABLE_NAME'));
-
-                list($sql, $params) = $pQuery->getSql();
-
-                if ($pCondition) {
-                    $data = $params;
-                    $condition = dbConditionToSql($pCondition, $data, $pQuery->getPrimaryTableName());
-                    $sql = str_replace($id.' != '.$id, $condition, $sql);
-                }
-
-                $stmt = $pQuery->bindValues($sql, $params, $dbMap);
-
-                if ($data) {
-                    foreach ($data as $idx => $v) {
-                        if (!is_array($v)) { //propel uses arrays as bind values, we with dbConditionToSql not.
-                            $stmt->bindValue($idx, $v);
-                        }
-                    }
-                }
-
-                $stmt->execute();
-
-                return $stmt;
-        */
     }
 
     public function mapToOneRelationFields(&$pQuery, $pRelations, $pRelationFields)
@@ -657,15 +614,15 @@ class Propel extends ORMAbstract
      */
     public function clear()
     {
-        $peer = $this->getPeerName();
+        $query = $this->getQueryClass();
 
-        if ($this->definition['workspace']) {
+        if ($this->definition->getWorkspace()) {
             //delete all versions
-            $versionQueryPeer = $this->getPhpName() . 'Peer';
-            $versionQueryPeer::doDeleteAll();
+            $versionQueryQuery = $this->getPhpName() . 'Query';
+            $versionQueryQuery::create()->deleteAll();
         }
 
-        return $peer::doDeleteAll();
+        $query->deleteAll();
     }
 
     public function getVersions($pPk, $pOptions = null)
@@ -860,6 +817,7 @@ class Propel extends ORMAbstract
 
     public function mapValues(&$pItem, &$pValues, $pSetUndefinedAsNull = true)
     {
+        $pluralizer = new \Propel\Common\Pluralizer\StandardEnglishPluralizer;
         foreach ($this->definition['fields'] as $fieldName => $field) {
 
             $fieldValue = $pValues[$fieldName];
@@ -881,10 +839,11 @@ class Propel extends ORMAbstract
 
                 if ($field['objectRelation'] == ORMAbstract::MANY_TO_MANY || $field['objectRelation'] == ORMAbstract::ONE_TO_MANY) {
 
+                    $name = $pluralizer->getPluralForm(underscore2Camelcase($fieldName));
                     //$getItems = 'get'.underscore2Camelcase($fieldName).'s';
-                    $setItems = 'set' . underscore2Camelcase($fieldName) . 's';
-                    $getItems = 'get' . underscore2Camelcase($fieldName) . 's';
-                    $clearItems = 'clear' . underscore2Camelcase($fieldName) . 's';
+                    $setItems = 'set' . $name;
+                    $getItems = 'get' . $name;
+                    $clearItems = 'clear' . $name;
                     $addItem = 'add' . underscore2Camelcase($fieldName);
 
                     if ($fieldValue) {

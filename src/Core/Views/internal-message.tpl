@@ -40,8 +40,7 @@
 
     <h2>{$title}</h2>
 
-    <div class="msg">{$msg}
-    </div>
+    <div class="msg">{$msg}</div>
 </div>
 <script type="text/javascript" src="core/js/bgNoise.js"></script>
 </body>

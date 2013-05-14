@@ -162,11 +162,10 @@ class PropelHelper
         }
 
         $input = new ArrayInput(array(
-                                     '--input-dir' => $tmp . 'propel/',
-                                     '--output-dir' => $tmp . 'propel/build/classes/',
-                                     '--enable-package-object-model' => true,
-                                     '--verbose' => 'vvv'
-                                ));
+             '--input-dir' => $tmp . 'propel/',
+             '--output-dir' => $tmp . 'propel/build/classes/',
+             '--verbose' => 'vvv'
+        ));
         $command = new ModelBuildCommand();
         $command->getDefinition()->addOption(
             new InputOption('--verbose', '-v|vv|vvv', InputOption::VALUE_NONE, '') //because migrationDiffCommand access this option
@@ -174,56 +173,6 @@ class PropelHelper
 
         $output = new StreamOutput(fopen('php://memory', 'rw'));
         $command->run($input, $output);
-
-//        $generatorConfig = new GeneratorConfig(array_merge(array(
-//            'propel.platform.class'                     => $input->getOption('platform'),
-//            'propel.builder.object.class'               => $input->getOption('object-class'),
-//            'propel.builder.objectstub.class'           => $input->getOption('object-stub-class'),
-//            'propel.builder.objectmultiextend.class'    => $input->getOption('object-multiextend-class'),
-//            'propel.builder.query.class'                => $input->getOption('query-class'),
-//            'propel.builder.querystub.class'            => $input->getOption('query-stub-class'),
-//            'propel.builder.queryinheritance.class'     => $input->getOption('query-inheritance-class'),
-//            'propel.builder.queryinheritancestub.class' => $input->getOption('query-inheritance-stub-class'),
-//            'propel.builder.tablemap.class'             => $input->getOption('tablemap-class'),
-//            'propel.builder.pluralizer.class'           => $input->getOption('pluralizer-class'),
-//            'propel.disableIdentifierQuoting'           => !$input->getOption('enable-identifier-quoting'),
-//            'propel.targetPackage'                      => $input->getOption('target-package'),
-//            'propel.packageObjectModel'                 => $input->getOption('enable-package-object-model'),
-//            'propel.namespace.autoPackage'              => !$input->getOption('disable-namespace-auto-package'),
-//            'propel.addGenericAccessors'                => true,
-//            'propel.addGenericMutators'                 => true,
-//            'propel.addSaveMethod'                      => true,
-//            'propel.addTimeStamp'                       => false,
-//            'propel.addValidateMethod'                  => true,
-//            'propel.addHooks'                           => true,
-//            'propel.namespace.map'                      => 'Map',
-//            'propel.useLeftJoinsInDoJoinMethods'        => true,
-//            'propel.emulateForeignKeyConstraints'       => false,
-//            'propel.schema.autoPrefix'                  => false,
-//            'propel.dateTimeClass'                      => '\DateTime',
-//            // MySQL specific
-//            'propel.mysql.tableType'                    => $input->getOption('mysql-engine'),
-//            'propel.mysql.tableEngineKeyword'           => 'ENGINE',
-//       ), $this->getBuildProperties($input->getOption('input-dir') . '/build.properties')));
-//
-//        $manager = new ModelManager();
-//        $manager->setFilesystem(new Filesystem());
-//        $manager->setGeneratorConfig($generatorConfig);
-//        $manager->setSchemas($schemas);
-//
-//        $manager->setLoggerClosure(function($message){
-//            echo $message;
-//        });
-//        $manager->setWorkingDirectory($tmp . 'propel/');
-
-//        var_dump($manager->build());
-
-//        $content = self::execute('om');
-
-//        if (is_array($content)) {
-//            throw new \Exception("Propel generateClasses failed: \n" . $content[0]);
-//        }
-
         $content = stream_get_contents($output->getStream());
         $content .= self::moveClasses();
 
@@ -259,6 +208,7 @@ class PropelHelper
                 $result .= "$file => " . (file_exists($target) + 0) . "\n";
 
                 if (!file_exists($target)) {
+                    mkdirr(dirname($target));
                     if (!copy($file, $target)) {
                         throw new \FileNotWritableException(tf('Can not move file %s to %s', $source, $target));
                     }
@@ -401,11 +351,12 @@ class PropelHelper
         $output = new StreamOutput(fopen('php://memory', 'rw'));
         $command->run($input, $output);
 
-
         mkdirr($tmp . 'propel-classes/');
 
         $source = $tmp . 'propel/config.php';
         rename($source, $tmp . 'propel-classes/config.php');
+
+        include($tmp . 'propel-classes/config.php');
 
         return true;
     }
@@ -480,6 +431,8 @@ class PropelHelper
 
         $schemeData = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n  <database name=\"kryn\" defaultIdMethod=\"native\"\n";
 
+        $krynBehavior = '<behavior name="\\Core\\KrynBehavior" />';
+
         foreach (Kryn::$bundles as $bundleName) {
 
             if (!($bundle = Kryn::getBundle($bundleName))) {
@@ -496,13 +449,15 @@ class PropelHelper
                     $newSchema .= $table->asXML() . "\n    ";
                 }
 
-                $newSchema .= "</database>";
+                $newSchema .= "$krynBehavior</database>";
 
                 $file = str_replace('/', '.', $extension) . '.schema.xml';
                 file_put_contents($tmp . 'propel/' . $file, $newSchema);
             }
 
         }
+
+
         file_put_contents($tmp . 'propel/schema.xml', $schemeData . "></database>");
 
         return true;
@@ -527,11 +482,10 @@ class PropelHelper
             unlink($files[0]);
         }
         $input = new ArrayInput(array(
-                                     '--input-dir' => $tmp . 'propel/',
-                                     '--output-dir' => $tmp . 'propel/build/',
-                                     '--enable-package-object-model' => true,
-                                     '--verbose' => 'vvv'
-                                ));
+             '--input-dir' => $tmp . 'propel/',
+             '--output-dir' => $tmp . 'propel/build/',
+             '--verbose' => 'vvv'
+        ));
         $command = new MigrationDiffCommand();
         $command->getDefinition()->addOption(
             new InputOption('--verbose', '-v|vv|vvv', InputOption::VALUE_NONE, '') //because migrationDiffCommand access this option

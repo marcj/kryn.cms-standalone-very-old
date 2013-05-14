@@ -194,14 +194,6 @@ class Manager
 
         $_GET['domain'] = self::$config['domain'];
 
-        \Core\TempFile::remove('propel');
-
-        if (!\Propel::isInit()) {
-            \Propel::initialize();
-        }
-
-        \Propel::setConfiguration(\Core\PropelHelper::getConfig());
-
         $manager->install('Core\\CoreBundle', true);
         $manager->install('Admin\\AdminBundle', true);
         $manager->install('Users\\UsersBundle', true);

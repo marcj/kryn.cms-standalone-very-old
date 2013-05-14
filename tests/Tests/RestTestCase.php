@@ -31,7 +31,7 @@ class RestTestCase extends TestCaseWithCore
             $this->markTestSkipped('PHP module curl is not installed.');
         }
 
-        $response = Manager::get('/core/data.test');
+        $response = Manager::get('/bundles/core/data.test');
 
         if (strpos($response['content'], 'OK') === false) {
             $this->markTestSkipped('Is looks like the DOMAIN or http server is not correctly configured. Skipped.');

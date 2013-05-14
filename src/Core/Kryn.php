@@ -1557,8 +1557,12 @@ class Kryn extends Controller
 
                 $data = $event->getControllerResult();
 
-                if ($data !== null) {
-                    $response = new PluginResponse($data);
+                if (null !== $data) {
+                    if ($data instanceof PluginResponse) {
+                        $response = $data;
+                    } else {
+                        $response = new PluginResponse($data);
+                    }
                     $response->setControllerRequest($event->getRequest());
                     $event->setResponse($response);
                 } else {
@@ -1763,6 +1767,7 @@ class Kryn extends Controller
     public static function bootstrap($loader = null)
     {
         if ($loader) {
+            $loader->add('', __DIR__ . '/../../tests/bundles');
             self::$loader = $loader;
         }
 
@@ -1940,6 +1945,7 @@ class Kryn extends Controller
         $dispatcher->dispatch('core.response-send', new GenericEvent($pResponse));
 
         Kryn::getLogger()->addDebug('Done. Generation time: ' . (microtime(true) - $_start) . ' seconds.');
+        exit;
     }
 
     /**

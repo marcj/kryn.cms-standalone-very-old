@@ -865,6 +865,7 @@ function buildModInfo()
         ->files()
         ->name('*Bundle.php')
         ->in(__DIR__ . '/../vendor')
+        ->in(__DIR__ . '/../tests/bundles')
         ->in(__DIR__ . '/../src');
 
     $bundles = array();

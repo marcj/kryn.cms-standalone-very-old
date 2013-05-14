@@ -11,6 +11,7 @@ use Publication\Models\NewsVersionQuery;
 
 class WorkspacesTest extends TestCaseWithCore
 {
+
     public function testDifferentWorkspaces()
     {
         Object::clear('Publication\\News');
@@ -129,6 +130,7 @@ class WorkspacesTest extends TestCaseWithCore
         $count = NewsQuery::create()->count();
         $this->assertEquals(50, $count);
 
+        /** @var News $item */
         $item = NewsQuery::create()->findOneById($id);
         $this->assertEquals('News 11', $item->getTitle());
 

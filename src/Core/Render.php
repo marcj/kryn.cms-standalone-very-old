@@ -236,21 +236,20 @@ class Render
      * Build HTML for given content.
      *
      * @param Content $content
-     * @param array   $parameter
+     * @param array   $parameters
      *
      * @return string
      * @throws Render\TypeNotFoundException
      */
-    public static function renderContent(Content $content, $parameter = array())
+    public static function renderContent(Content $content, $parameters = array())
     {
-
         $type = $content->getType();
         $class = 'Core\\Render\\Type' . ucfirst($type);
 
         if (class_exists($class)) {
-            $typeRenderer = new $class();
-
-            $html = $typeRenderer->render($content, $parameter);
+            /** @var \Core\Render\TypeInterface $typeRenderer */
+            $typeRenderer = new $class($content, $parameters);
+            $html = $typeRenderer->render();
         } else {
             throw new TypeNotFoundException(sprintf(
                 'Type renderer for `%s` not found. [%s]',
@@ -260,7 +259,7 @@ class Render
         }
 
         $data['content'] = $content->toArray(TableMap::TYPE_STUDLYPHPNAME);
-        $data['parameter'] = $parameter;
+        $data['parameter'] = $parameters;
         $data['html'] = $html;
 
         Kryn::getEventDispatcher()->dispatch('core/render/content/pre', new GenericEvent($data));

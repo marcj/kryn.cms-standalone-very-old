@@ -1,16 +1,9 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
     <title>[[404 - Not found]]</title>
-    <base href="{Kryn::getBaseUrl()}" />
-
-    {if $backtrace}
-        <script type="text/javascript" src="lib/codemirror/lib/codemirror.js"></script>
-        <script type="text/javascript" src="lib/codemirror/lib/util/loadmode.js"></script>
-        <script type="text/javascript" src="lib/codemirror/lib/util/runmode.js"></script>
-        <link rel="stylesheet" type="text/css" href="lib/codemirror/lib/codemirror.css"  />
-    {/if}
-
+    <base href="{Kryn::getBaseUrl()}"/>
     <style type="text/css">
         body {
             color: white;
@@ -42,67 +35,100 @@
             border-bottom: 3px solid red;
         }
 
-        .CodeMirror-scroll {
-          height: auto;
-          overflow-y: hidden;
-          overflow-x: auto;
+        .msg > pre {
+            white-space: pre-wrap;
+            background-color: white;
+            padding: 5px;
+        }
+        .trace {
+            display: none;
         }
 
-        .CodeMirror .highlightedLine {
-            background-color: #ddd;
+        .trace-toggle:checked ~ .trace {
+            display: block;
+        }
+
+        q {
+            background-color: white;
+            padding: 1px 4px;
+            font-family: monospace;
+            color: gray;
+            border: 1px solid #ddd;
+            -webkit-border-radius: 2px;
+            -moz-border-radius: 2px;
+            border-radius: 2px;
+        }
+
+        q:before,
+        q:after {
+            content: '';
+        }
+
+        .trace-code {
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            white-space: nowrap;
+            font-family: monospace;
+            background-color: white;
+            -webkit-border-radius: 2px;
+            -moz-border-radius: 2px;
+            border-radius: 2px;
+            overflow-x: auto;
+        }
+
+        .trace-lines {
+            float: left;
+            font-family: monospace;
+            margin-top: 5px;
+            padding: 1px 5px;
         }
 
     </style>
 </head>
 <body>
-<div id="error">
-    <img src="{asset '@CoreBundle/images/logo_white.png'}" />
-    <h2>{$title}</h2>
-    <div class="msg"><pre style="white-space: pre-wrap;">{$msg}</pre>
-
+{$counter = 0}
+{function printBacktrace backtrace=null}
     {if $backtrace}
-        Backtrace:<br/>
+        <div>
+            <input class="trace-toggle" id="toggle_{$counter}" type="checkbox"/>
+            <label for="toggle_{$counter++}">[[Show/Hide trace]]</label>
 
-        {foreach from=$backtrace item=trace name=trace}
-            <div style="border-bottom: 1px solid silver; padding: 5px; margin-bottom: 5px;">
-               <div>#{$trace.id} <span style="color: gray;">{$trace.file} +{$trace.line}</span></div>
-               {if $trace.function}<div style="color: gray;">(triggers {$trace.function}({$trace.args_string}))</div>{/if}
-               <div relline="{$trace.relLine}" style="white-space: pre; border: 1px solid gray;" class="cm-s-default" id="codemirror_{$smarty.foreach.trace.index}">{$trace.code|escape:"html"}</div>
+            <div class="trace">
+                {foreach $backtrace as $trace}
+                    <div style="border-bottom: 1px solid silver; padding: 5px; margin-bottom: 5px;">
+                        <div>#{$trace.id} <q>{$trace.file} +{$trace.line}</q></div>
+                        {if $trace.function}
+                            <div style="color: gray;">(triggers {$trace.function}({$trace.args_string}))</div>
+                        {/if}
+                        <div class="trace-lines">
+                            {section name="loop" start=$trace.startLine loop=$trace.startLine+$trace.countLines}
+                                {$smarty.section.loop.index}<br />
+                            {/section}
+                        </div>
+                        <div relline="{$trace.relLine}" class="trace-code cm-s-default">{$trace.code}</div>
+                    </div>
+                {/foreach}
             </div>
-        {/foreach}
+        </div>
     {/if}
-    </div>
-</div>
-<script type="text/javascript" src="{asset '@CoreBundle/core/js/bgNoise.js'}"></script>
-{if $backtrace}
-{literal}
-    <script type="text/javascript">
-        var id = 0;
-        CodeMirror.modeURL = "lib/codemirror/mode/%N/%N.js"
-        CodeMirror.requireMode('php', function() {
-            while(true){
-                var el = document.getElementById('codemirror_'+id);
-                if (!el) break;
+{/function}
 
-                var value = el.innerHTML.replace(/&gt;/g, '>').replace(/&lt;/g, '<');
-                el.innerHTML = '';
-                var relLine = parseInt(el.getAttribute('relline'));
-                var editor = CodeMirror(el, {
-                    lineNumbers: true,
-                    readOnly: true,
-                    firstLineNumber: relLine,
-                    onHighlightComplete: function(pEditor){
-                        console.log(pEditor);
-                        pEditor.setLineClass(5, '', 'highlightedLine');
-                    }
-                });
-                editor.setOption('mode', 'text/x-php');
-                editor.setValue(value);
-                id++;
-            }
-        });
-    </script>
-{/literal}
-{/if}
+{$eCounter = 1}
+{function printException exception=null}
+    <h2>#{$eCounter++} {$exception.title}</h2>
+    <div class="msg">
+        <pre>{$exception.message}</pre>
+        <div style="padding-bottom: 5px;">
+            File: <q>{$exception.file} +{$exception.line}</q></div>
+        {printBacktrace backtrace=$exception.backtrace}
+    </div>
+{/function}
+
+<div id="error">
+    <img src="bundles/core/images/logo_white.png"/>
+    {foreach $exceptions as $exception}
+        {printException exception=$exception}
+    {/foreach}
+</div>
 </body>
 </html>

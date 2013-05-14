@@ -2,7 +2,7 @@
 
 namespace Test\Models;
 
-use Test\Models\om\BaseItemCategoryQuery;
+use Test\Models\Base\ItemCategoryQuery as BaseItemCategoryQuery;
 
 
 /**
@@ -14,8 +14,7 @@ use Test\Models\om\BaseItemCategoryQuery;
  * application requirements.  This class will only be generated as
  * long as it does not already exist in the output directory.
  *
- * @package    propel.generator.Test
  */
-class ItemCategoryQuery extends BaseItemCategoryQuery
-{
-}
+class ItemCategoryQuery extends BaseItemCategoryQuery {
+
+} // ItemCategoryQuery

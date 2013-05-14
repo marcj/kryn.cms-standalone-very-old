@@ -83,6 +83,15 @@ class WorkspaceBehavior extends Behavior
      ";
     }
 
+    public function preUpdate($builder)
+    {
+        $queryClass = $builder->getStubQueryBuilder()->getClassname();
+        return "
+        \$selectCriteria = \$this->buildPkeyCriteria();
+        $queryClass::doBackupRecord(\$selectCriteria, \$con);
+     ";
+    }
+
     /**
      * @return callable
      */
@@ -304,24 +313,24 @@ class WorkspaceBehavior extends Behavior
      * @return string The code to put at the hook
      */
 
-    public function preInsert($builder)
+    public function preSave($builder)
     {
 
         return "
 //set default values
-if (\$this->isModified() && !\$this->isColumnModified(" . $this->getColumnConstant($this->prefix . 'id', $builder) . "))
+if (\$isInsert || (\$this->isModified() && !\$this->isColumnModified(" . $this->getColumnConstant($this->prefix . 'id', $builder) . ")))
     \$this->" . $this->getColumnSetter($this->prefix . 'id') . "(call_user_func_array(" . var_export(
             $this->workspaceGetter,
             true
         ) . ", array()));
 
-if (\$this->isModified() && !\$this->isColumnModified(" . $this->getColumnConstant($this->prefix . 'action', $builder) . "))
+if (\$isInsert || (\$this->isModified() && !\$this->isColumnModified(" . $this->getColumnConstant($this->prefix . 'action', $builder) . ")))
     \$this->" . $this->getColumnSetter($this->prefix . 'action') . "(1); //created
 
-if (\$this->isModified() && !\$this->isColumnModified(" . $this->getColumnConstant(
+if (\$isInsert || (\$this->isModified() && !\$this->isColumnModified(" . $this->getColumnConstant(
             $this->prefix . 'action_date',
             $builder
-        ) . "))
+        ) . ")))
     \$this->" . $this->getColumnSetter($this->prefix . 'action_date') . "(time());
 ";
     }

@@ -4,12 +4,11 @@ namespace Core\Render;
 
 use Core\Models\Content;
 
-class TypeText implements TypeInterface
+class TypeText extends AbstractType
 {
-
-    public function render(Content $content, $parameter)
+    public function render()
     {
-        return $content->getContent();
+        return $this->getContent()->getContent();
     }
 
 }

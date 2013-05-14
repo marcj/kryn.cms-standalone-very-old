@@ -8,7 +8,7 @@ class GeneralTest extends TestCaseWithCore
 {
     public function testObject()
     {
-        $definition =& \Core\Object::getDefinition('Test\\Test');
+        $definition = \Core\Object::getDefinition('Test\\Test');
         $this->assertNotEmpty($definition);
 
         $objectClass = \Core\Object::getClass('Test\\Test');

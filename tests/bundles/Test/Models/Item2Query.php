@@ -2,7 +2,7 @@
 
 namespace Test\Models;
 
-use Test\Models\om\BaseItem2Query;
+use Test\Models\Base\Item2Query as BaseItem2Query;
 
 
 /**
@@ -14,8 +14,7 @@ use Test\Models\om\BaseItem2Query;
  * application requirements.  This class will only be generated as
  * long as it does not already exist in the output directory.
  *
- * @package    propel.generator.Test
  */
-class Item2Query extends BaseItem2Query
-{
-}
+class Item2Query extends BaseItem2Query {
+
+} // Item2Query

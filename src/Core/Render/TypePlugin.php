@@ -2,35 +2,69 @@
 
 namespace Core\Render;
 
+use Core\Exceptions\PluginException;
 use Core\Kryn;
 use Core\Models\Content;
+use Propel\Runtime\Exception\LogicException;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\HttpKernel\KernelEvents;
 
-class TypePlugin implements TypeInterface
+class TypePlugin extends AbstractType
 {
 
-    public function render(Content $content, $parameter)
+    /**
+     * @var array
+     */
+    private $plugin;
+
+    /**
+     * @var string
+     */
+    private $bundleName;
+
+    /**
+     * @var \Core\Config\Plugin
+     */
+    private $pluginDef;
+
+    public function exceptionHandler(GetResponseForExceptionEvent $event) {
+        throw new PluginException(tf(
+            'The plugin `%s` from bundle `%s` [%s] returned a wrong result.',
+            $this->plugin['plugin'],
+            $this->bundleName,
+            $this->pluginDef->getClass() . '::' . $this->pluginDef->getMethod()
+        ), null, $event->getException());
+    }
+
+    public function __construct(Content $content, array $parameters)
     {
-        if ($response = Kryn::getResponse()->getPluginResponse($content)) {
+        parent::__construct($content, $parameters);
+        $this->plugin = json_decode($content->getContent(), 1);
+        $this->bundleName = $this->plugin['bundle'] ? : $this->plugin['module']; //module for BC
+
+    }
+
+
+    public function render()
+    {
+        if ($response = Kryn::getResponse()->getPluginResponse($this->getContent())) {
             return $response->getContent();
-        } elseif ($content->getContent()) {
-            $plugin = json_decode($content->getContent(), 1);
-
-            $bundleName = $plugin['bundle'] ? : $plugin['module'];
-
-            $config = Kryn::getConfig($bundleName);
+        } elseif ($this->plugin) {
+            $config = Kryn::getConfig($this->bundleName);
 
             if (!$config) {
                 return tf(
                     'Bundle `%s` does not exist. You probably have to install this bundle.',
-                    $bundleName
+                    $this->bundleName
                 );
             }
 
-            if ($pluginDef = $config->getPlugin($plugin['plugin'])) {
-                $clazz = $pluginDef->getClass();
-                $method = $pluginDef->getMethod();
+            if ($this->pluginDef = $config->getPlugin($this->plugin['plugin'])) {
+                $clazz = $this->pluginDef->getClass();
+                $method = $this->pluginDef->getMethod();
 
                 if (class_exists($clazz)) {
                     if (method_exists($clazz, $method)) {
@@ -39,19 +73,29 @@ class TypePlugin implements TypeInterface
                         $request->attributes->add(
                             array(
                                  '_controller' => $clazz . '::' . $method,
-                                 'options' => $plugin['options']
+                                 'options' => $this->plugin['options']
                             )
+                        );
+
+                        $dispatcher = Kryn::getEventDispatcher();
+
+                        $callable = array($this, 'exceptionHandler');
+                        $dispatcher->addListener(
+                            KernelEvents::EXCEPTION,
+                            $callable,
+                            100
                         );
 
                         ob_start();
                         $response = Kryn::getHttpKernel()->handle($request, HttpKernelInterface::SUB_REQUEST);
                         $ob = ob_get_clean();
 
-                        if ($response instanceof Response) {
-                            Kryn::sendResponse($response);
-                        } else {
-                            return $ob . $response->getContent();
-                        }
+                        $dispatcher->removeListener(
+                            KernelEvents::EXCEPTION,
+                            $callable
+                        );
+
+                        return $ob . $response->getContent();
                     } else {
                         return '';
                     }
@@ -61,8 +105,8 @@ class TypePlugin implements TypeInterface
             } else {
                 return tf(
                     'Plugin `%s` in bundle `%s` does not exist. You probably have to install the bundle first.',
-                    $plugin['plugin'],
-                    $bundleName
+                    $this->plugin['plugin'],
+                    $this->bundleName
                 );
             }
         }

@@ -2,7 +2,7 @@
 
 namespace Test\Models;
 
-use Test\Models\om\BaseItemCategoryVersionQuery;
+use Test\Models\Base\ItemCategoryVersionQuery as BaseItemCategoryVersionQuery;
 
 
 /**
@@ -14,8 +14,7 @@ use Test\Models\om\BaseItemCategoryVersionQuery;
  * application requirements.  This class will only be generated as
  * long as it does not already exist in the output directory.
  *
- * @package    propel.generator.Test
  */
-class ItemCategoryVersionQuery extends BaseItemCategoryVersionQuery
-{
-}
+class ItemCategoryVersionQuery extends BaseItemCategoryVersionQuery {
+
+} // ItemCategoryVersionQuery
