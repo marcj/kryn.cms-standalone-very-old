@@ -31,7 +31,7 @@ class Utils
             $response = array(
                 'status' => 500,
                 'error' => get_class($pException),
-                'message' => $pException->getMessage(),
+                'message' => $pException->getMessage(). "[$output]",
                 'previous' => $pException->getPrevious()
             );
 
@@ -69,37 +69,6 @@ class Utils
         ), 500);
         $response->send();
         exit;
-
-        $message = $pException->getMessage();
-//        if (is_numeric($errorCode)) {
-//            $errorCodes = array(
-//                E_ERROR => 'E_ERROR',
-//                E_WARNING => 'E_WARNING',
-//                E_PARSE => 'E_PARSE',
-//                E_NOTICE => 'E_NOTICE',
-//                E_CORE_ERROR => 'E_CORE_ERROR',
-//                E_CORE_WARNING => 'E_CORE_WARNING',
-//                E_STRICT => 'E_STRICT',
-//                E_COMPILE_ERROR => 'E_COMPILE_ERROR',
-//                E_COMPILE_WARNING => 'E_COMPILE_WARNING',
-//                E_USER_ERROR => 'E_USER_ERROR',
-//                E_USER_WARNING => 'E_USER_WARNING',
-//                E_USER_NOTICE => 'E_USER_NOTICE',
-//            );
-//            if ($errorCodes[$errorCode]) {
-//                $errorCode = $errorCodes[$errorCode];
-//            }
-//        }
-
-        $backtrace = $pException->getTrace();
-        if (!$backtrace) {
-            $backtrace = debug_backtrace();
-        }
-
-        $data['loadCodemirror'] = true;
-
-
-        Kryn::internalError(get_class($pException), $message, $data);
     }
 
     public static function extractException(\Exception $pException, array &$exceptions)
@@ -139,7 +108,7 @@ class Utils
                 $code = preg_replace('/&lt;\?php<br \/>/', '', $code, 1);
             }
 
-            $trace['startLine'] = $trace['line'] + 0;
+            $trace['startLine'] = 10 > $trace['line'] ? 1 : ($trace['line'] - 10);
             if (1 >= $trace['startLine']){
                 $trace['startLine'] = 1;
             }
@@ -276,110 +245,6 @@ class Utils
         Kryn::setFastCache('core/latency', $lastLatency);
     }
 
-    public static function errorHandler($pErrorCode, $pErrorStr, $pFile, $pLine, $pBacktrace = null)
-    {
-        ob_end_clean();
-        ob_clean();
-
-        if (!Kryn::$config['displayErrors']) {
-            Kryn::internalError(
-                'Internal Server Error',
-                tf(
-                    'The server encountered an internal error and was unable to complete your request. Please contact the administrator. %s',
-                    Kryn::$config['email']
-                )
-            );
-        }
-
-        if ((isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') ||
-            php_sapi_name() == 'cli'
-        ) {
-            $response = array(
-                'status' => 500,
-                'error' => $pErrorCode,
-                'message' => $pErrorStr
-            );
-
-            if (Kryn::$config['displayDetailedRestErrors']) {
-                $response['file'] = $pFile;
-                $response['line'] = $pLine;
-                $response['backstrace'] = $pBacktrace ? $pBacktrace : debug_backtrace();
-            }
-
-            json($response);
-        }
-
-        if (self::$inErrorHandler === true) {
-            print $pErrorCode . ', ' . $pErrorStr . ' in ' . $pFile . ' at ' . $pLine;
-            if ($pBacktrace) {
-                print_r($pBacktrace);
-            } else {
-                print_r(debug_backtrace());
-            }
-            exit;
-        }
-
-        self::$inErrorHandler = true;
-
-        if (is_numeric($pErrorCode)) {
-            $errorCodes = array(
-                E_ERROR => 'E_ERROR',
-                E_WARNING => 'E_WARNING',
-                E_PARSE => 'E_PARSE',
-                E_NOTICE => 'E_NOTICE',
-                E_CORE_ERROR => 'E_CORE_ERROR',
-                E_CORE_WARNING => 'E_CORE_WARNING',
-                E_STRICT => 'E_STRICT',
-                E_COMPILE_ERROR => 'E_COMPILE_ERROR',
-                E_COMPILE_WARNING => 'E_COMPILE_WARNING',
-                E_USER_ERROR => 'E_USER_ERROR',
-                E_USER_WARNING => 'E_USER_WARNING',
-                E_USER_NOTICE => 'E_USER_NOTICE',
-            );
-            if ($errorCodes[$pErrorCode]) {
-                $pErrorCode = $errorCodes[$pErrorCode];
-            }
-        }
-
-        $msg = '<div style="margin-bottom: 15px; background-color: white; padding: 5px;">' . $pErrorStr . '</div>';
-
-        $backtrace = $pBacktrace;
-        if (!$backtrace) {
-            $backtrace = debug_backtrace();
-        }
-
-        $data['loadCodemirror'] = true;
-
-        $traces = array();
-        $count = count($backtrace);
-        foreach ($backtrace as $trace) {
-            $trace['file'] = substr($trace['file'], strlen(PATH));
-            $trace['id'] = $count--;
-            // if ($trace['file'] == 'core/bootstrap.php' && $trace['line'] == 74) continue;
-            if ($trace['file'] == 'src/Core/global/internal.global.php' && $trace['line'] == 40) {
-                continue;
-            }
-
-            $trace['code'] = self::getFileContent($trace['file'], $trace['line'], 5);
-            $trace['relLine'] = $trace['line'] - 5;
-            //$trace['args_string'] = implode(', ', $trace['args']);
-            $traces[] = $trace;
-        }
-
-        $data['backtrace'] = $traces;
-        //backtrace
-        //$msg .= '<div style="padding: 5px; white-space: pre;">'..'</div>';
-
-        //$msg .= self::getHighlightedFile($pFile, $pLine);
-
-        Kryn::internalError($pErrorCode, $msg, $data);
-
-        self::$inErrorHandler = true;
-
-        exit;
-
-    }
-
     public static function getFileContent($pFile, $pLine, $pOffset = 10)
     {
         if (!file_exists($pFile)) {
@@ -401,6 +266,10 @@ class Utils
                 }
 
                 $line++;
+            }
+
+            if ("\n" !== substr($code, 0, -1)){
+                $code .= "\n";
             }
 
             return $code;
