@@ -6,8 +6,6 @@
         "krynlabs/kryn-publication-bundle": "*"
     },
     "config": {
-
-        "fileTemp": "app/cache/",
         "id": "5d12",
         "database": {
             "server": "127.0.0.1",
