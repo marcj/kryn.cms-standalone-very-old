@@ -152,24 +152,22 @@ class Manager
         $config['displayBeautyErrors'] = 0; //0 otherwise the exceptionHandler of kryn is used, that breaks the PHPUnit.
 
         \Core\Kryn::bootstrap();
-
         \Core\Kryn::loadModuleConfigs(true);
 
         $manager = new \Admin\Module\Manager;
 
         foreach ($config['bundles'] as $bundleName) {
-            $manager->uninstall($bundleName, false, true);
+            $manager->uninstall($bundleName, false);
         }
 
-        $manager->uninstall('Users\\UsersBundle', false, true);
-        $manager->uninstall('Admin\\AdminBundle', false, true);
-        $manager->uninstall('Core\\CoreBundle', false, true);
+        $manager->uninstall('Users\\UsersBundle', false);
+        $manager->uninstall('Admin\\AdminBundle', false);
+        $manager->uninstall('Core\\CoreBundle', false);
 
         \Core\PropelHelper::updateSchema();
 
         \Core\SystemFile::remove('config.php');
         self::cleanup();
-
     }
 
     public static function install($pConfig)
@@ -182,11 +180,13 @@ class Manager
         }
 
         require 'src/Core/bootstrap.php';
+        \Core\Kryn::bootstrap();
 
+        \Core\TempFile::remove('propel');
+        \Core\TempFile::remove('propel-classes');
         \Core\TempFile::createFolder('./');
         \Core\WebFile::createFolder('cache/');
 
-        \Core\Kryn::bootstrap();
         @ini_set('display_errors', 1);
         \Core\Kryn::loadModuleConfigs();
 
@@ -194,34 +194,41 @@ class Manager
 
         $_GET['domain'] = self::$config['domain'];
 
+        echo "\nInstallation\n";
+        debugPrint('Installation start');
         $manager->install('Core\\CoreBundle', true);
         $manager->install('Admin\\AdminBundle', true);
         $manager->install('Users\\UsersBundle', true);
+        debugPrint('Installed system bundles');
 
         foreach ($pConfig['bundles'] as $module) {
             $manager->install($module, true);
         }
+        debugPrint('Installed extra bundles');
 
         \Core\PropelHelper::updateSchema();
+        debugPrint('Updated schema');
+
         \Core\PropelHelper::generateClasses();
+        debugPrint('Updated model classes');
 
         $manager->installDatabase('Core\\CoreBundle');
         $manager->installDatabase('Admin\\AdminBundle');
         $manager->installDatabase('Users\\UsersBundle');
+        debugPrint('Install system database entries');
 
         foreach ($pConfig['bundles'] as $module) {
             $manager->installDatabase($module);
         }
-
-        \Core\Kryn::bootstrap();
+        debugPrint('Install extra database entries');
 
         \Core\PropelHelper::cleanup();
 
-        //load all configs
-        \Core\Kryn::loadModuleConfigs();
+        \Core\Kryn::bootstrap();
+        debugPrint('Installed and bootstrapped');
+        echo "Installation done.\n";
 
         \Admin\Utils::clearCache();
-
     }
 
     public static function bootupCore()
