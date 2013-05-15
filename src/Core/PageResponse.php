@@ -291,16 +291,16 @@ class PageResponse extends Response
         $htmlOpener = $this->getHtmlTag();
 
         $html = sprintf(
-            "%s
-            %s
-            <head>
-            %s
-            </head>
-            <body>
-            %s
-            %s
-            </body>
-            </html>",
+"%s
+%s
+<head>
+%s
+</head>
+<body>
+%s
+%s
+</body>
+</html>",
             $docType,
             $htmlOpener,
             $header,

@@ -324,11 +324,11 @@ class Manager
      * If $pName points to a zip-file, we extract it in temp, fires the extract script and move it to our install root.
      *
      * @param  string $pName
-     * @param  bool   $pWithoutDBSchemaUpdate
+     * @param  bool   $oOrmUpdate
      *
      * @return bool
      */
-    public function install($pName, $pWithoutDBSchemaUpdate = false)
+    public function install($pName, $oOrmUpdate = false)
     {
         Manager::prepareName($pName);
 //
@@ -347,7 +347,7 @@ class Manager
         $this->fireScript($pName, 'install');
 
         //fire update propel orm
-        if (!$pWithoutDBSchemaUpdate && $hasPropelModels) {
+        if ($oOrmUpdate && $hasPropelModels) {
             //update propel
             \Core\PropelHelper::updateSchema();
             \Core\PropelHelper::cleanup();
@@ -378,11 +378,11 @@ class Manager
      *
      * @param  string $pName
      * @param  bool   $pRemoveFiles
-     * @param  bool   $pWithoutOrmUpdate
+     * @param  bool   $oOrmUpdate
      *
      * @return bool
      */
-    public function uninstall($pName, $pRemoveFiles = true, $pWithoutOrmUpdate = false)
+    public function uninstall($pName, $pRemoveFiles = true, $pOrmUpdate = false)
     {
         Manager::prepareName($pName);
         $config = self::getConfig($pName);
@@ -405,6 +405,8 @@ class Manager
             throw new BundleNotFoundException(tf('Bundle `%s` not found.', $pName));
         }
 
+        $webName = strtolower($bundle->getName(true));
+
         //remove files
         if ($pRemoveFiles) {
             if ($config['extraFiles']) {
@@ -413,10 +415,7 @@ class Manager
                 }
             }
 
-            if ($pName != 'core') {
-                delDir('module/' . $pName);
-                delDir('media/' . $pName);
-            }
+            @unlink($webName);
         }
 
         \Core\Event::fire('admin/module/manager/uninstall/post', $pName);
@@ -424,17 +423,15 @@ class Manager
         $this->deactivate($pName, true);
 
         //fire update propel orm
-        if ($pWithoutOrmUpdate) {
+        if ($pOrmUpdate && $hasPropelModels) {
             //remove propel classes in temp
             \Core\TempFile::remove('propel-classes/' . $bundle->getRootNamespace());
 
             //update propel
-            if (!$pWithoutOrmUpdate) {
+            if ($pOrmUpdate) {
                 \Core\PropelHelper::updateSchema();
-                $files = find(\Core\Kryn::getTempFolder() . '/propel/');
                 \Core\PropelHelper::cleanup();
             }
-
         }
 
         return true;

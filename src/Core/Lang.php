@@ -90,16 +90,17 @@ class Lang
 
     public static function getPluralPhpFunctionFile($lang)
     {
-        if (!TempFile::exists('core_gettext_plural_fn_' . $lang . '.php')) {
+        $file = 'core_gettext_plural_fn_' . $lang . '.php';
+        if (!TempFile::exists($file)) {
             $pluralForm = Lang::getPluralForm($lang, true);
 
             $code = "<?php \nfunction gettext_plural_fn_$lang(\$n){\n";
             $code .= "    return " . str_replace('n', '$n', $pluralForm) . ";\n";
             $code .= "}\n?>";
-            TempFile::setContent('core_gettext_plural_fn_' . $lang . '.php', $code);
+            TempFile::setContent($file, $code);
         }
 
-        return Kryn::getTempFolder() . 'core_gettext_plural_fn_' . $lang . '.php';
+        return Kryn::getTempFolder() . $file;
     }
 
     public static function parsePo($pModuleName, $pLang)

@@ -12,6 +12,7 @@
 
 Namespace Core;
 
+use Core\Config\SystemConfig;
 use Core\Exceptions\BundleNotFoundException;
 use Core\Models\ContentQuery;
 use Core\Models\Node;
@@ -250,7 +251,7 @@ class Kryn extends Controller
      * @var array
      * @static
      */
-    public static $bundles = array('Core\CoreBundle', 'Admin\AdminBundle', 'Users\UsersBundle');
+    public static $bundles = array('Core\CoreBundle', 'Admin\AdminBundle', 'Users\UsersBundle', '\KrynDemoThemeBundle');
 
     private static $bundleInstances = array();
 
@@ -277,6 +278,11 @@ class Kryn extends Controller
      * @static
      */
     public static $config;
+
+    /**
+     * @var \Core\Config\SystemConfig
+     */
+    private static $systemConfig;
 
     /**
      * The Auth user object of the backend user.
@@ -439,6 +445,16 @@ class Kryn extends Controller
      * @var \Composer\Autoload\ClassLoader
      */
     private static $loader;
+
+    public static function setSystemConfig()
+    {
+        if (null === static::$systemConfig) {
+            static::$systemConfig = new SystemConfig();
+            //todo, read from config.xml
+        }
+
+        return static::$systemConfig;
+    }
 
     /**
      * @param \Composer\Autoload\ClassLoader $loader
@@ -1774,6 +1790,11 @@ class Kryn extends Controller
         //load main config, setup some constants and check some requirements.
         require(__DIR__ . '/bootstrap.php');
 
+        if (false !== strpos($_SERVER['PHP_SELF'], 'install.php')) {
+            return;
+        }
+
+
         /**
          * Check and loading config.php or redirect to install.php
          */
@@ -2030,7 +2051,7 @@ class Kryn extends Controller
         $dispatcher->dispatch('core.response-send', new GenericEvent($pResponse));
 
         Kryn::getLogger()->addDebug('Done. Generation time: ' . (microtime(true) - $_start) . ' seconds.');
-        exit;
+
     }
 
     /**
@@ -2209,7 +2230,7 @@ class Kryn extends Controller
         if (!$urls) {
 
             $nodes = NodeQuery::create()
-                ->select(array('Id', 'Urn', 'Lvl', 'Type'))
+                ->select(array('id', 'urn', 'lvl', 'type'))
                 ->filterByDomainId($pDomainId)
                 ->orderByBranch()
                 ->find();
@@ -2771,25 +2792,26 @@ class Kryn extends Controller
      * @static
      * @internal
      *
-     * @param  string $pPrefix
+     * @param  string $prefix
+     * @param  bool   $fullPath Returns the full path on true and the relative to the current TempFolder on false.
      *
      * @return string Path with trailing slash
      */
-    public static function createTempFolder($pPrefix = '')
+    public static function createTempFolder($prefix = '', $fullPath = true)
     {
         $tmp = self::getTempFolder();
 
         do {
-            $path = $tmp . $pPrefix . dechex(time() / mt_rand(100, 500));
+            $path = $tmp . $prefix . dechex(time() / mt_rand(100, 500));
         } while (is_dir($path));
 
         mkdir($path);
 
-        if (substr($path, -1) != '/') {
+        if ('/' !== substr($path, -1)) {
             $path .= '/';
         }
 
-        return $path;
+        return $fullPath ? $path : substr($path, strlen($tmp));
     }
 
     /**
