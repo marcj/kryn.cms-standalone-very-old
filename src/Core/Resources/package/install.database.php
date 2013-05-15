@@ -409,7 +409,7 @@ dbUpdate('system_langs', array('code' => 'en'), array('visible' => 1));
 $footerNavi = NodeQuery::create()->findOneByTitle('Footer Navigation');
 $footerText = NodeQuery::create()->findOneByTitle('Footer text');
 
-$domainThemeProperties = new \Core\Properties('{"th_krynDemo":{"Kryn Demo":{"logo":"th_krynDemo/images/logo.png","title":"BUSINESSNAME","slogan":"Business Slogan comes here!","footer_deposit":"' . $footerText->getId(
+$domainThemeProperties = new \Core\Properties('{"@KrynDemoThemeBundle":{"krynDemoTheme":{"logo":"@KrynDemoThemeBundle/images/logo.png","title":"BUSINESSNAME","slogan":"Business Slogan comes here!","footer_deposit":"' . $footerText->getId(
 ) . '","search_Node":"12","footer_navi":"' . $footerNavi->getId() . '"}}}');
 $domain->setThemeProperties($domainThemeProperties);
 $domain->save();
