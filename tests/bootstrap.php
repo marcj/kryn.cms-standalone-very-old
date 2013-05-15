@@ -70,6 +70,8 @@ $loader->add('', __DIR__ . '/bundles');
 
 \Core\Kryn::setLoader($loader);
 
+@unlink(__DIR__ . '/../config.php');
+
 ini_set('display_errors', 1);
 error_reporting(E_ALL ^ E_NOTICE);
 
