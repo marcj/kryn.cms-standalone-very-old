@@ -81,9 +81,6 @@ class Utils
         );
 
         $backtrace = $pException->getTrace();
-        array_unshift($backtrace, $exception);
-
-        $exception['file'] = substr($pException->getFile(), strlen(PATH));
 
         $traces = array();
         $count = count($backtrace);
@@ -119,7 +116,8 @@ class Utils
         }
 
         $exception['backtrace'] = $traces;
-        array_unshift($exceptions, $exception);
+        $exception['file'] = substr($pException->getFile(), strlen(PATH));
+        $exceptions[] = $exception;
 
         if ($pException->getPrevious()){
             self::extractException($pException->getPrevious(), $exceptions);
