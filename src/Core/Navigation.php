@@ -67,7 +67,7 @@ class Navigation
         if (!$navigation && $pOptions['id'] != 'breadcrumb' && ($pOptions['id'] || $pOptions['level'])) {
 
             if ($pOptions['id'] + 0 > 0) {
-                $navigation =& Kryn::getPage($pOptions['id'] + 0);
+                $navigation = Kryn::getPage($pOptions['id'] + 0);
 
                 if (!$navigation) {
                     return null;
