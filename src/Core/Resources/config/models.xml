@@ -274,12 +274,12 @@
     <table name="system_file" phpName="File">
         <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true"/>
         <column name="path" type="VARCHAR" size="255"/>
-        <column name="name" type="VARCHAR" size="255"/>
         <column name="hash" type="VARCHAR" size="64"/>
-        <column name="type" type="VARCHAR" size="255"/>
+        <column name="type" type="VARCHAR" size="16"/>
         <column name="size" type="INTEGER"/>
-        <column name="ctime" type="BIGINT"/>
-        <column name="mtime" type="BIGINT"/>
+        <column name="created_time" type="BIGINT"/>
+        <column name="modified_time" type="BIGINT"/>
+        <column name="mount_point" type="VARCHAR" size="128"/>
         <vendor type="mysql">
             <parameter name="Charset" value="utf8"/>
         </vendor>

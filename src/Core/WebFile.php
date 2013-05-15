@@ -12,8 +12,10 @@
 
 namespace Core;
 
+use Core\File\FileInfo;
 use Core\Models\File;
 use Core\Models\FileQuery;
+use Core\File\FileInfoInterface;
 
 /**
  * File
@@ -34,8 +36,8 @@ class WebFile
     public static $fsObjects = array();
 
     /**
-     * Whether this class checks against the object 'file' and appends
-     * the 'id'. Checks also against permission/acl table.
+     * Whether this class checks against the object 'Core\Model\File' and appends
+     * the 'id'.  /* Checks also against permission/acl table. * /
      *
      * @var bool
      */
@@ -97,37 +99,55 @@ class WebFile
     }
 
     /**
+     * Sets internal `id` of the `File` model.
+     *
+     * @param FileInfoInterface|FileInfoInterface[] $fileInfo
+     *
+     * @return FileInfoInterface|FileInfoInterface[]
+     */
+    public static function wrap($fileInfo)
+    {
+        return File::wrap($fileInfo);
+    }
+
+    /**
      * Removes the name of the mount point from the proper layer.
      * Also removes '..' and replaces '//' => '/'
      *
      * This is needed because the file layer gets the relative path under his own root.
      * Forces a / at the beginning, removes the trailing / if exists.
      *
-     * @param  string $pPath
+     * @param  string|array $path
      *
      * @return string
      */
-    public static function normalizePath($pPath)
+    public static function normalizePath($path)
     {
-        $fs = static::getLayer($pPath);
-        $pPath = substr($pPath, strlen($fs->getMountPoint()));
+        if (is_array($path)) {
+            $result = [];
+            foreach ($path as $p) {
+                $result[] = static::normalizePath($p);
+            }
+            return $result;
+        } else {
+            $fs = static::getLayer($path);
+            $path = substr($path, strlen($fs->getMountPoint()));
 
-        if (strpos($pPath, '@') === 0) {
-            $pPath = Kryn::resolvePath($pPath);
+            if (strpos($path, '@') === 0) {
+                $path = Kryn::resolvePath($path);
+            }
+
+            if ('/' !== substr($path, 0, 1)) {
+                $path = '/' . $path;
+            }
+            if ('/' === substr($path, -1)) {
+                $path = substr($path, 0, -1);
+            }
+            $path = str_replace('..', '', $path);
+            $path = str_replace('//', '/', $path);
+
+            return $path;
         }
-
-        $pPath = str_replace('..', '', $pPath);
-        $pPath = str_replace('//', '/', $pPath);
-
-        if (substr($pPath, 0, 1) != '/') {
-            $pPath = '/' . $pPath;
-        }
-
-        if (substr($pPath, -1) == '/') {
-            $pPath = substr($pPath, 0, -1);
-        }
-
-        return $pPath;
     }
 
     /**
@@ -155,7 +175,7 @@ class WebFile
      *
      * @static
      *
-     * @param  string      $pPath
+     * @param  string $pPath
      *
      * @return bool|string
      */
@@ -277,9 +297,7 @@ class WebFile
      *
      * @param string $pPath
      *
-     * @return int|bool|array Return false if the file doenst exist,
-     *                        return 2 if the webserver does not have access
-     *                        or return array with the information.
+     * @return \Core\File\FileInfoInterface
      */
     public static function getFile($pPath)
     {
@@ -287,27 +305,7 @@ class WebFile
         $path = static::normalizePath($pPath);
 
         $file = $fs->getFile($path);
-        if (!$file) {
-            return null;
-        }
-
-        if (static::$checkObject) {
-            $item = FileQuery::create()->filterByPath($pPath)->orderById()->findOne();
-            if (!$item) {
-                //insert
-                $item = new File();
-                $item->setPath($pPath);
-                $item->setHash($fs->getMd5($path));
-                $item->save();
-                $id = $item->getId();
-            } else {
-                $id = $item->getId();
-            }
-
-            $file['id'] = $id + 0;
-        }
-
-        return $file;
+        return static::wrap($file);
     }
 
     /**
@@ -331,9 +329,7 @@ class WebFile
      *
      * @param string $pPath
      *
-     * @return int|bool|array Return false if the file doenst exist,
-     *                        return -1 if the webserver does not have access
-     *                        or return array with the information.
+     * @return \Core\File\FileInfoInterface[]
      */
     public static function getFiles($pPath)
     {
@@ -355,61 +351,31 @@ class WebFile
             return array();
         }
 
+        $items = static::wrap($items);
+
         if (static::$checkMounts) {
 
             if ($fs->getMountPoint()) {
                 foreach ($items as &$file) {
-                    $file['path'] = $fs->getMountPoint() . $file['path'];
+                    $file->setMountPoint($fs->getMountPoint());
                 }
             }
 
-            if ($pPath == '/') {
-                if (is_array(Kryn::$config['mounts'])) {
-                    foreach (Kryn::$config['mounts'] as $folder => &$config) {
-                        $magic = array(
-                            'path' => '/' . $folder,
-                            'mount' => true,
-                            'name' => $folder,
-                            'icon' => $config['icon'],
-                            'ctime' => 0,
-                            'mtime' => 0,
-                            'type' => 'dir'
-                        );
-                        $items[] = $magic;
-                    }
+            if ('/' === $pPath) {
+                foreach (Kryn::getSystemConfig()->getMountPoints() as $mountPoint) {
+                    $fileInfo = new FileInfo();
+                    $fileInfo->setPath('/' . $mountPoint->getPath());
+                    $fileInfo->setIcon($mountPoint->getIcon());
+                    $fileInfo->setType(FileInfo::DIR);
+                    $fileInfo->setMountPoint(true);
+                    $items[] = $fileInfo;
                 }
             }
         }
 
-        uksort($items, "strnatcasecmp");
-
-        if (static::$checkObject) {
-            $where = array();
-            $vals = array();
-            foreach ($items as &$file) {
-                $vals[] = $file['path'];
-                $where[] = 'path = ?';
-            }
-            $sql = 'SELECT id, path FROM ' . pfx . 'system_file WHERE 1=0 OR ' . implode(' OR ', $where);
-
-            $res = dbQuery($sql, $vals);
-            $path2id = array();
-
-            while ($row = dbFetch($res)) {
-                $path2id[$row['path']] = $row['id'];
-            }
-
-            foreach ($items as &$file) {
-
-                if (!$path2id[$file['path']]) {
-                    $id = dbInsert('system_file', array('path' => $file['path'], 'hash' => $fs->getMd5($path)));
-                    $file['id'] = $id;
-                } else {
-                    $file['id'] = $path2id[$file['path']];
-                }
-            }
-            dbFree($res);
-        }
+        usort($items, function($a, $b){
+            return strnatcasecmp($a ? $a->getPath() : '', $b ? $b->getPath() : '');
+        });
 
         return $items;
     }
@@ -431,36 +397,141 @@ class WebFile
     }
 
     /**
-     * Copies a file to a destination.
-     * If the source is a folder, it copies recursivly.
+     * Returns the md5 of the content.
+     *
+     * @param $path
+     *
+     * @return string
+     */
+    public static function getHash($path){
+        $fs = static::getLayer($path);
+        return $fs->getHash(static::normalizePath($path));
+    }
+
+    /**
+     * Copies or moves files to a destination.
+     * If the source is a folder, it copies recursively.
      *
      * @static
      *
-     * @param  string $pPathSource
-     * @param  string $pPathTarget
+     * @param  array|string $source
+     * @param  string       $target
+     * @param  string       $action move|copy
      *
      * @return bool
      */
-    public static function copy($pFrom, $pTo)
+    public static function paste($source, $target, $action = 'move')
     {
-        //TODO, move the code from adminFilemanager::paste() to here
+        $files = (array)$source;
+        $action = strtolower($action);
+
+        foreach ($files as $file) {
+            $oldFile = str_replace('..', '', $file);
+            $oldFile = str_replace(chr(0), '', $oldFile);
+
+            $oldFs = static::getLayer($oldFile);
+            $newPath = '/' === substr($target, 0, -1) ? $target . '/' . basename($file) : $target;
+
+            $newFs = static::getLayer($newPath);
+
+            if ($newFs === $oldFs) {
+                $newFs->$action(static::normalizePath($oldFile), static::normalizePath($newPath));
+            } else {
+                //we need to move a folder from one file layer to another.
+                $file = $oldFs->getFile(static::normalizePath($oldFile));
+
+                if ($file['type'] == 'file') {
+                    $content = $oldFs->getContent(static::normalizePath($oldFile));
+                    $newFs->setContent(static::normalizePath($newPath), $content);
+                } else {
+                    if ('' === $oldFs->getMountPoint()) {
+                        //just directly upload the stuff
+                        static::copyFolder(PATH_WEB . $oldFile, $newPath);
+                    } else {
+                        //we need to copy all files down to our local hdd temporarily
+                        //and upload then
+                        $folder = static::downloadFolder($oldFile);
+                        static::copyFolder($folder, $newPath);
+                        TempFile::remove($folder);
+                    }
+                }
+                if ('move' === $action) {
+                    $oldFs->deleteFile(static::normalizePath($oldFile));
+                }
+            }
+        }
+    }
+
+    public static function downloadFolder($path, $to = null)
+    {
+        $fs = self::getFs($path);
+        $files = $fs->getFiles(self::normalizePath($path));
+
+        $to = $to ? : Kryn::createTempFolder('', false);
+
+        if (is_array($files)) {
+            foreach ($files as $file) {
+                if ('file' === $file['type']) {
+                    $content = $fs->getContent(self::normalizePath($path . '/' . $file['name']));
+                    TempFile::setContent($to . '/' . $file['name'], $content);
+                } else {
+                    self::downloadFolder($path . '/' . $file['name'], $to . '/' . $file['name']);
+                }
+            }
+        }
+
+        return $to;
+    }
+
+    public static function copyFolder($pFrom, $pTo)
+    {
+        $fs = self::getFs($pTo);
+        $fs->createFolder(self::normalizePath($pTo));
+
+        $normalizedPath = self::normalizePath($pTo);
+
+        $files = find($pFrom . '/*');
+
+        foreach ($files as $file) {
+            $newName = $normalizedPath . '/' . substr($file, strlen($pFrom) + 1);
+
+            if (is_dir($file)) {
+                $fs->createFolder(self::normalizePath($newName));
+            } else {
+                $fs->createFile(self::normalizePath($newName), kryn::fileRead($file));
+            }
+        }
 
     }
 
     /**
-     * Moves a file to new destinaton.
+     * Moves a file or files to new destinaton.
      *
      * @static
      *
-     * @param  string $pPathSource
-     * @param  string $pPathTarget
+     * @param  array|string $source
+     * @param  string       $target
      *
      * @return bool
      */
-    public static function move($pFrom, $pTo)
+    public static function move($source, $target)
     {
-        //TODO, move the code from adminFilemanager::paste() to here
+        return static::paste($source, $target, 'move');
+    }
 
+    /**
+     * Copies a file or files to new destinaton.
+     *
+     * @static
+     *
+     * @param  array|string $source
+     * @param  string       $target
+     *
+     * @return bool
+     */
+    public static function copy($source, $target)
+    {
+        return static::paste($source, $target, 'copy');
     }
 
     /**

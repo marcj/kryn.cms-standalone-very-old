@@ -2,13 +2,14 @@
 
 namespace Core\FAL;
 
+use Core\File\FileInfo;
 use Core\Kryn;
 
 /**
  * Local file layer for the local file system.
  *
  */
-class Local extends FALAbstract
+class Local extends AbstractFAL
 {
     /**
      * Current root folder.
@@ -184,7 +185,7 @@ class Local extends FALAbstract
     /**
      * {@inheritDoc}
      */
-    public function createFile($pPath, $pContent = false)
+    public function createFile($pPath, $pContent = null)
     {
         $path = $this->getFullPath($pPath);
 
@@ -193,7 +194,7 @@ class Local extends FALAbstract
         }
 
         if (!file_exists($path)) {
-            if (($res = file_put_contents($path, $pContent) === false)) {
+            if (null !== $pContent && false === ($res = file_put_contents($path, $pContent))) {
                 if (is_writable(dirname($path))) {
                     throw new \FileIOException(tf('Can not create file %s', $path));
                 } else {
@@ -207,7 +208,7 @@ class Local extends FALAbstract
             $this->setPermission($pPath);
         }
 
-        return $res === false ? false : true;
+        return false !== $res;
     }
 
     /**
@@ -291,11 +292,11 @@ class Local extends FALAbstract
         $path = str_replace('..', '', $path);
 
         if (!file_exists($path)) {
-            return false;
+            throw new \FileNotExistException(tf('File `%s` does not exists.', $path));
         }
 
         if (!is_dir($path)) {
-            throw new Exceptions\NotADirectoryException();
+            throw new \FileNotExistException(tf('File `%s` is not a directory.', $path));
         };
 
         if (substr($path, -1) != '/') {
@@ -303,32 +304,27 @@ class Local extends FALAbstract
         }
 
         $h = @opendir($path);
-        if (file_exists($path) && !$h) {
-            return 3;
+        if (!$h) {
+            throw new \IOException(tf('Can not open `%s`. Probably no permissions.', $path));
         }
 
         $items = array();
         while ($file = readdir($h)) {
+
+            $fileInfo = new FileInfo();
             if ($file == '.' || $file == '..') {
                 continue;
             }
             $file = $path . $file;
 
-            $item['path'] = substr($file, strlen($this->getRoot()) - 1);
-            $item['name'] = basename($file);
+            $fileInfo->setPath(substr($file, strlen($this->getRoot()) - 1));
 
-            $item['type'] = (is_dir($file)) ? 'dir' : 'file';
-            if ($item['type'] == 'file') {
-                $info = pathinfo($file);
-                $item['extension'] = $info['extension'];
-            } else {
-                $item['extension'] = 'directory';
-            }
+            $fileInfo->setType(is_dir($file) ? FileInfo::DIR : FileInfo::FILE);
 
-            $item['size'] = filesize($file);
-            $item['ctime'] = filectime($file);
-            $item['mtime'] = filemtime($file);
-            $items[] = $item;
+            $fileInfo->setCreatedTime(filectime($file));
+            $fileInfo->setModifiedTime(filectime($file));
+            $fileInfo->setSize(filesize($file));
+            $items[] = $fileInfo;
         }
 
         return $items;
@@ -339,42 +335,24 @@ class Local extends FALAbstract
      */
     public function getFile($path)
     {
+        $file = new FileInfo();
+        $file->setPath($path);
         $path = $this->getFullPath($path);
         if (!file_exists($path)) {
-            return false;
+            throw new \FileNotExistException(tf('File `%s` does not exists.', $path));
         }
 
         if (!is_readable($path)) {
-            return -1;
+            throw new \FileNotExistException(tf('File `%s` is not readable.', $path));
         }
 
-        $type = (is_dir($path)) ? 'dir' : 'file';
+        $file->setType(is_dir($path) ? 'dir' : 'file');
 
-        $name = basename($path);
-        if ($path == $this->getRoot()) {
-            $name = '/';
-        }
+        $file->setCreatedTime(filectime($path));
+        $file->setModifiedTime(filectime($path));
+        $file->setSize(filesize($path));
 
-        $ctime = filectime($path);
-        $mtime = filemtime($path);
-
-        $item['type'] = (is_dir($path)) ? 'dir' : 'file';
-        if ($item['type'] == 'file') {
-            $info = pathinfo($path);
-            $extension = $info['extension'];
-        } else {
-            $extension = 'directory';
-        }
-
-        return array(
-            'path' => substr($path, strlen($this->getRoot()) - 1),
-            'name' => $name,
-            'type' => $type,
-            'ctime' => $ctime,
-            'extension' => $extension,
-            'mtime' => $mtime,
-            'size' => filesize($path)
-        );
+        return $file;
     }
 
     /**
@@ -452,7 +430,7 @@ class Local extends FALAbstract
     /**
      * {@inheritDoc}
      */
-    public function getMd5($pPath)
+    public function getHash($pPath)
     {
         return md5_file($this->getRoot() . $pPath);
     }

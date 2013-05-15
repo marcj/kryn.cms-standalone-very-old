@@ -25,12 +25,11 @@ class TempFile extends WebFile
 {
     public static $fsObjects = array();
 
-
     //not permission check, since file object is only for media/ folder, so for File:: class.
     public static $checkObject = false;
 
 
-    //we do not support mounts outside of media/.
+    //we do not support mounts outside of web/.
     public static $checkMounts = false;
 
     /**
@@ -55,6 +54,11 @@ class TempFile extends WebFile
         static::$fsObjects[$class] = new $class('', $params);
 
         return static::$fsObjects[$class];
+    }
+
+    public static function wrap($fileInfo)
+    {
+        return $fileInfo;
     }
 
     public static function getPath($pPath)

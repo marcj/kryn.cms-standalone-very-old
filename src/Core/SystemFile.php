@@ -57,6 +57,11 @@ class SystemFile extends WebFile
 
     }
 
+    public static function wrap($fileInfo)
+    {
+        return $fileInfo;
+    }
+
     public static function getPath($pPath)
     {
         throw new \Exception(t('getPath on SystemFile is not possible. Use Core\File::getPath'));
