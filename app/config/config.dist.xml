@@ -64,9 +64,10 @@
       <option key="emailLogin">true</option>
       <optionName>option</optionName>
     </options>
-    <!--The full classname of the storage. MUST have `Core\Cache\CacheInterface` as interface.-->
+    <!--A class that handles the actual data storage.-->
     <sessionStorage>
-      <!--The full classname or `database` for the database storage.-->
+      <!--The full classname of the storage. MUST have `Core\Cache\CacheInterface` as interface.
+      Define `database` for the database storage.-->
       <class>database</class>
       <options></options>
     </sessionStorage>

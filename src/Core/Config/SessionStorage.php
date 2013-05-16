@@ -4,10 +4,11 @@ namespace Core\Config;
 
 class SessionStorage extends Model
 {
-    protected $docBlock = 'The full classname of the storage. MUST have `Core\Cache\CacheInterface` as interface.';
+    protected $docBlock = 'A class that handles the actual data storage.';
 
     protected $docBlocks = [
-        'class' => 'The full classname or `database` for the database storage.'
+        'class' => 'The full classname of the storage. MUST have `Core\Cache\CacheInterface` as interface.
+      Define `database` for the database storage.'
     ];
 
     /**

@@ -157,8 +157,8 @@ class ConfigTest extends TestCaseWithCore
     <class>\Vendor\Other\CacheClass</class>
     <options>
       <option key="servers">
-        <value>127.0.0.1</value>
-        <value>192.168.0.1</value>
+        <item>127.0.0.1</item>
+        <item>192.168.0.1</item>
       </option>
       <option key="compression">true</option>
       <option key="foo">bar</option>
@@ -251,9 +251,10 @@ class ConfigTest extends TestCaseWithCore
       <option key="server">127.0.0.1</option>
       <option key="cert">false</option>
     </options>
-    <!--The full classname of the storage. MUST have `Core\Cache\CacheInterface` as interface.-->
+    <!--A class that handles the actual data storage.-->
     <sessionStorage>
-      <!--The full classname or `database` for the database storage.-->
+      <!--The full classname of the storage. MUST have `Core\Cache\CacheInterface` as interface.
+      Define `database` for the database storage.-->
       <class>Vendor\MyOwn\Storage</class>
     </sessionStorage>
   </client>
