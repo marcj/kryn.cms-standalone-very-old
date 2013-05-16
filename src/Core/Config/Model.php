@@ -5,9 +5,40 @@ namespace Core\Config;
 class Model implements \ArrayAccess
 {
     /**
+     * The element passed in constructor.
+     *
      * @var \DOMElement
      */
     protected $element;
+
+    /**
+     * @var string
+     */
+    protected $rootName;
+
+    /**
+     * Defines which values are attributes of the <rootName> element.
+     *
+     * @var array
+     */
+    protected $attributes = [];
+
+    protected $additionalNodes = [];
+    protected $additionalAttributes = [];
+
+    /**
+     * Defines a header comment of values (not attributes).
+     *
+     * @var array
+     */
+    protected $docBlocks = [];
+
+    /**
+     * Defines a comment for the root element.
+     *
+     * @var string
+     */
+    protected $docBlock = '';
 
     /**
      * @var Config
@@ -15,17 +46,30 @@ class Model implements \ArrayAccess
     protected $config;
 
     /**
-     * @param \DOMElement $element
+     * @param \DOMElement|string $element
      * @param Config      $config
      */
-    public function __construct(\DOMElement $element = null, Config $config = null)
+    public function __construct($element = null, Config $config = null)
     {
+        if (null === $this->rootName) {
+            $array = explode('\\', get_called_class());
+            $this->rootName = lcfirst(array_pop($array));
+        }
+
         if ($config) {
             $this->config = $config;
         }
 
         if ($element) {
-            $this->element = $element;
+            if (is_string($element)) {
+                $dom = new \DOMDocument();
+                $dom->loadXml($element);
+                $this->element = $dom->firstChild;
+            } else if ($element instanceof \DOMElement) {
+                $this->element = $element;
+            } else {
+                return;
+            }
             $this->setupObject();
         }
     }
@@ -67,7 +111,62 @@ class Model implements \ArrayAccess
      */
     public function setupObject()
     {
+        $this->importNode($this->element);
+    }
 
+    public function importNode(\DOMNode $element)
+    {
+        $reflection = new \ReflectionClass($this);
+
+        foreach ($element->childNodes as $child) {
+            $nodeName = $child->nodeName;
+            $value    = $child->nodeValue;
+
+            if ('#text' === $nodeName || '#comment' === $nodeName) {
+                continue;
+            }
+
+            $setter = 'set' . ucfirst($nodeName);
+            $setterValue = $value;
+            if (method_exists($this, $setter)) {
+                $reflectionMethod = $reflection->getMethod($setter);
+                $parameters = $reflectionMethod->getParameters();
+                if (1 <= count($parameters)) {
+                    $firstParameter = $parameters[0];
+                    if ($firstParameter->getClass() && $className = $firstParameter->getClass()->name) {
+                        $setterValue = new $className($child);
+                    }
+                    if ($firstParameter->isArray()){
+                        $setterValue = array();
+                        foreach ($child->childNodes as $subChild) {
+                            if ('#' !== substr($subChild->nodeName, 0, 1)) {
+                                $clazz = char2Camelcase($subChild->nodeName, '-');
+                                $clazz = '\Core\Config\\' . $clazz;
+                                $object = new $clazz($subChild);
+                                $setterValue[] = $object;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (is_callable(array($this, $setter))) {
+                $this->$setter($setterValue);
+            } else if (!$this->$nodeName) {
+                $this->additionalNodes[$nodeName] = $value;
+            }
+        }
+        foreach ($element->attributes as $attribute) {
+            $nodeName = $attribute->nodeName;
+            $value    = $attribute->nodeValue;
+
+            $setter = 'set' . ucfirst($nodeName);
+            if (is_callable(array($this, $setter))) {
+                $this->$setter($value);
+            } else if (!$this->$nodeName) {
+                $this->additionalAttributes[$nodeName] = $value;
+            }
+        }
     }
 
     /**
@@ -242,8 +341,106 @@ class Model implements \ArrayAccess
      */
     public function __toString()
     {
-        $array = $this->toArray();
-        return json_format(json_encode($array));
+        return $this->toXml();
+    }
+
+    /**
+     * Generates a XML string with all current values.
+     *
+     * @return string
+     */
+    public function toXml()
+    {
+        $doc = new \DOMDocument();
+        $doc->formatOutput = true;
+
+        $this->appendXml($doc, $doc);
+
+        return trim(str_replace("<?xml version=\"1.0\"?>\n", '', $doc->saveXML()));
+    }
+
+    /**
+     * Appends the xml structure with our values.
+     *
+     * @param \DOMNode     $node
+     * @param \DOMDocument $doc
+     */
+    public function appendXml(\DOMNode $node, \DOMDocument $doc)
+    {
+        if ($this->docBlock) {
+            $comment = $doc->createComment($this->docBlock);
+            $node->appendChild($comment);
+        }
+
+        $rootNode = $doc->createElement($this->rootName);
+        $node->appendChild($rootNode);
+
+        $reflection = new \ReflectionClass($this);
+        $defaultProperties = $reflection->getDefaultProperties();
+
+        $reflectionModel = new \ReflectionClass(__CLASS__);
+        $modelProperties = $reflectionModel->getDefaultProperties();
+
+        foreach ($this as $key => $val) {
+            if ($defaultProperties[$key] === $val) {
+                continue;
+            }
+            if (array_key_exists($key, $modelProperties)) {
+                continue;
+            }
+
+            $getter = 'append' . ucfirst($key) . 'Xml';
+
+            if (is_callable(array($this, $getter))) {
+                $this->$getter($rootNode, $doc);
+            } else {
+                $this->appendXmlValue($key, $val, $rootNode, $doc);
+            }
+        }
+
+        foreach ($this->additionalNodes as $k => $v) {
+            $this->appendXmlValue($k, $v, $rootNode, $doc);
+        }
+
+        foreach ($this->additionalAttributes as $k => $v) {
+            $rootNode->setAttribute($k, (string)$v);
+        }
+    }
+
+    /**
+     * Appends the xm structure with the given values.
+     *
+     * @param string       $key
+     * @param mixed        $value
+     * @param \DOMNode     $node
+     * @param \DOMDocument $doc
+     */
+    public function appendXmlValue($key, $value, \DOMNode $node, \DOMDocument $doc)
+    {
+        if ((is_scalar($value) && !in_array($key, $this->attributes)) || is_array($value) || $value instanceof Model) {
+            if ($comment = $this->docBlocks[$key]) {
+                $comment = $doc->createComment($comment);
+                $node->appendChild($comment);
+            }
+        }
+
+        if (is_scalar($value)) {
+            if (in_array($key, $this->attributes)) {
+                $node->setAttribute($key, (string)$value);
+            } else {
+                $element = $doc->createElement($key);
+                $element->nodeValue = (string)$value;
+                $node->appendChild($element);
+            }
+        } else if (is_array($value)) {
+            $element = $doc->createElement($key);
+            foreach ($value as $k => $v) {
+                $this->appendXmlValue($k, $v, $element, $doc);
+            }
+            $node->appendChild($element);
+        } else if ($value instanceof Model) {
+            $value->appendXml($node, $doc);
+        }
     }
 
     /**
@@ -382,12 +579,5 @@ class Model implements \ArrayAccess
                 return $this->$getter();
             }
         }
-    }
-
-    public function dumpElement(\DOMElement $element)
-    {
-        $doc = new \DOMDocument();
-        $doc->appendChild($doc->importNode($element->cloneNode(true), true));
-        return $doc->saveXML();
     }
 }

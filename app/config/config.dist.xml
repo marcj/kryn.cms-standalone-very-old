@@ -1,38 +1,39 @@
 <config>
-    <connections>
+    <database>
+        <connections>
+            <!--
+            type: mysql|pgsql|sqlite (the pdo driver name)
+            persistent: true|false (if the connection should be persistent)
+            -->
+            <connection type="mysql" persistent="true">
+                <!-- Can be a IP or a hostname. For SQLite enter here the path to the file. -->
+                <server>127.0.0.1</server>
+
+                <!-- the schema/database name -->
+                <name>test</name>
+
+                <!-- credentials -->
+                <user>root</user>
+                <password></password>
+            </connection>
+        </connections>
+
+        <!-- All tables will be prefixed with this string -->
+        <prefix>kryn_</prefix>
+
+        <!-- The ORM we use deletes all tables not related to the objects, so entere here your tables
+         which should be excluded from this. One table name per line. -->
+        <protectTables></protectTables>
+
         <!--
-        type: mysql|pgsql|sqlite (the pdo driver name)
-        persistent: true|false (if the connection should be persistent)
+        Slave ReadOnly connections
         -->
-        <connection type="mysql" persistent="true">
-            <!-- Can be a IP or a hostname. For SQLite enter here the path to the file. -->
-            <dsn>127.0.0.1</dsn>
-
-            <!-- the schema/database name -->
-            <name>test</name>
-
-            <!-- credentials -->
-            <user>root</user>
-            <password></password>
-
-            <!-- All tables will be prefixed with this string -->
-            <prefix>kryn_</prefix>
-
-            <!-- The ORM we use deletes all tables not related to the objects, so entere here your tables
-             which should be excluded from this. One table name per line. -->
-            <protectTables></protectTables>
-        </connection>
-
         <!--
-
-        ReadOnly connections
-        -->
-        <!--
-        <slaveConnection type="mysql">
+        <connection mode="slave" type="mysql">
             <server>127.0.0.1</server>
-        </slaveConnection>
+        </connection>
         -->
-    </connections>
+    </database>
 
     <!--
     Whenever Kryn creates files we try to set the correct permission and file owner.
@@ -40,10 +41,10 @@
     everyonePermission: rw|r|empty
     disableModeChange:  true|false
     -->
-    <files groupPermission="rw" disableModeChange="false" everyonePermission="r">
+    <file groupPermission="rw" everyonePermission="r" disableModeChange="false">
         <!-- The group owner name -->
         <groupOwner>www-data</groupOwner>
-    </files>
+    </file>
 
     <!--
     The cache layer we use for the distributed caching.
@@ -81,7 +82,6 @@
 
     <!--
     IMPORTANT: Set this to your php timezone
-
     see: http://www.php.net/manual/en/timezones.php
     -->
     <timezone>Europe/Berlin</timezone>
@@ -104,10 +104,10 @@
         <class>\Core\Client\KrynUsers</class>
         <options>
             <option key="emailLogin">true</option>
-            <option key="store">
-                <option key="class">database</option>
-                <option key="options"></option>
-            </option>
         </options>
+        <sessionStorage>
+            <class>database</class>
+            <options></options>
+        </sessionStorage>
     </client>
 </config>
