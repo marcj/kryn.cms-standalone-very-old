@@ -19,10 +19,42 @@
 
 $errorHandlerInside = false;
 
-/** proxie */
+class InternalErrorException extends Exception {
+    protected $code;
+    protected $line;
+    protected $file;
+    public function setCode($code)
+    {
+        $this->code = $code;
+    }
+
+    /**
+     * @param string $file
+     */
+    public function setFile($file)
+    {
+        $this->file = $file;
+    }
+
+    /**
+     * @param integer $line
+     */
+    public function setLine($line)
+    {
+        $this->line = $line;
+    }
+
+}
+
+/** proxy */
 function coreUtilsErrorHandler($pErrorCode, $pErrorStr, $pFile, $pLine)
 {
-    \Core\Utils::errorHandler($pErrorCode, $pErrorStr, $pFile, $pLine);
+    $exception = new InternalErrorException();
+    $exception->setCode($pErrorCode);
+    $exception->getMessage($pErrorStr);
+    $exception->setFile($pFile);
+    $exception->setLine($pLine);
+    \Core\Utils::exceptionHandler($exception);
 }
 
 function coreUtilsExceptionHandler($pException)

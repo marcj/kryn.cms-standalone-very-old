@@ -86,7 +86,6 @@ class Manager
         }
 
         \Admin\Utils::clearModuleCache($pName);
-
         return false;
     }
 
@@ -331,17 +330,6 @@ class Manager
     public function install($pName, $oOrmUpdate = false)
     {
         Manager::prepareName($pName);
-//
-//        if (is_file($pName)) {
-//            $zip = new \ZipArchive;
-//            if ($zip->open($pName) === true) {
-//                $zip->extractTo(PATH);
-//                $zip->close();
-//
-//                $this->fireScript($pName, 'extract');
-//            }
-//
-//        }
 
         $hasPropelModels = SystemFile::exists(Kryn::getBundleDir($pName) . 'Resources/config/models.xml');
         $this->fireScript($pName, 'install');

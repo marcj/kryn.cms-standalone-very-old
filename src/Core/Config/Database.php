@@ -17,11 +17,6 @@ class Database extends Model
     protected $prefix;
 
     /**
-     * @var string
-     */
-    protected $protectTables;
-
-    /**
      * @var Connection[]
      */
     protected $connections;
@@ -61,21 +56,5 @@ class Database extends Model
     public function getPrefix()
     {
         return $this->prefix;
-    }
-
-    /**
-     * @param string $protectTables
-     */
-    public function setProtectTables($protectTables)
-    {
-        $this->protectTables = $protectTables;
-    }
-
-    /**
-     * @return string
-     */
-    public function getProtectTables()
-    {
-        return $this->protectTables;
     }
 }

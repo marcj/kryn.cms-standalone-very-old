@@ -6,15 +6,28 @@ class SystemConfig extends Model {
 
     protected $rootName = 'config';
 
+    protected $docBlocks = [
+        'timezone' => '
+    IMPORTANT: Set this to your php timezone.
+    see: http://www.php.net/manual/en/timezones.php
+    ',
+        'systemTitle' => 'The system title of this installation.',
+        'bundles' => '
+    A list of installed bundles. Enter here the PHP FQDN (Will be resolved through PSR-0 and then loaded)
+
+    Example:
+        <bundle>Publication\PublicationBundle</bundle>
+    '
+    ];
+
+    protected $arrayIndexNames = [
+        'bundles' => 'bundle'
+    ];
+
     /**
      * @var Database
      */
     protected $database;
-
-    /**
-     * @var SystemConfigFile
-     */
-    protected $file;
 
     /**
      * @var Cache
@@ -52,15 +65,20 @@ class SystemConfig extends Model {
     protected $mountPoints;
 
     /**
-     * @param \string[] $bundles
+     * @var FilePermission
      */
-    public function setBundles($bundles)
+    protected $file;
+
+    /**
+     * @param string[] $bundles
+     */
+    public function setBundles(array $bundles)
     {
         $this->bundles = $bundles;
     }
 
     /**
-     * @return \string[]
+     * @return string[]
      */
     public function getBundles()
     {
@@ -68,15 +86,15 @@ class SystemConfig extends Model {
     }
 
     /**
-     * @param \Core\Config\SystemConfigCache $cache
+     * @param Cache $cache
      */
-    public function setCache($cache)
+    public function setCache(Cache $cache)
     {
         $this->cache = $cache;
     }
 
     /**
-     * @return \Core\Config\SystemConfigCache
+     * @return Cache
      */
     public function getCache()
     {
@@ -84,15 +102,15 @@ class SystemConfig extends Model {
     }
 
     /**
-     * @param \Core\Config\SystemConfigClient $client
+     * @param Client $client
      */
-    public function setClient($client)
+    public function setClient(Client $client)
     {
         $this->client = $client;
     }
 
     /**
-     * @return \Core\Config\SystemConfigClient
+     * @return Client
      */
     public function getClient()
     {
@@ -100,15 +118,15 @@ class SystemConfig extends Model {
     }
 
     /**
-     * @param mixed $errors
+     * @param Errors $errors
      */
-    public function setErrors($errors)
+    public function setErrors(Errors $errors)
     {
         $this->errors = $errors;
     }
 
     /**
-     * @return mixed
+     * @return Errors
      */
     public function getErrors()
     {
@@ -116,15 +134,15 @@ class SystemConfig extends Model {
     }
 
     /**
-     * @param \Core\Config\SystemConfigFile $file
+     * @param FilePermission $file
      */
-    public function setFile($file)
+    public function setFile(FilePermission $file)
     {
         $this->file = $file;
     }
 
     /**
-     * @return \Core\Config\SystemConfigFile
+     * @return FilePermission
      */
     public function getFile()
     {

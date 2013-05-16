@@ -25,6 +25,7 @@ class Model implements \ArrayAccess
 
     protected $additionalNodes = [];
     protected $additionalAttributes = [];
+    protected $arrayIndexNames = [];
 
     /**
      * Defines a header comment of values (not attributes).
@@ -75,6 +76,26 @@ class Model implements \ArrayAccess
     }
 
     /**
+     * @param string $key
+     *
+     * @return mixed
+     */
+    public function getAdditional($key)
+    {
+        return $this->additionalNodes[$key];
+    }
+
+    /**
+     * @param string $key
+     *
+     * @return mixed
+     */
+    public function getAdditionalAttribute($key)
+    {
+        return $this->additionalAttributes[$key];
+    }
+
+    /**
      * @return string lowerCased bundle name (without `Bundle` suffix)
      */
     public function getBundleName()
@@ -107,6 +128,16 @@ class Model implements \ArrayAccess
     }
 
     /**
+     * @param mixed $val
+     *
+     * @return bool
+     */
+    public function bool($val)
+    {
+        return filter_var($val, FILTER_VALIDATE_BOOLEAN);
+    }
+
+    /**
      * Initialize the object.
      */
     public function setupObject()
@@ -118,6 +149,7 @@ class Model implements \ArrayAccess
     {
         $reflection = new \ReflectionClass($this);
 
+        /** @var \DOMNode $child */
         foreach ($element->childNodes as $child) {
             $nodeName = $child->nodeName;
             $value    = $child->nodeValue;
@@ -142,8 +174,12 @@ class Model implements \ArrayAccess
                             if ('#' !== substr($subChild->nodeName, 0, 1)) {
                                 $clazz = char2Camelcase($subChild->nodeName, '-');
                                 $clazz = '\Core\Config\\' . $clazz;
-                                $object = new $clazz($subChild);
-                                $setterValue[] = $object;
+                                if (class_exists($clazz)) {
+                                    $object = new $clazz($subChild);
+                                    $setterValue[] = $object;
+                                } else {
+                                    $setterValue[] = $subChild->nodeValue;
+                                }
                             }
                         }
                     }
@@ -153,7 +189,7 @@ class Model implements \ArrayAccess
             if (is_callable(array($this, $setter))) {
                 $this->$setter($setterValue);
             } else if (!$this->$nodeName) {
-                $this->additionalNodes[$nodeName] = $value;
+                $this->extractExtraNodes($child, $this->additionalNodes);
             }
         }
         foreach ($element->attributes as $attribute) {
@@ -166,6 +202,34 @@ class Model implements \ArrayAccess
             } else if (!$this->$nodeName) {
                 $this->additionalAttributes[$nodeName] = $value;
             }
+        }
+    }
+
+    /**
+     * @param \DOMNode $child
+     * @param array    $options
+     */
+    public function extractExtraNodes(\DOMNode $child, array &$options)
+    {
+        $key = $child->attributes->getNamedItem('key');
+        $key = $key ? $key->nodeValue : ('item' === $child->nodeName ? null : $child->nodeName);
+
+        $valueText = null;
+        $valueNodes = array();
+        foreach ($child->childNodes as $element) {
+            if ('#text' === $element->nodeName) {
+                $valueText = $element->nodeValue;
+            } else if ('#' !== substr($element->nodeName, 0, 1)) {
+                $this->extractExtraNodes($element, $valueNodes);
+            }
+        }
+
+        $value = 0 == count($valueNodes) ? $valueText : $valueNodes;
+
+        if ($key) {
+            $options[$key] = $value;
+        } else {
+            $options[] = $value;
         }
     }
 
@@ -347,14 +411,16 @@ class Model implements \ArrayAccess
     /**
      * Generates a XML string with all current values.
      *
+     * @param boolean $printDefaults
+     *
      * @return string
      */
-    public function toXml()
+    public function toXml($printDefaults = false)
     {
         $doc = new \DOMDocument();
         $doc->formatOutput = true;
 
-        $this->appendXml($doc, $doc);
+        $this->appendXml($doc, $doc, $printDefaults);
 
         return trim(str_replace("<?xml version=\"1.0\"?>\n", '', $doc->saveXML()));
     }
@@ -364,8 +430,9 @@ class Model implements \ArrayAccess
      *
      * @param \DOMNode     $node
      * @param \DOMDocument $doc
+     * @param boolean      $printDefaults
      */
-    public function appendXml(\DOMNode $node, \DOMDocument $doc)
+    public function appendXml(\DOMNode $node, \DOMDocument $doc, $printDefaults = false)
     {
         if ($this->docBlock) {
             $comment = $doc->createComment($this->docBlock);
@@ -382,19 +449,19 @@ class Model implements \ArrayAccess
         $modelProperties = $reflectionModel->getDefaultProperties();
 
         foreach ($this as $key => $val) {
-            if ($defaultProperties[$key] === $val) {
+            if (!$printDefaults && $defaultProperties[$key] === $val) {
                 continue;
             }
             if (array_key_exists($key, $modelProperties)) {
                 continue;
             }
 
-            $getter = 'append' . ucfirst($key) . 'Xml';
+            $setter = 'append' . ucfirst($key) . 'Xml';
 
-            if (is_callable(array($this, $getter))) {
-                $this->$getter($rootNode, $doc);
+            if (is_callable(array($this, $setter))) {
+                $this->$setter($rootNode, $doc, $printDefaults);
             } else {
-                $this->appendXmlValue($key, $val, $rootNode, $doc);
+                $this->appendXmlValue($key, $val, $rootNode, $doc, null, $printDefaults);
             }
         }
 
@@ -414,8 +481,17 @@ class Model implements \ArrayAccess
      * @param mixed        $value
      * @param \DOMNode     $node
      * @param \DOMDocument $doc
+     * @param boolean      $arrayType
+     * @param boolean      $printDefaults
      */
-    public function appendXmlValue($key, $value, \DOMNode $node, \DOMDocument $doc)
+    public function appendXmlValue(
+        $key,
+        $value,
+        \DOMNode $node,
+        \DOMDocument $doc,
+        $arrayType = false,
+        $printDefaults = false
+    )
     {
         if ((is_scalar($value) && !in_array($key, $this->attributes)) || is_array($value) || $value instanceof Model) {
             if ($comment = $this->docBlocks[$key]) {
@@ -424,22 +500,32 @@ class Model implements \ArrayAccess
             }
         }
 
-        if (is_scalar($value)) {
-            if (in_array($key, $this->attributes)) {
-                $node->setAttribute($key, (string)$value);
-            } else {
-                $element = $doc->createElement($key);
-                $element->nodeValue = (string)$value;
+        if (is_scalar($value) || null === $value) {
+            $value = is_bool($value) ? $value?'true':'false' : (string)$value;
+            if ($arrayType) {
+                $element = $doc->createElement($this->arrayIndexNames[$arrayType] ?: 'item');
+                if (!is_integer($key)) {
+                    $element->setAttribute('key', (string)$key);
+                }
+                $element->nodeValue = $value;
                 $node->appendChild($element);
+            } else {
+                if (in_array($key, $this->attributes)) {
+                    $node->setAttribute($key, $value);
+                } else {
+                    $element = $doc->createElement(is_integer($key) ? ($this->arrayIndexNames[$arrayType] ?: 'item') : $key);
+                    $element->nodeValue = $value;
+                    $node->appendChild($element);
+                }
             }
         } else if (is_array($value)) {
-            $element = $doc->createElement($key);
+            $element = $doc->createElement(is_integer($key) ? ($this->arrayIndexNames[$arrayType] ?: 'item') : $key);
             foreach ($value as $k => $v) {
-                $this->appendXmlValue($k, $v, $element, $doc);
+                $this->appendXmlValue($k, $v, $element, $doc, $key, $printDefaults);
             }
             $node->appendChild($element);
         } else if ($value instanceof Model) {
-            $value->appendXml($node, $doc);
+            $value->appendXml($node, $doc, $printDefaults);
         }
     }
 

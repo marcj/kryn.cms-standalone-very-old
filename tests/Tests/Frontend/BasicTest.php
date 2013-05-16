@@ -3,14 +3,13 @@
 namespace Tests\Frontend;
 
 use Tests\Manager;
-use Tests\TestCaseWithFreshInstallation;
+use Tests\TestCaseWithCore;
 
-class BasicTest extends TestCaseWithFreshInstallation
+class BasicTest extends TestCaseWithCore
 {
     public function setUp()
     {
-        return;
-        $response = Manager::get('/core/data.test');
+        $response = Manager::get('/bundles/core/data.test');
 
         if (strpos($response['content'], 'OK') === false) {
             $this->markTestSkipped('Is looks like the DOMAIN or http server is not correctly configured. Skipped.');
@@ -20,10 +19,8 @@ class BasicTest extends TestCaseWithFreshInstallation
 
     public function testGeneral()
     {
-        return;
         $response = Manager::get('/');
         $this->assertTrue($response['http_code'] == 200);
-
     }
 
 }

@@ -27,7 +27,6 @@ class BasicTest extends TestCaseWithCore
         $this->assertTrue(is_writable(\Core\Kryn::getTempFolder()));
 
         $this->assertInstanceOf('Test\\Controller\\Test', new \Test\Controller\Test());
-
     }
 
 }

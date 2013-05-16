@@ -1,113 +1,86 @@
 <config>
-    <database>
-        <connections>
-            <!--
-            type: mysql|pgsql|sqlite (the pdo driver name)
-            persistent: true|false (if the connection should be persistent)
-            -->
-            <connection type="mysql" persistent="true">
-                <!-- Can be a IP or a hostname. For SQLite enter here the path to the file. -->
-                <server>127.0.0.1</server>
-
-                <!-- the schema/database name -->
-                <name>test</name>
-
-                <!-- credentials -->
-                <user>root</user>
-                <password></password>
-            </connection>
-        </connections>
-
-        <!-- All tables will be prefixed with this string -->
-        <prefix>kryn_</prefix>
-
-        <!-- The ORM we use deletes all tables not related to the objects, so entere here your tables
-         which should be excluded from this. One table name per line. -->
-        <protectTables></protectTables>
-
-        <!--
-        Slave ReadOnly connections
-        -->
-        <!--
-        <connection mode="slave" type="mysql">
-            <server>127.0.0.1</server>
-        </connection>
-        -->
-    </database>
-
+  <database>
+    <!--All tables will be prefixed with this string. Best practise is to suffix it with a underscore.
+    Examples: dev_, domain_ or prod_-->
+    <prefix>kryn_</prefix>
+    <connections>
+      <!--
+        type: mysql|pgsql|sqlite (the pdo driver name)
+        persistent: true|false (if the connection should be persistent)-->
+      <connection type="mysql" persistent="false">
+        <!--Can be a IP or a hostname. For SQLite enter here the path to the file.-->
+        <server>127.0.0.1</server>
+        <!--The schema/database name-->
+        <name>test</name>
+        <username>root</username>
+        <password></password>
+      </connection>
+    </connections>
+  </database>
+  <!--
+  The cache layer we use for the distributed caching.
+  (The `fast caching` is auto determined (Order: APC, XCache, Files))
+  -->
+  <cache>
+    <!--The full classname of the storage. MUST have `Core\Cache\CacheInterface` as interface.-->
+    <class>Core\Cache\Files</class>
+    <options></options>
+  </cache>
+  <!--error handling-->
+  <errors>
+    <!--If the system should print error messages to the client.-->
+    <display>true</display>
+    <!--If the system should print log messages.-->
+    <log>true</log>
+    <!--If the system should print error message from the RESTful JSON API to the client.-->
+    <displayRest>true</displayRest>
     <!--
-    Whenever Kryn creates files we try to set the correct permission and file owner.
-    groupPermission:    rw|r|empty
-    everyonePermission: rw|r|empty
-    disableModeChange:  true|false
+    If the system should print a prettified stackTrace with codeHighlighting in the error message.
+    This included the stackTrace in the RESTful JSON API (displayRest).
     -->
-    <file groupPermission="rw" everyonePermission="r" disableModeChange="false">
-        <!-- The group owner name -->
-        <groupOwner>www-data</groupOwner>
-    </file>
-
-    <!--
-    The cache layer we use for the distributed caching.
-    (The `fast caching` is auto determined (Order: APC, XCache, Files))
-     -->
-    <cache>
-        <class>\Core\Cache\Files</class>
-        <!--
-        <options>
-            <option key="param1">value</option>
-        </options>
-        -->
-    </cache>
-
-    <!-- error handling -->
-    <errors>
-        <!-- If the system should print error messages to the client -->
-        <option key="display">true</option>
-
-        <!-- If the system should print log messages -->
-        <option key="log">true</option>
-
-        <!-- If the system should print error message from the RESTful JSON API to the client -->
-        <option key="displayRest">true</option>
-
-        <!--
-        If the system should print a prettified stackTrace with codeHighlighting in the error message.
-        This included the stackTrace in the RESTful JSON API.
-         -->
-        <option key="stackTrace">true</option>
-    </errors>
-
-    <!-- The system title of this installation -->
-    <systemTitle>Fresh installation</systemTitle>
-
-    <!--
-    IMPORTANT: Set this to your php timezone
+    <stackTrace>true</stackTrace>
+  </errors>
+  <!--The system title of this installation.-->
+  <systemTitle>Fresh Installation</systemTitle>
+  <!--
+    IMPORTANT: Set this to your php timezone.
     see: http://www.php.net/manual/en/timezones.php
     -->
-    <timezone>Europe/Berlin</timezone>
-
-    <!--
-    A list of installed bundles. Enter here the PHP FQDN (Will be resolved through PSR-0 and the loaded)
+  <timezone>Europe/Berlin</timezone>
+  <!--
+    A list of installed bundles. Enter here the PHP FQDN (Will be resolved through PSR-0 and then loaded)
 
     Example:
         <bundle>Publication\PublicationBundle</bundle>
     -->
-    <bundles>
-        <bundle>Publication\PublicationBundle</bundle>
-        <bundle>KrynDemoThemeBundle</bundle>
-    </bundles>
-
-    <!--
-    The client session/authorisation/authentication handling.
+  <bundles>
+    <bundle>Publication\PublicationBundle</bundle>
+    <bundle>KrynDemoThemeBundle</bundle>
+  </bundles>
+  <!--The client session/authorisation/authentication handling.-->
+  <client>
+    <class>Core\Client\KrynUsers</class>
+    <options>
+      <option key="emailLogin">true</option>
+      <optionName>option</optionName>
+    </options>
+    <!--The full classname of the storage. MUST have `Core\Cache\CacheInterface` as interface.-->
+    <sessionStorage>
+      <!--The full classname or `database` for the database storage.-->
+      <class>database</class>
+      <options></options>
+    </sessionStorage>
+  </client>
+  <mountPoints></mountPoints>
+  <!--
+    Whenever Kryn creates files we try to set the correct permission and file owner.
+    Attributes (default):
+    groupPermission:    rw|r|empty (rw)
+    everyonePermission: rw|r|empty (r)
+    disableModeChange:  true|false (false)
     -->
-    <client>
-        <class>\Core\Client\KrynUsers</class>
-        <options>
-            <option key="emailLogin">true</option>
-        </options>
-        <sessionStorage>
-            <class>database</class>
-            <options></options>
-        </sessionStorage>
-    </client>
+  <file groupPermission="rw" everyonePermission="r" disableModeChange="false">
+    <!--The group owner name-->
+    <groupOwner>www-data</groupOwner>
+  </file>
 </config>

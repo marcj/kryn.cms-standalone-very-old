@@ -251,7 +251,7 @@ class Kryn extends Controller
      * @var array
      * @static
      */
-    public static $bundles = array('Core\CoreBundle', 'Admin\AdminBundle', 'Users\UsersBundle', '\KrynDemoThemeBundle');
+    public static $bundles = array('Core\CoreBundle', 'Admin\AdminBundle', 'Users\UsersBundle');
 
     private static $bundleInstances = array();
 
@@ -1794,7 +1794,6 @@ class Kryn extends Controller
             return;
         }
 
-
         /**
          * Check and loading config.php or redirect to install.php
          */
@@ -1817,17 +1816,21 @@ class Kryn extends Controller
             $http = 'https://';
         }
 
-        $port = '';
-        if (($_SERVER['SERVER_PORT'] != 80 && $http == 'http://') ||
-            ($_SERVER['SERVER_PORT'] != 443 && $http == 'https://')
-        ) {
-            $port = ':' . $_SERVER['SERVER_PORT'];
+        $host = $_SERVER['HTTP_HOST'];
+        if (!$host) {
+            $port = '';
+            if (($_SERVER['SERVER_PORT'] != 80 && $http == 'http://') ||
+                ($_SERVER['SERVER_PORT'] != 443 && $http == 'https://')
+            ) {
+                $port = ':' . $_SERVER['SERVER_PORT'];
+            }
+            $host = $_SERVER['SERVER_NAME'] . $port;
         }
 
-        self::setBaseUrl($http . $_SERVER['SERVER_NAME'] . $port . str_replace('index.php', '', $_SERVER['SCRIPT_NAME']));
+        self::setBaseUrl($http . $host . str_replace('index.php', '', $_SERVER['SCRIPT_NAME']));
 
         /**
-         * Load active modules into Kryn::$extensions.
+         * Load active modules into Kryn::$bundles.
          */
         self::loadActiveModules();
 
@@ -1846,14 +1849,16 @@ class Kryn extends Controller
             @ini_set('display_errors', 1);
         }
 
-        if (self::$config['displayErrors']) {
-            set_exception_handler("coreUtilsExceptionHandler");
-            set_error_handler(
-                "coreUtilsErrorHandler",
-                E_CORE_ERROR | E_COMPILE_ERROR | E_RECOVERABLE_ERROR | E_ERROR | E_CORE_ERROR | E_USER_ERROR | E_PARSE
-            );
+        if (!defined('KRYN_TESTS')) {
+            if (self::$config['displayErrors']) {
+                set_exception_handler("coreUtilsExceptionHandler");
+                set_error_handler(
+                    "coreUtilsErrorHandler",
+                    E_CORE_ERROR | E_COMPILE_ERROR | E_RECOVERABLE_ERROR | E_ERROR | E_CORE_ERROR | E_USER_ERROR | E_PARSE
+                );
+            }
+            register_shutdown_function('coreUtilsShutdownHandler');
         }
-        register_shutdown_function('coreUtilsShutdownHandler');
 
         /*
          * Propel orm initialisation.
@@ -1882,8 +1887,6 @@ class Kryn extends Controller
          * Load current language
          */
         self::loadLanguage();
-
-        self::getLogger()->addDebug('Bootstrap loaded.');
     }
 
     /**
@@ -2055,14 +2058,14 @@ class Kryn extends Controller
     }
 
     /**
-     * Checks if we're in the frtonend editor mode.
+     * Checks if we're in the frontend editor mode.
      * Only true if ?_kryn_editor=1 is set and the current user has update-access to the Core\\Node object.
      *
      * @return bool
      */
     public static function isEditMode()
     {
-        return Kryn::getRequest()->get('_kryn_editor') == 1 && Kryn::$page && Permission::checkUpdate(
+        return 1 == Kryn::getRequest()->get('_kryn_editor') && Kryn::$page && Permission::checkUpdate(
             'core/Node',
             Kryn::$page->getId()
         );

@@ -71,6 +71,8 @@ abstract class ClientAbstract
 
     /**
      * Instance of Cache class
+     *
+     * @var \Core\Cache\Controller
      */
     private $store;
 

@@ -86,12 +86,15 @@ PHPUnit
     DB_PW      The database password. Default is empty.
     DB_TYPE    The database type. `mysql`, `pgsql`, `sqlite`, `sqlsrv`. Default is `mysql`.
     DB_SERVER  The database server address. Default is `127.0.0.1`
+    NOINSTALL  Defines whether the bootstrap removes the config.php or not. `1` or `0`. Default is `0`
+    TEMP       Defines a other temp folder. E.g. `app/cache` or `/tmp/`. Default is empty.
 
 Examples:
 
     ./phpunit.phar
     DOMAIN=localhost PORT=80 ./phpunit.phar
     DOMAIN=localhost PORT=80 DB_PW='@#$TKKAFS' ./phpunit.phar test/Tests/Object/ApiTest.php
+    NOINSTALL=1 TEMP=app/cache php54 vendor/phpunit/phpunit/phpunit.php --stop-on-failure tests/Tests/Core/ConfigTest.php
 
-The test suite installs automatically Kryn.cms with the configuration above if `./config.php` does not exist.
+The test suite installs automatically Kryn.cms with the configuration above if `./config.php` does not exist if NOINSTALL=0.
 Don't forget to run `composer install` first.

@@ -196,13 +196,13 @@ class Manager
 
         echo "\nInstallation\n";
         debugPrint('Installation start');
-        $manager->install('Core\\CoreBundle', true);
-        $manager->install('Admin\\AdminBundle', true);
-        $manager->install('Users\\UsersBundle', true);
+        $manager->install('Core\\CoreBundle');
+        $manager->install('Admin\\AdminBundle');
+        $manager->install('Users\\UsersBundle');
         debugPrint('Installed system bundles');
 
         foreach ($pConfig['bundles'] as $module) {
-            $manager->install($module, true);
+            $manager->install($module);
         }
         debugPrint('Installed extra bundles');
 
@@ -215,12 +215,12 @@ class Manager
         $manager->installDatabase('Core\\CoreBundle');
         $manager->installDatabase('Admin\\AdminBundle');
         $manager->installDatabase('Users\\UsersBundle');
-        debugPrint('Install system database entries');
+        debugPrint('Installed system database entries');
 
         foreach ($pConfig['bundles'] as $module) {
             $manager->installDatabase($module);
         }
-        debugPrint('Install extra database entries');
+        debugPrint('Installed extra database entries');
 
         \Core\PropelHelper::cleanup();
 

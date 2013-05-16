@@ -1,8 +1,10 @@
 <?php
 
+define('KRYN_TESTS', true);
+
 $loader = include __DIR__ . '/../vendor/autoload.php';
 
-$configFile = __DIR__ . '/config/' . (getenv('CONFIG_FILE') ?: 'default.json');
+/*$configFile = __DIR__ . '/config/' . (getenv('CONFIG_FILE') ?: 'default.json');
 
 $json   = file_get_contents($configFile);
 $config = json_decode($json, true);
@@ -10,7 +12,7 @@ if (!$config) {
     die('Config file is corrupt: ' . $configFile . PHP_EOL);
 }
 
-if (false && $config['require']) {
+if ($config['require']) {
     $composerFile = 'composer.json';
     $json         = file_get_contents($composerFile);
     $composer     = json_decode($json, true);
@@ -63,14 +65,16 @@ if (false && $config['require']) {
     unset($config);
     unset($composer);
     unset($json);
-}
+}*/
 
 $loader->add('', __DIR__ . '/');
 $loader->add('', __DIR__ . '/bundles');
 
 \Core\Kryn::setLoader($loader);
 
-@unlink(__DIR__ . '/../config.php');
+if (!getenv('NOINSTALL')) {
+    @unlink(__DIR__ . '/../config.php');
+}
 
 ini_set('display_errors', 1);
 error_reporting(E_ALL ^ E_NOTICE);

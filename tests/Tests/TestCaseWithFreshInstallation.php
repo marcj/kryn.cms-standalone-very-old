@@ -33,14 +33,6 @@ class TestCaseWithFreshInstallation extends \PHPUnit_Framework_TestCase
 
         $result = parent::run($result);
 
-        try {
-            Manager::uninstall();
-        } catch (\Exception $ex) {
-            $result->addError($this, $ex, 0);
-
-            return $result;
-        }
-
         return $result;
 
     }

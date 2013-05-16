@@ -6,7 +6,7 @@ class Connection extends Model
 {
     protected $rootName = 'connection';
 
-    protected $attributes = ['type'];
+    protected $attributes = ['type', 'persistent'];
 
     protected $docBlocks = [
         'server' => 'Can be a IP or a hostname. For SQLite enter here the path to the file.',
@@ -30,22 +30,22 @@ class Connection extends Model
     /**
      * @var string
      */
-    protected $username;
-
-    /**
-     * @var string
-     */
-    protected $password;
-
-    /**
-     * @var string
-     */
     protected $server;
 
     /**
      * @var string
      */
     protected $name;
+
+    /**
+     * @var string
+     */
+    protected $username;
+
+    /**
+     * @var string
+     */
+    protected $password;
 
     /**
      * @param boolean $persistent
