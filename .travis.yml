@@ -22,19 +22,19 @@ before_script:
   - php composer.phar install
 
   # File access
-  - sudo chown -R travis .;
-  - sudo chmod -R g-w .;
-  - ls -al;
-  - php54 -S 127.0.0.1:8000 -t web/&;
+  - sudo chown -R travis .
+  - sudo chmod -R g-w .
+  - ls -al
+  - php54 -S 127.0.0.1:8000 -t web/ &
 
 script:
-  - phpunit;
+  - phpunit
 
 after_script:
-  - killall php54;
+  - killall php54
 
 after_failure:
-  - tail -n 50 /var/log/syslog;
-  - cat /var/log/apache2/*;
-  - cat /etc/apache2/sites-available/*;
-  - cat /etc/apache2/sites-enabled/*;
+  - tail -n 50 /var/log/syslog
+  - cat /var/log/apache2/*
+  - cat /etc/apache2/sites-available/*
+  - cat /etc/apache2/sites-enabled/*
