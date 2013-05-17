@@ -2708,6 +2708,14 @@ class Kryn extends Controller
                 $folder = sys_get_temp_dir();
             }
 
+            if (!is_dir($folder)) {
+                mkdirr($folder);
+            }
+
+            if (!is_writable($folder)) {
+                throw new \FileIOException('Temp directory is not writeable. ' . $folder);
+            }
+
             self::$cachedTempFolder = realpath($folder);
 
             if (substr(self::$cachedTempFolder, -1) != DIRECTORY_SEPARATOR) {
@@ -2716,13 +2724,6 @@ class Kryn extends Controller
         }
 
         if ($pWithKrynContext) {
-            if (!is_dir(self::$cachedTempFolder)) {
-                mkdirr(self::$cachedTempFolder);
-            }
-
-            if (!is_writable(self::$cachedTempFolder)) {
-                throw new \FileIOException('Temp directory is not writeable. ' . $folder);
-            }
 
             //add our id to folder, so this installation works inside of a own directory.
             $folder = self::$cachedTempFolder . self::getId() . DIRECTORY_SEPARATOR;
