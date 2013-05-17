@@ -162,9 +162,13 @@ class PropelHelper
             self::collectSchemas();
         }
 
+        $platform = Kryn::getSystemConfig()->getDatabase()->getMainConnection()->getType();
+        $platform = ucfirst($platform) . 'Platform';
+
         $input = new ArrayInput(array(
              '--input-dir' => $tmp . 'propel/',
              '--output-dir' => $tmp . 'propel/build/classes/',
+             '--platform' => $platform,
              '--verbose' => 'vvv'
         ));
         $command = new ModelBuildCommand();
@@ -187,9 +191,7 @@ class PropelHelper
     public static function moveClasses()
     {
         $tmp = self::getTempFolder();
-
         $result = '';
-
         copyr($tmp . 'propel/build/classes/', $tmp . 'propel-classes/');
 
         foreach (Kryn::$bundles as $bundleName) {
@@ -329,7 +331,6 @@ class PropelHelper
         }
 
         $adapter = Kryn::getSystemConfig()->getDatabase()->getMainConnection()->getType();
-        $adapter = 'postgresql' == $adapter ? 'pgsql' : $adapter;
 
         $xml = '<?xml version="1.0"?>
 <config>
@@ -508,9 +509,14 @@ class PropelHelper
         if ($files[0]) {
             unlink($files[0]);
         }
+
+        $platform = Kryn::getSystemConfig()->getDatabase()->getMainConnection()->getType();
+        $platform = ucfirst($platform) . 'Platform';
+
         $input = new ArrayInput(array(
              '--input-dir' => $tmp . 'propel/',
              '--output-dir' => $tmp . 'propel/build/',
+             '--platform' => $platform,
              '--verbose' => 'vvv'
         ));
         $command = new MigrationDiffCommand();
@@ -643,26 +649,21 @@ class PropelHelper
             throw new Exception('Can not create propel folder in ' . $folder);
         }
 
+        $platform = Kryn::getSystemConfig()->getDatabase()->getMainConnection()->getType();
+        $platform = ucfirst($platform) . 'Platform';
+
         $properties = '
 propel.mysql.tableType = InnoDB
 
 propel.tablePrefix = ' . Kryn::getSystemConfig()->getDatabase()->getPrefix() . '
+propel.platform = ' . $platform . '
 propel.database.encoding = utf8
 propel.project = kryn
 
 propel.namespace.autoPackage = true
 propel.packageObjectModel = true
 propel.behavior.workspace.class = lib.WorkspaceBehavior
-
 ';
-
-        $adapter = Kryn::getSystemConfig()->getDatabase()->getMainConnection()->getType();
-        $adapter =  $adapter == 'postgresql' ? 'pgsql' : $adapter;
-
-        if ($adapter == 'pgsql') {
-            $properties .= "propel.disableIdentifierQuoting=true";
-        }
-
         file_put_contents($tmp . 'propel/build.properties', $properties) ? true : false;
 
     }

@@ -5,8 +5,8 @@ php:
   - 5.5
 
 env:
-  - TEMP=/var/tmp/ DB_TYPE=mysql DB_USER=root
-  - TEMP=/var/tmp/ DB_TYPE=pgsql DB_USER=postgres
+  - DB_TYPE=mysql DB_USER=root
+  - DB_TYPE=pgsql DB_USER=postgres DB_NAME=postgres
 
 before_script:
 
@@ -24,7 +24,7 @@ before_script:
   - ls -al app
 
   # Start local server
-  - php -S 127.0.0.1:8000 -t web/ &
+  - nohup php -S 127.0.0.1:8000 -t web/ &
 
 script:
   - phpunit
@@ -34,6 +34,8 @@ after_script:
   - killall php
 
 after_failure:
+  - cat nohup.out
+  - ls -al /app/cache
   - tail -n 50 /var/log/syslog
   - cat /var/log/apache2/*
   - cat /etc/apache2/sites-available/*

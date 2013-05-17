@@ -437,22 +437,18 @@ class Propel extends ORMAbstract
 
                         $queryName = $sClazz . 'Query';
                         $filterBy = 'filterBy' . $relation->getSymmetricalRelation()->getName();
-                        //var_dump($queryName);
 
                         $sQuery = $queryName::create()
                             ->select($pRelationFields[$name])
                             ->$filterBy(
                                 $item
                             );
-                        //var_dump($sQuery->toString());
 
                         $condition = array();
                         if ($pPermissionCheck) {
                             $condition = \Core\Permission::getListingCondition(lcfirst($sClazz));
                         }
-                        //var_dump($sQuery->toString());
                         $sStmt = $this->getStm($sQuery, $condition);
-                        //die();
 
                         $sItems = array();
                         while ($subRow = dbFetch($sStmt)) {

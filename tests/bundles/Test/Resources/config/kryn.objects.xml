@@ -21,7 +21,7 @@
           <field id="name">
             <type>text</type>
           </field>
-          <field id="desc">
+          <field id="description">
             <type>text</type>
           </field>
           <field id="lang">

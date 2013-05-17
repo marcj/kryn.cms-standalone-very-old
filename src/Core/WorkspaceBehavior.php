@@ -318,20 +318,12 @@ class WorkspaceBehavior extends Behavior
 
         return "
 //set default values
-if (\$isInsert || (\$this->isModified() && !\$this->isColumnModified(" . $this->getColumnConstant($this->prefix . 'id', $builder) . ")))
-    \$this->" . $this->getColumnSetter($this->prefix . 'id') . "(call_user_func_array(" . var_export(
-            $this->workspaceGetter,
-            true
-        ) . ", array()));
-
-if (\$isInsert || (\$this->isModified() && !\$this->isColumnModified(" . $this->getColumnConstant($this->prefix . 'action', $builder) . ")))
-    \$this->" . $this->getColumnSetter($this->prefix . 'action') . "(1); //created
-
-if (\$isInsert || (\$this->isModified() && !\$this->isColumnModified(" . $this->getColumnConstant(
-            $this->prefix . 'action_date',
-            $builder
-        ) . ")))
-    \$this->" . $this->getColumnSetter($this->prefix . 'action_date') . "(time());
+\$this->" . $this->getColumnSetter($this->prefix . 'id') . "(call_user_func_array(" . var_export(
+        $this->workspaceGetter,
+        true
+    ) . ", array()));
+\$this->" . $this->getColumnSetter($this->prefix . 'action') . "(\$isInsert ? 1 : 2); //created
+\$this->" . $this->getColumnSetter($this->prefix . 'action_date') . "(time());
 ";
     }
 
