@@ -618,6 +618,7 @@ class Object
         $definition = self::getDefinition($objectKey);
 
         if (!$definition) {
+            xdebug_break();
             throw new \ObjectNotFoundException(tf('Object not found %s', $objectKey));
         }
 

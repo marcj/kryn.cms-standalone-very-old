@@ -36,7 +36,7 @@
 </head>
 <body>
 <div id="error">
-    <img src="core/images/logo_white.png"/>
+    <img src="bundles/core/images/logo_white.png"/>
 
     <h2>{$title}</h2>
 

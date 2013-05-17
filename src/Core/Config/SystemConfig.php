@@ -17,12 +17,58 @@ class SystemConfig extends Model {
 
     Example:
         <bundle>Publication\PublicationBundle</bundle>
-    '
+    ',
+        'adminUrl' => 'Defines under which url the backend is. Default is http://<domain>/kryn. where `kryn` is the `adminUrl`.',
+        'email' => 'Is displayed as the administrator\'s email in error messages etc.',
+        'tempDir' => 'A directory path where the system stores temp files. Relative to web root. E.g `app/cache/` or `/tmp/`.',
+        'id' => 'A installation id. If you have several kryn instances you should define a unique one. Gets defines through the installer.',
+        'passwordHashKey' => 'This is a key generated through the installation process. You should not change it!
+    The system needs this key to decrypt the passwords in the users database.'
     ];
 
     protected $arrayIndexNames = [
         'bundles' => 'bundle'
     ];
+
+    /**
+     * @var string
+     */
+    protected $id;
+
+    /**
+     * @var string
+     */
+    protected $systemTitle;
+
+    /**
+     * @var string
+     */
+    protected $adminUrl = 'kryn';
+
+    /**
+     * @var string
+     */
+    protected $tempDir = 'app/cache';
+
+    /**
+     * @var string
+     */
+    protected $email;
+
+    /**
+     * @var string
+     */
+    protected $timezone;
+
+    /**
+     * @var string
+     */
+    protected $passwordHashKey;
+
+    /**
+     * @var string[]
+     */
+    protected $bundles;
 
     /**
      * @var Database
@@ -38,21 +84,6 @@ class SystemConfig extends Model {
      * @var
      */
     protected $errors;
-
-    /**
-     * @var string
-     */
-    protected $systemTitle;
-
-    /**
-     * @var string
-     */
-    protected $timezone;
-
-    /**
-     * @var string[]
-     */
-    protected $bundles;
 
     /**
      * @var SystemConfigClient
@@ -114,6 +145,9 @@ class SystemConfig extends Model {
      */
     public function getClient()
     {
+        if (null === $this->client) {
+            $this->client = new Client();
+        }
         return $this->client;
     }
 
@@ -213,4 +247,83 @@ class SystemConfig extends Model {
         return $this->database;
     }
 
+    /**
+     * @param string $passwordHashKey
+     */
+    public function setPasswordHashKey($passwordHashKey)
+    {
+        $this->passwordHashKey = $passwordHashKey;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPasswordHashKey()
+    {
+        return $this->passwordHashKey;
+    }
+
+    /**
+     * @param string $tempDir
+     */
+    public function setTempDir($tempDir)
+    {
+        $this->tempDir = $tempDir;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTempDir()
+    {
+        return $this->tempDir;
+    }
+
+    /**
+     * @param string $id
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param string $adminUrl
+     */
+    public function setAdminUrl($adminUrl)
+    {
+        $this->adminUrl = $adminUrl;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAdminUrl()
+    {
+        return $this->adminUrl;
+    }
+
+    /**
+     * @param string $email
+     */
+    public function setEmail($email)
+    {
+        $this->email = $email;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEmail()
+    {
+        return $this->email;
+    }
 }

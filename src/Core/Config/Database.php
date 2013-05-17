@@ -22,6 +22,26 @@ class Database extends Model
     protected $connections;
 
     /**
+     * Returns a writeable/master connection.
+     *
+     * @return Connection
+     */
+    public function getMainConnection()
+    {
+        if (null == $this->connections) {
+            $connection = new Connection();
+            $this->addConnection($connection);
+            return $connection;
+        } else {
+            foreach ($this->connections as $connection) {
+                if (!$connection->isSlave()) {
+                    return $connection;
+                }
+            }
+        }
+    }
+
+    /**
      * @param Connection[] $connections
      */
     public function setConnections(array $connections)

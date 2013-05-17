@@ -14,12 +14,12 @@ class Utils
     {
         $output = ob_get_clean();
 
-        if (!Kryn::$config['displayErrors']) {
+        if (!Kryn::getSystemConfig()->getErrors()->getDisplay()) {
             Kryn::internalError(
                 'Internal Server Error',
                 tf(
                     'The server encountered an internal error and was unable to complete your request. Please contact the administrator. %s',
-                    Kryn::$config['email']
+                    Kryn::getSystemConfig()->getEmail()
                 )
             );
         }
@@ -35,7 +35,7 @@ class Utils
                 'previous' => $pException->getPrevious()
             );
 
-            if (Kryn::$config['displayDetailedRestErrors']) {
+            if (Kryn::getSystemConfig()->getErrors()->getDisplayRest()) {
                 $response['file'] = $pException->getFile();
                 $response['line'] = $pException->getLine();
                 $response['backstrace'] = $pException->getTrace();

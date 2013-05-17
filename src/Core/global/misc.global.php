@@ -46,12 +46,10 @@ function underscore2Camelcase($value)
 function char2Camelcase($value, $char = '_')
 {
     $ex = explode($char, $value);
-
     $return = '';
     foreach ($ex as $str) {
         $return .= ucfirst($str);
     }
-
     return $return;
 }
 

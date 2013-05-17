@@ -12,7 +12,7 @@ use Core\Config\SystemConfig;
 use Core\Config\Connection;
 use Tests\TestCaseWithCore;
 
-class ConfigTest extends TestCaseWithCore
+class SystemConfigTest extends TestCaseWithCore
 {
     public function testSystemConfigTitle()
     {
@@ -57,7 +57,9 @@ class ConfigTest extends TestCaseWithCore
     <connections>
       <!--
         type: mysql|pgsql|sqlite (the pdo driver name)
-        persistent: true|false (if the connection should be persistent)-->
+        persistent: true|false (if the connection should be persistent)
+        slave: true|false (if the connection is a slave or not (readonly or not))
+      -->
       <connection type="mysql">
         <!--The schema/database name-->
         <name>testdb</name>
@@ -188,9 +190,9 @@ class ConfigTest extends TestCaseWithCore
         $xml = '<config>
   <!--error handling-->
   <errors>
-    <!--If the system should print error messages to the client.-->
+    <!--If the system should print error messages to the client. DEACTIVATE THIS IN PRODUCTIVE SYSTEMS!-->
     <display>true</display>
-    <!--If the system should print error message from the RESTful JSON API to the client.-->
+    <!--If the system should print error message from the RESTful JSON API to the client. DEACTIVATE THIS IN PRODUCTIVE SYSTEMS!-->
     <displayRest>true</displayRest>
     <!--
     If the system should print a prettified stackTrace with codeHighlighting in the error message.
@@ -244,7 +246,11 @@ class ConfigTest extends TestCaseWithCore
     {
 
         $xml = '<config>
-  <!--The client session/authorisation/authentication handling.-->
+  <!--The client session/authorisation/authentication handling.
+  Attributes: (default)
+    autoStart: true|false (false) If the systems starts always a session for each request and therefore sends for each
+                                visitor/request a cookie (if none is delivered).
+  -->
   <client>
     <class>Vendor\Custom\ClientHandling</class>
     <options>

@@ -11,9 +11,6 @@ class Manager
     public function __construct()
     {
         define('KRYN_MANAGER', true);
-        if (!Kryn::$config['repoServer']) {
-            Kryn::$config['repoServer'] = 'http://download.kryn.org';
-        }
     }
 
     public function __destruct()
@@ -95,7 +92,7 @@ class Manager
             $config = self::loadInfo($mod);
             $res[$mod] = $config;
             $res[$mod]['activated'] = array_search($mod, Kryn::$config['bundles']) !== false ? 1 : 0;
-            $res[$mod]['serverVersion'] = wget(Kryn::$config['repoServer'] . "/?version=" . $mod);
+           // $res[$mod]['serverVersion'] = wget(Kryn::$config['repoServer'] . "/?version=" . $mod);
             $res[$mod]['serverCompare'] =
                 self::versionCompareToServer($res[$mod]['version'], $res[$mod]['serverVersion']);
         }
@@ -168,7 +165,7 @@ class Manager
         // inet
         if ($pType === true || $pType == 1) {
 
-            $res = wget(Kryn::$config['repoServer'] . "/?install=$pModuleName");
+            //$res = wget(Kryn::$config['repoServer'] . "/?install=$pModuleName");
             if ($res === false) {
                 return array('cannotConnect' => 1);
             }
@@ -193,11 +190,11 @@ class Manager
 
             $configFile = "data/packages/modules/$pModuleName.config.json";
             @unlink($configFile);
-            wget(Kryn::$config['repoServer'] . "/modules/$pModuleName/config.json", $configFile);
+            //wget(Kryn::$config['repoServer'] . "/modules/$pModuleName/config.json", $configFile);
             if ($pExtract) {
                 $extract = true;
                 $zipFile = 'data/packages/modules/' . $info['filename'];
-                wget(Kryn::$config['repoServer'] . "/modules/$pModuleName/" . $info['filename'], $zipFile);
+                //wget(Kryn::$config['repoServer'] . "/modules/$pModuleName/" . $info['filename'], $zipFile);
             }
         }
 
@@ -278,7 +275,7 @@ class Manager
         foreach (Kryn::$configs as $key => $config) {
             $version = '0';
             $name = $key;
-            $version = wget(Kryn::$config['repoServer'] . "/?version=$name");
+            //$version = wget(Kryn::$config['repoServer'] . "/?version=$name");
             if ($version && $version != '' && self::versionCompareToServer(
                 $config->getVersion(),
                 $version['content']

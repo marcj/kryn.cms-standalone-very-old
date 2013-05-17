@@ -22,19 +22,17 @@ class Layout extends Store
         $res = array();
         $c = 0;
 
-        foreach (Kryn::$configs as $key => $config) {
+        foreach (Kryn::getConfigs() as $config) {
 
-            foreach ($config['themes'] as $themeTitle => $themeConfig) {
-                if ($themeConfig['layouts']) {
+            foreach ($config->getThemes() as $theme) {
+                $c++;
+                if ($c > $pOffset && (!$pLimit || $c <= $pLimit)) {
+                    $res[] = array('label' => $theme->getLabel(), 'isSplit' => true);
+                }
+                foreach ($theme->getLayouts() as $layout) {
                     $c++;
                     if ($c > $pOffset && (!$pLimit || $c <= $pLimit)) {
-                        $res[] = array('label' => $themeTitle, 'isSplit' => true);
-                    }
-                    foreach ($themeConfig['layouts'] as $title => $file) {
-                        $c++;
-                        if ($c > $pOffset && (!$pLimit || $c <= $pLimit)) {
-                            $res[$file] = array('label' => $title . ' (' . $themeTitle . ')');
-                        }
+                        $res[$layout->getFile()] = array('label' => $layout->getLabel() . ' (' . $theme->getLabel() . ')');
                     }
                 }
             }

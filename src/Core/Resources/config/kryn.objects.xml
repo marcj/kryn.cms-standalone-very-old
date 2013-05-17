@@ -1,9 +1,7 @@
 <?xml version="1.0"?>
 <config>
     <bundle>
-
         <objects>
-
             <object id="File">
                 <label>File</label>
                 <class>Admin\Models\ObjectFile</class>

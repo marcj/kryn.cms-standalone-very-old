@@ -12,6 +12,8 @@
 
 namespace Core\Cache;
 
+use Core\Config\Cache;
+
 /**
  * Cache controller
  */
@@ -59,28 +61,21 @@ class Controller
     /**
      * Constructor.
      *
-     * @param string $pClass                            The class of the cache service.
-     * @param array  $pConfig                           Contains config values.
-     *                                                  memcached and redis: array(
-     *                                              'servers' => array(
-     *                                                  array('ip' => '12.12.12.12', 'port' => 6379
-     *                                                  array('ip' => '12.12.12.13', 'port' => 6379
-     *                                              )
-     *                                            )
-     *                                                  files: array('files_path' => '<path to store the cached files')
-     * @param bool   $pWithInvalidationChecks           Activates the invalidating mechanism
+     * @param Cache $cacheConfig               The class of the cache service.
+     * @param bool   $pWithInvalidationChecks  Activates the invalidating mechanism
      *
      * @throws \Exception
      */
-    public function __construct($pClass = '\Core\Cache\File', $pConfig = array(), $pWithInvalidationChecks = true)
+    public function __construct(Cache $cacheConfig, $pWithInvalidationChecks = true)
     {
         $this->withInvalidationChecks = $pWithInvalidationChecks;
-        $this->class = $pClass;
+        $this->class = $cacheConfig->getClass();
 
-        if (class_exists($pClass)) {
-            $this->instance = new $pClass($pConfig);
+        if (class_exists($this->class)) {
+            $class = $this->class;
+            $this->instance = new $class($cacheConfig->getOptions()->toArray());
         } else {
-            throw new \Exception(tf('The class `%s` does not exist.', $pClass));
+            throw new \Exception(tf('The class `%s` does not exist.', $this->class));
         }
 
     }
@@ -96,25 +91,25 @@ class Controller
     /**
      * Detects the fastest available cache on current machine.
      *
-     * @return string
+     * @return Cache
      */
     public static function getFastestCacheClass()
     {
         $class = '\Core\Cache\\';
 
         if (function_exists('apc_store')) {
-            return $class . 'Apc';
+            $class .= 'Apc';
+        } else if (function_exists('xcache_set')) {
+            $class .= 'XCache';
+        } else if (function_exists('wincache_ucache_get')) {
+            $class .= 'WinCache';
+        } else {
+            $class .= 'Files';
         }
 
-        if (function_exists('xcache_set')) {
-            return $class . 'XCache';
-        }
-
-        if (function_exists('wincache_ucache_get')) {
-            return $class . 'WinCache';
-        }
-
-        return $class . 'Files';
+        $cacheConfig = new Cache();
+        $cacheConfig->setClass($class);
+        return $cacheConfig;
     }
 
     /**

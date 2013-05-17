@@ -1,6 +1,6 @@
 <config>
   <!--A installation id. If you have several kryn instances you should define a unique one. Gets defines through the installer.-->
-  <id></id>
+  <id>5d12</id>
   <!--The system title of this installation.-->
   <systemTitle>Fresh Installation</systemTitle>
   <!--Defines under which url the backend is. Default is http://<domain>/kryn. where `kryn` is the `adminUrl`.-->
@@ -26,6 +26,7 @@
   <bundles>
     <bundle>Publication\PublicationBundle</bundle>
     <bundle>KrynDemoThemeBundle</bundle>
+    <bundle>Test\TestBundle</bundle>
   </bundles>
   <database>
     <!--All tables will be prefixed with this string. Best practise is to suffix it with a underscore.

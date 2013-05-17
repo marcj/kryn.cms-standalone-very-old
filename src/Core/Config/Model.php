@@ -26,6 +26,7 @@ class Model implements \ArrayAccess
     protected $additionalNodes = [];
     protected $additionalAttributes = [];
     protected $arrayIndexNames = [];
+    protected $excludeDefaults = [];
 
     /**
      * Defines a header comment of values (not attributes).
@@ -172,7 +173,7 @@ class Model implements \ArrayAccess
                         $setterValue = array();
                         foreach ($child->childNodes as $subChild) {
                             if ('#' !== substr($subChild->nodeName, 0, 1)) {
-                                $clazz = char2Camelcase($subChild->nodeName, '-');
+                                $clazz = $this->elementMap[$subChild->nodeName] ?: $this->char2Camelcase($subChild->nodeName, '-');
                                 $clazz = '\Core\Config\\' . $clazz;
                                 if (class_exists($clazz)) {
                                     $object = new $clazz($subChild);
@@ -203,6 +204,16 @@ class Model implements \ArrayAccess
                 $this->additionalAttributes[$nodeName] = $value;
             }
         }
+    }
+
+    private function char2Camelcase($value, $char = '_')
+    {
+        $ex = explode($char, $value);
+        $return = '';
+        foreach ($ex as $str) {
+            $return .= ucfirst($str);
+        }
+        return $return;
     }
 
     /**
@@ -426,6 +437,19 @@ class Model implements \ArrayAccess
     }
 
     /**
+     * Saves the xml into a file.
+     *
+     * @param string $path
+     *
+     * @return int
+     */
+    public function save($path)
+    {
+        $string = $this->toXml();
+        return file_put_contents($path, $string);
+    }
+
+    /**
      * Appends the xml structure with our values.
      *
      * @param \DOMNode     $node
@@ -449,7 +473,7 @@ class Model implements \ArrayAccess
         $modelProperties = $reflectionModel->getDefaultProperties();
 
         foreach ($this as $key => $val) {
-            if (!$printDefaults && $defaultProperties[$key] === $val) {
+            if ($defaultProperties[$key] === $val && !$printDefaults && !in_array($key, $this->excludeDefaults)) {
                 continue;
             }
             if (array_key_exists($key, $modelProperties)) {
@@ -493,7 +517,7 @@ class Model implements \ArrayAccess
         $printDefaults = false
     )
     {
-        if ((is_scalar($value) && !in_array($key, $this->attributes)) || is_array($value) || $value instanceof Model) {
+        if (null === $value || (is_scalar($value) && !in_array($key, $this->attributes)) || is_array($value) || $value instanceof Model) {
             if ($comment = $this->docBlocks[$key]) {
                 $comment = $doc->createComment($comment);
                 $node->appendChild($comment);

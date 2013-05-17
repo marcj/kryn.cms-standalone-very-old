@@ -23,7 +23,7 @@ class TestCaseWithCore extends \PHPUnit_Framework_TestCase
         if (!$this->bootUp++) {
             try {
 
-                if (!file_exists('config.php')) {
+                if (!file_exists('app/config/config.xml')) {
                     Manager::freshInstallation();
                 }
                 Manager::bootupCore();

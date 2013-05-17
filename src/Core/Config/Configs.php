@@ -6,7 +6,6 @@ use Core\Kryn;
 
 class Configs implements \IteratorAggregate
 {
-
     /**
      * @var DOMElement[]
      */

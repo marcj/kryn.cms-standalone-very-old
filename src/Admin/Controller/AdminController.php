@@ -57,7 +57,7 @@ class AdminController
     {
         @header('Expires:');
 
-        if (Kryn::$config['displayDetailedRestErrors']) {
+        if (Kryn::getSystemConfig()->getErrors()->getDisplayRest()) {
             $exceptionHandler = array($this, 'exceptionHandler');
             $debugMode = true;
         }
@@ -418,7 +418,7 @@ class AdminController
         $response->setResourceCompression(false);
         $response->setDomainHandling(false);
 
-        $response->setTitle(Kryn::$config['systemTitle'] . ' | Kryn.cms Administration');
+        $response->setTitle(Kryn::getSystemConfig()->getSystemTitle() . ' | Kryn.cms Administration');
 
         $response->send();
         exit;

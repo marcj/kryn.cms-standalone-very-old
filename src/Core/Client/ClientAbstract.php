@@ -8,6 +8,8 @@
 
 namespace Core\Client;
 
+use Core\Config\Client;
+use Core\Config\SessionStorage;
 use Core\Event;
 use Core\Kryn;
 use Core\Utils;
@@ -40,27 +42,19 @@ abstract class ClientAbstract
 
     /**
      * Contains the config.
-     *
-     * items:
-     *   passwdHashCompat = false,
-     *   passwdHashKey = <diggets>
-     *   tokenId = "cookieName"
-     *   timeout = <seconds> (Default is time()+12*3600)
-     *   cookieDomain = '' (default is null)
-     *   cookiePath = '' (default is '/')
-     *   autoLoginLogout = false
-     *   loginTrigger = auth-login
-     *   logoutTrigger = auth-logout
-     *   noDelay = false
-     *   ipCheck = false
-     *   garbageCollector = false
-     *   store = array(
-     *       class  = "\Core\Cache\Files",
-     *       config = array(
-     *       )
-     *   )
      */
-    public $config = array();
+    public $config = array(
+        'tokenId' => 'session_id',
+        'timeout' =>  43200,
+        'cookieDomain' => null,
+        'cookiePath' => '/',
+        'autoLoginLogout' => false,
+        'loginTrigger' => 'auth-login',
+        'logoutTrigger' => 'auth-logout',
+        'loginDelay' => false,
+        'ipCheck' => false,
+        'garbageCollector' => false
+    );
 
     /**
      * Detects if start() has been called or not.
@@ -77,37 +71,27 @@ abstract class ClientAbstract
     private $store;
 
     /**
+     * @var Client
+     */
+    private $clientConfig;
+
+    /**
      * Constructor
      *
-     * @see $config
+     * @param Client $clientConfig
      */
-    public function __construct($pConfig = array(), $pStore = array())
+    public function __construct(Client $clientConfig)
     {
-        $this->config = array_merge($this->config, $pConfig);
-        $this->config['store'] = $pStore;
-
-        if (!$this->config['store']['class']) {
-            $this->config['store']['class'] = '\\Core\\Cache\\Files';
-        }
+        $this->clientConfig = $clientConfig;
+        $this->config = array_merge($this->config, $clientConfig->getOptions()->toArray());
 
         if ($this->config['tokenId']) {
             $this->tokenId = $this->config['tokenId'];
         }
 
-        if (!$this->config['timeout']) {
-            $this->config['timeout'] = 12 * 3600;
+        if ('database' !== $clientConfig->getSessionStorage()->getClass()) {
+            $this->store = new \Core\Cache\Controller($clientConfig->getSessionStorage());
         }
-
-        if (!$this->config['cookiePath']) {
-            $this->config['cookiePath'] = '/';
-        }
-
-        $this->config['store']['config']['ClientInstance'] = $this;
-
-        if ($this->config['store']['class'] != 'database') {
-            $this->store = new \Core\Cache\Controller($this->config['store']['class'], $this->config['store']['config']);
-        }
-
     }
 
     public function start()
@@ -263,7 +247,12 @@ abstract class ClientAbstract
      */
     protected function internalLogin($pLogin, $pPassword)
     {
-        $krynUsers = new \Core\Client\KrynUsers(array('store' => array('class' => 'database')));
+        $clientConfig = new Client();
+        $storage = new SessionStorage();
+        $storage->setClass('database');
+        $clientConfig->setSessionStorage($storage);
+
+        $krynUsers = new \Core\Client\KrynUsers($clientConfig);
 
         $state = $krynUsers->checkCredentials($pLogin, $pPassword);
 
@@ -424,7 +413,7 @@ abstract class ClientAbstract
 
         $time = microtime(true);
         if ($this->hasSession()) {
-            if ($this->config['store']['class'] == 'database') {
+            if ('database' === $this->clientConfig->getSessionStorage()->getClass()) {
                 $this->getSession()->save();
                 Kryn::setPropelCacheObject('\Users\Models\Session', $this->getSession()->getId(), $this->getSession());
             } else {
@@ -452,7 +441,7 @@ abstract class ClientAbstract
 
             if ($session) {
 
-                if ($this->config['store']['class'] != 'database') {
+                if ('database' !== $this->clientConfig->getSessionStorage()->getClass()) {
                     $session->setIsStoredInDatabase(false);
                 }
 
@@ -517,7 +506,7 @@ abstract class ClientAbstract
             $session->setIp($_SERVER['X-Forwarded-For'] ? : $_SERVER['REMOTE_ADDR']);
         }
 
-        if ($this->config['store']['class'] == 'database') {
+        if ('database' === $this->clientConfig->getSessionStorage()->getClass()) {
             try {
                 $session->save();
             } catch (\Exception $e) {
@@ -640,7 +629,8 @@ abstract class ClientAbstract
         }
 
         $time = microtime(true);
-        if ($this->config['store']['class'] == 'database') {
+
+        if ('database' === $this->clientConfig->getSessionStorage()->getClass()) {
             $session = $this->loadSessionDatabase($token);
         } else {
             $session = $this->loadSessionCache($token);

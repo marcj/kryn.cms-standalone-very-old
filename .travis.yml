@@ -25,9 +25,13 @@ before_script:
   - sudo chown -R travis .;
   - sudo chmod -R g-w .;
   - ls -al;
+  - php54 -S ilee:8000 -t web/&;
 
 script:
   - phpunit;
+
+after_script:
+  - killall php54;
 
 after_failure:
   - tail -n 50 /var/log/syslog;

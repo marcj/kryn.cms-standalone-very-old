@@ -2,6 +2,7 @@
 
 namespace Core;
 
+use Core\Config\Connection;
 use Core\Exceptions\BundleNotFoundException;
 use Propel\Generator\Command\ConfigConvertXmlCommand;
 use Propel\Generator\Command\MigrationDiffCommand;
@@ -77,7 +78,7 @@ class PropelHelper
         }
 
         self::writeXmlConfig();
-        self::writeBuildPorperties();
+        self::writeBuildProperties();
         self::collectSchemas();
 
         switch ($pCmd) {
@@ -132,7 +133,7 @@ class PropelHelper
     public static function fullGenerator()
     {
         self::writeXmlConfig();
-        self::writeBuildPorperties();
+        self::writeBuildProperties();
         self::collectSchemas();
 
         $content = '';
@@ -157,7 +158,7 @@ class PropelHelper
 
         if (!file_exists($tmp . 'propel/runtime-conf.xml')) {
             self::writeXmlConfig();
-            self::writeBuildPorperties();
+            self::writeBuildProperties();
             self::collectSchemas();
         }
 
@@ -262,26 +263,57 @@ class PropelHelper
 //    }
 
     /**
-     * @param $pDriver
+     * @param Connection $connection
      *
      * @return string
      */
-    public static function getDsn($pDriver)
+    public static function getConnectionXml(Connection $connection)
     {
-        $dsn = strtolower($pDriver);
+        $type = strtolower($connection->getType());
+        $dsn  = $type;
 
-        if ($dsn == 'sqlite') {
-            $file = Kryn::$config['database']['name'];
+        if ('sqlite' === $dsn) {
+            $file = $connection->getServer();
             if (substr($file, 0, 1) != '/') {
                 $file = PATH . $file;
             }
             $dsn .= ':' . $file;
         } else {
-            $dsn .= ':host=' . Kryn::$config['database']['server'];
-            $dsn .= ';dbname=' . Kryn::$config['database']['name'];
+            $dsn .= ':host=' . $connection->getServer();
+            $dsn .= ';dbname=' . $connection->getName();
         }
 
-        return $dsn;
+        $user = htmlspecialchars($connection->getUsername(), ENT_XML1);
+        $password = htmlspecialchars($connection->getPassword(), ENT_XML1);
+        $dsn = htmlspecialchars($dsn, ENT_XML1);
+
+        $persistent = $connection->getPersistent() ? 'true' : 'false';
+
+        $xml = "
+    <connection>
+        <dsn>$dsn</dsn>
+        <user>$user</user>
+        <password>$password</password>
+
+        <options>
+            <option id=\"ATTR_PERSISTENT\">$persistent</option>
+        </options>";
+
+//        if ('mysql' === $type) {
+//            $xml .= '
+//        <attributes>
+//            <option id="ATTR_EMULATE_PREPARES">true</option>
+//        </attributes>
+//            ';
+//        }
+
+        $xml .= '
+        <settings>
+            <setting id="charset">utf8</setting>
+        </settings>
+    </connection>';
+
+        return $xml;
     }
 
     /**
@@ -296,12 +328,8 @@ class PropelHelper
             throw new \Exception('Can not create propel folder in ' . $folder);
         }
 
-        $adapter = Kryn::$config['database']['type'];
-        if ($adapter == 'postgresql') {
-            $adapter = 'pgsql';
-        }
-
-        $persistent = Kryn::$config['database']['persistent'] ? 'true' : 'false';
+        $adapter = Kryn::getSystemConfig()->getDatabase()->getMainConnection()->getType();
+        $adapter = 'postgresql' == $adapter ? 'pgsql' : $adapter;
 
         $xml = '<?xml version="1.0"?>
 <config>
@@ -309,27 +337,26 @@ class PropelHelper
         <datasources default="kryn">
             <datasource id="kryn">
                 <adapter>' . $adapter . '</adapter>
-                <connection>
-                    <dsn>' . self::getDsn($adapter) . '</dsn>
-                    <user>' . Kryn::$config['database']['user'] . '</user>
-                    <password>' . Kryn::$config['database']['password'] . '</password>
-                    <options>
-                        <option id="ATTR_PERSISTENT">' . $persistent . '</option>
-                    </options>';
+                ';
 
-        if (Kryn::$config['database']['type'] == 'mysql') {
-            $xml .= '
-                    <attributes>
-                        <option id="ATTR_EMULATE_PREPARES">true</option>
-                    </attributes>
-                    ';
+        foreach (Kryn::getSystemConfig()->getDatabase()->getConnections() as $connection) {
+            if (!$connection->isSlave()) {
+                $xml .= self::getConnectionXml($connection) . "\n";
+            }
+        }
+
+        $slaves = '';
+        foreach (Kryn::getSystemConfig()->getDatabase()->getConnections() as $connection) {
+            if ($connection->isSlave()) {
+                $slaves .= self::getConnectionXml($connection) . "\n";
+            }
+        }
+
+        if ($slaves) {
+            $xml .= "<slaves>$slaves</slaves>";
         }
 
         $xml .= '
-                    <settings>
-                        <setting id="charset">utf8</setting>
-                    </settings>
-                </connection>
             </datasource>
         </datasources>
     </propel>
@@ -472,7 +499,7 @@ class PropelHelper
 
         if (!file_exists($tmp . 'propel/runtime-conf.xml')) {
             self::writeXmlConfig();
-            self::writeBuildPorperties();
+            self::writeBuildProperties();
             self::collectSchemas();
         }
 
@@ -608,7 +635,7 @@ class PropelHelper
     /**
      * @throws Exception
      */
-    public static function writeBuildPorperties()
+    public static function writeBuildProperties()
     {
         $tmp = self::getTempFolder();
 
@@ -616,15 +643,10 @@ class PropelHelper
             throw new Exception('Can not create propel folder in ' . $folder);
         }
 
-        $adapter = Kryn::$config['database']['type'];
-        if ($adapter == 'postgresql') {
-            $adapter = 'pgsql';
-        }
-
         $properties = '
 propel.mysql.tableType = InnoDB
 
-propel.tablePrefix = ' . Kryn::$config['database']['prefix'] . '
+propel.tablePrefix = ' . Kryn::getSystemConfig()->getDatabase()->getPrefix() . '
 propel.database.encoding = utf8
 propel.project = kryn
 
@@ -633,6 +655,9 @@ propel.packageObjectModel = true
 propel.behavior.workspace.class = lib.WorkspaceBehavior
 
 ';
+
+        $adapter = Kryn::getSystemConfig()->getDatabase()->getMainConnection()->getType();
+        $adapter =  $adapter == 'postgresql' ? 'pgsql' : $adapter;
 
         if ($adapter == 'pgsql') {
             $properties .= "propel.disableIdentifierQuoting=true";

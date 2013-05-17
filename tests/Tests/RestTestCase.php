@@ -38,31 +38,4 @@ class RestTestCase extends TestCaseWithCore
         }
 
     }
-    public function run(\PHPUnit_Framework_TestResult $result = NULL)
-    {
-        $this->currentDir = getcwd();
-
-        if ($result === NULL) {
-            $result = $this->createResult();
-        }
-        if (!$this->bootUp++) {
-            try {
-
-                if (!file_exists('config.php')) {
-                    Manager::freshInstallation();
-                }
-                Manager::bootupCore();
-            } catch (\Exception $ex) {
-                $result->addError($this, $ex, 0);
-
-                return $result;
-            }
-        }
-
-        $result = parent::run($result);
-
-        return $result;
-
-    }
-
 }

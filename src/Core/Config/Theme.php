@@ -4,10 +4,18 @@ namespace Core\Config;
 
 class Theme extends Model
 {
+    protected $attributes = ['id'];
+    protected $elementMap = ['content' => 'ThemeContent', 'layout' => 'ThemeLayout'];
+
     /**
      * @var string
      */
     protected $id;
+
+    /**
+     * @var string
+     */
+    protected $label;
 
     /**
      * @var ThemeContent[]
@@ -19,21 +27,10 @@ class Theme extends Model
      */
     protected $layouts;
 
-    public function setupObject()
-    {
-
-        $layouts = $this->element->getElementsByTagName('layout');
-        foreach ($layouts as $layout) {
-            $this->layouts[] = new ThemeLayout($layout);
-        }
-
-        $this->setAttributeVar('id');
-    }
-
     /**
      * @param ThemeContent[] $contents
      */
-    public function setContents($contents)
+    public function setContents(array $contents)
     {
         $this->contents = $contents;
     }
@@ -43,7 +40,6 @@ class Theme extends Model
      */
     public function getContents()
     {
-
         if (null === $this->contents) {
             $contents = $this->element->getElementsByTagName('content');
             $this->contents = array();
@@ -58,7 +54,7 @@ class Theme extends Model
     /**
      * @param ThemeLayout[] $layouts
      */
-    public function setLayouts($layouts)
+    public function setLayouts(array $layouts)
     {
         $this->layouts = $layouts;
     }
@@ -85,6 +81,22 @@ class Theme extends Model
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @param string $label
+     */
+    public function setLabel($label)
+    {
+        $this->label = $label;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLabel()
+    {
+        return $this->label;
     }
 
 }

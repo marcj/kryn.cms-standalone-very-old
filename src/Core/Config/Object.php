@@ -4,6 +4,8 @@ namespace Core\Config;
 
 class Object extends Model
 {
+    protected $attributes = ['id'];
+
     /**
      * The id of the object.
      *
@@ -290,23 +292,6 @@ class Object extends Model
      */
     private $primaryKeys;
 
-    public function setupObject()
-    {
-        $this->id = $this->element->attributes->getNamedItem('id')->nodeValue;
-
-        $blacklist = array('id', 'browserOptions', 'treeIconMapping', 'fields', 'limitDataSets');
-
-        foreach ($this as $k => $v) {
-            if (true === in_array($k, $blacklist)) {
-                continue;
-            }
-
-            $this->setVar($k);
-        }
-
-        $this->treeIconMapping = $this->getParameterValues('treeIconMapping', 'icon');
-    }
-
     /**
      * @param string $blacklistSelection
      */
@@ -484,9 +469,9 @@ class Object extends Model
     }
 
     /**
-     * @param $fields
+     * @param Field[] $fields
      */
-    public function setFields($fields)
+    public function setFields(array $fields)
     {
         $this->fields = $fields;
     }

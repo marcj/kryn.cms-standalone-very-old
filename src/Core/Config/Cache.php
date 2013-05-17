@@ -34,20 +34,12 @@ class Cache extends Model
 
     public function setOption($key, $value)
     {
-        if (null === $this->options) {
-            $this->options = new Options();
-        }
-
-        $this->options->setOption($key, $value);
+        $this->getOptions()->setOption($key, $value);
     }
 
     public function getOption($key)
     {
-        if (null === $this->options) {
-            return null;
-        }
-
-        return $this->options->getOption($key);
+        return $this->getOptions()->getOption($key);
     }
 
     /**
@@ -55,6 +47,9 @@ class Cache extends Model
      */
     public function getOptions()
     {
+        if (null === $this->options) {
+            $this->options = new Options();
+        }
         return $this->options;
     }
 

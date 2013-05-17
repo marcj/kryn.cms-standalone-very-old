@@ -6,9 +6,9 @@ class Errors extends Model
 {
     protected $docBlock = 'error handling';
     protected $docBlocks = [
-        'display' => 'If the system should print error messages to the client.',
-        'log' => 'If the system should print log messages.',
-        'displayRest' => 'If the system should print error message from the RESTful JSON API to the client.',
+        'display' => 'If the system should print error messages to the client. DEACTIVATE THIS IN PRODUCTIVE SYSTEMS!',
+        'log' => 'If the system should log messages.',
+        'displayRest' => 'If the system should print error message from the RESTful JSON API to the client. DEACTIVATE THIS IN PRODUCTIVE SYSTEMS!',
         'stackTrace' => '
     If the system should print a prettified stackTrace with codeHighlighting in the error message.
     This included the stackTrace in the RESTful JSON API (displayRest).

@@ -4,6 +4,7 @@ namespace Core\Config;
 
 class Plugin extends Model
 {
+    protected $attributes = ['id'];
 
     /**
      * @var string
@@ -35,15 +36,7 @@ class Plugin extends Model
      */
     protected $options;
 
-    public function setupObject()
-    {
-        $this->label = $this->element->getElementsByTagName('label')->item(0)->nodeValue;
-        $this->class = $this->element->getElementsByTagName('class')->item(0)->nodeValue;
-        $this->method = $this->element->getElementsByTagName('method')->item(0)->nodeValue;
-        $this->id = $this->element->attributes->getNamedItem('id')->nodeValue;
-    }
-
-    public function setRoutes($routes)
+    public function setRoutes(array $routes)
     {
         $this->routes = $routes;
     }
@@ -108,7 +101,7 @@ class Plugin extends Model
         return $this->label;
     }
 
-    public function setOptions($options)
+    public function setOptions(Options $options)
     {
         $this->options = $options;
     }
@@ -138,6 +131,5 @@ class Plugin extends Model
     {
         return $this->method;
     }
-
 
 }

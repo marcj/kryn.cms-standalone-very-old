@@ -73,7 +73,7 @@ $loader->add('', __DIR__ . '/bundles');
 \Core\Kryn::setLoader($loader);
 
 if (!getenv('NOINSTALL')) {
-    @unlink(__DIR__ . '/../config.php');
+    @unlink(__DIR__ . '/../app/config/config.xml');
 }
 
 ini_set('display_errors', 1);

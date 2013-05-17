@@ -6,7 +6,7 @@ class Connection extends Model
 {
     protected $rootName = 'connection';
 
-    protected $attributes = ['type', 'persistent'];
+    protected $attributes = ['type', 'persistent', 'slave'];
 
     protected $docBlocks = [
         'server' => 'Can be a IP or a hostname. For SQLite enter here the path to the file.',
@@ -15,7 +15,9 @@ class Connection extends Model
 
     protected $docBlock = '
         type: mysql|pgsql|sqlite (the pdo driver name)
-        persistent: true|false (if the connection should be persistent)';
+        persistent: true|false (if the connection should be persistent)
+        slave: true|false (if the connection is a slave or not (readonly or not))
+      ';
 
     /**
      * @var string
@@ -48,11 +50,18 @@ class Connection extends Model
     protected $password;
 
     /**
+     * Defines whether this is a slave and therefore a read-only connection.
+     *
+     * @var bool
+     */
+    protected $slave = false;
+
+    /**
      * @param boolean $persistent
      */
     public function setPersistent($persistent)
     {
-        $this->persistent = $persistent;
+        $this->persistent = $this->bool($persistent);
     }
 
     /**
@@ -158,5 +167,27 @@ class Connection extends Model
     {
         return $this->password;
     }
+
+    /**
+     * @param boolean $slave
+     */
+    public function setSlave($slave)
+    {
+        $this->slave = $this->bool($slave);
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getSlave()
+    {
+        return $this->slave;
+    }
+
+    public function isSlave()
+    {
+        return true === $this->slave;
+    }
+
 
 }

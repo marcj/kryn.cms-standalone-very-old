@@ -5,6 +5,8 @@ namespace Core\Config;
 class Field extends Model
 {
 
+    protected $attributes = ['id', 'primaryKey', 'autoIncrement'];
+
     /**
      * @var string
      */
@@ -26,9 +28,24 @@ class Field extends Model
     protected $type;
 
     /**
+     * @var string
+     */
+    protected $object;
+
+    /**
+     * @var string
+     */
+    protected $objectRelation;
+
+    /**
      * @var bool
      */
     protected $primaryKey = false;
+
+    /**
+     * @var bool
+     */
+    protected $autoIncrement = false;
 
     /**
      * @var array
@@ -36,77 +53,24 @@ class Field extends Model
     protected $children;
 
     /**
-     * @var array
+     * @var Options
      */
-    protected $options = array();
+    protected $options;
 
     /**
-     * @var bool
+     * @param Options $options
      */
-    protected $autoIncrement = false;
-
-    public function setupObject()
+    public function setOptions(Options $options)
     {
-        $this->setAttributeVar('id');
-        $this->setVar('label');
-        $this->setVar('type');
-        $this->setVar('desc');
-        $this->setAttributeVar('primaryKey', 'boolean');
-        $this->setAttributeVar('autoIncrement', 'boolean');
-
-        foreach ($this->element->childNodes as $child) {
-            $name = $child->nodeName;
-            if ('#text' !== $name && 'children' !== $name && !$this->$name) {
-                $this->options[$name] = $child->nodeValue;
-            }
-        }
+        $this->options = $options;
     }
 
     /**
-     * @param $method
-     * @param $arguments
-     *
-     * @return mixed
+     * @return Options
      */
-    public function __call($method, $arguments)
+    public function getOptions()
     {
-        $operation = substr($method, 0, 3);
-        $varName = lcfirst(substr($method, 3));
-        if (!$this->$varName) {
-            if ('get' === $operation) {
-                return $this->options[$varName];
-            } else if ('set' === $operation) {
-                $this->options[$varName] = $arguments[0];
-            }
-        }
-    }
-
-    /**
-     * @param null $element
-     *
-     * @return array
-     */
-    public function toArray($element = null)
-    {
-        $result = parent::toArray($element);
-        foreach ($this->options as $key => $option) {
-            $result[$key] = $option;
-        }
-        return $result;
-    }
-
-    /**
-     * @param array $values
-     */
-    public function fromArray(array $values)
-    {
-        parent::fromArray($values);
-        $this->options = array();
-        foreach ($values as $key => $value) {
-            if (!$this->$key) {
-                $this->options[$key] = $value;
-            }
-        }
+        return $this->options;
     }
 
     /**
@@ -256,6 +220,38 @@ class Field extends Model
     public function getType()
     {
         return $this->type;
+    }
+
+    /**
+     * @param string $object
+     */
+    public function setObject($object)
+    {
+        $this->object = $object;
+    }
+
+    /**
+     * @return string
+     */
+    public function getObject()
+    {
+        return $this->object;
+    }
+
+    /**
+     * @param string $objectRelation
+     */
+    public function setObjectRelation($objectRelation)
+    {
+        $this->objectRelation = $objectRelation;
+    }
+
+    /**
+     * @return string
+     */
+    public function getObjectRelation()
+    {
+        return $this->objectRelation;
     }
 
 }

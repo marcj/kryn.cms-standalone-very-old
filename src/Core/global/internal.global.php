@@ -23,6 +23,7 @@ class InternalErrorException extends Exception {
     protected $code;
     protected $line;
     protected $file;
+    protected $message;
     public function setCode($code)
     {
         $this->code = $code;
@@ -34,6 +35,14 @@ class InternalErrorException extends Exception {
     public function setFile($file)
     {
         $this->file = $file;
+    }
+
+    /**
+     * @param mixed $message
+     */
+    public function setMessage($message)
+    {
+        $this->message = $message;
     }
 
     /**
@@ -51,7 +60,7 @@ function coreUtilsErrorHandler($pErrorCode, $pErrorStr, $pFile, $pLine)
 {
     $exception = new InternalErrorException();
     $exception->setCode($pErrorCode);
-    $exception->getMessage($pErrorStr);
+    $exception->setMessage($pErrorStr);
     $exception->setFile($pFile);
     $exception->setLine($pLine);
     \Core\Utils::exceptionHandler($exception);

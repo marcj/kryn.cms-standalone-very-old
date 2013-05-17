@@ -22,33 +22,13 @@ class Utils
         return true;
     }
 
-    public static function clearModuleCache($pName)
+    public static function clearModuleCache($bundleName)
     {
-        $config = Kryn::getConfig($pName);
+        $config = Kryn::getBundle($bundleName);
 
-        Kryn::invalidateCache($pName);
-        if (!$config) {
-            return false;
+        if ($config) {
+            Kryn::invalidateCache(strtolower($config->getName(true)));
         }
-
-        //TODO,
-//        if ($config->getCaches()) {
-//            foreach ($config->getCaches() as $cache) {
-//                if ($m = $cache['method']) {
-//                    if (method_exists(Kryn::$modules[$pName], $m))
-//                        Kryn::$modules[$pName]->$m();
-//                } else {
-//                    Kryn::deleteCache($cache['key']);
-//                }
-//            }
-//        }
-//        if ($config->getCacheInvalidation()) {
-//            foreach ($config['cacheInvalidation'] as $cache) {
-//                Kryn::invalidateCache($cache['key']);
-//            }
-//        }
-
-        return true;
     }
 
     /**

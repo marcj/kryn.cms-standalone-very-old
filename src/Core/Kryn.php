@@ -12,6 +12,7 @@
 
 Namespace Core;
 
+use Core\Config\Client;
 use Core\Config\SystemConfig;
 use Core\Exceptions\BundleNotFoundException;
 use Core\Models\ContentQuery;
@@ -240,7 +241,7 @@ class Kryn extends Controller
     public static $isStartpage;
 
     /**
-     * @var Config\Configs
+     * @var \Core\Config\Configs
      */
     public static $configs;
 
@@ -272,9 +273,9 @@ class Kryn extends Controller
     public static $dbConnection;
 
     /**
-     * Contains the system config (config.php).
+     * Contains the system config (app/config/config.xml).
      *
-     * @var array
+     * @var \Core\Config\SystemConfig
      * @static
      */
     public static $config;
@@ -620,44 +621,18 @@ class Kryn extends Controller
         return Render::$docType;
     }
 
-
-    /**
-     * Get some information about the system Kryn was installed and Kryn itself
-     *
-     * @static
-     */
-    public static function getDebugInformation()
+    public static function getSystemConfig()
     {
-        $infos = array();
-
-        foreach (Kryn::$bundles as $extension) {
-            $config = Kryn::getModuleConfig($extension, 'en');
-            $infos['extensions'][$extension] = array(
-                'version' => $config['version']
-            );
-        }
-
-        $infos['phpversion'] = phpversion();
-
-        $infos['database_type'] = Kryn::$config['db_type'];
-
-        $infos['config'] = Kryn::$config;
-
-        unset($infos['config']['db_passwd']);
-        unset($infos['config']['db_server']);
-
-        return $infos;
+        return static::$config;
     }
 
     /**
-     * Loads all active bundles from $config['bundles'] to self::$bundles.
-     *
-     * @param bool $pWithoutDefaults
+     * Loads all active bundles to self::$bundles.
      */
-    public static function loadActiveModules($pWithoutDefaults = false)
+    public static function loadActiveModules()
     {
-        if (isset(Kryn::$config['bundles'])) {
-            foreach (Kryn::$config['bundles'] as $bundle) {
+        if ($bundles = self::getSystemConfig()->getBundles()) {
+            foreach ($bundles as $bundle) {
                 Kryn::$bundles[] = $bundle;
             }
         }
@@ -982,34 +957,15 @@ class Kryn extends Controller
     }
 
     /**
-     * Initialize config.
-     *
-     * @internal
-     */
-    public static function initConfig()
-    {
-        if (!self::$config['cache']) {
-            self::$config['cache']['class'] = '\Core\Cache\Files';
-        }
-
-        if (self::$config['id'] === null) {
-            self::$config['id'] = 'kryn-no-id';
-        }
-    }
-
-    /**
      * Init cache and cacheFast instances.
      *
      */
     public static function initCache()
     {
         //global normal cache
-        if (isset(self::$config['cache'])) {
-            Kryn::$cache = new Cache\Controller(
-                self::$config['cache']['class'],
-                isset(self::$config['cache_params']) ? self::$config['cache_params'] : null
-            );
-        }
+        Kryn::$cache = new Cache\Controller(
+            static::$config->getCache()
+        );
 
         $fastestCacheClass = Cache\Controller::getFastestCacheClass();
         Kryn::$cacheFast = new Cache\Controller($fastestCacheClass);
@@ -1020,50 +976,53 @@ class Kryn extends Controller
      */
     public static function initClient()
     {
-        if (!self::$config['client']) {
-            self::internalError(
-                'Client configuration',
-                'There is no client handling class configured. Please run the installer.'
-            );
+
+        $systemClientConfig = static::getSystemConfig()->getClient();
+        $defaultClientClass = $systemClientConfig->getClass();
+
+//        $defaultClientClass = Kryn::$config['client']['class'];
+//        $defaultClientConfig = Kryn::$config['client']['config'];
+//        $defaultClientStore = Kryn::$config['client']['config']['store'];
+//        $defaultAutoStart = Kryn::$config['client']['autoStart'];
+
+        if (static::isAdmin()) {
+            static::$client = static::$adminClient = new $defaultClientClass($systemClientConfig);
+            static::getAdminClient()->start();
         }
 
-        $defaultClientClass = Kryn::$config['client']['class'];
-        $defaultClientConfig = Kryn::$config['client']['config'];
-        $defaultClientStore = Kryn::$config['client']['config']['store'];
-        $defaultAutoStart = Kryn::$config['client']['autoStart'];
+        if (!static::isAdmin()) {
 
-        if (self::isAdmin()) {
+            $domainClientConfigXml = self::getDomain() ? self::getDomain()->getSessionProperties() : '';
+            $domainClientConfig = $systemClientConfig;
 
-            self::$client = self::$adminClient = new $defaultClientClass($defaultClientConfig, $defaultClientStore);
-
-            self::getAdminClient()->start();
-        }
-
-        if (!Kryn::isAdmin()) {
-
-            $sessionProperties = self::getDomain() ? self::getDomain()->getSessionProperties() : array();
-
-            $frontClientClass = $defaultClientClass;
-            $frontClientConfig = $defaultClientConfig;
-            $frontendClientStore = $defaultClientStore;
-            $frontendAutoStart = $defaultAutoStart;
-
-            if ($sessionProperties['class']) {
-                $frontClientClass = $sessionProperties['class'];
-                $frontClientConfig = $sessionProperties['config'];
+            if ($domainClientConfigXml) {
+                $domainClientConfig = new Client($domainClientConfigXml);
             }
 
-            if ($sessionProperties['autoStart']) {
-                $frontendAutoStart = $sessionProperties['autoStart'];
-            }
+            $domainClientClass = $domainClientConfig->getClass();
 
-            if ($sessionProperties['store']) {
-                $frontendClientStore = $frontClientConfig['store'];
-            }
+//            $sessionProperties = self::getDomain() ? self::getDomain()->getSessionProperties() : array();
+//
+//            $frontClientClass = $defaultClientClass;
+//            $frontClientConfig = $defaultClientConfig;
+//            $frontendClientStore = $defaultClientStore;
+//            $frontendAutoStart = $defaultAutoStart;
 
-            self::$client = new $frontClientClass($frontClientConfig, $frontendClientStore);
+//            if ($sessionProperties['class']) {
+//                $frontClientClass = $sessionProperties['class'];
+//                $frontClientConfig = $sessionProperties['config'];
+//            }
+//
+//            if ($sessionProperties['autoStart']) {
+//                $frontendAutoStart = $sessionProperties['autoStart'];
+//            }
+//
+//            if ($sessionProperties['store']) {
+//                $frontendClientStore = $frontClientConfig['store'];
+//            }
 
-            if ($frontendAutoStart) {
+            self::$client = new $domainClientClass($domainClientConfig);
+            if ($domainClientConfig->isAutoStart()) {
                 self::$client->start();
             }
 
@@ -1797,14 +1756,16 @@ class Kryn extends Controller
         /**
          * Check and loading config.php or redirect to install.php
          */
-        self::$config = array();
-        if (!file_exists(PATH . 'config.php') || !is_array(self::$config = include(PATH . 'config.php'))) {
+        $configFile = PATH . 'app/config/config.xml';
+        if (!file_exists($configFile)) {
             header("Location: install.php");
             exit;
         }
 
+        static::$config = new SystemConfig(file_get_contents($configFile));
+
         if (!defined('pfx')) {
-            define('pfx', self::$config['database']['prefix']);
+            define('pfx', self::$config->getDatabase()->getPrefix());
         }
 
         self::checkStaticCaching();
@@ -1845,12 +1806,12 @@ class Kryn extends Controller
 
         @ini_set('display_errors', 0);
 
-        if (self::$config['displayErrors']) {
+        if (self::$config->getErrors()->getDisplay()) {
             @ini_set('display_errors', 1);
         }
 
         if (!defined('KRYN_TESTS')) {
-            if (self::$config['displayErrors']) {
+            if (self::$config->getErrors()->getDisplay()) {
                 set_exception_handler("coreUtilsExceptionHandler");
                 set_error_handler(
                     "coreUtilsErrorHandler",
@@ -1867,11 +1828,6 @@ class Kryn extends Controller
             PropelHelper::init();
             PropelHelper::loadConfig();
         }
-
-        /*
-         * Initialize the config.php values. Make some vars compatible to older versions etc.
-         */
-        self::initConfig();
 
         /**
          * Initialize caching controllers
@@ -1914,7 +1870,7 @@ class Kryn extends Controller
     }
 
     /**
-     * @return Config/Configs
+     * @return \Core\Config\Config[]|\Core\Config\Configs
      */
     public static function getConfigs()
     {
@@ -2103,7 +2059,7 @@ class Kryn extends Controller
 
     public static function getAdminPrefix()
     {
-        return self::$config['adminUrl'] ? : 'kryn';
+        return self::$config->getAdminUrl();
     }
 
     /**
@@ -2432,7 +2388,7 @@ class Kryn extends Controller
         $data['title'] = $title ? : 'Internal system error';
         $data['msg'] = $message;
         $response = new Response(self::translate(
-            self::getInstance()->renderView('@CoreBundle/internal-error.html.smarty', $data)
+            self::getInstance()->renderView('@CoreBundle/internal-message.html.smarty', $data)
         ), 404);
         $response->send();
         exit;
@@ -2734,7 +2690,7 @@ class Kryn extends Controller
     {
         if (!self::$cachedTempFolder) {
 
-            $folder = isset(Kryn::$config['fileTemp']) ? Kryn::$config['fileTemp'] : '';
+            $folder = static::$config->getTempDir();
             if (!$folder && getenv('TMP')) {
                 $folder = getenv('TMP');
             }
@@ -2785,7 +2741,7 @@ class Kryn extends Controller
      */
     public static function getId()
     {
-        return 'kryn-' . (self::$config['id'] ? : 'no-id');
+        return 'kryn-' . (self::$config->getId() ? : 'no-id');
     }
 
     /**

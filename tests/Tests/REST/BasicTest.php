@@ -33,7 +33,6 @@ class BasicTest extends RestTestCase
         $this->assertContains('Kryn.cms Administration', $response['content'], "we got the login view.");
 
         $this->assertContains('window._session = {"userId":1', $response['content'], "we're logged in.");
-
     }
 
     public function testListing()

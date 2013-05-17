@@ -2,6 +2,8 @@
 
 namespace Tests;
 
+use Core\Config\SystemConfig;
+
 class Manager
 {
     /**
@@ -12,7 +14,7 @@ class Manager
     /**
      * @var string
      */
-    public static $configFile = 'default.json';
+    public static $configFile = 'default.xml';
 
     /**
      * @param array $pConfigFile
@@ -26,35 +28,31 @@ class Manager
         if (!file_exists($configFile)) {
             throw new \Exception("Config file not found: $configFile\n");
         }
-        self::$config = json_decode(file_get_contents($configFile), true);
+        self::$config['config'] = new SystemConfig(file_get_contents($configFile));
 
-        if (getenv('DOMAIN')) {
-            self::$config['domain'] = getenv('DOMAIN');
-        }
-
-        if (getenv('PORT')) {
-            self::$config['port'] = getenv('PORT');
-        }
+        self::$config['domain']  = getenv('DOMAIN') ? : '127.0.0.1';
+        self::$config['port']  = getenv('PORT') ? : '8000';
 
         if (getenv('DB_NAME')) {
-            self::$config['config']['database']['name'] = getenv('DB_NAME');
+            self::$config['config']->getDatabase()->getMainConnection()->setName(getenv('DB_NAME'));
         }
 
         if (getenv('DB_USER')) {
-            self::$config['config']['database']['user'] = getenv('DB_USER');
+            self::$config['config']->getDatabase()->getMainConnection()->setUsername(getenv('DB_USER'));
         }
 
         if (getenv('DB_PW')) {
-            self::$config['config']['database']['password'] = getenv('DB_PW');
+            self::$config['config']->getDatabase()->getMainConnection()->setPassword(getenv('DB_PW'));
         }
 
         if (getenv('DB_SERVER')) {
-            self::$config['config']['database']['server'] = getenv('DB_SERVER');
+            self::$config['config']->getDatabase()->getMainConnection()->setServer(getenv('DB_SERVER'));
         }
 
         if (getenv('DB_TYPE')) {
-            self::$config['config']['database']['type'] = getenv('DB_TYPE');
+            self::$config['config']->getDatabase()->getMainConnection()->setType(getenv('DB_TYPE'));
         }
+
 
     }
 
@@ -66,7 +64,7 @@ class Manager
         self::setupConfig($pConfigFile);
         $cfg = self::$config['config'];
 
-        if (file_exists('config.php')) {
+        if (file_exists('app/config/config.xml')) {
             self::uninstall();
         }
 
@@ -138,25 +136,16 @@ class Manager
 
     public static function uninstall()
     {
-        $trace = debug_backtrace();
-        foreach ($trace as $t) {
-            $string[] = basename($t['file']) . ':' . $t['line'];
+        if (file_exists('app/config/config.xml')) {
+            throw new \Exception("Kryn.cms is not installed. We can't uninstall it.");
         }
-
-        if (file_exists('config.php')) {
-            $config = include 'config.php';
-        } else {
-            throw new \Exception("Kryn.cms not installed. =>" . implode(', ', $string) . " \n");
-        }
-
-        $config['displayBeautyErrors'] = 0; //0 otherwise the exceptionHandler of kryn is used, that breaks the PHPUnit.
 
         \Core\Kryn::bootstrap();
         \Core\Kryn::loadModuleConfigs(true);
 
         $manager = new \Admin\Module\Manager;
 
-        foreach ($config['bundles'] as $bundleName) {
+        foreach (\Core\Kryn::getSystemConfig()->getBundleName() as $bundleName) {
             $manager->uninstall($bundleName, false);
         }
 
@@ -166,20 +155,14 @@ class Manager
 
         \Core\PropelHelper::updateSchema();
 
-        \Core\SystemFile::remove('config.php');
+        \Core\SystemFile::remove('app/config/config.xml');
         self::cleanup();
     }
 
-    public static function install($pConfig)
+    public static function install(SystemConfig $pConfig)
     {
-        $cfg = $pConfig;
-        $cfg['displayBeautyErrors'] = 0; //0 otherwise the exceptionHandler of kryn is used, what breaks the PHPUnit.
+        $pConfig->save('app/config/config.xml');
 
-        if (!file_put_contents('config.php', "<?php\n return " . var_export($cfg, true) . '; ')) {
-            throw new \FileNotWritableException('Can not install Kryn.cms. config.php not writeable.');
-        }
-
-        require 'src/Core/bootstrap.php';
         \Core\Kryn::bootstrap();
 
         \Core\TempFile::remove('propel');
@@ -201,7 +184,7 @@ class Manager
         $manager->install('Users\\UsersBundle');
         debugPrint('Installed system bundles');
 
-        foreach ($pConfig['bundles'] as $module) {
+        foreach ($pConfig->getBundles() as $module) {
             $manager->install($module);
         }
         debugPrint('Installed extra bundles');
@@ -217,7 +200,7 @@ class Manager
         $manager->installDatabase('Users\\UsersBundle');
         debugPrint('Installed system database entries');
 
-        foreach ($pConfig['bundles'] as $module) {
+        foreach ($pConfig->getBundles() as $module) {
             $manager->installDatabase($module);
         }
         debugPrint('Installed extra database entries');
@@ -233,12 +216,9 @@ class Manager
 
     public static function bootupCore()
     {
-        if (!file_exists('config.php')) {
-            throw new \Exception('Kryn.cms not installed. (config.php not found)');
+        if (!file_exists('app/config/config.xml')) {
+            throw new \Exception('Kryn.cms not installed. (app/config/config.xml not found)');
         }
-
-        $cfg = include 'config.php';
-        $cfg['displayErrors'] = false;
 
         $_SERVER['PATH_INFO'] = '/';
         $_SERVER['SERVER_NAME'] = self::$config['domain'];
