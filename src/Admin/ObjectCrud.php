@@ -1154,8 +1154,6 @@ class ObjectCrud
             try {
                 $inserted = $this->add($data, getArgv('_pk'), $position, getArgv('_targetObjectKey'));
             } catch (\Exception $e) {
-                var_dump($e);
-                exit;
                 $inserted[] = array('_error' => $e);
             }
 

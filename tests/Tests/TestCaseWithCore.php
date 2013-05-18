@@ -21,17 +21,10 @@ class TestCaseWithCore extends \PHPUnit_Framework_TestCase
             $result = $this->createResult();
         }
         if (!$this->bootUp++) {
-            try {
-
-                if (!file_exists('app/config/config.xml')) {
-                    Manager::freshInstallation();
-                }
-                Manager::bootupCore();
-            } catch (\Exception $ex) {
-                $result->addError($this, $ex, 0);
-
-                return $result;
+            if (!file_exists('app/config/config.xml')) {
+                Manager::freshInstallation();
             }
+            Manager::bootupCore();
         }
 
         $result = parent::run($result);

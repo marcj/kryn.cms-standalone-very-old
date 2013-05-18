@@ -21,14 +21,8 @@ class TestCaseWithFreshInstallation extends \PHPUnit_Framework_TestCase
             $result = $this->createResult();
         }
         if (!$this->bootUp++) {
-            try {
-                Manager::freshInstallation();
-                Manager::bootupCore();
-            } catch (\Exception $ex) {
-                $result->addError($this, $ex, 0);
-
-                return $result;
-            }
+            Manager::freshInstallation();
+            Manager::bootupCore();
         }
 
         $result = parent::run($result);

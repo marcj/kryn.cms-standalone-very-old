@@ -2844,8 +2844,6 @@ class Kryn extends Controller
                 foreach ($matches as $match) {
                     $dir = self::getBundleDir($match[0]);
                     if (!$dir) {
-                        var_dump(self::$bundles);
-                        var_dump(self::$bundleInstances);
                         throw new BundleNotFoundException(sprintf('Bundle for `%s` not found.', $match[0]));
                     }
                     $path = str_replace($match[0], $dir . $suffix, $path);

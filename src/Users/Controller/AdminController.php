@@ -17,15 +17,7 @@ class AdminController extends Server
 
     }
 
-    public function test()
-    {
-        var_dump(\Core\Kryn::getAdminClient()->getSession());
-
-        exit;
-
-    }
-
-    /**
+	/**
      * Gets all rules from given type and id;
      *
      * @param  int       $pType

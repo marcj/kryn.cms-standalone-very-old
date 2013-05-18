@@ -10,7 +10,6 @@ class None implements EnginesInterface
 
     public function render($file, $data = null)
     {
-        var_dump($file);
         return file_get_contents($file);
     }
 

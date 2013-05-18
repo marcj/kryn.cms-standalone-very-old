@@ -33,23 +33,23 @@ class Manager
         self::$config['domain']  = getenv('DOMAIN') ? : '127.0.0.1';
         self::$config['port']  = getenv('PORT') ? : '8000';
 
-        if (getenv('DB_NAME')) {
+        if (false !== getenv('DB_NAME')) {
             self::$config['config']->getDatabase()->getMainConnection()->setName(getenv('DB_NAME'));
         }
 
-        if (getenv('DB_USER')) {
+        if (false !== getenv('DB_USER')) {
             self::$config['config']->getDatabase()->getMainConnection()->setUsername(getenv('DB_USER'));
         }
 
-        if (getenv('DB_PW')) {
+        if (false !== getenv('DB_PW')) {
             self::$config['config']->getDatabase()->getMainConnection()->setPassword(getenv('DB_PW'));
         }
 
-        if (getenv('DB_SERVER')) {
+        if (false !== getenv('DB_SERVER')) {
             self::$config['config']->getDatabase()->getMainConnection()->setServer(getenv('DB_SERVER'));
         }
 
-        if (getenv('DB_TYPE')) {
+        if (false !== getenv('DB_TYPE')) {
             self::$config['config']->getDatabase()->getMainConnection()->setType(getenv('DB_TYPE'));
         }
 

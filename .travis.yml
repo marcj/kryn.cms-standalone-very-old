@@ -36,7 +36,3 @@ after_script:
 after_failure:
   - cat nohup.out
   - ls -al /app/cache
-  - tail -n 50 /var/log/syslog
-  - cat /var/log/apache2/*
-  - cat /etc/apache2/sites-available/*
-  - cat /etc/apache2/sites-enabled/*

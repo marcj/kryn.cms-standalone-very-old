@@ -224,46 +224,6 @@ class PropelHelper
 
     }
 
-//    /**
-//     * Returns a array of propel config's value. We do not save it as .php file, instead
-//     * we create it dynamicaly out of our own config.php.
-//     *
-//     * @return array The config array for Propel::init() (only in kryn's version of propel, no official)
-//     */
-//    public static function getConfig()
-//    {
-//        $adapter = Kryn::$config['database']['type'];
-//        if ($adapter == 'postgresql') {
-//            $adapter = 'pgsql';
-//        }
-//
-//        $persistent = Kryn::$config['database']['persistent'] ? true : false;
-//
-//        $emulatePrepares = Kryn::$config['database']['type'] == 'mysql';
-//
-//        $config = array();
-//        $config['datasources']['kryn'] = array(
-//            'adapter' => $adapter,
-//            'connection' => array(
-//                'dsn' => self::getDsn($adapter),
-//                'user' => Kryn::$config['database']['user'],
-//                'password' => Kryn::$config['database']['password'],
-//                'options' => array(
-//                    'ATTR_PERSISTENT' => array('value' => $persistent)
-//                ),
-//                'settings' => array(
-//                    'charset' => array('value' => 'utf8')
-//                ),
-//                'attributes' => array(
-//                    'ATTR_EMULATE_PREPARES' => array('value' => $emulatePrepares)
-//                )
-//            )
-//        );
-//        $config['datasources']['default'] = 'kryn';
-//
-//        return $config;
-//    }
-
     /**
      * @param Connection $connection
      *
@@ -560,82 +520,6 @@ class PropelHelper
         $sql = preg_replace('/^#.*$/im', '', $sql);
 
         return trim($sql);
-    }
-
-    /**
-     * @return array|string
-     * @throws \Exception
-     */
-    public static function execute()
-    {
-        $chdir = getcwd();
-        chdir('vendor/propel/propel1/generator/');
-
-        $oldIncludePath = get_include_path();
-        set_include_path(PATH . 'vendor/phing/phing/classes/' . PATH_SEPARATOR . get_include_path());
-
-        $argv = array('propel-gen');
-
-        foreach (func_get_args() as $cmd) {
-            $argv[] = $cmd;
-        }
-
-        $tmp = self::getTempFolder();
-        $tmp .= 'propel/';
-
-        $argv[] = '-Dproject.dir=' . $tmp;
-
-        var_dump($tmp);
-
-        require_once 'phing/Phing.php';
-
-        $outStreamS = fopen("php://memory", "w+");
-        $outStream = new \OutputStream($outStreamS);
-        $cmd = implode(' ', $argv);
-        $outStream->write("\n\nExecute command: " . $cmd . "\n\n");
-
-        try {
-            /* Setup Phing environment */
-            \Phing::setOutputStream($outStream);
-            \Phing::setErrorStream($outStream);
-
-            \Phing::startup();
-
-            // Set phing.home property to the value from environment
-            // (this may be NULL, but that's not a big problem.)
-            \Phing::setProperty('phing.home', getenv('PHING_HOME'));
-
-            // Grab and clean up the CLI arguments
-            $args = isset($argv) ? $argv : $_SERVER['argv']; // $_SERVER['argv'] seems to not work (sometimes?) when argv is registered
-            array_shift($args); // 1st arg is script name, so drop it
-            // Invoke the commandline entry point
-            \Phing::fire($args);
-
-            // Invoke any shutdown routines.
-            \Phing::shutdown();
-        } catch (\Exception $x) {
-            chdir($chdir);
-            set_include_path($oldIncludePath);
-            throw $x;
-        }
-        chdir($chdir);
-        set_include_path($oldIncludePath);
-
-        rewind($outStreamS);
-        $content = stream_get_contents($outStreamS);
-
-        if (strpos($content, "BUILD FINISHED") !== false && strpos($content, "Aborting.") === false) {
-            preg_match_all('/\[((propel[a-zA-Z-_]*)|phingcall)\] .*/', $content, $matches);
-            $result = "\nCommand successfully: $cmd\n";
-            $result .= '<div style="color: gray;">';
-            foreach ($matches[0] as $match) {
-                $result .= $match . "\n";
-            }
-
-            return $result . '</div>';
-        } else {
-            return array($content);
-        }
     }
 
     /**
