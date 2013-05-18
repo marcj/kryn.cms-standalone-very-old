@@ -224,7 +224,9 @@ class File
         $imageTypes = array('jpg', 'jpeg', 'png', 'bmp', 'gif');
 
         $files = WebFile::getFiles($pPath);
-        foreach ($files as $key => &$file) {
+        $result = [];
+        foreach ($files as $key => $file) {
+            $file = $file->toArray();
             if (isset($blacklistedFiles[$file['path']]) | (!$showHiddenFiles && substr($file['path'], 0, 2) == '/.')) {
                 unset($files[$key]);
             } else {
@@ -237,9 +239,10 @@ class File
                     $file['dimensions'] = array('width' => $image->getWidth(), 'height' => $image->getHeight());
                 }
             }
+            $result[] = $file;
         }
 
-        return $files;
+        return $result;
     }
 
     /**
@@ -251,10 +254,11 @@ class File
     {
 
         $file = WebFile::getFile($pPath);
-        if (!Permission::checkListExact('Core\\File', array('id' => $file['id']))) {
+        if (!Permission::checkListExact('Core\\File', array('id' => $file->getId()))) {
             return;
         }
 
+        $file = $file->toArray();
         $file['writeAccess'] = Permission::checkUpdate('Core\\File', $file['id']);
 
         return $file;

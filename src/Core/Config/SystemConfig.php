@@ -129,6 +129,9 @@ class SystemConfig extends Model {
      */
     public function getCache()
     {
+        if (null === $this->cache) {
+            $this->cache = new Cache();
+        }
         return $this->cache;
     }
 
@@ -164,6 +167,9 @@ class SystemConfig extends Model {
      */
     public function getErrors()
     {
+        if (null === $this->errors) {
+            $this->errors = new Errors();
+        }
         return $this->errors;
     }
 
@@ -180,22 +186,29 @@ class SystemConfig extends Model {
      */
     public function getFile()
     {
+        if (null === $this->file) {
+            $this->file = new FilePermission();
+        }
         return $this->file;
     }
 
     /**
-     * @param \Core\Config\SystemMountPoint[] $mountPoints
+     * @param MountPoint[] $mountPoints
      */
-    public function setMountPoints($mountPoints)
+    public function setMountPoints(array $mountPoints)
     {
         $this->mountPoints = $mountPoints;
     }
 
     /**
-     * @return \Core\Config\SystemMountPoint[]
+     * @return MountPoint[]
      */
     public function getMountPoints()
     {
+        if (null === $this->mountPoints) {
+            $this->mountPoints = [];
+        }
+
         return $this->mountPoints;
     }
 
@@ -234,7 +247,7 @@ class SystemConfig extends Model {
     /**
      * @param Database $database
      */
-    public function setDatabase(Database $database)
+    public function setDatabase(Database $database = null)
     {
         $this->database = $database;
     }
@@ -244,6 +257,9 @@ class SystemConfig extends Model {
      */
     public function getDatabase()
     {
+        if (null === $this->database) {
+            $this->database = new Database();
+        }
         return $this->database;
     }
 

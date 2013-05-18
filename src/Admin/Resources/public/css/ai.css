@@ -186,7 +186,13 @@ div.ka-main-menu-additional img.arrowUp:hover {
 }
 
 .ka-mainLinks {
-    clear: left;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .ka-main-menu-user {

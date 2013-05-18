@@ -187,6 +187,7 @@ class ObjectFile extends \Core\ORM\Propel
         $result = array();
 
         foreach ($files as $file) {
+            $file = $file->toArray();
             if ($pCondition && !\Core\Object::satisfy($file, $pCondition)) {
                 continue;
             }

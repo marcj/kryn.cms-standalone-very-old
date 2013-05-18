@@ -28,8 +28,24 @@ class AdminController
      * @internal
      * @static
      */
-    public static function checkAccess($pUrl)
+    public static function checkAccess($url)
     {
+        $whitelist = [
+            '',
+            'admin/backend/style',
+            'admin/backend/script',
+            'admin/ui/possibleLangs',
+            'admin/ui/language',
+            'admin/ui/languagePluralForm',
+            'admin/login'
+        ];
+
+        if (in_array($url, $whitelist)) return;
+
+        if (!Kryn::getAdminClient()->getUser()){
+            throw new \AccessDeniedException(tf('Access denied.'));
+        }
+
         return true;
 //
 //        if (substr($pUrl, 0, 9) == 'admin/ui/') {
@@ -590,10 +606,5 @@ class AdminController
         }
 
         return $response;
-    }
-
-    public function loadCss()
-    {
-        return UIAssets::loadCss();
     }
 }

@@ -35,6 +35,14 @@ class BasicTest extends RestTestCase
         $this->assertContains('window._session = {"userId":1', $response['content'], "we're logged in.");
     }
 
+    public function testSettings()
+    {
+        $result = $this->restCall('/kryn/admin/backend/settings?lang=en');
+        $this->assertInternalType('array', $result);
+
+        $this->assertEquals(200, $result['status']);
+    }
+
     public function testListing()
     {
         $response = $this->restCall('/kryn/admin/object/Core:Node');

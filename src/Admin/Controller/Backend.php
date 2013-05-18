@@ -178,10 +178,9 @@ class Backend
         }
 
         if ($loadKeys == false || in_array('system', $loadKeys)) {
-            $res['system'] = Kryn::$config;
-            unset($res['system']['database']);
-            unset($res['system']['passwordHashKey']);
-            unset($res['system']['passwordHashCompat']);
+            $res['system'] = clone Kryn::$config;
+            $res['system']->setDatabase(null);
+            $res['system']->setPasswordHashKey('');
         }
 
         if ($loadKeys == false || in_array('r2d', $loadKeys)) {
@@ -344,7 +343,8 @@ class Backend
         }
 
         if ($fileUpToDate) {
-            readfile($oFile);
+            $content = file_get_contents($oFile);
+            echo substr($content, 35);
         } else {
             if (!$debugMode) {
                 system($cmdTest, $returnVal);
@@ -363,9 +363,10 @@ class Backend
 
                 $content = file_get_contents($oFile);
                 $sourceMapUrl = '//@ sourceMappingURL=script-map';
-                file_put_contents($oFile, $md5Line . $content . $sourceMapUrl);
+                $content = $md5Line . $content . $sourceMapUrl;
+                file_put_contents($oFile, $content);
 
-                readfile($oFile);
+                echo substr($content, 35);
             } else {
                 foreach ($assets as $assetPath) {
                     echo "/* $assetPath */\n\n";

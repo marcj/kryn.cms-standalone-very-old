@@ -92,7 +92,7 @@ class Manager
             $config = self::loadInfo($mod);
             $res[$mod] = $config;
             $res[$mod]['activated'] = array_search($mod, Kryn::$config['bundles']) !== false ? 1 : 0;
-           // $res[$mod]['serverVersion'] = wget(Kryn::$config['repoServer'] . "/?version=" . $mod);
+            // $res[$mod]['serverVersion'] = wget(Kryn::$config['repoServer'] . "/?version=" . $mod);
             $res[$mod]['serverCompare'] =
                 self::versionCompareToServer($res[$mod]['version'], $res[$mod]['serverVersion']);
         }
@@ -121,8 +121,59 @@ class Manager
 
     public function getLocal()
     {
+        $finder = new \Symfony\Component\Finder\Finder();
+        $finder
+            ->files()
+            ->name('*Bundle.php')
+            ->in('vendor')
+            ->in('tests/bundles')
+            ->in('src');
+
+        $bundles = array();
+        /** @var \Symfony\Component\Finder\SplFileInfo $file */
+        foreach ($finder as $file) {
+
+            $file = $file->getRealPath();
+            $content = file_get_contents($file);
+            preg_match('/^\s*\t*class ([a-z0-9_]+)/mi', $content, $className);
+            if (isset($className[1]) && $className[1]) {
+                preg_match('/\s*\t*namespace ([a-zA-Z0-9_\\\\]+)/', $content, $namespace);
+                $class = (count($namespace) > 1 ? $namespace[1] . '\\' : '') . $className[1];
+
+                if ('Bundle' === $className[1] || false !== strpos($class, '\\Test\\') ||
+                    false !== strpos($class, '\\Tests\\')
+                ) {
+                    continue;
+                }
+
+                $bundles[] = $class;
+            }
+        }
+        $bundles = array_unique($bundles);
+
+        foreach ($bundles as $bundleClass) {
+            $bundle = new $bundleClass();
+            if (!($bundle instanceof \Core\Bundle)) {
+                continue;
+            }
+
+            if ($composer = $bundle->getComposer()) {
+                $res[$bundle->getClassName()] = $composer;
+                if (null === $res[$bundle->getClassName()]['activated']) {
+                    $res[$bundle->getClassName()]['activated'] = 'Core\CoreBundle' === $class || array_search(
+                        $bundle->getClassName(),
+                        Kryn::$config['bundles']
+                    ) !== false ? true : false;
+                }
+            }
+        }
+        return $res;
+
+        return;
         $classes = find('src', '*Bundle.php');
 
+        var_dump($classes);
+        exit;
         foreach ($classes as $class) {
             $class = str_replace('/', '\\', substr($class, 4, -4)); //remove `src/` and `.php` and replace / with \
 
@@ -141,7 +192,6 @@ class Manager
                 ) !== false ? true : false;
             }
         }
-        return $res;
     }
 
     public static function getConfig($pName)
@@ -277,9 +327,9 @@ class Manager
             $name = $key;
             //$version = wget(Kryn::$config['repoServer'] . "/?version=$name");
             if ($version && $version != '' && self::versionCompareToServer(
-                $config->getVersion(),
-                $version['content']
-            ) == '<'
+                    $config->getVersion(),
+                    $version['content']
+                ) == '<'
             ) {
                 $res['found'] = true;
                 $temp = array();
@@ -430,8 +480,8 @@ class Manager
      * @event admin/module/manager/<$pScript>/failed
      * @event admin/module/manager/<$pScript>
      *
-     * @param  string             $pModule
-     * @param  string             $pScript
+     * @param  string $pModule
+     * @param  string $pScript
      *
      * @throws \SecurityException
      * @throws \Exception

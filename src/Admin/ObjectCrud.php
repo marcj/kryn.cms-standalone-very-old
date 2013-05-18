@@ -743,7 +743,7 @@ class ObjectCrud
 
                 //add language condition
                 $langCondition = array(
-                    array('lang', '=', getArgv('lang') + ""),
+                    array('lang', '=', (string)getArgv('lang')),
                     'OR',
                     array('lang', 'IS NULL'),
                 );
@@ -890,7 +890,7 @@ class ObjectCrud
 
                 //add language condition
                 $langCondition = array(
-                    array('lang', '=', getArgv('lang') + ""),
+                    array('lang', '=', (string)getArgv('lang')),
                     'OR',
                     array('lang', 'IS NULL'),
                 );

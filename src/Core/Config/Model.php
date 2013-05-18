@@ -439,13 +439,14 @@ class Model implements \ArrayAccess
     /**
      * Saves the xml into a file.
      *
-     * @param string $path
+     * @param string  $path
+     * @param boolean $withDefaults
      *
      * @return int
      */
-    public function save($path)
+    public function save($path, $withDefaults = false)
     {
-        $string = $this->toXml();
+        $string = $this->toXml($withDefaults);
         return file_put_contents($path, $string);
     }
 
@@ -473,6 +474,12 @@ class Model implements \ArrayAccess
         $modelProperties = $reflectionModel->getDefaultProperties();
 
         foreach ($this as $key => $val) {
+            $getter = 'get' . ucfirst($key);
+            if (!method_exists($this, $getter)) {
+                continue;
+            }
+
+            $val = $this->$getter();
             if ($defaultProperties[$key] === $val && !$printDefaults && !in_array($key, $this->excludeDefaults)) {
                 continue;
             }

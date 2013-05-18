@@ -299,6 +299,8 @@ class Propel extends ORMAbstract
     {
         $condition = '';
         $params = [];
+        $conditionParams = [];
+        $id = (hexdec(uniqid()) / mt_rand()) + mt_rand();
 
         // check that the columns of the main class are already added (if this is the primary ModelCriteria)
         if (!$pQuery->hasSelectClause() && !$pQuery->getPrimaryCriteria()) {
@@ -319,23 +321,27 @@ class Propel extends ORMAbstract
         $pQuery->externalBasePreSelect($con);
 
         if ($pCondition) {
-            $id = (hexdec(uniqid()) / mt_rand()) + mt_rand();
             $pQuery->where($id . ' != ' . $id);
-            $data = $params;
-            $condition = dbConditionToSql($pCondition, $data, $pQuery->getPrimaryTableName());
         }
 
         $sql = $pQuery->createSelectSql($params);
 
         if ($pCondition) {
+            $conditionParams = $params;
+            $condition = dbConditionToSql($pCondition, $conditionParams, $pQuery->getPrimaryTableName());
+        }
+
+
+        if ($pCondition) {
             $sql = str_replace($id . ' != ' . $id, '(' . $condition . ')', $sql);
         }
 
+        /** @var \PDOStatement $stmt */
         $stmt = $con->prepare($sql);
         $db->bindValues($stmt, $params, $dbMap);
 
-        if ($data) {
-            foreach ($data as $idx => $v) {
+        if ($conditionParams) {
+            foreach ($conditionParams as $idx => $v) {
                 if (!is_array($v)) { //propel uses arrays as bind values, we with dbConditionToSql not.
                     $stmt->bindValue($idx, $v);
                 }

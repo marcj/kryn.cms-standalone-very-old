@@ -82,5 +82,20 @@ class File extends BaseFile implements FileInfoInterface
         return parent::getModifiedTime();
     }
 
+    public function toArray(
+        $keyType = null,
+        $includeLazyLoadColumns = true,
+        $alreadyDumpedObjects = array()
+    ) {
+        $item = parent::toArray(
+            null === $keyType ? TableMap::TYPE_STUDLYPHPNAME : $keyType,
+            $includeLazyLoadColumns,
+            $alreadyDumpedObjects
+        );
+        $item['name'] = $this->getName();
+        $item['isDir'] = $this->isDir();
+        $item['icon'] = $this->getIcon();
+        return $item;
+    }
 
 }

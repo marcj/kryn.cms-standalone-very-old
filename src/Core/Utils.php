@@ -80,7 +80,7 @@ class Utils
             'file' => $pException->getFile()
         );
 
-        $backtrace = $pException->getTrace();
+        $backtrace = [$exception] + $pException->getTrace();
 
         $traces = array();
         $count = count($backtrace);
@@ -171,7 +171,7 @@ class Utils
 
                         $buffer = preg_replace('/@import \'([^\/].*)\'/', '@import \'' . $cssDir . '$1\'', $buffer);
                         $buffer = preg_replace('/@import "([^\/].*)"/', '@import "' . $cssDir . '$1"', $buffer);
-                        $buffer = preg_replace('/url\(\'([^\/].*)\'\)/', 'url(\'' . $cssDir . '$1\')', $buffer);
+                        $buffer = preg_replace('/url\(\'([^\/][^\)]*)\'\)/', 'url(\'' . $cssDir . '$1\')', $buffer);
                         $buffer = preg_replace('/url\((?!data:image)([^\/\'].*)\)/', 'url(' . $cssDir . '$1)', $buffer);
                         $buffer = str_replace(array('  ', '    ', "\t", "\n", "\r"), '', $buffer);
                         $buffer = str_replace(': ', ':', $buffer);

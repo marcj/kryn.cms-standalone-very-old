@@ -24,18 +24,9 @@ $GLOBALS['krynInstaller'] = true;
 $loader = include __DIR__ . '/../vendor/autoload.php';
 Kryn::bootstrap($loader);
 
-if (file_exists('config.php')) {
-    Kryn::$config = require('config.php');
-}
-
-if (!is_array(Kryn::$config)) {
-    Kryn::$config = array();
-}
-
 Kryn::prepareWebSymlinks();
 
 $lang = 'en';
-$cfg = array();
 
 @ini_set('display_errors', 1);
 
@@ -289,15 +280,11 @@ switch ($step) {
 
 function checkConfig()
 {
-    global $cfg;
-
-    $type = $_REQUEST['db_type'];
-
-    if ((file_exists('config.php') && !is_writable('config.php'))
-        || !file_exists('config.php') && !is_writable('.')
+    if ((file_exists('app/config/config.xml') && !is_writable('app/config/config.xml'))
+        || !file_exists('app/config/config.xml') && !is_writable('app/config/')
     ) {
         $res['res'] = false;
-        $res['error'] = './config.php is not writable.';
+        $res['error'] = 'app/config/config.xml is not writable.';
         die(json_encode($res));
     }
 
@@ -319,77 +306,59 @@ function checkConfig()
         $connection = new PDO($dsn, $cfg['db_user'], $cfg['db_password']);
     } catch (PDOException $e) {
         $res['res'] = false;
-        $res['error'] = $dsn . ': ' . $e->getMessage();
+        $res['error'] = "`$dsn` [" . $e->getMessage() . ']';
     }
 
     if ($res['res'] == true) {
+        $database = Kryn::$config->getDatabase();
+
+        $connection = Kryn::$config->getDatabase()->getMainConnection();
+        $connection->setServer($_REQUEST['server']);
+        $connection->setUsername($_REQUEST['username']);
+        $connection->setPassword($_REQUEST['password']);
+        $connection->setName($_REQUEST['db']);
+        $connection->setType($_REQUEST['type']);
+        $connection->setPersistent($_REQUEST['persistent'] == 1);
+
+        $database->setPrefix($_REQUEST['prefix']);
 
         $timezone = $_REQUEST['timezone'];
         if (!$timezone) {
             $timezone = 'Europe/Berlin';
         }
 
+        Kryn::$config->setTimezone($timezone);
+
         $systemTitle = $_REQUEST['systemTitle'];
         if (!$systemTitle) {
-            $systemTitle = "Fresh install";
+            $systemTitle = "Fresh Installation";
         }
 
-        $cfg = array(
-            'id' => $_REQUEST['id'],
-            'database' => array(
-                'server' => $_REQUEST['server'],
-                'user' => $_REQUEST['username'],
-                'password' => $_REQUEST['password'],
-                'name' => $_REQUEST['db'],
-                'prefix' => $_REQUEST['prefix'],
-                'type' => $_REQUEST['type'],
-                'protectTables' => ($_REQUEST['protectTables'] ? explode(
-                    ',',
-                    preg_replace('[^a-zA-Z_-%0-9]', '', $_REQUEST['protectTables'])
-                ) : array()),
-                'persistent' => $_REQUEST['persistent'],
-            ),
-            'rename' => $_REQUEST['rename'] + 0,
-            'fileGroupPermission' => $_REQUEST['fileGroupPermission'],
-            'fileGroupName' => $_REQUEST['fileGroupName'],
-            'fileEveryonePermission' => $_REQUEST['fileEveryonePermission'],
-            'fileNoChangeMode' => $_REQUEST['fileNoChangeMode'] + 0,
-            'fileTemp' => $_REQUEST['fileTemp'] ? $_REQUEST['fileTemp'] : null,
-            'cache' => array(
-                'class' => '\Core\Cache\Files'
-            ),
-            "passwordHashCompat" => 0,
-            "passwordHashKey" => Core\Client\ClientAbstract::getSalt(32),
-            "displayErrors" => $_REQUEST['displayErrors'],
-            "displayBeautyErrors" => $_REQUEST['displayBeautyErrors'],
-            "displayDetailedRestErrors" => $_REQUEST['displayDetailedRestErrors'],
-            "logErrors" => 0,
-            "systemTitle" => $systemTitle,
-            "client" => array(
-                "class" => "\Core\Client\KrynUsers",
-                "config" => array(
-                    "emailLogin" => false,
-                    "store" => array(
-                        "class" => "database",
-                        "config" => array()
-                    )
+        Kryn::$config->setSystemTitle($systemTitle);
 
-                )
-            ),
-            "timezone" => $timezone
-        );
-        $config = '<?php return ' . var_export($cfg, true) . '; ?>';
+        if ($_REQUEST['id']) {
+            Kryn::$config->setId($_REQUEST['id']);
+        }
 
-        Kryn::$config = $cfg;
+        Kryn::$config->setTempDir($_REQUEST['fileTemp']);
 
-        delDir(Kryn::getTempFolder() . 'propel');
+        $filePermission = Kryn::$config->getFile();
+        $filePermission->setDisableModeChange($_REQUEST['fileNoChangeMode'] == 1);
+        $filePermission->setGroupPermission($_REQUEST['fileGroupPermission']);
+        $filePermission->setEveryonePermission($_REQUEST['fileEveryonePermission']);
+        $filePermission->setGroupOwner($_REQUEST['fileGroupName']);
 
-        $f = \Core\SystemFile::setContent('config.php', $config);
+        $errors = Kryn::$config->getErrors();
+        $errors->setDisplay($_REQUEST['displayErrors'] == 1);
+        $errors->setStackTrace($_REQUEST['displayBeautyErrors'] == 1);
+        $errors->setDisplayRest($_REQUEST['displayDetailedRestErrors'] == 1);
 
-        if (!$f) {
-            $res['error'] = 'Can not open file config.php - please change the permissions.';
+        if (!Kryn::$config->save('app/config/config.xml', true)) {
+            $res['error'] = 'Can not open file app/config/config.xml - please change the permissions.';
             $res['res'] = false;
         }
+
+        delDir(Kryn::getTempFolder() . 'propel');
     }
 
     die(json_encode($res));
@@ -498,7 +467,7 @@ function step5Done($pMsg)
 //prepare
 function step5_1()
 {
-//    try {
+    try {
 
         \Core\TempFile::createFolder('./');
         \Core\WebFile::createFolder('cache/');
@@ -510,9 +479,9 @@ function step5_1()
         \Core\PropelHelper::updateSchema();
         \Core\PropelHelper::cleanup();
 
-//    } catch (\Exception $e) {
-//        step5Failed($e);
-//    }
+    } catch (Exception $e) {
+        step5Failed($e);
+    }
 
     step5Done(true);
 }
@@ -523,9 +492,9 @@ function step5_2()
     $manager = new Admin\Module\Manager;
 
     try {
-        $manager->install('Core\\CoreBundle', true);
-        $manager->install('Admin\\AdminBundle', true);
-        $manager->install('Users\\UsersBundle', true);
+        $manager->install('Core\\CoreBundle');
+        $manager->install('Admin\\AdminBundle');
+        $manager->install('Users\\UsersBundle');
     } catch (Exception $e) {
         step5Failed($e);
     }
@@ -537,17 +506,14 @@ function step5_3()
 {
     \Core\TempFile::remove('propel');
 
-    \Core\Kryn::$config['activeModules'] = array();
     \Core\Kryn::$bundles = array('Core\\CoreBundle', 'Admin\\AdminBundle', 'Users\\UsersBundle');
 
-//    try {
+    try {
         \Core\PropelHelper::updateSchema();
         \Core\PropelHelper::generateClasses();
-
-        //\Core\PropelHelper::cleanup();
-//    } catch (Exception $e) {
-//        step5Failed($e);
-//    }
+    } catch (Exception $e) {
+        step5Failed($e);
+    }
     step5Done(true);
 }
 
@@ -577,7 +543,7 @@ function step5_5()
             continue;
         }
         try {
-            $manager->install($module, true);
+            $manager->install($module);
         } catch (Exception $e) {
             step5Failed($e);
         }
@@ -630,6 +596,7 @@ function step5_8()
 
     \Admin\Utils::clearCache();
 
+    //todo
     if (Kryn::$config['rename']) {
         rename(
             'install.php',
@@ -667,32 +634,18 @@ function step5_9()
 
 function step5Init()
 {
-    if (!file_exists('config.php')) {
-        die('Config.php not found. Please open install.php without arguments again.');
-    }
-
     $subStep = $_GET['substep'] + 0;
-    Kryn::$config = require('config.php');
 
     define('pfx', Kryn::$config['database']['prefix']);
 
     if ($subStep == 0 && $_REQUEST['modules']) {
-        Kryn::$config['bundles'] = array_keys($_REQUEST['modules']);
-
-        \Core\SystemFile::setContent('config.php', "<?php\nreturn " . var_export(Kryn::$config, true) . ";\n?>");
+        Kryn::$config->setBundles(array_keys($_REQUEST['modules']));
+        Kryn::$config->save('app/config/config.xml', true);
     }
-    Kryn::$bundles = array_merge(Kryn::$bundles, Kryn::$config['bundles']);
-
-    if (file_exists($file = 'propel-config.php')) {
-        $propelConfig = include($file);
-        Core\Kryn::$propelClassMap = $propelConfig['classmap'];
-    }
+    Kryn::loadActiveModules();
 
     if ($subStep >= 1) {
-
         \Core\PropelHelper::loadConfig();
-//        \Propel::setConfiguration(\Core\PropelHelper::getConfig());
-//        \Propel::initialize();
     }
 
     if ($subStep > 0) {
@@ -700,7 +653,6 @@ function step5Init()
         $fn();
         exit;
     }
-
 }
 
 function step5()
@@ -748,8 +700,8 @@ function step5()
         <div
             style="color: gray;  border: 1px solid silver; border-top: 1px dashed #888; padding: 15px; margin: 15px 0; border-radius: 5px;">
             Developer information:<br/><br/>
-            To get the correct auto-completion in your IDE, you have to include the following folder to your project,
-            since there are all propel model classes.<br/>
+            If you have chosen a temp directory outside of your project dir, you should include the following folder to your project to get the
+            correct auto-completion in your IDE, since there are all propel model classes.<br/>
             <pre><?php echo Kryn::getTempFolder() . 'propel-classes/' ?></pre>
         </div>
     </div>
@@ -851,7 +803,9 @@ function step4()
             ?>
         </table>
     </form>
-    <b style="color: red;">All database tables related to these modules will be dropped in the next step!</b><br/><br/>
+    <b style="color: red;">All database tables related to these bundles and all tables where the name starts with
+        `<?php echo Kryn::getSystemConfig()->getDatabase()->getPrefix(); ?>`
+        will be dropped in the next step!</b><br/><br/>
     <a href="?step=3" class="ka-Button">Back</a>
     <a href="javascript: document.id('form.modules').submit();" class="ka-Button">Install!</a>
 <?php
@@ -859,7 +813,6 @@ function step4()
 
 function buildModInfo()
 {
-
     $finder = new \Symfony\Component\Finder\Finder();
     $finder
         ->files()
@@ -879,7 +832,7 @@ function buildModInfo()
             preg_match('/\s*\t*namespace ([a-zA-Z0-9_\\\\]+)/', $content, $namespace);
             $class = (count($namespace) > 1 ? $namespace[1] . '\\' : '' ) . $className[1];
 
-            if ('Bundle' === $className[1] || false !== strpos($class, '\\Test\\') || false !== strpos($class, '\\Tests\\')) {
+            if ('Bundle' === $className[1]) {
                 continue;
             }
 
@@ -892,18 +845,19 @@ function buildModInfo()
 
     foreach ($bundles as $bundleClass) {
         $bundle = new $bundleClass();
-        if (in_array($bundleClass, $systemBundles)) {
+        if (in_array($bundleClass, $systemBundles) || !($bundle instanceof \Core\Bundle)) {
             continue;
         }
 
         $composer = $bundle->getComposer();
+        $checked = in_array($bundleClass, Kryn::$config->getBundles()) ? 'checked="checked"' : '';
 
         ?>
 
         <tr>
             <td valign="top" width="30">
                 <div style="padding-top: 5px;">
-                    <input name="modules[<?php echo $bundleClass; ?>]" checked="checked" type="checkbox" value="1" />
+                    <input name="modules[<?php echo $bundleClass; ?>]" <?php echo $checked; ?> type="checkbox" value="1" />
                 </div>
             </td>
             <td valign="top"><b><?php echo $composer['name'] ?></b></td>
@@ -1024,21 +978,21 @@ function step3()
             var info = document.id('db_name_sqlite_info');
             var user = document.id('db_username');
             var passwd = document.id('db_password');
-            var port = document.id('db_port');
+//            var port = document.id('db_port');
             var persis = document.id('db_persistent');
 
             driver.addEvent('change', function () {
                 if (driver.value == 'sqlite') {
                     server.required = false;
                     user.required = false;
-                    [server, passwd, user, port, persis].each(function (item) {
+                    [server, passwd, user, persis].each(function (item) {
                         item.getParent('tr').setStyle('display', 'none');
                     });
                     info.setStyle('display', 'block');
                 } else {
                     server.required = true;
                     user.required = true;
-                    [server, passwd, user, port, persis].each(function (item) {
+                    [server, passwd, user, persis].each(function (item) {
                         item.getParent('tr').setStyle('display', 'table-row');
                     });
                     info.setStyle('display', 'none');
@@ -1089,11 +1043,11 @@ function step3()
                             '<span style="color:red;">Fatal Error. Please take a look in server logs.</span>');
                     }
                 },
-                    onError: function (res) {
-                        document.id('status').set('html',
-                            '<span style="color:red;">Fatal Error. Please take a look in server logs.</span> Maybe this helps: <br />' +
-                                res);
-                    }}).post(req);
+                onError: function (res) {
+                    document.id('status').set('html',
+                        '<span style="color:red;">Fatal Error. Please take a look in server logs.</span> Maybe this helps: <br />' +
+                            res);
+                }}).get(req);
             }
         }
 
@@ -1101,7 +1055,7 @@ function step3()
 
             var tr = new Element('tr');
 
-            var names = ['host', 'port', 'username', 'password', 'database', 'prefix'];
+            var names = ['host', 'username', 'password', 'database', 'prefix'];
             for (var i = 0; i < 6; i++) {
                 new Element('input', {name: 'slaves[' + names[i] + '][]', required: i == 1 ? null :
                     true, 'class': 'ka-Input', style: 'width: 100%'}).inject(new Element('td').inject(tr));
@@ -1120,8 +1074,10 @@ function step3()
 
     <form id="form" autocomplete="off" onsubmit="checkConfigEntries(); return false;">
 
-    These settings are only the minimum settings to run Kryn.cms.<br/>
-    To set more detailed settings, just login to the administration and open the settings window after the installation.
+    <div style="padding: 15px 0">
+        These settings are only the minimum settings to run Kryn.cms.<br/>
+        To set more detailed settings, just login to the administration and open the settings window after the installation.
+    </div>
 
     <h3>System</h3>
 
@@ -1129,7 +1085,7 @@ function step3()
         <tr>
             <td width="450">Title*</td>
             <td>
-                <input type="text" class="ka-Input-text" required name="systemTitle" value="Fresh installation">
+                <input type="text" class="ka-Input-text" required name="systemTitle" value="<?php echo Kryn::$config->getSystemTitle(); ?>">
             </td>
         </tr>
         <tr>
@@ -1138,7 +1094,7 @@ function step3()
             </td>
             <td>
                 <input type="text" class="ka-Input-text" required name="id"
-                       value="<?php echo dechex((time() / 1000) / mt_rand(10, 100)); ?>">
+                       value="<?php echo Kryn::$config->getId() ?: dechex((time() / 1000) / mt_rand(10, 100)); ?>">
             </td>
         </tr>
         <tr>
@@ -1146,9 +1102,10 @@ function step3()
             <td>
                 <select name="timezone">
                     <?php
+                    $value = Kryn::$config->getTimezone() ?: 'Europe/Berlin';
                     $zones = timezone_identifiers_list();
                     foreach ($zones as $zone) {
-                        echo "<option " . ($zone == 'Europe/Berlin' ? 'selected="selected"' : '') . ">$zone</option>";
+                        echo "<option " . ($zone == $value ? 'selected="selected"' : '') . ">$zone</option>";
                     }
                     ?>
                 </select>
@@ -1160,14 +1117,14 @@ function step3()
                 Display errors
                 <div style="color: #aaa">Activates regular PHP error reporting.</div>
             </td>
-            <td><input type="checkbox" checked="checked" name="displayErrors" value="1"/></td>
+            <td><input type="checkbox" <?php if (Kryn::$config->getErrors()->getDisplay()) echo 'checked="checked"'; ?> name="displayErrors" value="1"/></td>
         </tr>
         <tr>
             <td>
                 Display beauty errors
                 <div style="color: #aaa">A fancy error view with highlighted code view of the debug trace.</div>
             </td>
-            <td><input type="checkbox" checked="checked" name="displayBeautyErrors" value="1"/></td>
+            <td><input type="checkbox" <?php if (Kryn::$config->getErrors()->getStackTrace()) echo 'checked="checked"'; ?> name="displayBeautyErrors" value="1"/></td>
         </tr>
 
         <tr>
@@ -1175,7 +1132,7 @@ function step3()
                 Display detailed RESTful API Error information.
                 <div style="color: #aaa">Means file name, line number and backstrace.</div>
             </td>
-            <td><input type="checkbox" checked="checked" name="displayDetailedRestErrors" value="1"/></td>
+            <td><input type="checkbox" <?php if (Kryn::$config->getErrors()->getDisplayRest()) echo 'checked="checked"'; ?> name="displayDetailedRestErrors" value="1"/></td>
         </tr>
     </table>
 
@@ -1194,16 +1151,16 @@ function step3()
             <td width="450">Default group owner
             </td>
             <td>
-                <input type="text" class="ka-Input-text" name="fileGroupName" value="">
+                <input type="text" class="ka-Input-text" name="fileGroupName" value="<?php echo Kryn::$config->getFile()->getGroupOwner(); ?>">
             </td>
         </tr>
         <tr>
             <td>Default group permission</td>
             <td>
                 <select name="fileGroupPermission">
-                    <option value="rw">Read and Write</option>
-                    <option value="r">Read</option>
-                    <option value="-">None</option>
+                    <option <?php if (Kryn::$config->getFile()->getGroupPermission() == 'rw') echo 'selected="selected"'; ?> value="rw">Read and Write</option>
+                    <option <?php if (Kryn::$config->getFile()->getGroupPermission() == 'r') echo 'selected="selected"'; ?>value="r">Read</option>
+                    <option <?php if (Kryn::$config->getFile()->getGroupPermission() == '') echo 'selected="selected"'; ?> value="">None</option>
                 </select>
             </td>
         </tr>
@@ -1211,16 +1168,16 @@ function step3()
             <td>Default everyone permission</td>
             <td>
                 <select name="fileEveryonePermission">
-                    <option value="-">None</option>
-                    <option value="r">Read</option>
-                    <option value="rw">Read and Write</option>
+                    <option <?php if (Kryn::$config->getFile()->getEveryonePermission() == '') echo 'selected="selected"'; ?> value="">None</option>
+                    <option <?php if (Kryn::$config->getFile()->getEveryonePermission() == 'r') echo 'selected="selected"'; ?> value="r">Read</option>
+                    <option <?php if (Kryn::$config->getFile()->getEveryonePermission() == 'rw') echo 'selected="selected"'; ?> value="rw">Read and Write</option>
                 </select>
             </td>
         </tr>
         <tr>
             <td>Do not change file permission</td>
             <td>
-                <input type="checkbox" value="1" name="fileNoChangeMode"/>
+                <input type="checkbox" <?php if (Kryn::$config->getFile()->getDisableModeChange()) echo 'checked="checked"'; ?> value="1" name="fileNoChangeMode"/>
             </td>
         </tr>
         <tr>
@@ -1231,12 +1188,14 @@ function step3()
                 </div>
             </td>
             <td>
-                <input type="text" class="ka-Input-text" name="fileTemp" value="app/cache/">
+                <input type="text" class="ka-Input-text" name="fileTemp" value="<?php echo Kryn::$config->getTempDir() ?>">
             </td>
         </tr>
     </table>
 
     <h3>Database</h3>
+
+    <div style="color: #aaa">This is the main connection. You can define later more slave connections in the administration.</div>
 
     <table style="width: 100%" cellpadding="3">
         <tr>
@@ -1253,7 +1212,8 @@ function step3()
 
                     foreach ($drivers as $driver => $label) {
                         $enabled = extension_loaded('pdo_' . $driver) ? '' : 'disabled="disabled"';
-                        print "<option $enabled value=\"$driver\">$label</option>";
+                        $selected = $driver == Kryn::$config->getDatabase()->getMainConnection()->getType() ? 'selected="selected"' : '';
+                        print "<option $enabled $selected value=\"$driver\">$label</option>";
                     }
                     ?>
                 </select></td>
@@ -1261,60 +1221,46 @@ function step3()
 
         <tr>
             <td>
+
                 Persistent connections
                 <div style="color: #aaa">You should probably deactivate this on the most low-cost and free web hoster.
                 </div>
             </td>
-            <td><input type="checkbox" checked="checked" id="db_persistent" name="persistent" value="1"/></td>
+            <td><input type="checkbox" <?php if (Kryn::$config->getDatabase()->getMainConnection()->getPersistent()) echo 'checked="checked"'; ?> id="db_persistent" name="persistent" value="1"/></td>
         </tr>
         <tr>
             <td>
                 Host *
             </td>
-            <td><input required type="text" class="ka-Input-text" name="server" id="db_server" value="localhost"/></td>
-        </tr>
-        <tr>
-            <td>
-                Port
-                <div style="color: #aaa">Empty for default</div>
-            </td>
-            <td><input type="text" class="ka-Input-text" style="width:50px" id="db_port" name="port" value=""/></td>
+            <td><input required type="text" class="ka-Input-text" name="server" id="db_server" value="<?php echo Kryn::$config->getDatabase()->getMainConnection()->getServer() ?>"/></td>
         </tr>
         <tr id="ui_username">
             <td>Username *</td>
-            <td><input required type="text" class="ka-Input-text" name="username" id="db_username"/></td>
+            <td><input required type="text" class="ka-Input-text" name="username" id="db_username" value="<?php echo Kryn::$config->getDatabase()->getMainConnection()->getUsername() ?>"/></td>
         </tr>
         <tr id="ui_password">
             <td>Password</td>
-            <td><input type="password" name="password" id="db_password" class="ka-Input-text"/></td>
+            <td><input type="password" name="password" id="db_password" class="ka-Input-text" value="<?php echo Kryn::$config->getDatabase()->getMainConnection()->getPassword(); ?>"/></td>
         </tr>
         <tr id="ui_db">
             <td>
-                Database name *
+                Database/Schema name *
                 <div id="db_name_sqlite_info" style="display: none; color: #aaa">For SQLite enter here the file name
                 </div>
             </td>
-            <td><input required type="text" class="ka-Input-text" name="db" id="db_name"/></td>
+            <td><input required type="text" class="ka-Input-text" name="db" id="db_name" value="<?php echo Kryn::$config->getDatabase()->getMainConnection()->getName() ?>"/></td>
         </tr>
         <tr>
             <td>Table Prefix
                 <div style="color: #aaa">
-                    Please use only a lowercase string.
+                    Please use only a lowercase string.<br />
+                    In the next step all tables with a name that starts with this prefix WILL BE DROPPED!<br/>
+                    If you don't enter a prefix ALL TABLES WILL BE REMOVED in this database/schema.
+
                 </div>
             </td>
             <td><input style="width: 80px" type="text" class="ka-Input-text" name="prefix" id="db_prefix"
-                       value="kryn_"/></td>
-        </tr>
-        <tr>
-            <td>Protect tables
-                <div style="color: #aaa">
-                    Per default, the ORM (Propel ORM) we use drops all tables in the defined database, which are not
-                    used
-                    by Kryn.cms or modules. So you may enter here table names (%pfx% available) comma saparated, to
-                    protect these tables from the deletion.
-                </div>
-            </td>
-            <td><textarea style="height: 75px;" type="text" class="ka-Input-text" name="protectTables"></textarea></td>
+                       value="<?php echo Kryn::$config->getDatabase()->getPrefix() ?>"/></td>
         </tr>
         <tr>
             <td colspan="2">
@@ -1328,7 +1274,7 @@ function step3()
     <table style="width: 100%" cellpadding="3">
         <tr>
             <td width="450">
-                Rename install.php to random name
+                Rename install.php to random name at the end of the installation.
                 <div style="color: #aaa">Highly recommended for security reasons.</div>
             </td>
             <td><input type="checkbox" checked="checked" name="rename" value="1"/></td>

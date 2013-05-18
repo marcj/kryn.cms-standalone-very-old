@@ -252,7 +252,7 @@ class Kryn extends Controller
      * @var array
      * @static
      */
-    public static $bundles = array('Core\CoreBundle', 'Admin\AdminBundle', 'Users\UsersBundle');
+    public static $bundles = ['Core\CoreBundle', 'Admin\AdminBundle', 'Users\UsersBundle'];
 
     private static $bundleInstances = array();
 
@@ -631,6 +631,7 @@ class Kryn extends Controller
      */
     public static function loadActiveModules()
     {
+        self::$bundles = ['Core\CoreBundle', 'Admin\AdminBundle', 'Users\UsersBundle'];
         if ($bundles = self::getSystemConfig()->getBundles()) {
             foreach ($bundles as $bundle) {
                 Kryn::$bundles[] = $bundle;
@@ -1749,28 +1750,28 @@ class Kryn extends Controller
         //load main config, setup some constants and check some requirements.
         require(__DIR__ . '/bootstrap.php');
 
-        if (false !== strpos($_SERVER['PHP_SELF'], 'install.php')) {
-            return;
-        }
-
         /**
          * Check and loading config.php or redirect to install.php
          */
         $configFile = PATH . 'app/config/config.xml';
-        if (!file_exists($configFile)) {
+        if (!file_exists($configFile) && !defined('KRYN_INSTALLER')) {
             header("Location: install.php");
             exit;
         }
 
-        static::$config = new SystemConfig(file_get_contents($configFile));
+        static::$config = new SystemConfig(file_exists($configFile) ? file_get_contents($configFile) : null);
 
         if (!defined('pfx')) {
             define('pfx', self::$config->getDatabase()->getPrefix());
         }
 
-        self::checkStaticCaching();
-
         self::getLoader()->add('', self::getTempFolder() . 'propel-classes/');
+
+        if (false !== strpos($_SERVER['PHP_SELF'], 'install.php')) {
+            return;
+        }
+
+        self::checkStaticCaching();
 
         $http = 'http://';
         if (isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == '1' || strtolower($_SERVER['HTTPS']) == 'on')) {
