@@ -10,6 +10,7 @@ use Core\Config\FilePermission;
 use Core\Config\SessionStorage;
 use Core\Config\SystemConfig;
 use Core\Config\Connection;
+use Core\Kryn;
 use Tests\TestCaseWithCore;
 
 class SystemConfigTest extends TestCaseWithCore

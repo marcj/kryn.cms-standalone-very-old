@@ -3,6 +3,7 @@
 namespace Admin\Module;
 
 use Admin\Module\Manager;
+use Core\Exceptions\BundleNotFoundException;
 use Core\Kryn;
 use Core\SystemFile;
 
@@ -705,14 +706,20 @@ class Editor
         SystemFile::setContent($path, $dom->saveXml());
 
         return true;
+    }
 
+    public function getBundle($bundleClass)
+    {
+        $bundle = Kryn::getBundle($bundleClass);
+        if (!$bundle) {
+            throw new BundleNotFoundException(tf('Bundle `%s` not found.', $name));
+        }
+        return $bundle;
     }
 
     public function saveGeneral($name)
     {
-        $request = Kryn::getRequest();
-
-        $bundle = Kryn::getBundle($name);
+        $bundle = $this->getBundle($name);
         $config =  $bundle->getComposer();
 
         $values = ['name', 'description', 'keywords', 'license', 'require', 'authors', 'homepage'];
@@ -721,6 +728,15 @@ class Editor
         }
 
         return $bundle->setComposer($config);
+    }
+
+    public function getEntryPoints($bundle)
+    {
+        $bundle = $this->getBundle($bundle);
+        $config = $bundle->getConfig();
+
+        $entryPoints = $config->getEntryPointsArray();
+        return $entryPoints;
     }
 
     public function saveEntryPoints($pName, $pEntryPoints)

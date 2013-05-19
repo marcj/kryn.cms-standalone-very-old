@@ -18,10 +18,16 @@ if (!defined('KRYN_MANAGER')) {
 \Core\Models\ContentQuery::create()->deleteAll();
 \Core\Models\AppLockQuery::create()->deleteAll();
 
-$domainName = $_GET['domain'] ? : '127.0.0.1';
-if ($_SERVER['SERVER_NAME']) {
+$domainName = '127.0.0.1';
+if (isset($_GET['domain'])) {
+    $domainName = $_GET['domain'];
+} else if ($_SERVER['HTTP_HOST']) {
+    $domainName = $_SERVER['HTTP_HOST'];
+} else if ($_SERVER['SERVER_NAME']) {
     $domainName = $_SERVER['SERVER_NAME'];
 }
+
+$domainName = explode(':', $domainName)[0];
 
 $domain = new Domain();
 $domain->setDomain($domainName);

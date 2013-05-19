@@ -36,20 +36,19 @@ class Plugin extends Model
      */
     protected $options;
 
+    /**
+     * @param Route[] $routes
+     */
     public function setRoutes(array $routes)
     {
         $this->routes = $routes;
     }
 
+    /**
+     * @return Route[]
+     */
     public function getRoutes()
     {
-        if (null === $this->routes) {
-            $routes = $this->element->getElementsByTagName('route');
-            $this->routes = array();
-            foreach ($routes as $route) {
-                $this->routes[] = $this->getModelInstance($route);
-            }
-        }
         return $this->routes;
     }
 
@@ -101,17 +100,26 @@ class Plugin extends Model
         return $this->label;
     }
 
-    public function setOptions(Options $options)
+    /**
+     * @param Field[] $options
+     */
+    public function setOptions(array $options)
     {
         $this->options = $options;
     }
 
+    /**
+     * @return Field[]
+     */
     public function getOptions()
     {
         return $this->options;
     }
 
-    public function addOption($option)
+    /**
+     * @param Field $option
+     */
+    public function addOption(Field $option)
     {
         $this->options[] = $option;
     }

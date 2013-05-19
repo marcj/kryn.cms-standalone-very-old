@@ -6,7 +6,6 @@ class Theme extends Model
 {
     protected $attributes = ['id'];
     protected $elementMap = ['content' => 'ThemeContent', 'layout' => 'ThemeLayout'];
-    protected $excludeDefaults = ['contents', 'layouts'];
 
     /**
      * @var string
@@ -43,14 +42,6 @@ class Theme extends Model
      */
     public function getContents($orCreate = false)
     {
-        if ($orCreate && null === $this->contents) {
-            $contents = $this->element->getElementsByTagName('content');
-            $this->contents = array();
-            foreach ($contents as $content) {
-                $this->contents[] = new ThemeContent($content);
-            }
-        }
-
         return $this->contents;
     }
 

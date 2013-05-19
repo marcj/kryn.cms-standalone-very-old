@@ -4,6 +4,8 @@ namespace Core\Config;
 
 class Route extends Model
 {
+    protected $attributes = ['id', 'pattern'];
+
     /**
      * @var string
      */
@@ -26,36 +28,46 @@ class Route extends Model
 
     public function setupObject()
     {
-        $this->id = $this->element->attributes->getNamedItem('id')->nodeValue;
-        $this->pattern = $this->element->attributes->getNamedItem('pattern')->nodeValue;
+        parent::setupObject();
+
+        $defaults = $this->element->getElementsByTagName('default');
+        $this->defaults = array();
+        foreach ($defaults as $default) {
+            $this->defaults[] = new RouteDefault($default);
+        }
+
+        $requirements = $this->element->getElementsByTagName('requirement');
+        $this->requirements = array();
+        foreach ($requirements as $requirement) {
+            $this->requirements[] = new RouteRequirement($requirement);
+        }
     }
 
-    public function setDefaults($defaults)
+    /**
+     * @param RouteDefault[] $defaults
+     */
+    public function setDefaults(array $defaults)
     {
         $this->defaults = $defaults;
     }
 
+    /**
+     * @return RouteDefault[]
+     */
     public function getDefaults()
     {
-        if (null === $this->defaults) {
-            $defaults = $this->element->getElementsByTagName('default');
-            $this->defaults = array();
-            foreach ($defaults as $default) {
-                $this->defaults[] = new RouteDefault($default);
-            }
-        }
-
         return $this->defaults;
     }
 
     public function getArrayDefaults()
     {
-        $this->defaults = $this->defaults ? : $this->getDefaults();
-        $result = array();
-        foreach ($this->defaults as $default) {
-            $result[$default->getId()] = $default->getValue();
+        if (null !== $this->defaults) {
+            $result = array();
+            foreach ($this->defaults as $default) {
+                $result[$default->getId()] = $default->getValue();
+            }
+            return $result;
         }
-        return $result;
     }
 
     /**
@@ -97,14 +109,6 @@ class Route extends Model
 
     public function getRequirements()
     {
-        if (null === $this->requirements) {
-            $requirements = $this->element->getElementsByTagName('requirement');
-            $this->requirements = array();
-            foreach ($requirements as $requirement) {
-                $this->requirements[] = new RouteRequirement($requirement);
-            }
-        }
-
         return $this->requirements;
     }
 

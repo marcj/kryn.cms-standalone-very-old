@@ -964,9 +964,9 @@ ka.Window = new Class({
 
         this.mainLayout = new ka.Layout(this.win, {
             layout: [
-                {columns: [null], height: '30px'},
-                {columns: [null], height: '30px'},
-                {columns: [null]}
+                {columns: [null]},
+                {columns: [null]},
+                {columns: [null], height: '100%'}
             ]
         });
 

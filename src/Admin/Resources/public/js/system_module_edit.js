@@ -668,13 +668,13 @@ var admin_system_module_edit = new Class({
         }
 
         this.lr = new Request.JSON({url: _pathAdmin +
-            'admin/system/module/editor/config', noCache: 1, onComplete: function (res) {
+            'admin/system/module/editor/entry-points', noCache: 1, onComplete: function (res) {
             this.win.setLoading(false);
             this._renderLinks(res.data);
-        }.bind(this)}).get({name: this.mod});
+        }.bind(this)}).get({bundle: this.mod});
     },
 
-    _renderLinks: function (pConfig) {
+    _renderLinks: function (entryPoints) {
         this.panes['links'].empty();
 
         var p = new Element('div', {
@@ -700,8 +700,8 @@ var admin_system_module_edit = new Class({
         this.entryPointsTable.inject(p);
 
         this.entryPointSettingsFields = {
-            title: {
-                label: t('Title'),
+            label: {
+                label: t('Label'),
                 required: true,
                 desc: t('Surround the value with [[ and ]] to make it multilingual.')
             },
@@ -873,8 +873,8 @@ var admin_system_module_edit = new Class({
             }
         };
 
-        if (pConfig.entryPoints) {
-            Object.each(pConfig.entryPoints, function (link, key) {
+        if (entryPoints) {
+            Object.each(entryPoints, function (link, key) {
                 this.entryPointsAdd(key, link, this.entryPointsTable);
             }.bind(this));
         }
@@ -950,8 +950,8 @@ var admin_system_module_edit = new Class({
             noWrapper: true
         }, td);
 
-        if (pDefinition && pDefinition.title) {
-            tr.titleField.setValue(pDefinition.title);
+        if (pDefinition && pDefinition.label) {
+            tr.titleField.setValue(pDefinition.label);
         }
 
         //TYPE
@@ -970,50 +970,49 @@ var admin_system_module_edit = new Class({
         var tdActions = new Element('td', {width: 250}).inject(tr);
 
         new ka.Button(t('Settings'))
-            .addEvent('click', function () {
+        .addEvent('click', function () {
 
-                var dialog = this.win.newDialog('', true);
+            var dialog = this.win.newDialog('', true);
 
-                dialog.setStyle('width', '90%');
-                dialog.setStyle('height', '90%');
+            dialog.setStyle('width', '90%');
+            dialog.setStyle('height', '90%');
 
-                var applyBtn = new ka.Button(t('Apply'));
+            var applyBtn = new ka.Button(t('Apply'));
 
-                var fieldObject = new ka.FieldForm(dialog.content, this.entryPointSettingsFields, {
-                    allTableItems: true,
-                    tableItemLabelWidth: 300,
-                    saveButton: applyBtn
-                });
+            var fieldObject = new ka.FieldForm(dialog.content, this.entryPointSettingsFields, {
+                allTableItems: true,
+                tableItemLabelWidth: 300,
+                saveButton: applyBtn
+            });
 
-                fieldObject.setValue(tr.definition);
+            fieldObject.setValue(tr.definition);
 
-                fieldObject.getField('type').setValue(tr.typeField.getValue(), true);
-                fieldObject.getField('title').setValue(tr.titleField.getValue(), true);
+            fieldObject.getField('type').setValue(tr.typeField.getValue(), true);
+            fieldObject.getField('label').setValue(tr.titleField.getValue(), true);
 
-                new ka.Button(t('Cancel'))
-                    .addEvent('click', dialog.close)
-                    .inject(dialog.bottom);
+            new ka.Button(t('Cancel'))
+            .addEvent('click', dialog.closeAnimated)
+            .inject(dialog.bottom);
 
-                applyBtn.addEvent('click', function () {
+            applyBtn.addEvent('click', function () {
+                if (!fieldObject.isValid()) {
+                    return;
+                }
 
-                        if (!fieldObject.isValid()) {
-                            return;
-                        }
+                tr.definition = fieldObject.getValue();
+                tr.typeField.setValue(tr.definition.type);
+                tr.titleField.setValue(tr.definition.title);
 
-                        tr.definition = fieldObject.getValue();
-                        tr.typeField.setValue(tr.definition.type);
-                        tr.titleField.setValue(tr.definition.title);
-
-                        dialog.close();
-
-                    }.bind(this))
-                    .setButtonStyle('blue')
-                    .inject(dialog.bottom);
-
-                dialog.center();
+                dialog.close();
 
             }.bind(this))
-            .inject(tdActions);
+            .setButtonStyle('blue')
+            .inject(dialog.bottom);
+
+            dialog.center(true);
+
+        }.bind(this))
+        .inject(tdActions);
 
         new Element('a', {
             style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 5px;",
@@ -1030,82 +1029,82 @@ var admin_system_module_edit = new Class({
             title: _('Remove'),
             html: '&#xe26b;'
         })
-            .addEvent('click', function () {
-                this.win._confirm(t('Really delete?'), function (ok) {
-                    if (ok) {
-                        tr.fireEvent('delete');
-                        tr.removeEvents('change');
-                        tr.destroy();
-                        if (tr.childTr) {
-                            tr.childTr.destroy();
-                        }
+        .addEvent('click', function () {
+            this.win._confirm(t('Really delete?'), function (ok) {
+                if (ok) {
+                    tr.fireEvent('delete');
+                    tr.removeEvents('change');
+                    tr.destroy();
+                    if (tr.childTr) {
+                        tr.childTr.destroy();
                     }
-                }.bind(this));
-            }.bind(this))
-            .inject(tdActions);
+                }
+            }.bind(this));
+        }.bind(this))
+        .inject(tdActions);
 
         new Element('a', {
             style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
             title: t('Move up'),
             html: '&#xe2ca;'
         })
-            .addEvent('click', function () {
+        .addEvent('click', function () {
 
-                var previous = tr.getPrevious('.ka-entryPoint-item');
-                if (!previous) {
-                    return;
-                }
-                tr.inject(previous, 'before');
+            var previous = tr.getPrevious('.ka-entryPoint-item');
+            if (!previous) {
+                return;
+            }
+            tr.inject(previous, 'before');
 
-                if (tr.childTr) {
-                    tr.childTr.inject(tr, 'after');
-                }
+            if (tr.childTr) {
+                tr.childTr.inject(tr, 'after');
+            }
 
-            }.bind(this))
-            .inject(tdActions);
+        }.bind(this))
+        .inject(tdActions);
 
         new Element('a', {
             style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
             title: t('Move down'),
             html: '&#xe2cc;'
         })
-            .addEvent('click', function () {
+        .addEvent('click', function () {
 
-                var next = tr.getNext('.ka-entryPoint-item');
-                if (!next) {
-                    return;
-                }
-                tr.inject(next.childTr || next, 'after');
+            var next = tr.getNext('.ka-entryPoint-item');
+            if (!next) {
+                return;
+            }
+            tr.inject(next.childTr || next, 'after');
 
-                if (tr.childTr) {
-                    tr.childTr.inject(tr, 'after');
-                }
+            if (tr.childTr) {
+                tr.childTr.inject(tr, 'after');
+            }
 
-            }.bind(this))
-            .inject(tdActions);
+        }.bind(this))
+        .inject(tdActions);
 
         new Element('a', {
             style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
             title: t('Open'),
             html: '&#xe28d;'
         })
-            .addEvent('click', function () {
+        .addEvent('click', function () {
 
-                if (['list', 'add', 'edit', 'combine', 'custom'].contains(tr.definition.type)) {
-                    var extension = this.mod;
-                    var parent = tr, code = tr.key.getValue();
-                    while ((parent = parent.getParent('.ka-entryPoint-childrenContainer')) &&
-                        (parent = parent.getPrevious('.ka-entryPoint-item'))) {
+            if (['list', 'add', 'edit', 'combine', 'custom'].contains(tr.definition.type)) {
+                var extension = this.mod;
+                var parent = tr, code = tr.key.getValue();
+                while ((parent = parent.getParent('.ka-entryPoint-childrenContainer')) &&
+                    (parent = parent.getPrevious('.ka-entryPoint-item'))) {
 
-                        code = parent.key.getValue() + '/' + code;
-                    }
-                    code = extension + '/' + code;
-                    ka.wm.open(code);
-                    logger(code);
+                    code = parent.key.getValue() + '/' + code;
                 }
+                code = extension + '/' + code;
+                ka.wm.open(code);
+                logger(code);
+            }
 
-            }.bind(this))
-            .inject(tdActions);
+        }.bind(this))
+        .inject(tdActions);
 
         if (pDefinition.children) {
             Object.each(pDefinition.children, function (link, key) {
@@ -1440,7 +1439,7 @@ var admin_system_module_edit = new Class({
                 desc: t('Should be in format &lt;vendor&gt;/&lt;name&gt;. Example: krynlabs/kryn.cms'),
                 required: true
             },
-            desc: {
+            description: {
                 label: t('Description'),
                 required: true,
                 type: 'textarea'
@@ -1574,13 +1573,9 @@ var admin_system_module_edit = new Class({
     saveGeneral: function () {
         var req = this.generalFieldsObj.getValue();
 
-        if (this.setToMyExtension > 0) {
-            req['owner'] = this.setToMyExtension;
-        }
-
         this.win.setLoading(true, t('Saving ...'));
         this.lr = new Request.JSON({url: _pathAdmin +
-            'admin/system/module/editor/general?name=' + encodeURIComponent(this.mod), noCache: 1, onComplete: function () {
+            'admin/system/module/editor/general?name=' + decodeURIComponent(this.mod), onComplete: function () {
             this.win.setLoading(false);
         }.bind(this)}).post(req);
     },

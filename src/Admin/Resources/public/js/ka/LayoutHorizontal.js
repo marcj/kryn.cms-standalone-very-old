@@ -113,7 +113,7 @@ ka.LayoutHorizontal = new Class({
         var td = new Element('td', {
             width: pWidth,
             valign: 'top',
-            height: this.getContainer().get('height') ? this.getContainer().get('height') : '100%'
+            height: this.getContainer().get('height')
         }).inject(this.getContainer());
 
         var div = new Element('div', {

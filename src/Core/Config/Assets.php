@@ -14,6 +14,10 @@ use Core\Kryn;
  */
 class Assets extends Model implements \IteratorAggregate
 {
+    protected $attributes = ['recursive', 'compression'];
+
+    protected $nodeValueVar = 'path';
+
     /**
      * @var string
      */
@@ -35,13 +39,6 @@ class Assets extends Model implements \IteratorAggregate
      * @var bool
      */
     private $recursive = false;
-
-    public function setupObject()
-    {
-        $this->path = $this->element->nodeValue;
-        $this->setAttributeVar('recursive');
-        $this->setAttributeVar('compression');
-    }
 
     /**
      * @param boolean $compression

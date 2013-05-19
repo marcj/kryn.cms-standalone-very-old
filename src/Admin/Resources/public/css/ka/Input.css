@@ -1,6 +1,5 @@
 .ka-Input-text,
 input.text {
-
     color: #444;
     font-size: 14px;
     line-height: 30px;
@@ -24,6 +23,10 @@ input.text {
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
+}
+
+textarea.ka-Input-text {
+    line-height: 18px;
 }
 
 .ka-main-menu-top .ka-Input-text {

@@ -272,22 +272,6 @@ ka.AdminInterface = new Class({
             }
         };
 
-        document.id(document.body).addEvent('contextmenu', function (e) {
-            e = e || window.event;
-            e.cancelBubble = true;
-            e.returnValue = false;
-            if (e.stopPropagation) {
-                e.stopPropagation();
-            }
-            if (e.preventDefault) {
-                e.preventDefault();
-            }
-            if (e.target) {
-                document.id(e.target).fireEvent('mousedown', e);
-            }
-            return false;
-        });
-
         window.addEvent('mouseup', function () {
             this.destroyLinkContext();
         }.bind(this));

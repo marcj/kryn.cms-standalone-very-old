@@ -5,7 +5,7 @@ namespace Core\Config;
 use Admin\Utils;
 use Core\Kryn;
 
-class Config extends Model
+class Bundle extends Model
 {
 
     /**
@@ -59,12 +59,8 @@ class Config extends Model
      */
     public function __construct($bundleName, \DOMElement $bundleDoc = null)
     {
-        $this->element = new \DOMDocument();
+        $this->element = $bundleDoc;
         $this->bundleName = $bundleName;
-
-        if ($bundleDoc) {
-            $this->element->appendChild($this->element->importNode($bundleDoc, true));
-        }
     }
 
     /**
@@ -99,20 +95,6 @@ class Config extends Model
         return $this->getBundleClass()->getName(true);
     }
 
-    public function setupObject()
-    {
-    }
-
-    /**
-     * Loads a DOM element into the current configuration.
-     *
-     * @param \DOMElement $element
-     */
-    public function load(\DOMElement $element)
-    {
-        $this->element->appendChild($this->element->importNode($element->cloneNode(true), true));
-    }
-
     /**
      * @param \DOMNode $node
      */
@@ -128,7 +110,7 @@ class Config extends Model
                 //todo, element(section) already there, so merge both children
             } else {
                 //not there yet, just append it
-                $this->element->firstChild->appendChild($this->element->importNode($node, true));
+                $this->element->appendChild($this->element->ownerDocument->importNode($node, true));
             }
         }
     }
@@ -280,9 +262,9 @@ class Config extends Model
     }
 
     /**
-     * @param $entryPoints
+     * @param EntryPoint[] $entryPoints
      */
-    public function setEntryPoints($entryPoints)
+    public function setEntryPoints(array $entryPoints)
     {
         $this->entryPoints = $entryPoints;
     }
@@ -292,28 +274,18 @@ class Config extends Model
      */
     public function getEntryPoints()
     {
-        if (null === $this->entryPoints) {
-            $childrenElement = $this->getDirectChild('entryPoints');
-            $this->entryPoints = array();
-            if ($childrenElement) {
-                $children = $childrenElement->childNodes;
-                foreach ($children as $child) {
-                    if ('entryPoint' === $child->nodeName) {
-                        $this->entryPoints[] = $this->getModelInstance($child);
-                    }
-                }
-            }
-        }
         return $this->entryPoints;
     }
 
     public function getEntryPointsArray()
     {
-        $entryPoints = array();
-        foreach ($this->getEntryPoints() as $entryPoint) {
-            $entryPoints[$entryPoint->getPath()] = $entryPoint->toArray();
+        if (null !== $this->entryPoints) {
+            $entryPoints = array();
+            foreach ($this->entryPoints as $entryPoint) {
+                $entryPoints[$entryPoint->getPath()] = $entryPoint->toArray();
+            }
+            return $entryPoints;
         }
-        return $entryPoints;
     }
 
     public function getAllEntryPoints(EntryPoint $entryPoint = null)
@@ -326,12 +298,14 @@ class Config extends Model
             $subEntryPoints = $this->getEntryPoints();
         }
 
-        foreach ($subEntryPoints as $subEntryPoint) {
-            $entryPoints[$subEntryPoint->getFullPath()] = $subEntryPoint;
-            $entryPoints = array_merge(
-                $entryPoints,
-                $this->getAllEntryPoints($subEntryPoint)
-            );
+        if (null !== $subEntryPoints) {
+            foreach ($subEntryPoints as $subEntryPoint) {
+                $entryPoints[$this->getBundleName() . '/' . $subEntryPoint->getFullPath()] = $subEntryPoint;
+                $entryPoints = array_merge(
+                    $entryPoints,
+                    $this->getAllEntryPoints($subEntryPoint)
+                );
+            }
         }
 
         return $entryPoints;
@@ -389,15 +363,16 @@ class Config extends Model
      */
     public function getEntryPoint($path)
     {
-        $this->entryPoints = $this->entryPoints ? : $this->getEntryPoints();
         $first = (false === ($pos = strpos($path, '/'))) ? $path : substr($path, 0, $pos);
 
-        foreach ($this->entryPoints as $entryPoint) {
-            if ($first == $entryPoint->getPath()) {
-                if (false !== strpos($path, '/')) {
-                    return $entryPoint->getChild(substr($path, $pos + 1));
-                } else {
-                    return $entryPoint;
+        if (null !== $this->entryPoints) {
+            foreach ($this->entryPoints as $entryPoint) {
+                if ($first == $entryPoint->getPath()) {
+                    if (false !== strpos($path, '/')) {
+                        return $entryPoint->getChild(substr($path, $pos + 1));
+                    } else {
+                        return $entryPoint;
+                    }
                 }
             }
         }

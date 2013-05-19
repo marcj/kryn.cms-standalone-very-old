@@ -639,6 +639,11 @@ class Kryn extends Controller
         }
     }
 
+    public static function getBundles()
+    {
+        return self::$bundles;
+    }
+
     /**
      * Creates all symlink in /web/<bundleName> to <bundlePath>/Resources/public
      * if not already.
@@ -833,7 +838,7 @@ class Kryn extends Controller
      *
      * @return bool
      */
-    public static function isActiveModule($bundleName)
+    public static function isActiveBundle($bundleName)
     {
         $bundle = self::getBundle($bundleName);
         if ($bundle) {
@@ -1762,7 +1767,7 @@ class Kryn extends Controller
         static::$config = new SystemConfig(file_exists($configFile) ? file_get_contents($configFile) : null);
 
         if (!defined('pfx')) {
-            define('pfx', self::$config->getDatabase()->getPrefix());
+            define('pfx', self::$config->getDatabase(true)->getPrefix());
         }
 
         self::getLoader()->add('', self::getTempFolder() . 'propel-classes/');
@@ -1863,7 +1868,7 @@ class Kryn extends Controller
     /**
      * @param $bundleName
      *
-     * @return Config\Config
+     * @return Config\Bundle
      */
     public static function getConfig($bundleName)
     {
@@ -1871,7 +1876,7 @@ class Kryn extends Controller
     }
 
     /**
-     * @return \Core\Config\Config[]|\Core\Config\Configs
+     * @return \Core\Config\Bundle[]|\Core\Config\Configs
      */
     public static function getConfigs()
     {

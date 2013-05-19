@@ -4,7 +4,9 @@ namespace Core\Config;
 
 class SimpleModel extends Model
 {
+    protected $attributes = ['id'];
 
+    protected $nodeValueVar = 'value';
     /**
      * @var string
      */
@@ -19,12 +21,6 @@ class SimpleModel extends Model
      * @var string
      */
     private $value;
-
-    public function setupObject()
-    {
-        $this->id = $this->element->attributes->getNamedItem($this->idKey)->nodeValue;
-        $this->value = $this->element->nodeValue;
-    }
 
     /**
      * @param string $id

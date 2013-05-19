@@ -13,6 +13,9 @@ use Core\Kryn;
  */
 class Asset extends Model
 {
+    protected $attributes = ['compression'];
+    protected $nodeValueVar = 'path';
+
     /**
      * @var string
      */
@@ -25,18 +28,12 @@ class Asset extends Model
      */
     private $compression = true;
 
-    public function setupObject()
-    {
-        $this->path = $this->element->nodeValue;
-        $this->setAttributeVar('compression');
-    }
-
     /**
      * @param boolean $compression
      */
     public function setCompression($compression)
     {
-        $this->compression = filter_var($compression, FILTER_VALIDATE_BOOLEAN);
+        $this->compression = $this->bool($compression);
     }
 
     /**

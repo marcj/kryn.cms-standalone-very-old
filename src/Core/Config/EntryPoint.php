@@ -5,6 +5,8 @@ namespace Core\Config;
 
 class EntryPoint extends Model
 {
+    protected $attributes = ['path', 'type', 'icon', 'multi', 'link'];
+
     /**
      * @var string
      */
@@ -46,59 +48,58 @@ class EntryPoint extends Model
     protected $children;
 
     /**
+     * @var EntryPoint
+     */
+    private $parentInstance;
+
+    /**
      * @var string
      */
     private $fullPath;
 
-    public function setupObject()
+    /**
+     * @param EntryPoint[] $children
+     */
+    public function setChildren(array $children = null)
     {
-        $this->setAttributeVar('path');
-        $this->setAttributeVar('type');
-        $this->setAttributeVar('icon');
-        $this->setAttributeVar('multi');
-        $this->setAttributeVar('link');
-
-        $this->setVar('label');
-        $this->setVar('class');
-    }
-
-    public function setChildren($children)
-    {
+        if (null !== $children) {
+            foreach ($children as $child) {
+                $child->setParentInstance($this);
+            }
+        }
         $this->children = $children;
     }
 
+    /**
+     * @return EntryPoint[]
+     */
     public function getChildren()
     {
-        if (null === $this->children) {
-            $childrenElement = $this->getDirectChild('children');
-            $this->children = array();
-            $children = $childrenElement->childNodes;
-            if ($children) {
-                foreach ($children as $child) {
-                    if ('entryPoint' === $child->nodeName) {
-                        $this->children[] = $this->getModelInstance($child);
-                    }
-                }
-            }
-        }
-
         return $this->children;
     }
 
+    /**
+     * @return array
+     */
     public function getChildrenArray()
     {
-        $entryPoints = array();
-        foreach ($this->getChildren() as $entryPoint) {
-            $entryPoints[$entryPoint->getPath()] = $entryPoint->toArray();
+        if (null !== $this->children) {
+            $entryPoints = array();
+            foreach ($this->children as $entryPoint) {
+                $entryPoints[$entryPoint->getPath()] = $entryPoint->toArray();
+            }
+            return $entryPoints;
         }
-        return $entryPoints;
     }
 
+    public function setParentInstance(EntryPoint $parentInstance)
+    {
+        $this->parentInstance = $parentInstance;
+    }
 
     public function getParentInstance()
     {
-        // we need to jump two elements, since we have <entryPoint><children><entryPoint>
-        return $this->getModelInstance($this->element->parentNode->parentNode);
+        return $this->parentInstance;
     }
 
     public function toArray($element = null)
@@ -109,11 +110,9 @@ class EntryPoint extends Model
     }
 
     /**
-     * @param bool $withBundlePrefix
-     *
      * @return string
      */
-    public function getFullPath($withBundlePrefix = false)
+    public function getFullPath()
     {
         if (null === $this->fullPath) {
             $path[] = $this->getPath();
@@ -124,15 +123,10 @@ class EntryPoint extends Model
                 }
                 array_unshift($path, $instance->getPath());
             }
-            array_unshift($path, strtolower($this->getBundleName()));
             $this->fullPath = implode('/', $path);
         }
 
-        if ($withBundlePrefix) {
-            return $this->fullPath;
-        } else {
-            return substr($this->fullPath, strpos($this->fullPath, '/') + 1);
-        }
+        return $this->fullPath;
     }
 
     /**
@@ -143,7 +137,6 @@ class EntryPoint extends Model
         $this->fullPath = $fullPath;
     }
 
-
     /**
      * @param $path
      *
@@ -151,15 +144,16 @@ class EntryPoint extends Model
      */
     public function getChild($path)
     {
-        $this->children = $this->children ? : $this->getChildren();
         $first = (false === ($pos = strpos($path, '/'))) ? $path : substr($path, 0, $pos);
 
-        foreach ($this->children as $child) {
-            if ($first == $child->getPath()) {
-                if (false !== strpos($path, '/')) {
-                    return $child->getChild(substr($path, $pos + 1));
-                } else {
-                    return $child;
+        if (null !== $this->children) {
+            foreach ($this->children as $child) {
+                if ($first == $child->getPath()) {
+                    if (false !== strpos($path, '/')) {
+                        return $child->getChild(substr($path, $pos + 1));
+                    } else {
+                        return $child;
+                    }
                 }
             }
         }
@@ -202,7 +196,7 @@ class EntryPoint extends Model
      */
     public function setLink($link)
     {
-        $this->link = filter_var($link, FILTER_VALIDATE_BOOLEAN);
+        $this->link = $this->bool($link);
     }
 
     /**
@@ -239,7 +233,7 @@ class EntryPoint extends Model
      */
     public function setMulti($multi)
     {
-        $this->multi = filter_var($multi, FILTER_VALIDATE_BOOLEAN);
+        $this->multi = $this->bool($multi);
     }
 
     /**

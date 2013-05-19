@@ -41,7 +41,6 @@ class Configs implements \IteratorAggregate
     public function parseConfig(array $configs)
     {
         $bundleConfigs = array();
-
         foreach ($configs as $bundleName => $priorities) {
             ksort($priorities); //sort by priority
 
@@ -50,19 +49,16 @@ class Configs implements \IteratorAggregate
                     if ($bundleConfigs[$bundleName]) {
                         $bundleConfigs[$bundleName]->import($bundleElement);
                     } else {
-                        $bundleConfigs[$bundleName] = new Config($bundleName, $bundleElement);
+                        $bundleConfigs[$bundleName] = new Bundle($bundleName, $bundleElement);
                     }
                 }
             }
+
+            if ($bundleConfigs[$bundleName]) {
+                $bundleConfigs[$bundleName]->setupObject();
+            }
         }
         return $bundleConfigs;
-    }
-
-    public function dumpElement(\DOMElement $element)
-    {
-        $doc = new \DOMDocument();
-        $doc->appendChild($doc->importNode($element->cloneNode(true), true));
-        return $doc->saveXML();
     }
 
     /**
@@ -79,6 +75,11 @@ class Configs implements \IteratorAggregate
 
         $name = $bundle->getName();
         return $this->configElements[$name];
+    }
+
+    public function getConfigs()
+    {
+        return $this->configElements;
     }
 
     /**

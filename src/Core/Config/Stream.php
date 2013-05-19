@@ -4,6 +4,7 @@ namespace Core\Config;
 
 class Stream extends Model
 {
+    protected $attributes = ['id'];
 
     /**
      * @var string
@@ -24,14 +25,6 @@ class Stream extends Model
      * @var string
      */
     protected $id;
-
-    public function setupObject()
-    {
-        $this->setVar('class');
-        $this->setVar('method');
-        $this->setAttributeVar('id');
-        $this->id = $this->element->attributes->getNamedItem('id')->nodeValue;
-    }
 
     /**
      * @param string $class

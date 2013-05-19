@@ -1,6 +1,6 @@
 ka.Dialog = new Class({
 
-    Binds: ['center', 'close'],
+    Binds: ['center', 'close', 'closeAnimated'],
     Implements: [Events, Options],
 
     options: {

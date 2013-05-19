@@ -27,6 +27,7 @@ class Model implements \ArrayAccess
     protected $additionalAttributes = [];
     protected $arrayIndexNames = [];
     protected $excludeDefaults = [];
+    protected $nodeValueVar;
 
     /**
      * Defines a header comment of values (not attributes).
@@ -43,15 +44,15 @@ class Model implements \ArrayAccess
     protected $docBlock = '';
 
     /**
-     * @var Config
+     * @var Bundle
      */
     protected $config;
 
     /**
      * @param \DOMElement|string $element
-     * @param Config      $config
+     * @param Bundle      $config
      */
-    public function __construct($element = null, Config $config = null)
+    public function __construct($element = null, Bundle $config = null)
     {
         if (null === $this->rootName) {
             $array = explode('\\', get_called_class());
@@ -96,37 +97,37 @@ class Model implements \ArrayAccess
         return $this->additionalAttributes[$key];
     }
 
-    /**
-     * @return string lowerCased bundle name (without `Bundle` suffix)
-     */
-    public function getBundleName()
-    {
-        $bundleConfig = $this->getBundleConfig();
-
-        return $bundleConfig ? strtolower($bundleConfig->getName()) : null;
-    }
-
-    /**
-     * @return Config
-     */
-    public function getBundleConfig()
-    {
-        if (null === $this->config) {
-            if ('bundle' === $this->element->nodeName) {
-                $this->config = $this->getModelInstance($this->element);
-            } else {
-                $parent = $this->element;
-                while (($parent = $parent->parentNode)) {
-                    if ('bundle' === $parent->nodeName) {
-                        $this->config = $this->getModelInstance($parent);
-                        break;
-                    }
-                }
-            }
-        }
-
-        return $this->config;
-    }
+//    /**
+//     * @return string lowerCased bundle name (without `Bundle` suffix)
+//     */
+//    public function getBundleName()
+//    {
+//        $bundleConfig = $this->getBundleConfig();
+//
+//        return $bundleConfig ? strtolower($bundleConfig->getName()) : null;
+//    }
+//
+//    /**
+//     * @return Config
+//     */
+//    public function getBundleConfig()
+//    {
+//        if (null === $this->config) {
+//            if ('bundle' === $this->element->nodeName) {
+//                $this->config = $this->getModelInstance($this->element);
+//            } else {
+//                $parent = $this->element;
+//                while (($parent = $parent->parentNode)) {
+//                    if ('bundle' === $parent->nodeName) {
+//                        $this->config = $this->getModelInstance($parent);
+//                        break;
+//                    }
+//                }
+//            }
+//        }
+//
+//        return $this->config;
+//    }
 
     /**
      * @param mixed $val
@@ -155,8 +156,15 @@ class Model implements \ArrayAccess
             $nodeName = $child->nodeName;
             $value    = $child->nodeValue;
 
-            if ('#text' === $nodeName || '#comment' === $nodeName) {
+            if ('#comment' === $nodeName){
                 continue;
+            }
+            if ('#text' === $nodeName){
+                if (null == $this->nodeValueVar) {
+                    continue;
+                } else {
+                    $nodeName = $this->nodeValueVar;
+                }
             }
 
             $setter = 'set' . ucfirst($nodeName);
@@ -164,17 +172,25 @@ class Model implements \ArrayAccess
             if (method_exists($this, $setter)) {
                 $reflectionMethod = $reflection->getMethod($setter);
                 $parameters = $reflectionMethod->getParameters();
+                $phpDocs = $this->getMethodMetaData($reflectionMethod);
                 if (1 <= count($parameters)) {
                     $firstParameter = $parameters[0];
                     if ($firstParameter->getClass() && $className = $firstParameter->getClass()->name) {
                         $setterValue = new $className($child);
                     }
                     if ($firstParameter->isArray()){
+                        $result = str_replace(array('[', ']'), '', $phpDocs['param']['type']);
+                        $returnType = explode('|', $result)[0];
+
+                        if (!class_exists($clazz = $returnType)) {
+                            if (!class_exists($clazz = '\Core\Config\\' . $returnType)) {
+                                $clazz = null;
+                            }
+                        }
+
                         $setterValue = array();
                         foreach ($child->childNodes as $subChild) {
                             if ('#' !== substr($subChild->nodeName, 0, 1)) {
-                                $clazz = $this->elementMap[$subChild->nodeName] ?: $this->char2Camelcase($subChild->nodeName, '-');
-                                $clazz = '\Core\Config\\' . $clazz;
                                 if (class_exists($clazz)) {
                                     $object = new $clazz($subChild);
                                     $setterValue[] = $object;
@@ -536,7 +552,10 @@ class Model implements \ArrayAccess
             }
         }
 
-        if (is_scalar($value) || null === $value) {
+        if (null !== $this->nodeValueVar && $key == $this->nodeValueVar){
+            $textNode = $doc->createTextNode($value);
+            $node->appendChild($textNode);
+        } else if (is_scalar($value) || null === $value) {
             $value = is_bool($value) ? $value?'true':'false' : (string)$value;
             if ($arrayType) {
                 $element = $doc->createElement($this->arrayIndexNames[$arrayType] ?: 'item');
@@ -615,38 +634,196 @@ class Model implements \ArrayAccess
     }
 
     /**
-     * @param array $values
+     * @param mixed $values
      */
-    public function fromArray(array $values)
+    public function fromArray($values)
     {
-        $blacklist = array('config', 'element');
-
         $reflection = new \ReflectionClass($this);
-        $properties = $reflection->getDefaultProperties();
 
-        foreach ($this as $k => $v) {
-            if (in_array($k, $blacklist)) {
-                continue;
-            }
-
-            $setter = 'set' . ucfirst($k) . 'Array';
-            if (!method_exists($this, $setter) || !is_callable(array($this, $setter))) {
-                $setter = 'set' . ucfirst($k);
-                if (!method_exists($this, $setter) || !is_callable(array($this, $setter))) {
-                    continue;
+        if (!is_array($values)) {
+            if (null !== $this->nodeValueVar) {
+                $setter = 'set' . ucfirst($this->nodeValueVar);
+                if (method_exists($this, $setter)) {
+                    $this->setter($values);
                 }
             }
-            $value = $values[$k];
+        } else {
 
-            if ($value === $properties[$k]) {
-                continue;
-            }
-            if (null === $value) {
-                $value = $properties[$k];
-            }
+            /** @var \DOMNode $child */
+            foreach ($values as $key => $value) {
+                $setter = 'set' . ucfirst($key);
+                $getter = 'get' . ucfirst($key);
+                $setterValue = $value;
 
-            $this->$setter($value);
+                if (method_exists($this, $setter)) {
+                    $reflectionMethod = $reflection->getMethod($setter);
+                    $reflectionMethodGet = $reflection->getMethod($getter);
+                    $parameters = $reflectionMethod->getParameters();
+                    $phpDocs = $this->getMethodMetaData($reflectionMethodGet);
+                    if (1 <= count($parameters)) {
+                        $firstParameter = $parameters[0];
+                        if ($firstParameter->getClass() && $className = $firstParameter->getClass()->name) {
+                            $setterValue = new $className($child);
+                        }
+                        if ($firstParameter->isArray() && is_array($value)){
+                            $setterValue = array();
+
+                            $result = str_replace(array('[', ']'), '', $phpDocs['return']['type']);
+                            $returnType = explode('|', $result)[0];
+
+                            if (!class_exists($clazz = $returnType)) {
+                                if (!class_exists($clazz = '\Core\Config\\' . $returnType)) {
+                                    if (!class_exists($clazz = '\Core\Config\\' . $key)) {
+                                        if (!class_exists($clazz = '\Core\Config\\' . $key)) {
+                                            $clazz = null;
+                                        }
+                                    }
+                                }
+                            }
+
+                            foreach ($value as $subKey => $subValue) {
+                                if ($clazz) {
+                                    $object = new $clazz();
+                                    $object->fromArray($subValue);
+                                    $setterValue[] = $object;
+                                } else {
+                                    $setterValue[] = $subValue;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (is_callable(array($this, $setter))) {
+                    $this->$setter($setterValue);
+                }
+            }
         }
+    }
+
+    public function getMethodMetaData(\ReflectionMethod $pMethod)
+    {
+        $file = $pMethod->getFileName();
+        $startLine = $pMethod->getStartLine();
+
+        $fh = fopen($file, 'r');
+        if (!$fh) return false;
+
+        $lineNr = 1;
+        $lines = array();
+        while (($buffer = fgets($fh)) !== false) {
+            if ($lineNr == $startLine) break;
+            $lines[$lineNr] = $buffer;
+            $lineNr++;
+        }
+        fclose($fh);
+
+        $phpDoc = '';
+        $blockStarted = false;
+        while ($line = array_pop($lines)) {
+
+            if ($blockStarted) {
+                $phpDoc = $line.$phpDoc;
+
+                //if start comment block: /*
+                if (preg_match('/\s*\t*\/\*/', $line)) {
+                    break;
+                }
+                continue;
+            } else {
+                //we are not in a comment block.
+                //if class def, array def or close bracked from fn comes above
+                //then we dont have phpdoc
+                if (preg_match('/^\s*\t*[a-zA-Z_&\s]*(\$|{|})/', $line)) {
+                    break;
+                }
+            }
+
+            $trimmed = trim($line);
+            if ($trimmed == '') continue;
+
+            //if end comment block: */
+            if (preg_match('/\*\//', $line)) {
+                $phpDoc = $line.$phpDoc;
+                $blockStarted = true;
+                //one line php doc?
+                if (preg_match('/\s*\t*\/\*/', $line)) {
+                    break;
+                }
+            }
+        }
+
+        return $this->parsePhpDoc($phpDoc);
+    }
+
+    /**
+     * Parse phpDoc string and returns an array.
+     *
+     * @param  string $pString
+     * @return array
+     */
+    public function parsePhpDoc($pString)
+    {
+        preg_match('#^/\*\*(.*)\*/#s', trim($pString), $comment);
+
+        $comment = trim($comment[1]);
+
+        preg_match_all('/^\s*\*(.*)/m', $comment, $lines);
+        $lines = $lines[1];
+
+        $tags = array();
+        $currentTag = '';
+        $currentData = '';
+
+        foreach ($lines as $line) {
+            $line = trim($line);
+
+            if (substr($line, 0, 1) == '@') {
+
+                if ($currentTag)
+                    $tags[$currentTag][] = $currentData;
+                else
+                    $tags['description'] = $currentData;
+
+                $currentData = '';
+                preg_match('/@([a-zA-Z_]*)/', $line, $match);
+                $currentTag = $match[1];
+            }
+
+            $currentData = trim($currentData.' '.$line);
+
+        }
+        if ($currentTag)
+            $tags[$currentTag][] = $currentData;
+        else
+            $tags['description'] = $currentData;
+
+        //parse tags
+        $regex = array(
+            'param' => array('/^@param\s*\t*([a-zA-Z_\\\[\]]*)\s*\t*\$([a-zA-Z_]*)\s*\t*(.*)/', array('type', 'name', 'description')),
+            'return' => array('/^@return\s*\t*([a-zA-Z_\\\[\]]*)\s*\t*(.*)/', array('type', 'description')),
+        );
+        foreach ($tags as $tag => &$data) {
+            if ($tag == 'description') continue;
+            foreach ($data as &$item) {
+                if ($regex[$tag]) {
+                    preg_match($regex[$tag][0], $item, $match);
+                    $item = array();
+                    $c = count($match);
+                    for ($i =1; $i < $c; $i++) {
+                        if ($regex[$tag][1][$i-1]) {
+                            $item[$regex[$tag][1][$i-1]] = $match[$i];
+
+                        }
+                    }
+                }
+            }
+            if (count($data) == 1)
+                $data = $data[0];
+
+        }
+
+        return $tags;
     }
 
     /**

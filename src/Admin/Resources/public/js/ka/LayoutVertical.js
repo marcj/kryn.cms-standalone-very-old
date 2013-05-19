@@ -146,7 +146,7 @@ ka.LayoutVertical = new Class({
             else {
                 var td = new Element('td', {
                     valign: 'top',
-                    height: this.rows[pId - 1].get('height') ? this.rows[pId - 1].get('height') : '100%'
+                    height: this.rows[pId - 1].get('height')
                 }).inject(this.rows[pId - 1]);
 
                 var div = new Element('div', {
