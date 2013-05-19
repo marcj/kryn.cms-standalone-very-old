@@ -804,7 +804,7 @@ function step4()
         </table>
     </form>
     <b style="color: red;">All database tables related to these bundles and all tables where the name starts with
-        `<?php echo Kryn::getSystemConfig()->getDatabase()->getPrefix(); ?>`
+        `<?php echo Kryn::getSystemConfig()->getDatabase(true)->getPrefix(); ?>`
         will be dropped in the next step!</b><br/><br/>
     <a href="?step=3" class="ka-Button">Back</a>
     <a href="javascript: document.id('form.modules').submit();" class="ka-Button">Install!</a>
@@ -881,7 +881,6 @@ function buildModInfo()
 function step2()
 {
     $anyThingOk = true;
-    Kryn::initConfig();
     ?>
 
     <h2>Checking requirements</h2>
@@ -1117,7 +1116,7 @@ function step3()
                 Display errors
                 <div style="color: #aaa">Activates regular PHP error reporting.</div>
             </td>
-            <td><input type="checkbox" <?php if (Kryn::$config->getErrors()->getDisplay()) echo 'checked="checked"'; ?> name="displayErrors" value="1"/></td>
+            <td><input type="checkbox" <?php if (Kryn::$config->getErrors(true)->getDisplay()) echo 'checked="checked"'; ?> name="displayErrors" value="1"/></td>
         </tr>
         <tr>
             <td>
@@ -1151,7 +1150,7 @@ function step3()
             <td width="450">Default group owner
             </td>
             <td>
-                <input type="text" class="ka-Input-text" name="fileGroupName" value="<?php echo Kryn::$config->getFile()->getGroupOwner(); ?>">
+                <input type="text" class="ka-Input-text" name="fileGroupName" value="<?php echo Kryn::$config->getFile(true)->getGroupOwner(); ?>">
             </td>
         </tr>
         <tr>
