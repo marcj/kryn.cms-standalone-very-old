@@ -8,9 +8,12 @@ use Core\SystemFile;
 
 class Editor
 {
-    public function getConfig($pName)
+    public function getConfig($name)
     {
-        return Manager::loadInfo($pName);
+        $bundle = Kryn::getBundle($name);
+        $config =  $bundle->getComposer();
+        $config['_path'] = $bundle->getPath();
+        return $config;
     }
 
     public function setConfig($pName, $pConfig)
@@ -705,27 +708,19 @@ class Editor
 
     }
 
-    public function saveGeneral($pName)
+    public function saveGeneral($name)
     {
-        Manager::prepareName($pName);
+        $request = Kryn::getRequest();
 
-        $config = $this->getConfig($pName);
+        $bundle = Kryn::getBundle($name);
+        $config =  $bundle->getComposer();
 
-        if (getArgv('owner') > 0) {
-            $config['owner'] = getArgv('owner');
+        $values = ['name', 'description', 'keywords', 'license', 'require', 'authors', 'homepage'];
+        foreach ($values as $key) {
+            $config[$key] = $_POST[$key];
         }
 
-        $config['title'] = getArgv('title');
-        $config['desc'] = getArgv('desc');
-        $config['tags'] = getArgv('tags');
-
-        $config['version'] = getArgv('version');
-        $config['community'] = getArgv('community');
-        $config['writableFiles'] = getArgv('writableFiles');
-        $config['category'] = getArgv('category');
-        $config['depends'] = getArgv('depends');
-
-        return $this->setConfig($pName, $config);
+        return $bundle->setComposer($config);
     }
 
     public function saveEntryPoints($pName, $pEntryPoints)

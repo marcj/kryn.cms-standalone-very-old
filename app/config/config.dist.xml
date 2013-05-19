@@ -17,6 +17,7 @@
   <!--This is a key generated through the installation process. You should not change it!
     The system needs this key to decrypt the passwords in the users database.-->
   <passwordHashKey></passwordHashKey>
+  <debug>false</debug>
   <!--
     A list of installed bundles. Enter here the PHP FQDN (Will be resolved through PSR-0 and then loaded)
 
@@ -54,7 +55,7 @@
   <cache>
     <!--The full classname of the storage. MUST have `Core\Cache\CacheInterface` as interface.-->
     <class>Core\Cache\Files</class>
-    <options></options>
+    <options/>
   </cache>
   <!--error handling-->
   <errors>
@@ -79,7 +80,6 @@
     <class>Core\Client\KrynUsers</class>
     <options>
       <option key="emailLogin">true</option>
-      <optionName>option</optionName>
     </options>
     <!--A class that handles the actual data storage.-->
     <sessionStorage>
@@ -89,7 +89,7 @@
       <options></options>
     </sessionStorage>
   </client>
-  <mountPoints></mountPoints>
+  <mountPoints/>
   <!--
     Whenever Kryn creates files we try to set the correct permission and file owner.
     Attributes (default):

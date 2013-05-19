@@ -66,6 +66,11 @@ class SystemConfig extends Model {
     protected $passwordHashKey;
 
     /**
+     * @var string
+     */
+    protected $debug = false;
+
+    /**
      * @var string[]
      */
     protected $bundles;
@@ -125,11 +130,13 @@ class SystemConfig extends Model {
     }
 
     /**
+     * @param bool $orCreate creates the value of not exists.
+     *
      * @return Cache
      */
-    public function getCache()
+    public function getCache($orCreate = false)
     {
-        if (null === $this->cache) {
+        if ($orCreate && null === $this->cache) {
             $this->cache = new Cache();
         }
         return $this->cache;
@@ -144,11 +151,13 @@ class SystemConfig extends Model {
     }
 
     /**
+     * @param bool $orCreate creates the value of not exists.
+     *
      * @return Client
      */
-    public function getClient()
+    public function getClient($orCreate = false)
     {
-        if (null === $this->client) {
+        if ($orCreate && null === $this->client) {
             $this->client = new Client();
         }
         return $this->client;
@@ -163,11 +172,13 @@ class SystemConfig extends Model {
     }
 
     /**
+     * @param bool $orCreate creates the value of not exists.
+     *
      * @return Errors
      */
-    public function getErrors()
+    public function getErrors($orCreate = false)
     {
-        if (null === $this->errors) {
+        if ($orCreate && null === $this->errors) {
             $this->errors = new Errors();
         }
         return $this->errors;
@@ -182,11 +193,13 @@ class SystemConfig extends Model {
     }
 
     /**
+     * @param bool $orCreate creates the value of not exists.
+     *
      * @return FilePermission
      */
-    public function getFile()
+    public function getFile($orCreate = false)
     {
-        if (null === $this->file) {
+        if ($orCreate && null === $this->file) {
             $this->file = new FilePermission();
         }
         return $this->file;
@@ -201,11 +214,13 @@ class SystemConfig extends Model {
     }
 
     /**
+     * @param bool $orCreate creates the value of not exists.
+     *
      * @return MountPoint[]
      */
-    public function getMountPoints()
+    public function getMountPoints($orCreate = false)
     {
-        if (null === $this->mountPoints) {
+        if ($orCreate && null === $this->mountPoints) {
             $this->mountPoints = [];
         }
 
@@ -253,11 +268,13 @@ class SystemConfig extends Model {
     }
 
     /**
+     * @param bool $orCreate creates the value of not exists.
+     *
      * @return Database
      */
-    public function getDatabase()
+    public function getDatabase($orCreate = false)
     {
-        if (null === $this->database) {
+        if ($orCreate && null === $this->database) {
             $this->database = new Database();
         }
         return $this->database;
@@ -278,6 +295,31 @@ class SystemConfig extends Model {
     {
         return $this->passwordHashKey;
     }
+
+    /**
+     * @param boolean $debug
+     */
+    public function setDebug($debug)
+    {
+        $this->debug = $this->bool($debug);
+    }
+
+    /**
+     * @return string
+     */
+    public function getDebug()
+    {
+        return $this->debug;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isDebug()
+    {
+        return true == $this->debug;
+    }
+
 
     /**
      * @param string $tempDir

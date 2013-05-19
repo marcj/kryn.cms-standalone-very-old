@@ -24,7 +24,7 @@ class Configs implements \IteratorAggregate
                 continue;
             }
 
-            $configs = $bundle->getConfig();
+            $configs = $bundle->getConfigs();
             $this->configElements = array_merge_recursive_distinct($this->configElements, $configs);
         }
 

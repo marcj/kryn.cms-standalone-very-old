@@ -241,7 +241,7 @@ class Kryn extends Controller
     public static $isStartpage;
 
     /**
-     * @var \Core\Config\Configs
+     * @var \Core\Config\Config[]|\Core\Config\Configs
      */
     public static $configs;
 

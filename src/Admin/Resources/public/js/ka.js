@@ -938,7 +938,7 @@ ka.loadLanguage = function (pLang) {
 
     Cookie.write('kryn_language', pLang);
 
-    Asset.javascript(_pathAdmin + 'ui/languagePluralForm?lang=' + pLang);
+    Asset.javascript(_pathAdmin + 'admin/ui/languagePluralForm?lang=' + pLang);
 
     new Request.JSON({url: _pathAdmin + 'admin/ui/language?lang=' +
         pLang, async: false, noCache: 1, onComplete: function (pResponse) {

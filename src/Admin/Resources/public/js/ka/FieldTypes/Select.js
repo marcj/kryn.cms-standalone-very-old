@@ -3,7 +3,6 @@ ka.FieldTypes.Select = new Class({
     Extends: ka.FieldAbstract,
 
     options: {
-
         inputWidth: '100%',
         style: '',
 

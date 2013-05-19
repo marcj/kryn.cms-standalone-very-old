@@ -6,6 +6,7 @@ class Theme extends Model
 {
     protected $attributes = ['id'];
     protected $elementMap = ['content' => 'ThemeContent', 'layout' => 'ThemeLayout'];
+    protected $excludeDefaults = ['contents', 'layouts'];
 
     /**
      * @var string
@@ -36,11 +37,13 @@ class Theme extends Model
     }
 
     /**
+     * @param bool $orCreate creates the value of not exists.
+     *
      * @return ThemeContent[]
      */
-    public function getContents()
+    public function getContents($orCreate = false)
     {
-        if (null === $this->contents) {
+        if ($orCreate && null === $this->contents) {
             $contents = $this->element->getElementsByTagName('content');
             $this->contents = array();
             foreach ($contents as $content) {

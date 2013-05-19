@@ -479,8 +479,13 @@ class Model implements \ArrayAccess
                 continue;
             }
 
-            $val = $this->$getter();
-            if ($defaultProperties[$key] === $val && !$printDefaults && !in_array($key, $this->excludeDefaults)) {
+            $method = new \ReflectionMethod($this, $getter);
+            if ($method->getParameters()[0] && 'orCreate' === $method->getParameters()[0]->getName()) {
+                $val = $this->$getter($printDefaults);
+            } else {
+                $val = $this->$getter();
+            }
+            if ($defaultProperties[$key] === $val && (!$printDefaults || in_array($key, $this->excludeDefaults))) {
                 continue;
             }
             if (array_key_exists($key, $modelProperties)) {

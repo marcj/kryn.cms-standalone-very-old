@@ -33,6 +33,17 @@ body.hide-scrollbar {
     overflow: hidden;
 }
 
+a[class^="icon-"], a[class*=" icon-"]{
+    color: #444;
+    text-decoration: none;
+    line-height: 28px;
+    display: inline-block;
+    padding: 0 2px;
+}
+
+a[class^="icon-"]:hover, a[class*=" icon-"]:hover{
+    color: #888;
+}
 .ka-scrolling {
     overflow: auto;
     position: relative;

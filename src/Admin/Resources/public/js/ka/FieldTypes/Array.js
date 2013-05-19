@@ -230,7 +230,6 @@ ka.FieldTypes.Array = new Class({
                     res[row[this.first]] = row[this.second];
                 }
             } else {
-
                 res.push(row);
             }
 
@@ -288,7 +287,7 @@ ka.FieldTypes.Array = new Class({
                         var nItem = {};
                         var index = 0;
                         Object.each(this.options.fields, function (def, key) {
-                            nItem[key] = item[indexx];
+                            nItem[key] = item[index];
                             index++;
                         });
                         this.addRow(nItem);
@@ -302,7 +301,6 @@ ka.FieldTypes.Array = new Class({
     },
 
     addRow: function (pValue) {
-
         if (this.options.designMode) {
             return;
         }
@@ -340,46 +338,42 @@ ka.FieldTypes.Array = new Class({
 
         var td;
         if (this.options.withOrder || !this.options.withoutRemove) {
-            td = new Element('td', {valign: 'top'}).inject(tr);
+            td = new Element('td', {valign: 'top', width: 10, style: 'white-space: nowrap'}).inject(tr);
         }
 
         if (this.options.withOrder) {
 
             new Element('a', {
-                'class': 'text-button-icon',
+                'class': 'text-button-icon icon-arrow-up-14',
                 title: t('Move up'),
-                html: '&#xe2ca;',
                 href: 'javascript: ;'
             }).addEvent('click',function () {
-                    if (tr.getPrevious()) {
-                        tr.inject(tr.getPrevious(), 'before');
-                    }
-                }).inject(td);
+                if (tr.getPrevious()) {
+                    tr.inject(tr.getPrevious(), 'before');
+                }
+            }).inject(td);
 
             new Element('a', {
-                'class': 'text-button-icon',
+                'class': 'text-button-icon icon-arrow-down-14',
                 title: t('Move down'),
-                html: '&#xe2cc;',
                 href: 'javascript: ;'
             }).addEvent('click',function () {
-                    if (tr.getNext()) {
-                        tr.inject(tr.getNext(), 'after');
-                    }
-                }).inject(td);
+                if (tr.getNext()) {
+                    tr.inject(tr.getNext(), 'after');
+                }
+            }).inject(td);
 
         }
 
         if (!this.options.withoutRemove) {
             new Element('a', {
-                'class': 'text-button-icon',
+                'class': 'text-button-icon icon-minus-5',
                 title: t('Remove'),
-                html: '&#xe26b;',
                 href: 'javascript: ;'
             }).addEvent('click', function () {
-
-                    this.fieldInstance.fireChange();
-                    tr.destroy();
-                }.bind(this)).inject(td);
+                this.fieldInstance.fireChange();
+                tr.destroy();
+            }.bind(this)).inject(td);
         }
 
     }

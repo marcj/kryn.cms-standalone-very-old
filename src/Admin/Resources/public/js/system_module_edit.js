@@ -1433,12 +1433,11 @@ var admin_system_module_edit = new Class({
             style: 'bottom: 40px;'
         }).inject(this.panes['general']);
 
-        this.generellFields = {};
-
         var fields = {
-            title: {
-                label: t('Title'),
+            name: {
+                label: t('Name'),
                 type: 'text',
+                desc: t('Should be in format &lt;vendor&gt;/&lt;name&gt;. Example: krynlabs/kryn.cms'),
                 required: true
             },
             desc: {
@@ -1446,36 +1445,80 @@ var admin_system_module_edit = new Class({
                 required: true,
                 type: 'textarea'
             },
-            tags: {
-                label: t('Tags'),
+            license: {
+                label: t('License'),
+                required: true,
                 type: 'text'
+            },
+            keywords: {
+                label: t('Keywords'),
+                type: 'array',
+                asArray: true,
+                columns: [
+                    {label: t('Keyword'), width: '100%'}
+                ],
+                fields: {
+                    tag: {
+                        type: 'text'
+                    }
+                }
             },
             screenshots: {
                 label: t('Screenshots'),
                 type: 'text',
-                desc: t('Screenshots in %s').replace('%s', '/web/' + this.mod + '/_screenshots/'),
+                desc: t('Screenshots in %s').replace('%s', pConfig._path + 'Resources/screenshots/'),
                 disabled: true
             },
-            owner: {
-                label: t('Owner'),
-                required: true,
-                type: 'text'
+//            version: {
+//                label: t('Version'),
+//                required: true,
+//                type: 'text'
+//            },
+            authors: {
+                label: t('Authors'),
+                desc: t(''),
+                type: 'array',
+                withOrder: true,
+                columns: [
+                    {label: t('Name'), width: '30%'},
+                    {label: t('Homepage')},
+                    {label: t('Email'), width: '30%'}
+                ],
+                fields: {
+                    name: {
+                        type: 'text'
+                    },
+                    homepage: {
+                        type: 'text'
+                    },
+                    email: {
+                        type: 'text'
+                    }
+                }
             },
-            version: {
-                label: t('Version'),
-                required: true,
-                type: 'text'
-            },
-            depends: {
-                label: t('Depends'),
-                desc: t('Comma seperated list of extension. Example kryn=>0.5.073,admin>0.4.'),
-                help: 'extensions-dependency',
-                type: 'text'
+            require: {
+                label: t('Dependencies'),
+                desc: t(''),
+                type: 'array',
+                asHash: true,
+                withOrder: true,
+                columns: [
+                    {label: t('Package name'), width: '60%'},
+                    {label: t('Version constraint')}
+                ],
+                fields: {
+                    name: {
+                        type: 'text'
+                    },
+                    version: {
+                        type: 'text'
+                    }
+                }
             },
             community: {
                 label: t('Community'),
                 type: 'checkbox',
-                desc: t('Is this extension available under kryn.org/extensions.')
+                desc: t('Is this extension available under kryn.org/bundles.')
             },
             category: {
                 label: t('Category'),
@@ -1499,13 +1542,7 @@ var admin_system_module_edit = new Class({
                     15: 'Data acquisition',
                     16: 'Collaboration'
                 }
-            },
-            writableFiles: {
-                label: t('Writable files'),
-                desc: t('Specify these files which are not automatically overwritten during an update (if a modification exist). One file per line. Use * as wildcard. Read docs for more information.'),
-                type: 'textarea'
             }
-
         }
 
         var buttonBar = new ka.ButtonBar(this.panes['general']);
@@ -1524,10 +1561,10 @@ var admin_system_module_edit = new Class({
         if (ka.settings.system.communityId > 0 && !pConfig.owner > 0) {
             var ownerField = this.generalFieldsObj.getField('owner');
             new ka.Button(t('Set to my extension: ' + ka.settings.system.communityEmail))
-                .addEvent('click', function () {
-                    this.setToMyExtension = ka.settings.system.communityId;
-                    ownerField.setValue(ka.settings.system.communityEmail);
-                }.bind(this)).inject(document.id(ownerField).getElement('.ka-field-field'));
+            .addEvent('click', function () {
+                this.setToMyExtension = ka.settings.system.communityId;
+                ownerField.setValue(ka.settings.system.communityEmail);
+            }.bind(this)).inject(document.id(ownerField).getElement('.ka-field-field'));
         }
 
         this.generalFieldsObj.setValue(value);
@@ -1541,11 +1578,9 @@ var admin_system_module_edit = new Class({
             req['owner'] = this.setToMyExtension;
         }
 
-        req.name = this.mod;
-
         this.win.setLoading(true, t('Saving ...'));
         this.lr = new Request.JSON({url: _pathAdmin +
-            'admin/system/module/editor/general', noCache: 1, onComplete: function () {
+            'admin/system/module/editor/general?name=' + encodeURIComponent(this.mod), noCache: 1, onComplete: function () {
             this.win.setLoading(false);
         }.bind(this)}).post(req);
     },

@@ -37,12 +37,15 @@ class AdminController
             'admin/ui/possibleLangs',
             'admin/ui/language',
             'admin/ui/languagePluralForm',
-            'admin/login'
+            'admin/login',
+            'admin/logged-in'
         ];
 
-        if (in_array($url, $whitelist)) return;
+        if (in_array($url, $whitelist)) {
+            return;
+        }
 
-        if (!Kryn::getAdminClient()->getUser()){
+        if (!Kryn::getAdminClient()->getUser()) {
             throw new \AccessDeniedException(tf('Access denied.'));
         }
 
@@ -397,7 +400,7 @@ class AdminController
 
         $response->addJs(
             'window.currentNode = ' .
-                json_encode(Kryn::$page->toArray(TableMap::TYPE_STUDLYPHPNAME)) . ';',
+            json_encode(Kryn::$page->toArray(TableMap::TYPE_STUDLYPHPNAME)) . ';',
             'bottom'
         );
 
@@ -450,30 +453,46 @@ class AdminController
         window._pathAdmin = ' . json_encode(Kryn::getAdminPrefix() . '/')
         );
 
-        $response->addCssFile(Kryn::getAdminPrefix() . '/admin/backend/style');
-        $response->addJsFile(Kryn::getAdminPrefix() . '/admin/backend/script');
+        if (Kryn::getSystemConfig()->isDebug()) {
 
-        foreach (Kryn::$configs as $bundleConfig) {
-            foreach ($bundleConfig->getAdminAssetsPaths(false, '.*\.js', true) as $assetPath) {
-                $path = Kryn::resolvePath($assetPath, 'Resources/public');
-                if (!file_exists($path)) {
+            foreach (Kryn::$configs as $bundleConfig) {
+                foreach ($bundleConfig->getAdminAssetsPaths(false, '.*\.js', $regex = true) as $assetPath) {
                     $response->addJsFile($assetPath);
                 }
-            }
-
-            foreach ($bundleConfig->getAdminAssetsPaths(false, '.*\.css', true) as $assetPath) {
-                $path = Kryn::resolvePath($assetPath, 'Resources/public');
-                if (!file_exists($path)) {
+                foreach ($bundleConfig->getAdminAssetsPaths(false, '.*\.css', $regex = true)
+                         as $assetPath) {
                     $response->addCssFile($assetPath);
                 }
             }
+        } else {
 
-            foreach ($bundleConfig->getAdminAssetsPaths(false, '.*\.js', true, false) as $assetPath) {
-                $response->addJsFile($assetPath);
-            }
+            $response->addCssFile(Kryn::getAdminPrefix() . '/admin/backend/style');
+            $response->addJsFile(Kryn::getAdminPrefix() . '/admin/backend/script');
 
-            foreach ($bundleConfig->getAdminAssetsPaths(false, '.*\.css', true, false) as $assetPath) {
-                $response->addCssFile($assetPath);
+            foreach (Kryn::$configs as $bundleConfig) {
+                foreach ($bundleConfig->getAdminAssetsPaths(false, '.*\.js', $regex = true) as $assetPath) {
+                    $path = Kryn::resolvePath($assetPath, 'Resources/public');
+                    if (!file_exists($path)) {
+                        $response->addJsFile($assetPath);
+                    }
+                }
+
+                foreach ($bundleConfig->getAdminAssetsPaths(false, '.*\.css', $regex = true) as $assetPath) {
+                    $path = Kryn::resolvePath($assetPath, 'Resources/public');
+                    if (!file_exists($path)) {
+                        $response->addCssFile($assetPath);
+                    }
+                }
+
+                foreach ($bundleConfig->getAdminAssetsPaths(false, '.*\.js', $regex = true, $compression = false)
+                         as $assetPath) {
+                    $response->addJsFile($assetPath);
+                }
+
+                foreach ($bundleConfig->getAdminAssetsPaths(false, '.*\.css', $regex = true, $compression = false)
+                         as $assetPath) {
+                    $response->addCssFile($assetPath);
+                }
             }
         }
 

@@ -174,7 +174,7 @@ ka.AdminInterface = new Class({
             text: t('Frontend'),
             'class': 'ka-main-menu-item icon-eye'
         })
-            .inject(this.mainTempLinks);
+        .inject(this.mainLinks);
 
         this.frontendLink.addEvent('click', function () {
             ka.wm.open('admin/nodes/frontend');
@@ -1086,9 +1086,11 @@ ka.AdminInterface = new Class({
     },
 
     addTempLink: function (pWin) {
+        var entryPoint = pWin.getEntryPointDefinition();
+        console.log('addTempLink', entryPoint);
 
         var mlink = new Element('a', {
-            text: (this.entryPoint ? this.entryPoint.title : '') + ' » ' + pWin.getTitle(),
+            text: entryPoint.label + ' » ' + pWin.getTitle(),
             'class': 'ka-main-menu-item'
         }).inject(this.mainTempLinks);
 

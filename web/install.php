@@ -310,9 +310,9 @@ function checkConfig()
     }
 
     if ($res['res'] == true) {
-        $database = Kryn::$config->getDatabase();
+        $database = Kryn::$config->getDatabase(true);
 
-        $connection = Kryn::$config->getDatabase()->getMainConnection();
+        $connection = $database->getMainConnection();
         $connection->setServer($_REQUEST['server']);
         $connection->setUsername($_REQUEST['username']);
         $connection->setPassword($_REQUEST['password']);
@@ -342,13 +342,13 @@ function checkConfig()
 
         Kryn::$config->setTempDir($_REQUEST['fileTemp']);
 
-        $filePermission = Kryn::$config->getFile();
+        $filePermission = Kryn::$config->getFile(true);
         $filePermission->setDisableModeChange($_REQUEST['fileNoChangeMode'] == 1);
         $filePermission->setGroupPermission($_REQUEST['fileGroupPermission']);
         $filePermission->setEveryonePermission($_REQUEST['fileEveryonePermission']);
         $filePermission->setGroupOwner($_REQUEST['fileGroupName']);
 
-        $errors = Kryn::$config->getErrors();
+        $errors = Kryn::$config->getErrors(true);
         $errors->setDisplay($_REQUEST['displayErrors'] == 1);
         $errors->setStackTrace($_REQUEST['displayBeautyErrors'] == 1);
         $errors->setDisplayRest($_REQUEST['displayDetailedRestErrors'] == 1);
@@ -1212,7 +1212,7 @@ function step3()
 
                     foreach ($drivers as $driver => $label) {
                         $enabled = extension_loaded('pdo_' . $driver) ? '' : 'disabled="disabled"';
-                        $selected = $driver == Kryn::$config->getDatabase()->getMainConnection()->getType() ? 'selected="selected"' : '';
+                        $selected = $driver == Kryn::$config->getDatabase(true)->getMainConnection()->getType() ? 'selected="selected"' : '';
                         print "<option $enabled $selected value=\"$driver\">$label</option>";
                     }
                     ?>
@@ -1226,7 +1226,7 @@ function step3()
                 <div style="color: #aaa">You should probably deactivate this on the most low-cost and free web hoster.
                 </div>
             </td>
-            <td><input type="checkbox" <?php if (Kryn::$config->getDatabase()->getMainConnection()->getPersistent()) echo 'checked="checked"'; ?> id="db_persistent" name="persistent" value="1"/></td>
+            <td><input type="checkbox" <?php if (Kryn::$config->getDatabase(true)->getMainConnection()->getPersistent()) echo 'checked="checked"'; ?> id="db_persistent" name="persistent" value="1"/></td>
         </tr>
         <tr>
             <td>

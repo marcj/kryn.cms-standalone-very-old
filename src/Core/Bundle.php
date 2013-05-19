@@ -131,13 +131,22 @@ class Bundle
         return $this->composer;
     }
 
+    public function getConfig()
+    {
+        return Kryn::getConfig($this->getClassName());
+    }
+
     /**
+     * Sets and saves the composer config.
+     *
      * @param array $composer
+     *
+     * @return boolean
      */
     public function setComposer(array $composer)
     {
         $this->composer = $composer;
-        file_put_contents($this->getComposerPath(), json_encode($this->composer));
+        return false !== file_put_contents($this->getComposerPath(), json_format($this->composer));
     }
 
     /**
@@ -145,14 +154,11 @@ class Bundle
      *
      * @return array
      */
-    public function getConfig()
+    public function getConfigs()
     {
         $configs = array();
-
         $files = glob($this->getPath() . '/Resources/config/kryn.*.xml');
-
         foreach ($files as $file) {
-
             if (file_exists($file)) {
                 $doc = new \DOMDocument();
                 $doc->load($file);

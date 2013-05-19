@@ -24,7 +24,7 @@ Features
 --------
 
  - Based on Propel ORM (Propel supports MySQL, PostgreSQL, SQLite, MSSQL, and Oracle), http://www.propelorm.org
- - Advanced, fast and fresh administration interface (powered by mootools, yay!)
+ - Advanced, fast and fresh administration interface
  - The administration API is completely abstracted through a RESTful JSON API
  - File abstraction layer (for mounts with external storages [s3, ftp, dropbox, etc]), CDN
  - Dynamic template engines, use the engine you want. (Smarty, Twig and plain PHP are shipped)
@@ -40,11 +40,11 @@ Features
  - Several flexible authentication layers (e.g. changeable for administration, changeable per domain)
  - MVC architecture
  - Secure password storage using up-to-date encryptions
- - Observer pattern, truly extensible, http://symfony.com/doc/2.0/components/event_dispatcher/introduction.html
- - Symfony2 Routing Component, http://symfony.com/doc/2.0/components/routing/introduction.html
- - Symfony2 HttpKernel Component, http://symfony.com/doc/2.0/components/http_kernel/introduction.html
- - Monolog Framework, sends your logs to almost everywhere, https://github.com/Seldaek/monolog
- - CKEditor, inline editing and fancy WYSIWYG, http://ckeditor.com/
+ - Symfony2-like Bundles to extend the system
+ - Symfony2 bundles compatible
+ - Symfony2 Components: Routing Component, HttpKernel Component, Observer, Dependency Injection
+ - Monolog
+ - TinyMCE, inline editing and fancy WYSIWYG
 
 Screenshot
 ----------

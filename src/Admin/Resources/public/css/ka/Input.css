@@ -46,9 +46,10 @@ input.text:focus {
     transition-duration: .1s;
 }
 
+.ka-Input-text[disabled],
 .ka-field-disabled {
-    color: #333;
-    background: #f1f1f1;
+    color: #a5a5a5;
+    background: #f6f6f6;
 }
 
 .ka-field-invalid {

@@ -195,7 +195,7 @@ ka.wm = {
                     ka.wm.tempItems[win.getId()] = item;
                 }
                 if (menuItem = ka.wm.tempItems[win.getId()]) {
-                    menuItem.set('text', win.getEntryPointDefinition().title + ' » ' + win.getTitle());
+                    menuItem.set('text', win.getEntryPointDefinition().label + ' » ' + win.getTitle());
                     menuItem.addClass('ka-main-menu-item-active');
                 }
             }

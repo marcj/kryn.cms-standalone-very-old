@@ -165,7 +165,7 @@ ka.FieldForm = new Class({
         Object.each(pLevel, function (field, id) {
 
             var obj;
-            if (null !== typeOf(field.id)) {
+            if ('null' !== typeOf(field.id)) {
                 id = field.id;
             }
 
@@ -538,7 +538,6 @@ ka.FieldForm = new Class({
         }
 
         Object.each(this.fields, function (obj, id) {
-
             if (id.indexOf('[') != -1) {
                 obj.setArrayValue(pValues, id, pInternal);
             } else {
