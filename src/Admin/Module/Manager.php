@@ -168,30 +168,6 @@ class Manager
             }
         }
         return $res;
-
-        return;
-        $classes = find('src', '*Bundle.php');
-
-        var_dump($classes);
-        exit;
-        foreach ($classes as $class) {
-            $class = str_replace('/', '\\', substr($class, 4, -4)); //remove `src/` and `.php` and replace / with \
-
-            if ('Core\\Bundle' === $class) {
-                continue;
-            }
-
-            /** @var \Core\Bundle $object */
-            $object = new $class();
-
-            if ($composer = $object->getComposer()) {
-                $res[$object->getClassName()] = $composer;
-                $res[$object->getClassName()]['activated'] = 'Core\CoreBundle' === $class || array_search(
-                    $object->getClassName(),
-                    Kryn::$config['bundles']
-                ) !== false ? true : false;
-            }
-        }
     }
 
     public static function getConfig($pName)

@@ -358,6 +358,17 @@ class ObjectCrud
         }
 
         if ($this->fields) {
+//            $replaceIds = function(&$fields, $id) use (&$replaceIds) {
+//                if (is_array($fields)) {
+//                    foreach ($fields as $id => $field){
+//                        $replaceIds($field, $id);
+//                    }
+//                } else {
+//                    $fields['id'] = $id;
+//                }
+//            };
+//            $replaceIds($this->fields, null);
+
             foreach ($this->fields as $key => &$field) {
                 if (is_array($field)) {
                     $fieldInstance = new Field();
@@ -523,7 +534,6 @@ class ObjectCrud
         }
 
         foreach ($pFields as $key => &$field) {
-
             if (!is_array($field)) {
                 continue;
             }
@@ -559,7 +569,8 @@ class ObjectCrud
      * Prepare fields. Loading tableItems by select and file fields.
      *
      * @param array $pFields
-     * @param bool  $pKey
+     *
+     * @throws \Exception
      */
     public function prepareFieldItem($pFields)
     {

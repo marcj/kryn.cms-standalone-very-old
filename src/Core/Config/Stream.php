@@ -51,14 +51,14 @@ class Stream extends Model
     }
 
     /**
-     * @param bool $fqn Full qualified name
-     *
      * @return string
      */
-    public function getId($fqn = false)
+    public function getId()
     {
-        return ($fqn ? $this->getBundleName() . '/' : '') . $this->id;
+        return $this->id;
     }
+
+
 
     /**
      * @param string $label

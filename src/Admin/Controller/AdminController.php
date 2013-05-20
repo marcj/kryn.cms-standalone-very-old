@@ -95,57 +95,44 @@ class AdminController
         //checkAccess
         $this->checkAccess($url);
 
-        $blackListForEntryPoints = array(
-            'backend',
-            'login',
-            'logged-in',
-            'logout',
-            'ui',
-            'system',
-            'file',
-            'object',
-            'object-by-url'
-        );
+        $entryPoint = Utils::getEntryPoint($url);
 
-        if (array_search(getArgv(1), $blackListForEntryPoints) === false) {
+        if ($entryPoint) {
 
-            $entryPoint = Utils::getEntryPoint($url);
+            $bundle = Kryn::getBundle(getArgv(2));
+            $bundleId = strtolower($bundle->getName(true));
+            //is window entry point?
+            $objectWindowTypes = array('list', 'edit', 'add', 'combine');
 
-            if ($entryPoint) {
+            if (in_array($entryPoint->getType(), $objectWindowTypes)) {
+                $epc = new ObjectCrudController(Kryn::getAdminPrefix() . "/$bundleId/" . $entryPoint->getFullPath());
+                $epc->setExceptionHandler($exceptionHandler);
+                $epc->setDebugMode($debugMode);
+                $epc->setEntryPoint($entryPoint);
+                die($epc->run());
+            } elseif ($entryPoint->getType() == 'store') {
 
-                //is window entry point?
-                $objectWindowTypes = array('list', 'edit', 'add', 'combine');
-
-                if (in_array($entryPoint->getType(), $objectWindowTypes)) {
-                    $epc = new ObjectCrudController(Kryn::getAdminPrefix() . '/' . $entryPoint->getFullPath(true));
-                    $epc->setExceptionHandler($exceptionHandler);
-                    $epc->setDebugMode($debugMode);
-                    $epc->setEntryPoint($entryPoint);
-                    die($epc->run());
-                } elseif ($entryPoint->getType() == 'store') {
-
-                    $clazz = $entryPoint['class'];
-                    if (!$clazz) {
-                        throw new \ClassNotFoundException(sprintf(
-                            'The property `class` is not defined in entry point `%s`',
-                            $entryPoint['_url']
-                        ));
-                    }
-                    if (!class_exists($clazz)) {
-                        throw new \ClassNotFoundException(sprintf(
-                            'The class `%s` does not exist in entry point `%s`',
-                            $clazz,
-                            $entryPoint['_url']
-                        ));
-                    }
-
-                    $obj = new $clazz($entryPoint['_url']);
-                    $obj->setEntryPoint($entryPoint);
-                    die($obj->run());
-
+                $clazz = $entryPoint['class'];
+                if (!$clazz) {
+                    throw new \ClassNotFoundException(sprintf(
+                        'The property `class` is not defined in entry point `%s`',
+                        $entryPoint['_url']
+                    ));
+                }
+                if (!class_exists($clazz)) {
+                    throw new \ClassNotFoundException(sprintf(
+                        'The class `%s` does not exist in entry point `%s`',
+                        $clazz,
+                        $entryPoint['_url']
+                    ));
                 }
 
+                $obj = new $clazz($entryPoint['_url']);
+                $obj->setEntryPoint($entryPoint);
+                die($obj->run());
+
             }
+
         }
 
         if (Kryn::isActiveBundle(getArgv(2)) && getArgv(2) != 'admin') {
@@ -192,7 +179,7 @@ class AdminController
                 $object->setFields($autoFields);
                 $object->initialize();
 
-                $epc = new ObjectCrudController(Kryn::getAdminPrefix() . '/' . $entryPoint->getFullPath(true));
+                $epc = new ObjectCrudController(Kryn::getAdminPrefix() . '/'. $entryPoint->getFullPath());
                 $epc->setObj($object);
                 $epc->getClient()->setUrl(substr(Kryn::getRequest()->getPathInfo(), 1));
                 $epc->setExceptionHandler($exceptionHandler);
@@ -309,6 +296,7 @@ class AdminController
                 ->addSubController('module/editor', '\Admin\Module\Editor')
                     ->addGetRoute('config', 'getConfig')
                     ->addGetRoute('entry-points', 'getEntryPoints')
+                    ->addPostRoute('entry-points', 'saveEntryPoints')
 
                     ->addGetRoute('windows', 'getWindows')
                     ->addGetRoute('window', 'getWindowDefinition')
@@ -618,9 +606,12 @@ class AdminController
 
         $response = array();
         foreach (Kryn::getConfigs() as $bundleConfig) {
-            foreach ($bundleConfig->getStreams() as $stream) {
-                if (false !== in_array($stream->getId(true), $__streams)) {
-                    $stream->run($response);
+            if ($streams = $bundleConfig->getStreams()) {
+                foreach ($streams as $stream) {
+                    $id = strtolower($bundleConfig->getName()) . '/' . $stream->getId();
+                    if (false !== in_array($id, $__streams)) {
+                        $stream->run($response);
+                    }
                 }
             }
         }

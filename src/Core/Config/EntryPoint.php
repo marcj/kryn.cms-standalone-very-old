@@ -15,7 +15,7 @@ class EntryPoint extends Model
     /**
      * @var string
      */
-    protected $type;
+    protected $type = 'acl';
 
     /**
      * @var string

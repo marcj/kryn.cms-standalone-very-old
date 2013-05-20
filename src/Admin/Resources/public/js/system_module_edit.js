@@ -924,17 +924,18 @@ var admin_system_module_edit = new Class({
 
             tr.definition.type = tr.typeField.getValue();
             tr.definition.title = tr.titleField.getValue();
+            tr.definition.id = tr.key.getValue();
             var data = tr.definition;
 
             if (tr.childContainer) {
-                data.children = {};
+                data.children = [];
                 tr.childContainer.getChildren('.ka-entryPoint-item').each(function (item) {
                     var itemValue = item.getValue();
-                    data.children[itemValue.key] = itemValue.definition;
+                    data.children.push(itemValue);
                 });
             }
 
-            return {key: tr.key.getValue(), definition: data};
+            return data; //{key: tr.key.getValue(), definition: data};
 
         };
 
@@ -1116,24 +1117,21 @@ var admin_system_module_edit = new Class({
 
     saveLinks: function () {
 
-        var entryPoints = {};
+        var entryPoints = [];
 
         this.entryPointsTable.getChildren('.ka-entryPoint-item').each(function (item) {
             var itemData = item.getValue();
-            entryPoints[itemData.key] = itemData.definition;
+            entryPoints.push(itemData);
         });
 
-        var req = {};
-        req.name = this.mod;
-        req.entryPoints = JSON.encode(entryPoints);
         this.win.setLoading(true, t('Saving ...'));
 
-        this.lr = new Request.JSON({url: _pathAdmin +
-            'admin/system/module/editor/entryPoints', noCache: 1, onComplete: function () {
+        this.lr = new Request.JSON({url: _pathAdmin + 'admin/system/module/editor/entry-points?bundle='+decodeURIComponent(this.mod),
+            noCache: 1, onComplete: function () {
             this.win.setLoading(false);
             ka.loadSettings();
             ka.adminInterface.loadMenu();
-        }.bind(this)}).post(req);
+        }.bind(this)}).post({entryPoints: entryPoints});
 
     },
 

@@ -985,24 +985,19 @@ class Object extends Model
         return $this->desc;
     }
 
-    public function setBrowserOptions($browserOptions)
+    /**
+     * @param Field[] $browserOptions
+     */
+    public function setBrowserOptions(array $browserOptions)
     {
         $this->browserOptions = $browserOptions;
     }
 
+    /**
+     * @return Field[]
+     */
     public function getBrowserOptions()
     {
-        if (null === $this->browserOptions) {
-            $fields = $this->getDirectChild('browserOptions');
-            if ($fields) {
-                foreach ($fields->childNodes as $field) {
-                    if ('field' === $field->nodeName) {
-                        $this->browserOptions[] = $this->getConfig()->getModelInstance($field);
-                    }
-                }
-            }
-        }
-
         return $this->browserOptions;
     }
 

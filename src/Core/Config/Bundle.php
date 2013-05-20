@@ -7,6 +7,9 @@ use Core\Kryn;
 
 class Bundle extends Model
 {
+    protected $attributes = ['id'];
+
+    protected $id;
 
     /**
      * @var Plugin[]
@@ -36,7 +39,7 @@ class Bundle extends Model
     /**
      * @var string
      */
-    protected $bundleName;
+    private $bundleName;
 
     /**
      * @var string
@@ -44,7 +47,7 @@ class Bundle extends Model
     protected $version;
 
     /**
-     * @var string
+     * @var Stream[]
      */
     protected $streams;
 
@@ -54,13 +57,30 @@ class Bundle extends Model
     protected $instanceRelations = array();
 
     /**
-     * @param \DOMElement $bundleName
+     * @param string      $bundleName
      * @param \DOMElement $bundleDoc
      */
-    public function __construct($bundleName, \DOMElement $bundleDoc = null)
+    public function __construct($bundleName = '', \DOMElement $bundleDoc = null)
     {
         $this->element = $bundleDoc;
         $this->bundleName = $bundleName;
+        $this->rootName = 'bundle';
+    }
+
+    /**
+     * @param string $path
+     * @param bool   $withDefaults
+     *
+     * @return boolean
+     */
+    public function saveConfig($path, $withDefaults = false)
+    {
+        $xml = $this->toXml($withDefaults);
+        $doc = new \DOMDocument();
+        $doc->formatOutput = true;
+        $doc->loadXML("<config>$xml</config>");
+        $xml = substr($doc->saveXML(), strlen('<?xml version="1.0"?>')+1);
+        return false !== file_put_contents($path, $xml);
     }
 
     /**
@@ -120,14 +140,6 @@ class Bundle extends Model
      */
     public function getPlugins()
     {
-        if (null === $this->plugins) {
-            $plugins = $this->element->getElementsByTagName('plugin');
-            $this->plugins = array();
-            foreach ($plugins as $plugin) {
-                $this->plugins[] = $this->getModelInstance($plugin);
-            }
-        }
-
         return $this->plugins;
     }
 
@@ -138,39 +150,38 @@ class Bundle extends Model
      */
     public function getPlugin($id)
     {
-        $this->plugins = $this->plugins ? : $this->getPlugins();
-        foreach ($this->plugins as $plugin) {
-            if ($plugin->getId() == $id) {
-                return $plugin;
+        if (null !== $this->plugins) {
+            foreach ($this->plugins as $plugin) {
+                if ($plugin->getId() == $id) {
+                    return $plugin;
+                }
             }
         }
     }
 
     /**
-     * @param string $streams
+     * @param Plugin[] $plugins
      */
-    public function setStreams($streams)
+    public function setPlugins(array $plugins)
+    {
+        $this->plugins = $plugins;
+    }
+
+
+
+    /**
+     * @param Stream[] $streams
+     */
+    public function setStreams(array $streams)
     {
         $this->streams = $streams;
     }
 
     /**
-     * @return string
+     * @return Stream[]
      */
     public function getStreams()
     {
-        if (null === $this->streams) {
-            $childrenElement = $this->getDirectChild('streams');
-            $this->streams = array();
-            if ($childrenElement) {
-                foreach ($childrenElement->childNodes as $child) {
-                    if ('stream' === $child->nodeName) {
-                        $this->streams[] = $this->getModelInstance($child);
-                    }
-                }
-            }
-        }
-
         return $this->streams;
     }
 
@@ -183,21 +194,8 @@ class Bundle extends Model
      */
     public function getAdminAssets($filter = '', $regex = false)
     {
-        if (null === $this->adminAssets) {
-            $childrenElement = $this->getDirectChild('admin');
-            $this->adminAssets = array();
-            if ($childrenElement) {
-                $children = $childrenElement->childNodes;
-                foreach ($children as $child) {
-                    if ('asset' === $child->nodeName || 'assets' == $child->nodeName) {
-                        $this->adminAssets[] = $this->getModelInstance($child);
-                    }
-                }
-            }
-        }
-
         if ('' === $filter) {
-            return $this->entryPoints;
+            return $this->adminAssets;
         } else {
             $result = array();
             if ($regex) {
@@ -206,13 +204,23 @@ class Bundle extends Model
                 $filter = preg_quote($filter, '/');
             }
 
-            foreach ($this->adminAssets as $asset) {
-                if (preg_match('/' . $filter . '/', $asset->getPath())) {
-                    $result[] = $asset;
+            if (null !== $this->adminAssets) {
+                foreach ($this->adminAssets as $asset) {
+                    if (preg_match('/' . $filter . '/', $asset->getPath())) {
+                        $result[] = $asset;
+                    }
                 }
             }
             return $result;
         }
+    }
+
+    /**
+     * @param Asset[]|Assets[] $adminAssets
+     */
+    public function setAdminAssets(array $adminAssets)
+    {
+        $this->adminAssets = $adminAssets;
     }
 
     /**
@@ -253,10 +261,11 @@ class Bundle extends Model
      */
     public function getTheme($id)
     {
-        $this->themes = $this->themes ? : $this->getThemes();
-        foreach ($this->themes as $theme) {
-            if ($theme->getId() == $id) {
-                return $theme;
+        if (null !== $this->themes) {
+            foreach ($this->themes as $theme) {
+                if ($theme->getId() == $id) {
+                    return $theme;
+                }
             }
         }
     }
@@ -330,31 +339,31 @@ class Bundle extends Model
         return $this->instanceRelations[spl_object_hash($node)];
     }
 
-    /**
-     * @param \DOMNode $node
-     *
-     * @return mixed
-     */
-    public function getModelInstance(\DOMNode $node)
-    {
-        if ($instance = $this->getInstanceForNode($node)) {
-            return $instance;
-        }
-
-        $blacklist = array('Config');
-
-        $clazz = char2Camelcase($node->nodeName, '-');
-        if (in_array($clazz, $blacklist)) {
-            return;
-        }
-        $clazz = '\Core\Config\\' . $clazz;
-
-        if (class_exists($clazz)) {
-            $instance = new $clazz($node, $this);
-            $this->setInstanceForNode($node, $instance);
-            return $instance;
-        }
-    }
+//    /**
+//     * @param \DOMNode $node
+//     *
+//     * @return mixed
+//     */
+//    public function getModelInstance(\DOMNode $node)
+//    {
+//        if ($instance = $this->getInstanceForNode($node)) {
+//            return $instance;
+//        }
+//
+//        $blacklist = array('Config');
+//
+//        $clazz = char2Camelcase($node->nodeName, '-');
+//        if (in_array($clazz, $blacklist)) {
+//            return;
+//        }
+//        $clazz = '\Core\Config\\' . $clazz;
+//
+//        if (class_exists($clazz)) {
+//            $instance = new $clazz($node, $this);
+//            $this->setInstanceForNode($node, $instance);
+//            return $instance;
+//        }
+//    }
 
     /**
      * @param $path Full path, delimited with `/`;
@@ -383,28 +392,26 @@ class Bundle extends Model
      */
     public function getObjects()
     {
-        if (null === $this->objects) {
-            $element = $this->getDirectChild('objects');
-            $this->objects = array();
-            if ($element) {
-                foreach ($element->childNodes as $node) {
-                    if ('object' === $node->nodeName) {
-                        $this->objects[] = $this->getModelInstance($node);
-                    }
-                }
-            }
-        }
-
         return $this->objects;
     }
 
     public function getObjectsArray()
     {
-        $objects = array();
-        foreach ($this->getObjects() as $object) {
-            $objects[strtolower($object->getId())] = $object->toArray();
+        if (null !== $this->objects) {
+            $objects = array();
+            foreach ($this->objects as $object) {
+                $objects[strtolower($object->getId())] = $object->toArray();
+            }
+            return $objects;
         }
-        return $objects;
+    }
+
+    /**
+     * @param Object[] $objects
+     */
+    public function setObjects(array $objects)
+    {
+        $this->objects = $objects;
     }
 
     /**
@@ -414,10 +421,11 @@ class Bundle extends Model
      */
     public function getObject($id)
     {
-        $this->objects = $this->objects ? : $this->getObjects();
-        foreach ($this->objects as $object) {
-            if ($object->getId() == $id) {
-                return $object;
+        if (null !== $this->objects) {
+            foreach ($this->objects as $object) {
+                if ($object->getId() == $id) {
+                    return $object;
+                }
             }
         }
     }
@@ -427,17 +435,15 @@ class Bundle extends Model
      */
     public function getThemes()
     {
-        if (null === $this->themes) {
-            $themes = $this->element->getElementsByTagName('theme');
-            $this->themes = array();
-            foreach ($themes as $theme) {
-                if ('theme' === $theme->nodeName) {
-                    $this->themes[] = $this->getModelInstance($theme);
-                }
-            }
-        }
-
         return $this->themes;
+    }
+
+    /**
+     * @param Theme[] $themes
+     */
+    public function setThemes(array $themes)
+    {
+        $this->themes = $themes;
     }
 
     /**

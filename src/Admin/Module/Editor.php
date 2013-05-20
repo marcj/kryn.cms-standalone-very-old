@@ -3,6 +3,8 @@
 namespace Admin\Module;
 
 use Admin\Module\Manager;
+use Core\Config\Bundle;
+use Core\Config\EntryPoint;
 use Core\Exceptions\BundleNotFoundException;
 use Core\Kryn;
 use Core\SystemFile;
@@ -739,14 +741,22 @@ class Editor
         return $entryPoints;
     }
 
-    public function saveEntryPoints($pName, $pEntryPoints)
+    public function saveEntryPoints($bundle, $entryPoints)
     {
-        Manager::prepareName($pName);
+        $bundle = $this->getBundle($bundle);
 
-        $config = $this->getConfig($pName);
-        $config['entryPoints'] = json_decode($pEntryPoints, true);
+        $entryPointsDef = [];
+        foreach ($entryPoints as $entryPointArray) {
+            $entryPoint = new EntryPoint();
+            $entryPoint->fromArray($entryPointArray);
+            $entryPointsDef[] = $entryPoint;
+        }
 
-        return $this->setConfig($pName, $config);
+        $config = new Bundle();
+        $config->setEntryPoints($entryPointsDef);
+
+        $file = $bundle->getPath() . 'Resources/config/kryn.entrypoints.xml';
+        return $config->saveConfig($file);
     }
 
     public function saveWindowDefinition($pClass)

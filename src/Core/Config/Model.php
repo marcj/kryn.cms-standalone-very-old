@@ -180,17 +180,24 @@ class Model implements \ArrayAccess
                     }
                     if ($firstParameter->isArray()){
                         $result = str_replace(array('[', ']'), '', $phpDocs['param']['type']);
-                        $returnType = explode('|', $result)[0];
+                        $types = explode('|', $result);
+                        $clazz = '';
+                        if (1 === count($types)) {
+                            $returnType = $types[0];
 
-                        if (!class_exists($clazz = $returnType)) {
-                            if (!class_exists($clazz = '\Core\Config\\' . $returnType)) {
-                                $clazz = null;
+                            if (!class_exists($clazz = $returnType)) {
+                                if (!class_exists($clazz = '\Core\Config\\' . $returnType)) {
+                                    $clazz = null;
+                                }
                             }
                         }
 
                         $setterValue = array();
                         foreach ($child->childNodes as $subChild) {
                             if ('#' !== substr($subChild->nodeName, 0, 1)) {
+                                if (1 < count($types)) {
+                                    $clazz = '\Core\Config\\' . ucfirst($subChild->nodeName);
+                                }
                                 if (class_exists($clazz)) {
                                     $object = new $clazz($subChild);
                                     $setterValue[] = $object;
@@ -258,29 +265,6 @@ class Model implements \ArrayAccess
         } else {
             $options[] = $value;
         }
-    }
-
-    /**
-     * @param \DOMNode $node
-     *
-     * @return mixed
-     * @throws \Exception
-     */
-    public function getModelInstance(\DOMNode $node)
-    {
-        if (!$this->config) {
-            throw new \Exception(sprintf('Instance of `%s` does not have a `config`.', get_class($this)));
-        }
-
-        return $this->config->getModelInstance($node);
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getParentInstance()
-    {
-        return $this->getModelInstance($this->element->parentNode);
     }
 
     /**
@@ -480,7 +464,11 @@ class Model implements \ArrayAccess
             $node->appendChild($comment);
         }
 
-        $rootNode = $doc->createElement($this->rootName);
+        try {
+            $rootNode = $doc->createElement($this->rootName);
+        } catch (\DOMException $e ){
+            throw new \Exception(tf('Can not create xml element ``', $this->rootName), 0, $e);
+        }
         $node->appendChild($rootNode);
 
         $reflection = new \ReflectionClass($this);
@@ -800,8 +788,8 @@ class Model implements \ArrayAccess
 
         //parse tags
         $regex = array(
-            'param' => array('/^@param\s*\t*([a-zA-Z_\\\[\]]*)\s*\t*\$([a-zA-Z_]*)\s*\t*(.*)/', array('type', 'name', 'description')),
-            'return' => array('/^@return\s*\t*([a-zA-Z_\\\[\]]*)\s*\t*(.*)/', array('type', 'description')),
+            'param' => array('/^@param\s*\t*([a-zA-Z_\\\[\]|]*)\s*\t*\$([a-zA-Z_]*)\s*\t*(.*)/', array('type', 'name', 'description')),
+            'return' => array('/^@return\s*\t*([a-zA-Z_\\\[\]|]*)\s*\t*(.*)/', array('type', 'description')),
         );
         foreach ($tags as $tag => &$data) {
             if ($tag == 'description') continue;

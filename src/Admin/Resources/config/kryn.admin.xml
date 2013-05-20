@@ -1,6 +1,6 @@
 <config>
     <bundle>
-        <admin>
+        <adminAssets>
             <asset>@CoreBundle/mootools-core.js</asset>
             <asset>@CoreBundle/mootools-more.js</asset>
             <asset>@CoreBundle/mowla.min.js</asset>
@@ -48,8 +48,7 @@
             <assets>@AdminBundle/css/ai.css</assets>
             <assets>@AdminBundle/css/ka/*.css</assets>
             <assets>@AdminBundle/css/ka/ui/*.css</assets>
-
-        </admin>
+        </adminAssets>
         <streams>
             <stream id="load">
                 <class>Admin\Controller\DashboardWidgets</class>

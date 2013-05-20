@@ -1968,7 +1968,6 @@ class Kryn extends Controller
         }
 
         $response = $kernel->handle($request);
-        //var_dump($request); exit;
 
         if ($response instanceof PluginResponse) {
             $response = Kryn::getResponse()->setPluginResponse($response);

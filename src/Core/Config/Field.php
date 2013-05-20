@@ -4,7 +4,6 @@ namespace Core\Config;
 
 class Field extends Model
 {
-
     protected $attributes = ['id', 'primaryKey', 'autoIncrement'];
 
     /**
@@ -74,39 +73,18 @@ class Field extends Model
     }
 
     /**
-     * @param array $children
+     * @param Field[] $children
      */
     public function setChildren(array $children)
     {
-        $this->children = array();
-        foreach ($children as $key => $field) {
-            if ($field instanceof Field) {
-                $this->children[] = $field;
-            } else if (is_array($field)) {
-                $instance = new Field();
-                $instance->fromArray($field);
-                if (null === $instance->getId()) {
-                    $instance->setId($key);
-                }
-                $this->children[] = $instance;
-            }
-        }
+        $this->children = $children;
     }
 
     /**
-     * @return array
+     * @return Field[]
      */
     public function getChildren()
     {
-        if (null === $this->children) {
-            $childrenElement = $this->getDirectChild('children');
-            if ($childrenElement) {
-                foreach ($childrenElement->childNodes as $field) {
-                    $this->children[] = $this->getModelInstance($field);
-                }
-            }
-        }
-
         return $this->children;
     }
 

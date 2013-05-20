@@ -935,59 +935,6 @@ function dbFullConditionToCriteria($pConditions, $pObjectKey)
 
                 $criteria->add($firstCriterion);
 
-                //
-                //$conds['cond'.count($conds)] = dbFullConditionToCriteria($condition, $pTablePrefix);
-                //$lastCriteria = dbFullConditionToCriteria($condition, $pObjectKey);
-                //$result .= ' ('.dbFullConditionToCriteria($condition, $pTablePrefix).')';
-                //var_dump($lastCriteria->toString());
-                //$criteria->add($lastCriteria);
-
-
-//                22
-//                $temp = array();
-//                $c = 0;
-//                $cg = 0;
-//                $op = 'and';
-//                foreach ($condition as $sub) {
-//
-//                    if (is_string($sub)) {
-//                        $op = strtolower($sub);
-//                    } else {
-//                        $c++;
-//                        $criteria->addCond('cond'.$c, $sub[0], $sub[2], $sub[1]);
-//                        $temp[] = 'cond'.$c;
-//                    }
-//                    var_dump($temp);
-//                    if (count($temp) == 2) {
-//                        $cg++;
-//                        $criteria->combine($temp, $op, 'condgroup'.$cg);
-//                        $temp = array();
-//                    }
-//                }
-//                if (count($temp) == 1)
-//                    $criteria->combine($temp, $op);
-//                $temp2 = array();
-//
-//
-//                bla AND (foo OR bar)
-//                bla AND  foo OR bar
-//
-//                true AND (true OR false) => true
-//                true and true or false   => true
-//
-//                false AND (false or true) => false
-//                false AND false or true   => true
-//
-//                for ($i=0;$i<$cg;$i++) {
-//                    $temp2[] = 'condgroup'.$i;
-//                    if (count($temp2) == 2) {
-//                        $criteria->combine($temp2,)
-//                    }
-//                }
-
-
-                //$criteria->$lastOperator($lastCriteria);
-
             } elseif (is_array($condition)) {
 
                 //$lastCriteria = new \Criterion();
