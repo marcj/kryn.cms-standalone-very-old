@@ -97,6 +97,7 @@ class Lang
             $code = "<?php \nfunction gettext_plural_fn_$lang(\$n){\n";
             $code .= "    return " . str_replace('n', '$n', $pluralForm) . ";\n";
             $code .= "}\n?>";
+
             TempFile::setContent($file, $code);
         }
 

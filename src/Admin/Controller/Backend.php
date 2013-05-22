@@ -262,7 +262,7 @@ class Backend
 
         $handle = @fopen($oFile, 'r');
         $fileUpToDate = false;
-        $md5Line = '//' . md5($md5String) . "\n";
+        $md5Line = '/* ' . md5($md5String) . "*/\n";
 
         if ($handle) {
             $line = fgets($handle);
@@ -274,6 +274,7 @@ class Backend
 
         if (!$fileUpToDate) {
             $content = \Core\Utils::compressCss($files, Kryn::getAdminPrefix() . '/admin/backend/');
+            $content = $md5Line . $content;
             file_put_contents($oFile, $content);
         }
 

@@ -52,11 +52,6 @@ class Bundle extends Model
     protected $streams;
 
     /**
-     * @var array
-     */
-    protected $instanceRelations = array();
-
-    /**
      * @param string      $bundleName
      * @param \DOMElement $bundleDoc
      */
@@ -319,51 +314,6 @@ class Bundle extends Model
 
         return $entryPoints;
     }
-
-    /**
-     * @param \DOMNode $node
-     * @param          $instance
-     */
-    public function setInstanceForNode(\DOMNode $node, $instance)
-    {
-        $this->instanceRelations[spl_object_hash($node)] = $instance;
-    }
-
-    /**
-     * @param \DOMNode $node
-     *
-     * @return mixed
-     */
-    public function getInstanceForNode(\DOMNode $node)
-    {
-        return $this->instanceRelations[spl_object_hash($node)];
-    }
-
-//    /**
-//     * @param \DOMNode $node
-//     *
-//     * @return mixed
-//     */
-//    public function getModelInstance(\DOMNode $node)
-//    {
-//        if ($instance = $this->getInstanceForNode($node)) {
-//            return $instance;
-//        }
-//
-//        $blacklist = array('Config');
-//
-//        $clazz = char2Camelcase($node->nodeName, '-');
-//        if (in_array($clazz, $blacklist)) {
-//            return;
-//        }
-//        $clazz = '\Core\Config\\' . $clazz;
-//
-//        if (class_exists($clazz)) {
-//            $instance = new $clazz($node, $this);
-//            $this->setInstanceForNode($node, $instance);
-//            return $instance;
-//        }
-//    }
 
     /**
      * @param $path Full path, delimited with `/`;

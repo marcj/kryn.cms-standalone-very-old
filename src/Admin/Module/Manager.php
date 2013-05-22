@@ -18,13 +18,6 @@ class Manager
         define('KRYN_MANAGER', false);
     }
 
-    public static function saveMainConfig()
-    {
-        $config = '<?php return ' . var_export(Kryn::$config, true) . '; ?>';
-
-        return SystemFile::setContent('config.php', $config);
-    }
-
     /**
      * Filters any special char out of the name.
      *
@@ -37,53 +30,42 @@ class Manager
         $pName = preg_replace('/[^a-zA-Z0-9-_\\\\]/', '', $pName);
     }
 
-    public function deactivate($pName, $pReloadConfig = false)
+    /**
+     * @param $bundleName
+     * @param bool $pReloadConfig
+     * @return int
+     */
+    public function deactivate($bundleName, $pReloadConfig = false)
     {
-        Manager::prepareName($pName);
+        Manager::prepareName($bundleName);
 
-        $idx = array_search($pName, Kryn::$config['bundles']);
-        if ($idx !== false) {
-            unset(Kryn::$config['bundles'][$idx]);
-        }
-
-        $idx = array_search($pName, \Core\Kryn::$bundles);
-        if ($idx !== false) {
-            unset(\Core\Kryn::$bundles[$idx]);
-        }
+        Kryn::getSystemConfig()->removeBundle($bundleName);
 
         if ($pReloadConfig) {
             Kryn::loadModuleConfigs();
         }
+        \Admin\Utils::clearModuleCache($bundleName);
 
-        return self::saveMainConfig();
-
+        return Kryn::getSystemConfig()->save();
     }
 
-    public function activate($pName, $pReloadConfig = false)
+    /**
+     * @param $bundleName
+     * @param bool $pReloadConfig
+     * @return bool|int
+     */
+    public function activate($bundleName, $pReloadConfig = false)
     {
-        Manager::prepareName($pName);
+        Manager::prepareName($bundleName);
 
-        $systemModules = array('Admin\AdminBundle', 'Core\\CoreBundle', 'Users\\UsersBundle');
+        Kryn::getSystemConfig()->addBundle($bundleName);
 
-        if (array_search($pName, $systemModules) === false) {
-
-            if (array_search($pName, Kryn::$config['bundles']) === false) {
-                Kryn::$config['bundles'][] = $pName;
-            }
-
-            if (array_search($pName, \Core\Kryn::$bundles) === false) {
-                \Core\Kryn::$bundles[] = $pName;
-            }
-
-            if ($pReloadConfig) {
-                Kryn::loadModuleConfigs();
-            }
-
-            self::saveMainConfig();
+        if ($pReloadConfig) {
+            Kryn::loadModuleConfigs();
         }
+        \Admin\Utils::clearModuleCache($bundleName);
 
-        \Admin\Utils::clearModuleCache($pName);
-        return false;
+        return Kryn::getSystemConfig()->save();
     }
 
     public static function getInstalled()

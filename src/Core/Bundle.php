@@ -150,6 +150,33 @@ class Bundle
     }
 
     /**
+     * @return array
+     */
+    public function getConfigFiles()
+    {
+        $folder = $this->getPath() . '/Resources/config/';
+        if (file_exists($folder)) {
+            return glob($folder . 'kryn.*.xml');
+        }
+
+        return [];
+    }
+
+    /**
+     * Returns a md5 hash of all kryn config files (Resources/config/kryn.*.xml).
+     *
+     * @return string
+     */
+    public function getConfigHash()
+    {
+        $hash = [];
+        foreach ($this->getConfigFiles() as $file) {
+            $hash[] = filemtime($file);
+        }
+        return md5(implode('.', $hash));
+    }
+
+    /**
      * Returns a all unfiltered configuration vars. Not recommended to use it. Use instead Kryn::getConfig();
      *
      * @return array
@@ -157,8 +184,7 @@ class Bundle
     public function getConfigs()
     {
         $configs = array();
-        $files = glob($this->getPath() . '/Resources/config/kryn.*.xml');
-        foreach ($files as $file) {
+        foreach ($this->getConfigFiles() as $file) {
             if (file_exists($file)) {
                 $doc = new \DOMDocument();
                 $doc->load($file);

@@ -118,7 +118,7 @@ class Local extends AbstractFAL
     }
 
     /**
-     * Loads and converts the configuration in Core\Kryn::$config (./config.php)
+     * Loads and converts the configuration in Core\Kryn::getSystemConfig()->getFile()
      * to appropriate modes.
      *
      */
@@ -127,26 +127,26 @@ class Local extends AbstractFAL
         $this->fileMode = 600;
         $this->dirMode = 700;
 
-        if (Kryn::$config['fileGroupPermission'] == 'rw') {
+        if (Kryn::getSystemConfig()->getFile()->getGroupPermission() == 'rw') {
             $this->fileMode += 60;
             $this->dirMode += 70;
-        } elseif (Kryn::$config['fileGroupPermission'] == 'r') {
+        } elseif (Kryn::getSystemConfig()->getFile()->getGroupPermission() == 'r') {
             $this->fileMode += 40;
             $this->dirMode += 50;
         }
 
-        if (Kryn::$config['fileEveryonePermission'] == 'rw') {
+        if (Kryn::getSystemConfig()->getFile()->getEveryonePermission() == 'rw') {
             $this->fileMode += 6;
             $this->dirMode += 7;
-        } elseif (Kryn::$config['fileEveryonePermission'] == 'r') {
+        } elseif (Kryn::getSystemConfig()->getFile()->getEveryonePermission() == 'r') {
             $this->fileMode += 4;
             $this->dirMode += 5;
         }
 
         $this->fileMode = octdec($this->fileMode);
         $this->dirMode = octdec($this->dirMode);
-        $this->groupName = Kryn::$config['fileGroupName'];
-        $this->changeMode = (Kryn::$config['fileNoChangeMode'] + 0 == 0); //if fileNoChangeMode=false, changeMode will be true
+        $this->groupName = Kryn::getSystemConfig()->getFile()->getGroupOwner();
+        $this->changeMode = !Kryn::getSystemConfig()->getFile()->getDisableModeChange();
     }
 
     /**
@@ -194,21 +194,24 @@ class Local extends AbstractFAL
         }
 
         if (!file_exists($path)) {
-            if (null !== $pContent && false === ($res = file_put_contents($path, $pContent))) {
-                if (is_writable(dirname($path))) {
-                    throw new \FileIOException(tf('Can not create file %s', $path));
-                } else {
-                    throw new \FileNotWritableException(tf(
-                        'Can not create the file %s in %s, since it is not writeable.',
-                        $path,
-                        dirname($path)
-                    ));
-                }
+            if (!is_writable(dirname($path))) {
+                throw new \FileNotWritableException(tf(
+                    'Can not create the file %s in %s, since the folder is not writable.',
+                    $path,
+                    dirname($path)
+                ));
             }
-            $this->setPermission($pPath);
+            if (null !== $pContent) {
+                file_put_contents($path, $pContent);
+            } else {
+                touch($path);
+            }
+            if ($this->changeMode) {
+                $this->setPermission($pPath);
+            }
         }
 
-        return false !== $res;
+        return file_exists($path);
     }
 
     /**
@@ -258,7 +261,7 @@ class Local extends AbstractFAL
             return $this->_createFolder($path);
         }
 
-        return false;
+        return true;
     }
 
     /**

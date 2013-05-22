@@ -168,7 +168,7 @@ class Object extends Model
     protected $treeIcon;
 
     /**
-     * @var array
+     * @var TreeIconMapping
      */
     protected $treeIconMapping;
 
@@ -425,7 +425,7 @@ class Object extends Model
      */
     public function setDomainDepended($domainDepended)
     {
-        $this->domainDepended = filter_var($domainDepended, FILTER_VALIDATE_BOOLEAN);
+        $this->domainDepended = $this->bool($domainDepended);
     }
 
     /**
@@ -481,25 +481,16 @@ class Object extends Model
      */
     public function getFields()
     {
-        if (null === $this->fields) {
-            $fields = $this->getDirectChild('fields');
-            if ($fields) {
-                foreach ($fields->childNodes as $field) {
-                    if ('field' === $field->nodeName) {
-                        $this->fields[] = $this->getConfig()->getModelInstance($field);
-                    }
-                }
-            }
-        }
-
         return $this->fields;
     }
 
     public function getFieldsArray()
     {
         $fields = array();
-        foreach ($this->getFields() as $field) {
-            $fields[lcfirst($field->getId())] = $field->toArray();
+        if (null !== $this->fields) {
+            foreach ($this->fields as $field) {
+                $fields[lcfirst($field->getId())] = $field->toArray();
+            }
         }
         return $fields;
     }
@@ -525,9 +516,11 @@ class Object extends Model
      */
     public function getField($fieldId)
     {
-        foreach ($this->getFields() as $field) {
-            if ($field->getId() === $fieldId) {
-                return $field;
+        if (null === $this->fields) {
+            foreach ($this->fields as $field) {
+                if ($field->getId() === $fieldId) {
+                    return $field;
+                }
             }
         }
     }
@@ -601,7 +594,7 @@ class Object extends Model
      */
     public function setMultiLanguage($multiLanguage)
     {
-        $this->multiLanguage = filter_var($multiLanguage, FILTER_VALIDATE_BOOLEAN);
+        $this->multiLanguage = $this->bool($multiLanguage);
     }
 
     /**
@@ -617,7 +610,7 @@ class Object extends Model
      */
     public function setNested($nested)
     {
-        $this->nested = filter_var($nested, FILTER_VALIDATE_BOOLEAN);
+        $this->nested = $this->bool($nested);
     }
 
     /**
@@ -638,7 +631,7 @@ class Object extends Model
      */
     public function setNestedRootAsObject($nestedRootAsObject)
     {
-        $this->nestedRootAsObject = filter_var($nestedRootAsObject, FILTER_VALIDATE_BOOLEAN);
+        $this->nestedRootAsObject = $this->bool($nestedRootAsObject);
     }
 
     /**
@@ -766,7 +759,7 @@ class Object extends Model
      */
     public function setTreeFixedIcon($treeFixedIcon)
     {
-        $this->treeFixedIcon = filter_var($treeFixedIcon, FILTER_VALIDATE_BOOLEAN);
+        $this->treeFixedIcon = $this->bool($treeFixedIcon);
     }
 
     /**
@@ -794,7 +787,7 @@ class Object extends Model
     }
 
     /**
-     * @param array $treeIconMapping
+     * @param TreeIconMapping $treeIconMapping
      */
     public function setTreeIconMapping($treeIconMapping)
     {
@@ -802,7 +795,7 @@ class Object extends Model
     }
 
     /**
-     * @return array
+     * @return TreeIconMapping
      */
     public function getTreeIconMapping()
     {
@@ -910,7 +903,7 @@ class Object extends Model
      */
     public function setTreeRootObjectFixedIcon($treeRootObjectFixedIcon)
     {
-        $this->treeRootObjectFixedIcon = filter_var($treeRootObjectFixedIcon, FILTER_VALIDATE_BOOLEAN);
+        $this->treeRootObjectFixedIcon = $this->bool($treeRootObjectFixedIcon);
     }
 
     /**

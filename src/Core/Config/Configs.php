@@ -11,11 +11,6 @@ class Configs implements \IteratorAggregate
      */
     private $configElements = array();
 
-    /**
-     * @var Config[]
-     */
-    private $configs = array();
-
     public function __construct(array $bundles)
     {
         foreach ($bundles as $bundleName) {

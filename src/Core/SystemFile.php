@@ -54,7 +54,11 @@ class SystemFile extends WebFile
         static::$fsObjects[$class] = new $class('', $params);
 
         return static::$fsObjects[$class];
+    }
 
+    public static function setPermission($path)
+    {
+        self::getLayer()->setPermission($path);
     }
 
     public static function wrap($fileInfo)

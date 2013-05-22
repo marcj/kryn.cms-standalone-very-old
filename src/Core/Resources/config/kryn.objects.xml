@@ -11,9 +11,9 @@
 
                 <nested>true</nested>
                 <treeLabel>name</treeLabel>
-                <treeIcon>extension</treeIcon>
+                <treeIcon>type</treeIcon>
                 <treeIconMapping>
-                    <icon id="directory">#icon-folder-4</icon>
+                    <icon id="dir">#icon-folder-4</icon>
                 </treeIconMapping>
 
                 <treeDefaultIcon>#icon-paper</treeDefaultIcon>

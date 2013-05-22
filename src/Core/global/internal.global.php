@@ -73,6 +73,7 @@ function coreUtilsExceptionHandler($pException)
 
 function coreUtilsShutdownHandler()
 {
+    chdir(PATH);
     if (\Core\Kryn::getClient()) {
         \Core\Kryn::getClient()->syncStore();
     }

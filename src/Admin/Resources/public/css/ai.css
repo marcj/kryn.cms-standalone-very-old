@@ -41,7 +41,8 @@ a[class^="icon-"], a[class*=" icon-"]{
     padding: 0 2px;
 }
 
-a[class^="icon-"]:hover:before, a[class*=" icon-"]:hover:before {
+.ka-desktop a[class^="icon-"]:hover:before,
+.ka-desktop a[class*=" icon-"]:hover:before {
     color: #888;
 }
 .ka-scrolling {

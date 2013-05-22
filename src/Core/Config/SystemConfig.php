@@ -105,6 +105,15 @@ class SystemConfig extends Model {
      */
     protected $file;
 
+
+    /**
+     * {@inheritDocs}
+     */
+    public function save($path = 'app/config/config.xml', $withDefaults = true)
+    {
+        return parent::save($path, $withDefaults);
+    }
+
     /**
      * @param string[] $bundles
      */
@@ -119,6 +128,59 @@ class SystemConfig extends Model {
     public function getBundles()
     {
         return $this->bundles;
+    }
+
+    /**
+     * @param string $bundleName
+     */
+    public function removeBundle($bundleName)
+    {
+        if (null !== $this->bundles) {
+            $idx = array_search($bundleName, $this->bundles);
+            if (false !== $idx) {
+                unset($this->bundles[$idx]);
+            }
+        }
+    }
+
+    public function isSystemBundle($bundleName)
+    {
+        $bundleName = strtolower($bundleName);
+        return in_array($bundleName, [
+            'core',
+            'corebundle',
+            'core\corebundle',
+            'admin',
+            'adminbundle',
+            'admin\adminbundle',
+            'users',
+            'usersbundle',
+            'users\usersbundle'
+        ]);
+
+    }
+
+    /**
+     * @param string $bundleName
+     */
+    public function addBundle($bundleName)
+    {
+        if (!$this->isSystemBundle($bundleName) && !in_array($bundleName, $this->bundles)) {
+            $this->bundles[] = $bundleName;
+        }
+    }
+
+    public function getBundlesConfigsHash()
+    {
+        if (null !== $this->bundles) {
+            $hash = '';
+            foreach ($this->bundles as $bundleName) {
+                $bundle = Kryn::getBundle($bundleName);
+                if ($bundle) {
+                    $files = $bundle->getConfigFiles();
+                }
+            }
+        }
     }
 
     /**

@@ -130,7 +130,10 @@ class ObjectFile extends \Core\ORM\Propel
         if (!$path) {
             return;
         }
-        return WebFile::getFile($path);
+        $item = WebFile::getFile($path);
+        if ($item) {
+            return $item->toArray();
+        }
     }
 
     public function getParents($pPk, $pOptions = null)

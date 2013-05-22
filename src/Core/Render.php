@@ -82,7 +82,7 @@ class Render
             Kryn::$nestedLevels[] = Kryn::$page;
         }
 
-        Kryn::getEventDispatcher()->dispatch('core.render.contents.pre');
+        Kryn::getEventDispatcher()->dispatch('core/render/contents/pre');
 
         if (file_exists($file = 'css/_pages/' . $pPageId . '.css')) {
             Kryn::getResponse()->addCssFile($file);
@@ -99,7 +99,7 @@ class Render
         }
 
         $arguments = array($pPageId, $pSlotId, &self::$contents[$pSlotId]);
-        Kryn::getEventDispatcher()->dispatch('core.render.contents', new GenericEvent($arguments));
+        Kryn::getEventDispatcher()->dispatch('core/render/contents', new GenericEvent($arguments));
 
         if ($pSlotId) {
             $html = self::renderContents(self::$contents[$pSlotId], $pProperties);
@@ -117,7 +117,7 @@ class Render
         Kryn::$forceKrynContent = false;
 
         $arguments = array($pPageId, $pSlotId, &$html);
-        Kryn::getEventDispatcher()->dispatch('core.render.contents.post', new GenericEvent($arguments));
+        Kryn::getEventDispatcher()->dispatch('core/render/contents/post', new GenericEvent($arguments));
 
         return $html;
     }
@@ -186,7 +186,7 @@ class Render
 
         $count = count($contents);
         /*
-         * Compatiblity
+         * Compatibility
          */
         $data['layoutContentsMax'] = $count;
         $data['layoutContentsIsFirst'] = true;

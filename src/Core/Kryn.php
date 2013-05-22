@@ -634,14 +634,29 @@ class Kryn extends Controller
         self::$bundles = ['Core\CoreBundle', 'Admin\AdminBundle', 'Users\UsersBundle'];
         if ($bundles = self::getSystemConfig()->getBundles()) {
             foreach ($bundles as $bundle) {
-                Kryn::$bundles[] = $bundle;
+                static::$bundles[] = $bundle;
             }
         }
+        static::getBundleClasses(); //triggers loading of all bundles to $bundleInstances
     }
 
     public static function getBundles()
     {
         return self::$bundles;
+    }
+
+    /**
+     * @return Bundle[]
+     */
+    public static function getBundleClasses()
+    {
+        $bundles = [];
+        foreach (self::$bundles as $bundleName) {
+            if ($bundle = self::getBundle($bundleName)) {
+                $bundles[] = $bundle;
+            }
+        }
+        return $bundles;
     }
 
     /**
@@ -678,10 +693,34 @@ class Kryn extends Controller
      */
     public static function loadModuleConfigs($pForceNoCache = false)
     {
-        self::$configs = new Config\Configs(Kryn::$bundles);
+        $cached = self::getFastCache('core/configs');
+        $bundles = Kryn::getBundleClasses();
+        $hashes = [];
+        foreach ($bundles as $bundle) {
+            $hashes[] = $bundle->getConfigHash();
+        }
+        $hash = md5(implode('.', $hashes));
+
+        if ($cached) {
+            $cached = unserialize($cached);
+            if (is_array($cached) && $cached['md5'] == $hash){
+                self::$configs = $cached['data'];
+            }
+        }
+
+        if (!self::$configs) {
+            self::$configs = new Config\Configs(Kryn::$bundles);
+            $cached = serialize([
+                'md5'  => $hash,
+                'data' => self::$configs
+            ]);
+            self::setFastCache('core/configs', $cached);
+        }
         self::prepareWebSymlinks();
 
         return;
+
+        //TODO, check what we need.
 
         $md5 = md5($md5);
         if (!$pForceNoCache) {
@@ -777,58 +816,6 @@ class Kryn extends Controller
 
         return 'en';
 
-    }
-
-
-    /**
-     * Returns the config hash of the specified extension.
-     *
-     * @static
-     *
-     * @param      $pModule
-     * @param bool $pLang
-     * @param bool $pNoCache
-     *
-     * @return array All config values from the config.json
-     */
-    public static function getModuleConfig($pModule, $pLang = false, $pNoCache = false)
-    {
-        $pModule = str_replace('.', '', $pModule);
-        $pModule = self::getModuleDir($pModule);
-
-        $config = $pModule . "Resources/config/config.json";
-
-        if (!file_exists($config)) {
-            return false;
-        }
-
-        $mtime = filemtime($config);
-        $lang = $pLang ? $pLang : Kryn::getLanguage();
-
-        if (!$pNoCache) {
-
-            $cacheCode = 'moduleConfig-' . $pModule . '.' . $lang;
-            $configObj = Kryn::getFastCache($cacheCode);
-
-        }
-
-        if (!$configObj || $configObj['mtime'] != $mtime) {
-
-            $json = Kryn::translate(SystemFile::getContent($config));
-
-            $configObj = json_decode($json, 1);
-
-            if (!is_array($configObj)) {
-                $configObj = array('_corruptConfig' => true);
-            } else {
-                $configObj['mtime'] = $mtime;
-            }
-            if (!$pNoCache) {
-                Kryn::setFastCache($cacheCode, $configObj);
-            }
-        }
-
-        return $configObj;
     }
 
     /**
@@ -972,9 +959,6 @@ class Kryn extends Controller
         Kryn::$cache = new Cache\Controller(
             static::$config->getCache()
         );
-
-        $fastestCacheClass = Cache\Controller::getFastestCacheClass();
-        Kryn::$cacheFast = new Cache\Controller($fastestCacheClass);
     }
 
     /**
@@ -1764,17 +1748,44 @@ class Kryn extends Controller
             exit;
         }
 
-        static::$config = new SystemConfig(file_exists($configFile) ? file_get_contents($configFile) : null);
+        if (file_exists($configFile)) {
+            $systemConfigCached = static::getFastCache('core/config');
+            $systemConfigHash   = filemtime($configFile);
+
+
+            if ($systemConfigCached) {
+                $systemConfigCached = unserialize($systemConfigCached);
+                if (is_array($systemConfigCached) && $systemConfigCached['md5'] == $systemConfigHash){
+                    self::$config = $systemConfigCached['data'];
+                }
+            }
+
+            if (!self::$config) {
+                static::$config = new SystemConfig(file_get_contents($configFile));
+                $cached = serialize([
+                    'md5'  => $systemConfigHash,
+                    'data' => self::$config
+                ]);
+                self::setFastCache('core/config', $cached);
+            }
+        } else {
+            static::$config = new SystemConfig();
+        }
 
         if (!defined('pfx')) {
             define('pfx', self::$config->getDatabase(true)->getPrefix());
         }
 
-        self::getLoader()->add('', self::getTempFolder() . 'propel-classes/');
-
         if (false !== strpos($_SERVER['PHP_SELF'], 'install.php')) {
+            try {
+                self::getLoader()->add('', self::getTempFolder() . 'propel-classes/');
+            } catch (\Exception $e){
+                //catch it silence.
+            }
             return;
         }
+
+        self::getLoader()->add('', self::getTempFolder() . 'propel-classes/');
 
         self::checkStaticCaching();
 
@@ -2580,6 +2591,7 @@ class Kryn extends Controller
      */
     public static function getDistributedCache($pKey)
     {
+        static::initFastCache();
         $invalidationKey = $pKey . '/!invalidationCheck';
         $timestamp = self::getCache($invalidationKey);
         $cache = null;
@@ -2621,6 +2633,7 @@ class Kryn extends Controller
      */
     public static function setDistributedCache($pKey, $pValue, $pLifeTime = null)
     {
+        static::initFastCache();
         $invalidationKey = $pKey . '/!invalidationCheck';
         $timestamp = microtime();
 
@@ -2632,6 +2645,14 @@ class Kryn extends Controller
             $timestamp,
             $pLifeTime
         );
+    }
+
+    public static function initFastCache()
+    {
+        if (!self::$cacheFast) {
+            $fastestCacheClass = Cache\Controller::getFastestCacheClass();
+            Kryn::$cacheFast = new Cache\Controller($fastestCacheClass);
+        }
     }
 
     /**
@@ -2651,9 +2672,7 @@ class Kryn extends Controller
      */
     public static function setFastCache($pKey, $pValue, $pLifeTime = null)
     {
-        if (!self::$cache) {
-            self::initCache();
-        }
+        static::initFastCache();
 
         return Kryn::$cacheFast->set($pKey, $pValue, $pLifeTime);
     }
@@ -2669,9 +2688,7 @@ class Kryn extends Controller
      */
     public static function &getFastCache($pKey)
     {
-        if (!self::$cache) {
-            self::initCache();
-        }
+        static::initFastCache();
 
         return Kryn::$cacheFast->get($pKey);
     }
@@ -2713,15 +2730,7 @@ class Kryn extends Controller
                 $folder = sys_get_temp_dir();
             }
 
-            if (!is_dir($folder)) {
-                mkdirr($folder);
-            }
-
-            if (!is_writable($folder)) {
-                throw new \FileIOException('Temp directory is not writeable. ' . $folder);
-            }
-
-            self::$cachedTempFolder = realpath($folder);
+            self::$cachedTempFolder = $folder;
 
             if (substr(self::$cachedTempFolder, -1) != DIRECTORY_SEPARATOR) {
                 self::$cachedTempFolder .= DIRECTORY_SEPARATOR;
@@ -2849,6 +2858,7 @@ class Kryn extends Controller
                 foreach ($matches as $match) {
                     $dir = self::getBundleDir($match[0]);
                     if (!$dir) {
+                        var_dump(static::$bundleInstances);
                         throw new BundleNotFoundException(sprintf('Bundle for `%s` not found.', $match[0]));
                     }
                     $path = str_replace($match[0], $dir . $suffix, $path);

@@ -11,6 +11,7 @@ class Options extends Model
 
     protected $rootName = 'options';
     protected $optionName = 'option';
+    protected $keyName = 'key';
 
     public function setupObject()
     {
@@ -24,7 +25,7 @@ class Options extends Model
 
     public function extractOptions(\DOMNode $child, array &$options)
     {
-        $key = $child->attributes->getNamedItem('key');
+        $key = $child->attributes->getNamedItem($this->keyName);
         $key ? $key = $key->nodeValue : null;
 
         $valueText = null;
@@ -46,6 +47,11 @@ class Options extends Model
         }
     }
 
+    public function toArray($element = NULL)
+    {
+        return $this->options;
+    }
+
     /**
      * @param \DOMNode     $node
      * @param \DOMDocument $doc
@@ -65,7 +71,7 @@ class Options extends Model
         foreach ($values as $key => $value) {
             $element = $doc->createElement($name ? : $this->optionName);
             if (!is_integer($key)) {
-                $element->setAttribute('key', $key);
+                $element->setAttribute($this->keyName, $key);
             }
             $node->appendChild($element);
 

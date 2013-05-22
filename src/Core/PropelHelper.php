@@ -192,7 +192,7 @@ class PropelHelper
     {
         $tmp = self::getTempFolder();
         $result = '';
-        copyr($tmp . 'propel/build/classes/', $tmp . 'propel-classes/');
+        TempFile::copy('propel/build/classes/', 'propel-classes/');
 
         foreach (Kryn::$bundles as $bundleName) {
 
@@ -211,7 +211,7 @@ class PropelHelper
                 $result .= "$file => " . (file_exists($target) + 0) . "\n";
 
                 if (!file_exists($target)) {
-                    mkdirr(dirname($target));
+                    SystemFile::createFolder(dirname($target));
                     if (!copy($file, $target)) {
                         throw new \FileNotWritableException(tf('Can not move file %s to %s', $source, $target));
                     }
@@ -286,8 +286,8 @@ class PropelHelper
     {
         $tmp = self::getTempFolder();
 
-        if (!mkdirr($folder = $tmp . 'propel/')) {
-            throw new \Exception('Can not create propel folder in ' . $folder);
+        if (!TempFile::createFolder($folder = 'propel/')) {
+            throw new \Exception('Can not create propel folder in ' . $tmp . $folder);
         }
 
         $adapter = Kryn::getSystemConfig()->getDatabase()->getMainConnection()->getType();
@@ -323,8 +323,8 @@ class PropelHelper
     </propel>
 </config>';
 
-        file_put_contents($tmp . 'propel/runtime-conf.xml', $xml);
-        file_put_contents($tmp . 'propel/buildtime-conf.xml', $xml);
+        TempFile::setContent('propel/runtime-conf.xml', $xml);
+        TempFile::setContent('propel/buildtime-conf.xml', $xml);
 
         $input = new ArrayInput(array(
                                      '--input-dir' => $tmp . 'propel/',
@@ -339,10 +339,9 @@ class PropelHelper
         $output = new StreamOutput(fopen('php://memory', 'rw'));
         $command->run($input, $output);
 
-        mkdirr($tmp . 'propel-classes/');
+        TempFile::createFolder('propel-classes');
 
-        $source = $tmp . 'propel/config.php';
-        rename($source, $tmp . 'propel-classes/config.php');
+        TempFile::move('propel/config.php', 'propel-classes/config.php');
 
         include($tmp . 'propel-classes/config.php');
 
@@ -529,8 +528,8 @@ class PropelHelper
     {
         $tmp = self::getTempFolder();
 
-        if (!mkdirr($folder = $tmp . 'propel/')) {
-            throw new Exception('Can not create propel folder in ' . $folder);
+        if (!TempFile::createFolder('propel/')) {
+            throw new \Exception('Can not create propel folder in ' . $tmp . 'propel/');
         }
 
         $platform = Kryn::getSystemConfig()->getDatabase()->getMainConnection()->getType();
@@ -548,7 +547,7 @@ propel.namespace.autoPackage = true
 propel.packageObjectModel = true
 propel.behavior.workspace.class = lib.WorkspaceBehavior
 ';
-        file_put_contents($tmp . 'propel/build.properties', $properties) ? true : false;
+        return TempFile::setContent('propel/build.properties', $properties);
 
     }
 

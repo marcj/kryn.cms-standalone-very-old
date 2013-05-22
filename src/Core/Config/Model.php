@@ -44,11 +44,6 @@ class Model implements \ArrayAccess
     protected $docBlock = '';
 
     /**
-     * @var Bundle
-     */
-    protected $config;
-
-    /**
      * @param \DOMElement|string $element
      * @param Bundle      $config
      */
@@ -57,10 +52,6 @@ class Model implements \ArrayAccess
         if (null === $this->rootName) {
             $array = explode('\\', get_called_class());
             $this->rootName = lcfirst(array_pop($array));
-        }
-
-        if ($config) {
-            $this->config = $config;
         }
 
         if ($element) {
@@ -96,38 +87,6 @@ class Model implements \ArrayAccess
     {
         return $this->additionalAttributes[$key];
     }
-
-//    /**
-//     * @return string lowerCased bundle name (without `Bundle` suffix)
-//     */
-//    public function getBundleName()
-//    {
-//        $bundleConfig = $this->getBundleConfig();
-//
-//        return $bundleConfig ? strtolower($bundleConfig->getName()) : null;
-//    }
-//
-//    /**
-//     * @return Config
-//     */
-//    public function getBundleConfig()
-//    {
-//        if (null === $this->config) {
-//            if ('bundle' === $this->element->nodeName) {
-//                $this->config = $this->getModelInstance($this->element);
-//            } else {
-//                $parent = $this->element;
-//                while (($parent = $parent->parentNode)) {
-//                    if ('bundle' === $parent->nodeName) {
-//                        $this->config = $this->getModelInstance($parent);
-//                        break;
-//                    }
-//                }
-//            }
-//        }
-//
-//        return $this->config;
-//    }
 
     /**
      * @param mixed $val
@@ -173,25 +132,26 @@ class Model implements \ArrayAccess
                 $reflectionMethod = $reflection->getMethod($setter);
                 $parameters = $reflectionMethod->getParameters();
                 $phpDocs = $this->getMethodMetaData($reflectionMethod);
+
                 if (1 <= count($parameters)) {
                     $firstParameter = $parameters[0];
                     if ($firstParameter->getClass() && $className = $firstParameter->getClass()->name) {
                         $setterValue = new $className($child);
                     }
-                    if ($firstParameter->isArray()){
-                        $result = str_replace(array('[', ']'), '', $phpDocs['param']['type']);
-                        $types = explode('|', $result);
-                        $clazz = '';
-                        if (1 === count($types)) {
-                            $returnType = $types[0];
+                    $result = str_replace(array('[', ']'), '', $phpDocs['param']['type']);
+                    $types = explode('|', $result);
+                    $clazz = '';
+                    if (1 === count($types)) {
+                        $returnType = $types[0];
 
-                            if (!class_exists($clazz = $returnType)) {
-                                if (!class_exists($clazz = '\Core\Config\\' . $returnType)) {
-                                    $clazz = null;
-                                }
+                        if (!class_exists($clazz = $returnType)) {
+                            if (!class_exists($clazz = '\Core\Config\\' . $returnType)) {
+                                $clazz = null;
                             }
                         }
+                    }
 
+                    if ($firstParameter->isArray()){
                         $setterValue = array();
                         foreach ($child->childNodes as $subChild) {
                             if ('#' !== substr($subChild->nodeName, 0, 1)) {
@@ -205,6 +165,10 @@ class Model implements \ArrayAccess
                                     $setterValue[] = $subChild->nodeValue;
                                 }
                             }
+                        }
+                    } else {
+                        if (class_exists($clazz)) {
+                            $setterValue = new $clazz($child);
                         }
                     }
                 }
@@ -353,22 +317,6 @@ class Model implements \ArrayAccess
     public function getElement()
     {
         return $this->element;
-    }
-
-    /**
-     * @param Config $config
-     */
-    public function setConfig($config)
-    {
-        $this->config = $config;
-    }
-
-    /**
-     * @return Config
-     */
-    public function getConfig()
-    {
-        return $this->config;
     }
 
     /**
@@ -604,19 +552,21 @@ class Model implements \ArrayAccess
                 continue;
             }
 
-            $result[$k] = $value;
-
-            if (is_array($result[$k])) {
-                foreach ($result[$k] as $key => $item) {
+            if (is_array($value)) {
+                foreach ($value as $key => $item) {
                     if (is_object($item)) {
                         if ($item instanceof Model) {
-                            $result[$k][$key] = $item->toArray();
+                            $value[$key] = $item->toArray();
                         } else {
-                            $result[$k][$key] = (array)$item;
+                            $value[$key] = (array)$item;
                         }
                     }
                 }
+            } else if (is_object($value) && $value instanceof Model){
+                $value = $value->toArray();
             }
+
+            $result[$k] = $value;
         }
         return $result;
     }
@@ -866,5 +816,22 @@ class Model implements \ArrayAccess
                 return $this->$getter();
             }
         }
+    }
+
+    public function __sleep()
+    {
+        $vars = [];
+
+        $reflection = new \ReflectionClass($this);
+        $properties = $reflection->getDefaultProperties();
+        foreach ($properties as $property => $val) {
+            if (
+                'element' != $property
+            ){
+                $vars[] = $property;
+            }
+        }
+
+        return $vars;
     }
 }

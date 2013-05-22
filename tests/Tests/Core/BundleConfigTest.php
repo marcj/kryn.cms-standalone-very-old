@@ -320,13 +320,13 @@ class BundleConfigTest extends TestCaseWithCore
             $entryPoints[] = $entryPoint;
         }
 
-        $xmlBackend = '<entryPoint path="backend" type="acl">
+        $xmlBackend = '<entryPoint path="backend">
   <label>Backend access</label>
   <children>
     <entryPoint path="chooser" type="custom">
       <label>Chooser</label>
     </entryPoint>
-    <entryPoint path="stores" type="acl">
+    <entryPoint path="stores">
       <label>Stores</label>
       <children>
         <entryPoint path="languages" type="store">
@@ -368,6 +368,30 @@ class BundleConfigTest extends TestCaseWithCore
         $this->assertEquals($xmlBackend, $entryPoints[0]->toXml());
         $this->assertEquals($xmlDashboard, $entryPoints[1]->toXml());
         $this->assertEquals($xmlNodes, $entryPoints[2]->toXml());
+    }
 
+    public function testOptions()
+    {
+
+        $xml = '<object id="File">
+  <label>File</label>
+  <class>Admin\Models\ObjectFile</class>
+  <dataModel>custom</dataModel>
+  <table>system_file</table>
+  <labelField>path</labelField>
+  <nested>true</nested>
+  <treeLabel>name</treeLabel>
+  <treeIcon>type</treeIcon>
+  <treeIconMapping>
+    <icon id="dir">#icon-folder-4</icon>
+  </treeIconMapping>
+  <treeDefaultIcon>#icon-paper</treeDefaultIcon>
+  <browserInterfaceClass>ka.Files</browserInterfaceClass>
+  <browserInterface>custom</browserInterface>
+</object>';
+
+        $object = new Object($xml);
+
+        $this->assertEquals(['dir' => '#icon-folder-4'], $object->toArray()['treeIconMapping']);
     }
 }

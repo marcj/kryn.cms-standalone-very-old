@@ -353,6 +353,11 @@ function checkConfig()
         $errors->setStackTrace($_REQUEST['displayBeautyErrors'] == 1);
         $errors->setDisplayRest($_REQUEST['displayDetailedRestErrors'] == 1);
 
+        if (!SystemFile::createFolder($temp = Kryn::getTempFolder())) {
+            $res['error'] = sprintf('Can not create the temp folder ``.', $temp);
+            $res['res'] = false;
+        }
+
         if (!Kryn::$config->save('app/config/config.xml', true)) {
             $res['error'] = 'Can not open file app/config/config.xml - please change the permissions.';
             $res['res'] = false;
@@ -607,31 +612,6 @@ function step5_8()
     step5Done(true);
 }
 
-//debug
-function step5_9()
-{
-    \Core\TempFile::remove('propel');
-
-    try {
-
-        $diff = \Core\PropelHelper::getSqlDiff();
-        header("Content-Type: text/plain");
-
-        echo $diff;
-        if (is_array($diff)) {
-            print_r($diff);
-        }
-
-        \Core\PropelHelper::cleanup();
-
-        exit;
-    } catch (Exception $e) {
-        step5Failed($e);
-    }
-
-    step5Done(true);
-}
-
 function step5Init()
 {
     $subStep = $_GET['substep'] + 0;
@@ -643,6 +623,11 @@ function step5Init()
         Kryn::$config->save('app/config/config.xml', true);
     }
     Kryn::loadActiveModules();
+
+    $temp = Kryn::getTempFolder();
+    if (!SystemFile::exists($temp) && !SystemFile::createFolder($temp)) {
+        die('Temp folder is not accessible: '. $temp);
+    }
 
     if ($subStep >= 1) {
         \Core\PropelHelper::loadConfig();

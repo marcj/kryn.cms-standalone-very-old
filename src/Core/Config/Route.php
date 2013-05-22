@@ -25,23 +25,23 @@ class Route extends Model
      * @var RouteRequirement[]
      */
     protected $requirements;
-
-    public function setupObject()
-    {
-        parent::setupObject();
-
-        $defaults = $this->element->getElementsByTagName('default');
-        $this->defaults = array();
-        foreach ($defaults as $default) {
-            $this->defaults[] = new RouteDefault($default);
-        }
-
-        $requirements = $this->element->getElementsByTagName('requirement');
-        $this->requirements = array();
-        foreach ($requirements as $requirement) {
-            $this->requirements[] = new RouteRequirement($requirement);
-        }
-    }
+//
+//    public function setupObject()
+//    {
+//        parent::setupObject();
+//
+//        $defaults = $this->element->getElementsByTagName('default');
+//        $this->defaults = array();
+//        foreach ($defaults as $default) {
+//            $this->defaults[] = new RouteDefault($default);
+//        }
+//
+//        $requirements = $this->element->getElementsByTagName('requirement');
+//        $this->requirements = array();
+//        foreach ($requirements as $requirement) {
+//            $this->requirements[] = new RouteRequirement($requirement);
+//        }
+//    }
 
     /**
      * @param RouteDefault[] $defaults
@@ -102,25 +102,36 @@ class Route extends Model
         return $this->pattern;
     }
 
-    public function setRequirements($requirements)
+    /**
+     * @param RouteRequirement[] $requirements
+     */
+    public function setRequirements(array $requirements)
     {
         $this->requirements = $requirements;
     }
 
+    /**
+     * @return RouteRequirement[]
+     */
     public function getRequirements()
     {
         return $this->requirements;
     }
 
+    /**
+     * @return RouteRequirement[]
+     */
     public function getArrayRequirements()
     {
-        $this->requirements = $this->requirements ? : $this->getRequirements();
-        $result = array();
-        foreach ($this->requirements as $requirement) {
-            $result[$requirement->getId()] = $requirement->getValue();
+        if (null !== $this->requirements) {
+            var_dump($this->requirements);
+            $result = array();
+            foreach ($this->requirements as $requirement) {
+                $result[$requirement->getId()] = $requirement->getValue();
+            }
+            var_dump($result);
+            return $result;
         }
-        return $result;
     }
-
 
 }
