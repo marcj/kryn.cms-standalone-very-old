@@ -47,9 +47,13 @@ class Options extends Model
         }
     }
 
+    /**
+     * @param $element
+     * @return array
+     */
     public function toArray($element = NULL)
     {
-        return $this->options;
+        return $this->options ?: [];
     }
 
     /**

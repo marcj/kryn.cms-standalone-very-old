@@ -30,8 +30,7 @@ class Manager
         }
         self::$config['config'] = new SystemConfig(file_get_contents($configFile));
 
-        self::$config['domain']  = getenv('DOMAIN') ? : '127.0.0.1';
-        self::$config['port']  = getenv('PORT') ? : '8000';
+        self::$config['host']  = getenv('HOST') ?: '127.0.0.1:8000';
 
         if (false !== getenv('DB_NAME')) {
             self::$config['config']->getDatabase()->getMainConnection()->setName(getenv('DB_NAME'));
@@ -89,10 +88,7 @@ class Manager
             return null;
         }
 
-        $domain = self::$config['domain'];
-        if (self::$config['port'] && self::$config['port'] != 80) {
-            $domain .= ':' . self::$config['port'];
-        }
+        $host = self::$config['host'];
 
         $ch = curl_init();
 
@@ -100,7 +96,7 @@ class Manager
             $pPath .= (strpos($pPath, '?') === false ? '?' : '&') . '_method=' . strtolower($pMethod);
         }
 
-        $url = $domain . $pPath;
+        $url = $host . $pPath;
 
         curl_setopt($ch, CURLOPT_URL, $url);
         //curl_setopt($ch, CURLOPT_HEADER, 1);
@@ -175,7 +171,7 @@ class Manager
 
         $manager = new \Admin\Module\Manager;
 
-        $_GET['domain'] = self::$config['domain'];
+        $_GET['domain'] = self::$config['host'];
 
         echo "\nInstallation\n";
         debugPrint('Installation start');

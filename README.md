@@ -78,22 +78,21 @@ PHPUnit
 
  You have several environment variables to adjust the config in the test suite.
 
-    DOMAIN     The domain the installation (should) have. Should be available through your network. Default is `127.0.0.1`
-    PORT       The port the installation (should) have. Default is `8000`.
+    HOST       The domain the installation (should) have. Default is `127.0.0.1:8000`.
     DB_NAME    The database name. Default is `test`
     DB_USER    The database username. Default is `root`
     DB_PW      The database password. Default is empty.
     DB_TYPE    The database type. `mysql`, `pgsql`, `sqlite`, `sqlsrv`. Default is `mysql`.
     DB_SERVER  The database server address. Default is `127.0.0.1`
-    NOINSTALL  Defines whether the bootstrap removes the config.php or not. `1` or `0`. Default is `0`
-    TEMP       Defines a other temp folder. E.g. `app/cache` or `/tmp/`. Default is empty.
+    NOINSTALL  Defines whether the bootstrap removes the config file or not. `1` or `0`. Default is `0`
+    TEMP       Defines a other temp folder. E.g. `app/cache` or `/tmp/`. Default is 'app/cache'.
 
 Examples:
 
     ./phpunit.phar
-    DOMAIN=localhost PORT=80 ./phpunit.phar
-    DOMAIN=localhost PORT=80 DB_PW='@#$TKKAFS' ./phpunit.phar test/Tests/Object/ApiTest.php
-    NOINSTALL=1 TEMP=app/cache php54 vendor/phpunit/phpunit/phpunit.php --stop-on-failure tests/Tests/Core/ConfigTest.php
+    DOMAIN=dev.local ./phpunit.phar
+    DB_USER=kryn DB_PW='@#$TKKAFS' ./phpunit.phar test/Tests/Object/ApiTest.php
+    NOINSTALL=1 TEMP=/tmp/ php54 vendor/phpunit/phpunit/phpunit.php --stop-on-failure tests/Tests/Core/ConfigTest.php
 
-The test suite installs automatically Kryn.cms with the configuration above if `./config.php` does not exist if NOINSTALL=0.
-Don't forget to run `composer install` first.
+The test suite installs automatically Kryn.cms with the configuration above if `./app/config/config.xml` does not exist
+and if NOINSTALL=0. Don't forget to run `composer install` first.
