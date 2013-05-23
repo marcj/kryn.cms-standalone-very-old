@@ -938,7 +938,6 @@ ka.Field = new Class({
      * Let the item appears.
      */
     show: function () {
-
         var field = this.tr || this.main;
 
         field.setStyle('display', field.get('tag') == 'tr' ? 'table-row' : 'block');

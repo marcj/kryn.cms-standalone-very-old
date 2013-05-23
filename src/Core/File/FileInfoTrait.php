@@ -6,12 +6,12 @@ trait FileInfoTrait {
 
     public function getName()
     {
-        return basename($this->getPath());
+        return basename($this->getPath()) ?: '/';
     }
 
     public function getDir()
     {
-        return dirname($this->getPath());
+        return dirname($this->getPath()) ?: '/';
     }
 
     public function isDir()

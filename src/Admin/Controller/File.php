@@ -48,7 +48,7 @@ class File
      */
     public function createFolder($pPath)
     {
-        $this->checkAccess($pPath);
+        $this->checkAccess(dirname($pPath));
         return WebFile::createFolder($pPath);
     }
 
@@ -63,17 +63,8 @@ class File
     public function checkAccess($pPath)
     {
         $file = WebFile::getFile($pPath);
-        if ($file && !Permission::checkUpdate('Core\\File', array('id' => $file['id']))) {
+        if ($file && !Permission::checkUpdate('Core\\File', array('id' => $file->getId()))) {
             throw new \AccessDeniedException(tf('No access to file `%s`', $pPath));
-        }
-
-        if (!$file) {
-            $folder = WebFile::getFile(dirname($pPath));
-            if (!$folder) {
-                throw new \FileIOException(tf('Folder `%s` does not exist.', dirname($pPath)));
-            } else if (!Permission::checkUpdate('Core\\File', array('id' => $folder['id']))) {
-                throw new \AccessDeniedException(tf('No access to folder `%s`', $folder));
-            }
         }
     }
 
@@ -126,7 +117,6 @@ class File
      */
     public static function doUpload($pPath, $pName = null, $pOverwrite = false)
     {
-
         $name = $_FILES['file']['name'];
         if ($pName) {
             $name = $pName;
@@ -180,18 +170,9 @@ class File
             }
         }
 
-        $file = WebFile::getFile($pPath);
-        if ($file && !Permission::checkUpdate('Core\\File', array('id' => $file['id']))) {
+        $file = WebFile::getFile(dirname($pPath));
+        if ($file && !Permission::checkUpdate('Core\\File', array('id' => $file->getId()))) {
             throw new \AccessDeniedException(tf('No access to file `%s`', $pPath));
-        }
-
-        if (!$file) {
-            $folder = WebFile::getFile(dirname($pPath));
-            if (!$folder) {
-                throw new \FileIOException(tf('Folder `%s` does not exist.', dirname($pPath)));
-            } else if (!Permission::checkUpdate('Core\\File', array('id' => $folder['id']))) {
-                throw new \AccessDeniedException(tf('No access to folder `%s`', $folder));
-            }
         }
 
         $content = file_get_contents($_FILES['file']['tmp_name']);
@@ -252,7 +233,6 @@ class File
      */
     public function getFile($pPath)
     {
-
         $file = WebFile::getFile($pPath);
         if (!Permission::checkListExact('Core\\File', array('id' => $file->getId()))) {
             return;

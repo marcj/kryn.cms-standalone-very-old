@@ -36,7 +36,6 @@ ka.Dialog = new Class({
 
         this.lastFocusedElement = document.activeElement;
         this.container = instanceOf(pParent, ka.Window) ? pParent.toElement() : pParent;
-        console.log(pParent, this.container);
 
         this.setOptions(pOptions);
         this.renderLayout();

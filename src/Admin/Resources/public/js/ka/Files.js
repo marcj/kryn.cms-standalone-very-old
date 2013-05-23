@@ -140,13 +140,10 @@ ka.Files = new Class({
 
         if (!this.fileUploadDialog) {
 
-            this.fileUploadDialog = this.win.newDialog('', true);
-
-            this.fileUploadDialog.setStyles({
+            this.fileUploadDialog = new ka.Dialog(this.win, {
                 height: '60%',
-                width: '80%'
+                width: '60%'
             });
-            this.fileUploadDialog.center();
 
             this.fileUploadCancelBtn = new ka.Button(t('Cancel')).addEvent('click',
                 this.cancelUploads.bind(this)).inject(this.fileUploadDialog.bottom);
@@ -172,6 +169,7 @@ ka.Files = new Class({
             this.fileUploadDialogAllText = new Element('span').inject(this.fileUploadDialogAll);
             this.fileUploadDialogAllSpeed = new Element('span').inject(this.fileUploadDialogAll);
 
+            this.fileUploadDialog.center(true);
         }
 
         this.fileUploadMinimizeBtn.show();
@@ -514,6 +512,7 @@ ka.Files = new Class({
             //done
             clearInterval(this.fileUploadSpeedInterval);
             this.fileUploadMinimizeBtn.hide();
+            this.fileUploadDialog.closeAnimated();
         }
 
         if (this.fileUploadSpeedLastByteSpeed == 0) {
@@ -674,7 +673,7 @@ ka.Files = new Class({
         }
 
         if (this.fileUploadDialog) {
-            this.fileUploadDialog.close();
+            this.fileUploadDialog.closeAnimated();
         }
 
         if (this.fileUploadSpeedInterval) {
@@ -1018,7 +1017,6 @@ ka.Files = new Class({
     },
 
     newFolder: function () {
-
         if (this.currentFile.writeAccess == false) {
             this.win.alert(t('Access denied'));
             return;
@@ -1030,7 +1028,7 @@ ka.Files = new Class({
             }
             new Request.JSON({url: _pathAdmin + 'admin/file/folder', onComplete: function (res) {
                 this.reload();
-            }.bind(this)}).post({path: this.current + '/' + name});
+            }.bind(this)}).post({path: this.currentFile.dir + name});
         }.bind(this));
     },
 

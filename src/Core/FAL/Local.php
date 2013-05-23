@@ -339,8 +339,8 @@ class Local extends AbstractFAL
     public function getFile($path)
     {
         $file = new FileInfo();
-        $file->setPath($path);
-        $path = $this->getFullPath($path);
+        $file->setPath($path ?: '/');
+        $path = $this->getFullPath($path ?: '/');
         if (!file_exists($path)) {
             throw new \FileNotExistException(tf('File `%s` does not exists.', $path));
         }

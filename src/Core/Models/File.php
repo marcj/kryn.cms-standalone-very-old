@@ -2,6 +2,7 @@
 
 namespace Core\Models;
 
+use Core\File\FileInfo;
 use Core\Models\Base\File as BaseFile;
 use Core\WebFile;
 use Core\File\FileInfoInterface;
@@ -43,6 +44,7 @@ class File extends BaseFile implements FileInfoInterface
 
             foreach ($fileInfo as $file) {
                 if ($files[$file->getPath()]) {
+                    static::checkFileValues($file, $files[$file->getPath()]);
                     $result[] = $files[$file->getPath()];
                 } else {
                     $result[] = static::createFromPathInfo($file);
@@ -59,6 +61,25 @@ class File extends BaseFile implements FileInfoInterface
                 $fileObj = static::createFromPathInfo($fileInfo);
             }
             return $fileObj;
+        }
+    }
+
+    public static function checkFileValues(FileInfo $file, File $databaseFile)
+    {
+        if ($file->getSize() != $databaseFile->getSize()) {
+            $databaseFile->setSize($file->getSize());
+        }
+        if ($file->getHash() != $databaseFile->getHash()) {
+            $databaseFile->setHash($file->getHash());
+        }
+        if ($file->getType() != $databaseFile->getType()) {
+            $databaseFile->setType($file->getType());
+        }
+        if ($file->getCreatedTime() != $databaseFile->getCreatedTime()) {
+            $databaseFile->setCreatedTime($file->getCreatedTime());
+        }
+        if ($file->getModifiedTime() != $databaseFile->getModifiedTime()) {
+            $databaseFile->setModifiedTime($file->getModifiedTime());
         }
     }
 
@@ -93,7 +114,7 @@ class File extends BaseFile implements FileInfoInterface
             $alreadyDumpedObjects
         );
         $item['name'] = $this->getName();
-        $item['isDir'] = $this->isDir();
+        $item['dir'] = $this->getDir();
         $item['icon'] = $this->getIcon();
         return $item;
     }
