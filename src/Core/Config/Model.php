@@ -390,12 +390,16 @@ class Model implements \ArrayAccess
      * @param string  $path
      * @param boolean $withDefaults
      *
-     * @return int
+     * @return boolean
+     * @throws \FileNotWritableException
      */
     public function save($path, $withDefaults = false)
     {
         $string = $this->toXml($withDefaults);
-        return file_put_contents($path, $string);
+        if (!is_writable($path)) {
+            throw new \FileNotWritableException(tf('The file `%s` is not writable.', $path));
+        }
+        return false !== file_put_contents($path, $string);
     }
 
     /**
