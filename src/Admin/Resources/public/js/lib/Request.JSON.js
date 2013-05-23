@@ -65,34 +65,37 @@ Request.JSON = new Class({
                 return false;
             }
 
+            if (true === this.options.noErrorReporting) {
+                return false;
+            }
+
             if (ka.lastRequestBubble) {
                 ka.lastRequestBubble.die();
                 delete ka.lastRequestBubble;
             }
 
+            if (!ka.adminInterface || !ka.adminInterface.getHelpSystem()) {
+                return false;
+            }
+
             if ('AccessDeniedException' === pResult.error) {
-
-                if (ka.helpsystem) {
-                    ka.lastRequestBubble = ka.helpsystem.newBubble(
-                        t('Access denied'),
-                        t('You started a secured action or requested a secured information.') +
-                            "<br/>" + 'URI: %s'.replace('%s', this.options.url) +
-                            '<br/><a class="ka-Button" onclick="ka.open(\'admin/system/rest-logger\')">Details</a>',
-                        15000);
-                }
-
+                ka.lastRequestBubble = ka.adminInterface.getHelpSystem().newBubble(
+                    t('Access denied'),
+                    t('You started a secured action or requested a secured information.') +
+                        "<br/>" + 'URI: %s'.replace('%s', this.options.url) +
+                        '<br/><a class="ka-Button" onclick="ka.open(\'admin/system/rest-logger\')">Details</a>',
+                    15000
+                );
             } else {
-
-                if (ka.helpsystem) {
-                    ka.lastRequestBubble = ka.helpsystem.newBubble(
-                        t('Request error'),
-                        t('There has been a error occured during the last request. It looks like the server has currently some troubles. Please try it again.') +
-                            "<br/><br/>" + t('Error code: %s').replace('%s', pResult.error) +
-                            "<br/>" + t('Error message: %s').replace('%s', pResult.message) +
-                            "<br/>" + 'URI: %s'.replace('%s', this.options.url) +
-                            '<br/><a class="ka-Button" onclick="ka.open(\'admin/system/rest-logger\')">Details</a>',
-                        15000);
-                }
+                ka.lastRequestBubble = ka.adminInterface.getHelpSystem().newBubble(
+                    t('Request error'),
+                    t('There has been a error occured during the last request. It looks like the server has currently some troubles. Please try it again.') +
+                        "<br/><br/>" + t('Error code: %s').replace('%s', pResult.error) +
+                        "<br/>" + t('Error message: %s').replace('%s', pResult.message) +
+                        "<br/>" + 'URI: %s'.replace('%s', this.options.url) +
+                        '<br/><a class="ka-Button" onclick="ka.open(\'admin/system/rest-logger\')">Details</a>',
+                    15000
+                );
             }
         }
     }

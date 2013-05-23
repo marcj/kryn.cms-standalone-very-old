@@ -292,6 +292,10 @@ ka.AdminInterface = new Class({
         this.renderMenu();
     },
 
+    getHelpSystem: function() {
+        return this.helpsystem;
+    },
+
     toggleMainbar: function () {
         if (this.border.getStyle('top').toInt() != 0) {
             this.border.tween('top', 0);
