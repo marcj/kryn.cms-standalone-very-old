@@ -18,7 +18,6 @@ error_reporting(E_ALL & ~E_NOTICE);
 use Core\Kryn;
 use Core\SystemFile;
 
-define('KRYN_INSTALLER', true);
 $GLOBALS['krynInstaller'] = true;
 
 $loader = include __DIR__ . '/../vendor/autoload.php';
@@ -35,6 +34,7 @@ if ($_REQUEST['step'] == 'checkConfig') {
 }
 
 if ($_REQUEST['step'] == '5') {
+    define('KRYN_INSTALLER', true);
     step5Init();
 }
 

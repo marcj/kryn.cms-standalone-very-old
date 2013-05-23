@@ -52,10 +52,6 @@ class Files implements CacheInterface
      */
     public function testConfig($pConfig)
     {
-        if (!$pConfig['path']) {
-            $pConfig['path'] = \Core\Kryn::getTempFolder() . 'object-cache/';
-        }
-
         $this->falLayer = new Local('', ['root' => $pConfig['path']]);
 
         if (!$this->falLayer->createFolder('.')) {

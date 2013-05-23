@@ -1724,6 +1724,43 @@ class Kryn extends Controller
         $dispatcher->addSubscriber($routerListener);
     }
 
+    public static function loadSystemConfig()
+    {
+        $fastestCacheClass = Cache\Controller::getFastestCacheClass();
+        $configFile = PATH . 'app/config/config.xml';
+
+        if (file_exists($configFile)) {
+            if ('\Core\Cache\Files' === $fastestCacheClass->getClass()) {
+                $systemConfigCached = @file_get_contents('app/config/config.cache.php');
+            } else {
+                $systemConfigCached = static::getFastCache('core/config');
+            }
+            $systemConfigHash   = md5($fastestCacheClass->getClass() . filemtime($configFile));
+
+            if ($systemConfigCached) {
+                $systemConfigCached = unserialize($systemConfigCached);
+                if (is_array($systemConfigCached) && $systemConfigCached['md5'] == $systemConfigHash){
+                    self::$config = $systemConfigCached['data'];
+                }
+            }
+
+            if (!self::$config) {
+                static::$config = new SystemConfig(file_get_contents($configFile));
+                $cached = serialize([
+                    'md5'  => $systemConfigHash,
+                    'data' => self::$config
+                ]);
+                if ('\Core\Cache\Files' === $fastestCacheClass->getClass()) {
+                    @file_put_contents('app/config/config.cache.php', $cached);
+                } else {
+                    self::setFastCache('core/config', $cached);
+                }
+            }
+        } else {
+            static::$config = new SystemConfig();
+        }
+    }
+
     /**
      * Bootstrap.
      *
@@ -1748,29 +1785,7 @@ class Kryn extends Controller
             exit;
         }
 
-        if (file_exists($configFile)) {
-            $systemConfigCached = static::getFastCache('core/config');
-            $systemConfigHash   = filemtime($configFile);
-
-
-            if ($systemConfigCached) {
-                $systemConfigCached = unserialize($systemConfigCached);
-                if (is_array($systemConfigCached) && $systemConfigCached['md5'] == $systemConfigHash){
-                    self::$config = $systemConfigCached['data'];
-                }
-            }
-
-            if (!self::$config) {
-                static::$config = new SystemConfig(file_get_contents($configFile));
-                $cached = serialize([
-                    'md5'  => $systemConfigHash,
-                    'data' => self::$config
-                ]);
-                self::setFastCache('core/config', $cached);
-            }
-        } else {
-            static::$config = new SystemConfig();
-        }
+        self::loadSystemConfig();
 
         if (!defined('pfx')) {
             define('pfx', self::$config->getDatabase(true)->getPrefix());

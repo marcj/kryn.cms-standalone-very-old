@@ -26,7 +26,6 @@ Request.JSON = new Class({
     },
 
     invalidJson: function () {
-
         if (ka.lastRequestBubble) {
             ka.lastRequestBubble.die();
             delete ka.lastRequestBubble;
@@ -40,11 +39,9 @@ Request.JSON = new Class({
                     '<br/><a class="ka-Button" href="javascript:;">Details</a>',
                 15000);
         }
-
     },
 
     booboo: function () {
-
         if (ka.lastRequestBubble) {
             ka.lastRequestBubble.die();
             delete ka.lastRequestBubble;
@@ -58,11 +55,9 @@ Request.JSON = new Class({
                     '<br/><a class="ka-Button" onclick="ka.open(\'admin/system/rest-logger\')">Details</a>',
                 15000);
         }
-
     },
 
     checkError: function (pResult) {
-
         if (pResult && pResult.error) {
 
             if (typeOf(this.options.noErrorReporting) == 'array' &&
@@ -75,7 +70,7 @@ Request.JSON = new Class({
                 delete ka.lastRequestBubble;
             }
 
-            if (pResult.error == "access_denied") {
+            if ('AccessDeniedException' === pResult.error) {
 
                 if (ka.helpsystem) {
                     ka.lastRequestBubble = ka.helpsystem.newBubble(
@@ -100,6 +95,5 @@ Request.JSON = new Class({
                 }
             }
         }
-
     }
 });
