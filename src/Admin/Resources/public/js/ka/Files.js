@@ -74,11 +74,9 @@ ka.Files = new Class({
         this.initHotkeys();
 
         this.win.addEvent('close', function () {
-
             if (this.previewDiv) {
                 this.previewDiv.destroy();
             }
-
             this.cancelUploads();
         }.bind(this));
 
@@ -886,7 +884,8 @@ ka.Files = new Class({
             'class': 'admin-files-droppables admin-files-fileContainer ka-scrolling'
         }).addEvent('mousedown', function (pEvent) {
                 this.checkMouseDown(pEvent);
-            }.bind(this)).addEvent('mouseup', function (pEvent) {
+            }.bind(this))
+            .addEvent('mouseup', function (pEvent) {
                 this.drag = false;
 
                 if (this.lastDragTimer) {
@@ -895,7 +894,6 @@ ka.Files = new Class({
 
                 this.checkMouseClick(pEvent);
                 this.closeSearch();
-
             }.bind(this)).addEvent('dblclick', function (pEvent) {
                 this.checkMouseDblClick(pEvent);
                 this.closeSearch();
@@ -1785,7 +1783,6 @@ ka.Files = new Class({
     },
 
     checkMouseDown: function (pEvent) {
-
         var item = pEvent.target, file;
 
         selection = window.getSelection();
@@ -1800,7 +1797,7 @@ ka.Files = new Class({
             item = item.getParent('.admin-files-item');
         }
 
-        if (!item) {
+        if (!item && !pEvent.target.hasClass('admin-files-fileContainer')) {
             item = pEvent.target.getParent('tr');
         }
 
@@ -1877,7 +1874,6 @@ ka.Files = new Class({
     },
 
     checkMouseMove: function (pEvent) {
-
         if (!ka.inFileDragMode) {
             return;
         }
@@ -1885,11 +1881,9 @@ ka.Files = new Class({
         if (!this.win.isInFront()) {
             this.win.toFront();
         }
-
     },
 
     checkMouseClick: function (pEvent) {
-
         if (this.nextMouseClickIsInvalid == true) {
             this.nextMouseClickIsInvalid = false;
             return;
@@ -2057,15 +2051,17 @@ ka.Files = new Class({
             this.previewMorph.removeEvents('complete');
         }.bind(this);
 
-        this.previewMorph.addEvent('complete', onComplete);
+        if (this.previewMorph) {
+            this.previewMorph.addEvent('complete', onComplete);
 
-        this.previewMorph.start({
-            opacity: 0,
-            width: size.x,
-            height: size.y,
-            top: position.y,
-            left: position.x
-        });
+            this.previewMorph.start({
+                opacity: 0,
+                width: size.x,
+                height: size.y,
+                top: position.y,
+                left: position.x
+            });
+        }
 
         delete this.lastPreviewedItem;
     },
@@ -2300,7 +2296,6 @@ ka.Files = new Class({
     },
 
     _startDrag: function (pEvent, pItem) {
-
         selection = window.getSelection();
         selection.removeAllRanges();
 
@@ -2348,9 +2343,9 @@ ka.Files = new Class({
                 opacity: 0.7,
                 zIndex: 15000,
                 width: 50,
-                height: 55,
-                left: pEvent.page.x - 20,
-                'top': pEvent.page.y - 70,
+                height: 75,
+                left: pEvent.page.x - pos.x - 10,
+                'top': pEvent.page.y - pos.y - 10,
                 cursor: 'default',
                 position: 'absolute'
             }).inject(desktop);
@@ -2369,6 +2364,7 @@ ka.Files = new Class({
                     margin: 0
                 }).inject(container);
 
+                clone.set('title');
                 clone.removeClass('admin-files-item-selected');
                 clone.removeClass('admin-files-droppables');
 
@@ -2388,7 +2384,7 @@ ka.Files = new Class({
                 }
 
                 var i = Math.random();
-                var r = (60 * i) - 30;
+                var r = (40 * i) - 20;
 
                 if (this.lastRotateValue && this.lastRotateValue < 0 && r < 0) {
                     r = r * -1;

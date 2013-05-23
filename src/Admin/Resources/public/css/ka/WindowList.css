@@ -89,7 +89,7 @@
     position: absolute;
     left: 0;
     right: 0;
-    top: 50px;
+    top: 0;
     bottom: 0;
 }
 
@@ -142,6 +142,11 @@ div.ka-windowCombine-list-actions {
     left: 0;
     top: 0;
     bottom: 0;
+}
+
+.ka-list-combine-content {
+    background: transparent;
+    border: 0;
 }
 
 .ka-list-combine-left-itemcount {
@@ -223,14 +228,16 @@ div.ka-windowCombine-list-actions {
 }
 
 .ka-list-combine-left {
-    background-color: #f9f9f9;
     position: absolute;
     left: 0;
-    right: 6px;
+    right: 1px;
     top: 0;
     bottom: 0;
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
+    border-bottom: 1px solid #ddd;
+}
+
+.ka-list-combine-left + .ka-Splitter-main {
+    top: 35px;
 }
 
 .ka-list-actionBarNavigation {
@@ -312,6 +319,12 @@ a.ka-list-search-button-active:link {
     padding: 6px;
     color: gray;
     position: relative;
+
+    -moz-transition-duration: .4s;
+    -webkit-transition-duration: .4s;
+    -o-transition-duration: .4s;
+    -ms-transition-duration: .4s;
+    transition-duration: .4s;
 }
 
 .ka-list-combine-item h2 {
@@ -326,23 +339,22 @@ a.ka-list-search-button-active:link {
     color: #aaa;
 }
 
-.ka-list-combine-item.active .sub {
-    color: silver;
-}
+/*.ka-list-combine-item.active .sub {*/
+    /*color: silver;*/
+/*}*/
 
-.ka-list-combine-item.active h2 {
+/*.ka-list-combine-item.active h2 {*/
     /*text-shadow: 0px 1px 0px black;*/
-    color: white;
-}
+    /*color: white;*/
+/*}*/
 
 .ka-list-combine-item:hover {
-    background-color: #FCFCFC;
+    background-color: #F6F6F6;
 }
 
 .ka-list-combine-item.active,
 .ka-list-combine-item.active:hover {
-    background-color: #22638E;
-    color: white;
+    background-color: #EBEBEB;
 }
 
 .ka-list-combine-splititem {
@@ -350,6 +362,7 @@ a.ka-list-search-button-active:link {
     padding: 0px 6px;
     line-height: 20px;
     color: #666;
+    background: #F7F7F7;
 }
 
 .ka-list-combine-left-top {
@@ -365,6 +378,15 @@ a.ka-list-search-button-active:link {
 }
 
 .ka-list-combine-items {
+    position: absolute;
+    left: 0;
+    top: 36px;
+    bottom: 0px;
+    right: 0;
+    background-color: white;
+    border-left: 1px solid #ddd;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .ka-list-combine-items + .ka-Splitter-main {

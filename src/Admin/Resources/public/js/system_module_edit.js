@@ -104,7 +104,7 @@ var admin_system_module_edit = new Class({
             }
             this.win.setLoading(false);
 
-        }.bind(this)}).get({name: this.mod});
+        }.bind(this)}).get({bundle: this.mod});
     },
 
     savePlugins: function () {
@@ -277,7 +277,7 @@ var admin_system_module_edit = new Class({
         this.lr = new Request.JSON({url: _pathAdmin +
             'admin/system/module/editor/docu', noCache: 1, onComplete: function (res) {
             this.win.setLoading(false);
-        }.bind(this)}).post({text: this.text.getValue(), /*lang: this.languageSelect.value, */name: this.mod});
+        }.bind(this)}).post({text: this.text.getValue(),bundle: this.mod});
     },
 
     loadDocu: function () {
@@ -304,7 +304,7 @@ var admin_system_module_edit = new Class({
         this.lr = new Request.JSON({url: _pathAdmin +
             'admin/system/module/editor/docu', noCache: 1, onComplete: function (res) {
             this.text.setValue(res);
-        }.bind(this)}).get({/*lang: this.languageSelect.value, */name: this.mod});
+        }.bind(this)}).get({bundle: this.mod});
 
         this.win.setLoading(false);
     },
@@ -321,7 +321,7 @@ var admin_system_module_edit = new Class({
             onComplete: function (pResult) {
                 this.win.setLoading(false);
                 this._renderWindows(pResult.data);
-            }.bind(this)}).get({name: this.mod});
+            }.bind(this)}).get({bundle: this.mod});
     },
 
     _renderWindows: function (pWindows) {
@@ -490,7 +490,7 @@ var admin_system_module_edit = new Class({
             'admin/system/module/editor/model', noCache: 1, onComplete: function (res) {
             this.win.setLoading(false);
             this._renderDb(res.data);
-        }.bind(this)}).get({name: this.mod});
+        }.bind(this)}).get({bundle: this.mod});
     },
 
     saveDb: function () {
@@ -523,13 +523,12 @@ var admin_system_module_edit = new Class({
             input_height: '100%'
         }, this.dbEditorPane);
 
-        this.dbEditor.setValue(pModel);
-
+        this.dbEditor.setValue(pModel.contetn);
         var buttonBar = new ka.ButtonBar(this.panes['db']);
 
         var info = new Element('div', {
             style: 'position: absolute; left: 5px; top: 7px; color: gray;',
-            text: 'module/' + this.mod + '/model.xml, '
+            text: pModel.path + ', '
         }).inject(document.id(buttonBar));
 
         new Element('a', {
@@ -548,7 +547,6 @@ var admin_system_module_edit = new Class({
 
         this.saveButton = buttonBar.addButton(t('Save'), this.saveDb.bind(this));
         this.saveButton.setButtonStyle('blue');
-
     },
 
     /*
@@ -565,7 +563,7 @@ var admin_system_module_edit = new Class({
                 this.win.setLoading(false);
                 this._renderHelp(res);
 
-            }.bind(this)}).post({name: this.mod/*, lang: this.languageSelect.value*/});
+            }.bind(this)}).post({bundle: this.mod/*, lang: this.languageSelect.value*/});
     },
 
     _renderHelp: function (pHelp) {
@@ -1587,7 +1585,7 @@ var admin_system_module_edit = new Class({
             'admin/system/module/editor/config', noCache: 1, onComplete: function (pResult) {
             this._loadGeneral(pResult.data);
             this.win.setLoading(false);
-        }.bind(this)}).get({name: this.mod});
+        }.bind(this)}).get({bundle: this.mod});
     },
 
     loadLayouts: function () {
@@ -1599,7 +1597,7 @@ var admin_system_module_edit = new Class({
             'admin/system/module/editor/config', noCache: 1, onComplete: function (pResult) {
             this._loadLayouts(pResult.data);
             this.win.setLoading(false);
-        }.bind(this)}).get({name: this.mod});
+        }.bind(this)}).get({bundle: this.mod});
     },
 
     _loadLayouts: function (pConfig) {
@@ -1665,7 +1663,7 @@ var admin_system_module_edit = new Class({
             new Request.JSON({url: _pathAdmin + 'admin/system/module/saveLayouts', noCache: 1, onComplete: function () {
                 this.win.setLoading(false);
                 ka.loadSettings();
-            }.bind(this)}).post({name: this.mod, themes: JSON.encode(themes) });
+            }.bind(this)}).post({bundle: this.mod, themes: JSON.encode(themes) });
     },
 
     _addPublicProperty: function (pContainer, pKey, pTitle, pType) {
@@ -2038,7 +2036,7 @@ var admin_system_module_edit = new Class({
 
                 this.win.setLoading(false);
 
-            }.bind(this)}).get({name: this.mod});
+            }.bind(this)}).get({bundle: this.mod});
     },
 
     updateOrm: function (pCmd, pCallback) {
@@ -2062,7 +2060,7 @@ var admin_system_module_edit = new Class({
                 if (!response.error) {
                     pCallback(response);
                 }
-            }.bind(this)}).post({name: this.mod});
+            }.bind(this)}).post({bundle: this.mod});
     },
 
     printOrmError: function (pResponse) {
@@ -2126,7 +2124,7 @@ var admin_system_module_edit = new Class({
 
             this.win.setLoading(false);
 
-        }.bind(this)}).post({name: this.mod, object: pObjectKey});
+        }.bind(this)}).post({bundle: this.mod, object: pObjectKey});
 
     },
 
@@ -2839,7 +2837,7 @@ var admin_system_module_edit = new Class({
                         }).inject(pFieldObject.input, 'after');
 
                     }
-                }}).get({name: this.mod, className: pValue});
+                }}).get({bundle: this.mod, className: pValue});
 
         }.bind(this)
 
@@ -2939,7 +2937,7 @@ var admin_system_module_edit = new Class({
                     ka.loadMenu();
                     ka.loadSettings();
 
-                }.bind(this)}).post({object: pKey, name: this.mod, values: values});
+                }.bind(this)}).post({object: pKey, bundle: this.mod, values: values});
 
             }.bind(this))
             .setButtonStyle('blue')
@@ -3135,7 +3133,7 @@ var admin_system_module_edit = new Class({
         var saveBtn = buttonBar.addButton(t('Save'), this.saveExtras.bind(this));
         saveBtn.setButtonStyle('blue');
 
-        this.lr = new Request.JSON({url: _pathAdmin + 'admin/system/module/editor/config', noCache: 1,
+        this.lr = new Request.JSON({url: _pathAdmin + 'admin/system/module/editor/basic', noCache: 1,
             onComplete: function (pResult) {
 
                 if (pResult.data) {
@@ -3143,7 +3141,7 @@ var admin_system_module_edit = new Class({
                 }
                 this.win.setLoading(false);
 
-            }.bind(this)}).get({name: this.mod});
+            }.bind(this)}).get({bundle: this.mod});
 
     },
 

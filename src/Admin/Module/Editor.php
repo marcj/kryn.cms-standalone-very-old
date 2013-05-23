@@ -11,9 +11,9 @@ use Core\SystemFile;
 
 class Editor
 {
-    public function getConfig($name)
+    public function getConfig($bundle)
     {
-        $bundle = Kryn::getBundle($name);
+        $bundle = Kryn::getBundle($bundle);
         $config =  $bundle->getComposer();
         $config['_path'] = $bundle->getPath();
         return $config;
@@ -132,12 +132,12 @@ class Editor
         return $this->setConfig($pName, $config);
     }
 
-    public function getObjects($pName)
+    public function getObjects($bundle)
     {
-        Manager::prepareName($pName);
-        $config = $this->getConfig($pName);
+        $bundle = $this->getBundle($bundle);
+        $config = $bundle->getConfig();
 
-        return $config['objects'];
+        return $config->getObjectsArray();
     }
 
     public function saveObjects($pName)
@@ -152,17 +152,15 @@ class Editor
         return $this->setConfig($pName, $config);
     }
 
-    public function getModel($pName)
+    public function getModel($bundle)
     {
-        Manager::prepareName($pName);
+        $bundleClass = $this->getBundle($bundle);
+        $path = $bundleClass->getPath() . 'Resources/config/models.xml';
 
-        $path = \Core\Kryn::getModuleDir($pName) . 'model.xml';
-
-        if (!file_exists($path)) {
-            throw new \FileNotExistException(tf('The config file %s for %s does not exist.', $path, $pName));
-        }
-
-        return file_get_contents($path);
+        return [
+            'path'    => $path,
+            'content' => @file_get_contents($path)
+        ];
 
     }
 

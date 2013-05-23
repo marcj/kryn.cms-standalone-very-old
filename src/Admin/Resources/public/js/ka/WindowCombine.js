@@ -12,7 +12,8 @@ ka.WindowCombine = new Class({
     currentViewType: '',
 
     renderLayout: function () {
-        this.win.content.setStyle('white-space', 'nowrap');
+
+        this.win.content.addClass('ka-list-combine-content');
 
         this.container = this.listContainer = new Element('div', {
             'class': 'ka-windowCombine-list-container'
@@ -21,7 +22,7 @@ ka.WindowCombine = new Class({
         // for windowEdit/Add actionbars
         this.combineActionBar = new Element('div', {
             'class': 'ka-windowCombine-combine-actionbar'
-        }).inject(this.win.content);
+        }).inject(this.win.titleGroups);
 
         this.combineContainer = new Element('div', {
             'class': 'ka-windowCombine-combine-container'
@@ -46,14 +47,16 @@ ka.WindowCombine = new Class({
             transition: Fx.Transitions.Cubic.easeOut
         });
 
-        this.mainLeft = this.mainLayout.getCell(1, 1);
+        this.mainLeft = new Element('div', {
+            'class': 'ka-list-combine-left'
+        }).inject(this.mainLayout.getCell(1, 1), 'top');
+
         this.mainLeft.set('tween', {duration: 100});
 
         this.mainRight = this.mainLayout.getCell(1, 2);
         this.mainRight.addClass('ka-list-combine-right');
 
         if (this.classProperties.asNested) {
-
             this.treeContainer = new Element('div', {
                 'class': 'ka-windowCombine-treeContainer ka-objectTree-container'
             }).inject(this.mainLeft, 'top');
@@ -66,8 +69,8 @@ ka.WindowCombine = new Class({
             this.mainLeftItems = new Element('div', {
                 'class': 'ka-list-combine-items'
             })
-                .addEvent('scroll', this.checkScrollPosition.bind(this, true))
-                .inject(this.mainLeft, 'top');
+            .addEvent('scroll', this.checkScrollPosition.bind(this, true))
+            .inject(this.mainLeft, 'top');
 
             this.mainLeftSearch = new Element('div', {
                 'class': 'ka-list-combine-searchpane'

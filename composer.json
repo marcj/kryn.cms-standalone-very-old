@@ -36,7 +36,7 @@
         "symfony/console": ">=v2.1",
         "marijnh/codemirror": ">=v3.1",
         "sybio/image-workshop": "dev-master",
-        "tinymce/tinymce": "*",
+        "ckeditor/ckeditor": "*",
         "propel/propel": "dev-master",
         "composer/composer": "*",
         "krynlabs/kryn-publication-bundle": "*",

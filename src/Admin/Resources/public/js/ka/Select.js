@@ -274,7 +274,6 @@ ka.Select = new Class({
     },
 
     focus: function () {
-        this.box.addClass('ka-Select-box-focus');
     },
 
     blur: function () {
@@ -1087,12 +1086,6 @@ ka.Select = new Class({
 
         this.title.setStyle('color');
         this.title.inSearchMode = false;
-
-        this.box.removeClass('ka-Select-box-focus');
-
-        if (pInternal) {
-            this.box.addClass('ka-Select-box-focus');
-        }
     },
 
     isOpen: function () {
@@ -1121,8 +1114,6 @@ ka.Select = new Class({
         if (this.lastRq) {
             this.lastRq.cancel();
         }
-
-        this.box.addClass('ka-Select-box-focus');
 
         if (pWithoutLoad !== true) {
             this.loadItems();

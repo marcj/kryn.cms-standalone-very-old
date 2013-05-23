@@ -10,7 +10,9 @@ class AdminBundle extends Bundle
     {
         return [
             'name' => 'krynlabs/kryn.cms-admin',
-            'activated' => true
+            'activated' => true,
+            'description' => 'The administration bundle.',
+            'license' => 'LGPL'
         ];
     }
 }

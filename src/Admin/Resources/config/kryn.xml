@@ -6,7 +6,7 @@
             <asset>@CoreBundle/mowla.min.js</asset>
             <asset>@AdminBundle/js/mootools-extras/String.sprintf.js</asset>
 
-            <asset compression="false">@CoreBundle/tinymce/tinymce.min.js</asset>
+            <asset compression="false">@CoreBundle/ckeditor/ckeditor.js</asset>
             <asset compression="false">@CoreBundle/codemirror/lib/codemirror.js</asset>
             <asset compression="false">@CoreBundle/codemirror/addon/mode/loadmode.js</asset>
 

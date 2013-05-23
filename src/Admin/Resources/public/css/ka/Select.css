@@ -13,9 +13,9 @@
 .ka-Select-box,
 .ka-Select-box:link {
     border: 1px solid #C0C0C0;
-    -moz-border-radius: 2px;
-    -webkit-border-radius: 2px;
-    border-radius: 2px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
 
     cursor: default;
     position: relative;
@@ -51,7 +51,15 @@
 
 .ka-Select-box,
 .ka-Select-arrow {
-    background-color: #f9f9f9;
+    background: #ffffff;
+    background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZmZmZmZiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNmNGY0ZjQiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+    background: -moz-linear-gradient(top, #ffffff 0%, #f4f4f4 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(100%,#f4f4f4));
+    background: -webkit-linear-gradient(top, #ffffff 0%,#f4f4f4 100%);
+    background: -o-linear-gradient(top, #ffffff 0%,#f4f4f4 100%);
+    background: -ms-linear-gradient(top, #ffffff 0%,#f4f4f4 100%);
+    background: linear-gradient(to bottom, #ffffff 0%,#f4f4f4 100%);
+    box-shadow: 0 1px 0px #FCFCFC;
 }
 
 .ka-Select-box-active:hover,
@@ -60,14 +68,11 @@
 }
 
 .ka-Select-box:active,
-.ka-Select-box-focus,
-.ka-Select-box:active > .ka-Select-arrow,
-.ka-Select-box-focus > .ka-Select-arrow {
+.ka-Select-box:active > .ka-Select-arrow  {
     background: #f6f6f6;
 }
 
-.ka-Select-box:active,
-.ka-Select-box-focus {
+.ka-Select-box:active {
     border: 1px solid #999;
 }
 
@@ -78,6 +83,7 @@
 .ka-Select-transparent .ka-Select-box:active > .ka-Select-arrow,
 .ka-Select-transparent .ka-Select-box-focus > .ka-Select-arrow {
     background-color: transparent;
+    background: transparent;
     border: 0;
 }
 
@@ -115,7 +121,7 @@
 
 .ka-Select-chooser {
     margin: 0px auto;
-    border: 1px solid #bbb;
+    border: 1px solid #C0C0C0;
 
     border-top: 0px;
 
@@ -139,21 +145,12 @@
     border-bottom-left-radius: 32;
 }
 
-.ka-Select-chooser.ka-Select-darker {
-    border: 1px solid #999;
-    border-top: 0px;
-}
-
 .ka-Select-borderline {
     position: absolute;
     left: 0px;
     top: 0px;
     height: 1px;
-    border-top: 1px solid #bbb;
-}
-
-.ka-Select-chooser.ka-Select-darker .ka-Select-borderline {
-    border-top: 1px solid #999;
+    border-top: 1px solid #C0C0C0;
 }
 
 .ka-Select-box-open,

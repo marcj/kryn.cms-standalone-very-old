@@ -101,6 +101,6 @@
     -->
   <file groupPermission="rw" everyonePermission="r" disableModeChange="false">
     <!--The group owner name-->
-    <groupOwner>www-data</groupOwner>
+    <groupOwner>everyone</groupOwner>
   </file>
 </config>

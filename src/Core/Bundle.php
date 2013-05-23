@@ -156,7 +156,7 @@ class Bundle
     {
         $folder = $this->getPath() . '/Resources/config/';
         if (file_exists($folder)) {
-            return glob($folder . 'kryn.*.xml');
+            return glob($folder . 'kryn*.xml');
         }
 
         return [];
