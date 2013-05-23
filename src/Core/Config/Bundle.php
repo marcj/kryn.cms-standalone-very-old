@@ -75,7 +75,7 @@ class Bundle extends Model
         $doc->formatOutput = true;
         $doc->loadXML("<config>$xml</config>");
         $xml = substr($doc->saveXML(), strlen('<?xml version="1.0"?>')+1);
-        if (!is_writable($path)) {
+        if ((!file_exists($path) && !is_writable(dirname($path))) || (file_exists($path) && !is_writable($path))) {
             throw new \FileNotWritableException(tf('The file `%s` is not writable.', $path));
         }
         return false !== file_put_contents($path, $xml);

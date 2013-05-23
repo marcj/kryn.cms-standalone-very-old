@@ -396,8 +396,8 @@ class Model implements \ArrayAccess
     public function save($path, $withDefaults = false)
     {
         $string = $this->toXml($withDefaults);
-        if (!is_writable($path)) {
-            throw new \FileNotWritableException(tf('The file `%s` is not writable.', $path));
+        if ((!file_exists($path) && !is_writable(dirname($path))) || (file_exists($path) && !is_writable($path))) {
+            throw new \Core\Exceptions\FileNotWritableException(sprintf('The file `%s` is not writable.', $path));
         }
         return false !== file_put_contents($path, $string);
     }
