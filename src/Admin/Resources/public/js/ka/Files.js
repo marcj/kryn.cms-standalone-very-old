@@ -2654,8 +2654,47 @@ ka.Files = new Class({
                 }
             }
         } else {
-            fileIcon = 'icon-paper-2';
+            fileIcon = 'icon-libreoffice';
         }
+
+        var lastDot = pFile.name.lastIndexOf('.');
+        var ext = '';
+        if (-1 !== lastDot) {
+            ext = pFile.name.substr(lastDot + 1).toLowerCase();
+        }
+
+        if (['css', 'php'].contains(ext)) {
+            fileIcon += ' icon-file-css';
+        }
+
+        if (['html', 'smarty', 'twig', 'tpl'].contains(ext)) {
+            fileIcon += ' icon-file-xml';
+        }
+
+        if (['zip', 'tar', 'gz', 'bz2'].contains(ext)) {
+            fileIcon += ' icon-file-zip';
+        }
+
+        if (['xls'].contains(ext)) {
+            fileIcon += ' icon-file-excel';
+        }
+
+        if (['doc'].contains(ext)) {
+            fileIcon += ' icon-file-word';
+        }
+
+        if (['pdf'].contains(ext)) {
+            fileIcon += ' icon-file-pdf';
+        }
+
+        if (['ppt'].contains(ext)) {
+            fileIcon += ' icon-file-powerpoint';
+        }
+
+        if ('string' === typeOf(pFile.icon) && pFile.icon) {
+            fileIcon += ' ' + pFile.icon;
+        }
+
         return fileIcon;
     },
 
