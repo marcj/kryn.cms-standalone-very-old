@@ -1575,7 +1575,7 @@ class Kryn extends Controller
         $page = self::searchPage();
 
         if (!$page) {
-            $dispatcher->dispatch('core.page-not-found');
+            $dispatcher->dispatch('core/page-not-found');
 
             return;
         }
@@ -1584,15 +1584,15 @@ class Kryn extends Controller
         Kryn::$page = self::checkPageAccess(Kryn::$page);
 
         if (!$page) {
-            $dispatcher->dispatch('core.page-not-found');
+            $dispatcher->dispatch('core/page-not-found');
 
             return;
         }
 
-        $dispatcher->dispatch('core.set-page', new GenericEvent(Kryn::$page));
+        $dispatcher->dispatch('core/set-page', new GenericEvent(Kryn::$page));
 
         $routes = new RouteCollection();
-        $dispatcher->dispatch('core.setup-routes-pre', new GenericEvent($routes));
+        $dispatcher->dispatch('core/setup-routes-pre', new GenericEvent($routes));
 
         $clazz = 'Core\\PageController';
         $domainUrl = (!Kryn::$domain->getMaster()) ? '/' . Kryn::$domain->getLang() : '';
@@ -1709,14 +1709,14 @@ class Kryn extends Controller
                         new Route(
                             $url . '/' . $route->getPattern(),
                             $defaults,
-                            $route->getArrayRequirements() ? : array()
+                            $route->getRequirements() ? : array()
                         )
                     );
                 }
             }
         }
 
-        $dispatcher->dispatch('core.setup-routes', new GenericEvent($routes));
+        $dispatcher->dispatch('core/setup-routes', new GenericEvent($routes));
 
         self::$routes = $routes;
         $matcher = new UrlMatcher(self::$routes, new RequestContext());

@@ -6,6 +6,8 @@ class Route extends Model
 {
     protected $attributes = ['id', 'pattern'];
 
+    protected $elementToArray = ['requirement' => 'requirements'];
+
     /**
      * @var string
      */
@@ -22,7 +24,7 @@ class Route extends Model
     protected $defaults;
 
     /**
-     * @var RouteRequirement[]
+     * @var string[]
      */
     protected $requirements;
 //
@@ -103,7 +105,7 @@ class Route extends Model
     }
 
     /**
-     * @param RouteRequirement[] $requirements
+     * @param string[] $requirements
      */
     public function setRequirements(array $requirements)
     {
@@ -111,27 +113,11 @@ class Route extends Model
     }
 
     /**
-     * @return RouteRequirement[]
+     * @return string[]
      */
     public function getRequirements()
     {
         return $this->requirements;
-    }
-
-    /**
-     * @return RouteRequirement[]
-     */
-    public function getArrayRequirements()
-    {
-        if (null !== $this->requirements) {
-            var_dump($this->requirements);
-            $result = array();
-            foreach ($this->requirements as $requirement) {
-                $result[$requirement->getId()] = $requirement->getValue();
-            }
-            var_dump($result);
-            return $result;
-        }
     }
 
 }

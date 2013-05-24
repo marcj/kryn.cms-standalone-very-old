@@ -1,10 +1,12 @@
 .DS_Store
-web/cache
-web/bundles
-config.php
+app/config/config.cache.php
+app/config/config.xml
 vendor
 .idea
 composer.lock
 src/Core/Resources/public/codemirror
-src/Core/Resources/public/tinymce
+src/Core/Resources/public/ckeditor
 app/cache
+web/
+!web/index.php
+!web/install.php

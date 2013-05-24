@@ -39,6 +39,10 @@ function debugStop($pText = null)
     debugPrint($pText, true);
 }
 
+function debugFull($text = null) {
+    \Core\Utils::showFullDebug($text);
+}
+
 function debugPrint($pText = null, $pStop = null)
 {
     global $_start, $_lastDebugPoint;

@@ -10,9 +10,46 @@ class Utils
 
     public static $latency = array();
 
+    /**
+     * @param string $text
+     */
+    public static function showFullDebug($text = null)
+    {
+        $exception = new \InternalErrorException();
+        $exception->setMessage($text ?: 'Debug stop.');
+
+        static::exceptionHandler($exception);
+    }
+
+    /**
+     * @return string
+     */
+    public static function getDebug()
+    {
+        $routes = [];
+        /** @var \Symfony\Component\Routing\Route[] $setupRoutes */
+        $setupRoutes = iterator_to_array(Kryn::$routes->getIterator());
+        foreach ($setupRoutes as $route) {
+            $routes[] = [
+                'path' => $route->getPath(),
+                'defaults' => $route->getDefaults(),
+                'options' => $route->getOptions(),
+            ];
+        }
+
+        $data['routes'] = $routes;
+
+        $html = '';
+
+        return $html;
+    }
+
     public static function exceptionHandler(\Exception $pException)
     {
-        $output = ob_get_clean();
+        $output = '';
+        for ($i = ob_get_level(); $i >=0; $i--) {
+            $output .= ob_get_clean();
+        }
 
         if (!Kryn::getSystemConfig()->getErrors()->getDisplay()) {
             Kryn::internalError(
@@ -56,7 +93,6 @@ class Utils
         }
 
         self::$inErrorHandler = true;
-
 
         $exceptions = array();
         self::extractException($pException, $exceptions);

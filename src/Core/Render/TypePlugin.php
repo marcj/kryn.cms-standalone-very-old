@@ -44,9 +44,7 @@ class TypePlugin extends AbstractType
         parent::__construct($content, $parameters);
         $this->plugin = json_decode($content->getContent(), 1);
         $this->bundleName = $this->plugin['bundle'] ? : $this->plugin['module']; //module for BC
-
     }
-
 
     public function render()
     {

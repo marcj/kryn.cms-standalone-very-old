@@ -28,6 +28,7 @@ class Model implements \ArrayAccess
     protected $arrayIndexNames = [];
     protected $excludeDefaults = [];
     protected $nodeValueVar;
+    protected $elementToArray = [];
 
     /**
      * Defines a header comment of values (not attributes).
@@ -126,8 +127,11 @@ class Model implements \ArrayAccess
                 }
             }
 
-            $setter = 'set' . ucfirst($nodeName);
+            $elementToArrayProperty = $this->elementToArray[$nodeName];
+            $setter = 'set' . ucfirst($elementToArrayProperty ?: $nodeName);
+            $getter = 'get' . ucfirst($elementToArrayProperty ?: $nodeName);
             $setterValue = $value;
+
             if (method_exists($this, $setter)) {
                 $reflectionMethod = $reflection->getMethod($setter);
                 $parameters = $reflectionMethod->getParameters();
@@ -152,17 +156,40 @@ class Model implements \ArrayAccess
                     }
 
                     if ($firstParameter->isArray()){
-                        $setterValue = array();
-                        foreach ($child->childNodes as $subChild) {
-                            if ('#' !== substr($subChild->nodeName, 0, 1)) {
-                                if (1 < count($types)) {
-                                    $clazz = '\Core\Config\\' . ucfirst($subChild->nodeName);
-                                }
-                                if (class_exists($clazz)) {
-                                    $object = new $clazz($subChild);
-                                    $setterValue[] = $object;
+                        if ($elementToArrayProperty) {
+                            //for elements without plural parent: <route><req><req></route>
+                            $setterValue = $this->$getter() ?: [];
+                            if (!$clazz) {
+                                $clazz = '\Core\Config\\' . ucfirst($nodeName);
+                            }
+
+                            if (class_exists($clazz)) {
+                                $setterValue[] = new $clazz($child);
+                            } else {
+                                if ($key = $child->attributes->getNamedItem('key')) {
+                                    $setterValue[$key->nodeValue] = $value;
                                 } else {
-                                    $setterValue[] = $subChild->nodeValue;
+                                    $setterValue[] = $value;
+                                }
+                            }
+                        } else {
+                            $setterValue = array();
+                            //for elements with plural parent: <route><reqs><req><req></reqs></route>
+                            foreach ($child->childNodes as $subChild) {
+                                if ('#' !== substr($subChild->nodeName, 0, 1)) {
+                                    if (!$clazz) {
+                                        $clazz = '\Core\Config\\' . ucfirst($subChild->nodeName);
+                                    }
+                                    if (class_exists($clazz)) {
+                                        $object = new $clazz($subChild);
+                                        $setterValue[] = $object;
+                                    } else {
+                                        if ($key = $subChild->attributes->getNamedItem('key')) {
+                                            $setterValue[$key->nodeValue] = $subChild->nodeValue;
+                                        } else {
+                                            $setterValue[] = $subChild->nodeValue;
+                                        }
+                                    }
                                 }
                             }
                         }
