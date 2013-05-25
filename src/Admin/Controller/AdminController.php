@@ -132,7 +132,6 @@ class AdminController
                 die($obj->run());
 
             }
-
         }
 
         if (Kryn::isActiveBundle(getArgv(2)) && getArgv(2) != 'admin') {

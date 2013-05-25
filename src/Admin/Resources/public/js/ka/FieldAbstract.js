@@ -15,9 +15,6 @@ ka.FieldAbstract = new Class({
          * @var {Mixed}
          */
         inputWidth: null
-
-
-
     },
 
     /**
@@ -170,6 +167,10 @@ ka.FieldAbstract = new Class({
      * @param  {String} pText text to display
      */
     showInvalid: function (pText) {
+
+        if (!((this.main || this.input) && (this.wrapper || this.input))) {
+            reurn;
+        }
 
         if (this.invalidIcon) {
             return;

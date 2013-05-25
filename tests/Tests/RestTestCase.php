@@ -19,7 +19,10 @@ class RestTestCase extends TestCaseWithCore
         $data = json_decode($info['content'], true);
 
         if ($data['error']) {
-            $this->fail(json_format(json_encode($data)));
+            $this->fail(
+                "path $pPath, method:$pMethod:\n".
+                json_format(json_encode($data))
+            );
         }
 
         return !json_last_error() ? $data : $info['content'];

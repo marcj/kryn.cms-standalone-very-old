@@ -150,7 +150,9 @@ class Model implements \ArrayAccess
 
                         if (!class_exists($clazz = $returnType)) {
                             if (!class_exists($clazz = '\Core\Config\\' . $returnType)) {
-                                $clazz = null;
+                                if (!'string' == ($clazz = $returnType)) {
+                                    $clazz = null;
+                                }
                             }
                         }
                     }
