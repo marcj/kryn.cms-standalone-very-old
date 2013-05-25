@@ -155,11 +155,12 @@ class Model implements \ArrayAccess
                         }
                     }
 
+                    $noClazz = !$clazz;
                     if ($firstParameter->isArray()){
                         if ($elementToArrayProperty) {
                             //for elements without plural parent: <route><req><req></route>
                             $setterValue = $this->$getter() ?: [];
-                            if (!$clazz) {
+                            if ($noClazz) {
                                 $clazz = '\Core\Config\\' . ucfirst($nodeName);
                             }
 
@@ -177,7 +178,7 @@ class Model implements \ArrayAccess
                             //for elements with plural parent: <route><reqs><req><req></reqs></route>
                             foreach ($child->childNodes as $subChild) {
                                 if ('#' !== substr($subChild->nodeName, 0, 1)) {
-                                    if (!$clazz) {
+                                    if ($noClazz) {
                                         $clazz = '\Core\Config\\' . ucfirst($subChild->nodeName);
                                     }
                                     if (class_exists($clazz)) {
