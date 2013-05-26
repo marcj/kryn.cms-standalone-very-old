@@ -608,7 +608,7 @@ class Model implements \ArrayAccess
     /**
      * @param mixed $values
      */
-    public function fromArray($values)
+    public function fromArray($values, $key = null)
     {
         $reflection = new \ReflectionClass($this);
 
@@ -656,7 +656,7 @@ class Model implements \ArrayAccess
                             foreach ($value as $subKey => $subValue) {
                                 if ($clazz) {
                                     $object = new $clazz();
-                                    $object->fromArray($subValue);
+                                    $object->fromArray($subValue, $subKey);
                                     $setterValue[] = $object;
                                 } else {
                                     $setterValue[] = $subValue;

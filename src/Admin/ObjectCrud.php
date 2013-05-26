@@ -640,7 +640,6 @@ class ObjectCrud
                         break;
                 }
                 $this->_fields[$pFields->getId()] = $pFields;
-
             }
 
             if (is_array($pFields->getChildren())) {

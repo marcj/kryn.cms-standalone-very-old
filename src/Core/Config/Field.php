@@ -56,6 +56,15 @@ class Field extends Model
      */
     protected $options;
 
+    public function fromArray($values, $key = null)
+    {
+        parent::fromArray($values, $key);
+        if (is_string($key)) {
+            $this->setId($key);
+        }
+    }
+
+
     /**
      * @param Options $options
      */
