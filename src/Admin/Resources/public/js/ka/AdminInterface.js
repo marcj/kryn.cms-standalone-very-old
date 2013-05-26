@@ -169,16 +169,6 @@ ka.AdminInterface = new Class({
         this.createLayout();
 
         this.border.setStyles({'display': 'block'});
-
-        this.frontendLink = new Element('a', {
-            text: t('Frontend'),
-            'class': 'ka-main-menu-item icon-eye'
-        })
-        .inject(this.mainLinks);
-
-        this.frontendLink.addEvent('click', function () {
-            ka.wm.open('admin/nodes/frontend');
-        });
         this.mainMenuUser.empty();
 
         new Element('h2', {
@@ -989,6 +979,16 @@ ka.AdminInterface = new Class({
 
         this.removedMainMenuItems = [];
         delete this.mainMenuItems;
+
+        this.frontendLink = new Element('a', {
+            text: t('Frontend'),
+            'class': 'ka-main-menu-item icon-eye'
+        })
+            .inject(this.mainLinks);
+
+        this.frontendLink.addEvent('click', function () {
+            ka.wm.open('admin/nodes/frontend');
+        });
 
         Object.each(this.menuItems, function (item, path) {
             this.addAdminLink(item, path);
