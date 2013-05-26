@@ -43,10 +43,6 @@ ka.WindowCombine = new Class({
             ]
         });
 
-        this.mainLayoutFx = new Fx.Morph(this.combineContainer, {
-            transition: Fx.Transitions.Cubic.easeOut
-        });
-
         this.mainLeft = new Element('div', {
             'class': 'ka-list-combine-left'
         }).inject(this.mainLayout.getCell(1, 1), 'top');
@@ -247,41 +243,72 @@ ka.WindowCombine = new Class({
         var btn = 'list' === viewType ? this.viewListBtn : this.viewCompactBtn;
         var btnOther = 'list' === viewType ? this.viewCompactBtn : this.viewListBtn;
 
-        logger(viewType);
         if (this.currentViewType !== viewType) {
             this.currentViewType = viewType;
 
-            if (this.mainLayoutFx.isRunning()) {
-                this.mainLayoutFx.cancel();
+            if (this.lastViewFx) {
+                this.lastViewFx.cancel();
             }
 
+            var options = {
+                transition: Fx.Transitions.Cubic.easeOut
+            };
+
             if ('list' === viewType) {
-                this.listContainer.tween('opacity', 1);
-                this.combineActionBar.tween('opacity', 0);
-                this.actionBarNavigation.tween('opacity', 1);
-                this.mainLayoutFx.start({
-                    left: 200,
-                    right: -200,
-                    opacity: 0
-                });
+
+                this.listContainer.setStyle('display', 'block');
+
+                this.lastViewFx = new Fx.Elements([
+                    this.listContainer,
+                    this.combineActionBar,
+                    this.actionBarNavigation,
+                    this.combineContainer
+                ], options).start({
+                    0: {opacity: 1},
+                    1: {opacity: 0},
+                    2: {opacity: 1},
+                    3: {
+                        left: 200,
+                        right: -200,
+                        opacity: 0
+                    }
+                }).chain(function(){
+                    this.combineActionBar.setStyle('display', 'none');
+                    this.combineContainer.setStyle('display', 'none');
+                }.bind(this));
+
                 if (!this.currentPage) {
                     this.loadPage(1);
                 }
 
             } else {
+                this.combineActionBar.setStyle('display', 'block');
+
                 this.combineContainer.setStyles({
+                    display: 'block',
                     'opacity': 0,
                     left: 200,
                     right: -200
                 });
-                this.mainLayoutFx.start({
-                    opacity: 1,
-                    left: 0,
-                    right: 0
-                });
-                this.combineActionBar.tween('opacity', 1);
-                this.listContainer.tween('opacity', 0);
-                this.actionBarNavigation.tween('opacity', 0);
+
+                this.lastViewFx = new Fx.Elements([
+                    this.listContainer,
+                    this.combineActionBar,
+                    this.actionBarNavigation,
+                    this.combineContainer
+                ], options).start({
+                    0: {opacity: 0},
+                    1: {opacity: 1},
+                    2: {opacity: 0},
+                    3: {
+                        left: 0,
+                        right: 0,
+                        opacity: 1
+                    }
+                }).chain(function(){
+                    this.listContainer.setStyle('display', 'none');
+                    this.actionBarNavigation.setStyle('display', 'none');
+                }.bind(this));
             }
         }
 
