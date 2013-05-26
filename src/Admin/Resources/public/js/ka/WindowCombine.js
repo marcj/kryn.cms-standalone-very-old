@@ -1,5 +1,4 @@
 ka.WindowCombine = new Class({
-
     Extends: ka.WindowList,
     lastSortValue: false,
     itemsLoadedCount: 0,
@@ -12,7 +11,6 @@ ka.WindowCombine = new Class({
     currentViewType: '',
 
     renderLayout: function () {
-
         this.win.content.addClass('ka-list-combine-content');
 
         this.container = this.listContainer = new Element('div', {

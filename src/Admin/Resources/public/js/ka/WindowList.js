@@ -197,9 +197,9 @@ ka.WindowList = new Class({
 
         this.renderTopActionBar();
         this.renderMultilanguage();
-        this.renderActionBar();
 
         this.renderLayout();
+        this.renderActionBar();
 
         this.renderLoader();
 
@@ -494,49 +494,6 @@ ka.WindowList = new Class({
         this.ctrlNext = this.navigateActionBar.addButton(t('Go to next page'), '#icon-arrow-right-15', function () {
             this.loadPage(parseInt(_this.ctrlPage.value) + 1);
         }.bind(this));
-
-        /*
-         this.filterButton = new Element('a', {
-         href: 'javascript: ;',
-         html: _('Search'),
-         'class': 'ka-list-search-button'
-         }).addEvent('click', this.toggleSearch.bind(this)).inject(this.actionBar);
-
-         var myPath = _path + 'bundles/admin/images/icons/';
-         this.navi = new Element('div', {
-         'class': 'navi'
-         }).inject(this.actionBar);
-
-         this.ctrlFirst = new Element('img', {
-         src: myPath + 'control_start.png'
-         }).addEvent('click',
-         function () {
-         _this.loadPage(1);
-         }).inject(this.navi);
-
-         this.ctrlPrevious = new Element('img', {
-         src: myPath + 'control_back.png'
-         }).addEvent('click',
-         function () {
-         _this.loadPage(parseInt(_this.ctrlPage.value) - 1);
-         }).inject(this.navi);
-         */
-
-        /*
-         this.ctrlNext = new Element('img', {
-         src: myPath + 'control_play.png'
-         }).addEvent('click',
-         function () {
-         _this.loadPage(parseInt(_this.ctrlPage.value) + 1);
-         }).inject(this.navi);
-
-         this.ctrlLast = new Element('img', {
-         src: myPath + 'control_end.png'
-         }).addEvent('click',
-         function () {
-         _this.loadPage(_this.lastResult.pages);
-         }).inject(this.navi);
-         */
     },
 
     renderTopActionBar: function (container) {
