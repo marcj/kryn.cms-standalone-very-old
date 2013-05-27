@@ -419,7 +419,8 @@ class Local extends AbstractFAL
         if (!file_exists($this->getRoot() . $pPathSource)) {
             return false;
         }
-        return copyr($this->getRoot() . $pPathSource, $this->getRoot() . $pPathTarget);
+        copyr($this->getRoot() . $pPathSource, $this->getRoot() . $pPathTarget);
+        return file_exists($this->getRoot() . $pPathTarget);
     }
 
     /**
@@ -504,11 +505,10 @@ class Local extends AbstractFAL
         $path = $this->getRoot() . $pPath;
 
         if (is_dir($path)) {
-            delDir($path);
+            return delDir($path);
         } elseif (is_file($path)) {
-            unlink($path);
+            return unlink($path);
         }
-
     }
 
     /**

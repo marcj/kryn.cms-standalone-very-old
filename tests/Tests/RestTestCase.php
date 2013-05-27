@@ -13,15 +13,15 @@ class RestTestCase extends TestCaseWithCore
 {
     public $currentDir = '';
 
-    public function restCall($pPath = '/', $pMethod = 'GET', $pPostData = null)
+    public function restCall($path = '/', $method = 'GET', $postData = null, $failOnError = true)
     {
-        $info = Manager::get($pPath, $pMethod, $pPostData);
+        $info = Manager::get($path, $method, $postData);
         $data = json_decode($info['content'], true);
 
-        if ($data['error']) {
+        if ($failOnError && (!is_array($data) || $data['error'])) {
             $this->fail(
-                "path $pPath, method:$pMethod:\n".
-                json_format(json_encode($data))
+                "path $path, method:$method:\n".
+                $info['content']
             );
         }
 
@@ -37,7 +37,7 @@ class RestTestCase extends TestCaseWithCore
         $response = Manager::get('/bundles/core/data.test');
 
         if (strpos($response['content'], 'OK') === false) {
-            $this->markTestSkipped('Is looks like the DOMAIN or http server is not correctly configured. Skipped.');
+            $this->markTestSkipped('Is looks like the HOST or http server is not correctly configured. Skipped.');
         }
 
     }

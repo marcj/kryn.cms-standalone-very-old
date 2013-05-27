@@ -1109,6 +1109,9 @@ ka.Files = new Class({
     },
 
     moveFiles: function (pFilePaths, pTargetDirectory, pOverwrite, pCallback) {
+        if ('/' !== pTargetDirectory.substr(pTargetDirectory.length-1)) {
+            pTargetDirectory += '/';
+        }
 
         new Request.JSON({url: _pathAdmin + 'admin/file/paste', noCache: 1, onComplete: function (res) {
             if (res.exist) {
@@ -1126,11 +1129,14 @@ ka.Files = new Class({
                     pCallback();
                 }
             }
-        }.bind(this)}).post({files: pFilePaths, path: pTargetDirectory, overwrite: pOverwrite, move: 1});
+        }.bind(this)}).post({files: pFilePaths, target: pTargetDirectory, overwrite: pOverwrite, move: 1});
 
     },
 
     copyFiles: function (pFilePaths, pTargetDirectory, pOverwrite) {
+        if ('/' !== pTargetDirectory.substr(pTargetDirectory.length-1)) {
+            pTargetDirectory += '/';
+        }
 
         new Request.JSON({url: _pathAdmin + 'admin/file/paste', noCache: 1, onComplete: function (res) {
             if (res.exist) {
@@ -1814,7 +1820,9 @@ ka.Files = new Class({
                 if (this._modules.indexOf(file.path + '/') >= 0) {
                     return;
                 }
-                this.startDrag(pEvent, item);
+                if (!pEvent.rightClick) {
+                    this.startDrag(pEvent, item);
+                }
             }
 
         } else if (!pEvent.rightClick) {

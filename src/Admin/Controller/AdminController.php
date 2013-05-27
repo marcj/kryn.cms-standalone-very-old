@@ -334,6 +334,7 @@ class AdminController
                     ->addGetRoute('single', 'getFile')
                     ->addGetRoute('preview', 'showPreview')
                     ->addPostRoute('upload', 'doUpload')
+                    ->addPostRoute('paste', 'paste')
                     ->addPostRoute('upload/prepare', 'prepareUpload')
                 ->done()
 

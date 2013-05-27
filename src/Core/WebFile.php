@@ -430,12 +430,13 @@ class WebFile
             $oldFile = str_replace(chr(0), '', $oldFile);
 
             $oldFs = static::getLayer($oldFile);
-            $newPath = '/' === substr($target, 0, -1) ? $target . '/' . basename($file) : $target;
+            //if the $target is a folder with trailing slash, we move/copy the files _into_ it otherwise we replace.
+            $newPath = '/' === substr($target, -1) ? $target . basename($file) : $target;
 
             $newFs = static::getLayer($newPath);
 
             if ($newFs === $oldFs) {
-                $newFs->$action(static::normalizePath($oldFile), static::normalizePath($newPath));
+                $result = $newFs->$action(static::normalizePath($oldFile), static::normalizePath($newPath));
             } else {
                 //we need to move a folder from one file layer to another.
                 $file = $oldFs->getFile(static::normalizePath($oldFile));
@@ -460,6 +461,8 @@ class WebFile
                 }
             }
         }
+
+        return $result;
     }
 
     public static function downloadFolder($path, $to = null)
@@ -492,16 +495,19 @@ class WebFile
 
         $files = find($pFrom . '/*');
 
+        $result = true;
+
         foreach ($files as $file) {
             $newName = $normalizedPath . '/' . substr($file, strlen($pFrom) + 1);
 
             if (is_dir($file)) {
-                $fs->createFolder(self::normalizePath($newName));
+                $result &= $fs->createFolder(self::normalizePath($newName));
             } else {
-                $fs->createFile(self::normalizePath($newName), kryn::fileRead($file));
+                $result &= $fs->createFile(self::normalizePath($newName), kryn::fileRead($file));
             }
         }
 
+        return $result;
     }
 
     /**

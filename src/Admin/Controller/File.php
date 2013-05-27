@@ -3,6 +3,7 @@
 namespace Admin\Controller;
 
 use Core\Kryn;
+use Core\Models\Base\FileQuery;
 use Core\Permission;
 use Core\WebFile;
 
@@ -20,7 +21,7 @@ class File
     {
         $this->checkAccess($pPath);
 
-        \Core\FileQuery::create()->filterByPath($pPath)->delete();
+        FileQuery::create()->filterByPath($pPath)->delete();
         return WebFile::remove($pPath);
     }
 
@@ -37,6 +38,22 @@ class File
     {
         $this->checkAccess($pPath);
         return WebFile::createFile($pPath, $pContent);
+    }
+
+    /**
+     * @param string $target
+     * @param array  $files
+     * @param bool   $overwrite
+     * @param bool   $move
+     * @return bool
+     */
+    public function paste($target, $files, $overwrite = false, $move = false)
+    {
+        $this->checkAccess($target);
+        foreach ($files as $file) {
+            $this->checkAccess($file);
+        }
+        return WebFile::paste($files, $target, $move ? 'move' : 'copy');
     }
 
     /**
@@ -62,7 +79,11 @@ class File
      */
     public function checkAccess($pPath)
     {
-        $file = WebFile::getFile($pPath);
+        try {
+            $file = WebFile::getFile($pPath);
+        } catch (\FileNotExistException $e) {
+            $file = WebFile::getFile(dirname($pPath));
+        }
         if ($file && !Permission::checkUpdate('Core\\File', array('id' => $file->getId()))) {
             throw new \AccessDeniedException(tf('No access to file `%s`', $pPath));
         }

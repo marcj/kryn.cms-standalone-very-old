@@ -89,7 +89,6 @@ class Manager
         }
 
         $host = self::$config['host'];
-
         $ch = curl_init();
 
         if (strtoupper($pMethod) != 'GET') {
@@ -110,10 +109,11 @@ class Manager
 
         if (strtoupper($pMethod) == 'POST' || strtoupper($pMethod) == 'PUT') {
             curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, '');
         }
 
         if ($pPostData && count($pPostData) > 0) {
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $pPostData);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($pPostData));
         }
 
         $response = curl_exec($ch);

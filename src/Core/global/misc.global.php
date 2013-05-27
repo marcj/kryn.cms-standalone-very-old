@@ -247,8 +247,9 @@ function delDir($dirName)
                 }
             }
         }
-        @rmdir($dirName . '/' . $file);
+        return @rmdir($dirName . '/' . $file);
     } else {
+        return true;
     }
 }
 
