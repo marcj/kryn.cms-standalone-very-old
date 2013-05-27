@@ -192,7 +192,7 @@ class PropelHelper
     {
         $tmp = self::getTempFolder();
         $result = '';
-        TempFile::copy('propel/build/classes/', 'propel-classes/');
+        TempFile::copy('propel/build/classes', 'propel-classes');
 
         foreach (Kryn::$bundles as $bundleName) {
 
