@@ -17,7 +17,10 @@ var admin_system_module_editWindow = new Class({
 
     _createLayout: function () {
 
-        this.tabPane = new ka.TabPane(this.win.content, true, this.win);
+        this.saveBtn = new ka.Button(t('Save'), this.save.bind(this)).inject(this.win.getTitleGroupContainer());
+        this.saveBtn.setButtonStyle('blue');
+
+        this.tabPane = new ka.TabPane(this.win.content, true);
 
         this.generalTab = this.tabPane.addPane(t('General'));
 
@@ -29,11 +32,6 @@ var admin_system_module_editWindow = new Class({
         this.customMethodTab = this.tabPane.addPane(t('Custom methods'));
 
         //this.windowTabList.hide();
-
-        this.btnGroup = this.win.addBottomBar();
-        this.saveBtn = this.btnGroup.addButton(t('Save'), this.save.bind(this));
-
-        this.saveBtn.setButtonStyle('blue');
 
         var generalFields = {
             'class': {
@@ -870,7 +868,7 @@ var admin_system_module_editWindow = new Class({
             this.lastSaveReq.cancel();
         }
 
-        this.lastSaveReq = new Request.JSON({url: _path + 'admin/system/module/editor/window?class=' +
+        this.lastSaveReq = new Request.JSON({url: _pathAdmin + 'admin/system/module/editor/window?class=' +
             req.general['class'], noCache: 1,
             onComplete: function (pResponse) {
 
@@ -964,7 +962,7 @@ var admin_system_module_editWindow = new Class({
             this.lastSaveReq.cancel();
         }
 
-        this.lastSaveReq = new Request.JSON({url: _path + 'admin/system/module/saveWindowClass', noCache: 1,
+        this.lastSaveReq = new Request.JSON({url: _pathAdmin + 'admin/system/module/saveWindowClass', noCache: 1,
 
             noErrorReporting: true,
             onComplete: function (res) {
@@ -997,7 +995,7 @@ var admin_system_module_editWindow = new Class({
 
         this.win.setLoading(true);
 
-        this.lr = new Request.JSON({url: _path + 'admin/system/module/editor/window', noCache: 1,
+        this.lr = new Request.JSON({url: _pathAdmin + 'admin/system/module/editor/window', noCache: 1,
             onComplete: this.renderWindowDefinition.bind(this)}).get({
                 'class': this.win.params.className
             });
@@ -1643,17 +1641,17 @@ var admin_system_module_editWindow = new Class({
                         this.definition.properties.secondOrderByDirection.toLowerCase() : 'asc';
             }
 
-            if (this.definition.properties.iconEdit) {
-                this.definition.properties.editIcon = '/admin/images/icons/' + this.definition.properties.iconEdit;
-            }
-
-            if (this.definition.properties.iconAdd) {
-                this.definition.properties.addIcon = '/admin/images/icons/' + this.definition.properties.iconAdd;
-            }
-
-            if (this.definition.properties.iconDelete) {
-                this.definition.properties.removeIcon = '/admin/images/icons/' + this.definition.properties.iconDelete;
-            }
+//            if (this.definition.properties.iconEdit) {
+//                this.definition.properties.editIcon = '/admin/images/icons/' + this.definition.properties.iconEdit;
+//            }
+//
+//            if (this.definition.properties.iconAdd) {
+//                this.definition.properties.addIcon = '/admin/images/icons/' + this.definition.properties.iconAdd;
+//            }
+//
+//            if (this.definition.properties.iconDelete) {
+//                this.definition.properties.removeIcon = '/admin/images/icons/' + this.definition.properties.iconDelete;
+//            }
 
             if (this.definition.properties.filter && typeOf(this.definition.properties.filter) == 'array') {
                 this.definition.properties.filter = this.definition.properties.filter.join(',');

@@ -621,7 +621,6 @@ class Model implements \ArrayAccess
             }
         } else {
 
-            /** @var \DOMNode $child */
             foreach ($values as $key => $value) {
                 $setter = 'set' . ucfirst($key);
                 $getter = 'get' . ucfirst($key);
@@ -635,7 +634,8 @@ class Model implements \ArrayAccess
                     if (1 <= count($parameters)) {
                         $firstParameter = $parameters[0];
                         if ($firstParameter->getClass() && $className = $firstParameter->getClass()->name) {
-                            $setterValue = new $className($child);
+                            $setterValue = new $className();
+                            $setterValue->fromArray($value);
                         }
                         if ($firstParameter->isArray() && is_array($value)){
                             $setterValue = array();

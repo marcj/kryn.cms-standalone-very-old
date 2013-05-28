@@ -101,6 +101,21 @@
             background-color: #ddd;
         }
 
+        .logo {
+            margin-bottom: 15px;
+        }
+
+        .output {
+            background-color: white;
+            padding: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            margin-top: 10px;
+            border-top: 2px solid forestgreen;
+            border-bottom: 2px solid forestgreen;
+            color: black;
+        }
+
     </style>
 </head>
 <body>
@@ -146,7 +161,13 @@
 {/function}
 
 <div id="error">
-    <img src="bundles/core/images/logo_white.png"/>
+    <div class="logo">
+        <img src="bundles/core/images/logo_white.png"/>
+    </div>
+    {if $output}
+        Already generated output:
+        <div class="output">{$output|escape}</div>
+    {/if}
     {foreach $exceptions as $exception}
         {printException exception=$exception}
     {/foreach}

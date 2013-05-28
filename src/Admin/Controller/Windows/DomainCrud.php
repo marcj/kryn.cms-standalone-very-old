@@ -11,13 +11,17 @@ class DomainCrud extends \Admin\ObjectCrud
             'children' => array(
                 'domain' => array(
                     'type' => 'predefined',
-                    'object' => 'Core\\Domain',
-                    'field' => 'domain',
+                    'options' => array(
+                        'object' => 'Core\\Domain',
+                        'field' => 'domain'
+                    )
                 ),
                 'master' => array(
                     'type' => 'predefined',
-                    'object' => 'Core\\Domain',
-                    'field' => 'master',
+                    'options' => array(
+                        'object' => 'Core\\Domain',
+                        'field' => 'master'
+                    )
                 ),
             ),
         ),

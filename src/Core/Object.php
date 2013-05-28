@@ -144,6 +144,10 @@ class Object
             $objectKey = rawurldecode($objectKey);
         }
 
+        if (!$objectKey) {
+            throw new \LogicException(tf('The url `%s` does not contain a object key.', $pInternalUrl));
+        }
+
         $params = array();
 
         if ($questionPos !== false) {
@@ -618,8 +622,7 @@ class Object
         $definition = self::getDefinition($objectKey);
 
         if (!$definition) {
-            xdebug_break();
-            throw new \ObjectNotFoundException(tf('Object not found %s', $objectKey));
+            throw new \ObjectNotFoundException(tf('Object `%s` not found.', $objectKey));
         }
 
         if (!self::$instances[$objectKey]) {

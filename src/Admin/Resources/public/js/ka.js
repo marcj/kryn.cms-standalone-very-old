@@ -262,7 +262,7 @@ ka.htmlEntities = function (value) {
 }
 
 ka.newBubble = function (pTitle, pText, pDuration) {
-    return ka.helpsystem.newBubble(pTitle, pText, pDuration);
+    return ka.adminInterface.getHelpSystem().newBubble(pTitle, pText, pDuration);
 }
 
 /**

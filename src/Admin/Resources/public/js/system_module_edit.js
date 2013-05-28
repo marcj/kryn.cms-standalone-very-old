@@ -460,18 +460,18 @@ var admin_system_module_edit = new Class({
         var td = new Element('td').inject(tr);
 
         new ka.Button(t('Edit window'))
-            .addEvent('click', function () {
-                ka.wm.open('admin/system/module/editWindow', {module: this.mod, className: pClassName});
-            }.bind(this))
-            .inject(td);
+        .addEvent('click', function () {
+            ka.wm.open('admin/system/module/editWindow', {bundle: this.mod, className: pClassName});
+        }.bind(this))
+        .inject(td);
 
         new Element('a', {
             style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
             title: t('Remove'),
             html: '&#xe26b;'
         }).addEvent('click', function () {
-                tr.destroy();
-            }.bind(this)).inject(td);
+            tr.destroy();
+        }.bind(this)).inject(td);
 
     },
 

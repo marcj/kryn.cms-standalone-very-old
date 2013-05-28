@@ -5,6 +5,7 @@ namespace Admin\Module;
 use Admin\Module\Manager;
 use Core\Config\Bundle;
 use Core\Config\EntryPoint;
+use Core\Config\Model;
 use Core\Exceptions\BundleNotFoundException;
 use Core\Kryn;
 use Core\SystemFile;
@@ -70,11 +71,11 @@ class Editor
 
     }
 
-    public static function getWindows($pName)
+    public function getWindows($bundle)
     {
-        Manager::prepareName($pName);
+        $bundle = $this->getBundle($bundle);
 
-        $classes = find(\Core\Kryn::getModuleDir($pName) . '/*', true);
+        $classes = find($bundle->getPath(), '*.php');
         $windows = array();
         $whiteList = array('\Admin\ObjectCrud');
 
@@ -878,11 +879,8 @@ class Editor
         $content = explode("\n", SystemFile::getContent($path));
 
         $actualPath = str_replace('\\', '/', lcfirst(substr($pClass, 1))) . '.class.php';
-        $fSlash = strpos($actualPath, '/');
-        $actualPath = \Core\Kryn::getModuleDir(substr($actualPath, 0, $fSlash)) . 'controller/' . substr(
-            $actualPath,
-            $fSlash + 1
-        );
+        $classReflection = new \ReflectionClass($pClass);
+        $actualPath = $classReflection->getFileName();
 
         $res = array(
             'class' => $pClass,
@@ -924,6 +922,15 @@ class Editor
 
         if (getArgv('parentClass')) {
             $parentClass = getArgv('parentClass', 2);
+        }
+
+
+        if ($res['properties']['fields']) {
+            foreach ($res['properties']['fields'] as &$field) {
+                if ($field instanceof Model) {
+                    $field = $field->toArray();
+                }
+            }
         }
 
         self::extractParentClassInformation($parentClass, $res['parentMethods']);

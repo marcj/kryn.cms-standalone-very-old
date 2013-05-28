@@ -202,7 +202,6 @@ class PropelHelper
             }
             $source = $tmp . 'propel-classes/' . ucfirst($bundle->getNamespace()) . '/Models';
 
-            //$result .= " CHECK $targetDir \n";
             $files = find($source . '/*.php');
 
             foreach ($files as $file) {

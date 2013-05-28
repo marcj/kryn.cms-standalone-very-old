@@ -82,6 +82,17 @@ class Field extends Model
     }
 
     /**
+     * @param string $key
+     *
+     * @return mixed
+     */
+    public function getOption($key)
+    {
+        return $this->options->getOption($key);
+    }
+
+
+    /**
      * @param Field[] $children
      */
     public function setChildren(array $children)

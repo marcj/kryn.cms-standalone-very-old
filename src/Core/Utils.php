@@ -47,7 +47,7 @@ class Utils
     public static function exceptionHandler(\Exception $pException)
     {
         $output = '';
-        for ($i = ob_get_level(); $i >=0; $i--) {
+        for ($i = ob_get_level(); $i >= 0; $i--) {
             $output .= ob_get_clean();
         }
 
@@ -97,7 +97,8 @@ class Utils
         $exceptions = array();
         self::extractException($pException, $exceptions);
         $data = array(
-            'exceptions' => $exceptions
+            'exceptions' => $exceptions,
+            'output' => $output
         );
 
         $response = new Response(Kryn::translate(

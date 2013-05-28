@@ -592,24 +592,23 @@ class ObjectCrud
 
                 switch ($pFields->getType()) {
                     case 'predefined':
-
-                        $object = Object::getDefinition($pFields->getObject());
+                        $object = Object::getDefinition($pFields->getOption('object'));
                         if (!$object) {
                             throw new \Exception(tf(
                                 'Object `%s` does not exist [%s]',
-                                $pFields->getObject(),
-                                $pFields
+                                $pFields->getOption('object'),
+                                $pFields->toArray()
                             ));
                         }
-                        $def = $object->getField($pFields->getField());
+                        $def = $object->getField($pFields->getOption('field'));
                         if (!$def) {
                             $objectArray = $object->toArray();
                             $fields = $objectArray['fields'];
                             throw new \Exception(tf(
                                 "Object `%s` does not have field `%s`. \n[%s]\n[%s]",
-                                $pFields->getObject(),
-                                $pFields->getField(),
-                                $pFields,
+                                $pFields->getOption('object'),
+                                $pFields->getOption('field'),
+                                $pFields->toArray(),
                                 json_format($fields)
                             ));
                         }

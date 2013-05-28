@@ -1041,12 +1041,10 @@ ka.Window = new Class({
     },
 
     addTabGroup: function () {
-        this.extendHead();
         return new ka.TabGroup(this.getTitleGroupContainer());
     },
 
     addSmallTabGroup: function () {
-        this.extendHead();
         return new ka.SmallTabGroup(this.getTitleGroupContainer());
     },
 
@@ -1059,7 +1057,6 @@ ka.Window = new Class({
     },
 
     addButtonGroup: function () {
-        this.extendHead();
         return new ka.ButtonGroup(this.getTitleGroupContainer());
     },
 

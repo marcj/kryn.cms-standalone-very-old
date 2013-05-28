@@ -169,7 +169,7 @@ ka.FieldAbstract = new Class({
     showInvalid: function (pText) {
 
         if (!((this.main || this.input) && (this.wrapper || this.input))) {
-            reurn;
+            return;
         }
 
         if (this.invalidIcon) {

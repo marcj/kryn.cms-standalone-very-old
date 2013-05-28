@@ -47,6 +47,11 @@ class Options extends Model
         }
     }
 
+    public function fromArray($values, $key = null)
+    {
+        $this->options = $values;
+    }
+
     /**
      * @param $element
      * @return array
