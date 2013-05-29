@@ -41,7 +41,7 @@ var admin_backend_chooser = new Class({
         this.bottomBar.addButton(t('Close'), this.win.close.bind(this.win));
         this.bottomBar.addButton(t('Choose'), function () {
             this.choose();
-        }.bind(this));
+        }.bind(this)).setButtonStyle('blue');
 
         this._createLayout();
     },
@@ -53,7 +53,7 @@ var admin_backend_chooser = new Class({
 
     _createLayout: function () {
 
-        this.tapPane = new ka.TabPane(this.win.content, true, this.win);
+        this.tapPane = new ka.TabPane(this.win.content, true);
 
         this.tapPane.addEvent('change', this.changeTab.bind(this));
 

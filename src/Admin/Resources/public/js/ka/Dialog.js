@@ -58,7 +58,7 @@ ka.Dialog = new Class({
     renderLayout: function () {
         this.overlay = new Element('div', {
             'class': 'ka-admin ka-dialog-overlay'
-        })
+        });
 
         if (this.options.autoDisplay) {
             this.overlay.inject(this.container);
@@ -108,19 +108,22 @@ ka.Dialog = new Class({
 
         if (this.options.withButtons && this.bottom) {
             if (this.options.cancelButton) {
-                this.cancelButton = this.addButton(t('Cancel'))
+                this.cancelButton = this
+                    .addButton(t('Cancel'))
                     .addEvent('click', function () {
                         this.closeAnimated(true);
                     }.bind(this));
             }
 
             if (this.options.applyButton) {
-                this.applyButton = this.addButton(t('Apply'))
+                this.applyButton = this
+                    .addButton(t('Apply'))
                     .addEvent('click', function () {
                         this.fireEvent('apply');
                         this.closeAnimated(true);
                     }.bind(this))
                     .setButtonStyle('blue');
+
                 this.applyButton.focus();
             }
         }

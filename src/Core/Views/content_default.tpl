@@ -1,3 +1,3 @@
-<div class="content-element {$content.type}">
+<div class="content-element {$type}">
     {$html}
 </div>

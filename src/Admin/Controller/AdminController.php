@@ -345,15 +345,14 @@ class AdminController
         }
     }
 
-    public function getContentTemplate($pTemplate)
+    public function getContentTemplate($template, $type = 'text')
     {
-        $pTemplate = str_replace('..', '', $pTemplate);
+        $data = [
+            'html' => '<div class="ka-content-container"></div>',
+            'type' => $type
+        ];
 
-        $html = file_get_contents(tPath($pTemplate));
-
-        $html = str_replace('{$content}', '<div class="ka-content-container"></div>', $html);
-
-        return $html;
+        return Kryn::getInstance()->renderView($template, $data);
     }
 
     public static function addSessionScripts()
@@ -383,25 +382,26 @@ class AdminController
 
     public static function handleKEditor()
     {
-        self::addMainResources();
+        self::addMainResources(['noJs' => true]);
         self::addSessionScripts();
         $response = Kryn::getResponse();
-
-        $response->addJs(
-            'window.currentNode = ' .
-            json_encode(Kryn::$page->toArray(TableMap::TYPE_STUDLYPHPNAME)) . ';',
-            'bottom'
-        );
+        $response->addJsFile('@CoreBundle/mootools-core.js');
+        $response->addJsFile('@CoreBundle/mootools-more.js');
+        $response->addJsFile('@CoreBundle/ckeditor/ckeditor.js');
 
         $response->addJs('ka = parent.ka;');
-        $response->addJsFile('admin/js/globals.js', 'bottom');
 
-        $response->addCssFile(Kryn::getAdminPrefix() . '/admin/backend/style.css');
+        $response->setResourceCompression(false);
+        $response->setDomainHandling(false);
+
+        $options = [
+            'id' => $_GET['_kryn_editor_id'],
+            'node' => Kryn::$page->toArray(TableMap::TYPE_STUDLYPHPNAME)
+        ];
         $response->addJs(
-            'window.editor = new ka.Editor(document.body, {nodePk: ' . Kryn::$page->getId() . '});',
+            'window.editor = new ka.Editor(document.body, ' . json_encode($options) . ');',
             'bottom'
         );
-
     }
 
     public static function showLogin()
@@ -410,9 +410,6 @@ class AdminController
         self::addLanguageResources();
 
         $response = Kryn::getResponse();
-//        $response->addJsFile('@AdminBundle/js/globals.js');
-//        $response->addJsFile('@AdminBundle/js/ka/Select.js');
-//        $response->addJsFile('@AdminBundle/js/ka/Checkbox.js');
         self::addSessionScripts();
 
         $response->addJs(
@@ -432,7 +429,7 @@ class AdminController
         exit;
     }
 
-    public static function addMainResources()
+    public static function addMainResources($options = array())
     {
         $response = Kryn::getResponse();
 
@@ -445,8 +442,10 @@ class AdminController
         if (Kryn::getSystemConfig()->isDebug()) {
 
             foreach (Kryn::$configs as $bundleConfig) {
-                foreach ($bundleConfig->getAdminAssetsPaths(false, '.*\.js', $regex = true) as $assetPath) {
-                    $response->addJsFile($assetPath);
+                if (!$options['noJs']) {
+                    foreach ($bundleConfig->getAdminAssetsPaths(false, '.*\.js', $regex = true) as $assetPath) {
+                        $response->addJsFile($assetPath);
+                    }
                 }
                 foreach ($bundleConfig->getAdminAssetsPaths(false, '.*\.css', $regex = true)
                          as $assetPath) {
@@ -456,12 +455,21 @@ class AdminController
         } else {
 
             $response->addCssFile(Kryn::getAdminPrefix() . '/admin/backend/style');
-            $response->addJsFile(Kryn::getAdminPrefix() . '/admin/backend/script');
+            if (!$options['noJs']) {
+                $response->addJsFile(Kryn::getAdminPrefix() . '/admin/backend/script');
+            }
 
             foreach (Kryn::$configs as $bundleConfig) {
-                foreach ($bundleConfig->getAdminAssetsPaths(false, '.*\.js', $regex = true) as $assetPath) {
-                    $path = Kryn::resolvePath($assetPath, 'Resources/public');
-                    if (!file_exists($path)) {
+                if (!$options['noJs']) {
+                    foreach ($bundleConfig->getAdminAssetsPaths(false, '.*\.js', $regex = true) as $assetPath) {
+                        $path = Kryn::resolvePath($assetPath, 'Resources/public');
+                        if (!file_exists($path)) {
+                            $response->addJsFile($assetPath);
+                        }
+                    }
+
+                    foreach ($bundleConfig->getAdminAssetsPaths(false, '.*\.js', $regex = true, $compression = false)
+                             as $assetPath) {
                         $response->addJsFile($assetPath);
                     }
                 }
@@ -471,11 +479,6 @@ class AdminController
                     if (!file_exists($path)) {
                         $response->addCssFile($assetPath);
                     }
-                }
-
-                foreach ($bundleConfig->getAdminAssetsPaths(false, '.*\.js', $regex = true, $compression = false)
-                         as $assetPath) {
-                    $response->addJsFile($assetPath);
                 }
 
                 foreach ($bundleConfig->getAdminAssetsPaths(false, '.*\.css', $regex = true, $compression = false)

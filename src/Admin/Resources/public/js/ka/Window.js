@@ -428,7 +428,6 @@ ka.Window = new Class({
     },
 
     toFront: function (pOnlyZIndex) {
-
         if (this.active) {
             this.title.addClass('ka-kwindow-inFront');
             if (this.border.getStyle('display') != 'block') {
@@ -996,7 +995,6 @@ ka.Window = new Class({
         this.inFront = true;
 
         if (this.isInline()) {
-
             this.dialogContainer = new ka.Dialog(ka.wm.getWindow(this.parentId), {
                 absolute: true,
                 noBottom: true,

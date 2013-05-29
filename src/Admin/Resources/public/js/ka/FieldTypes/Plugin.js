@@ -3,20 +3,18 @@ ka.FieldTypes.Plugin = new Class({
     Extends: ka.FieldAbstract,
 
     createLayout: function () {
-
         this.main = new Element('div').inject(this.fieldInstance.fieldPanel);
-
-        logger('WHAT');
+        this.renderValue();
     },
 
     renderValue: function () {
         this.value = this.value || {};
 
-        this.main.getElements('*').destroy();
+        this.main.getChildren().destroy();
 
         var fields = {
-            module: {
-                label: t('Extension'),
+            bundle: {
+                label: t('Bundle'),
                 type: 'select',
                 inputWidth: 240,
                 items: {}
@@ -24,7 +22,6 @@ ka.FieldTypes.Plugin = new Class({
         };
 
         Object.each(ka.settings.configs, function (config, key) {
-
             if (!config.plugins) {
                 return;
             }
@@ -32,31 +29,29 @@ ka.FieldTypes.Plugin = new Class({
                 return;
             }
 
-            fields.module.items[key] = config.title;
+            fields.bundle.items[key] = config.name || key;
 
             var plugin = {
                 label: t('Plugin'),
                 type: 'select',
                 needValue: key,
-                againstField: 'module',
+                againstField: 'bundle',
                 inputWidth: 240,
                 items: {}
             };
 
             Object.each(config.plugins, function (def, pluginKey) {
-
                 if (typeOf(def) == 'array') {
                     def = this.normalizePlugin(def);
                 }
 
                 plugin.items[pluginKey] = def.label;
-
             }.bind(this));
 
             fields['plugin[' + key + ']'] = plugin;
-
         }.bind(this));
 
+        logger(fields);
         this.fieldForm = new ka.FieldForm(this.main, fields, {
             allTableItems: true
         });
@@ -67,17 +62,16 @@ ka.FieldTypes.Plugin = new Class({
 
         var i = 0;
         this.fieldForm.addEvent('change', function () {
-
             this.pluginPropertyContainer.getChildren().destroy();
-            var module = this.fieldForm.getValue('module');
-            var plugin = this.fieldForm.getValue('plugin[' + module + ']');
+            var bundle = this.fieldForm.getValue('bundle');
+            var plugin = this.fieldForm.getValue('plugin[' + bundle + ']');
 
-            if (!ka.settings.configs[module]) {
+            if (!ka.settings.configs[bundle]) {
                 delete this.pluginPropertyForm;
                 return;
             }
 
-            var def = this.normalizePlugin(ka.settings.configs[module].plugins[plugin]);
+            var def = this.normalizePlugin(ka.settings.configs[bundle].plugins[plugin]);
 
             if (def && def.options) {
                 this.pluginPropertyForm = new ka.FieldForm(this.pluginPropertyContainer, def.options, {
@@ -89,14 +83,13 @@ ka.FieldTypes.Plugin = new Class({
             }
 
             //this.fieldInstance.fireChange();
-
         }.bind(this));
 
-        if (this.value && this.value.module) {
+        if (this.value && this.value.bundle) {
             var value = {};
-            value.module = this.value.module;
+            value.bundle = this.value.bundle;
             value.plugin = {};
-            value.plugin[value.module] = this.value.plugin;
+            value.plugin[value.bundle] = this.value.plugin;
             this.fieldForm.setValue(value);
         }
 
@@ -143,14 +136,14 @@ ka.FieldTypes.Plugin = new Class({
             return {};
         }
 
-        var module = pValue.substr(0, pValue.indexOf('::'));
-        var plugin = pValue.substr(module.length + 2, pValue.substr(module.length + 2).indexOf('::'));
-        var options = pValue.substr(module.length + plugin.length + 4);
+        var bundle = pValue.substr(0, pValue.indexOf('::'));
+        var plugin = pValue.substr(bundle.length + 2, pValue.substr(bundle.length + 2).indexOf('::'));
+        var options = pValue.substr(bundle.length + plugin.length + 4);
 
         options = JSON.validate(options) ? JSON.decode(options) : {};
 
         return {
-            module: module,
+            bundle: bundle,
             plugin: plugin,
             options: options
         };
@@ -159,9 +152,9 @@ ka.FieldTypes.Plugin = new Class({
     getValue: function () {
 
         var plugin = {};
-        plugin.module = this.fieldForm.getValue('module');
+        plugin.bundle = this.fieldForm.getValue('bundle');
 
-        plugin.plugin = this.fieldForm.getValue('plugin[' + plugin.module + ']')
+        plugin.plugin = this.fieldForm.getValue('plugin[' + plugin.bundle + ']')
 
         if (this.pluginPropertyForm) {
             plugin.options = this.pluginPropertyForm.getValue();

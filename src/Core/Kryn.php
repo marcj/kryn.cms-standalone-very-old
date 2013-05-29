@@ -87,7 +87,7 @@ class Kryn extends Controller
      * @var string
      * @static
      */
-    public static $baseUrl;
+    public static $baseUrl = '/';
 
     /**
      * Contains the current domain with all information (as defined in the database system_domain)
@@ -1476,7 +1476,7 @@ class Kryn extends Controller
         ) {
             $domain = $cachedDomains[$redirectToDomain];
 
-            $dispatcher->dispatch('core.domain-redirect', new GenericEvent($domain));
+            $dispatcher->dispatch('core/domain-redirect', new GenericEvent($domain));
 
             return null;
         }
@@ -1962,7 +1962,7 @@ class Kryn extends Controller
         $dispatcher = self::getEventDispatcher();
 
         $dispatcher->addListener(
-            'core.domain-redirect',
+            'core/domain-redirect',
             function (GenericEvent $event) {
                 $domain = $event->getSubject();
                 $response = new \Symfony\Component\HttpFoundation\RedirectResponse($domain->getUrl(Kryn::$ssl), 301);

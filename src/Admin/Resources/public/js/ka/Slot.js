@@ -4,7 +4,7 @@ ka.Slot = new Class({
     Implements: [Options, Events],
 
     options: {
-        nodePk: null
+        node: {}
     },
 
     slot: null,
@@ -32,10 +32,10 @@ ka.Slot = new Class({
     },
 
     renderLayout: function () {
-
         this.slot.empty();
 
         return;
+        //no header anymore
         this.header = new Element('div', {
             'class': 'ka-slot-header'
         }).inject(this.slot);
@@ -64,7 +64,7 @@ ka.Slot = new Class({
         this.lastRq = new Request.JSON({url: _pathAdmin + 'admin/object/Core:Content', noCache: true,
             onComplete: this.renderContents.bind(this)}).get({
                 _boxId: this.slotParams.id,
-                _nodeId: this.options.nodePk,
+                _nodeId: this.options.node.id,
                 order: {sort: 'asc'}
             });
     },
@@ -106,17 +106,15 @@ ka.Slot = new Class({
     },
 
     addActions: function () {
-
         this.addContentBtn = new Element('a', {
             href: 'javascript: ;',
             html: '&#xe109;',
             title: tc('nodeEditor', 'Add content to this slot')
         })
-            .addEvent('click', function () {
-                this.addContent();
-            }.bind(this))
-            .inject(this.headerActions);
-
+        .addEvent('click', function () {
+            this.addContent();
+        }.bind(this))
+        .inject(this.headerActions);
     },
 
     addContent: function (pContent, pFocus) {
@@ -126,7 +124,7 @@ ka.Slot = new Class({
         }
 
         if (!pContent.template) {
-            pContent.template = 'core/content_default.tpl';
+            pContent.template = '@CoreBundle/content_default.tpl';
         }
 
         var content = new ka.Content(pContent, this);

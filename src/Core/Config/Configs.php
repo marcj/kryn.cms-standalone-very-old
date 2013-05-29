@@ -7,7 +7,7 @@ use Core\Kryn;
 class Configs implements \IteratorAggregate
 {
     /**
-     * @var DOMElement[]
+     * @var Bundle[]
      */
     private $configElements = array();
 
@@ -84,7 +84,10 @@ class Configs implements \IteratorAggregate
     {
         $result = array();
         foreach ($this->configElements as $config) {
-            $result[strtolower($config->getName())] = $config->toArray();
+            $value = $config->toArray();
+            $bundle = $config->getBundleClass();
+            $value['composer'] = $bundle->getComposer() ?: [];
+            $result[strtolower($config->getName())] = $value;
         }
         return $result;
     }

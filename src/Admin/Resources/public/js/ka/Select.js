@@ -843,7 +843,7 @@ ka.Select = new Class({
     addSplit: function (pLabel) {
 
         this.items.push({
-            label: label,
+            label: pLabel,
             isSplit: true
         });
 

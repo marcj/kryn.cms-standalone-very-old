@@ -102,71 +102,60 @@ ka.ContentTypes.Text = new Class({
 
         configs: {
             simple: {
-                toolbar: [
-                    ['Bold', 'Italic', 'Underline', 'Strike'],
-                    ['Undo', 'Redo'],
-                    ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent'],
-                    ['Link', 'Unlink'],
-                    ['Format'],
+                toolbarGroups: [
+                    {name: 'basicstyles', groups: ['undo', 'basicstyles', 'align', 'styles']},
                     '/',
-                    [ 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord'],
-                    ['Source']
-                ]
+                    {name: 'paragraph', groups: ['list', 'indent', 'blocks', 'align']},
+                    {name: 'links'},
+                    {name: 'insert'}
+               ]
             },
             standard: {
-                toolbar: [
-                    ['Bold', 'Italic', 'Underline', 'Strike'],
-                    ['Styles', 'Format', 'Font', 'FontSize'],
-                    ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', 'Blockquote'],
-                    '/',
-                    ['Undo', 'Redo'],
-                    ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent'],
-                    ['Link', 'Unlink', 'Anchor'],
-                    ['Image', 'Flash', 'Table', 'HorizontalRule', 'Smiley'],
-                    [ 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord']
-                ]
+                toolbarGroups: [
+                    {name: 'basicstyles', groups: ['undo', 'basicstyles', 'align', 'styles', 'colors']},
+                    {name: 'paragraph', groups: ['list', 'indent', 'blocks']},
+                    {name: 'links'},
+                    {name: 'insert'},
+                    {name: 'tools'},
+                    {name: 'others'}
+               ]
             },
             full: {
                 toolbarGroups: [
-                    { name: 'document', groups: [ 'mode', 'document', 'doctools' ] },
-                    { name: 'clipboard', groups: [ 'clipboard', 'undo' ] },
-                    { name: 'editing', groups: [ 'find', 'selection', 'spellchecker' ] },
-                    { name: 'forms' },
+                    {name: 'document', groups: ['mode', 'document', 'doctools']},
+                    {name: 'clipboard', groups: ['clipboard', 'undo']},
+                    {name: 'editing', groups: ['find', 'selection', 'spellchecker']},
+                    {name: 'forms'},
                     '/',
-                    { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
-                    { name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align' ] },
-                    { name: 'links' },
-                    { name: 'insert' },
+                    {name: 'basicstyles', groups: ['basicstyles', 'cleanup']},
+                    {name: 'paragraph', groups: ['list', 'indent', 'blocks', 'align']},
+                    {name: 'links'},
+                    {name: 'insert'},
                     '/',
-                    { name: 'styles' },
-                    { name: 'colors' },
-                    { name: 'tools' },
-                    { name: 'others' },
-                    { name: 'about' }
-                ]
+                    {name: 'styles'},
+                    {name: 'colors'},
+                    {name: 'tools'},
+                    {name: 'others'},
+                    {name: 'about'}
+               ]
             }
         }
-
     },
 
     createLayout: function () {
-
-        this.outer = new Element('div', {
-            'class': 'ka-content-text'
-        }).inject(this.contentInstance);
-
         this.main = new Element('div', {
             contentEditable: true,
-            'class': 'selectable'
-        }).inject(this.outer);
+            'class': 'ka-content-text selectable'
+        }).inject(this.contentInstance);
 
         var config = this.getEditorConfig();
         this.checkChange = this.checkChange.bind(this);
         this.editorReady = this.editorReady.bind(this);
 
-        this.editor = CKEDITOR.inline(this.main, config);
+        this.editor = this.getDOMWindow().CKEDITOR.inline(this.main, config);
 
         this.editor.on('instanceReady', this.editorReady);
+
         this.editor.on('change', this.checkChange);
         this.editor.on('blur', this.checkChange);
         this.editor.on('focus', this.checkChange);
@@ -174,17 +163,22 @@ ka.ContentTypes.Text = new Class({
         this.editor.on('paste', this.checkChange);
         this.editor.on('execCommand', this.checkChange);
         this.main.addEvent('keyup', this.checkChange);
+    },
 
+    getDOMWindow: function() {
+        return this.main.getDocument().window;
+    },
+
+    getDOMDocument: function() {
+        return this.main.getDocument();
     },
 
     checkChange: function () {
-
         if (this.ready) {
             if (this.oldData != this.editor.getData()) {
                 this.contentInstance.fireChange();
             }
         }
-
     },
 
     focus: function () {
@@ -192,7 +186,6 @@ ka.ContentTypes.Text = new Class({
     },
 
     getEditorConfig: function () {
-
         var config = this.options.configs[this.options.preset] || {};
 
         config.toolbarLocation = this.options.toolbarLocation;
@@ -255,8 +248,10 @@ ka.ContentTypes.Text = new Class({
     editorReady: function () {
         this.ready = true;
 
-        var toolbar = document.id('cke_' + this.editor.name);
+        var toolbar = this.getDOMDocument().id('cke_' + this.editor.name);
         toolbar.addClass('kryn_cke_toolbar');
+
+        top.window.fireEvent('ckEditorReady', [this, toolbar]);
 
         if (this.value) {
             this.editor.setData(this.value);

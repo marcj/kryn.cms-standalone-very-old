@@ -108,7 +108,8 @@ class PageController extends Controller
      */
     public function redirectToStartPage()
     {
-        $response = new RedirectResponse(Kryn::getBaseUrl(), 301);
+        $qs = $_SERVER['QUERY_STRING'];
+        $response = new RedirectResponse(Kryn::getBaseUrl()  . ($qs ? '?'.$qs:''), 301);
 
         return $response;
     }
