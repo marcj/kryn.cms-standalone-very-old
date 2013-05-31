@@ -31,8 +31,8 @@ class Manager
     }
 
     /**
-     * @param $bundleName
-     * @param bool $pReloadConfig
+     * @param string $bundleName
+     * @param bool   $pReloadConfig
      * @return int
      */
     public function deactivate($bundleName, $pReloadConfig = false)
@@ -68,18 +68,52 @@ class Manager
         return Kryn::getSystemConfig()->save();
     }
 
-    public static function getInstalled()
+    public function getInfo($bundle)
     {
-        foreach (Kryn::$bundles as $mod) {
-            $config = self::loadInfo($mod);
-            $res[$mod] = $config;
-            $res[$mod]['activated'] = array_search($mod, Kryn::$config['bundles']) !== false ? 1 : 0;
-            // $res[$mod]['serverVersion'] = wget(Kryn::$config['repoServer'] . "/?version=" . $mod);
-            $res[$mod]['serverCompare'] =
-                self::versionCompareToServer($res[$mod]['version'], $res[$mod]['serverVersion']);
+        $bundle = Kryn::getBundle($bundle);
+
+        $info = $bundle->getComposer();
+        $info['_installed'] = $bundle->getInstalledInfo();
+        return $info;
+    }
+
+    public static function getInstalledInfo($name)
+    {
+        if (SystemFile::exists('composer.lock')) {
+            $composerLock = SystemFile::getContent('composer.lock');
+            if ($composerLock) {
+                $composerLock = json_decode($composerLock, true);
+
+                foreach ($composerLock['packages'] as $package) {
+                    if (strtolower($package['name']) == strtolower($name)) {
+                        return $package;
+                    }
+                }
+            }
         }
 
-        return $res;
+        return [];
+    }
+
+    public function getInstalled()
+    {
+        if (SystemFile::exists('composer.json')) {
+            $composer = SystemFile::getContent('composer.json');
+            if ($composer) {
+                $composer = json_decode($composer, true);
+
+                $packages = [];
+                $packages[] = $composer;
+
+                foreach ((array)$composer['require'] as $name => $version) {
+                    if ($package = static::getInstalledInfo($name)) {
+                        $packages[] = $package;
+                    }
+                }
+            }
+        }
+
+        return $packages ?: [];
     }
 
     private static function versionCompareToServer($local, $server)
@@ -110,7 +144,11 @@ class Manager
             ->in('vendor')
             ->in('tests/bundles')
             ->in('src');
+        return $this->getBundles($finder);
+    }
 
+    public function getBundles($finder)
+    {
         $bundles = array();
         /** @var \Symfony\Component\Finder\SplFileInfo $file */
         foreach ($finder as $file) {
@@ -140,9 +178,11 @@ class Manager
             }
 
             if ($composer = $bundle->getComposer()) {
+                $composer['_path'] = $bundle->getPath();
+                $composer['_installed'] = $bundle->getInstalledInfo();
                 $res[$bundle->getClassName()] = $composer;
                 if (null === $res[$bundle->getClassName()]['activated']) {
-                    $res[$bundle->getClassName()]['activated'] = 'Core\CoreBundle' === $class || array_search(
+                    $res[$bundle->getClassName()]['activated'] = array_search(
                         $bundle->getClassName(),
                         Kryn::$config['bundles']
                     ) !== false ? true : false;

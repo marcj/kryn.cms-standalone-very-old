@@ -723,9 +723,13 @@ class Editor
         $bundle = $this->getBundle($name);
         $config =  $bundle->getComposer();
 
-        $values = ['name', 'description', 'keywords', 'license', 'require', 'authors', 'homepage'];
+        $values = ['name', 'description', 'keywords', 'version', 'license', 'require', 'authors', 'homepage'];
         foreach ($values as $key) {
-            $config[$key] = $_POST[$key];
+            if ('' !== $_POST[$key]) {
+                $config[$key] = $_POST[$key];
+            } else {
+                unset($config[$key]);
+            }
         }
 
         return $bundle->setComposer($config);
@@ -764,13 +768,6 @@ class Editor
             $pClass = '\\' . $pClass;
         }
 
-        $actualPath = str_replace('\\', '/', lcfirst(substr($pClass, 1))) . '.class.php';
-        $fSlash = strpos($actualPath, '/');
-        $actualPath = \Core\Kryn::getModuleDir(substr($actualPath, 0, $fSlash)) . 'controller/' . substr(
-            $actualPath,
-            $fSlash + 1
-        );
-
         $general = getArgv('general');
         $path = $general['file'];
 
@@ -795,27 +792,35 @@ class Editor
         }
 
         $listing = getArgv('list');
-        foreach ($listing as $listVarName => $listVar) {
-            $this->addVar($sourcecode, $listVarName, $listVar);
+        if (is_array($listing)) {
+            foreach ($listing as $listVarName => $listVar) {
+                $this->addVar($sourcecode, $listVarName, $listVar);
+            }
         }
 
         $add = getArgv('add');
-        foreach ($add as $varName => $var) {
-            $this->addVar($sourcecode, $varName, $var);
+        if (is_array($add)) {
+            foreach ($add as $varName => $var) {
+                $this->addVar($sourcecode, $varName, $var);
+            }
         }
 
         $general = getArgv('general');
         $blacklist = array('class', 'file');
-        foreach ($general as $varName => $var) {
-            if (array_search($varName, $blacklist) !== false) {
-                continue;
+        if (is_array($general)) {
+            foreach ($general as $varName => $var) {
+                if (array_search($varName, $blacklist) !== false) {
+                    continue;
+                }
+                $this->addVar($sourcecode, $varName, $var);
             }
-            $this->addVar($sourcecode, $varName, $var);
         }
 
         $methods = getArgv('methods');
-        foreach ($methods as $name => $source) {
-            $this->addMethod($sourcecode, $source);
+        if (is_array($methods)) {
+            foreach ($methods as $name => $source) {
+                $this->addMethod($sourcecode, $source);
+            }
         }
 
         $sourcecode .= "\n}\n";
@@ -878,7 +883,6 @@ class Editor
 
         $content = explode("\n", SystemFile::getContent($path));
 
-        $actualPath = str_replace('\\', '/', lcfirst(substr($pClass, 1))) . '.class.php';
         $classReflection = new \ReflectionClass($pClass);
         $actualPath = $classReflection->getFileName();
 
@@ -1019,7 +1023,7 @@ class Editor
         }
 
         $actualPath = str_replace('\\', '/', substr($pClass, 1)) . '.class.php';
-        $actualPath = \Core\Kryn::getModuleDir($pModule) . 'controller/' . $actualPath;
+        $actualPath = \Core\Kryn::getBundleDir($pModule) . 'controller/' . $actualPath;
 
         if (file_exists($actualPath) && !$pForce) {
             throw new \FileAlreadyExistException(tf('File already exist, %s', $actualPath));

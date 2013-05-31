@@ -1458,6 +1458,11 @@ var admin_system_module_edit = new Class({
                     }
                 }
             },
+            version: {
+                label: t('Version'),
+                type: 'text',
+                desc: t('Composer uses VCS repositories, so you can specify own branches or git tags to specify a version. Use this field only if you provide this package not through a VCS.')
+            },
             screenshots: {
                 label: t('Screenshots'),
                 type: 'text',

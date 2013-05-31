@@ -26,8 +26,6 @@ var admin_system_module = new Class({
             'class': 'admin-system-module-pane'
         }).inject(this.win.content);
 
-        this.loader = new ka.Loader(this.win.content);
-
         /* installed */
         this.tableInstalled = new ka.Table().inject(this.panes['installed']);
         this.tableInstalled.setColumns([
@@ -94,7 +92,7 @@ var admin_system_module = new Class({
     },
 
     loadInstalled: function () {
-        this.loader.show();
+        this.win.setLoading(true);
         if (this.llir) {
             this.llir.cancel();
         }
@@ -105,13 +103,12 @@ var admin_system_module = new Class({
 
         this.llir = new Request.JSON({url: _pathAdmin + 'admin/system/module/manager/installed', noCache: 1,
             onComplete: function (pResult) {
-
                 var res = pResult.data;
 
                 var values = [];
                 Object.each(res, function (item, key) {
 
-                    var title = item['title'];
+                    var title = item.name;
 
                     if (!item) {
                         title = "config parse error: " + key;
@@ -127,7 +124,7 @@ var admin_system_module = new Class({
                     var actionsStatus = new Element('div');
 
                     new ka.Button(_('Info')).addEvent('click', function () {
-                        ka.wm.open('admin/system/module/view', {name: key, type: 0});
+                        ka.wm.open('admin/system/module/view', {name: key, type: 0}, -1, true);
                     }.bind(this)).inject(actions);
 
                     if (!['core', 'admin', 'users'].contains(key)) {
@@ -157,23 +154,17 @@ var admin_system_module = new Class({
                         }.bind(this)).inject(actions);
                     }
 
-                    if (item.version != item.serverVersion && item.serverVersion != '') {
-                        icon = 'cog_go';
-                        _title = _('New version available');
-                        new ka.Button(item.serverCompare == '>' ? _('Downgrade') : _('Update')).addEvent('click',
-                            function () {
-                                ka.wm.open('admin/system/module/view/', {name: key, type: 0, updateNow: 1});
-                            }.bind(this)).inject(actions);
-                    }
-
                     var value = [title,
                         '<img title="' + _title + '" src="' + _path + 'bundles/admin/images/icons/' + icon + '.png" />',
-                        item.version, (item.serverVersion) ? item.serverVersion : _('Local'), actionsStatus, actions];
+                        item.version ? item.version : (item.version ? item.version : t('VCS')),
+                        'Pending ...',
+                        actionsStatus,
+                        actions];
                     values.include(value);
                 }.bind(this));
 
                 this.tableInstalled.setValues(values);
-                this.loader.hide();
+                this.win.setLoading(false);
             }.bind(this)}).get();
     },
 
@@ -181,17 +172,16 @@ var admin_system_module = new Class({
         if (this.lc) {
             this.lc.cancel();
         }
-        this.loader.show();
+        this.win.setLoading(true);
 
         this.lc = new Request.JSON({url: _pathAdmin +
             'admin/system/module/manager/local', noCache: 1, onComplete: function (res) {
-            this.loader.hide();
+            this.win.setLoading(false);
             this.renderLocal(res.data);
         }.bind(this)}).get();
     },
 
     renderLocal: function (pMods) {
-
         this.panes['local'].empty();
 
         this.localePane = new Element('div', {
@@ -206,7 +196,7 @@ var admin_system_module = new Class({
         }
 
         var buttonBar = new ka.ButtonBar(this.panes['local']);
-        buttonBar.addButton(_('Create extension'), function () {
+        var createBtn = buttonBar.addButton(_('Create Bundle'), function () {
             this.win._prompt(_('Extension code: '), '', function (res) {
                 if (!res) {
                     return;
@@ -214,6 +204,7 @@ var admin_system_module = new Class({
                 ka.wm.open('admin/system/module/add', {name: res});
             })
         }.bind(this));
+        createBtn.setButtonStyle('blue');
 
         if (typeOf(pMods) == 'array') {
             new Element('div', {
@@ -222,7 +213,7 @@ var admin_system_module = new Class({
             }).inject(p);
         }
 
-        var values = {my: [], local: []};
+        var values = {my: [], local: [], external: []};
         var tables = {};
 
         if (ka.settings.system.communityId + 0 > 0) {
@@ -232,14 +223,13 @@ var admin_system_module = new Class({
                 [_('Title'), null, 'html'],
                 [_('Activated'), 50, 'html'],
                 [_('Version'), 50],
-                [_('Server'), 50],
                 [_('Status'), 130],
                 [_('Action'), 350]
             ], {absolute: false}).inject(tableMyDiv);
         }
 
         new Element('h3', {
-            html: _('Local extensions')
+            html: _('Local bundles')
         }).inject(p);
 
         tableLocalDiv = new Element('div', {style: 'position: relative'}).inject(p);
@@ -247,7 +237,20 @@ var admin_system_module = new Class({
             [_('Title'), null, 'html'],
             [_('Activated'), 50, 'html'],
             [_('Version'), 50],
-            [_('Server'), 50],
+            [_('Status'), 130],
+            [_('Action'), 350]
+        ], {absolute: false}).inject(tableLocalDiv);
+
+
+        new Element('h3', {
+            html: _('External bundles')
+        }).inject(p);
+
+        tableLocalDiv = new Element('div', {style: 'position: relative'}).inject(p);
+        tables['external'] = new ka.Table([
+            [_('Title'), null, 'html'],
+            [_('Activated'), 50, 'html'],
+            [_('Version'), 50],
             [_('Status'), 130],
             [_('Action'), 350]
         ], {absolute: false}).inject(tableLocalDiv);
@@ -259,6 +262,9 @@ var admin_system_module = new Class({
             var table = 'my';
             if (mod.owner == '' || !mod.owner || mod.owner != ka.settings.system.communityId) {
                 table = 'local';
+            }
+            if (0 === item._path.indexOf('vendor/')) {
+                table = 'external';
             }
 
             var title = item['name'];
@@ -298,27 +304,20 @@ var admin_system_module = new Class({
             }
 
             new ka.Button(_('Info')).addEvent('click', function () {
-                ka.wm.open('admin/system/module/view', {name: key, type: 0});
+                ka.wm.open('admin/system/module/view', {name: key, type: 0}, -1, true);
             }.bind(this)).inject(actions);
 
             new ka.Button(_('Edit')).addEvent('click', function () {
                 ka.wm.open('admin/system/module/edit', {name: key});
-            }.bind(this)).inject(actions)
+            }.bind(this)).inject(actions);
 
-            new ka.Button(_('DB-Update')).addEvent('click',
-                function () {
-                    ka.wm.open('admin/system/module/dbInit', {name: key});
-                }).inject(actions)
-
-            new ka.Button(_('Share')).addEvent('click',
-                function () {
-                    ka.wm.open('admin/system/module/publish', {name: key});
-                }).inject(actions)
+            new ka.Button(_('Share')).addEvent('click', function () {
+                ka.wm.open('admin/system/module/publish', {name: key});
+            }).inject(actions)
 
             var value = [title + ' <span style="color: gray;">(' + key + ')</span>',
                 '<img title="' + _title + '" src="' + _path + 'bundles/admin/images/icons/' + icon + '.png" />',
-                item.version,
-                (!item.owner || item.owner == "") ? _('Local') : item.serverVersion,
+                item._installed.version ? item._installed.version : (item.version ? item.version : t('VCS')),
                 bActions,
                 actions];
 
@@ -337,6 +336,12 @@ var admin_system_module = new Class({
             tables['local'].setValues(values['local']);
         } else {
             tables['local'].hide();
+        }
+
+        if (values['external'].length > 0) {
+            tables['external'].setValues(values['external']);
+        } else {
+            tables['external'].hide();
         }
     },
 
