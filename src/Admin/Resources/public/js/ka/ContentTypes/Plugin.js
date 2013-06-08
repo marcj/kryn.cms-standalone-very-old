@@ -30,11 +30,12 @@ ka.ContentTypes.Plugin = new Class({
     },
 
     openDialog: function () {
-        this.dialog = new ka.Dialog(this.main.getDocument().body, {
+        console.log(ka.wm.lastWindow);
+        this.dialog = new ka.Dialog(ka.wm.lastWindow || this.main.getDocument().body, {
             title: t('Edit plugin'),
             minWidth: '80%',
             minHeight: '80%',
-            fixed: true,
+            fixed: !ka.wm.lastWindow,
             absolute: true,
             withButtons: true
         });
@@ -88,14 +89,14 @@ ka.ContentTypes.Plugin = new Class({
             return {};
         }
 
-        var module = pValue.substr(0, pValue.indexOf('::'));
-        var plugin = pValue.substr(module.length + 2, pValue.substr(module.length + 2).indexOf('::'));
-        var options = pValue.substr(module.length + plugin.length + 4);
+        var bundle = pValue.substr(0, pValue.indexOf('::'));
+        var plugin = pValue.substr(bundle.length + 2, pValue.substr(bundle.length + 2).indexOf('::'));
+        var options = pValue.substr(bundle.length + plugin.length + 4);
 
         options = JSON.validate(options) ? JSON.decode(options) : {};
 
         return {
-            module: module,
+            bundle: bundle,
             plugin: plugin,
             options: options
         };
@@ -105,17 +106,17 @@ ka.ContentTypes.Plugin = new Class({
 
         this.inner.empty();
 
-        var module = this.value.module;
+        var bundle = this.value.bundle;
         var plugin = this.value.plugin;
         var options = this.value.options;
 
-        if (ka.settings.configs[module] && ka.settings.configs[module].plugins &&
-            ka.settings.configs[module].plugins[plugin]) {
-            var pluginConfig = ka.settings.configs[module].plugins[plugin];
+        if (ka.settings.configs[bundle] && ka.settings.configs[bundle].plugins &&
+            ka.settings.configs[bundle].plugins[plugin]) {
+            var pluginConfig = ka.settings.configs[bundle].plugins[plugin];
 
             new Element('div', {
                 'class': 'ka-content-inner-title',
-                text: ka.settings.configs[module].title
+                text: ka.settings.configs[bundle].name
             }).inject(this.inner);
 
             new Element('div', {
@@ -146,7 +147,7 @@ ka.ContentTypes.Plugin = new Class({
              */
 
         } else {
-            this.inner.set('text', tf('Plugin or extension not found: %s/%s', module, plugin));
+            this.inner.set('text', tf('Plugin or extension not found: %s/%s', bundle, plugin));
         }
 
     },

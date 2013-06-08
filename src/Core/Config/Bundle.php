@@ -12,6 +12,11 @@ class Bundle extends Model
     protected $id;
 
     /**
+     * @var string
+     */
+    protected $label;
+
+    /**
      * @var Plugin[]
      */
     protected $plugins;
@@ -62,11 +67,36 @@ class Bundle extends Model
         $this->rootName = 'bundle';
     }
 
+    public function toArray($element = null)
+    {
+        $value = parent::toArray($element);
+        $value['name'] = $this->getBundleName();
+        return $value;
+    }
+
+    /**
+     * @param string $label
+     */
+    public function setLabel($label)
+    {
+        $this->label = $label;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLabel()
+    {
+        return $this->label;
+    }
+
     /**
      * @param string $path
      * @param bool   $withDefaults
      *
-     * @return boolean
+     * @return bool
+     *
+     * @throws \FileNotWritableException
      */
     public function saveConfig($path, $withDefaults = false)
     {
@@ -138,6 +168,21 @@ class Bundle extends Model
      */
     public function getPlugins()
     {
+        return $this->plugins;
+    }
+
+    /**
+     * @return Plugin[]
+     */
+    public function getPluginsArray()
+    {
+        if (null !== $this->plugins) {
+            $plugins = [];
+            foreach ($this->plugins as $plugin) {
+                $plugins[$plugin->getId()] = $plugin->toArray();
+            }
+            return $plugins;
+        }
         return $this->plugins;
     }
 
@@ -284,6 +329,9 @@ class Bundle extends Model
         return $this->entryPoints;
     }
 
+    /**
+     * @return array
+     */
     public function getEntryPointsArray()
     {
         if (null !== $this->entryPoints) {
@@ -295,6 +343,10 @@ class Bundle extends Model
         }
     }
 
+    /**
+     * @param EntryPoint $entryPoint
+     * @return EntryPoint[]
+     */
     public function getAllEntryPoints(EntryPoint $entryPoint = null)
     {
         $entryPoints = array();
@@ -319,7 +371,7 @@ class Bundle extends Model
     }
 
     /**
-     * @param $path Full path, delimited with `/`;
+     * @param string $path Full path, delimited with `/`;
      *
      * @return EntryPoint
      */
@@ -348,6 +400,9 @@ class Bundle extends Model
         return $this->objects;
     }
 
+    /**
+     * @return array
+     */
     public function getObjectsArray()
     {
         if (null !== $this->objects) {

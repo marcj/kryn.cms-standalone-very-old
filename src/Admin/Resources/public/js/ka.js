@@ -106,7 +106,7 @@ ka.translate = function (pMsg, pPlural, pCount, pContext) {
     }
 }
 
-ka.tf = function () {
+window.tf = ka.tf = function () {
     var args = Array.from(arguments);
     var text = args.shift();
     if (typeOf(text) != 'string') {

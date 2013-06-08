@@ -262,65 +262,66 @@ class AdminController
                     ->addGetRoute('', 'getSystemInformation')
 
                     ->addSubController('config', '\Admin\Controller\Config')
-                    ->addGetRoute('', 'getConfig')
-                    ->addGetRoute('labels', 'getLabels')
-                    ->addPostRoute('', 'saveConfig')
-                ->done()
+                        ->addGetRoute('', 'getConfig')
+                        ->addGetRoute('labels', 'getLabels')
+                        ->addPostRoute('', 'saveConfig')
+                    ->done()
 
-                //admin/system/module/manager
-                ->addSubController('module/manager', '\Admin\Module\Manager')
-                    ->addGetRoute('install/pre', 'installPre')
-                    ->addGetRoute('install/extract', 'installExtract')
-                    ->addGetRoute('install/database', 'installDatabase')
-                    ->addGetRoute('install/post', 'installPost')
-                    ->addGetRoute('check-updates', 'check4updates')
-                    ->addGetRoute('local', 'getLocal')
-                    ->addGetRoute('installed', 'getInstalled')
-                    ->addGetRoute('activate', 'activate')
-                    ->addGetRoute('deactivate', 'deactivate')
-                ->done()
+                    //admin/system/module/manager
+                    ->addSubController('module/manager', '\Admin\Module\Manager')
+                        ->addGetRoute('install/pre', 'installPre')
+                        ->addGetRoute('install/extract', 'installExtract')
+                        ->addGetRoute('install/database', 'installDatabase')
+                        ->addGetRoute('install/post', 'installPost')
+                        ->addGetRoute('check-updates', 'check4updates')
+                        ->addGetRoute('local', 'getLocal')
+                        ->addGetRoute('installed', 'getInstalled')
+                        ->addGetRoute('activate', 'activate')
+                        ->addGetRoute('deactivate', 'deactivate')
+                        ->addGetRoute('info', 'getInfo')
+                    ->done()
 
-                ->addSubController('languages', '\Admin\Controller\Languages')
-                ->done()
+                    ->addSubController('languages', '\Admin\Controller\Languages')
+                    ->done()
 
-                //admin/system/orm
-                ->addSubController('orm', '\Admin\Controller\ORM')
-                    ->addGetRoute('environment', 'buildEnvironment')
-                    ->addGetRoute('models', 'writeModels')
-                    ->addGetRoute('update', 'updateScheme')
-                    ->addGetRoute('check', 'checkScheme')
-                ->done()
+                    //admin/system/orm
+                    ->addSubController('orm', '\Admin\Controller\ORM')
+                        ->addGetRoute('environment', 'buildEnvironment')
+                        ->addGetRoute('models', 'writeModels')
+                        ->addGetRoute('update', 'updateScheme')
+                        ->addGetRoute('check', 'checkScheme')
+                    ->done()
 
-                //admin/system/module/editor
-                ->addSubController('module/editor', '\Admin\Module\Editor')
-                    ->addGetRoute('config', 'getConfig')
-                    ->addGetRoute('entry-points', 'getEntryPoints')
-                    ->addPostRoute('entry-points', 'saveEntryPoints')
+                    //admin/system/module/editor
+                    ->addSubController('module/editor', '\Admin\Module\Editor')
+                        ->addGetRoute('config', 'getConfig')
+                        ->addGetRoute('entry-points', 'getEntryPoints')
+                        ->addPostRoute('entry-points', 'saveEntryPoints')
 
-                    ->addGetRoute('windows', 'getWindows')
-                    ->addGetRoute('window', 'getWindowDefinition')
-                    ->addPostRoute('window', 'saveWindowDefinition')
-                    ->addPutRoute('window', 'newWindow')
+                        ->addGetRoute('windows', 'getWindows')
+                        ->addGetRoute('window', 'getWindowDefinition')
+                        ->addPostRoute('window', 'saveWindowDefinition')
+                        ->addPutRoute('window', 'newWindow')
 
-                    ->addGetRoute('objects', 'getObjects')
-                    ->addPostRoute('objects', 'saveObjects')
+                        ->addGetRoute('objects', 'getObjects')
+                        ->addPostRoute('objects', 'saveObjects')
 
-                    ->addGetRoute('plugins', 'getPlugins')
-                    ->addPostRoute('plugins', 'savePlugins')
+                        ->addGetRoute('plugins', 'getPlugins')
+                        ->addPostRoute('plugins', 'savePlugins')
 
-                    ->addPostRoute('model/from-object', 'setModelFromObject')
-                    ->addPostRoute('model/from-objects', 'setModelFromObjects')
+                        ->addPostRoute('model/from-object', 'setModelFromObject')
+                        ->addPostRoute('model/from-objects', 'setModelFromObjects')
 
-                    ->addPostRoute('model', 'saveModel')
-                    ->addGetRoute('model', 'getModel')
+                        ->addPostRoute('model', 'saveModel')
+                        ->addGetRoute('model', 'getModel')
 
-                    ->addPostRoute('language', 'saveLanguage')
-                    ->addGetRoute('language', 'getLanguage')
-                    ->addGetRoute('language/extract', 'getExtractedLanguage')
+                        ->addPostRoute('language', 'saveLanguage')
+                        ->addGetRoute('language', 'getLanguage')
+                        ->addGetRoute('language/extract', 'getExtractedLanguage')
 
-                    ->addPostRoute('general', 'saveGeneral')
-                    ->addPostRoute('entryPoints', 'saveEntryPoints')
-                ->done()
+                        ->addPostRoute('general', 'saveGeneral')
+                        ->addPostRoute('entryPoints', 'saveEntryPoints')
+                    ->done()
 
                 ->done()
 
@@ -345,15 +346,14 @@ class AdminController
         }
     }
 
-    public function getContentTemplate($pTemplate)
+    public function getContentTemplate($template, $type = 'text')
     {
-        $pTemplate = str_replace('..', '', $pTemplate);
+        $data = [
+            'html' => '<div class="ka-content-container"></div>',
+            'type' => $type
+        ];
 
-        $html = file_get_contents(tPath($pTemplate));
-
-        $html = str_replace('{$content}', '<div class="ka-content-container"></div>', $html);
-
-        return $html;
+        return Kryn::getInstance()->renderView($template, $data);
     }
 
     public static function addSessionScripts()
@@ -383,25 +383,26 @@ class AdminController
 
     public static function handleKEditor()
     {
-        self::addMainResources();
+        self::addMainResources(['noJs' => true]);
         self::addSessionScripts();
         $response = Kryn::getResponse();
-
-        $response->addJs(
-            'window.currentNode = ' .
-            json_encode(Kryn::$page->toArray(TableMap::TYPE_STUDLYPHPNAME)) . ';',
-            'bottom'
-        );
+        $response->addJsFile('@CoreBundle/mootools-core.js');
+        $response->addJsFile('@CoreBundle/mootools-more.js');
+        $response->addJsFile('@CoreBundle/ckeditor/ckeditor.js');
 
         $response->addJs('ka = parent.ka;');
-        $response->addJsFile('admin/js/globals.js', 'bottom');
 
-        $response->addCssFile(Kryn::getAdminPrefix() . '/admin/backend/style.css');
+        $response->setResourceCompression(false);
+        $response->setDomainHandling(false);
+
+        $options = [
+            'id' => $_GET['_kryn_editor_id'],
+            'node' => Kryn::$page->toArray(TableMap::TYPE_STUDLYPHPNAME)
+        ];
         $response->addJs(
-            'window.editor = new ka.Editor(document.body, {nodePk: ' . Kryn::$page->getId() . '});',
+            'window.editor = new ka.Editor(document.body, ' . json_encode($options) . ');',
             'bottom'
         );
-
     }
 
     public static function showLogin()
@@ -410,9 +411,6 @@ class AdminController
         self::addLanguageResources();
 
         $response = Kryn::getResponse();
-//        $response->addJsFile('@AdminBundle/js/globals.js');
-//        $response->addJsFile('@AdminBundle/js/ka/Select.js');
-//        $response->addJsFile('@AdminBundle/js/ka/Checkbox.js');
         self::addSessionScripts();
 
         $response->addJs(
@@ -432,7 +430,7 @@ class AdminController
         exit;
     }
 
-    public static function addMainResources()
+    public static function addMainResources($options = array())
     {
         $response = Kryn::getResponse();
 
@@ -445,8 +443,10 @@ class AdminController
         if (Kryn::getSystemConfig()->isDebug()) {
 
             foreach (Kryn::$configs as $bundleConfig) {
-                foreach ($bundleConfig->getAdminAssetsPaths(false, '.*\.js', $regex = true) as $assetPath) {
-                    $response->addJsFile($assetPath);
+                if (!$options['noJs']) {
+                    foreach ($bundleConfig->getAdminAssetsPaths(false, '.*\.js', $regex = true) as $assetPath) {
+                        $response->addJsFile($assetPath);
+                    }
                 }
                 foreach ($bundleConfig->getAdminAssetsPaths(false, '.*\.css', $regex = true)
                          as $assetPath) {
@@ -456,12 +456,21 @@ class AdminController
         } else {
 
             $response->addCssFile(Kryn::getAdminPrefix() . '/admin/backend/style');
-            $response->addJsFile(Kryn::getAdminPrefix() . '/admin/backend/script');
+            if (!$options['noJs']) {
+                $response->addJsFile(Kryn::getAdminPrefix() . '/admin/backend/script');
+            }
 
             foreach (Kryn::$configs as $bundleConfig) {
-                foreach ($bundleConfig->getAdminAssetsPaths(false, '.*\.js', $regex = true) as $assetPath) {
-                    $path = Kryn::resolvePath($assetPath, 'Resources/public');
-                    if (!file_exists($path)) {
+                if (!$options['noJs']) {
+                    foreach ($bundleConfig->getAdminAssetsPaths(false, '.*\.js', $regex = true) as $assetPath) {
+                        $path = Kryn::resolvePath($assetPath, 'Resources/public');
+                        if (!file_exists($path)) {
+                            $response->addJsFile($assetPath);
+                        }
+                    }
+
+                    foreach ($bundleConfig->getAdminAssetsPaths(false, '.*\.js', $regex = true, $compression = false)
+                             as $assetPath) {
                         $response->addJsFile($assetPath);
                     }
                 }
@@ -471,11 +480,6 @@ class AdminController
                     if (!file_exists($path)) {
                         $response->addCssFile($assetPath);
                     }
-                }
-
-                foreach ($bundleConfig->getAdminAssetsPaths(false, '.*\.js', $regex = true, $compression = false)
-                         as $assetPath) {
-                    $response->addJsFile($assetPath);
                 }
 
                 foreach ($bundleConfig->getAdminAssetsPaths(false, '.*\.css', $regex = true, $compression = false)

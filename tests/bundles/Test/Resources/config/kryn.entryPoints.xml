@@ -2,11 +2,12 @@
     <bundle>
         <entryPoints>
             <entryPoint path="test" type="custom" icon="#icon-warning" link="true">
-                <title>Test</title>
+                <label>Test</label>
                 <children>
                     <entryPoint path="testObjectList" type="combine" link="true">
                         <title>Test Object</title>
                         <class>\Test\Admin\TestCrud</class>
+                        <label>Test</label>
                         <children>
                             <entryPoint path="add" type="add">
                                 <title>Test Object Add</title>

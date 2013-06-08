@@ -5,7 +5,7 @@ ka.wm = {
 
     /* depend: [was => mitWem] */
     depend: {},
-    lastWindow: 0,
+    lastWindow: null,
     events: {},
     zIndex: 1000,
 
@@ -48,8 +48,8 @@ ka.wm = {
     },
 
     getWindow: function (pId) {
-        if (pId == -1) {
-            pId == ka.wm.lastWindow;
+        if (pId == -1 && ka.wm.lastWindow) {
+            pId = ka.wm.lastWindow.getId();
         }
         return ka.wm.windows[ pId ];
     },
@@ -80,19 +80,22 @@ ka.wm = {
             }
         });
         ka.wm.lastWindow = pWindow;
+        console.log('setFrontWindow', ka.wm.lastWindow);
     },
 
     loadWindow: function (pEntryPoint, pLink, pParentWindowId, pParams, pInline) {
         var instance = Object.getLength(ka.wm.windows) + 1;
 
         if (pParentWindowId == -1) {
+            console.log('lastWindow', ka.wm.lastWindow);
             pParentWindowId = ka.wm.lastWindow ? ka.wm.lastWindow.id : false;
         }
 
-        if (pParentWindowId && !ka.wm.getWindow(pParentWindowId)) {
-            throw 'Parent window not found.';
+        if (false === pParentWindowId || (pParentWindowId && !ka.wm.getWindow(pParentWindowId))) {
+            throw tf('Parent `%d` window not found.', pParentWindowId);
         }
 
+        logger('loadWindow: ', pEntryPoint, pInline, pParentWindowId);
         ka.wm.windows[instance] = new ka.Window(pEntryPoint, pLink, instance, pParams, pInline, pParentWindowId);
         ka.wm.windows[instance].toFront();
         ka.wm.updateWindowBar();
@@ -100,7 +103,6 @@ ka.wm = {
     },
 
     close: function (pWindow) {
-
         var parent = pWindow.getParentId();
         if (parent) {
             parent = ka.wm.getWindow(parent);

@@ -46,6 +46,7 @@
             <asset>@CoreBundle/font/SourceSansPro/Light/fonts.css</asset>
             <asset>@CoreBundle/font/SourceSansPro/Regular/fonts.css</asset>
             <asset>@CoreBundle/font/SourceSansPro/Semibold/fonts.css</asset>
+            <asset>@CoreBundle/ckeditor/skins/moono/editor.css</asset>
             <assets>@AdminBundle/css/ai.css</assets>
             <assets>@AdminBundle/css/ka/*.css</assets>
             <assets>@AdminBundle/css/ka/ui/*.css</assets>

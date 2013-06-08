@@ -48,6 +48,16 @@ class Bundle
     }
 
     /**
+     * Gets the appropriate information from the composer.lock file.
+     *
+     * @return array
+     */
+    public function getInstalledInfo()
+    {
+        return \Admin\Module\Manager::getInstalledInfo($this->getComposer()['name']);
+    }
+
+    /**
      * Returns the full namespace.
      *
      * @return string

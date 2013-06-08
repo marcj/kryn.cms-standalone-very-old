@@ -24,6 +24,10 @@ ka.Content = new Class({
 
     },
 
+    getSlot: function () {
+        return this.slot;
+    },
+
     renderLayout: function () {
 
         this.main = new Element('div', {

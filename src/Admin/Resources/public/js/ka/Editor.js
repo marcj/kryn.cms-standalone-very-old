@@ -4,14 +4,14 @@ ka.Editor = new Class({
     Implements: [Options, Events],
 
     options: {
-        nodePk: null
+        node: {},
+        id: ''
     },
 
     container: null,
     preview: 0,
 
     initialize: function (pContainer, pOptions) {
-
         this.setOptions(pOptions);
 
         this.container = pContainer || document.body;
@@ -28,10 +28,18 @@ ka.Editor = new Class({
         this.container.addEvent('mousedown:relay(.ka-content-actionBar-move)', this.contentMouseDown);
         this.container.addEvent('mousedown:relay(.ka-editor-sidebar-draggable)', this.contentSidebarMouseDown);
 
+        top.window.fireEvent('krynEditorLoaded', this);
+    },
+
+    getId: function() {
+        return this.options.id;
+    },
+
+    getNode: function(){
+        return this.options.node;
     },
 
     contentMouseDown: function (pEvent, pElement) {
-
         var content = pElement.getParent('.ka-content');
         var value = content.kaContentInstance.getValue();
         var clone;
@@ -145,8 +153,9 @@ ka.Editor = new Class({
         var position = {}, delta = {};
 
         var DOMWindow = pElement.getDocument().window;
-        var droppables = DOMWindow.$$(['.ka-slot', '.ka-content']);
+        var droppables = DOMWindow.$$('.ka-slot, .ka-content');
 
+        logger(droppables);
         this.lastDrag = new DOMWindow.Drag.Move(clone, {
             handle: '.ka-content-actionBar-move',
             droppables: droppables,
@@ -257,13 +266,11 @@ ka.Editor = new Class({
     },
 
     adjustAnchors: function () {
-
         this.container.getElements('a').each(function (a) {
             if (a.href) {
-                a.href = a.href + ((a.href.indexOf('?') > 0) ? '&' : '?') + '_kryn_editor=1';
+                a.href = a.href + ((a.href.indexOf('?') > 0) ? '&' : '?') + '_kryn_editor=1&_kryn_editor_id=' + this.options.id;
             }
-        });
-
+        }.bind(this));
     },
 
     renderSidebar: function () {
@@ -329,11 +336,10 @@ ka.Editor = new Class({
     },
 
     getUrl: function () {
-        return _path + 'admin/object/Core:Node/' + window.currentNode.id + '?_method=patch';
+        return _path + 'admin/object/Core:Node/' + this.options.node.id + '?_method=patch';
     },
 
     save: function () {
-
         if (this.lastSaveRq) {
             this.lastSaveRq.cancel();
         }
@@ -343,7 +349,6 @@ ka.Editor = new Class({
         this.lastSaveRq = new Request.JSON({url: this.getUrl(), onComplete: function (pResponse) {
 
         }.bind(this)}).post({content: contents});
-
     },
 
     highlightSlotsBubbles: function (pHighlight) {

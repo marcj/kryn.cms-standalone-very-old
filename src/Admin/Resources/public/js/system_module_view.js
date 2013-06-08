@@ -22,44 +22,45 @@ var admin_system_module_view = new Class({
         this.loading.show();
 
         new Request.JSON({url: _pathAdmin +
-            'admin/system/module/getInstallInfo/', noCache: 1, onComplete: function (res) {
+            'admin/system/module/manager/info', noCache: 1, onComplete: function (res) {
             this.loading.hide();
 
             this.currentValues = res;
 
-            if (res.module && res.module.notExist == 1) {
-                this.win._alert(_('Module not found.'), function () {
-                    this.win.close();
-                }.bind(this));
-                return;
-            }
-            if (res.module && res.module.noConfig) {
-                this.win._alert(_('Config.json not found.'), function () {
-                    this.win.close();
-                }.bind(this));
-                return;
-            }
-            if (this.win.params.type == 1 && res.cannotConnect) {
-                this.win._alert(_('Cannot connect to kryn server'), function () {
-                    this.win.close();
-                }.bind(this));
-                return;
-            }
-            this.renderContent(res);
-            if (this.twiceLoading != true) {
-                if (this.win.params.updateNow == 1) {
-                    if (res.serverCompare == '>') {
-                        this.confirmDowngrade();
-                    } else {
-                        this.update();
-                    }
-                }
-                if (this.win.params.removeNow == 1) {
-                    this.renderRemove();
-                }
-            }
-            this.twiceLoading = true;
-        }.bind(this)}).post({type: this.win.params.type, name: id});
+//            if (res.module && res.module.notExist == 1) {
+//                this.win._alert(_('Module not found.'), function () {
+//                    this.win.close();
+//                }.bind(this));
+//                return;
+//            }
+//            if (res.module && res.module.noConfig) {
+//                this.win._alert(_('Config.json not found.'), function () {
+//                    this.win.close();
+//                }.bind(this));
+//                return;
+//            }
+//            if (this.win.params.type == 1 && res.cannotConnect) {
+//                this.win._alert(_('Cannot connect to kryn server'), function () {
+//                    this.win.close();
+//                }.bind(this));
+//                return;
+//            }
+            this.renderContent(res.data);
+
+//            if (this.twiceLoading != true) {
+//                if (this.win.params.updateNow == 1) {
+//                    if (res.serverCompare == '>') {
+//                        this.confirmDowngrade();
+//                    } else {
+//                        this.update();
+//                    }
+//                }
+//                if (this.win.params.removeNow == 1) {
+//                    this.renderRemove();
+//                }
+//            }
+//            this.twiceLoading = true;
+        }.bind(this)}).get({type: this.win.params.type, bundle: id});
     },
 
     confirmDowngrade: function () {
@@ -72,38 +73,38 @@ var admin_system_module_view = new Class({
         }.bind(this));
     },
 
-    renderContent: function (pItem) {
-        this.item = pItem;
+    renderContent: function (info) {
+        this.info = info;
 
         var lang = ka.settings['user']['adminLanguage'];
 
-        var title = pItem.module.title[lang] ? pItem.module.title[lang] : pItem.module.title['en'];
-        var desc = pItem.module.desc[lang] ? pItem.module.desc[lang] : pItem.module.desc['en'];
+        var title = info.name;
+        var desc = info.description;
 
-        this.win.setTitle(title + ' - ' + _('extension'));
-        if (pItem.module.tags) {
-            var tags = pItem.module.tags[lang] ? pItem.module.tags[lang] : pItem.module.tags['en'];
+        this.win.setTitle(title + ' - ' + _('package'));
+        if (info.tags) {
+            var tags = info.info;
         }
 
-        new Element('h3', {
+        new Element('h2', {
             html: title,
-            style: 'margin-bottom: 0px; font-size: 13px; font-weight: bold;'
+            style: 'margin-bottom: 0px;'
         }).inject(this.win.content);
 
-        if (pItem.owner_name) {
-            pItem.module.cached_owner_name = pItem.owner_name;
-            pItem.module.cached_category_title = pItem.category_title;
-        }
+//        if (pItem.owner_name) {
+//            pItem.module.cached_owner_name = pItem.owner_name;
+//            pItem.module.cached_category_title = pItem.category_title;
+//        }
 
-        if (pItem.module.cached_owner_name) {
-
-            new Element('div', {
-                style: 'padding: 5px;',
-                html: _('from') + ' <b>' + pItem.module.cached_owner_name + '</b> ' + _('in category') + ' <b>' +
-                    _(pItem.module.cached_category_title) + '</b>'
-            }).inject(this.win.content);
-
-        }
+//        if (pItem.module.cached_owner_name) {
+//
+//            new Element('div', {
+//                style: 'padding: 5px;',
+//                html: _('from') + ' <b>' + pItem.module.cached_owner_name + '</b> ' + _('in category') + ' <b>' +
+//                    _(pItem.module.cached_category_title) + '</b>'
+//            }).inject(this.win.content);
+//
+//        }
 
         var d = new Element('div', {
             style: 'padding: 5px;'
@@ -112,18 +113,18 @@ var admin_system_module_view = new Class({
         var table = new Element('table', {cellspacing: 2, cellpadding: 0, width: '100%'}).inject(d);
         var tablebody = new Element('tbody').inject(table);
 
-        var tr = new Element('tr').inject(tablebody);
-        var td = new Element('td', {height: 20, html: _('Extensioncode')}).inject(tr);
-        var td = new Element('td', {text: pItem.module.extensionCode}).inject(tr);
+//        var tr = new Element('tr').inject(tablebody);
+//        var td = new Element('td', {height: 20, html: _('Extensioncode')}).inject(tr);
+//        var td = new Element('td', {text: pItem.module.extensionCode}).inject(tr);
 
-        var td = new Element('td',
-            {rowspan: 5, width: 150, html: '<img style="padding: 3px; border: 1px solid #ddd;" src="http://download.kryn.org/extThump?extension=' +
-                pItem.name + '" width="150"/>'}).inject(tr);
+//        var td = new Element('td',
+//            {rowspan: 5, width: 150, html: '<img style="padding: 3px; border: 1px solid #ddd;" src="http://download.kryn.org/extThump?extension=' +
+//                pItem.name + '" width="150"/>'}).inject(tr);
 
         var tr = new Element('tr').inject(tablebody);
-        var td = new Element('td', {height: 20, html: _('Server version')}).inject(tr);
-        var td = new Element('td', {html: (pItem.serverVersion) ? pItem.serverVersion :
-            '<span style="color: gray;">' + _('Cannot retrieve latest version') + '</span>'
+        var td = new Element('td', {height: 20, html: _('Version')}).inject(tr);
+        var td = new Element('td', {html: (info._installed.version) ? info._installed.version :
+            t('Local')
         }).inject(tr);
 
         var tr = new Element('tr').inject(tablebody);
@@ -133,71 +134,71 @@ var admin_system_module_view = new Class({
             html: desc
         }).inject(td);
 
-        if (pItem.installed) {
-            var tr = new Element('tr').inject(tablebody);
-            var td = new Element('td', {height: 25, html: _('Installed version')}).inject(tr);
-            var td = new Element('td', {text: pItem.installedModule.version + ' '}).inject(tr);
-            if (pItem.installedModule && pItem.installedModule.version != pItem.serverVersion) {
-                td.setStyle('color', 'red');
-            } else {
-                td.setStyle('color', 'green');
-            }
-            if (pItem.serverCompare == '>') {
-                new Element('img',
-                    { title: _('Local version newer than server version!'), src: '/inc/admin/images/icons/error.png' }).inject(td);
-            }
-        }
+//        if (info._installed) {
+//            var tr = new Element('tr').inject(tablebody);
+//            var td = new Element('td', {height: 25, html: _('Installed version')}).inject(tr);
+//            var td = new Element('td', {text: pItem.installedModule.version + ' '}).inject(tr);
+//            if (pItem.installedModule && pItem.installedModule.version != pItem.serverVersion) {
+//                td.setStyle('color', 'red');
+//            } else {
+//                td.setStyle('color', 'green');
+//            }
+//            if (pItem.serverCompare == '>') {
+//                new Element('img',
+//                    { title: _('Local version newer than server version!'), src: '/inc/admin/images/icons/error.png' }).inject(td);
+//            }
+//        }
 
-        if (this.win.params.type != 1 && this.win.params.type != 0) {
+//        if (this.win.params.type != 1 && this.win.params.type != 0) {
+//
+//            var tr = new Element('tr').inject(tablebody);
+//            var border2 = new Element('td', {colspan: 2}).inject(tr);
+//
+//            new Element('div', {
+//                html: _('You view a locale installation package!'),
+//                style: 'color: orange; font-weight: bold;'
+//            }).inject(border2);
+//            new Element('div', {
+//                html: _('Package') + ': <span style="color: gray;">' + this.win.params.type + "</span>"
+//            }).inject(border2);
+//            new Element('div', {
+//                html: _('Package version: %s').replace('%s', pItem.module.version)
+//            }).inject(border2);
+//        }
 
-            var tr = new Element('tr').inject(tablebody);
-            var border2 = new Element('td', {colspan: 2}).inject(tr);
-
-            new Element('div', {
-                html: _('You view a locale installation package!'),
-                style: 'color: orange; font-weight: bold;'
-            }).inject(border2);
-            new Element('div', {
-                html: _('Package') + ': <span style="color: gray;">' + this.win.params.type + "</span>"
-            }).inject(border2);
-            new Element('div', {
-                html: _('Package version: %s').replace('%s', pItem.module.version)
-            }).inject(border2);
-        }
-
-        var tr = new Element('tr').inject(tablebody);
-        var td = new Element('td', {colspan: 2, style: 'padding-left: 5px;'}).inject(tr);
-
-        if (pItem.name != 'admin' && pItem.name != 'kryn' && pItem.name != 'users') {
-            new ka.Button(_('To website')).addEvent('click',
-                function () {
-                    window.open('http://www.kryn.org/extensions/' + pItem.name, '_blank');
-                }).inject(td);
-        }
-
-        if (!pItem.installed) {
-            new ka.Button(_('Install')).addEvent('click', this.install.bind(this)).inject(td);
-        } else {
-
-            if (pItem.name != 'admin' && pItem.name != 'kryn' && pItem.name != 'users') {
-                new ka.Button(_('Deinstall')).addEvent('click', this.renderRemove.bind(this)).inject(td);
-            } else {
-                new Element('div', {
-                    text: _('System-Extension')
-                }).inject(td);
-            }
-        }
-
-        if ((pItem.installedModule && pItem.serverVersion && pItem.installedModule.version != pItem.serverVersion) ||
-            ( ( this.win.params.type != 1 && this.win.params.type != 0) &&
-                pItem.module.version != pItem.installedModule.version )) {
-
-            if (pItem.serverCompare == '>') {
-                new ka.Button(_('Downgrade')).addEvent('click', this.confirmDowngrade.bind(this)).inject(td);
-            } else {
-                new ka.Button(_('Update')).addEvent('click', this.update.bind(this, false)).inject(td);
-            }
-        }
+//        var tr = new Element('tr').inject(tablebody);
+//        var td = new Element('td', {colspan: 2, style: 'padding-left: 5px;'}).inject(tr);
+//
+//        if (pItem.name != 'admin' && pItem.name != 'kryn' && pItem.name != 'users') {
+//            new ka.Button(_('To website')).addEvent('click',
+//                function () {
+//                    window.open('http://www.kryn.org/extensions/' + pItem.name, '_blank');
+//                }).inject(td);
+//        }
+//
+//        if (!pItem.installed) {
+//            new ka.Button(_('Install')).addEvent('click', this.install.bind(this)).inject(td);
+//        } else {
+//
+//            if (pItem.name != 'admin' && pItem.name != 'kryn' && pItem.name != 'users') {
+//                new ka.Button(_('Deinstall')).addEvent('click', this.renderRemove.bind(this)).inject(td);
+//            } else {
+//                new Element('div', {
+//                    text: _('System-Extension')
+//                }).inject(td);
+//            }
+//        }
+//
+//        if ((pItem.installedModule && pItem.serverVersion && pItem.installedModule.version != pItem.serverVersion) ||
+//            ( ( this.win.params.type != 1 && this.win.params.type != 0) &&
+//                pItem.module.version != pItem.installedModule.version )) {
+//
+//            if (pItem.serverCompare == '>') {
+//                new ka.Button(_('Downgrade')).addEvent('click', this.confirmDowngrade.bind(this)).inject(td);
+//            } else {
+//                new ka.Button(_('Update')).addEvent('click', this.update.bind(this, false)).inject(td);
+//            }
+//        }
 
         var border = new Element('div', {
             style: 'padding: 2px; border: 0px solid #ddd; margin-bottom: 3px;'
@@ -212,57 +213,53 @@ var admin_system_module_view = new Class({
         var tr = new Element('tr').inject(tbody);
 
         var tags = '';
-        if (pItem.module.tags) {
-            tags = pItem.module.tags['en'];
-        }
-        if (pItem.module.tags && pItem.module.tags[window._session.lang ]) {
-            tags = pItem.module.tags[window._session.lang ];
+        if (info.tags) {
+            tags = info.tags;
         }
 
         var td = new Element('td', {width: 150, text: _('Tags:')}).inject(tr);
         var td = new Element('td', {style: 'color: gray;', text: (tags != "") ? tags : _('No tags')}).inject(tr);
 
-        var tr = new Element('tr').inject(tbody);
-
-        var td = new Element('td', {width: 150, valign: 'top', text: _('Last publish:')}).inject(tr);
-        var td = new Element('td', {text: new Date(pItem.published * 1000).format('db')}).inject(tr);
+//        var tr = new Element('tr').inject(tbody);
+//
+//        var td = new Element('td', {width: 150, valign: 'top', text: _('Last publish:')}).inject(tr);
+//        var td = new Element('td', {text: new Date(pItem.published * 1000).format('db')}).inject(tr);
 
         var tr = new Element('tr').inject(tbody);
         var td = new Element('td', {valign: 'top', text: _('Dependency:')}).inject(tr);
-        var td = new Element('td', {text: (pItem.module.depends && pItem.module.depends != "") ? pItem.module.depends :
-            _('No dependency')}).inject(tr);
+        var td = new Element('td', {text: info.require ? 'todo' : _('No dependency')}).inject(tr);
 
-        var dbPane = tabPane.addPane(_('Database'));
-
-        var table = new Element('table').inject(dbPane.pane);
-        var tbody = new Element('tbody').inject(table);
-        var tr = new Element('tr').inject(tbody);
-        var td = new Element('td', {valign: 'top', width: 150, text: _('Tables:')}).inject(tr);
-        var td = new Element('td').inject(tr);
-        if (pItem.module.db) {
-            var html = '';
-            $H(pItem.module.db).each(function (columns, table) {
-                html += '<b style=" color: gray;">' + table + '</b><br />';
-            });
-            td.set('html', html);
-            if (pItem.installed) {
-                new ka.Button(_('Database update')).addEvent('click',
-                    function () {
-                        ka.wm.open('admin/system/module/dbInit', {name: pItem.name});
-                    }).inject(td);
-            }
-
-        } else {
-            td.set('text', _('No tables.'));
-        }
+//        var dbPane = tabPane.addPane(_('Database'));
+//
+//        var table = new Element('table').inject(dbPane.pane);
+//        var tbody = new Element('tbody').inject(table);
+//        var tr = new Element('tr').inject(tbody);
+//        var td = new Element('td', {valign: 'top', width: 150, text: _('Tables:')}).inject(tr);
+//        var td = new Element('td').inject(tr);
+//        if (pItem.module.db) {
+//            var html = '';
+//            $H(pItem.module.db).each(function (columns, table) {
+//                html += '<b style=" color: gray;">' + table + '</b><br />';
+//            });
+//            td.set('html', html);
+//            if (pItem.installed) {
+//                new ka.Button(_('Database update')).addEvent('click',
+//                    function () {
+//                        ka.wm.open('admin/system/module/dbInit', {name: pItem.name});
+//                    }).inject(td);
+//            }
+//
+//        } else {
+//            td.set('text', _('No tables.'));
+//        }
 
         tabPane.to(0);
 
-        if (pItem.serverVersion == false) {
-            new Element('div', {
-                html: _('Cannot connect to Server to retrieve latest version.')
-            }).inject(border);
-        }
+//        if (pItem.serverVersion == false) {
+//            new Element('div', {
+//                html: _('Cannot connect to Server to retrieve latest version.')
+//            }).inject(border);
+//        }
 
     },
 

@@ -134,7 +134,6 @@ ka.FieldTypes.Object = new Class({
     },
 
     renderChooserSingle: function () {
-
         var table = new Element('table', {
             style: 'width: 100%', cellpadding: 0, cellspacing: 0
         }).inject(this.fieldInstance.fieldPanel);
@@ -210,15 +209,15 @@ ka.FieldTypes.Object = new Class({
             chooserParams.domain = this.options.domain;
         }
 
-        var button = new ka.Button(t('Choose')).addEvent('click', function () {
+        var button = new ka.Button(t('Choose'))
+            .addEvent('click', function () {
+            if (this.options.designMode) {
+                return;
+            }
+            ka.wm.openWindow('admin/backend/chooser', null, -1, chooserParams, true);
 
-                if (this.options.designMode) {
-                    return;
-                }
-                ka.wm.openWindow('admin/backend/chooser', null, -1, chooserParams);
-
-            }.bind(this))
-            .inject(rightTd);
+        }.bind(this))
+        .inject(rightTd);
 
         this.setValue = function (pVal, pIntern) {
 

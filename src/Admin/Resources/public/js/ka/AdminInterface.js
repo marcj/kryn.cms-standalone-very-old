@@ -440,7 +440,6 @@ ka.AdminInterface = new Class({
             id: 'loginForm',
             'class': 'ka-login-middle-form',
             action: './admin',
-            autocomplete: 'off',
             method: 'post'
         }).addEvent('submit',
             function (e) {

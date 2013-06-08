@@ -16,7 +16,6 @@ ka.ContentAbstract = new Class({
          */
         inputWidth: null
 
-
     },
 
     icon: '',
@@ -52,6 +51,10 @@ ka.ContentAbstract = new Class({
      */
     createLayout: function () {
         /* Override it to your needs */
+    },
+
+    getContentInstance: function () {
+        return this.contentInstance;
     },
 
     /**

@@ -12,7 +12,7 @@ html, body {
     text-align: left;
 }
 
-table {
+.ka-admin table {
     border-collapse: separate;
 }
 
@@ -20,12 +20,14 @@ table {
     z-index: auto;
 }
 
-h1, h2, h3 {
+.ka-admin h1,
+.ka-admin h2,
+.ka-admin h3 {
     font-weight: normal;
     font-family: "SourceSansPro-Semibold";
 }
 
-h3 {
+.ka-admin h3 {
     text-transform: uppercase;
 }
 
@@ -33,11 +35,11 @@ body.hide-scrollbar {
     overflow: hidden;
 }
 
-a[class^="icon-"], a[class*=" icon-"]{
+a[class^="icon-"],
+a[class*=" icon-"]{
     color: #444;
     text-decoration: none;
     line-height: 28px;
-    display: inline-block;
     padding: 0 2px;
 }
 
@@ -60,6 +62,23 @@ a[class^="icon-"], a[class*=" icon-"]{
     right: 15px !important;
     width: auto !important;
     box-shadow: 0 0 0 #000 !important;
+    box-shadow: none !important;
+}
+
+.kwindow-win-titleGroups .kryn_cke_toolbar {
+    position: relative !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: auto !important;
+    visibility: visible;
+    border: 0 !important;
+}
+
+.kwindow-win-titleGroups .kryn_cke_toolbar .cke_inner,
+.kwindow-win-titleGroups .kryn_cke_toolbar .cke_top {
+    background: transparent !important;
+    border: 0 !important;
+    padding: 0 !important;
 }
 
 .ka-admin div,
@@ -88,7 +107,7 @@ a[class^="icon-"], a[class*=" icon-"]{
     background: #E9E9E9 !important;
 }
 
-body {
+.ka-admin {
     -webkit-tap-highlight-color: transparent;
     background-color: #F9F9F9;
 }

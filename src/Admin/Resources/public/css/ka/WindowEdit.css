@@ -77,7 +77,10 @@
 
 .ka-windowEdit-actions {
     text-align: right;
-    margin: 10px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
 }
 
 /* make line-height working even if there are only block-inline events. */
