@@ -90,7 +90,7 @@ PHPUnit
 Examples:
 
     ./phpunit.phar
-    DOMAIN=dev.local ./phpunit.phar
+    HOST=dev.local ./phpunit.phar
     DB_USER=kryn DB_PW='@#$TKKAFS' ./phpunit.phar test/Tests/Object/ApiTest.php
     NOINSTALL=1 TEMP=/tmp/ php54 vendor/phpunit/phpunit/phpunit.php --stop-on-failure tests/Tests/Core/ConfigTest.php
 
