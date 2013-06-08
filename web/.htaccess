@@ -15,4 +15,10 @@ RewriteEngine On
 
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_URI} !^/index\.php
+
+# The actual rewrite rule
 RewriteRule (.+) index.php/$1 [E=PORT:%{SERVER_PORT},L,QSA]
+
+# Sometimes you need this one. Try this (and uncomment above)
+# if you get a 500 error.
+#RewriteRule (.+) index.php [E=PORT:%{SERVER_PORT},L,QSA]
