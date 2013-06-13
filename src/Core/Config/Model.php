@@ -555,15 +555,15 @@ class Model implements \ArrayAccess
     }
 
     /**
-     * @param null $element
+     * @param bool $printDefaults
      *
      * @return array
      */
-    public function toArray($element = null)
+    public function toArray($printDefaults = false)
     {
         $result = array();
         $blacklist = array('config', 'element');
-        $element = $element ? : $this;
+        $element = $this;
 
         $reflection = new \ReflectionClass($this);
         $properties = $reflection->getDefaultProperties();
@@ -582,7 +582,7 @@ class Model implements \ArrayAccess
             }
             $value = $this->$getter();
 
-            if ($value === $properties[$k]) {
+            if (!$printDefaults && $value === $properties[$k]) {
                 continue;
             }
 
@@ -590,14 +590,14 @@ class Model implements \ArrayAccess
                 foreach ($value as $key => $item) {
                     if (is_object($item)) {
                         if ($item instanceof Model) {
-                            $value[$key] = $item->toArray();
+                            $value[$key] = $item->toArray($printDefaults);
                         } else {
                             $value[$key] = (array)$item;
                         }
                     }
                 }
             } else if (is_object($value) && $value instanceof Model){
-                $value = $value->toArray();
+                $value = $value->toArray($printDefaults);
             }
 
             $result[$k] = $value;

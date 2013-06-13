@@ -5,15 +5,12 @@ var admin_system_settings = new Class({
     systemValues: {},
 
     initialize: function (pWin) {
-
         this.win = pWin;
 
         this.preload();
-
     },
 
     preload: function () {
-
         this.win.setLoading(true);
 
         new Request.JSON({url: _pathAdmin + 'admin/system/config/labels', noCache: 1, onComplete: function (pResponse) {
@@ -28,20 +25,15 @@ var admin_system_settings = new Class({
             this._createLayout();
 
         }.bind(this)}).get();
-
     },
 
-    renderData: function (pResponse) {
-
-        var data = pResponse.data;
-
-        this.fieldObject.setValue(data.system);
+    renderData: function (data) {
+        this.fieldObject.setValue(data);
 
         this.win.setLoading(false);
     },
 
     _createLayout: function () {
-
         var fields = {
             '__general__': {
                 type: 'tab',
@@ -52,6 +44,19 @@ var admin_system_settings = new Class({
                         label: 'System title',
                         required: true,
                         desc: t('Appears in the administration title.')
+                    },
+                    adminUrl: {
+                        type: 'text',
+                        label: 'Administration url prefix',
+                        desc: t('Default is `kryn`. Without trailing or starting slash.')
+                    },
+                    debug: {
+                        type: 'checkbox',
+                        label: 'Administration Debug Mode'
+                    },
+                    email: {
+                        type: 'text',
+                        label: 'System Email'
                     },
                     checkUpdates: {
                         type: 'checkbox',
@@ -65,11 +70,6 @@ var admin_system_settings = new Class({
                         itemsKey: 'code',
                         labelTemplate: '{title} ({langtitle}, {code})',
                         items: this.langs
-                    },
-                    communityConnect: {
-                        type: 'text',
-                        label: t('Community connect'),
-                        desc: t('If you want to publish own extensions to the extensions.kryn.org, you have to enter here your email of your kryn.org account.')
                     }
                 }
             },
@@ -374,8 +374,9 @@ var admin_system_settings = new Class({
             this.lr.cancel();
         }
 
-        this.lr =
-            new Request.JSON({url: _pathAdmin + 'admin/system/config', noCache: 1, onComplete: this.renderData}).get();
+        this.lr = new Request.JSON({url: _pathAdmin + 'admin/system/config', noCache: 1, onComplete: function(response) {
+            this.renderData(response.data);
+        }.bind(this)}).get();
 
     },
 

@@ -448,6 +448,9 @@ ka.Field = new Class({
         if (this.isHidden()) {
             return ok;
         }
+        if (!this.fieldObject) {
+            return true;
+        }
 
         ok = this.fieldObject.isValid();
 
@@ -455,10 +458,16 @@ ka.Field = new Class({
     },
 
     showInvalid: function (pText) {
+        if (!this.fieldObject) {
+            return null;
+        }
         this.fieldObject.showInvalid(pText);
     },
 
     showValid: function () {
+        if (!this.fieldObject) {
+            return null;
+        }
         this.fieldObject.showValid();
     },
 
@@ -473,6 +482,9 @@ ka.Field = new Class({
      * @return {Boolean} true if everything is ok
      */
     checkValid: function () {
+        if (!this.fieldObject) {
+            return null;
+        }
         return this.fieldObject.checkValid();
     },
 

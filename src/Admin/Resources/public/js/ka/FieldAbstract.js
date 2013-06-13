@@ -125,7 +125,6 @@ ka.FieldAbstract = new Class({
      * @return {Boolean}
      */
     isValid: function () {
-
         if (this.fieldInstance.options.required && this.getValue() === '') {
             return false;
         }

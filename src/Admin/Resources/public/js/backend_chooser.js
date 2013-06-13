@@ -168,7 +168,7 @@ var admin_backend_chooser = new Class({
     },
 
     createObjectChooser: function (pObjectKey) {
-
+        pObjectKey = ka.normalizeObjectKey(pObjectKey);
         var objectDefinition = ka.getObjectDefinition(pObjectKey);
 
         var bundle = this.tapPane.addPane(objectDefinition.label || objectDefinition._key, objectDefinition.icon);

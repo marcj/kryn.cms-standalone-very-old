@@ -367,7 +367,7 @@ ka.urlDecode = function (pValue) {
 }
 
 ka.normalizeObjectKey = function (objectKey) {
-    return objectKey.replace('\\', ':').replace('.', ':').replace('/', ':').toLowerCase();
+    return objectKey.replace('\\', ':').replace('.', ':').replace('/', ':');
 }
 
 /**
@@ -1104,15 +1104,13 @@ ka.openDialog = function (item) {
             opacity: 0.001
         }
     }).addEvent('click',function (e) {
-
-            ka.closeDialog();
-            e.stopPropagation();
-            this.fireEvent('close');
-            if (item.onClose) {
-                item.onClose();
-            }
-
-        }).inject(target);
+        ka.closeDialog();
+        e.stopPropagation();
+        this.fireEvent('close');
+        if (item.onClose) {
+            item.onClose();
+        }
+    }).inject(target);
 
     autoPositionLastOverlay.close = function () {
         autoPositionLastOverlay.destroy();
@@ -1151,33 +1149,38 @@ ka.openDialog = function (item) {
         }
     }
 
-    item.primary.relativeTo = item.target;
-    item.secondary.relativeTo = item.target;
+    var updatePosition = function() {
+        item.primary.relativeTo = item.target;
+        item.secondary.relativeTo = item.target;
 
-    item.element.position(item.primary);
+        item.element.position(item.primary);
 
-    var pos = item.element.getPosition();
-    var size = item.element.getSize();
+        var pos = item.element.getPosition();
+        var size = item.element.getSize();
 
-    var bsize = item.element.getParent().getSize();
-    var bscroll = item.element.getParent().getScroll();
-    var height;
+        var bsize = item.element.getParent().getSize();
+        var bscroll = item.element.getParent().getScroll();
+        var height;
 
-    item.element.setStyle('height', '');
+        item.element.setStyle('height', '');
 
-    item.minHeight = item.element.getSize().y;
+        item.minHeight = item.element.getSize().y;
 
-    if (size.y + pos.y > bsize.y + bscroll.y) {
-        height = bsize.y - pos.y - 10;
-    }
+        if (size.y + pos.y > bsize.y + bscroll.y) {
+            height = bsize.y - pos.y - 10;
+        }
 
-    if (height) {
-        if (item.minHeight && height < item.minHeight) {
-            item.element.position(item.secondary);
-        } else {
-            item.element.setStyle('height', height);
+        if (height) {
+            if (item.minHeight && height < item.minHeight) {
+                item.element.position(item.secondary);
+            } else {
+                item.element.setStyle('height', height);
+            }
         }
     }
+
+    updatePosition();
+    autoPositionLastOverlay.updatePosition = updatePosition;
 
     return autoPositionLastOverlay;
 }

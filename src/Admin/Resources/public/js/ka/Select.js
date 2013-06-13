@@ -541,17 +541,14 @@ ka.Select = new Class({
     },
 
     loadItems: function () {
-
         if (this.lrct) {
             clearTimeout(this.lrct);
         }
 
         this.lrct = this._loadItems.delay(50, this);
-
     },
 
     _loadItems: function () {
-
         //logger('renderChooser: '+(this.maximumItemsReached+0)+'/'+(this.whileFetching+0)+'/'+this.loaded);
         if (!this.box.hasClass('ka-Select-box-open')) {
             return false;
@@ -880,7 +877,6 @@ ka.Select = new Class({
      * @param {int}    pPos   Starts with 0
      */
     add: function (pId, pLabel, pPos) {
-
         if (typeOf(pLabel) == 'array') {
             pImagePath = pLabel[1];
             pLabel = pLabel[0];
@@ -919,7 +915,6 @@ ka.Select = new Class({
 
         var data;
         if (this.items.length > 0) {
-
             //search for i
             for (var i = this.items.length - 1; i >= 0; i--) {
                 if (pId == this.items[i].id) {
@@ -988,17 +983,13 @@ ka.Select = new Class({
                 }
             }
         }
-
     },
 
     chooseItem: function (pValue, pInternal) {
-
         this.setValue(pValue, pInternal);
-
     },
 
     setValue: function (pValue, pInternal) {
-
         this.value = 'null' === typeOf(pValue) ? '' : pValue;
 
         if (this.options.object && typeOf(this.value) == 'object') {
@@ -1089,13 +1080,10 @@ ka.Select = new Class({
     },
 
     isOpen: function () {
-
         return this.box.hasClass('ka-Select-box-open');
-
     },
 
     open: function (pWithoutLoad) {
-
         if (!this.enabled) {
             return;
         }
@@ -1118,11 +1106,9 @@ ka.Select = new Class({
         if (pWithoutLoad !== true) {
             this.loadItems();
         }
-
     },
 
     displayChooser: function () {
-
         if (!this.lastOverlay) {
             this.lastOverlay = ka.openDialog({
                 element: this.chooser,
@@ -1132,6 +1118,8 @@ ka.Select = new Class({
                 }.bind(this),
                 offset: {y: -1}
             });
+        } else {
+            this.lastOverlay.updatePosition();
         }
 
         if (this.borderLine) {

@@ -600,7 +600,7 @@ ka.WindowEdit = new Class({
 
     renderActionBar: function (container) {
         this.actionBar = new Element('div', {
-            'class': 'ka-windowEdit-actions'
+            'class': 'ka-windowEdit-action-bar'
         }).inject(container || this.win.getTitleGroupContainer());
 
         this.removeBtn = new ka.Button([t('Remove'), '#icon-warning'])
@@ -752,7 +752,6 @@ ka.WindowEdit = new Class({
     },
 
     retrieveData: function (pWithoutEmptyCheck) {
-
         if (!pWithoutEmptyCheck && !this.fieldForm.checkValid()) {
             var invalidFields = this.fieldForm.getInvalidFields();
 
@@ -836,7 +835,6 @@ ka.WindowEdit = new Class({
     },
 
     buildRequest: function () {
-
         var req = {};
 
         var data = this.retrieveData();

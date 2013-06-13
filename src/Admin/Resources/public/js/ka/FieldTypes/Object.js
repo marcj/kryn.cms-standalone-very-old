@@ -231,7 +231,7 @@ ka.FieldTypes.Object = new Class({
             pVal = String.from(pVal);
 
             if ((typeOf(pVal) == 'string' && pVal.substr(0, 'object://'.length) != 'object://')) {
-                pVal = 'object://' + this.options.objects[0] + '/' + ka.urlEncode(pVal);
+                pVal = 'object://' + ka.normalizeObjectKey(this.options.objects[0]) + '/' + ka.urlEncode(pVal);
             }
             this.objectId = pVal;
 

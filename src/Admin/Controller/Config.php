@@ -2,13 +2,16 @@
 
 namespace Admin\Controller;
 
+use Core\Kryn;
+use Core\Models\Base\LanguageQuery;
 use Core\SystemFile;
+use Propel\Runtime\Map\TableMap;
 
 class Config
 {
     public static function getLabels()
     {
-        $res['langs'] = dbTableFetchAll('system_langs', "1=1 ORDER BY title");
+        $res['langs'] = LanguageQuery::create()->orderByTitle()->find()->toArray(null, null, TableMap::TYPE_STUDLYPHPNAME);
         $res['timezones'] = timezone_identifiers_list();
 
         return $res;
@@ -16,13 +19,7 @@ class Config
 
     public static function getConfig()
     {
-        global $cfg;
-
-        $cfg = include 'Config.php';
-
-        $settings['system'] = $cfg;
-
-        return $settings;
+        return Kryn::getSystemConfig()->toArray(true);
     }
 
     public static function saveConfig()

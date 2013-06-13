@@ -19,6 +19,12 @@
     padding: 15px;
 }
 
+.ka-windowEdit-action-bar {
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
 .ka-windowEdit-form {
     position: absolute;
     left: 0;

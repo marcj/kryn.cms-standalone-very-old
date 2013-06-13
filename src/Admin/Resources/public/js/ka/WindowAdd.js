@@ -425,6 +425,8 @@ ka.WindowAdd = new Class({
 
         var request = this.buildRequest();
 
+        console.log(request);
+
         if (typeOf(request) != 'null') {
 
             this.saveBtn.startTip(t('Adding ...'));
