@@ -367,7 +367,7 @@ ka.urlDecode = function (pValue) {
 }
 
 ka.normalizeObjectKey = function (objectKey) {
-    return objectKey.replace('\\', ':').replace('.', ':').replace('/', ':');
+    return objectKey.replace('\\', ':').replace('.', ':').replace('/', ':').toLowerCase();
 }
 
 /**
@@ -873,13 +873,12 @@ ka.getObjectFieldLabel = function (pValue, pField, pFieldId, pObjectKey, pRelati
  * @return {String} Or false, if the module does not exist/its not activated.
  */
 ka.getExtensionTitle = function (pKey) {
-
     var config = ka.settings.configs[pKey];
     if (!config) {
-        return false;
+        return null;
     }
 
-    return config.title;
+    return config.label || config.name;
 }
 
 ka.tryLock = function (pWin, pKey, pForce) {

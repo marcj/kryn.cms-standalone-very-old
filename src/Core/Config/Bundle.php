@@ -431,7 +431,7 @@ class Bundle extends Model
     {
         if (null !== $this->objects) {
             foreach ($this->objects as $object) {
-                if ($object->getId() == $id) {
+                if (strtolower($object->getId()) == strtolower($id)) {
                     return $object;
                 }
             }

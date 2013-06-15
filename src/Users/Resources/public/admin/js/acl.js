@@ -34,19 +34,19 @@ var users_acl = new Class({
             'class': 'text gradient users-acl-query',
             type: 'text'
         })
-            .addEvent('keyup', function () {
-                if (this.timeout) {
-                    clearTimeout(this.timeout);
-                }
-                this.timeout = this.loadList.delay(100, this);
-            }.bind(this))
-            .addEvent('mousedown', function (e) {
-                e.stopPropagation();
-            })
-            .inject(this.win.titleGroups);
+        .addEvent('keyup', function () {
+            if (this.timeout) {
+                clearTimeout(this.timeout);
+            }
+            this.timeout = this.loadList.delay(100, this);
+        }.bind(this))
+        .addEvent('mousedown', function (e) {
+            e.stopPropagation();
+        })
+        .inject(this.win.titleGroups);
 
         this.qImage = new Element('img', {
-            src: _path + PATH_WEB + '/admin/images/icon-search-loupe.png',
+            src: _path + 'bundles/admin/images/icon-search-loupe.png',
             style: 'position: absolute; left: 11px; top: 8px;'
         }).inject(this.win.titleGroups);
 
@@ -56,7 +56,7 @@ var users_acl = new Class({
         this.objectTab = this.tabs.addPane(t('Objects'), '');
 
         this.actions = new ka.ButtonGroup(this.win.titleGroups);
-        this.btnSave = this.actions.addButton(t('Save'), 'admin/images/button-save.png', this.save.bind(this));
+        this.btnSave = this.actions.addButton(t('Save'), 'bundles/admin/images/button-save.png', this.save.bind(this));
 
         this.tabs.hide();
         this.actions.hide();
@@ -71,17 +71,16 @@ var users_acl = new Class({
 
     loadObjectRules: function (pObjectKey) {
 
-
         //ka.getObjectDefinition(pObjectKey);
         this.currentObject = pObjectKey;
-        logger('loadObjectRules: ' + this.currentObject);
+        logger('loadObjectRules: ', this.currentObject);
 
         this.btnAddExact.setStyle('display', 'none');
 
         this.objectsExactContainer.empty();
 
         this.objectList.getElements('.ka-list-combine-item').removeClass('active');
-        this.objectDivs[pObjectKey.toLowerCase()].addClass('active');
+        this.objectDivs[ka.normalizeObjectKey(pObjectKey)].addClass('active');
 
         this.currentDefinition = ka.getObjectDefinition(pObjectKey);
 
@@ -118,7 +117,6 @@ var users_acl = new Class({
                     this.lastObjectTree = new ka.Field(options, objectTreeContainer);
 
                     this.mapObjectTreeEvent();
-
                 }.bind(this));
 
                 field.addEvent('ready', function () {
@@ -146,8 +144,10 @@ var users_acl = new Class({
     },
 
     mapObjectTreeEvent: function () {
+        var tree = this.lastObjectTree.getFieldObject().getTree();
+        if (!tree) return;
 
-        document.id(this.lastObjectTree.getFieldObject().getTree()).addEvent('mouseover', function (pEvent) {
+        document.id(tree).addEvent('mouseover', function (pEvent) {
 
             var target = pEvent.target;
             if (!target) {
@@ -497,7 +497,7 @@ var users_acl = new Class({
 
         new Element('img', {
             'class': 'users-acl-object-rule-mover',
-            src: _path + 'users/admin/images/users-acl-item-mover.png'
+            src: _path + 'bundles/users/admin/images/users-acl-item-mover.png'
         }).inject(div);
 
         var status = 'accept';
@@ -509,7 +509,7 @@ var users_acl = new Class({
 
         new Element('img', {
             'class': 'users-acl-object-rule-status',
-            src: _path + 'admin/images/icons/' + status + '.png'
+            src: _path + 'bundles/admin/images/icons/' + status + '.png'
         }).inject(div);
 
         var mode = 'arrow_in'; //0, combined
@@ -534,7 +534,7 @@ var users_acl = new Class({
 
         new Element('img', {
             'class': 'users-acl-object-rule-mode',
-            src: _path + 'admin/images/icons/' + mode + '.png'
+            src: _path + 'bundles/admin/images/icons/' + mode + '.png'
         }).inject(div);
 
         var title = t('All objects');
@@ -601,10 +601,10 @@ var users_acl = new Class({
                                     var span = new Element('span').inject(fieldSubline);
                                     this.humanReadableCondition(rule.condition, span);
                                     if (rule.access == 1) {
-                                        new Element('img', {src: _path + 'admin/images/icons/accept.png'}).inject(span);
+                                        new Element('img', {src: _path + 'bundles/admin/images/icons/accept.png'}).inject(span);
                                     } else {
                                         new Element('img',
-                                            {src: _path + 'admin/images/icons/exclamation.png'}).inject(span);
+                                            {src: _path + 'bundles/admin/images/icons/exclamation.png'}).inject(span);
                                     }
                                     subcomma = new Element('span', {text: ', '}).inject(fieldSubline);
 
@@ -619,10 +619,10 @@ var users_acl = new Class({
                                     }).inject(span);
 
                                     if (access == 1) {
-                                        new Element('img', {src: _path + 'admin/images/icons/accept.png'}).inject(span);
+                                        new Element('img', {src: _path + 'bundles/admin/images/icons/accept.png'}).inject(span);
                                     } else {
                                         new Element('img',
-                                            {src: _path + 'admin/images/icons/exclamation.png'}).inject(span);
+                                            {src: _path + 'bundles/admin/images/icons/exclamation.png'}).inject(span);
                                     }
 
                                     new Element('img', {src: imgSrc}).inject(span);
@@ -638,9 +638,9 @@ var users_acl = new Class({
                             new Element('span', {text: ']'}).inject(fieldSubline);
 
                         } else if (def == 0) {
-                            imgSrc = _path + 'admin/images/icons/exclamation.png';
+                            imgSrc = _path + 'bundles/admin/images/icons/exclamation.png';
                         } else if (def) {
-                            imgSrc = _path + 'admin/images/icons/accept.png';
+                            imgSrc = _path + 'bundles/admin/images/icons/accept.png';
                         }
 
                         if (imgSrc) {
@@ -664,7 +664,7 @@ var users_acl = new Class({
         }).inject(div);
 
         new Element('img', {
-            src: _path + 'admin/images/icons/pencil.png',
+            src: _path + 'bundles/admin/images/icons/pencil.png',
             title: t('Edit rule')
         })
             .addEvent('click', function () {
@@ -673,7 +673,7 @@ var users_acl = new Class({
             .inject(actions);
 
         new Element('img', {
-            src: _path + 'admin/images/icons/delete.png',
+            src: _path + 'bundles/admin/images/icons/delete.png',
             title: t('Delete rule')
         })
             .addEvent('click', this.deleteObjectRule.bind(this, div))
@@ -691,7 +691,7 @@ var users_acl = new Class({
         var definition = ka.getObjectDefinition(objectKey);
         var fields = definition.labelField;
 
-        new Request.JSON({url: _path + 'admin/object/' + ka.urlEncode(objectKey) + '/' +
+        new Request.JSON({url: _pathAdmin + 'object/' + ka.urlEncode(objectKey) + '/' +
             objectId, onComplete: function (pResult) {
 
             if (!pResult || pResult.error || !pResult.data) {
@@ -778,10 +778,10 @@ var users_acl = new Class({
             var div = new Element('div', {
                 'class': 'ka-list-combine-item'
             })
-                .addEvent('click', function () {
-                    this.loadObjectRules(pExtKey + '\\' + objectKey)
-                }.bind(this))
-                .inject(this.objectList);
+            .addEvent('click', function () {
+                this.loadObjectRules(pExtKey + ':' + objectKey)
+            }.bind(this))
+            .inject(this.objectList);
 
             var h2 = new Element('h2', {
                 text: object.label || objectKey
@@ -798,7 +798,7 @@ var users_acl = new Class({
                 }).inject(div);
             }
 
-            this.objectDivs[pExtKey.toLowerCase() + '\\' + objectKey.toLowerCase()] = div;
+            this.objectDivs[pExtKey.toLowerCase() + ':' + objectKey.toLowerCase()] = div;
 
         }.bind(this));
 
@@ -858,7 +858,7 @@ var users_acl = new Class({
         }).inject(h2);
 
         new Element('img', {
-            src: _path + PATH_WEB + '/admin/images/icons/add.png',
+            src: _path + 'bundles/admin/images/icons/add.png',
             style: 'cursor: pointer; position: relative; top: -1px; float: right;',
             title: t('Add')
         })
@@ -882,7 +882,7 @@ var users_acl = new Class({
         }).inject(this.objectConstraintsContainer);
 
         new Element('img', {
-            src: _path + PATH_WEB + '/admin/images/icons/add.png',
+            src: _path + 'bundles/admin/images/icons/add.png',
             style: 'cursor: pointer; position: relative; top: -1px; float: right;',
             title: t('Add')
         })
@@ -905,7 +905,7 @@ var users_acl = new Class({
         }).inject(this.objectsExactSplit);
 
         this.btnAddExact = new Element('img', {
-            src: _path + PATH_WEB + '/admin/images/icons/add.png',
+            src: _path + 'bundles/admin/images/icons/add.png',
             style: 'cursor: pointer; position: relative; top: -1px; float: right;',
             title: t('Add')
         })
@@ -945,13 +945,13 @@ var users_acl = new Class({
 
         document.id(this.selectModes).setStyle('width', 120);
 
-        this.selectModes.addImage(-1, tc('usersAclModes', 'All rules'), 'admin/images/icons/tick.png');
-        this.selectModes.addImage(0, tc('usersAclModes', 'Combined'), 'admin/images/icons/arrow_in.png');
-        this.selectModes.addImage(1, tc('usersAclModes', 'List'), 'admin/images/icons/application_view_list.png');
-        this.selectModes.addImage(2, tc('usersAclModes', 'View'), 'admin/images/icons/application_form.png');
-        this.selectModes.addImage(3, tc('usersAclModes', 'Add'), 'admin/images/icons/application_form_add.png');
-        this.selectModes.addImage(4, tc('usersAclModes', 'Edit'), 'admin/images/icons/application_form_edit.png');
-        this.selectModes.addImage(5, tc('usersAclModes', 'Delete'), 'admin/images/icons/application_form_delete.png');
+        this.selectModes.addImage(-1, tc('usersAclModes', 'All rules'), 'bundles/admin/images/icons/tick.png');
+        this.selectModes.addImage(0, tc('usersAclModes', 'Combined'), 'bundles/admin/images/icons/arrow_in.png');
+        this.selectModes.addImage(1, tc('usersAclModes', 'List'), 'bundles/admin/images/icons/application_view_list.png');
+        this.selectModes.addImage(2, tc('usersAclModes', 'View'), 'bundles/admin/images/icons/application_form.png');
+        this.selectModes.addImage(3, tc('usersAclModes', 'Add'), 'bundles/admin/images/icons/application_form_add.png');
+        this.selectModes.addImage(4, tc('usersAclModes', 'Edit'), 'bundles/admin/images/icons/application_form_edit.png');
+        this.selectModes.addImage(5, tc('usersAclModes', 'Delete'), 'bundles/admin/images/icons/application_form_delete.png');
 
         this.lastRulesModeFilter = false;
 
@@ -1134,9 +1134,9 @@ var users_acl = new Class({
                 inputWidth: 140,
                 'default': '2',
                 items: {
-                    '2': [t('Inherited'), 'admin/images/icons/arrow_turn_bottom_left.png'],
-                    '0': [t('Deny'), 'admin/images/icons/exclamation.png'],
-                    '1': [t('Allow'), 'admin/images/icons/accept.png']
+                    '2': [t('Inherited'), 'bundles/admin/images/icons/arrow_turn_bottom_left.png'],
+                    '0': [t('Deny'), 'bundles/admin/images/icons/exclamation.png'],
+                    '1': [t('Allow'), 'bundles/admin/images/icons/accept.png']
                 }
 
             },
@@ -1153,12 +1153,12 @@ var users_acl = new Class({
                 inputWidth: 140,
                 'default': '0',
                 items: {
-                    '0': [tc('usersAclModes', 'Combined'), 'admin/images/icons/arrow_in.png'],
-                    '1': [tc('usersAclModes', 'List'), 'admin/images/icons/application_view_list.png'],
-                    '2': [tc('usersAclModes', 'View'), 'admin/images/icons/application_form.png'],
-                    '3': [tc('usersAclModes', 'Add'), 'admin/images/icons/application_form_add.png'],
-                    '4': [tc('usersAclModes', 'Edit'), 'admin/images/icons/application_form_edit.png'],
-                    '5': [tc('usersAclModes', 'Delete'), 'admin/images/icons/application_form_delete.png']
+                    '0': [tc('usersAclModes', 'Combined'), 'bundles/admin/images/icons/arrow_in.png'],
+                    '1': [tc('usersAclModes', 'List'), 'bundles/admin/images/icons/application_view_list.png'],
+                    '2': [tc('usersAclModes', 'View'), 'bundles/admin/images/icons/application_form.png'],
+                    '3': [tc('usersAclModes', 'Add'), 'bundles/admin/images/icons/application_form_add.png'],
+                    '4': [tc('usersAclModes', 'Edit'), 'bundles/admin/images/icons/application_form_edit.png'],
+                    '5': [tc('usersAclModes', 'Delete'), 'bundles/admin/images/icons/application_form_delete.png']
                 }
             },
 
@@ -1251,7 +1251,7 @@ var users_acl = new Class({
 
         Object.each(ka.settings.configs, function (ext, extCode) {
             if (extCode != 'admin' && ext.entryPoints) {
-                this.addEntryPointTree(ext, 'admin/' + extCode);
+                this.addEntryPointTree(ext, extCode);
             }
         }.bind(this));
     },
@@ -1300,37 +1300,37 @@ var users_acl = new Class({
         switch (pNode.type) {
 
             case 'list':
-                return 'admin/images/icons/application_view_list.png';
+                return 'bundles/admin/images/icons/application_view_list.png';
 
             case 'edit':
-                return 'admin/images/icons/application_form_edit.png';
+                return 'bundles/admin/images/icons/application_form_edit.png';
 
             case 'add':
-                return 'admin/images/icons/application_form_add.png';
+                return 'bundles/admin/images/icons/application_form_add.png';
 
             case 'combine':
-                return 'admin/images/icons/application_side_list.png';
+                return 'bundles/admin/images/icons/application_side_list.png';
 
             case 'function':
-                return 'admin/images/icons/script_code.png';
+                return 'bundles/admin/images/icons/script_code.png';
 
             case 'iframe':
             case 'custom':
-                return 'admin/images/icons/application.png';
+                return 'bundles/admin/images/icons/application.png';
 
             case 'store':
-                return 'admin/images/icons/database.png';
+                return 'bundles/admin/images/icons/database.png';
 
             default:
-                return 'admin/images/icons/folder.png'
+                return 'bundles/admin/images/icons/folder.png'
         }
 
     },
 
     addEntryPointTree: function (pExtensionConfig, pExtensionKey) {
+        var title = ka.getExtensionTitle(pExtensionKey);
 
-        var title = ka.getExtensionTitle(pExtensionKey == 'admin' ? pExtensionKey : pExtensionKey.substr(6));
-
+        console.log('label', title, pExtensionKey);
         var target = new Element('div', {
             style: 'padding-top: 5px; margin-top: 5px; border-top: 1px dashed silver;'
         }).inject(pExtensionKey == 'admin' ? this.entryPointListContainer : this.adminEntryPointDom.childContainer);
@@ -1357,16 +1357,14 @@ var users_acl = new Class({
     },
 
     loadEntryPointChildren: function (pAdmin, pCode, pChildContainer) {
-
         Object.each(pAdmin, function (item, index) {
-
             if (item.acl == false) {
                 return;
             }
 
             var element = new Element('a', {
                 href: 'javascript:;',
-                text: t(item.title),
+                text: item.label,
                 title: this.getEntryPointTitle(item) + ', ' + pCode + index
             }).inject(pChildContainer);
 
@@ -1405,7 +1403,7 @@ var users_acl = new Class({
             this.lastRq.cancel();
         }
 
-        this.lastRq = new Request.JSON({url: _path + 'admin/users/acl/search', noCache: 1,
+        this.lastRq = new Request.JSON({url: _pathAdmin + 'users/acl/search', noCache: 1,
             onComplete: this.renderList.bind(this)
         }).get(req);
 
@@ -1428,8 +1426,10 @@ var users_acl = new Class({
                     var div = new Element('div', {
                         'class': 'ka-list-combine-item'
                     })
-                        .addEvent('click', this.loadRules.bind(this, ['user', item, false]))
-                        .inject(this.left);
+                    .addEvent('click', function(){
+                        this.loadRules('user', item, false);
+                    }.bind(this))
+                    .inject(this.left);
 
                     this.userDivs[item.id] = div;
 
@@ -1490,8 +1490,10 @@ var users_acl = new Class({
                     var div = new Element('div', {
                         'class': 'ka-list-combine-item'
                     })
-                        .addEvent('click', this.loadRules.bind(this, ['group', item, false]))
-                        .inject(this.left);
+                    .addEvent('click', function(){
+                        this.loadRules('group', item, false);
+                    }.bind(this))
+                    .inject(this.left);
 
                     this.groupDivs[item.id] = div;
 
@@ -1513,7 +1515,7 @@ var users_acl = new Class({
     },
 
     loadRules: function (pType, pItem, pForce) {
-
+        console.log('loadRules', pType, pItem, pForce);
         if (!pForce && typeOf(this.currentTargetType) != 'null' && this.unsavedContent) {
             this.win.confirm(t('There is unsaved content. Continue?'), function (a) {
                 if (a) {
@@ -1542,15 +1544,14 @@ var users_acl = new Class({
         this.win.setTitle(title);
 
         this.loadAcls(pType, pItem.id);
-
     },
 
     loadAcls: function (pType, pId) {
-
         if (this.lastOverlay) {
             this.lastOverlay.destroy();
         }
 
+        console.log('loadAcls', pType, pId);
         this.hideRules();
 
         if (pId == 1) {
@@ -1582,7 +1583,7 @@ var users_acl = new Class({
         this.currentTargetRsn = pId;
 
         this.lrAcls = new Request.JSON({
-            url: _path + 'admin/users/acl',
+            url: _pathAdmin + 'users/acl',
             noCache: true,
             onComplete: this.setAcls.bind(this)
         }).get({type: pType, id: pId});
@@ -1756,7 +1757,7 @@ var users_acl = new Class({
         dom.rule = pRule;
 
         dom.ruleIcon = new Element('img', {
-            src: _path + 'admin/images/icons/' + accessIcon + '.png',
+            src: _path + 'bundles/admin/images/icons/' + accessIcon + '.png',
             style: 'position: absolute; left: -13px; top: 4px; width: 10px;'
         }).inject(dom);
 
@@ -1829,7 +1830,6 @@ var users_acl = new Class({
     },
 
     save: function () {
-
         if (this.lastSaveRq) {
             this.lastSaveRq.cancel();
         }
@@ -1843,15 +1843,11 @@ var users_acl = new Class({
             rules: this.currentAcls
         };
 
-        this.lastSaveRq = new Request.JSON({url: _path + 'admin/users/acl', onComplete: function () {
-
+        this.lastSaveRq = new Request.JSON({url: _pathAdmin + 'users/acl', onComplete: function () {
             this.unsavedContent = false;
             this.btnSave.stopTip(t('Saved'));
             this.win.setBlocked(false);
-
         }.bind(this)}).post(req);
-
     }
-
 
 });

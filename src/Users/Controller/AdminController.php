@@ -1,12 +1,15 @@
 <?php
 
-namespace Users;
+namespace Users\Controller;
 
+use Core\Models\Base\AclQuery;
+use Propel\Runtime\ActiveQuery\Criteria;
+use Propel\Runtime\Map\TableMap;
 use RestService\Server;
 
 class AdminController extends Server
 {
-    public function run($pEntryPoint)
+    public function run($pEntryPoint = null)
     {
         $this->addGetRoute('acl/search', 'getSearch');
         $this->addGetRoute('acl', 'loadAcl');
@@ -14,7 +17,6 @@ class AdminController extends Server
         $this->addGetRoute('test', 'test');
 
         return parent::run();
-
     }
 
 	/**
@@ -22,24 +24,19 @@ class AdminController extends Server
      *
      * @param  int       $pType
      * @param  int       $pId
-     * @param  bool      $pAsCount
      *
      * @return array|int
      */
-    public function loadAcl($pType, $pId, $pAsCount = false)
+    public function loadAcl($pType, $pId)
     {
         $pType = ($pType == 'user') ? 0 : 1;
 
-        $where = 'target_type = ' . ($pType + 0);
-        $where .= ' AND target_id = ' . ($pId + 0);
-
-        $where .= " ORDER BY prio DESC";
-
-        if (!$pAsCount) {
-            return dbTableFetchAll('system_acl', $where);
-        } else {
-            return dbCount('system_acl', $where);
-        }
+        return AclQuery::create()
+            ->filterByTargetType($pType+0)
+            ->filterByTargetId($pId+0)
+            ->orderByPrio(Criteria::DESC)
+            ->find()
+            ->toArray(null, null, TableMap::TYPE_STUDLYPHPNAME);
 
     }
 

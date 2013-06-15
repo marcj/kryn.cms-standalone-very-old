@@ -136,10 +136,13 @@ class AdminController
 
         if (Kryn::isActiveBundle(getArgv(2)) && getArgv(2) != 'admin') {
 
-            $clazz = '\\' . ucfirst(getArgv(2)) . '\\AdminController';
+            $bundle = Kryn::getBundle(getArgv(2));
+            $namespace = $bundle->getNamespace();
+
+            $clazz = $namespace. '\\Controller\\AdminController';
 
             if (get_parent_class($clazz) == 'RestService\Server') {
-                $obj = new $clazz('admin/' . getArgv(2));
+                $obj = new $clazz(Kryn::getAdminPrefix() . '/' . getArgv(2));
                 $obj->getClient()->setUrl(substr(Kryn::getRequest()->getPathInfo(), 1));
                 $obj->setExceptionHandler($exceptionHandler);
                 $obj->setDebugMode($debugMode);

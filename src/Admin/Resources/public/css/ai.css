@@ -206,7 +206,7 @@ span.selectable span, div.selectable div {
     line-height: 60px;
     background-repeat: repeat-x;
     color: white;
-    background-color: #22638E;
+    background-color: #22638e;
     box-shadow: 0 1px 9px #111;
     z-index: 1000;
 }
@@ -264,7 +264,7 @@ div.ka-main-menu-additional img.arrowUp:hover {
 .ka-border .ka-main-menu-user a.ka-Button:link {
     background-color: transparent;
     background: transparent;
-    color: #22638E;
+    color: #22638e;
     border: 0;
     border-radius: 0;
     -moz-border-radius: 0;
@@ -446,7 +446,7 @@ a.ka-main-menu-item-open:link {
 .ka-mainLinks a.ka-main-menu-item-active,
 .ka-mainLinks a.ka-main-menu-item-active:link,
 .ka-mainLinks a.ka-main-menu-item-active:hover {
-    background-color: #22638E;
+    background-color: #22638e;
     color: white;
     text-shadow: 0 1px 0 #444;
     border-left: 5px solid #1A5574;

@@ -11,7 +11,11 @@ class Config
 {
     public static function getLabels()
     {
-        $res['langs'] = LanguageQuery::create()->orderByTitle()->find()->toArray(null, null, TableMap::TYPE_STUDLYPHPNAME);
+        $res['langs'] = LanguageQuery::create()
+            ->orderByTitle()
+            ->find()
+            ->toArray(null, null, TableMap::TYPE_STUDLYPHPNAME);
+
         $res['timezones'] = timezone_identifiers_list();
 
         return $res;
