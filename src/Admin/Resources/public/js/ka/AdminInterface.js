@@ -48,10 +48,6 @@ ka.AdminInterface = new Class({
             'class': 'ka-main-menu-top'
         }).inject(this.border);
 
-        this.mainMenuTopSub = new Element('div', {
-            'class': 'ka-main-menu-top-sub'
-        }).inject(this.border);
-
         this.mainMenu = new Element('div', {
             'class': 'ka-main-menu ka-admin'
         }).inject(this.border);
@@ -65,13 +61,13 @@ ka.AdminInterface = new Class({
             'class': 'ka-main-menu-top-navigation'
         }).inject(this.mainMenuTop);
 
+        this.mainMenuUser = new Element('div', {
+            'class': 'ka-main-menu-user'
+        }).inject(this.mainMenuTop);
+
         this.mainMenuRight = new Element('div', {
             'class': 'ka-main-menu-additional'
         }).inject(this.mainMenuTop);
-
-        this.mainMenuUser = new Element('div', {
-            'class': 'ka-main-menu-user'
-        }).inject(this.mainMenuTopSub);
 
         this.mainLinks = new Element('div', {
             'class': 'ka-mainLinks ka-scrolling'
@@ -100,30 +96,34 @@ ka.AdminInterface = new Class({
             title: t('Search engine index'),
             href: 'javascript: ;'
         })
-            .addEvent('click', function () {
-                ka.openSearchContext();
-            })
-            .inject(this.mainMenuIconBar);
+        .addEvent('click', function () {
+            ka.openSearchContext();
+        })
+        .inject(this.mainMenuIconBar);
 
         this.clearCacheBtn = new Element('a', {
             'class': 'icon-trashcan-6',
             title: t('Clear cache'),
             href: 'javascript: ;'
         })
-            .addEvent('click', function () {
-                this.clearCache();
-            }.bind(this))
-            .inject(this.mainMenuIconBar);
+        .addEvent('click', function () {
+            this.clearCache();
+        }.bind(this))
+        .inject(this.mainMenuIconBar);
 
         this.openHelpBtn = new Element('a', {
             'class': 'icon-info-5',
             title: t('Help'),
             href: 'javascript: ;'
         })
-            .addEvent('click', function () {
-                ka.clearCache();
-            })
-            .inject(this.mainMenuIconBar);
+        .addEvent('click', function () {
+            ka.clearCache();
+        })
+        .inject(this.mainMenuIconBar);
+
+        this.wmTabContainer = new Element('div', {
+            'class': 'ka-main-menu-wm-tabs'
+        }).inject(this.border)
 
         if (this.options.frontPage) {
             this.desktopContainer = this.border;
@@ -141,7 +141,10 @@ ka.AdminInterface = new Class({
                 'class': 'ka-desktop ka-admin'
             }).inject(this.border);
         }
+    },
 
+    getWMTabContainer: function() {
+        return this.wmTabContainer;
     },
 
     isFrontPage: function () {

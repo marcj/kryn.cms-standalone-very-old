@@ -6,6 +6,7 @@
     bottom: 0;
     overflow: auto;
     min-height: 250px;
+    background-color: #f5f5f5;
 }
 
 .ka-frontpage-backend .kwindow-border {

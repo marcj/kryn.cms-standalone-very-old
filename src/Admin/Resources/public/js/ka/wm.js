@@ -1,6 +1,5 @@
 /* ka window.manager */
 ka.wm = {
-
     windows: {},
 
     /* depend: [was => mitWem] */
@@ -159,70 +158,39 @@ ka.wm = {
     },
 
     updateWindowBar: function () {
-        ka.wm.removeActiveWindowInformation();
-
-        var atLeastOneActive = false;
-
-        if (ka.adminInterface.frontendLink) {
-            ka.adminInterface.frontendLink.removeClass('ka-main-menu-item-active');
-        }
-        document.body.removeClass('hide-scrollbar');
-
         var openWindows = 0;
-        Object.each(ka.wm.windows, function (win) {
 
+        var wmTabContainer = ka.adminInterface.getWMTabContainer();
+
+        wmTabContainer.empty();
+        var fragment = document.createDocumentFragment();
+
+        var el, icon;
+        Object.each(ka.wm.windows, function (win) {
             if (win.getParentId()) {
                 return;
             }
-            var menuItem = ka.adminInterface.getMenuItem(win.getEntryPoint());
 
-            if (menuItem) {
-                menuItem.object.addClass('ka-main-menu-item-open');
-            }
+            el = new Element('div', {
+                'class': 'ka-wm-tab' + (win.isInFront() ? ' ka-wm-tab-active' : ''),
+                text: win.getTitle() || win.getFullTitle()
+            })
+            .addEvent('click', function(){ win.toFront(); });
 
-            if (win.isInFront()) {
-                openWindows++;
-                if (win.getEntryPoint() == 'admin/nodes/frontend') {
-                    return ka.adminInterface.frontendLink.addClass('ka-main-menu-item-active');
-                }
-
-                var menuItem = ka.adminInterface.getMenuItem(win.getEntryPoint());
-
-                atLeastOneActive = true;
-                if (menuItem) {
-                    menuItem.object.addClass('ka-main-menu-item-active');
-                } else if (!ka.wm.tempItems[win.getId()]) {
-                    var item = ka.adminInterface.addTempLink(win);
-                    item.addClass('ka-main-menu-item-active');
-                    ka.wm.tempItems[win.getId()] = item;
-                }
-                if (menuItem = ka.wm.tempItems[win.getId()]) {
-                    menuItem.set('text', win.getEntryPointDefinition().label + ' » ' + win.getTitle());
-                    menuItem.addClass('ka-main-menu-item-active');
+            if (icon = (win.getEntryPointDefinition() || {}).icon) {
+                console.log(icon);
+                if ('#' === icon.substr(0, 1)) {
+                    el.addClass(icon.substr(1));
+                } else {
+                    //new img
                 }
             }
 
+
+            fragment.appendChild(el);
         });
 
-        if (atLeastOneActive && ka.adminInterface.options.frontPage) {
-            document.body.addClass('hide-scrollbar');
-        }
-
-        if (!atLeastOneActive && ka.adminInterface.options.frontPage) {
-            ka.adminInterface.frontendLink.addClass('ka-main-menu-item-active');
-        }
-
-        if (ka.adminInterface.dashboardLink) {
-            if (0 === openWindows) {
-                ka.adminInterface.dashboardLink.addClass('ka-main-menu-item-open');
-                ka.adminInterface.dashboardLink.addClass('ka-main-menu-item-active');
-            } else {
-                ka.adminInterface.dashboardLink.removeClass('ka-main-menu-item-open');
-                ka.adminInterface.dashboardLink.removeClass('ka-main-menu-item-active');
-            }
-
-            ka.adminInterface.showDashboard(0 === openWindows);
-        }
+        wmTabContainer.appendChild(fragment);
 
         ka.wm.reloadHashtag();
     },
