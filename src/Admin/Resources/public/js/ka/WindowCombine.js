@@ -17,11 +17,6 @@ ka.WindowCombine = new Class({
             'class': 'ka-windowCombine-list-container'
         }).inject(this.win.content);
 
-        // for windowEdit/Add actionbars
-        this.combineActionBar = new Element('div', {
-            'class': 'ka-windowCombine-combine-actionbar'
-        }).inject(this.win.titleGroups);
-
         this.combineContainer = new Element('div', {
             'class': 'ka-windowCombine-combine-container'
         }).inject(this.win.content);
@@ -33,7 +28,36 @@ ka.WindowCombine = new Class({
         this.mainLayout = new ka.Layout(this.combineContainer, {
             layout: [
                 {
-                    columns: [300, null]
+                    height: 60,
+                    columns: [null]
+                },
+                {
+                    columns: [null]
+                }
+            ]
+        });
+
+        this.headerLayout = new ka.Layout(this.mainLayout.getCell(1,1), {
+            layout: [
+                {
+                    columns: [null, 250]
+                }
+            ]
+        });
+
+        this.win.setTitle('');
+        this.win.titleText.inject(this.headerLayout.getCell(1,1));
+        this.win.titleText.addClass('ka-windowCombine-title');
+
+        // for windowEdit/Add actionbars
+        this.combineActionBar = new Element('div', {
+            'class': 'ka-windowCombine-combine-actionbar'
+        }).inject(this.headerLayout.getCell(1,2));
+
+        this.contentLayout = new ka.Layout(this.mainLayout.getCell(2,1), {
+            layout: [
+                {
+                    columns: [300, 15, null]
                 }
             ],
             splitter: [
@@ -43,12 +67,14 @@ ka.WindowCombine = new Class({
 
         this.mainLeft = new Element('div', {
             'class': 'ka-list-combine-left'
-        }).inject(this.mainLayout.getCell(1, 1), 'top');
+        }).inject(this.contentLayout.getCell(1, 1), 'top');
 
         this.mainLeft.set('tween', {duration: 100});
 
-        this.mainRight = this.mainLayout.getCell(1, 2);
+        this.mainRight = this.contentLayout.getCell(1, 3);
         this.mainRight.addClass('ka-list-combine-right');
+
+        this.contentLayout.getCell(1, 2).destroy();
 
         if (this.classProperties.asNested) {
             this.treeContainer = new Element('div', {
@@ -123,6 +149,13 @@ ka.WindowCombine = new Class({
             this.renderSearchPane();
             this.createItemLoader();
         }
+
+        this.win.listingTitle = new Element('div', {
+            text: t('Browse'),
+            'class': 'ka-windowCombine-title'
+        }).inject(this.container, 'top');
+
+        document.id(this.table).setStyle('top', 60);
 
         this.setView('list');
     },
@@ -229,8 +262,12 @@ ka.WindowCombine = new Class({
         this.viewActionBar = new ka.ButtonGroup(this.topActionBar, {onlyIcons: true});
         this.viewListBtn = this.viewActionBar.addButton(t('Grid'), '#icon-list-9', this.setView.bind(this, 'list'));
         this.viewCompactBtn =
-            this.viewActionBar.addButton(t('Compact'), '#icon-layout', this.setView.bind(this, 'compact'));
+            this.viewActionBar.addButton(t('Compact'), '#icon-layout', this.setView.bind(this, 'combine'));
         this.viewListBtn.setPressed(true);
+
+        if (this.actionBarSearchBtn) {
+            this.actionBarSearchBtn.inject(this.viewActionBar, 'after');
+        }
     },
 
     renderActionBar: function () {
@@ -253,6 +290,8 @@ ka.WindowCombine = new Class({
             };
 
             if ('list' === viewType) {
+
+                this.addBtn.setPressed(false);
 
                 this.listContainer.setStyle('display', 'block');
 
@@ -315,6 +354,7 @@ ka.WindowCombine = new Class({
     },
 
     openAddItem: function () {
+        this.setView('combine');
         this.add();
     },
 
@@ -1116,7 +1156,7 @@ ka.WindowCombine = new Class({
     },
 
     openEditItem: function (pItem) {
-        this.setView('compact');
+        this.setView('combine');
         this.loadItem(pItem);
     },
 
@@ -1304,7 +1344,7 @@ ka.WindowCombine = new Class({
     itemLoaded: function (pItem) {
         this.lastLoadedItem = pItem;
         this.setWinParams();
-        this.setView('compact');
+        this.setView('combine');
     },
 
     renderFinished: function () {

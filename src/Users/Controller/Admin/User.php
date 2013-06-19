@@ -30,13 +30,8 @@ class User extends \Admin\ObjectCrud
         array(
             'label' => 'Active',
             'width' => '35',
-            'type' => 'imagemap',
-            'imageMap' =>
-            array(
-                0 => 'admin/images/icons/cancel.png',
-                1 => 'admin/images/icons/accept.png',
-                'null' => 'admin/images/icons/cancel.png',
-            ),
+            'type' => 'checkbox',
+            'align' => 'center'
         ),
         'groupMembership.name' =>
         array(
@@ -90,14 +85,16 @@ class User extends \Admin\ObjectCrud
         '__general__' => array(
             'type' => 'tab',
             'label' => '[[General]]',
-            'layout' => '   <table width="100%"><tr>
-                                <td width="110">
-                                     <div style="height: 100px; padding-left: 28px; margin:5px" id="picture"></div>
+            'layout' => '   <table width="100%" style="table-layout: fixed;"><tr>
+                                <td width="150">
+                                    <div>
+                                        <div style="height: 100px; margin:5px" id="picture"></div>
+                                     </div>
                                 </td>
                                 <td id="names">
                                 </td>
                             </tr><tr>
-                                <td colspan="2" style="padding: 10px;">
+                                <td colspan="2" style="padding: 8px;">
                                     <table width="100%">
                                         <tbody id="__default__"></tbody>
                                     </table>
@@ -200,13 +197,6 @@ class User extends \Admin\ObjectCrud
                     'type' => 'file',
                     'noSave' => true,
                     'customValue' => 'userBgValue',
-                ),
-                'css3Shadow' => array(
-                    'label' => 'Use CSS3 box-shadows',
-                    'desc' => 'Can affect performance in some browsers, but activates better window feeling',
-                    'type' => 'checkbox',
-                    'noSave' => true,
-                    'customValue' => 'getCssShadow',
                 ),
                 'autocrawler' => array(
                     'label' => 'Activate autocrawler',

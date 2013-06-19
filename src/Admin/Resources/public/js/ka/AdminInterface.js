@@ -1004,6 +1004,10 @@ ka.AdminInterface = new Class({
         if (this.dashboardVisible !== show) {
             if (show) {
                 this.dashboardInstance = new ka.Dashboard(this.desktopContainer);
+                new Element('h1', {
+                    text: t('Dashboard'),
+                    style: 'margin: 5px 7px; color: #444;'
+                }).inject(this.getWMTabContainer());
             } else if (this.dashboardInstance) {
                 this.dashboardInstance.destroy();
                 delete this.dashboardInstance;

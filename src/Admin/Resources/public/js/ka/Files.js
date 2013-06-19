@@ -831,7 +831,8 @@ ka.Files = new Class({
 
         this.address = new ka.Field({
             type: 'text',
-            noWrapper: true
+            noWrapper: true,
+            inputHeight: 43
         }, addressContainer);
 
         this.address.getFieldObject().input.addEvent('mousedown', function (e) {
@@ -844,7 +845,8 @@ ka.Files = new Class({
 
         this.search = new ka.Field({
             type: 'text',
-            noWrapper: true
+            noWrapper: true,
+            inputHeight: 43
         }, searchContainer);
         document.id(this.search).setStyle('margin-left', '15px');
 
@@ -856,7 +858,7 @@ ka.Files = new Class({
 
         new Element('img', {
             src: _path + 'bundles/admin/images/icon-search-loupe.png',
-            style: 'position: absolute; right: 12px; top: 8px;'
+            style: 'position: absolute; right: 12px; top: 15px;'
         }).inject(this.search, 'after');
 
         this.mainLayout = new ka.Layout(this.wrapper, {

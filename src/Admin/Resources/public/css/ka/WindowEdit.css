@@ -20,9 +20,7 @@
 }
 
 .ka-windowEdit-action-bar {
-    position: absolute;
-    right: 0;
-    top: 0;
+    text-align: right;
 }
 
 .ka-windowEdit-form {

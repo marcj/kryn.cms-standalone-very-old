@@ -205,9 +205,11 @@ ka.Window = new Class({
 
                 this.loadingFx.addEvent('complete', function () {
 
-                    this.loadingObj.destroy();
-                    delete this.loadingObj;
-                    delete this.loadingFx;
+                    if (this.loadingObj) {
+                        this.loadingObj.destroy();
+                        delete this.loadingObj;
+                        delete this.loadingFx;
+                    }
 
                 }.bind(this));
 
@@ -375,29 +377,41 @@ ka.Window = new Class({
     parseTitle: function (pHtml) {
         pHtml = pHtml.replace('<img', ' » <img');
         pHtml = pHtml.stripTags();
-        if (pHtml.indexOf('»') !== false) {
+        if (pHtml.indexOf('»') !== -1) {
             pHtml = pHtml.substr(3);
         }
         return pHtml;
     },
 
     getTitle: function () {
-        if (this.titleAdditional) {
-            return this.parseTitle(this.titleAdditional.get('html'));
+        if (this.titleText) {
+            return this.titleText.get('text');
         }
         return '';
     },
 
     getFullTitle: function () {
-        if (this.titleText) {
-            return this.parseTitle(this.titleText.get('html'));
+        if (this.titleTextContainer) {
+            return this.parseTitle(this.titleTextContainer.get('html'));
         }
         return '';
     },
 
     setTitle: function (pTitle) {
         this.clearTitle();
-        this.addTitle(pTitle);
+
+        if (!this.titleTextPath) {
+            this.titleTextPath = new Element('img', {
+                src: _path + 'bundles/admin/images/ka-kwindow-title-path.png'
+            }).inject(this.titleAdditional);
+
+            this.titleText = new Element('span', {
+                text: pTitle
+            }).inject(this.titleAdditional);
+        } else {
+            this.titleText.set('text', pTitle);
+        }
+
     },
 
     toBack: function () {
@@ -778,12 +792,12 @@ ka.Window = new Class({
         }
 
         var title = ka.settings.configs[ this.getModule() ]['label'] ||
-            ka.settings.configs[ this.getModule() ]['bundleName'];
+            ka.settings.configs[ this.getModule() ]['name'];
 
         if (title != 'Kryn.cms') {
             new Element('span', {
                 text: title
-            }).inject(this.titleText);
+            }).inject(this.titleTextContainer);
         }
 
         var path = Array.clone(this.entryPointDefinition._path);
@@ -792,11 +806,11 @@ ka.Window = new Class({
 
             new Element('img', {
                 src: _path + 'bundles/admin/images/ka-kwindow-title-path.png'
-            }).inject(this.titleText);
+            }).inject(this.titleTextContainer);
 
             new Element('span', {
                 text: t(label)
-            }).inject(this.titleText);
+            }).inject(this.titleTextContainer);
 
         }.bind(this));
 
@@ -806,11 +820,11 @@ ka.Window = new Class({
 
         new Element('img', {
             src: _path + 'bundles/admin/images/ka-kwindow-title-path.png'
-        }).inject(this.titleText);
+        }).inject(this.titleTextContainer);
 
         new Element('span', {
             text: t(this.entryPointDefinition.label)
-        }).inject(this.titleText);
+        }).inject(this.titleTextContainer);
 
         this.content.empty();
         new Element('div', {
@@ -972,7 +986,7 @@ ka.Window = new Class({
         this.title = new Element('div', {'class': 'kwindow-win-title'}).inject(this.mainLayout.getCell(1, 1));
 
         this.titlePath = new Element('span', {'class': 'ka-kwindow-titlepath'}).inject(this.title);
-        this.titleText = new Element('span', {'class': 'ka-kwindow-titlepath-main'}).inject(this.titlePath);
+        this.titleTextContainer = new Element('span', {'class': 'ka-kwindow-titlepath-main'}).inject(this.titlePath);
 
         this.titleAdditional = new Element('span', {'class': 'ka-kwindow-titlepath-additional'}).inject(this.titlePath);
 

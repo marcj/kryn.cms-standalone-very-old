@@ -10,7 +10,7 @@ ka.Checkbox = new Class({
         });
 
         new Element('div', {
-            text: 'l',
+            text: '|',
             'class': 'ka-Checkbox-text-on'
         }).inject(this.box);
 

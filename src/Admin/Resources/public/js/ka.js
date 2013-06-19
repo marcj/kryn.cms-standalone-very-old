@@ -863,6 +863,10 @@ ka.getObjectFieldLabel = function (pValue, pField, pFieldId, pObjectKey, pRelati
     if (field.imageMap) {
         return '<img src="' + _path + ka.htmlEntities(field.imageMap[value]) + '"/>';
     }
+    if ('checkbox' === field.type) {
+        var clazz = value ? 'icon-checkmark-2' : 'icon-cross';
+        return '<span class="' + clazz + '"></span>';
+    }
     return ka.htmlEntities(value);
 }
 

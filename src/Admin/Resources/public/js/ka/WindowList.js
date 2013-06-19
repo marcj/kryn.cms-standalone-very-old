@@ -13,7 +13,6 @@ ka.WindowList = new Class({
     loadAlreadyTriggeredBySearch: false,
 
     initialize: function (pWindow, pOptions, pContainer) {
-
         this.options = this.setOptions(pOptions);
         this.win = pWindow;
 
@@ -306,7 +305,8 @@ ka.WindowList = new Class({
 
     renderLayoutTable: function () {
         this.table = new ka.Table(null, {
-            selectable: true
+            selectable: true,
+            safe: false
         });
 
         document.id(this.table).addClass('ka-Table-windowList');
@@ -341,7 +341,7 @@ ka.WindowList = new Class({
 
         var columnsIds = [];
         Object.each(this.classProperties.columns, function (column, columnId) {
-            columns.push([t(column.label), column.width]);
+            columns.push([t(column.label), column.width, column.align]);
             columnsIds.push(columnId);
         }.bind(this));
 
@@ -499,36 +499,33 @@ ka.WindowList = new Class({
     renderTopActionBar: function (container) {
         this.topActionBar = container || this.win.getTitleGroupContainer();
 
-        if (this.classProperties.add || this.classProperties.remove || this.classProperties.custom ||
-            (this.classProperties.asNested && (this.classProperties.nestedRootAdd))) {
-            this.actionsNavi = new ka.ButtonGroup(this.topActionBar);
-            document.id(this.actionsNavi).addClass('ka-window-list-buttonGroup');
+        this.actionsNavi = new ka.ButtonGroup(this.topActionBar);
+        document.id(this.actionsNavi).addClass('ka-window-list-buttonGroup');
+
+        if (this.classProperties.remove) {
+            this.actionsNavi.addButton(t('Remove'), ka.mediaPath(this.classProperties.removeIcon), function () {
+                this.removeSelected();
+            }.bind(this));
         }
 
-        if (this.actionsNavi) {
-            if (this.classProperties.remove) {
-                this.actionsNavi.addButton(t('Remove'), ka.mediaPath(this.classProperties.removeIcon), function () {
-                    this.removeSelected();
+        if (this.classProperties.asNested && (this.classProperties.nestedRootAdd)) {
+
+            this.addRootBtn = this.actionsNavi.addButton(this.options.nestedRootAddLabel ||
+                this.classProperties.nestedRootAddLabel,
+                ka.mediaPath(this.classProperties.nestedRootAddIcon), function () {
+                    this.addNestedRoot();
                 }.bind(this));
-            }
-
-            if (this.classProperties.asNested && (this.classProperties.nestedRootAdd)) {
-
-                this.addRootBtn = this.actionsNavi.addButton(this.options.nestedRootAddLabel ||
-                    this.classProperties.nestedRootAddLabel,
-                    ka.mediaPath(this.classProperties.nestedRootAddIcon), function () {
-                        this.addNestedRoot();
-                    }.bind(this));
-            }
-
-            if (this.classProperties.add) {
-
-                this.addBtn = this.actionsNavi.addButton(this.options.addLabel || this.classProperties.addLabel,
-                    ka.mediaPath(this.classProperties.addIcon), function () {
-                        this.openAddItem();
-                    }.bind(this));
-            }
         }
+
+        if (this.classProperties.add) {
+
+            this.addBtn = this.actionsNavi.addButton(this.options.addLabel || this.classProperties.addLabel,
+                ka.mediaPath(this.classProperties.addIcon), function () {
+                    this.openAddItem();
+                }.bind(this));
+        }
+
+        this.actionBarSearchBtn = this.actionsNavi.addButton(t('Search'), '#icon-search');
 
         /*
          TODO

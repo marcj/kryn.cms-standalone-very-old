@@ -2,6 +2,21 @@
 .ka-Table-head,
 .ka-Table-body {
     width: 100%;
+    border: 1px solid #dcdcdc;
+}
+
+.ka-Table-absolute .ka-Table-body,
+.ka-Table-absolute .ka-Table-head {
+    border: 0;
+}
+
+.ka-Table-absolute {
+    border: 1px solid #dcdcdc;
+}
+
+.ka-Table-head {
+    border-bottom: 0;
+    table-layout: fixed;
 }
 
 .ka-Table-absolute {
@@ -12,19 +27,22 @@
     top: 0px;
 }
 
+.ka-Table-head th,
+.ka-Table-body td {
+    border-left: 1px solid white;
+    border-right: 1px solid #e0e0de;
+}
+
 .ka-Table > thead > tr > th,
 .ka-Table-head > tr > th {
     font-weight: normal;
     font-size: 14px;
-    padding: 10px 5px;
-    color: #444;
-    border-bottom: 1px solid silver;
+    text-align: left;
+    padding: 15px 10px;
+    color: #555;
+    border-bottom: 1px solid #e8e8e8;
     line-height: 20px;
-}
-
-.ka-Table > thead > tr > th:first-child,
-.ka-Table-head > tr > th:first-child {
-    border-left: 0px;
+    background-color: #efefef;
 }
 
 .ka-Table-head-container {
@@ -38,7 +56,7 @@
 .ka-Table-body-container {
     position: absolute;
     left: 0px;
-    top: 41px;
+    top: 51px;
     right: 0px;
     bottom: 0px;
     overflow-y: scroll;
@@ -50,7 +68,7 @@
 
 .ka-Table > tbody  > tr > td,
 .ka-Table-body > tr > td {
-    padding: 7px;
+    padding: 10px;
     cursor: default;
     overflow-x: hidden;
     text-overflow: ellipsis;
@@ -59,17 +77,17 @@
 
 .ka-Table > tbody > tr:nth-child(1n) > td,
 .ka-Table-body > tr:nth-child(1n) > td {
-    background-color: #f4f4f4;
+    background-color: #f7f7f7;
 }
 
 .ka-Table > tbody > tr:nth-child(2n) > td,
 .ka-Table-body > tr:nth-child(2n) > td {
-    background-color: #eee;
+    background-color: #f4f4f4;
 }
 
 .ka-Table-hover > tbody > tr:hover > td,
 .ka-Table-hover > div > .ka-Table-body > tr:hover > td {
-    background-color: #ddd;
+    background-color: #eee;
 }
 
 .ka-Table > tbody > tr.active > td,
@@ -83,5 +101,7 @@
 .ka-Table-hover > div > .ka-Table-body > tr.active > td,
 .ka-Table-hover > div > .ka-Table-body > tr.active:hover > td {
     background-color: #22638E;
+    border-left: 1px solid #297db4;
+    border-right: 1px solid #22557f;
     color: white;
 }

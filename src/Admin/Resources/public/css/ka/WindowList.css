@@ -93,6 +93,11 @@
     bottom: 0;
 }
 
+.ka-windowCombine-combine-actionbar {
+    padding-top: 5px;
+    white-space: nowrap;
+}
+
 .ka-windowCombine-combine-actionbar .ka-windowEdit-actions {
     border-top: 0;
 }
@@ -136,12 +141,14 @@
     margin-top: 15px;
 }
 
-.ka-list-combine-right {
+.ka-list-combine-right > .ka-windowEdit-form {
     position: absolute;
     right: 0;
     left: 0;
     top: 0;
     bottom: 0;
+    border: 1px solid #DDD;
+    border-top: 0;
 }
 
 .ka-list-combine-content {
@@ -154,6 +161,13 @@
     right: 6px;
     top: 10px;
     color: #999;
+}
+
+.ka-windowCombine-title {
+    font-size: 36px;
+    color: #cdcdcd;
+    line-height: 50px;
+    font-family: "SourceSansPro-Light", "SourceSansPro-Regular", "Lucida Grande", "DejaVu Sans", "Bitstream Vera Sans", "Segoe UI", "Tahoma", sans-serif;
 }
 
 .ka-list-combine-searchicon {
@@ -230,14 +244,16 @@
 .ka-list-combine-left {
     position: absolute;
     left: 0;
-    right: 1px;
+    right: 0;
     top: 0;
     bottom: 0;
-    border-bottom: 1px solid #ddd;
+    border: 1px solid #ddd;
 }
 
 .ka-list-combine-left + .ka-Splitter-main {
-    top: 35px;
+    right: -16px;
+    width: 15px;
+    border: 0;
 }
 
 .ka-list-actionBarNavigation {
@@ -263,6 +279,7 @@
     text-align: center;
     text-indent: 0;
     height: 28px;
+    border: 0;
 }
 
 .ka-list-actionBar-page-count {
@@ -384,7 +401,6 @@ a.ka-list-search-button-active:link {
     bottom: 0px;
     right: 0;
     background-color: white;
-    border-left: 1px solid #ddd;
     overflow: auto;
     -webkit-overflow-scrolling: touch;
 }

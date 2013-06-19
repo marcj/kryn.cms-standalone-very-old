@@ -207,10 +207,17 @@ ka.Table = new Class({
         var tr = new Element('tr').inject(this.tableHead);
         pColumns.each(function (column, index) {
 
+            /**
+             * column[0] = String|HTMLElement, actual content to display
+             * column[1] = String|Integer, width
+             * column[2] = String, text-align
+             *
+             */
             var th = new Element('th', {
                 html: ('element' !== typeOf(column[0]) ? column[0] : null),
                 styles: {
-                    width: (column[1]) ? column[1] : null
+                    width: (column[1]) ? column[1] : null,
+                    textAlign: (column[2]) ? column[2] : null
                 }
             }).inject(tr);
 
@@ -230,7 +237,7 @@ ka.Table = new Class({
         }
     },
 
-    addRow: function (pValues, pIndex) {
+    addRow: function (pValues, pIndex, pNoHeaderUpdate) {
         if (!pIndex) {
             pIndex = this.tableBody.getElements('tr').length + 1;
         }
@@ -248,7 +255,10 @@ ka.Table = new Class({
             }
 
             var td = new Element('td', {
-                width: (column[1]) ? column[1] : null
+                styles: {
+                    width: (column[1]) ? column[1] : null,
+                    textAlign: (column[2]) ? column[2] : null
+                }
             }).inject(tr);
 
             if (this.safe || this.options.safe) {
@@ -271,13 +281,27 @@ ka.Table = new Class({
 
         }.bind(this));
 
+        if (!pNoHeaderUpdate) {
+            this.updateTableHeader();
+        }
+
         return tr;
     },
 
+    updateTableHeader: function () {
+        if (this.options.absolute) {
+            var firstTr = this.tableBody.getElement('tr');
+            if (firstTr) {
+                var columns = this.tableHead.getElement('tr').getChildren('th');
+                firstTr.getChildren('td').each(function(td, index) {
+                    columns[index].setStyle('width', td.getSize().x - 22); //20px for each padding and 2 for border
+                }.bind(this));
+            }
+        }
+    },
+
     empty: function () {
-
         this.tableBody.empty();
-
     },
 
     setValues: function (pValues) {
@@ -286,9 +310,11 @@ ka.Table = new Class({
 
         if (typeOf(pValues) == 'array') {
             pValues.each(function (row) {
-                this.addRow(row);
+                this.addRow(row, null, true);
             }.bind(this));
         }
+
+        this.updateTableHeader();
     }
 
 

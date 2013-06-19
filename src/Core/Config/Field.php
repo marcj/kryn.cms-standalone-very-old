@@ -34,6 +34,21 @@ class Field extends Model
     /**
      * @var string
      */
+    protected $layout;
+
+    /**
+     * @var string
+     */
+    protected $target;
+
+    /**
+     * @var bool
+     */
+    protected $tableItem = false;
+
+    /**
+     * @var string
+     */
     protected $objectRelation;
 
     /**
@@ -63,6 +78,7 @@ class Field extends Model
             $this->setId($key);
         }
     }
+
 
 
     /**
@@ -251,5 +267,54 @@ class Field extends Model
     {
         return $this->objectRelation;
     }
+
+    /**
+     * @param string $layout
+     */
+    public function setLayout($layout)
+    {
+        $this->layout = $layout;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLayout()
+    {
+        return $this->layout;
+    }
+
+    /**
+     * @param string $target
+     */
+    public function setTarget($target)
+    {
+        $this->target = $target;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTarget()
+    {
+        return $this->target;
+    }
+
+    /**
+     * @param mixed $tableItem
+     */
+    public function setTableItem($tableItem)
+    {
+        $this->tableItem = $tableItem;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTableItem()
+    {
+        return $this->tableItem;
+    }
+
 
 }

@@ -1,22 +1,24 @@
 .ka-tabGroup,
 .ka-tabGroup-small {
     position: relative;
-    height: 35px;
     white-space: nowrap;
-    padding-left: 20px;
-    border-bottom: 1px solid #C0C0C0;
+    background-color: #f2f2f2;
+    padding-top: 3px;
+    border-top: 1px solid #dcdcdc;
 }
 
 a.ka-tabGroup-item {
     text-decoration: none;
     color: #555;
     display: inline-block;
-    padding: 0 11px;
+    padding: 0 26px;
     min-width: 20px;
     cursor: default;
-    line-height: 32px;
-    height: 34px;
+    line-height: 42px;
+    height: 42px;
     font-size: 16px;
+    border-right: 1px solid #dcdcdc;
+    background-color: #f5f5f5;
 }
 
 .ka-tabGroup-item-with-image:before {
@@ -33,13 +35,11 @@ a.ka-tabGroup-item {
 
 a.ka-tabGroup-item:hover {
     color: #111;
+    background-color: #fbfbfb;
 }
 
 a.ka-tabGroup-item-active {
     position: relative;
-    background: #F7F7F7;
-    border: 1px solid #C0C0C0;
-    border-bottom: 0;
-    border-top: 2px solid #22638E;
     color: #222;
+    background-color: #fbfbfb;
 }

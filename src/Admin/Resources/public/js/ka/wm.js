@@ -171,9 +171,13 @@ ka.wm = {
                 return;
             }
 
+            if (win.isInFront()) {
+                openWindows++;
+            }
+
             el = new Element('div', {
                 'class': 'ka-wm-tab' + (win.isInFront() ? ' ka-wm-tab-active' : ''),
-                text: win.getTitle() || win.getFullTitle()
+                text: win.getTitle() || (win.getEntryPointDefinition() || {}).label
             })
             .addEvent('click', function(){ win.toFront(); });
 
@@ -186,11 +190,29 @@ ka.wm = {
                 }
             }
 
+            new Element('a', {
+                'class': 'icon-cancel-8'
+            }).addEvent('click', function(e){
+                win.close();
+                e.stopPropagation();
+                e.stop();
+            }).inject(el);
 
             fragment.appendChild(el);
         });
 
         wmTabContainer.appendChild(fragment);
+
+        if (ka.adminInterface.dashboardLink) {
+            if (0 === openWindows) {
+                ka.adminInterface.dashboardLink.addClass('ka-main-menu-item-open');
+                ka.adminInterface.dashboardLink.addClass('ka-main-menu-item-active');
+            } else {
+                ka.adminInterface.dashboardLink.removeClass('ka-main-menu-item-open');
+                ka.adminInterface.dashboardLink.removeClass('ka-main-menu-item-active');
+            }
+            ka.adminInterface.showDashboard(0 === openWindows);
+        }
 
         ka.wm.reloadHashtag();
     },
