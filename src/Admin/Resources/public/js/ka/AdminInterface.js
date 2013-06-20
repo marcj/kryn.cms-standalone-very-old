@@ -73,6 +73,14 @@ ka.AdminInterface = new Class({
             'class': 'ka-mainLinks ka-scrolling'
         }).inject(this.mainMenu);
 
+        this.mainLinksSplitter = new Element('div', {
+            'class': 'ka-mainLinks-splitter'
+        }).inject(this.mainMenu);
+
+        this.mainLinksSplitterText = new Element('div', {
+            html: '&bullet; &bullet; &bullet;'
+        }).inject(this.mainLinksSplitter);
+
         this.mainTempLinks = new Element('div', {
             'class': 'ka-mainTempLinks'
         }).inject(this.mainLinks);
@@ -86,10 +94,10 @@ ka.AdminInterface = new Class({
             title: t('Open Frontend'),
             href: 'javascript: ;'
         })
-            .addEvent('click', function () {
-                ka.openFrontend();
-            })
-            .inject(this.mainMenuIconBar);
+        .addEvent('click', function () {
+            ka.openFrontend();
+        })
+        .inject(this.mainMenuIconBar);
 
         this.openSearchIndexBtn = new Element('a', {
             'class': 'icon-search-8',
@@ -986,7 +994,7 @@ ka.AdminInterface = new Class({
             text: t('Frontend'),
             'class': 'ka-main-menu-item icon-eye'
         })
-            .inject(this.mainLinks);
+        .inject(this.mainLinks);
 
         this.frontendLink.addEvent('click', function () {
             ka.wm.open('admin/nodes/frontend');
@@ -1126,6 +1134,12 @@ ka.AdminInterface = new Class({
             var splitter = new Element('div', {
                 'class': 'ka-main-menu-splitter'
             }).inject(this.mainLinks);
+            if (ka.settings.configs[module]) {
+                new Element('h2', {
+                    'class': 'ka-main-menu-title',
+                    text: ka.settings.configs[module].label || ka.settings.configs[module].name
+                }).inject(this.mainLinks);
+            }
         }
 
         this.lastAddedAdminLinkModule = module;

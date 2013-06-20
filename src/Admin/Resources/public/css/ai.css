@@ -247,7 +247,19 @@ span.selectable span, div.selectable div {
     overflow: auto;
     -webkit-overflow-scrolling: touch;
     width: 210px;
-    background-color: #1D1D22;
+    background-color: #e7e7e7;
+}
+
+.ka-mainLinks {
+    position: absolute;
+    left: 0;
+    right: 15px;
+    bottom: 0;
+    top: 0;
+    overflow: auto;
+    background-color: #242729;
+    padding-top: 15px;
+    -webkit-overflow-scrolling: touch;
 }
 
 .ka-main-menu-additional {
@@ -281,16 +293,6 @@ span.selectable span, div.selectable div {
 
 div.ka-main-menu-additional img.arrowUp:hover {
     background-color: #399bc7;
-}
-
-.ka-mainLinks {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    top: 0;
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
 }
 
 .ka-main-menu-user {
@@ -473,9 +475,39 @@ div.ka-mainLinks a.bar-dock-logo {
 
 .ka-main-menu-splitter {
     height: 1px;
-    background-color: #000;
-    border-bottom: 1px solid #3D3D3D;
-    margin: 10px 15px;
+    background-color: #242729;
+    margin: 10px 0;
+}
+
+h2.ka-main-menu-title {
+    color: #C5C5C5;
+    margin: 0;
+    padding: 5px;
+    font-size: 16px;
+    font-family: "SourceSansPro-Light";
+    border-bottom: 1px solid #1F1F1F;
+    padding-left: 10px;
+}
+
+.ka-mainLinks-splitter {
+    position: absolute;
+    right: 0;
+    width: 15px;
+    top: 6px;
+    bottom: 0px;
+    color: #bdbdbd;
+    font-size: 20px;
+    line-height: 12px;
+    text-align: center;
+    border-right: 1px solid #DFDFDF;
+    cursor: ew-resize;
+}
+
+.ka-mainLinks-splitter > div {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    margin-top: -18px;
 }
 
 a.ka-main-menu-item:hover {

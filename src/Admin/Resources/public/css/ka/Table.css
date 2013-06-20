@@ -31,6 +31,7 @@
 .ka-Table-body td {
     border-left: 1px solid white;
     border-right: 1px solid #e0e0de;
+    border-bottom: 1px solid #E9E9E9;
 }
 
 .ka-Table > thead > tr > th,

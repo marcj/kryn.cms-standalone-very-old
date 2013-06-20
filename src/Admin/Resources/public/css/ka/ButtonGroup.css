@@ -27,7 +27,7 @@
     display: inline-block;
     text-decoration: none;
     padding: 0px 9px;
-    color: #555;
+    color: #757575;
     background-color: #fefefe;
     border-top: 1px solid #ececec;
     border-bottom: 4px solid #e6e6e6;
@@ -40,7 +40,7 @@
 
 
 .ka-buttonGroup-item:hover {
-    background-color: #f4f4f4;
+    background-color: #f8f8f8;
     color: #222;
 }
 
