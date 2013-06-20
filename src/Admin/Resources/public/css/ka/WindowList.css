@@ -71,6 +71,7 @@
     bottom: 0;
     overflow: auto;
     -webkit-overflow-scrolling: touch;
+    background-color: #FBFBFB;
 }
 
 .ka-windowCombine-treeContainer + .ka-Splitter-main {
