@@ -139,8 +139,7 @@ class NodeCrud extends \Admin\ObjectCrud
         ),
         'layout' => array(
             'label' => 'Layout',
-            'store' => 'admin/stores/layout',
-            'type' => 'select',
+            'type' => 'layout',
             'width' => '220',
         ),
     );

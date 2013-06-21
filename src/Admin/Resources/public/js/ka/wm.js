@@ -65,6 +65,12 @@ ka.wm = {
         });
     },
 
+    fireResize: function () {
+        Object.each(ka.wm.windows, function (win) {
+            win.fireEvent('resize');
+        });
+    },
+
     resizeAll: function () {
         ka.settings['user']['windows'] = {};
         Object.each(ka.wm.windows, function (win) {
@@ -295,5 +301,8 @@ ka.wm = {
             win.content.setStyle('display', 'block');
         });
     }
-
 };
+
+window.addEvent('resize', function(){
+    ka.wm.fireResize();
+});

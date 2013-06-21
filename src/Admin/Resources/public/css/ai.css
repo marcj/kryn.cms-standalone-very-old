@@ -190,6 +190,7 @@ span.selectable span, div.selectable div {
     height: 40px;
     padding: 0 25px;
     background-color: #d3d3d3;
+    border-right: 1px solid #c5c5c5;
     margin-top: 10px;
     cursor: default;
     color: #555;

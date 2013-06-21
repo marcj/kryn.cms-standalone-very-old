@@ -342,7 +342,7 @@
                 <labelField>name</labelField>
                 <nested>true</nested>
                 <dataModel>custom</dataModel>
-                <class>\Admin\ObjectView</class>
+                <class>\Admin\Models\ObjectView</class>
                 <fields>
                     <field id="path" primaryKey="true">
                         <label>Path</label>

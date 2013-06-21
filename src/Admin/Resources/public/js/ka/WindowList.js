@@ -40,7 +40,7 @@ ka.WindowList = new Class({
 
         this.fReload = this.softReload.bind(this);
 
-        window.addEvent('softReload', this.fReload);
+        this.win.addEvent('softReload', this.fReload);
 
     },
 
@@ -308,6 +308,8 @@ ka.WindowList = new Class({
             selectable: true,
             safe: false
         });
+
+        this.win.addEvent('resize', this.table.updateTableHeader);
 
         document.id(this.table).addClass('ka-Table-windowList');
 

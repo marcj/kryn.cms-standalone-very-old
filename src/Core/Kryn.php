@@ -1780,7 +1780,8 @@ class Kryn extends Controller
          * Check and loading config.php or redirect to install.php
          */
         $configFile = PATH . 'app/config/config.xml';
-        if (!file_exists($configFile) && !defined('KRYN_INSTALLER') && -1 === strpos($_SERVER['PHP_SELF'], 'install.php')) {
+
+        if (!file_exists($configFile) && !defined('KRYN_INSTALLER') && false === strpos($_SERVER['PHP_SELF'], 'install.php')) {
             header("Location: install.php");
             exit;
         }
@@ -1836,10 +1837,10 @@ class Kryn extends Controller
         }
 
 
-        @ini_set('display_errors', 0);
+        @ini_set('display_errors', 1);
 
-        if (self::$config->getErrors()->getDisplay()) {
-            @ini_set('display_errors', 1);
+        if (!self::getSystemConfig()->getErrors()->getDisplay()) {
+            @ini_set('display_errors', 0);
         }
 
         if (!defined('KRYN_TESTS')) {

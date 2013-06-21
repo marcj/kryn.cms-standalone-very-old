@@ -1069,7 +1069,7 @@ function step3()
         <tr>
             <td width="450">Title*</td>
             <td>
-                <input type="text" class="ka-Input-text" required name="systemTitle" value="<?php echo Kryn::$config->getSystemTitle(); ?>">
+                <input type="text" class="ka-Input-text" required name="systemTitle" value="<?php echo Kryn::$config->getSystemTitle() ?: 'Fresh installation'; ?>">
             </td>
         </tr>
         <tr>
@@ -1244,7 +1244,7 @@ function step3()
                 </div>
             </td>
             <td><input style="width: 80px" type="text" class="ka-Input-text" name="prefix" id="db_prefix"
-                       value="<?php echo Kryn::$config->getDatabase()->getPrefix() ?>"/></td>
+                       value="<?php echo Kryn::$config->getDatabase()->getPrefix() ?: 'kryn_' ?>"/></td>
         </tr>
         <tr>
             <td colspan="2">

@@ -592,6 +592,21 @@ class ObjectCrud
 
                 switch ($pFields->getType()) {
                     case 'predefined':
+
+                        if (!$pFields->getOption('object')) {
+                            throw new \Exception(tf(
+                                'Fields of type `predefined` need a `object` option. [%s]',
+                                $pFields->toArray()
+                            ));
+                        }
+
+                        if (!$pFields->getOption('field')) {
+                            throw new \Exception(tf(
+                                'Fields of type `predefined` need a `field` option. [%s]',
+                                $pFields->toArray()
+                            ));
+                        }
+
                         $object = Object::getDefinition($pFields->getOption('object'));
                         if (!$object) {
                             throw new \Exception(tf(

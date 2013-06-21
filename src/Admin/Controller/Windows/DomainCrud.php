@@ -12,14 +12,14 @@ class DomainCrud extends \Admin\ObjectCrud
                 'domain' => array(
                     'type' => 'predefined',
                     'options' => array(
-                        'object' => 'Core\\Domain',
+                        'object' => 'Core:Domain',
                         'field' => 'domain'
                     )
                 ),
                 'master' => array(
                     'type' => 'predefined',
                     'options' => array(
-                        'object' => 'Core\\Domain',
+                        'object' => 'Core:Domain',
                         'field' => 'master'
                     )
                 ),

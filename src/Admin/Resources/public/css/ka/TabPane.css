@@ -1,6 +1,7 @@
 .kwindow-win-tabPane-pane {
     padding: 10px;
     margin: 0px 5px;
+    border: 1px solid #dcdcdc;
 }
 
 .kwindow-win-tabPane .kwindow-win-tabWrapperLast {
@@ -31,6 +32,11 @@
     border-radius: 0px;
     margin: 0px;
 }
+
+.ka-tabPane-full {
+    border: 0;
+}
+
 
 .ka-tabPane-full > .ka-tabGroup-small {
     position: relative;

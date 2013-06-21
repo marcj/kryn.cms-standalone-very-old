@@ -142,14 +142,15 @@
     margin-top: 15px;
 }
 
-.ka-list-combine-right > .ka-windowEdit-form {
+.ka-list-combine-right > .ka-windowEdit-form,
+.ka-list-combine-right > .ka-windowEdit-form-addDialog {
     position: absolute;
     right: 0;
     left: 0;
     top: 0;
     bottom: 0;
     border: 1px solid #DDD;
-    border-top: 0;
+    background-color: #fbfbfb;
 }
 
 .ka-list-combine-content {

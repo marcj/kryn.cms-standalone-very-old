@@ -104,7 +104,7 @@ class Field extends Model
      */
     public function getOption($key)
     {
-        return $this->options->getOption($key);
+        return $this->options ? $this->options->getOption($key) : null;
     }
 
 

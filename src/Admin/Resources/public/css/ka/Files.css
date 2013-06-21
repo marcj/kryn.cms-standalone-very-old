@@ -43,6 +43,7 @@
     position: relative;
     cursor: default;
     padding: 0 15px;
+    background-color: #fcfcfc;
 }
 
 .admin-files-fileContainer-fixed {

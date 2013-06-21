@@ -1,6 +1,6 @@
 <?php
 
-namespace Admin;
+namespace Admin\Models;
 
 use Core\SystemFile;
 
@@ -11,7 +11,6 @@ class ObjectView extends \Core\ORM\ORMAbstract
      */
     public function getItem($pPk, $pOptions = null)
     {
-
         $path = $pPk['path'];
 
         $module = $path;

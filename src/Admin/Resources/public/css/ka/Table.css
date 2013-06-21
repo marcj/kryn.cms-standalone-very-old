@@ -10,8 +10,12 @@
     border: 0;
 }
 
-.ka-Table-absolute {
+.ka-Table {
     border: 1px solid #dcdcdc;
+}
+
+.ka-Table-absolute {
+    border: 0;
 }
 
 .ka-Table-head {

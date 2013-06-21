@@ -32,28 +32,10 @@ var admin_nodes_frontend = new Class({
         new ka.Button(t('Versions'))
             .inject(this.headerLayout.getCell(1,2));
 
-        this.layoutSelection = new ka.Select(this.headerLayout.getCell(1,2));
-
-        Object.each(ka.settings.configs, function(config, key) {
-            if (config.themes) {
-                Array.each(config.themes, function(theme){
-                    var layouts = {};
-                    if (theme.layouts) {
-                        Array.each(theme.layouts, function(layout){
-                            layouts[layout.file] = layout.label;
-                        });
-                    }
-
-                    if (Object.getLength(layouts) > 0) {
-                        this.layoutSelection.addSplit(theme.label);
-                        Object.each(layouts, function(label, id) {
-                            id = id.replace(/@([^\/]*)/, '@$1.'+theme.id);
-                            this.layoutSelection.add(id, label);
-                        }.bind(this))
-                    }
-                }.bind(this))
-            }
-        }.bind(this));
+        this.layoutSelection = new ka.Field({
+            noWrapper: true,
+            type: 'layout'
+        }, this.headerLayout.getCell(1,2));
 
         this.saveBtn = new ka.Button(t('Save'))
             .setButtonStyle('blue')

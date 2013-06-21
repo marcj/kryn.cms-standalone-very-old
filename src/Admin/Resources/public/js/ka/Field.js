@@ -66,8 +66,14 @@ ka.Field = new Class({
         this.fieldForm = pFieldForm;
 
         if (pDefinition.type == 'predefined') {
-            var definition = ka.getObjectDefinition(pDefinition.object);
-            this.field = Object.clone(definition.fields[pDefinition.field]);
+            if (!pDefinition.options.object) {
+                throw 'Fields of type `predefined` need a `object` option.'
+            }
+            if (!pDefinition.options.field) {
+                throw 'Fields of type `predefined` need a `field` option.'
+            }
+            var definition = ka.getObjectDefinition(pDefinition.options.object);
+            this.field = Object.clone(definition.fields[pDefinition.options.field]);
 
             if (pDefinition.label) {
                 this.field.label = pDefinition.label;

@@ -1,5 +1,6 @@
 ka.Table = new Class({
 
+    Binds: ['updateTableHeader'],
     Implements: [Options, Events],
 
     tableBody: false,

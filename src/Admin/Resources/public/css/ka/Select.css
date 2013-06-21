@@ -23,19 +23,23 @@
 
     vertical-align: top;
     min-width: 40px;
-    margin-right: 3px;
-    margin-left: 3px;
-
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
+    margin: 0 3px;
 
     background-color: #fefefe;
     border: 1px solid #ececec;
-    border-bottom: 3px solid #e6e6e6;
-    border-right: 2px solid #e6e6e6;
+    border-bottom: 3px solid #d6d6d6;
+    border-right: 1px solid #e6e6e6;
 
     text-align: left;
+}
+
+
+.ka-windowEdit-action-bar .ka-Select-box,
+.ka-windowEdit-action-bar .ka-Select-box:link,
+.kwindow-win-titleGroups .ka-Select-box,
+.kwindow-win-titleGroups .ka-Select-box:link {
+    line-height: 38px;
+    height: 38px;
 }
 
 .ka-Select-arrow {

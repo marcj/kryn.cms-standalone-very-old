@@ -351,6 +351,8 @@ ka.WindowCombine = new Class({
 
         btnOther.setPressed(false);
         btn.setPressed(true);
+
+        this.setWinParams();
     },
 
     openAddItem: function () {
@@ -979,7 +981,6 @@ ka.WindowCombine = new Class({
     },
 
     add: function () {
-
         if (this.addBtn) {
             this.addBtn.setPressed(true);
         }
@@ -1028,6 +1029,7 @@ ka.WindowCombine = new Class({
         this.currentAdd.addEvent('add', this.addSaved.bind(this));
         this.currentAdd.addEvent('addMultiple', this.addSaved.bind(this));
 
+        this.setWinParams();
     },
 
     addNestedRoot: function () {
@@ -1382,19 +1384,26 @@ ka.WindowCombine = new Class({
     setWinParams: function () {
         var type = null;
         var selected = null;
-        if (this.currentEdit && this.currentEdit.classProperties) {
-            type = 'edit';
 
-            var primaries = {};
+        if ('list' === this.currentViewType) {
+            type = 'list';
+        } else {
+            if (this.currentEdit && this.currentEdit.classProperties) {
+                type = 'edit';
 
-            this.currentEdit.classProperties.primary.each(function (primary) {
-                primaries[primary] = this.currentItem[primary];
-            }.bind(this));
+                var primaries = {};
 
-            selected = primaries;
+                this.currentEdit.classProperties.primary.each(function (primary) {
+                    primaries[primary] = this.currentItem[primary];
+                }.bind(this));
 
-        } else if (this.currentAdd) {
-            type = 'add';
+                selected = primaries;
+
+            } else if (this.currentAdd) {
+                type = 'add';
+            } else {
+                type = 'compact';
+            }
         }
 
         var list = {};
