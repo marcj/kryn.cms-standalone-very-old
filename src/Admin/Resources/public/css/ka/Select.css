@@ -1,4 +1,5 @@
 .ka-Select-wrapper {
+    display: inline-block;
     position: relative;
     height: 30px;
     line-height: 30px;
@@ -27,7 +28,8 @@
 
     background-color: #fefefe;
     border: 1px solid #ececec;
-    border-bottom: 3px solid #d6d6d6;
+    border-bottom: 0;
+    box-shadow: 0 3px 0 #d6d6d6;
     border-right: 1px solid #e6e6e6;
 
     text-align: left;
@@ -69,8 +71,8 @@
 .ka-Select-box-open,
 .ka-Select-box-open:link,
 .ka-Select-box:active  {
-    border-bottom: 1px solid #dadada;
-    top: 3px;
+    box-shadow: 0 1px 0 #d6d6d6;
+    top: 2px;
 }
 
 .ka-Select-box:hover,
@@ -89,6 +91,7 @@
     background-color: transparent;
     background: transparent;
     border: 0;
+    box-shadow: none;
 }
 
 .ka-Select-box-focus {

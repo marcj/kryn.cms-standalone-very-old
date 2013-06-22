@@ -3,7 +3,7 @@ ka.FieldTypes.Select = new Class({
     Extends: ka.FieldAbstract,
 
     options: {
-        inputWidth: '100%',
+        inputWidth: 'auto',
         style: '',
 
         items: false, //array or object
@@ -20,16 +20,11 @@ ka.FieldTypes.Select = new Class({
             this.options.inputWidth -= 2;
         }
 
-        this.wrapper = new Element('div', {
-            'class': 'ka-Select-wrapper',
-            style: this.options.style,
-            styles: {
-                'width': this.options.inputWidth == '100%' ? null : this.options.inputWidth,
-                'height': this.options.inputHeight
-            }
-        }).inject(this.fieldInstance.fieldPanel);
+        this.select = new ka.Select(this.fieldInstance.fieldPanel, this.options);
 
-        this.select = new ka.Select(this.wrapper, this.options);
+        if (this.options.inputWidth && 'auto' !== this.options.inputWidth) {
+            document.id(this.select).setStyle('width', this.options.inputWidth);
+        }
 
         this.select.addEvent('change', this.fieldInstance.fireChange);
 

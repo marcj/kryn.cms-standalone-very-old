@@ -3,7 +3,7 @@
     font-family: 'SourceSansPro-Light';
     src: url('fonts/SourceSansPro-Light.eot');
     src: local('☺'), url('fonts/SourceSansPro-Light.woff') format('woff'), url('fonts/SourceSansPro-Light.ttf') format('truetype'), url('fonts/SourceSansPro-Light.svg') format('svg');
-    font-weight: lighter;
+    font-weight: normal;
     font-style: normal;
 }
 

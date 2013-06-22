@@ -9,18 +9,14 @@ ka.TabPane = new Class({
         }).inject(pParent);
 
         if (pUseThisAsWindowHeader) {
+            pUseThisAsWindowHeader.setContentStick(true);
             this.buttonGroup = pUseThisAsWindowHeader.addSmallTabGroup();
             this.box.addClass('ka-tabPane-tabsInWindowHeader');
-        } else if (!pFull) {
+        } else {
             this.buttonGroup = new ka.SmallTabGroup(this.box);
         }
 
         this.paneBox = new Element('div', {'class': 'kwindow-win-tabPane-pane ka-scrolling'}).inject(this.box);
-
-        if (pFull && !pUseThisAsWindowHeader) {
-            this.buttonGroup = new ka.SmallTabGroup(this.box);
-            new Element('div', {style: 'clear: both'}).inject(this.box);
-        }
 
         this.panes = [];
         this.buttons = [];

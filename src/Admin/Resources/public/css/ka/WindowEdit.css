@@ -23,6 +23,14 @@
     text-align: right;
 }
 
+.ka-windowEdit-action-bar > *:last-child {
+    margin-right: 0;
+}
+
+.ka-windowEdit-action-bar > *:first-child {
+    margin-left: 0;
+}
+
 .ka-windowEdit-form {
     position: absolute;
     left: 0;
@@ -77,23 +85,6 @@
 
 .ka-windowEdit-form .tinyMceExternalToolbarParent .mceExternalToolbar > table {
     width: 100%;
-}
-
-.ka-windowEdit-actions {
-    text-align: right;
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-}
-
-/* make line-height working even if there are only block-inline events. */
-.ka-windowEdit-actions::before {
-    content: "\a0";
-}
-
-.ka-windowEdit-actions a.icon-warning {
-    margin-right: 18px;
 }
 
 .ka-windowEdit-add-choosePosition-treeContainer {

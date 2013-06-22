@@ -10,6 +10,10 @@ html, body {
     padding: 0px;
     line-height: normal;
     text-align: left;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: geometricPrecision;
+    font-smooth: never;
+
 }
 
 .ka-admin table {
@@ -363,15 +367,13 @@ a.ka-main-menu-item:link {
     padding: 8px 5px;
     padding-left: 55px;
     color: white;
-    font-weight: normal;
     text-shadow: 0px 1px 0px #333;
     text-decoration: none;
     display: block;
     cursor: pointer;
     position: relative;
     outline: 0;
-    font-family: "SourceSansPro-Light";
-    font-weight: lighter;
+    font-family: "SourceSansPro-Regular";
     font-size: 16px;
 }
 
@@ -568,12 +570,13 @@ a.ka-main-menu-item-open:link {
 
 .ka-iconbar-item > a,
 .ka-iconbar-item > a:link {
-    color: #133344;
+    color: #f3f3f3;
     font-size: 16px;
     padding: 0 3px;
     display: inline-block;
     text-decoration: none;
     position: relative;
+    text-shadow: 0px 1px 0px #333
 }
 
 .ka-iconbar-item > a:hover:before {
@@ -595,14 +598,15 @@ a.ka-main-menu-item-open:link {
 
 .ka-search {
     position: relative;
-    padding: 0 5px;
-    height: 60px;
+    padding: 0 25px;
+    height: 75px;
     display: inline-block;
-    line-height: 66px;
+    line-height: 75px;
+    border-left: 1px solid #39739A;
 }
 
 .ka-search .ka-Input-text {
-    box-shadow: 0;
+    box-shadow: none;
     border: 0;
 }
 
@@ -616,8 +620,8 @@ a.ka-main-menu-item-open:link {
 
 .ka-search-query-icon {
     position: absolute;
-    right: 12px;
-    top: 27px;
+    right: 31px;
+    top: 31px;
 }
 
 a.ka-create-search-index-icon.green {

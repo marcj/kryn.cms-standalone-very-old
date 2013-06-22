@@ -1074,8 +1074,7 @@ ka.Window = new Class({
 
     addBottomBar: function () {
         this.bottomBar = new Element('div', {
-            'class': 'ka-windowEdit-actions',
-            style: 'bottom: 0px'
+            'class': 'ka-Window-bottom'
         }).inject(this.content, 'after');
 
         this.bottomBar.addButton = function (pTitle, pOnClick) {
@@ -1086,7 +1085,7 @@ ka.Window = new Class({
             return button;
         }.bind(this);
 
-        this.content.setStyle('bottom', 31);
+        this.content.addClass('kwindow-win-content-with-bottom');
         return this.bottomBar;
     },
 
@@ -1238,7 +1237,14 @@ ka.Window = new Class({
 
             new Drag(this.border, options);
         }.bind(this));
+    },
 
+    setContentStick: function(stick) {
+        if (stick) {
+            this.content.addClass('kwindow-win-content-stick');
+        } else {
+            this.content.removeClass('kwindow-win-content-stick');
+        }
     }
 
 });

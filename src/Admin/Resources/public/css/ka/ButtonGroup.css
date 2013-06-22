@@ -6,6 +6,10 @@
     position: relative;
 }
 
+.kwindow-win-buttonGroup:first-child {
+    margin-left: 0;
+}
+
 .kwindow-win-buttonGroup object {
     position: absolute;
     left: 0px;
@@ -30,7 +34,8 @@
     color: #757575;
     background-color: #fefefe;
     border-top: 1px solid #ececec;
-    border-bottom: 3px solid #d6d6d6;
+    border-bottom: 0;
+    box-shadow: 0 3px 0 #d6d6d6;
     border-right: 1px solid #e6e6e6;
 }
 
@@ -72,8 +77,8 @@
 .ka-buttonGroup-item-active,
 .ka-buttonGroup-item-active:link {
     color: #000;
-    border-bottom: 1px solid #dadada;
-    top: 3px;
+    box-shadow: 0 1px 0 #d6d6d6;
+    top: 2px;
 }
 
 .ka-buttonGroup-item-active img {

@@ -3,7 +3,7 @@
     font-family: 'SourceSansPro-Semibold';
     src: url('fonts/SourceSansPro-Semibold.eot');
     src: local('☺'), url('fonts/SourceSansPro-Semibold.woff') format('woff'), url('fonts/SourceSansPro-Semibold.ttf') format('truetype'), url('fonts/SourceSansPro-Semibold.svg') format('svg');
-    font-weight: normal;
+    font-weight: bold;
     font-style: normal;
 }
 

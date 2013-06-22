@@ -112,8 +112,7 @@ ka.Field = new Class({
                 }).inject(this.tr);
 
             } else {
-
-                this.main = new Element('div', {'class': 'ka-field'});
+                this.main = pContainer || new Element('div', {'class': 'ka-field'});
                 this.main.instance = this;
                 this.main.store('ka.Field', this);
             }
@@ -222,7 +221,7 @@ ka.Field = new Class({
 
         this.toElement().addClass('ka-field-type-' + this.options.type);
 
-        if (pContainer) {
+        if (pContainer && pContainer != this.toElement()) {
             this.inject(pContainer);
         }
 

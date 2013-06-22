@@ -295,7 +295,7 @@ ka.Table = new Class({
             if (firstTr) {
                 var columns = this.tableHead.getElement('tr').getChildren('th');
                 firstTr.getChildren('td').each(function(td, index) {
-                    columns[index].setStyle('width', td.getSize().x - 22); //20px for each padding and 2 for border
+                    columns[index].setStyle('width', td.getSize().x - 21 - (0 === index ? 0 : 1)); //20px for each padding and 1 or 2 for border
                 }.bind(this));
             }
         }

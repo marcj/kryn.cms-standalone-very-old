@@ -2,7 +2,6 @@
 .ka-Table-head,
 .ka-Table-body {
     width: 100%;
-    border: 1px solid #dcdcdc;
 }
 
 .ka-Table-absolute .ka-Table-body,
@@ -11,7 +10,7 @@
 }
 
 .ka-Table {
-    border: 1px solid #dcdcdc;
+    border-top: 1px solid #dcdcdc;
 }
 
 .ka-Table-absolute {
@@ -31,11 +30,21 @@
     top: 0px;
 }
 
+.ka-Table > thead > tr > th,
 .ka-Table-head th,
+.ka-Table > tbody > tr > td,
 .ka-Table-body td {
-    border-left: 1px solid white;
+    border-left: 1px solid #fafafa;
     border-right: 1px solid #e0e0de;
     border-bottom: 1px solid #E9E9E9;
+}
+
+
+.ka-Table > thead > tr > th:first-child,
+.ka-Table-head th:first-child,
+.ka-Table > tbody > tr > td:first-child,
+.ka-Table-body td:first-child {
+    border-left: 0;
 }
 
 .ka-Table > thead > tr > th,

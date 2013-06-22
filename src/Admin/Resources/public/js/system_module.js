@@ -14,6 +14,8 @@ var admin_system_module = new Class({
         this.tabButtons['local'] =
             this.tabGroup.addButton(_('Development'), '#icon-console', this.changeType.bind(this, 'local'));
 
+        this.win.setContentStick(true);
+
         this.panes = {};
         this.panes['installed'] = new Element('div', {
             'class': 'admin-system-module-pane'
@@ -27,9 +29,14 @@ var admin_system_module = new Class({
         }).inject(this.win.content);
 
         /* installed */
+
+        new Element('h3', {
+            text: t('All local installed composer packages.')
+        }).inject(this.panes['installed']);
         this.tableInstalled = new ka.Table().inject(this.panes['installed']);
+        document.id(this.tableInstalled).setStyle('top', 25);
         this.tableInstalled.setColumns([
-            [_('Title'), null, 'html'],
+            [_('Name'), null, 'html'],
             [_('Activated'), 70, 'html'],
             [_('Version'), 70],
             [_('Server'), 70],
