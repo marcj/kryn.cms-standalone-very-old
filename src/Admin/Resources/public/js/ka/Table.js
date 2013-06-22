@@ -154,12 +154,12 @@ ka.Table = new Class({
             return;
         }
 
-        this.main.empty();
+        var fragment = document.createDocumentFragment();
 
         if (this.options.absolute) {
             this.head = new Element('div', {
                 'class': 'ka-Table-head-container'
-            }).inject(this.main);
+            }).inject(fragment);
 
             if (this.options.absolute == false) {
                 this.head.setStyle('position', 'relative');
@@ -176,22 +176,23 @@ ka.Table = new Class({
 
             if (this.options.absolute == false) {
                 this.body = new Element('div', {
+                    'class': 'ka-scrolling',
                     style: 'position: relative;'
-                }).inject(this.main);
+                }).inject(fragment);
             } else {
                 this.body = new Element('div', {
-                    'class': 'ka-Table-body-container'
-                }).inject(this.main);
+                    'class': 'ka-Table-body-container ka-scrolling'
+                }).inject(fragment);
             }
 
             this.tableBody = new Element('table', {
-                'class': 'ka-Table-body ka-Table-body-absolute',
+                'class': 'ka-Table-body',
                 cellpadding: 0, cellspacing: 0
-            }).inject(this.body, 'bottom');
+            }).inject(this.body);
         } else {
             this.table = new Element('table', {
                 'class': 'ka-Table'
-            }).inject(this.main);
+            }).inject(fragment);
 
             this.tableHead = new Element('thead').inject(this.table);
             this.tableBody = new Element('tbody').inject(this.table);
@@ -227,6 +228,9 @@ ka.Table = new Class({
             }
 
         }.bind(this));
+
+        this.main.empty();
+        this.main.appendChild(fragment);
     },
 
     getRows: function () {

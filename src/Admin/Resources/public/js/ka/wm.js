@@ -85,7 +85,6 @@ ka.wm = {
             }
         });
         ka.wm.lastWindow = pWindow;
-        console.log('setFrontWindow', ka.wm.lastWindow);
     },
 
     loadWindow: function (pEntryPoint, pLink, pParentWindowId, pParams, pInline) {
@@ -188,7 +187,6 @@ ka.wm = {
             .addEvent('click', function(){ win.toFront(); });
 
             if (icon = (win.getEntryPointDefinition() || {}).icon) {
-                console.log(icon);
                 if ('#' === icon.substr(0, 1)) {
                     el.addClass(icon.substr(1));
                 } else {

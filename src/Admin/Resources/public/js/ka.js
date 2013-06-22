@@ -203,7 +203,6 @@ ka.entrypoint = {
         if (typeOf(path) != 'string') {
             return;
         }
-        console.log('get', path);
 
         var splitted = path.split('/');
         var extension = splitted[0];
@@ -789,85 +788,28 @@ ka.getObjectFieldLabel = function (pValue, pField, pFieldId, pObjectKey, pRelati
         return ka.htmlEntities(typeOf(pValue[fieldId]) != 'null' ? pValue[fieldId] : '');
     }
 
-    var value = pValue[fieldId] || '';
-
     if (showAsField.type == 'predefined') {
         if (ka.getObjectDefinition(showAsField.object)) {
             showAsField = ka.getObjectDefinition(showAsField.object).fields[showAsField.field];
         }
     }
 
-    if (showAsField.format == 'timestamp') {
-        value = new Date(value * 1000).toLocaleString();
+    showAsField.type = showAsField.type || 'text';
+    field.type = field.type || 'text';
+
+    var clazz = showAsField.type.charAt(0).toUpperCase() + showAsField.type.slice(1);
+    if (!ka.LabelTypes[clazz]) {
+        clazz = 'Text';
     }
 
-    if (showAsField.type == 'datetime' || showAsField.type == 'date') {
-        if (value != 0 && value) {
-            var format = ( !showAsField.format ) ? '%d.%m.%Y %H:%M' : showAsField.format;
-            value = new Date(value * 1000).format(format);
-        } else {
-            value = '';
-        }
+    if (pRelationsAsArray) {
+        showAsField.options = showAsField.options || {};
+        showAsField.options.relationsAsArray = true;
     }
 
-    //relations
-    var label, relation;
-    if (field.type == 'object' || !field.type) {
-        if (pFieldId.indexOf('.') > 0) {
-            relation = pFieldId.split('.')[0];
-            label = pFieldId.split('.')[1];
-        } else {
-            //find label
-            var def = ka.getObjectDefinition(pObjectKey);
-            label = def.labelField;
-        }
-    }
+    var labelType = new ka.LabelTypes[clazz](field, showAsField, pFieldId, pObjectKey);
 
-    if (typeOf(pValue[relation]) == 'object') {
-        //to-one relation
-        value = {};
-        if (pRelationsAsArray) {
-            value[label] = pValue[relation][label];
-            return ka.htmlEntities(value);
-        } else {
-            return ka.htmlEntities(pValue[relation] ? pValue[relation][label] : '');
-        }
-    }
-
-    if (typeOf(pValue[relation]) == 'array') {
-        //to-many relation
-        //we join by pField['join'] char, default is ', '
-        value = [];
-        Array.each(pValue[relation], function (relValue) {
-            value.push(relValue[label]);
-        });
-        var joined = value.join(pField['join'] || ', ');
-        if (pRelationsAsArray) {
-            value = {};
-            value[label] = joined;
-            return ka.htmlEntities(value);
-        } else {
-            return ka.htmlEntities(joined);
-        }
-    }
-
-    if (field.type == 'select') {
-        value = pValue[pFieldId + '_' + pField.table_label] || pValue[pFieldId + '_' + pField.tableLabel] ||
-            pValue[pFieldId + '__label'];
-    }
-
-    if (showAsField.type && showAsField.type.toLowerCase() == 'imagemap') {
-        //TODO
-    }
-
-    if (field.imageMap) {
-        return '<img src="' + _path + ka.htmlEntities(field.imageMap[value]) + '"/>';
-    }
-    if ('checkbox' === field.type) {
-        var clazz = value ? 'icon-checkmark-2' : 'icon-cross';
-        return '<span class="' + clazz + '"></span>';
-    }
-    return ka.htmlEntities(value);
+    return labelType.render(pValue);
 }
 
 /**

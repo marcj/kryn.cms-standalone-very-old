@@ -73,20 +73,15 @@
     top: 51px;
     right: 0px;
     bottom: 0px;
-    overflow-y: scroll;
-}
-
-.ka-Table-alignTop > div > .ka-Table-body > tr > td {
-    vertical-align: top;
 }
 
 .ka-Table > tbody  > tr > td,
 .ka-Table-body > tr > td {
     padding: 10px;
     cursor: default;
-    overflow-x: hidden;
     text-overflow: ellipsis;
     line-height: 25px;
+    vertical-align: top;
 }
 
 .ka-Table > tbody > tr:nth-child(1n) > td,

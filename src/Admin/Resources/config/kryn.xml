@@ -1,7 +1,7 @@
 <config>
     <bundle>
         <adminAssets>
-            <asset>@CoreBundle/mootools-core.js</asset>
+            <asset>@CoreBundle/mootools-core-1.4.5-fixed-memory-leak.js</asset>
             <asset>@CoreBundle/mootools-more.js</asset>
             <asset>@CoreBundle/mowla.min.js</asset>
             <asset>@AdminBundle/js/mootools-extras/String.sprintf.js</asset>
@@ -31,6 +31,7 @@
             <asset>@AdminBundle/js/ka/FieldTypes/Object.js</asset>
             <asset>@AdminBundle/js/ka/FieldTypes/Select.js</asset>
             <assets>@AdminBundle/js/ka/FieldTypes/*.js</assets>
+            <assets>@AdminBundle/js/ka/LabelTypes/*.js</assets>
 
             <assets>@AdminBundle/js/ka/ContentTypes/*.js</assets>
             <assets>@AdminBundle/js/ka/ui/*.js</assets>

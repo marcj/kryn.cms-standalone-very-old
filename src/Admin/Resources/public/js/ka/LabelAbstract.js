@@ -1,11 +1,27 @@
 ka.LabelTypes = ka.LabelTypes || {};
 
 ka.LabelAbstract = new Class({
+    Implements: [Options, Events],
 
     definition: {},
+    fieldId: '',
+    objectKey: '',
+    originField: {},
 
-    initialize: function(definition){
+    options: {
+
+    },
+
+    initialize: function(originField, definition, fieldId, objectKey){
+        this.originField = originField;
         this.definition = definition;
+        this.setOptions(definition.options);
+        this.fieldId = fieldId;
+        this.objectKey = objectKey;
+    },
+
+    render: function(values){
+        return ka.htmlEntities(values[this.fieldId]);
     },
 
     getDefinition: function(){
@@ -15,5 +31,4 @@ ka.LabelAbstract = new Class({
     setDefinition: function(definition){
         this.definition = definition;
     }
-
 });
