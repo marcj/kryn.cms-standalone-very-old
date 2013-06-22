@@ -146,7 +146,7 @@ ka.AdminInterface = new Class({
             }.bind(this));
         } else {
             this.desktopContainer = new Element('div', {
-                'class': 'ka-desktop ka-admin'
+                'class': 'ka-desktop ka-admin ka-scrolling'
             }).inject(this.border);
         }
     },
@@ -215,11 +215,11 @@ ka.AdminInterface = new Class({
         }
 
         this._iconSessionCounterDiv = new Element('div', {
-            'class': 'ka-iconbar-item icon-users',
+            'class': 'ka-iconbar-item',
             title: t('Visitors')
         }).inject(this.mainMenuRight);
 
-        this._iconSessionCounter = new Element('span', {text: 0}).inject(this._iconSessionCounterDiv);
+        this._iconSessionCounter = new Element('a', {'class': 'icon-users', text: 0}).inject(this._iconSessionCounterDiv);
 
         if (!this.searchContainer) {
             this.searchContainer = new Element('div', {

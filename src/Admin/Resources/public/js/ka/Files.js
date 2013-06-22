@@ -859,7 +859,7 @@ ka.Files = new Class({
         new Element('img', {
             src: _path + 'bundles/admin/images/icon-search-loupe.png',
             style: 'position: absolute; right: 12px; top: 15px;'
-        }).inject(this.search, 'after');
+        }).inject(searchContainer);
 
         this.mainLayout = new ka.Layout(this.wrapper, {
             fixed: this.options.fixed,

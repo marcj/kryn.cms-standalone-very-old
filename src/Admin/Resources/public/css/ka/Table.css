@@ -99,23 +99,21 @@
     background-color: #f4f4f4;
 }
 
-.ka-Table-hover > tbody > tr:hover > td,
-.ka-Table-hover > div > .ka-Table-body > tr:hover > td {
+.ka-Table tr:hover > td,
+.ka-Table-body tr:hover > td {
     background-color: #eee;
 }
 
-.ka-Table > tbody > tr.active > td,
-.ka-Table-hover > tbody > tr.active > td,
-.ka-Table-body > div > tr.active > td,
-.ka-Table-body > div > tr.active:hover > td,
-.ka-Table-body > div > tr.ka-filepane-file-detail-active > td,
-.ka-Table-body > div > tr.ka-filepane-file-detail-active:hover > td,
-.ka-Table-body > tr.active > td,
-.ka-Table-body > tr.active:hover > td
-.ka-Table-hover > div > .ka-Table-body > tr.active > td,
-.ka-Table-hover > div > .ka-Table-body > tr.active:hover > td {
+.ka-Table tr.active > td,
+.ka-Table-body tr.active > td {
     background-color: #22638E;
     border-left: 1px solid #297db4;
     border-right: 1px solid #22557f;
     color: white;
+}
+
+
+.ka-Table tr.active > td:first-child,
+.ka-Table-body tr.active > td:first-child {
+    border-left: 0;
 }

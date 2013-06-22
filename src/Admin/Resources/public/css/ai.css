@@ -64,10 +64,6 @@ a[class*=" icon-"]{
     -webkit-perspective: 1000;
 }
 
-.ka-scrolling > * {
-    -webkit-transform: translateZ(0px);
-}
-
 .kryn_cke_toolbar {
     position: absolute !important;
     top: 172px !important;

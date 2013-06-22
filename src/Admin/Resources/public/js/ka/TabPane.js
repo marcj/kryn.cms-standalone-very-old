@@ -16,7 +16,7 @@ ka.TabPane = new Class({
             this.buttonGroup = new ka.SmallTabGroup(this.box);
         }
 
-        this.paneBox = new Element('div', {'class': 'kwindow-win-tabPane-pane ka-scrolling'}).inject(this.box);
+        this.paneBox = new Element('div', {'class': 'kwindow-win-tabPane-pane'}).inject(this.box);
 
         this.panes = [];
         this.buttons = [];
@@ -70,7 +70,7 @@ ka.TabPane = new Class({
         var id = this.panes.length;
         var res = {};
         res.pane = new Element('div', {
-            'class': 'ka-tabPane-pane'
+            'class': 'ka-tabPane-pane ka-scrolling'
         }).inject(this.paneBox);
 
         this.panes.include(res.pane);
