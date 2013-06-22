@@ -2,10 +2,6 @@
 global $_start;
 global $_time;
 
-if (!PATH) {
-    exit;
-}
-
 $_time = time();
 $_start = microtime(true);
 chdir(__DIR__ . '/../../');
