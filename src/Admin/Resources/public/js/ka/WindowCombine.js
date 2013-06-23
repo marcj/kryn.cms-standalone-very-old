@@ -247,6 +247,18 @@ ka.WindowCombine = new Class({
             }
         }
 
+        if (this.currentEdit) {
+            this.currentEdit.destroy();
+            delete this.currentEdit;
+        }
+
+        if (this.currentAdd) {
+            this.currentAdd.destroy();
+            delete this.currentAdd;
+        }
+
+        this.win.setTitle(t(''));
+
         if (this.nestedField) {
             //deselect current trees
             this.nestedField.getFieldObject().deselect();
@@ -551,7 +563,6 @@ ka.WindowCombine = new Class({
     },
 
     reload: function () {
-
         if (this.ignoreNextSoftLoad) {
             delete this.ignoreNextSoftLoad;
             return;
@@ -993,12 +1004,12 @@ ka.WindowCombine = new Class({
             this.addRootBtn.setPressed(false);
         }
 
-        this.win.setTitle(t('Add'));
-
         this.lastItemPosition = null;
         this.currentItem = null;
 
         this.deselect();
+
+        this.win.setTitle(t('Add'));
 
         if (this.currentEdit) {
             this.currentEdit.destroy();
@@ -1009,10 +1020,12 @@ ka.WindowCombine = new Class({
             this.currentAdd.destroy();
             delete this.currentAdd;
         }
+
         if (this.currentRootAdd) {
             this.currentRootAdd.destroy();
             delete this.currentRootAdd;
         }
+
         if (this.currentRootEdit) {
             this.currentRootEdit.destroy();
             delete this.currentRootEdit;
@@ -1095,7 +1108,6 @@ ka.WindowCombine = new Class({
     },
 
     addSaved: function (pRequest, pResponse) {
-
         this.ignoreNextSoftLoad = true;
 
         if (this.currentAdd.classProperties.primary.length > 1) {
@@ -1105,26 +1117,22 @@ ka.WindowCombine = new Class({
         this.lastLoadedItem = null;
         this._lastItems = null;
 
-        this.needSelection = true;
-
         this.win.setParameter({
-            selected: ka.getObjectUrlId(this.classProperties.object, pResponse.data)
+            selected: ka.normalizeObjectKey(this.classProperties['object']) + '/' + ka.getObjectUrlId(this.classProperties['object'], pResponse.data)
         });
 
+        this.needSelection = true;
         if (this.classProperties.asNested) {
-
             if (pRequest._position == 'first') {
                 this.nestedField.getFieldObject().reloadBranch(pRequest._pk, pRequest._targetObjectKey);
             } else {
                 this.nestedField.getFieldObject().reloadParentBranch(pRequest._pk, pRequest._targetObjectKey);
             }
-
         } else {
             return this.loadCount(function (count) {
                 this.loadAround(this.win.params.selected);
             }.bind(this));
         }
-
     },
 
     toggleRemove: function () {
@@ -1212,6 +1220,10 @@ ka.WindowCombine = new Class({
 
             this.currentEdit.addEvent('save', this.saved.bind(this));
             this.currentEdit.addEvent('load', this.itemLoaded.bind(this));
+            this.currentEdit.addEvent('remove', function(){
+                this.deselect();
+                this.reload();
+            }.bind(this));
 
         } else {
 
@@ -1489,8 +1501,8 @@ ka.WindowCombine = new Class({
                 getPosition: ka.getCroppedObjectId(pPrimary),
                 order: this.order,
                 filter: this.searchEnable,
-                language: (this.languageSelect) ? this.languageSelect.getValue() : false,
-                filterVals: (this.searchEnable) ? this.getSearchVals() : ''
+                language: (this.languageSelect) ? this.languageSelect.getValue() : null,
+                filterVals: (this.searchEnable) ? this.getSearchVals() : null
             });
     },
 
@@ -1642,7 +1654,6 @@ ka.WindowCombine = new Class({
         }
 
         if (this.needSelection) {
-
             if (this.win.params.selected == ka.normalizeObjectKey(this.classProperties['object']) + '/' + pk) {
                 item.fireEvent('click', pItem);
                 item.addClass('active');

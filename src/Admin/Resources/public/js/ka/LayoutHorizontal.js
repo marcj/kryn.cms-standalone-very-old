@@ -109,11 +109,10 @@ ka.LayoutHorizontal = new Class({
     },
 
     addColumn: function (pWidth) {
-
         var td = new Element('td', {
             width: pWidth,
             valign: 'top',
-            height: this.getContainer().get('height')
+            height: this.getContainer().get('height') || '100%'
         }).inject(this.getContainer());
 
         var div = new Element('div', {
@@ -121,8 +120,6 @@ ka.LayoutHorizontal = new Class({
         }).inject(td);
 
         this.columns.push(div);
-
     }
-
 
 });

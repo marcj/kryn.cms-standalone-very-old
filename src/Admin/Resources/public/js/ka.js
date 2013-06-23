@@ -461,9 +461,6 @@ ka.getCroppedObjectId = function (pUri) {
  * @return {String} urlencoded internal uri part of the id.
  */
 ka.getObjectUrlId = function (pObjectKey, pItem) {
-    if (!pItem) {
-        throw 'pItem missing.';
-    }
     var pks = ka.getObjectPrimaryList(pObjectKey);
 
     if (pks.length == 0) {

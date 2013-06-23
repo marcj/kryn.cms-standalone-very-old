@@ -4,6 +4,8 @@ var test_test = new Class({
 
         this.win = pWin;
 
+        new ka.Button('Test').inject(pWin.getContentContainer());
+
         new ka.Field({
             label: 'Node',
             type: 'object',

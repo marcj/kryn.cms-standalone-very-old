@@ -545,7 +545,7 @@ ka.Select = new Class({
             clearTimeout(this.lrct);
         }
 
-        this.lrct = this._loadItems.delay(50, this);
+        this.lrct = this._loadItems.delay(1, this);
     },
 
     _loadItems: function () {

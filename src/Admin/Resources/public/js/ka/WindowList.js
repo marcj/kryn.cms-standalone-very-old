@@ -80,16 +80,15 @@ ka.WindowList = new Class({
 
     deleteItem: function (pItem) {
         var _this = this;
-        this.lastRequest = new Request.JSON({url: _pathAdmin + this.win.getEntryPoint() +
-            '?cmd=deleteItem', noCache: true, onComplete: function (res) {
 
+        var objectId = ka.getObjectUrlId(this.classProperties['object'], this.winParams.item);
+
+        this.lastRequest = new Request.JSON({url: _pathAdmin + this.win.getEntryPoint() + '/' + objectId, noCache: true, onComplete: function (res) {
             //todo, handle errors
             this.win.softReload();
             this._deleteSuccess();
             this.reload();
-        }.bind(this)}).post({
-                item: pItem
-            });
+        }.bind(this)}).get();
     },
 
     _deleteSuccess: function () {
