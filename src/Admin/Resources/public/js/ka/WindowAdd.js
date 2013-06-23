@@ -328,7 +328,6 @@ ka.WindowAdd = new Class({
         }
 
         var addChooser = function (pDom, pDirection, pItem, pTree) {
-
             var div;
 
             if (pDirection != 'into') {

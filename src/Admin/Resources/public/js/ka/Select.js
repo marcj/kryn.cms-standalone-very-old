@@ -549,7 +549,6 @@ ka.Select = new Class({
     },
 
     _loadItems: function () {
-        //logger('renderChooser: '+(this.maximumItemsReached+0)+'/'+(this.whileFetching+0)+'/'+this.loaded);
         if (!this.box.hasClass('ka-Select-box-open')) {
             return false;
         }
@@ -587,7 +586,7 @@ ka.Select = new Class({
             style: 'display: none;'
         }).inject(this.chooser);
 
-        this.lastLoaderGif = new Element('img')
+        this.lastLoaderGif = new Element('img');
 
         this.lastLoader.loaderId = this.loaderId++;
 
@@ -627,9 +626,9 @@ ka.Select = new Class({
     },
 
     addItemToChooser: function (pItem) {
-
         var a;
 
+        console.log('addItemToChooser', pItem);
         if (pItem.isSplit) {
             a = new Element('div', {
                 html: pItem.label,
@@ -674,7 +673,6 @@ ka.Select = new Class({
     },
 
     renderLabel: function (pData) {
-
         if (typeOf(pData) == 'null') {
             return '';
         }
@@ -877,11 +875,6 @@ ka.Select = new Class({
      * @param {int}    pPos   Starts with 0
      */
     add: function (pId, pLabel, pPos) {
-        if (typeOf(pLabel) == 'array') {
-            pImagePath = pLabel[1];
-            pLabel = pLabel[0];
-        }
-
         if (pPos == 'top') {
             this.items.splice(0, 1, {id: pId, label: pLabel});
         } else if (pPos > 0) {

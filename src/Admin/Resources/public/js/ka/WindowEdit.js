@@ -468,11 +468,12 @@ ka.WindowEdit = new Class({
         //generate index, fieldkey => main-tabid
         Object.each(this.classProperties.fields, function (item, key) {
             if (item.type == 'tab') {
-                this.setFieldToTabIdIndex(item.depends, key);
+                this.setFieldToTabIdIndex(item.children, key);
             }
         }.bind(this));
 
         //generate index, fieldkey => main-tabid
+        //@obsolete
         Object.each(this.classProperties.tabFields, function (items, key) {
             this.setFieldToTabIdIndex(items, key);
         }.bind(this));
@@ -482,8 +483,8 @@ ka.WindowEdit = new Class({
     setFieldToTabIdIndex: function (childs, tabId) {
         Object.each(childs, function (item, key) {
             this.fieldToTabOIndex[key] = tabId;
-            if (item.depends) {
-                this.setFieldToTabIdIndex(item.depends, tabId);
+            if (item.children) {
+                this.setFieldToTabIdIndex(item.children, tabId);
             }
         }.bind(this));
     },
@@ -752,12 +753,15 @@ ka.WindowEdit = new Class({
     },
 
     retrieveData: function (pWithoutEmptyCheck) {
+        console.log('checkValid', this.fieldForm.checkValid());
         if (!pWithoutEmptyCheck && !this.fieldForm.checkValid()) {
             var invalidFields = this.fieldForm.getInvalidFields();
+            console.log('invalidFields', invalidFields);
 
             Object.each(invalidFields, function (item, fieldId) {
 
                 var properTabKey = this.fieldToTabOIndex[fieldId];
+                console.log('tabForField', fieldId, properTabKey);
                 if (!properTabKey) {
                     return;
                 }

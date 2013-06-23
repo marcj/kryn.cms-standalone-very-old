@@ -12,11 +12,15 @@ class Field extends Model
     protected $id;
 
     /**
+     * The label.
+     *
      * @var string
      */
     protected $label;
 
     /**
+     * Shows a grayed description text. __Warning__: This value is set as HTML. So escape `<` and `>`.
+     *
      * @var string
      */
     protected $desc;
@@ -42,9 +46,60 @@ class Field extends Model
     protected $target;
 
     /**
+     * The default/initial value.
+     *
+     * @var mixed
+     */
+    protected $default = null;
+
+    /**
+     * If this field starts with a empty value (on initialisation).
+     *
+     * @var bool
+     */
+    protected $startEmpty = false;
+
+    /**
+     * If this field returns the value even though it's the `default` value (in a form).
+     *
+     * @var bool
+     */
+    protected $returnDefault = false;
+
+    /**
+     * Defines if this field needs a valid value.
+     *
+     * @var bool
+     */
+    protected $required = false;
+
+    /**
+     * If this field injects a `tr`+2x`td` instead of `div`.
+     *
      * @var bool
      */
     protected $tableItem = false;
+
+    /**
+     * If this fields is disabled or not.
+     *
+     * @var bool
+     */
+    protected $disabled = false;
+
+    /**
+     * If this fields contains a default wrapper div with title, description etc or only the input itself.
+     *
+     * @var bool
+     */
+    protected $noWrapper = false;
+
+    /**
+     * Shows a little help icon and points to the given help id.
+     *
+     * @var string
+     */
+    protected $help;
 
     /**
      * @var string
@@ -71,6 +126,10 @@ class Field extends Model
      */
     protected $options;
 
+    /**
+     * @param array  $values
+     * @param string $key
+     */
     public function fromArray($values, $key = null)
     {
         parent::fromArray($values, $key);
@@ -78,8 +137,6 @@ class Field extends Model
             $this->setId($key);
         }
     }
-
-
 
     /**
      * @param Options $options
@@ -122,6 +179,16 @@ class Field extends Model
     public function getChildren()
     {
         return $this->children;
+    }
+
+    public function getChildrenArray(){
+        if (null !== $this->children) {
+            $children = [];
+            foreach ($this->children as $child) {
+                $children[$child->getId()] = $child->toArray();
+            }
+            return $children;
+        }
     }
 
     /**
@@ -316,5 +383,116 @@ class Field extends Model
         return $this->tableItem;
     }
 
+    /**
+     * @param boolean $startEmpty
+     */
+    public function setStartEmpty($startEmpty)
+    {
+        $this->startEmpty = $startEmpty;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getStartEmpty()
+    {
+        return $this->startEmpty;
+    }
+
+    /**
+     * @param boolean $required
+     */
+    public function setRequired($required)
+    {
+        $this->required = $required;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getRequired()
+    {
+        return $this->required;
+    }
+
+    /**
+     * @param boolean $returnDefault
+     */
+    public function setReturnDefault($returnDefault)
+    {
+        $this->returnDefault = $returnDefault;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getReturnDefault()
+    {
+        return $this->returnDefault;
+    }
+
+    /**
+     * @param boolean $noWrapper
+     */
+    public function setNoWrapper($noWrapper)
+    {
+        $this->noWrapper = $noWrapper;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getNoWrapper()
+    {
+        return $this->noWrapper;
+    }
+
+    /**
+     * @param string $help
+     */
+    public function setHelp($help)
+    {
+        $this->help = $help;
+    }
+
+    /**
+     * @return string
+     */
+    public function getHelp()
+    {
+        return $this->help;
+    }
+
+    /**
+     * @param mixed $default
+     */
+    public function setDefault($default)
+    {
+        $this->default = $default;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDefault()
+    {
+        return $this->default;
+    }
+
+    /**
+     * @param boolean $disabled
+     */
+    public function setDisabled($disabled)
+    {
+        $this->disabled = $disabled;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getDisabled()
+    {
+        return $this->disabled;
+    }
 
 }

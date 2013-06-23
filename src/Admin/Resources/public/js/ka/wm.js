@@ -99,7 +99,6 @@ ka.wm = {
             throw tf('Parent `%d` window not found.', pParentWindowId);
         }
 
-        logger('loadWindow: ', pEntryPoint, pInline, pParentWindowId);
         ka.wm.windows[instance] = new ka.Window(pEntryPoint, pLink, instance, pParams, pInline, pParentWindowId);
         ka.wm.windows[instance].toFront();
         ka.wm.updateWindowBar();
@@ -227,7 +226,7 @@ ka.wm = {
 
         Object.each(ka.wm.windows, function (win) {
             if (win.isInFront() && !win.isInline()) {
-                hash = win.getEntryPoint() + ( win.getParameter() ? '!' + JSON.encode(win.getParameter()) : '' );
+                hash = win.getEntryPoint() + ( win.getParameter() ? '?' + Object.toQueryString(win.getParameter()) : '' );
             }
         });
 
@@ -246,15 +245,15 @@ ka.wm = {
 
         if (window.location.hash) {
 
-            var first = window.location.hash.indexOf('!');
+            var first = window.location.hash.indexOf('?');
             var entryPoint = window.location.hash.substr(1);
             var parameters = null;
             if (first !== -1) {
                 entryPoint = entryPoint.substr(0, first - 1);
 
                 parameters = window.location.hash.substr(first + 1);
-                if (parameters) {
-                    parameters = JSON.decode(parameters);
+                if (parameters && 'string' === typeOf(parameters)) {
+                    parameters = parameters.parseQueryString();
                 }
             }
 

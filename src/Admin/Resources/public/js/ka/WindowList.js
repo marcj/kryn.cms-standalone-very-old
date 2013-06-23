@@ -372,7 +372,6 @@ ka.WindowList = new Class({
     },
 
     renderSearchPane: function () {
-
         this.searchPane = new Element('div', {
             'class': 'ka-list-search-pane'
         }).inject(this.main, 'after');

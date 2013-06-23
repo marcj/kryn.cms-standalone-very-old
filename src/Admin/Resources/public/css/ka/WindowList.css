@@ -378,7 +378,8 @@ a.ka-list-search-button-active:link {
 
 .ka-list-combine-item.active,
 .ka-list-combine-item.active:hover {
-    background-color: #EBEBEB;
+    background-color: #22638e;
+    color: white;
 }
 
 .ka-list-combine-splititem {
@@ -391,9 +392,10 @@ a.ka-list-search-button-active:link {
 
 .ka-list-combine-left-top {
     position: relative;
-    height: 35px;
+    height: 33px;
     border-bottom: 1px solid #bebebe;
     color: #444;
+    padding: 6px;
 }
 
 .ka-list-combine-left-top .ka-Select-box,
@@ -404,7 +406,7 @@ a.ka-list-search-button-active:link {
 .ka-list-combine-items {
     position: absolute;
     left: 0;
-    top: 36px;
+    top: 46px;
     bottom: 0px;
     right: 0;
     background-color: white;

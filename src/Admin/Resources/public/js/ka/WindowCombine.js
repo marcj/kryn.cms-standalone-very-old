@@ -110,7 +110,7 @@ ka.WindowCombine = new Class({
             this.itemsFrom = new Element('span', {text: '0'}).inject(this.itemCount);
             new Element('span', {text: '-'}).inject(this.itemCount);
             this.itemsLoaded = new Element('span', {text: '0'}).inject(this.itemCount);
-            new Element('span', {text: '/'}).inject(this.itemCount);
+            new Element('span', {text: t('%d of %d').replace('%d', '').replace('%d', '')}).inject(this.itemCount);
             this.itemsMaxSpan = new Element('span', {text: '0'}).inject(this.itemCount);
 
             this.mainLeftDeleter = new Element('div', {
@@ -156,8 +156,6 @@ ka.WindowCombine = new Class({
         }).inject(this.container, 'top');
 
         document.id(this.table).setStyle('top', 60);
-
-        this.setView('list');
     },
 
     leftItemsDown: function (pE) {
@@ -230,7 +228,6 @@ ka.WindowCombine = new Class({
         this.loadItem(newTarget._item);
 
         this.checkScrollPosition(false, true);
-
     },
 
     checkClassProperties: function () {
@@ -274,10 +271,11 @@ ka.WindowCombine = new Class({
         this.parent();
     },
 
-    setView: function (viewType) {
+    setView: function (viewType, withoutParamsSet) {
         var btn = 'list' === viewType ? this.viewListBtn : this.viewCompactBtn;
         var btnOther = 'list' === viewType ? this.viewCompactBtn : this.viewListBtn;
 
+        console.log('setView', viewType);
         if (this.currentViewType !== viewType) {
             this.currentViewType = viewType;
 
@@ -294,6 +292,7 @@ ka.WindowCombine = new Class({
                 this.addBtn.setPressed(false);
 
                 this.listContainer.setStyle('display', 'block');
+                this.actionBarNavigation.setStyle('display', 'block');
 
                 this.lastViewFx = new Fx.Elements([
                     this.listContainer,
@@ -347,17 +346,19 @@ ka.WindowCombine = new Class({
                     this.actionBarNavigation.setStyle('display', 'none');
                 }.bind(this));
             }
+            if (true !== withoutParamsSet) {
+                this.setWinParams();
+            }
         }
 
         btnOther.setPressed(false);
         btn.setPressed(true);
-
-        this.setWinParams();
     },
 
     openAddItem: function () {
         this.setView('combine');
         this.add();
+        this.setWinParams();
     },
 
     renderSearchPane: function () {
@@ -368,12 +369,11 @@ ka.WindowCombine = new Class({
 
         this.sortSelect = new ka.Select();
         this.sortSelect.inject(this.sortSpan);
-        document.id(this.sortSelect).addClass('ka-Select-transparent');
 
         Object.each(this.classProperties.columns, function (column, id) {
 
-            this.sortSelect.add(id + '______asc', [t(column.label), '#icon-arrow-16']);
-            this.sortSelect.add(id + '______desc', [t(column.label), '#icon-arrow-15']);
+            this.sortSelect.add(id + '______asc', [t(column.label), '#icon-arrow-17']);
+            this.sortSelect.add(id + '______desc', [t(column.label), '#icon-arrow-18']);
 
         }.bind(this));
 
@@ -680,6 +680,10 @@ ka.WindowCombine = new Class({
                     this.loadMore(true);
                 }
 
+                if (this.setViewToCombine){
+                    this.setView('combine');
+                    delete this.setViewToCombine;
+                }
             }.bind(this)}).get({
                 offset: pFrom,
                 limit: pMax,
@@ -1333,7 +1337,6 @@ ka.WindowCombine = new Class({
                 this.nestedField.select(pItem);
             }
         } else {
-
             this.mainLeftItems.getChildren().each(function (item, i) {
                 item.removeClass('active');
                 if (item._pk == pk) {
@@ -1345,6 +1348,7 @@ ka.WindowCombine = new Class({
 
     itemLoaded: function (pItem) {
         this.lastLoadedItem = pItem;
+        console.log(this.currentEdit);
         this.setWinParams();
         this.setView('combine');
     },
@@ -1355,6 +1359,8 @@ ka.WindowCombine = new Class({
         if (this.win.params && this.win.params.list && this.win.params.list.language && this.languageSelect) {
             this.languageSelect.setValue(this.win.params.list.language);
         }
+
+        this.setView('list', true);
 
         if (this.win.params && this.win.params.list && this.win.params.list.orderBy) {
             this.sortField = this.win.params.list.orderBy;
@@ -1372,7 +1378,7 @@ ka.WindowCombine = new Class({
                 //this.nestedField.select(this.win.params.selected);
             }
         } else {
-            if (this.win.params && this.win.params.selected && 0 !== Object.getLength(this.win.params.selected)) {
+            if (this.win.params && this.win.params.selected) {
                 this.needSelection = true;
                 this.loadAround(this.win.params.selected);
             } else {
@@ -1382,40 +1388,26 @@ ka.WindowCombine = new Class({
     },
 
     setWinParams: function () {
-        var type = null;
         var selected = null;
+        var params = {type: ''};
 
         if ('list' === this.currentViewType) {
-            type = 'list';
+            params.type = 'list';
+            params.list = {order: this.order};
+            if (this.languageSelect) {
+                params.list.language = this.languageSelect.getValue()
+            }
         } else {
             if (this.currentEdit && this.currentEdit.classProperties) {
-                type = 'edit';
+                params.type = 'edit';
 
-                var primaries = {};
-
-                this.currentEdit.classProperties.primary.each(function (primary) {
-                    primaries[primary] = this.currentItem[primary];
-                }.bind(this));
-
-                selected = primaries;
-
+                selected = ka.normalizeObjectKey(this.classProperties['object']) + '/' + ka.getObjectUrlId(this.classProperties['object'], this.currentItem);
             } else if (this.currentAdd) {
-                type = 'add';
+                params.type = 'add';
             } else {
-                type = 'compact';
+                params.type = 'combine';
             }
         }
-
-        var list = {};
-        list.order = this.order;
-
-        if (this.languageSelect) {
-            list.language = this.languageSelect.getValue()
-        }
-        var params = {
-            type: type,
-            list: list
-        };
 
         if (selected) {
             params.selected = selected;
@@ -1463,17 +1455,14 @@ ka.WindowCombine = new Class({
         return this.win.getEntryPoint();
     },
 
-    loadAround: function (pPrimaries) {
+    loadAround: function (pPrimary) {
         if (this.lastLoadAroundRequest) {
             this.lastLoadAroundRequest.cancel();
         }
 
+        this.setViewToCombine = true;
         this.order = {};
         this.order[this.sortField] = this.sortDirection;
-
-        if (0 === Object.getLength(pPrimaries)) {
-            return;
-        }
 
         this.lastLoadAroundRequest =
             new Request.JSON({url: _pathAdmin + this.getEntryPoint(), noCache: true, onComplete: function (response) {
@@ -1497,12 +1486,12 @@ ka.WindowCombine = new Class({
                 }
 
             }.bind(this)}).get({
-                    getPosition: pPrimaries,
-                    order: this.order,
-                    filter: this.searchEnable,
-                    language: (this.languageSelect) ? this.languageSelect.getValue() : false,
-                    filterVals: (this.searchEnable) ? this.getSearchVals() : ''
-                });
+                getPosition: ka.getCroppedObjectId(pPrimary),
+                order: this.order,
+                filter: this.searchEnable,
+                language: (this.languageSelect) ? this.languageSelect.getValue() : false,
+                filterVals: (this.searchEnable) ? this.getSearchVals() : ''
+            });
     },
 
     saved: function (pItem, pRes) {
@@ -1654,15 +1643,7 @@ ka.WindowCombine = new Class({
 
         if (this.needSelection) {
 
-            var oneIsFalse = false;
-
-            Object.each(this.win.params.selected, function (value, prim) {
-                if (value != pItem[prim]) {
-                    oneIsFalse = true;
-                }
-            }.bind(this));
-
-            if (oneIsFalse == false) {
+            if (this.win.params.selected == ka.normalizeObjectKey(this.classProperties['object']) + '/' + pk) {
                 item.fireEvent('click', pItem);
                 item.addClass('active');
                 this.needSelection = false;

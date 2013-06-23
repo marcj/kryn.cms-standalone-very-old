@@ -122,7 +122,7 @@ ka.FieldAbstract = new Class({
      * window framesworks won't continue the saving and fire this.highlight()
      * and this.showInvalid(true).
      *
-     * @return {Boolean}
+     * @return {Boolean} false for not valid and anything else (also null) for valid.
      */
     isValid: function () {
         if (this.fieldInstance.options.required && this.getValue() === '') {

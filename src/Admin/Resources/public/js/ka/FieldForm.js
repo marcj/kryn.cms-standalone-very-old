@@ -448,10 +448,9 @@ ka.FieldForm = new Class({
      * @return {Boolean}
      */
     checkValid: function () {
-
         var ok = true;
+        console.log('fields', this.fields);
         Object.each(this.fields, function (field, id) {
-
             if (id.substr(0, 2) == '__' && id.substr(id.length - 2) == '__') {
                 return;
             }
@@ -460,15 +459,12 @@ ka.FieldForm = new Class({
                 return;
             }
 
-            if (!field.checkValid()) {
+            if (false === field.checkValid()) {
                 ok = false;
-                logger('not valid value for ', id);
             }
-
         });
 
         return ok;
-
     },
 
     /**
@@ -488,9 +484,8 @@ ka.FieldForm = new Class({
                 return;
             }
 
-            if (!field.isValid()) {
+            if (false === field.isValid()) {
                 ok = false;
-                logger('not valid value for ', id);
             }
         });
 
@@ -515,7 +510,7 @@ ka.FieldForm = new Class({
                 return;
             }
 
-            if (!field.isValid()) {
+            if (false === field.isValid()) {
                 fields[id] = field;
             }
 
