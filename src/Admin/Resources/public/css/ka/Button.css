@@ -24,12 +24,22 @@
     border-right: 1px solid #e6e6e6;
 }
 
+.ka-ActionBar .ka-Button,
+.ka-ActionBar .ka-Button:link,
 .ka-windowEdit-action-bar .ka-Button,
 .ka-windowEdit-action-bar .ka-Button:link,
 .kwindow-win-titleGroups .ka-Button,
 .kwindow-win-titleGroups .ka-Button:link {
     line-height: 38px;
     height: 38px;
+}
+
+.ka-ActionBar .ka-Button:last-child {
+    margin-right: 0;
+}
+
+.ka-ActionBar .ka-Button:first-child {
+    margin-left: 0;
 }
 
 .ka-Button:before {

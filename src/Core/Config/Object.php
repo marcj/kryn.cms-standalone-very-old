@@ -263,6 +263,11 @@ class Object extends Model
     protected $fields;
 
     /**
+     * @var Field[]
+     */
+    protected $browserColumns;
+
+    /**
      * The callable string pointing to a method/function that generates the actual public url for a object pk.
      *
      * example:
@@ -489,6 +494,33 @@ class Object extends Model
         $fields = array();
         if (null !== $this->fields) {
             foreach ($this->fields as $field) {
+                $fields[lcfirst($field->getId())] = $field->toArray();
+            }
+        }
+        return $fields;
+    }
+
+    /**
+     * @param Field[] $fields
+     */
+    public function setBrowserColumns(array $fields)
+    {
+        $this->browserColumns = $fields;
+    }
+
+    /**
+     * @return Field[]
+     */
+    public function getBrowserColumns()
+    {
+        return $this->browserColumns;
+    }
+
+    public function getBrowserColumnsArray()
+    {
+        $fields = array();
+        if (null !== $this->browserColumns) {
+            foreach ($this->browserColumns as $field) {
                 $fields[lcfirst($field->getId())] = $field->toArray();
             }
         }

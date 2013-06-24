@@ -509,6 +509,7 @@ class ObjectCrud
     public function prepareFieldDefinition(&$pFields)
     {
         $i = 0;
+
         foreach ($pFields as $key => $field) {
             if (is_numeric($key)) {
 
@@ -539,20 +540,18 @@ class ObjectCrud
             }
 
             $oField = $this->objectDefinition->getField($key);
-            if (!$oField) {
-                continue;
-            }
+            if ($oField) {
+                if (!isset($field['label'])) {
+                    $field['label'] = $oField->getLabel();
+                }
 
-            if (!isset($field['label'])) {
-                $field['label'] = $oField->getLabel();
-            }
+                if (!isset($field['desc'])) {
+                    $field['desc'] = $oField->getDesc();
+                }
 
-            if (!isset($field['desc'])) {
-                $field['desc'] = $oField->getDesc();
-            }
-
-            if (!isset($field['label'])) {
-                $field['label'] = '!!No title defined (either object or in objectWindow class!!';
+                if (!isset($field['label'])) {
+                    $field['label'] = '!!No title defined (either object or in objectWindow class!!';
+                }
             }
 
             if ($field['depends']) {

@@ -1,6 +1,7 @@
 <?php
 
 namespace Core\Template\Engines;
+use Core\TempFile;
 
 /**
  * Template engine None.
@@ -9,6 +10,10 @@ class Smarty implements EnginesInterface
 {
 
     private static $instance;
+
+    public function __construct(){
+        TempFile::createFolder('smarty-compile');
+    }
 
     public static function getInstance()
     {

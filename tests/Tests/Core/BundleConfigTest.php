@@ -103,13 +103,11 @@ class BundleConfigTest extends TestCaseWithCore
   <dataModel>custom</dataModel>
   <nested>true</nested>
   <fields>
-    <field id="path" primaryKey="true">
+    <field id="path" type="text" primaryKey="true">
       <label>Path</label>
-      <type>text</type>
     </field>
-    <field id="name">
+    <field id="name" type="text">
       <label>File name</label>
-      <type>text</type>
     </field>
   </fields>
 </object>';
@@ -139,6 +137,73 @@ class BundleConfigTest extends TestCaseWithCore
         $this->assertEquals($xml, $object->toXml());
     }
 
+    public function testObjectBrowserColumns()
+    {
+        $xml = '<object id="View">
+  <label>Template View</label>
+  <desc>Template views</desc>
+  <class>\Admin\ObjectView</class>
+  <labelField>name</labelField>
+  <dataModel>custom</dataModel>
+  <nested>true</nested>
+  <fields>
+    <field id="path" type="text" primaryKey="true">
+      <label>Path</label>
+    </field>
+    <field id="name" type="text">
+      <label>File name</label>
+    </field>
+  </fields>
+  <browserColumns>
+    <field id="path" type="text">
+      <label>Path</label>
+    </field>
+    <field id="name" type="text">
+      <label>File name</label>
+    </field>
+  </browserColumns>
+</object>';
+
+        $object = new Object();
+        $object->setId('View');
+        $object->setLabel('Template View');
+        $object->setDesc('Template views');
+        $object->setLabelField('name');
+        $object->setDataModel('custom');
+        $object->setNested(true);
+        $object->setClass('\Admin\ObjectView');
+
+        $field1 = new Field();
+        $field1->setId('path');
+        $field1->setPrimaryKey(true);
+        $field1->setLabel('Path');
+        $field1->setType('text');
+
+        $field2 = new Field();
+        $field2->setId('name');
+        $field2->setLabel('File name');
+        $field2->setType('text');
+
+        $object->setFields(array($field1, $field2));
+
+        $field1 = new Field();
+        $field1->setId('path');
+        $field1->setLabel('Path');
+        $field1->setType('text');
+
+        $field2 = new Field();
+        $field2->setId('name');
+        $field2->setLabel('File name');
+        $field2->setType('text');
+
+        $object->setBrowserColumns(array($field1, $field2));
+
+        $reverse = new Object($xml);
+
+        $this->assertEquals($xml, $object->toXml());
+        $this->assertEquals($xml, $reverse->toXml());
+    }
+
     public function testObjectItemArray()
     {
         $xml ='
@@ -153,19 +218,15 @@ class BundleConfigTest extends TestCaseWithCore
   <domainDepended>false</domainDepended>
   <treeFixedIcon>false</treeFixedIcon>
   <fields>
-    <field id="id" primaryKey="true" autoIncrement="true">
-      <type>number</type>
+    <field id="id" type="number" primaryKey="true" autoIncrement="true">
     </field>
-    <field id="title">
-      <type>text</type>
+    <field id="title" type="text">
     </field>
-    <field id="category">
-      <type>object</type>
+    <field id="category" type="object">
       <object>Test\ItemCategory</object>
       <objectRelation>nToM</objectRelation>
     </field>
-    <field id="oneCategory">
-      <type>object</type>
+    <field id="oneCategory" type="object">
       <object>Test\ItemCategory</object>
       <objectRelation>nTo1</objectRelation>
     </field>

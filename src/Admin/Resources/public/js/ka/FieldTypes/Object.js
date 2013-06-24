@@ -102,10 +102,9 @@ ka.FieldTypes.Object = new Class({
                 var actionBar = new Element('div');
 
                 var remoteIcon = new Element('a', {
-                    'class': 'text-button-icon',
+                    'class': 'text-button-icon icon-remove-3',
                     href: 'javascript:;',
-                    title: t('Remove'),
-                    html: '&#xe04a;'
+                    title: t('Remove')
                 }).inject(actionBar);
 
                 row.include(actionBar);
@@ -311,7 +310,7 @@ ka.FieldTypes.Object = new Class({
             chooserParams.domain = this.options.domain;
         }
 
-        var button = new ka.Button(t('Add')).addEvent('click', function () {
+        var button = new ka.Button([t('Add'), '#icon-plus-5']).addEvent('click', function () {
 
             if (this.options.designMode) {
                 return;
@@ -320,7 +319,11 @@ ka.FieldTypes.Object = new Class({
 
         }.bind(this));
 
-        button.inject(this.fieldInstance.fieldPanel);
+        this.actionBar = new Element('div', {
+            'class': 'ka-ActionBar'
+        }).inject(this.fieldInstance.fieldPanel);
+
+        button.inject(this.actionBar);
 
         this.setValue = function (pVal) {
 

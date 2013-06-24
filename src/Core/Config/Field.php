@@ -4,7 +4,7 @@ namespace Core\Config;
 
 class Field extends Model
 {
-    protected $attributes = ['id', 'primaryKey', 'autoIncrement'];
+    protected $attributes = ['id', 'type', 'primaryKey', 'autoIncrement'];
 
     /**
      * @var string
