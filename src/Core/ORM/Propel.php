@@ -219,7 +219,7 @@ class Propel extends ORMAbstract
      */
     public function getQueryClass($pName = null)
     {
-        $objectKey = $pName ? $pName : $this->getPhpName();
+        $objectKey = $this->getPhpName($pName);
 
         $clazz = $objectKey . 'Query';
         if (!class_exists($clazz)) {
@@ -232,21 +232,18 @@ class Propel extends ORMAbstract
     /**
      * Returns php class name.
      *
-     * @param  string $pName
+     * @param  string $objectName
      *
      * @return string
      */
-    public function getPhpName($pName = null)
+    public function getPhpName($objectName = null)
     {
-        if ($pName) {
-            return ucfirst($pName);
-        } else {
-            $clazz = $this->definition->getPropelClassName();
-            if (!$clazz) {
-                $temp = explode('\\', $this->objectKey);
-                $clazz = ucfirst($temp[0] . '\\Models\\' . $temp[1]);
-            }
+        if (!$objectName && class_exists($clazz = $this->definition->getPropelClassName())) {
+            return $clazz;
         }
+        $clazz = $objectName ?: $this->objectKey;
+        $temp = explode('\\', $clazz);
+        $clazz = ucfirst($temp[0] . '\\Models\\' . $temp[1]);
         return $clazz;
     }
 
