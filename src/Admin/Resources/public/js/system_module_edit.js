@@ -1986,37 +1986,19 @@ var admin_system_module_edit = new Class({
         }
         this.panes['objects'].empty();
 
-        this.pluginsPane = new Element('div', {
+        this.objectsPane = new Element('div', {
             'class': 'admin-system-modules-edit-pane',
             style: 'bottom: 40px;'
         }).inject(this.panes['objects']);
 
-        this.objectTBody = new Element('table', {
-            'class': 'ka-Table-head ka-Table-body', //
-            style: 'position: relative; top: 0px; background-color: #eee',
-            cellpadding: 0, cellspacing: 0
-        }).inject(this.pluginsPane);
+        this.objectsTable = new ka.Table([
+            ['', 20],
+            [t('Object key'), 260],
+            [t('Object label'), 260],
+            [t('Actinons')]
+        ]).inject(this.objectsPane);
 
-        var tr = new Element('tr').inject(this.objectTBody);
-
-        new Element('th', {
-            text: t(''),
-            style: 'width: 20px;'
-        }).inject(tr);
-
-        new Element('th', {
-            text: t('Object key'),
-            style: 'width: 260px;'
-        }).inject(tr);
-
-        new Element('th', {
-            text: t('Object label'),
-            style: 'width: 260px;'
-        }).inject(tr);
-
-        new Element('th', {
-            text: t('Actions')
-        }).inject(tr);
+        this.objectTBody = this.objectsTable.getBody();
 
         var buttonBar = new ka.ButtonBar(this.panes['objects']);
         buttonBar.addButton([t('Add object'), '#icon-plus-alt'], function () {
@@ -2651,49 +2633,52 @@ var admin_system_module_edit = new Class({
     },
 
     addObject: function (pDefinition, pKey) {
+        var row = [];
 
-        var tr = new Element('tr', {
-            'class': 'object'
-        }).inject(this.objectTBody);
+//        tr.definition = pDefinition || {};
 
-        tr.definition = pDefinition || {};
-
-        var helpTd = new Element('td', {
+        var helpText = new Element('td', {
             style: 'text-align: right; color: gray; padding-left: 3px;',
             text: this.mod.charAt(0).toUpperCase() + this.mod.slice(1) + '\\'
-        }).inject(tr);
-        var leftTd = new Element('td').inject(tr);
-        var rightTd = new Element('td').inject(tr);
-        var actionTd = new Element('td').inject(tr);
+        });
 
-        var tr2 = new Element('tr').inject(this.objectTBody);
-        var bottomTd = new Element('td', {style: 'border-bottom: 1px solid silver', colspan: 5}).inject(tr2);
+        row.push(helpText);
 
+        var actions = new Element('div');
         var iKey = new ka.Field({
             type: 'text',
             noWrapper: true,
             modifier: 'camelcase|trim|ucfirst',
             value: pKey ? pKey : ''
-        }, leftTd);
+        });
+
 
         var iLabel = new ka.Field({
             type: 'text',
             noWrapper: true,
             value: pDefinition ? pDefinition['label'] : ''
-        }, rightTd);
+        });
 
+
+        row.push(iKey);
+        row.push(iLabel);
+        row.push(actions);
+
+        var tr = this.objectsTable.addRow(row);
+        tr.addClass('object');
+        tr.definition = pDefinition || {};
         tr.store('key', iKey);
 
-        var fieldsBtn = new ka.Button(t('Fields')).inject(actionTd);
+        var fieldsBtn = new ka.Button(t('Fields')).inject(actions);
 
         new ka.Button(t('Settings'))
             .addEvent('click', this.openObjectSettings.bind(this, tr))
-            .inject(actionTd);
+            .inject(actions);
 
         if (pDefinition) {
             new ka.Button(t('Window wizard'))
-                .addEvent('click', this.openObjectWizard.bind(this, pKey, pDefinition))
-                .inject(actionTd);
+            .addEvent('click', this.openObjectWizard.bind(this, pKey, pDefinition))
+            .inject(actions);
         }
 
         new Element('a', {
@@ -2701,16 +2686,15 @@ var admin_system_module_edit = new Class({
             title: _('Remove'),
             html: '&#xe26b;'
         })
-            .addEvent('click', function () {
-                this.win._confirm(t('Really delete'), function (ok) {
-                    if (!ok) {
-                        return;
-                    }
-                    tr.destroy();
-                    tr2.destroy();
-                });
-            }.bind(this))
-            .inject(actionTd);
+        .addEvent('click', function () {
+            this.win._confirm(t('Really delete'), function (ok) {
+                if (!ok) {
+                    return;
+                }
+                tr.destroy();
+            });
+        }.bind(this))
+        .inject(actions);
 
         fieldsBtn.addEvent('click', function () {
 
@@ -2774,8 +2758,8 @@ var admin_system_module_edit = new Class({
                 dialog.close();
 
             })
-                .setButtonStyle('blue')
-                .inject(dialog.bottom);
+            .setButtonStyle('blue')
+            .inject(dialog.bottom);
 
         }.bind(this));
     },

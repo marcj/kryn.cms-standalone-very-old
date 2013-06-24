@@ -257,6 +257,7 @@ ka.entrypoint = {
  * @returns {string} Safe for innerHTML usage.
  */
 ka.htmlEntities = function (value) {
+    if ('null' === typeOf(value)) return '';
     return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 

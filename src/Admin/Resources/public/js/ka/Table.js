@@ -233,6 +233,10 @@ ka.Table = new Class({
         this.main.appendChild(fragment);
     },
 
+    getBody: function() {
+        return this.tableBody;
+    },
+
     getRows: function () {
         var children = this.tableBody.getChildren();
         if (typeOf(children) == 'array' && children[0].get('tag') == 'tbody') {

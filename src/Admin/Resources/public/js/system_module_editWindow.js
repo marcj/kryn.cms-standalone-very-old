@@ -17,6 +17,7 @@ var admin_system_module_editWindow = new Class({
 
     _createLayout: function () {
 
+        this.win.getTitleGroupContainer().setStyle('text-align', 'right');
         this.saveBtn = new ka.Button(t('Save'), this.save.bind(this)).inject(this.win.getTitleGroupContainer());
         this.saveBtn.setButtonStyle('blue');
 

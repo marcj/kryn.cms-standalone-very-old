@@ -158,7 +158,7 @@
     font-weight: bold;
 }
 
-.ka-select-chooser-item {
+a.ka-select-chooser-item {
     display: block;
     padding: 3px 23px;
     color: #222;
@@ -195,11 +195,11 @@ a.ka-Select-separator:link {
     cursor: default;
 }
 
-.ka-select-chooser-item-selected {
+a.ka-select-chooser-item-selected {
     padding-left: 4px;
 }
 
-.ka-select-chooser-item-selected:before {
+a.ka-select-chooser-item-selected:before {
     padding-right: 4px;
 }
 
