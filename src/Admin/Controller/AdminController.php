@@ -329,11 +329,12 @@ class AdminController
                 ->done()
 
                 ->addSubController('file', '\Admin\Controller\File')
-                    ->addGetRoute('', 'getFiles')
+                    ->addGetRoute('', 'getContent')
 
                     ->addPostRoute('', 'createFile')
                     ->addDeleteRoute('', 'deleteFile')
                     ->addPostRoute('folder', 'createFolder')
+                    ->addGetRoute('search', 'search')
 
                     ->addGetRoute('single', 'getFile')
                     ->addGetRoute('preview', 'showPreview')

@@ -545,17 +545,17 @@ class WebFile
      *
      * @static
      *
-     * @param  string  $pPath
-     * @param  string  $pPattern      Preg regex
-     * @param  integer $pDepth        Maximum depth. -1 for unlimited.
-     * @param  integer $pCurrentDepth Internal
+     * @param  string  $path
+     * @param  string  $query
+     * @param  integer $depth
      *
-     * @return array   Files array
+     * @return FileInfo[]   Files array
      */
-    public static function search($pFrom, $pTo)
+    public static function search($path, $query, $depth = 1)
     {
-        //TODO, move the code from adminFilemanager::search() to here
-
+        $fs = static::getLayer($path);
+        $files = $fs->search(static::normalizePath($path), $query, $depth);
+        return $files;
     }
 
     /**
