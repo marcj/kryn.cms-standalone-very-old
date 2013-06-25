@@ -116,6 +116,7 @@ class File extends BaseFile implements FileInfoInterface
         $item['name'] = $this->getName();
         $item['dir'] = $this->getDir();
         $item['icon'] = $this->getIcon();
+        $item['extension'] = $this->getExtension();
         return $item;
     }
 

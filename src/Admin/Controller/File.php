@@ -204,6 +204,20 @@ class File
     }
 
 
+    public function getContent($path)
+    {
+        if (!$file = self::getFile($path)) {
+            return null;
+        }
+
+        if ($file['type'] == 'dir'){
+            return $this->getFiles($path);
+        } else {
+            return WebFile::getContent($path);
+        }
+
+    }
+
     /**
      * Returns a list of files for a folder.
      *
@@ -213,20 +227,23 @@ class File
      */
     public function getFiles($pPath)
     {
-
         if (!self::getFile($pPath)) {
             return null;
         }
 
         //todo, create new option 'show hidden files' in user settings and depend on that
-        $showHiddenFiles = false;
+
+        $files = WebFile::getFiles($pPath);
+        return static::prepareFiles($files);
+    }
+
+    public static function prepareFiles($files, $showHiddenFiles = false)
+    {
+        $result = [];
 
         $blacklistedFiles = array('/index.php' => 1, '/install.php' => 1);
 
         $imageTypes = array('jpg', 'jpeg', 'png', 'bmp', 'gif');
-
-        $files = WebFile::getFiles($pPath);
-        $result = [];
         foreach ($files as $key => $file) {
             $file = $file->toArray();
             if (isset($blacklistedFiles[$file['path']]) | (!$showHiddenFiles && substr($file['path'], 0, 2) == '/.')) {
@@ -245,6 +262,12 @@ class File
         }
 
         return $result;
+    }
+
+    public function search($path, $q, $depth = 1)
+    {
+        $files = WebFile::search($path, $q, $depth);
+        return static::prepareFiles($files);
     }
 
     /**

@@ -24,6 +24,49 @@
     bottom: 0;
 }
 
+
+.admin-files-infos + .ka-Splitter-main {
+    right: -16px;
+    width: 15px;
+    border: 0;
+}
+
+.ka-Files-addressFaker-container {
+    margin-right: 30px;
+    display: block;
+}
+
+div.ka-Files-addressFaker {
+    line-height: 38px;
+    cursor: text;
+    border-right: 1px solid #e9e6e6;
+}
+
+div.ka-Files-addressFaker + .ka-buttonGroup-item {
+    border-top: 1px solid #CECECE;
+    border-right: 1px solid #CECECE;
+}
+
+.ka-Files-addressFaker > a,
+.ka-Files-addressFaker > a:link {
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+.ka-Files-addressFaker-asFile > a:last-child:after {
+    display: none;
+}
+
+.ka-Files-addressFaker > a:after {
+    content: '/';
+    padding-left: 3px;
+}
+
+
+.ka-Files-addressFaker > a:hover {
+    background-color: silver;
+}
+
 .admin-files-actionBar {
     height: 31px;
 }
@@ -44,6 +87,8 @@
     cursor: default;
     padding: 0 15px;
     background-color: #fcfcfc;
+    border: 1px solid #e0e0e0;
+    border-bottom: 0;
 }
 
 .admin-files-fileContainer-fixed {
@@ -63,7 +108,7 @@
     color: #636363;
     text-align: center;
     font-size: 12px;
-    border-top: 1px solid #E4E4E4;
+    border: 1px solid #e0e0e0;
 }
 
 .admin-files-status-bar-fixed {
@@ -121,10 +166,14 @@
 }
 
 .admin-files-infos {
-    position: relative;
-    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
     background-color: #FCFCFC;
     overflow: auto;
+    border: 1px solid #e0e0e0;
     -webkit-overflow-scrolling: touch;
 }
 
