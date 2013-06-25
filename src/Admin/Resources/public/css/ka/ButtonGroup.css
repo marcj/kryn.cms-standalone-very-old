@@ -1,4 +1,4 @@
-.kwindow-win-buttonGroup {
+.ka-ButtonGroup {
     margin: 0 10px;
     display: inline-block;
 
@@ -6,11 +6,11 @@
     position: relative;
 }
 
-.kwindow-win-buttonGroup:first-child {
+.ka-ButtonGroup:first-child {
     margin-left: 0;
 }
 
-.kwindow-win-buttonGroup object {
+.ka-ButtonGroup object {
     position: absolute;
     left: 0px;
     top: 0px;
@@ -18,15 +18,13 @@
     height: 21px;
 }
 
-.kwindow-win-buttonGroupContent {
+.ka-ButtonGroupContent {
     position: relative;
 }
 
 .ka-buttonGroup-item,
 .ka-buttonGroup-item:link {
     cursor: default;
-    line-height: 38px;
-    height: 38px;
     position: relative;
     display: inline-block;
     text-decoration: none;
@@ -37,67 +35,19 @@
     border-bottom: 0;
     box-shadow: 0 3px 0 #d6d6d6;
     border-right: 1px solid #e6e6e6;
+    margin: 0;
+    border-left: 0;
 }
 
 .ka-buttonGroup-item:first-child {
     border-left: 1px solid #ececec;
 }
 
-
-.ka-buttonGroup-item:hover {
-    background-color: #f8f8f8;
-    color: #222;
-}
-
-.ka-buttonGroup-item-with-icon:before {
-    padding-right: 5px;
-}
-
 .ka-buttonGroup-item-only-icon:before {
     padding-right: 0;
-}
-
-.ka-buttonGroup-itemFirst {
-}
-
-.ka-buttonGroup-itemLast {
-    border-right: 0px;
 }
 
 .ka-buttonGroup-item img {
     vertical-align: middle;
     opacity: 0.5;
 }
-
-.ka-buttonGroup-item:hover {
-    color: #222;
-}
-
-.ka-buttonGroup-item:active,
-.ka-buttonGroup-item-active,
-.ka-buttonGroup-item-active:link {
-    color: #000;
-    box-shadow: 0 1px 0 #d6d6d6;
-    top: 2px;
-}
-
-.ka-buttonGroup-item-active img {
-    opacity: 1;
-}
-
-.ka-buttonGroup-item-active:focus,
-.ka-buttonGroup-item:focus {
-    outline: 0;
-    border-color: rgba(47, 140, 189, 0.6);
-    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(47, 140, 189, 0.6);
-    -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(47, 140, 189, 0.6);
-    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(47, 140, 189, 0.6);
-    box-shadow: 0 0 0 2px rgba(47, 140, 189, 0.6);
-
-    -moz-transition-duration: .1s;
-    -webkit-transition-duration: .1s;
-    -o-transition-duration: .1s;
-    -ms-transition-duration: .1s;
-    transition-duration: .1s;
-}
-

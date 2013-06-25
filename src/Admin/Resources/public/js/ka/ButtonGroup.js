@@ -9,10 +9,9 @@ ka.ButtonGroup = new Class({
     initialize: function (pParent, pOptions) {
 
         this.setOptions(pOptions);
-        this.buttons = [];
 
         this.box = new Element('div', {
-            'class': 'kwindow-win-buttonGroup'
+            'class': 'ka-ButtonGroup'
         }).inject(pParent);
     },
 
@@ -40,83 +39,39 @@ ka.ButtonGroup = new Class({
         this.box.setStyle('display', 'inline-block');
     },
 
-    rerender: function () {
-        return;
+    activate: function() {
+        this.box.getChildren('a.ka-Button').each(function(item) {
+            item.kaButton.activate();
+        });
+    },
+
+    deactivate: function() {
+        this.box.getChildren('a.ka-Button').each(function(item) {
+            item.kaButton.deactivate();
+        });
     },
 
     addButton: function (pTitle, pIcon, pOnClick) {
-
-        var wrapper = new Element('a', {
-            'class': 'ka-buttonGroup-item',
-            href: 'javascript:;'
-        }).inject(this.box);
-
-        if (typeOf(pTitle) == 'string') {
-            wrapper.set(this.options.onlyIcons ? 'title' : 'text', pTitle);
-        } else if (pTitle && pTitle.inject) {
-            pTitle.inject(wrapper);
-            wrapper.setStyle('padding', '3px 0px');
+        var title = pTitle;
+        if (pIcon) {
+            title = [title, pIcon];
         }
 
-        if (typeOf(pIcon) == 'string') {
-            if (this.options.onlyIcons) {
-                wrapper.addClass('ka-buttonGroup-item-only-icon');
-            }
-            if (pIcon.substr(0, 1) == '#') {
-                wrapper.addClass('ka-buttonGroup-item-with-icon');
-                wrapper.addClass(pIcon.substr(1));
-            } else {
-                new Element('img', {
-                    src: pIcon,
-                    height: 14
-                }).inject(wrapper, 'top');
-            }
+        var button = new ka.Button(title, pOnClick).inject(this.box);
+        document.id(button).addClass('ka-buttonGroup-item');
+        return button;
+    },
+
+    addIconButton: function (pTitle, pIcon, pOnClick) {
+        var title = '';
+        if (pIcon) {
+            title = ['', pIcon];
         }
 
-        if (pOnClick) {
-            wrapper.addEvent('click', pOnClick);
-        }
-
-        var _this = this;
-        wrapper.hide = function () {
-            wrapper.store('visible', false);
-            wrapper.setStyle('display', 'none');
-            _this.rerender();
-        }
-
-        wrapper.startTip = function (pText) {
-            if (!this.toolTip) {
-                this.toolTip = new ka.Tooltip(wrapper, pText);
-            }
-            this.toolTip.setText(pText);
-            this.toolTip.show();
-        }
-
-        wrapper.stopTip = function (pText) {
-            if (this.toolTip) {
-                this.toolTip.stop(pText);
-            }
-        }
-
-        wrapper.show = function () {
-            wrapper.store('visible', true);
-            wrapper.setStyle('display', 'inline');
-            _this.rerender();
-        }
-
-        wrapper.setPressed = function (pPressed) {
-            if (pPressed) {
-                wrapper.addClass('ka-buttonGroup-item-active');
-            } else {
-                wrapper.removeClass('ka-buttonGroup-item-active');
-            }
-        }
-
-        wrapper.store('visible', true);
-        this.buttons.include(wrapper);
-        _this.rerender();
-
-        return wrapper;
+        var button = new ka.Button(title, pOnClick).inject(this.box);
+        document.id(button).set('title', pTitle);
+        document.id(button).addClass('ka-buttonGroup-item');
+        return button;
     },
 
     setPressed: function (pPressed) {

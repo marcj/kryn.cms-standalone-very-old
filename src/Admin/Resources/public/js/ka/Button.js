@@ -15,6 +15,8 @@ ka.Button = new Class({
             title: (pTooltip) ? pTooltip : null
         });
 
+        this.main.kaButton = this;
+
         this.setText(pTitle);
 
         if (pOnClick) {
@@ -23,14 +25,15 @@ ka.Button = new Class({
     },
 
     setText: function (pText) {
-
         if (typeOf(pText) == 'element' && pText.inject) {
             pText.inject(this.main);
-
         } else if (typeOf(pText) == 'array') {
             this.main.set('text', pText[0]);
 
             if (typeOf(pText[1]) == 'string') {
+                if (pText[0] !== '') {
+                    this.main.addClass('ka-Button-textAndIcon');
+                }
 
                 if (pText[1].substr(0, 1) == '#') {
                     this.main.addClass(pText[1].substr(1));
@@ -164,5 +167,13 @@ ka.Button = new Class({
 
     deactivate: function () {
         this.setEnabled(false);
+    },
+
+    setPressed: function (pressed) {
+        if (pressed) {
+            this.main.addClass('ka-Button-pressed');
+        } else {
+            this.main.removeClass('ka-Button-pressed');
+        }
     }
 });

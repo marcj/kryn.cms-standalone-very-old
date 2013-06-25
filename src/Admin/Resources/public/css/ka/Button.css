@@ -30,8 +30,8 @@
 .ka-windowEdit-action-bar .ka-Button:link,
 .kwindow-win-titleGroups .ka-Button,
 .kwindow-win-titleGroups .ka-Button:link {
-    line-height: 38px;
-    height: 38px;
+    line-height: 36px;
+    height: 36px;
 }
 
 .ka-ActionBar .ka-Button:last-child {
@@ -43,10 +43,13 @@
 }
 
 .ka-Button:before {
-    padding-right: 5px;
     padding-left: 0px;
     position: relative;
     top: 1px;
+}
+
+.ka-Button-textAndIcon:before {
+    padding-right: 5px;
 }
 
 .ka-Button:hover {
@@ -73,11 +76,11 @@
     color: black;
 }
 
-.ka-Button:active,
-.ka-Button-pressed,
-.ka-Button-pressed:link,
-.ka-Button-pressed:hover,
-.ka-Button-pressed:active {
+a.ka-Button:active,
+a.ka-Button-pressed,
+a.ka-Button-pressed:link,
+a.ka-Button-pressed:hover,
+a.ka-Button-pressed:active {
     box-shadow: 0 1px 0 #d6d6d6;
     top: 2px;
 }
@@ -133,12 +136,11 @@ div.button-list {
     background: #154A66;
 }
 
-.ka-Button-deactivate,
-.ka-Button-deactivate:link,
-.ka-Button-deactivate:active,
-.ka-Button-deactivate:hover {
+a.ka-Button-deactivate,
+a.ka-Button-deactivate:link,
+a.ka-Button-deactivate:active,
+a.ka-Button-deactivate:hover {
     cursor: default;
     color: gray;
-    border: 1px solid #a4a4a4;
     background: #f8f8f8;
 }

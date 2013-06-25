@@ -68,6 +68,42 @@ td {
     -webkit-perspective: 1000;
 }
 
+.ka-Full {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+.ka-Full-top {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+}
+
+.ka-Full-bottom {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.ka-Full-left {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.ka-Full-right {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
 .kryn_cke_toolbar {
     position: absolute !important;
     top: 172px !important;
