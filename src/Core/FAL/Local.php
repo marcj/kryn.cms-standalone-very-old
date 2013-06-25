@@ -466,7 +466,7 @@ class Local extends AbstractFAL
     /**
      * {@inheritDoc}
      */
-    public function search($pPath, $pPattern, $pDepth = -1, $pCurrentDepth = 1)
+    public function search($pPath, $pPattern, $pDepth = 1, $pCurrentDepth = 1)
     {
         $result = array();
         $files = $this->getFiles($pPath);
@@ -474,11 +474,11 @@ class Local extends AbstractFAL
         $q = str_replace('/', '\/', $pPattern);
 
         foreach ($files as $file) {
-            if (preg_match('/^' . $q . '/i', $file['name'], $match) !== 0) {
+            if (preg_match('/^' . $q . '/i', $file->getName(), $match) !== 0) {
                 $result[] = $file;
             }
-            if ($file['type'] == 'dir' && ($pDepth == -1 || $pCurrentDepth < $pDepth)) {
-                $newPath = $pPath . ($pPath == '/' ? '' : '/') . $file['name'];
+            if ($file->isDir() && ($pDepth == -1 || $pCurrentDepth < $pDepth)) {
+                $newPath = $pPath . ($pPath == '/' ? '' : '/') . $file->getName();
                 $more = $this->search($newPath, $pPattern, $pDepth, $pCurrentDepth + 1);
                 if (is_array($more)) {
                     $result = array_merge($result, $more);
