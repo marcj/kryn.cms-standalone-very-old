@@ -738,7 +738,7 @@ ka.WindowList = new Class({
         this.lastResult = pResult;
 
         [this.ctrlPrevious, this.ctrlNext].each(function (item) {
-            item.setStyle('opacity', 1);
+            document.id(item).setStyle('opacity', 1);
         });
 
         if (this.lastNoItemsDiv) {
@@ -760,11 +760,11 @@ ka.WindowList = new Class({
 
         if (this.currentPage <= 1) {
             //this.ctrlFirst.setStyle('opacity', 0.2);
-            this.ctrlPrevious.setStyle('opacity', 0.2);
+            document.id(this.ctrlPrevious).setStyle('opacity', 0.2);
         }
 
         if (this.currentPage >= this.maxPages) {
-            this.ctrlNext.setStyle('opacity', 0.2);
+            document.id(this.ctrlNext).setStyle('opacity', 0.2);
             //this.ctrlLast.setStyle('opacity', 0.2);
         }
 

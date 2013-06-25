@@ -269,9 +269,9 @@ ka.WindowCombine = new Class({
         this.parent();
 
         this.viewActionBar = new ka.ButtonGroup(this.topActionBar, {onlyIcons: true});
-        this.viewListBtn = this.viewActionBar.addButton(t('Grid'), '#icon-list-9', this.setView.bind(this, 'list'));
+        this.viewListBtn = this.viewActionBar.addIconButton(t('Grid'), '#icon-list-9', this.setView.bind(this, 'list'));
         this.viewCompactBtn =
-            this.viewActionBar.addButton(t('Compact'), '#icon-layout', this.setView.bind(this, 'combine'));
+            this.viewActionBar.addIconButton(t('Compact'), '#icon-layout', this.setView.bind(this, 'combine'));
         this.viewListBtn.setPressed(true);
 
         if (this.actionBarSearchBtn) {

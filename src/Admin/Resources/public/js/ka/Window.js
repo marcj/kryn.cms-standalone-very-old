@@ -55,10 +55,13 @@ ka.Window = new Class({
 
     /**
      *
-     * @return {Object}
+     * Returns all parameters or only a specific.
+     *
+     * @param {String} [key]
+     * @returns {*}
      */
-    getParameter: function () {
-        return this.params;
+    getParameter: function (key) {
+        return key ? this.params[key] : this.params;
     },
 
     /**
@@ -266,7 +269,6 @@ ka.Window = new Class({
     },
 
     _prompt: function (pDesc, pDefaultValue, pCallback, pOpts) {
-
         var res = false;
         if (!pOpts) {
             pOpts = {};
@@ -354,7 +356,7 @@ ka.Window = new Class({
             ok.focus();
         }
 
-        main.center();
+        main.center(true);
 
         return main;
     },
@@ -411,6 +413,7 @@ ka.Window = new Class({
         } else {
             this.titleText.set('text', pTitle);
         }
+        ka.wm.updateWindowBar();
 
     },
 
