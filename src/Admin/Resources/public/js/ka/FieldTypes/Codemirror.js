@@ -9,7 +9,7 @@ ka.FieldTypes.Codemirror = new Class({
     createLayout: function () {
 
         this.editorPanel = new Element('div', {
-            style: 'border: 1px solid silver; min-height: 50px; background-color: white;'
+            style: 'min-height: 50px; background-color: white;'
         }).inject(this.fieldInstance.fieldPanel);
 
         if (this.options.inputWidth) {
@@ -25,11 +25,12 @@ ka.FieldTypes.Codemirror = new Class({
                 this.options.inputHeight += 'px';
             }
 
-            new Stylesheet().addRule('.' + cssClassName + ' .CodeMirror-scroll', {
+            new Stylesheet().addRule('.' + cssClassName + ' .CodeMirror-scroll, .' + cssClassName + ' .CodeMirror', {
                 height: this.options.inputHeight
             });
 
             this.editorPanel.addClass(cssClassName);
+            this.editorPanel.setStyle('height', this.options.inputHeight);
 
         }
 
@@ -47,6 +48,8 @@ ka.FieldTypes.Codemirror = new Class({
         }
         this.editor = CodeMirror(this.editorPanel, options);
 
+        console.log(options);
+        CodeMirror.modeURL = _pathAdmin + '../bundles/core/codemirror/mode/%N/%N.js';
         this.editor.setOption("mode", options.mode);
         CodeMirror.autoLoadMode(this.editor, options.mode);
 
