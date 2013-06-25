@@ -61,7 +61,7 @@ ka.Window = new Class({
      * @returns {*}
      */
     getParameter: function (key) {
-        return key ? this.params[key] : this.params;
+        return key && this.params ? this.params[key] : this.params;
     },
 
     /**

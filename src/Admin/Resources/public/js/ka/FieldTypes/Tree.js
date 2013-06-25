@@ -137,8 +137,6 @@ ka.FieldTypes.Tree = new Class({
             throw 'Object is not a nested set ' + this.options.object;
         }
 
-        console.log(this.definition);
-
         if (!this.options.labelTemplate) {
             this.options.labelTemplate = this.definition.labelTemplate;
         }
