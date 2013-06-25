@@ -924,17 +924,21 @@ ka.Field = new Class({
 
     /**
      * Hides the item incl the children container.
-     *
      */
     hide: function () {
-
         if (this.childContainer && this.childContainer.hide) {
             this.childContainer.hide();
+        }
+
+        if (this.options.noWrapper) {
+            if (!this.getFieldObject()) return;
+            return this.getFieldObject().hide();
         }
 
         var field = this.tr || this.main;
 
         field.setStyle('display', 'none');
+
 
         this.fireEvent('check-depends');
         this.fireEvent('hide');
@@ -946,8 +950,12 @@ ka.Field = new Class({
      * @return {Boolean}
      */
     isHidden: function () {
-        var field = this.tr || this.main;
+        if (this.options.noWrapper) {
+            if (!this.getFieldObject()) return;
+            return this.getFieldObject().isHidden();
+        }
 
+        var field = this.tr || this.main;
         return field.getStyle('display') == 'none';
     },
 
@@ -955,8 +963,12 @@ ka.Field = new Class({
      * Let the item appears.
      */
     show: function () {
-        var field = this.tr || this.main;
+        if (this.options.noWrapper) {
+            if (!this.getFieldObject()) return;
+            return this.getFieldObject().show();
+        }
 
+        var field = this.tr || this.main;
         field.setStyle('display', field.get('tag') == 'tr' ? 'table-row' : 'block');
 
         this.fireEvent('check-depends');
@@ -1055,6 +1067,12 @@ ka.Field = new Class({
 
         if (!notFound) {
             this.setValue(values);
+        }
+    },
+
+    focus: function () {
+        if (this.getFieldObject()) {
+            this.getFieldObject().focus();
         }
     },
 

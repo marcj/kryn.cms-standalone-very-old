@@ -96,6 +96,12 @@ ka.FieldAbstract = new Class({
         return this.main;
     },
 
+    focus: function () {
+        if (this.input && -1 !== ['select', 'textarea', 'input'].indexOf(this.input.get('tag'))) {
+            this.input.focus();
+        }
+    },
+
     /**
      * If a field is empty but required and the user wanna save,
      * then the frameworkWindows use this method to say the user 'hey it\'s required'.
@@ -113,7 +119,27 @@ ka.FieldAbstract = new Class({
 
         //or
         //document.id(this.input).highlight();
+    },
 
+    hide: function() {
+        var el = this.toElement();
+        if (!el) return;
+        if ('none' === el.getStyle('display')) return;
+        this.oldDisplay = el.getStyle('display') || el.getComputedStyle('display');
+        el.setStyle('display', 'none');
+    },
+
+    isHidden: function() {
+        var el = this.toElement();
+        if (!el) return;
+        return 'none' === el.getStyle('display');
+    },
+
+    show: function() {
+        var el = this.toElement();
+        if (!el) return;
+        if ('none' !== el.getStyle('display') || !this.oldDisplay) return;
+        el.setStyle('display', this.oldDisplay);
     },
 
     /**
