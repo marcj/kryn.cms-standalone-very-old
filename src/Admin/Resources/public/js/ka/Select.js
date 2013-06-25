@@ -628,7 +628,6 @@ ka.Select = new Class({
     addItemToChooser: function (pItem) {
         var a;
 
-        console.log('addItemToChooser', pItem);
         if (pItem.isSplit) {
             a = new Element('div', {
                 html: pItem.label,
@@ -808,7 +807,6 @@ ka.Select = new Class({
         }
 
         this.title.setStyle('opacity', pEnabled ? 1 : 0.4);
-
     },
 
     inject: function (p, p2) {

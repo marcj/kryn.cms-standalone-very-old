@@ -36,12 +36,25 @@
 }
 
 
+.ka-ActionBar .ka-Select-box,
+.ka-ActionBar .ka-Select-box:link,
 .ka-windowEdit-action-bar .ka-Select-box,
 .ka-windowEdit-action-bar .ka-Select-box:link,
 .kwindow-win-titleGroups .ka-Select-box,
 .kwindow-win-titleGroups .ka-Select-box:link {
-    line-height: 38px;
-    height: 38px;
+    line-height: 36px;
+    height: 36px;
+}
+
+
+.ka-ButtonGroup > .ka-Select-box,
+.ka-ButtonGroup > .ka-Select-box:link {
+    margin: 0;
+    border-left: 0;
+}
+
+.ka-ButtonGroup > .ka-Select-box:first-child {
+    border-left: 1px solid #ececec;
 }
 
 .ka-Select-arrow {
