@@ -50,9 +50,11 @@ class FileInfo implements FileInfoInterface
     public function toArray()
     {
         return [
+            'name' => $this->getName(),
             'path' => $this->getPath(),
             'type' => $this->getType(),
             'size' => $this->getSize(),
+            'extension' => $this->getExtension(),
             'createdTime' => $this->getCreatedTime(),
             'modifiedTime' => $this->getModifiedTime()
         ];
