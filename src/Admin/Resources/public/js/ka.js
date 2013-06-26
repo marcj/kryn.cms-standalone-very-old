@@ -490,7 +490,7 @@ ka.getObjectUrlId = function (pObjectKey, pItem) {
  * @return {String}
  */
 ka.getObjectUrl = function (pObjectKey, pId) {
-    return 'object://' + pObjectKey + '/' + pId;
+    return 'object://' + ka.normalizeObjectKey(pObjectKey) + '/' + pId;
 }
 
 /**
@@ -509,10 +509,10 @@ ka.getObjectKey = function (pUrl) {
 
     var idx = pUrl.indexOf('/');
     if (idx == -1) {
-        return pUrl;
+        return '';
     }
 
-    return pUrl.substr(0, idx);
+    return ka.normalizeObjectKey(pUrl.substr(0, idx));
 }
 
 /**
