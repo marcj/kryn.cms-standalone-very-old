@@ -46,6 +46,16 @@ class Field extends Model
     protected $target;
 
     /**
+     * @var mixed
+     */
+    protected $needValue;
+
+    /**
+     * @var string
+     */
+    protected $againstField;
+
+    /**
      * The default/initial value.
      *
      * @var mixed
@@ -493,6 +503,38 @@ class Field extends Model
     public function getDisabled()
     {
         return $this->disabled;
+    }
+
+    /**
+     * @param mixed $needValue
+     */
+    public function setNeedValue($needValue)
+    {
+        $this->needValue = $needValue;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNeedValue()
+    {
+        return $this->needValue;
+    }
+
+    /**
+     * @param string $againstField
+     */
+    public function setAgainstField($againstField)
+    {
+        $this->againstField = $againstField;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAgainstField()
+    {
+        return $this->againstField;
     }
 
 }
