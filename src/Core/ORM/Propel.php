@@ -106,7 +106,7 @@ class Propel extends ORMAbstract
                 }
             }
 
-        } else {
+        } else if (is_array($pFields)) {
             foreach ($pFields as $field) {
 
                 $relationFieldSelection = '';
