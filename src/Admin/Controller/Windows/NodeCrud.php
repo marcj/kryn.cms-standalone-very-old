@@ -16,21 +16,33 @@ class NodeCrud extends \Admin\ObjectCrud
                 ),
                 'type' => array(
                     'label' => 'Type',
-                    'type' => 'number',
+                    'type' => 'select',
+                    'options' => array(
+                        'items' => array(
+                            array('Page', '#icon-newspaper'),
+                            array('Link', '#icon-link-5'),
+                            array('Navigation', '#icon-folder-4'),
+                            array('Deposit', '#icon-clipboard-2')
+                        ),
+                    ),
                     'required' => 'true',
                 ),
                 'urn' => array(
                     'label' => 'URN',
                     'type' => 'text',
                     'required' => 'true',
+                    'needValue' => [0, 1],
+                    'againstField' => 'type',
                 ),
                 'link' => array(
                     'label' => 'Link',
-                    'combobox' => 'true',
                     'type' => 'object',
-                    'required' => 'true',
-                    'needValue' => '1',
+                    'required' => true,
+                    'needValue' => 1,
                     'againstField' => 'type',
+                    'options' => array(
+                        'combobox' => 'true',
+                    )
                 ),
             ),
         ),

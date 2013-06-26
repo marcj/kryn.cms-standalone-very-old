@@ -231,16 +231,15 @@ ka.FieldTypes.Tree = new Class({
             }
         }
 
-        this.options.scope = pScope;
+        var options = Object.clone(this.options);
+        options.scope = pScope;
+        if (this.selectItem) {
+            options.selectObject = this.selectItem;
+        }
 
-        var tree = new clazz(this.treesContainer, this.options);
+        var tree = new clazz(this.treesContainer, options);
         tree.addEvent('change', this.fieldInstance.fireChange);
         tree.addEvent('select', this.selected);
-
-        var proxyMethods = ['deselect', 'getItem', 'select'];
-        proxyMethods.each(function (method) {
-            this.fieldInstance[method] = tree[method];
-        }.bind(this));
 
         var proxyEvents = ['ready', 'childrenLoaded', 'select'];
         proxyEvents.each(function (event) {
@@ -256,8 +255,17 @@ ka.FieldTypes.Tree = new Class({
         return tree;
     },
 
-    getSelectedTree: function () {
+    select: function(pk) {
+        if (this.trees.length == 0) {
+            this.selectItem = pk;
+        } else {
+            this.trees.each(function(tree){
+                tree.select(pk);
+            }.bind(this));
+        }
+    },
 
+    getSelectedTree: function () {
         var selected = null;
         Array.each(this.trees, function (tree) {
             if (selected) {
@@ -269,7 +277,6 @@ ka.FieldTypes.Tree = new Class({
         });
 
         return selected;
-
     },
 
     deselect: function () {

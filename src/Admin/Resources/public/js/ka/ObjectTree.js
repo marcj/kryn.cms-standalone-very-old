@@ -84,7 +84,7 @@ ka.ObjectTree = new Class({
         /**
          * Initial selects the object of the given pk.
          *
-         * @var {Mixed}
+         * @var {String}
          */
         selectObject: null,
 
@@ -119,7 +119,6 @@ ka.ObjectTree = new Class({
     firstLoadDone: false,
 
     load_object_children: false,
-    need2SelectAObject: false,
     domainA: false,
     activeLoadings: 0,
 
@@ -138,11 +137,16 @@ ka.ObjectTree = new Class({
         this.setOptions(pOptions);
         this.container = pContainer;
 
+
         if (this.options.objectKey) {
+            this.options.objectKey = ka.normalizeObjectKey(this.options.objectKey);
             this.objectDefinition = ka.getObjectDefinition(this.options.objectKey);
-        }
-        else {
+        } else {
             throw '`objectKey` in ka.ObjectTree is required.';
+        }
+
+        if (this.options.rootObject) {
+            this.options.rootObject = ka.normalizeObjectKey(this.options.rootObject);
         }
 
         this.definition = this.objectDefinition;
@@ -257,7 +261,11 @@ ka.ObjectTree = new Class({
         this.paneRoot.set('morph', {duration: 200});
 
         if (this.options.selectObject) {
-            this.startupWithObjectInfo(this.options.selectObject);
+            var objectKey = ka.getObjectKey(this.options.selectObject);
+
+            if (this.options.selectObject && (!objectKey || objectKey == this.options.objectKey)) {
+                this.startupWithObjectInfo(this.options.selectObject);
+            }
         } else {
             this.loadFirstLevel();
         }
@@ -284,8 +292,10 @@ ka.ObjectTree = new Class({
      * @param {Function} pCallback
      */
     startupWithObjectInfo: function (pId, pCallback) {
-        if (typeOf(pId) != 'string') {
+        if ('string' !== typeOf(pId)) {
             pId = ka.getObjectUrlId(this.options.objectKey, pId);
+        } else {
+            pId = ka.getCroppedObjectId(pId);
         }
 
         new Request.JSON({url: this.getUrl() + pId + '/parents', noCache: 1, onComplete: function (response) {
@@ -342,7 +352,6 @@ ka.ObjectTree = new Class({
     },
 
     loadFirstLevel: function () {
-
         if (this.lastFirstLevelRq) {
             this.lastFirstLevelRq.cancel();
         }
@@ -387,7 +396,6 @@ ka.ObjectTree = new Class({
         this.rootLoaded = false;
 
         var scope = this.options.scope;
-        console.log(this.options.rootObject, scope);
         if (typeOf(scope) == 'object') {
             scope = ka.getObjectUrlId(this.options.rootObject, scope);
         }
@@ -430,10 +438,6 @@ ka.ObjectTree = new Class({
         a.isRoot = true;
         a.objectKey = this.options.rootObject;
 
-        if (id == this.options.selectObject && this.options.selectable == true) {
-            a.addClass('ka-objectTree-item-selected');
-        }
-
         a.inject(this.paneRoot);
 
         a.objectTreeObj = this;
@@ -450,7 +454,7 @@ ka.ObjectTree = new Class({
         a.span.set('html', ka.getObjectLabelByItem(this.options.rootObject, item, 'tree', overwriteDefinition));
         //this.renderLabel(a.span, item, this.options.rootObject, definition);
 
-        this.items[ this.options.rootObject + '_' + id ] = a;
+        this.items[ this.options.rootObject + '|' + id ] = a;
 
         a.objectEntry = item;
 
@@ -474,6 +478,12 @@ ka.ObjectTree = new Class({
         if (this.options.openFirstLevel) {
             this.openChildren(this.rootA);
         }
+
+        if (!this.firstLoadDone && this.options.rootObject + '/'+id == this.options.selectObject && this.options.selectable == true) {
+            a.addClass('ka-objectTree-item-selected');
+            this.fireEvent('select', [item, a])
+        }
+
         this.activeLoadings--;
 
     },
@@ -578,8 +588,8 @@ ka.ObjectTree = new Class({
             clicked.addClass('ka-objectTree-item-selected');
         }
 
-        this.fireEvent('selection', [item, clicked])
-        this.fireEvent('select', [item, clicked])
+        this.fireEvent('selection', [item, clicked]);
+        this.fireEvent('select', [item, clicked]);
         this.fireEvent('click', [item, clicked]);
 
         this.lastSelectedItem = clicked;
@@ -620,13 +630,13 @@ ka.ObjectTree = new Class({
             this.startupWithObjectInfo(pPk, function (parents) {
 
                 Array.each(this.load_object_children, function (id) {
-                    if (this.items['_' + id]) {
-                        this.openChildren(this.items['_' + id]);
+                    if (this.items['|' + id]) {
+                        this.openChildren(this.items['|' + id]);
                     }
                 }.bind(this));
 
-                if (this.items['_' + targetId]) {
-                    this.reloadChildren(this.items['_' + targetId]);
+                if (this.items['|' + targetId]) {
+                    this.reloadChildren(this.items['|' + targetId]);
                 }
 
             }.bind(this));
@@ -650,8 +660,8 @@ ka.ObjectTree = new Class({
                 } else {
 
                     var targetId = ka.getObjectUrlId(this.options.objectKey, parents[parents.length - 1]);
-                    if (this.items['_' + targetId]) {
-                        this.reloadChildren(this.items['_' + targetId]);
+                    if (this.items['|' + targetId]) {
+                        this.reloadChildren(this.items['|' + targetId]);
                     }
                 }
 
@@ -660,19 +670,15 @@ ka.ObjectTree = new Class({
     },
 
     addRootItems: function (pItems, pContainer) {
-
         Array.each(pItems, function (item) {
-
             this.addItem(item, this.rootA);
-
         }.bind(this));
-
     },
 
     addItem: function (pItem, pParent) {
-
         this.activeLoadings++;
         var id = ka.getObjectUrlId(this.options.objectKey, pItem);
+        var url = this.options.objectKey + '/' + id;
 
         var a = new Element('div', {
             'class': 'ka-objectTree-item',
@@ -695,10 +701,6 @@ ka.ObjectTree = new Class({
             container = this.paneObjects;
         }
 
-        if (id == this.options.selectObject && this.options.selectable == true) {
-            a.addClass('ka-objectTree-item-selected');
-        }
-
         a.inject(container);
 
         a.objectTreeObj = this;
@@ -706,12 +708,11 @@ ka.ObjectTree = new Class({
         a.span = new Element('span', {
             'class': 'ka-objectTree-item-title'
         }).inject(a);
+        a.objectEntry = pItem;
 
         this.renderLabel(a.span, pItem, this.options.objectKey);
 
-        this.items[ '_' + id ] = a;
-
-        a.objectEntry = pItem;
+        this.items[ '|' + id ] = a;
 
         if (a.parent) {
             var paddingLeft = 15;
@@ -743,40 +744,32 @@ ka.ObjectTree = new Class({
 
         var openId = id;
 
-        if ((!this.firstLoadDone || this.need2SelectAObject)) {
-            if ((this.options.selectDomain && pItem.domain ) ||
-                (this.options.selectObject && pItem.id == this.options.selectObject)) {
-                if (this.options.selectable == true) {
-                    a.addClass('ka-objectTree-item-selected');
-                }
-                this.lastSelectedItem = a;
-                this.lastSelectedObject = pItem;
-                this.lastSelected = a.id;
-                this.need2SelectAObject = false;
-            }
-        }
-
-        if (this.lastSelected == a.id) {
-            a.addClass('ka-objectTree-item-selected');
-        }
-
         if (this.opens[openId]) {
             this.openChildren(a);
         }
 
         if (this.load_object_children !== false) {
-
             if (this.load_object_children.contains(id)) {
                 this.openChildren(a);
             }
         }
 
         if (pItem._children) {
-
             Array.each(pItem._children, function (item) {
                 this.addItem(item, a);
             }.bind(this));
+        }
 
+        if (!this.firstLoadDone && !this.lastSelected && this.options.selectObject) {
+            var selectUrl = ka.getObjectKey(this.options.selectObject) || this.options.objectKey;
+            selectUrl += '/' + ka.getCroppedObjectId(this.options.selectObject);
+
+            if (url == selectUrl && this.options.selectable == true) {
+                a.addClass('ka-objectTree-item-selected');
+                this.fireEvent('select', [pItem, a])
+            }
+        } else if (this.lastSelected == url || this.lastSelected == a.id) {
+            a.addClass('ka-objectTree-item-selected');
         }
 
         this.activeLoadings--;
@@ -926,7 +919,7 @@ ka.ObjectTree = new Class({
         }
 
         pA.childrenContainer.getElements('ka-objectTree-item').each(function (a) {
-            delete this.items['_' + a.id];
+            delete this.items['|' + a.id];
         }.bind(this));
 
         pA.childrenContainer.empty();
@@ -984,7 +977,6 @@ ka.ObjectTree = new Class({
     },
 
     deselect: function () {
-
         this.container.getElements('.ka-objectTree-item-selected').removeClass('ka-objectTree-item-selected');
 
         this.lastSelectedItem = false;
@@ -1294,8 +1286,8 @@ ka.ObjectTree = new Class({
     },
 
     getItem: function (pId) {
-        var id = ka.getObjectUrlId(this.options.objectKey, pId);
-        return this.items[ '_' + id ];
+        var id = 'string' === typeOf(pId) ? pId : ka.getObjectUrlId(this.options.objectKey, pId);
+        return this.items[ '|' + id ];
     },
 
     getValue: function () {
@@ -1307,19 +1299,32 @@ ka.ObjectTree = new Class({
     },
 
     select: function (pId) {
-        this.deselect();
-        pId = ka.getObjectUrlId(this.options.objectKey, pId);
+        var id, objectKey = this.options.objectKey;
 
-        if (this.items[ '_' + pId ]) {
+        if ('string' === typeOf(pId)) {
+            objectKey = ka.getObjectKey(pId) || this.options.objectKey;
+            pId = ka.getCroppedObjectId(pId);
+            id = objectKey + '|' + pId;
+        } else {
+            pId = id = ka.getObjectUrlId(this.options.objectKey, pId);
+            id  = '|' + id;
+        }
+
+        if (this.items[id]) {
+            if (this.items[id].hasClass('ka-objectTree-item-selected')) {
+                return;
+            }
+
+            this.deselect();
             //has been loaded already
-            this.items[ '_' + pId ].addClass('ka-objectTree-item-selected');
+            this.items[id].addClass('ka-objectTree-item-selected');
 
-            this.lastSelectedItem = this.items[ '_' + pId ];
-            this.lastSelectedObject = this.items[ '_' + pId ].objectEntry;
-            this.lastSelected = pId;
+            this.lastSelectedItem = this.items[id];
+            this.lastSelectedObject = this.items[id].objectEntry;
+            this.lastSelected = id;
 
             //open parents too
-            var parent = this.items[ '_' + pId ];
+            var parent = this.items[id];
             while (true) {
                 if (parent.parent) {
                     parent = parent.parent;
@@ -1331,21 +1336,27 @@ ka.ObjectTree = new Class({
 
             return;
         }
+        this.lastSelected = pId;
 
-        //this.need2SelectAObject = true;
+        this.deselect();
+        if (this.options.objectKey != objectKey) {
+            //root item selected
+            this.rootA.addClass('ka-objectTree-item-selected');
 
-        this.startupWithObjectInfo(pId, function () {
+            this.lastSelectedItem = this.rootA;
+            this.lastSelectedObject = this.rootA.objectEntry;
+            this.lastSelected = id;
+        } else {
+            this.startupWithObjectInfo(pId, function () {
+                this.lastSelected = this.options.selectObject = objectKey + '/' + pId;
 
-            this.options.selectObject = pId;
-
-            Array.each(this.load_object_children, function (id) {
-                if (this.items['_' + id]) {
-                    this.openChildren(this.items['_' + id]);
-                }
+                Array.each(this.load_object_children, function (id) {
+                    if (this.items['|' + id]) {
+                        this.openChildren(this.items['|' + id]);
+                    }
+                }.bind(this));
             }.bind(this));
-
-        }.bind(this));
-
+        }
     },
 
     destroyContext: function () {

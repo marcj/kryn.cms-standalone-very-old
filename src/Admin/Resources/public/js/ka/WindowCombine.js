@@ -74,7 +74,18 @@ ka.WindowCombine = new Class({
         this.mainRight = this.contentLayout.getCell(1, 3);
         this.mainRight.addClass('ka-list-combine-right');
 
+        this.combineLeftToggler = new Element('a', {
+            'class': 'icon-arrow-left-5 ka-windowCombine-left-toggler'
+        }).inject(this.contentLayout.getCell(1, 1));
+
+        this.displayCombineLeft(true);
+
+        this.combineLeftToggler.addEvent('click', function(){
+            this.displayCombineLeft(!this.isCombineLeftVisible());
+        }.bind(this));
+
         this.contentLayout.getCell(1, 2).destroy();
+        this.contentLayout.getTd(1, 2)
 
         if (this.classProperties.asNested) {
             this.treeContainer = new Element('div', {
@@ -158,8 +169,22 @@ ka.WindowCombine = new Class({
         document.id(this.table).setStyle('top', 60);
     },
 
-    leftItemsDown: function (pE) {
+    isCombineLeftVisible: function(){
+        return this.contentLayout.getTd(1, 1).getStyle('width').toInt() > 1;
+    },
 
+    displayCombineLeft: function(display) {
+        if (display) {
+            if (!this.isCombineLeftVisible()) {
+                this.contentLayout.getTd(1, 1).setStyle('width', this.backupedLeftWidth);
+            }
+        } else {
+            this.backupedLeftWidth = this.contentLayout.getTd(1, 1).getStyle('width');
+            this.contentLayout.getTd(1, 1).setStyle('width', 1);
+        }
+    },
+
+    leftItemsDown: function (pE) {
         if (!this.win.inFront) {
             return;
         }
@@ -287,7 +312,6 @@ ka.WindowCombine = new Class({
         var btn = 'list' === viewType ? this.viewListBtn : this.viewCompactBtn;
         var btnOther = 'list' === viewType ? this.viewCompactBtn : this.viewListBtn;
 
-        console.log('setView', viewType);
         if (this.currentViewType !== viewType) {
             this.currentViewType = viewType;
 
@@ -578,7 +602,6 @@ ka.WindowCombine = new Class({
     },
 
     loadItems: function (pFrom, pMax, pAndScrollToSelect) {
-
         if (this.maxItems === null) {
             return this.loadCount(function (count) {
                 if (count == 0) {
@@ -1274,7 +1297,6 @@ ka.WindowCombine = new Class({
         }
 
         if (!this.currentRootEdit) {
-
             this.setActiveItem(pItem);
 
             if (this.addBtn) {
@@ -1346,7 +1368,7 @@ ka.WindowCombine = new Class({
 
         if (this.classProperties.asNested) {
             if (this.nestedField) {
-                this.nestedField.select(pItem);
+                this.nestedField.getFieldObject().select(pItem);
             }
         } else {
             this.mainLeftItems.getChildren().each(function (item, i) {
@@ -1360,7 +1382,6 @@ ka.WindowCombine = new Class({
 
     itemLoaded: function (pItem) {
         this.lastLoadedItem = pItem;
-        console.log(this.currentEdit);
         this.setWinParams();
         this.setView('combine');
     },
@@ -1386,14 +1407,19 @@ ka.WindowCombine = new Class({
 
         if (this.classProperties.asNested) {
             if (this.win.params && this.win.params.selected) {
-                //todo
-                //this.nestedField.select(this.win.params.selected);
+                this.setView('combine', true);
+                this.nestedField.getFieldObject().select(this.win.params.selected);
+            } else if ('list' != this.win.params.type) {
+                this.setView('combine', true);
             }
         } else {
             if (this.win.params && this.win.params.selected) {
                 this.needSelection = true;
                 this.loadAround(this.win.params.selected);
             } else {
+                if ('list' != this.win.params.type) {
+                    this.setView('combine', true);
+                }
                 this.loadItems(0, (this.classProperties.itemsPerPage) ? this.classProperties.itemsPerPage : 5);
             }
         }
@@ -1410,12 +1436,15 @@ ka.WindowCombine = new Class({
                 params.list.language = this.languageSelect.getValue()
             }
         } else {
-            if (this.currentEdit && this.currentEdit.classProperties) {
-                params.type = 'edit';
+            if ((this.currentEdit || this.currentRootEdit)) {
 
-                selected = ka.normalizeObjectKey(this.classProperties['object']) + '/' + ka.getObjectUrlId(this.classProperties['object'], this.currentItem);
-            } else if (this.currentAdd) {
-                params.type = 'add';
+                var classProperties = this.currentRootEdit ? this.currentRootEdit.classProperties : this.currentEdit.classProperties;
+                if (classProperties) {
+                    selected = ka.normalizeObjectKey(classProperties['object']) + '/' + ka.getObjectUrlId(classProperties['object'], this.currentItem);
+                    params.type = this.currentRootEdit ? 'rootEdit' : 'edit';
+                }
+            } else if (this.currentAdd || this.currentRootAdd) {
+                params.type = this.currentRootAdd ? 'rootAdd' : 'add';
             } else {
                 params.type = 'combine';
             }

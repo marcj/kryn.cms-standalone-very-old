@@ -182,6 +182,7 @@ ka.WindowList = new Class({
 
     render: function (pValues) {
         this.classProperties = pValues;
+        this.classProperties.object = ka.normalizeObjectKey(this.classProperties.object);
 
         if (!this.checkClassProperties()) {
             return false;
@@ -470,8 +471,10 @@ ka.WindowList = new Class({
             onlyIcons: true
         });
 
+        document.id(this.navigateActionBar).addClass('ka-list-navigationBar');
+
         this.ctrlPrevious =
-            this.navigateActionBar.addButton(t('Go to previous page'), '#icon-arrow-left-15', function () {
+            this.navigateActionBar.addIconButton(t('Go to previous page'), '#icon-arrow-left-15', function () {
                 this.loadPage(parseInt(_this.ctrlPage.value) - 1);
             }.bind(this));
 
@@ -491,7 +494,7 @@ ka.WindowList = new Class({
             text: '/ 0'
         }).inject(this.navigateActionBar);
 
-        this.ctrlNext = this.navigateActionBar.addButton(t('Go to next page'), '#icon-arrow-right-15', function () {
+        this.ctrlNext = this.navigateActionBar.addIconButton(t('Go to next page'), '#icon-arrow-right-15', function () {
             this.loadPage(parseInt(_this.ctrlPage.value) + 1);
         }.bind(this));
     },

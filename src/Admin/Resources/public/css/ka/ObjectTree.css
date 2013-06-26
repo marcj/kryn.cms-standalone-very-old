@@ -25,11 +25,17 @@
 .ka-objectTree-item-toggler {
     position: relative;
     top: 0px;
-    margin: 0px 8px;
+    padding: 0px 8px;
     font-family: Icomoon;
     font-size: 10px;
     color: gray;
     vertical-align: middle;
+    height: 30px;
+    display: inline-block;
+}
+
+.ka-objectTree-item-toggler:hover {
+    color: silver;
 }
 
 .ka-objectTree-item,

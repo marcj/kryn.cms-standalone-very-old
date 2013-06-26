@@ -168,7 +168,19 @@ ka.Layout = new Class({
         } else {
             throw 'Row ' + pRow + ' does not exist.';
         }
-        return this.getVertical().getHorizontal(pRow).getColumn(pColumn);
+    },
+
+    getTd: function(pRow, pColumn) {
+        var row, cell;
+        if (row = this.getVertical().getHorizontal(pRow)) {
+            if (cell = row.getTd(pColumn)) {
+                return cell;
+            } else {
+                throw 'Column ' + pColumn + ' in row ' + pRow + ' does not exist.';
+            }
+        } else {
+            throw 'Row ' + pRow + ' does not exist.';
+        }
     },
 
     getRow: function (row) {

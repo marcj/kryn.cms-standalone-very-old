@@ -270,8 +270,10 @@ ka.Field = new Class({
         this.options.type = this.options.type ? this.options.type : 'text';
         var clazz = ka.FieldTypes[this.options.type] || ka.FieldTypes[this.options.type.capitalize()];
 
+        var options = Object.merge(this.options, this.options.options || {});
+
         if (clazz) {
-            this.fieldObject = new clazz(this, this.options);
+            this.fieldObject = new clazz(this, options);
         } else {
             this.fieldPanel.set('text', 'The ka.Field type `' + this.options.type + '` is not available.');
         }

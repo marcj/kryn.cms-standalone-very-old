@@ -271,7 +271,7 @@
     right: 0;
     height: 45px;
     border-top: 1px solid #DDD;
-    line-height: 45px;
+    padding-top: 5px;
 }
 
 .ka-Table-windowList {
@@ -453,6 +453,11 @@ a.ka-list-search-button-active:link {
     width: 140px;
 }
 
+.ka-list-navigationBar {
+    border: 1px solid #cecece;
+    margin-top: 7px;
+}
+
 .ka-list-combine-searchpane .ka-field-field {
     margin: 2px 2px 2px 15px;
 }
@@ -461,43 +466,14 @@ a.ka-list-search-button-active:link {
     padding-top: 7px;
 }
 
-/*
-
-.ka-list-table {
-    padding: 0px;
-    margin: 0px;
-}
-
-.ka-list-table thead th {
-    height: 25px;
-    border-bottom: 1px solid silver;
-}
-
-.ka-list-table td {
-    background-color: white;
-}
-
-.ka-list-table tbody td {
-    padding: 1px 23px 1px 2px;
-    height: 18px;
-    border-bottom: 1px solid #ddd;
-}
-
-.ka-list-table th.edit,
-.ka-list-table td.edit {
-    padding-right: 2px;
-    width: 5px;
-}
-
-.ka-list-actionBar {
+.ka-windowCombine-left-toggler {
     position: absolute;
-    background-color: white;
-    bottom: 0px;
-    height: 25px;
-    line-height: 25px;
-    padding-left: 2px;
-    left: 0px;
-    right: 0px;
-    border-top: 1px solid gray;
+    display: block;
+    right: -17px;
+    width: 13px;
+    bottom: 0;
 }
-*/
+
+.ka-windowCombine-left-toggler:hover {
+    background-color: #eee;
+}

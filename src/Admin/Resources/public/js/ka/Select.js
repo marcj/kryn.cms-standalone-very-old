@@ -247,8 +247,8 @@ ka.Select = new Class({
                     }
 
                 } else {
-                    Array.each(this.options.items, function (label) {
-                        this.items.push({id: label, label: label});
+                    Array.each(this.options.items, function (label, id) {
+                        this.items.push({id: id, label: label});
                     }.bind(this));
                 }
             }
@@ -981,6 +981,7 @@ ka.Select = new Class({
     },
 
     setValue: function (pValue, pInternal) {
+
         this.value = 'null' === typeOf(pValue) ? '' : pValue;
 
         if (this.options.object && typeOf(this.value) == 'object') {

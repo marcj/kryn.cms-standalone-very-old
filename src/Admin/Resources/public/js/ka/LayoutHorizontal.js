@@ -41,6 +41,7 @@ ka.LayoutHorizontal = new Class({
     container: null,
 
     columns: [],
+    tds: [],
 
     vertical: null,
 
@@ -87,6 +88,10 @@ ka.LayoutHorizontal = new Class({
         return this.columns[pColumn - 1];
     },
 
+    getTd: function (column) {
+        return this.tds[column - 1];
+    },
+
     toElement: function () {
         return this.main;
     },
@@ -119,6 +124,7 @@ ka.LayoutHorizontal = new Class({
             'class': 'ka-Layout-cell'
         }).inject(td);
 
+        this.tds.push(td);
         this.columns.push(div);
     }
 

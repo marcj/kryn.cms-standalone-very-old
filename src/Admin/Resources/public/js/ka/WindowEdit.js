@@ -158,7 +158,10 @@ ka.WindowEdit = new Class({
     },
 
     loadItem: function () {
-        var _this = this;
+        if (!this.classProperties) {
+            this.selectItem = true;
+            return;
+        }
 
         var id = ka.getObjectUrlId(this.classProperties['object'], this.winParams.item);
 
@@ -751,15 +754,12 @@ ka.WindowEdit = new Class({
     },
 
     retrieveData: function (pWithoutEmptyCheck) {
-        console.log('checkValid', this.fieldForm.checkValid());
         if (!pWithoutEmptyCheck && !this.fieldForm.checkValid()) {
             var invalidFields = this.fieldForm.getInvalidFields();
-            console.log('invalidFields', invalidFields);
 
             Object.each(invalidFields, function (item, fieldId) {
 
                 var properTabKey = this.fieldToTabOIndex[fieldId];
-                console.log('tabForField', fieldId, properTabKey);
                 if (!properTabKey) {
                     return;
                 }
