@@ -876,10 +876,11 @@ ka.WindowCombine = new Class({
     nestedItemSelected: function (pItem, pDom) {
         //pDom.objectKey
         //pDom.id
+        //pDom.url
         if (pDom.objectKey == this.classProperties.object) {
-            this.loadItem(pItem);
+            this.loadItem(pItem, pDom.objectKey);
         } else {
-            this.loadRootItem(pItem);
+            this.loadRootItem(pItem, pDom.objectKey);
         }
     },
 
@@ -1197,7 +1198,7 @@ ka.WindowCombine = new Class({
         this.loadItem(pItem);
     },
 
-    loadItem: function (pItem) {
+    loadItem: function (pItem, objectKey) {
         var _this = this;
 
         if (this.currentAdd) {
@@ -1219,7 +1220,7 @@ ka.WindowCombine = new Class({
 
         if (!this.currentEdit) {
 
-            this.setActiveItem(pItem);
+            this.setActiveItem(pItem, objectKey);
             if (this.addBtn) {
                 this.addBtn.setPressed(false);
             }
@@ -1263,7 +1264,7 @@ ka.WindowCombine = new Class({
                             this.addBtn.setPressed(false);
                         }
 
-                        this.setActiveItem(pItem);
+                        this.setActiveItem(pItem, objectKey);
                     }
                 }.bind(this));
                 return;
@@ -1275,15 +1276,13 @@ ka.WindowCombine = new Class({
                     this.addBtn.setPressed(false);
                 }
 
-                this.setActiveItem(pItem);
+                this.setActiveItem(pItem, objectKey);
             }
 
         }
     },
 
-    loadRootItem: function (pItem) {
-        var _this = this;
-
+    loadRootItem: function (pItem, objectKey) {
         if (this.currentAdd) {
             //TODO check unsaved
             var hasUnsaved = this.currentAdd.hasUnsavedChanges();
@@ -1297,7 +1296,7 @@ ka.WindowCombine = new Class({
         }
 
         if (!this.currentRootEdit) {
-            this.setActiveItem(pItem);
+            this.setActiveItem(pItem, objectKey);
 
             if (this.addBtn) {
                 this.addBtn.setPressed(false);
@@ -1314,7 +1313,7 @@ ka.WindowCombine = new Class({
             }
 
             win.entryPoint =
-                ka.entrypoint.getRelative(this.win.entryPoint, _this.classProperties.nestedRootEditEntrypoint);
+                ka.entrypoint.getRelative(this.win.entryPoint, this.classProperties.nestedRootEditEntrypoint);
             win.params = {item: pItem};
             win.getTitleGroupContainer = function () {
                 return this.combineActionBar;
@@ -1340,7 +1339,7 @@ ka.WindowCombine = new Class({
                             this.addBtn.setPressed(false);
                         }
 
-                        this.setActiveItem(pItem);
+                        this.setActiveItem(pItem, objectKey);
                     }
                 }.bind(this));
                 return;
@@ -1352,23 +1351,28 @@ ka.WindowCombine = new Class({
                     this.addBtn.setPressed(false);
                 }
 
-                this.setActiveItem(pItem);
+                this.setActiveItem(pItem, objectKey);
             }
 
         }
     },
 
-    setActiveItem: function (pItem) {
+    setActiveItem: function (pItem, objectKey) {
         this.currentItem = pItem;
-        this.selectItem(pItem);
+        this.currentItemObjectKey = objectKey;
+        this.selectItem(pItem, objectKey);
     },
 
-    selectItem: function (pItem) {
-        var pk = typeOf(pItem) == 'string' ? pItem : ka.getObjectUrlId(this.classProperties['object'], pItem);
+    selectItem: function (pItem, objectKey) {
+        var pk = pItem;
+        if ('string' !== typeOf(pk)){
+            objectKey = objectKey || this.classProperties['object'];
+            pk = ka.normalizeObjectKey(objectKey) + '/' + ka.getObjectUrlId(objectKey, pItem);
+        }
 
         if (this.classProperties.asNested) {
             if (this.nestedField) {
-                this.nestedField.getFieldObject().select(pItem);
+                this.nestedField.getFieldObject().select(pk);
             }
         } else {
             this.mainLeftItems.getChildren().each(function (item, i) {

@@ -260,12 +260,13 @@ ka.ObjectTree = new Class({
 
         this.paneRoot.set('morph', {duration: 200});
 
+        var objectKey;
         if (this.options.selectObject) {
-            var objectKey = ka.getObjectKey(this.options.selectObject);
+            objectKey = ka.getObjectKey(this.options.selectObject);
+        }
 
-            if (this.options.selectObject && (!objectKey || objectKey == this.options.objectKey)) {
-                this.startupWithObjectInfo(this.options.selectObject);
-            }
+        if (this.options.selectObject && (!objectKey || objectKey == this.options.objectKey)) {
+            this.startupWithObjectInfo(this.options.selectObject);
         } else {
             this.loadFirstLevel();
         }
@@ -479,9 +480,11 @@ ka.ObjectTree = new Class({
             this.openChildren(this.rootA);
         }
 
-        if (!this.firstLoadDone && this.options.rootObject + '/'+id == this.options.selectObject && this.options.selectable == true) {
-            a.addClass('ka-objectTree-item-selected');
-            this.fireEvent('select', [item, a])
+        if (this.options.selectObject) {
+            if (!this.firstLoadDone && this.options.rootObject + '/'+id == this.options.selectObject && this.options.selectable == true) {
+                a.addClass('ka-objectTree-item-selected');
+                this.fireEvent('select', [item, a])
+            }
         }
 
         this.activeLoadings--;
@@ -559,13 +562,10 @@ ka.ObjectTree = new Class({
     },
 
     onTogglerClick: function (e, clicked) {
-
         this.toggleChildren(clicked.getParent());
-
     },
 
     onClick: function (e, clicked) {
-
         if (e.target && e.target.hasClass('ka-objectTree-item-toggler')) {
             return;
         }
@@ -588,14 +588,13 @@ ka.ObjectTree = new Class({
             clicked.addClass('ka-objectTree-item-selected');
         }
 
-        this.fireEvent('selection', [item, clicked]);
-        this.fireEvent('select', [item, clicked]);
-        this.fireEvent('click', [item, clicked]);
+        this.fireEvent('selection', [item, clicked, clicked.objectKey]);
+        this.fireEvent('select', [item, clicked, clicked.objectKey]);
+        this.fireEvent('click', [item, clicked, clicked.objectKey]);
 
         this.lastSelectedItem = clicked;
         this.lastSelectedObject = item;
         this.lastSelected = clicked.id;
-
     },
 
     toElement: function () {
@@ -1338,6 +1337,7 @@ ka.ObjectTree = new Class({
         }
         this.lastSelected = pId;
 
+        console.log(pId, id, objectKey);
         this.deselect();
         if (this.options.objectKey != objectKey) {
             //root item selected
