@@ -100,7 +100,6 @@
                 <nestedRootObject>core\Domain</nestedRootObject>
                 <nestedRootObjectField>domainId</nestedRootObjectField>
                 <nestedRootObjectLabelField>domain</nestedRootObjectLabelField>
-                <nestedRootObjectExtraFields></nestedRootObjectExtraFields>
                 <nestedRootAsObject>true</nestedRootAsObject>
 
                 <treeInterfaceClass>ka.NodeTree</treeInterfaceClass>
