@@ -1300,15 +1300,17 @@ ka.ObjectTree = new Class({
     select: function (pId) {
         var id, objectKey = this.options.objectKey;
 
+        console.log('select', pId);
         if ('string' === typeOf(pId)) {
             objectKey = ka.getObjectKey(pId) || this.options.objectKey;
             pId = ka.getCroppedObjectId(pId);
-            id = objectKey + '|' + pId;
+            id = (objectKey == this.options.objectKey ? '' : objectKey) + '|' + pId;
         } else {
             pId = id = ka.getObjectUrlId(this.options.objectKey, pId);
             id  = '|' + id;
         }
 
+        console.log('select', id);
         if (this.items[id]) {
             if (this.items[id].hasClass('ka-objectTree-item-selected')) {
                 return;
