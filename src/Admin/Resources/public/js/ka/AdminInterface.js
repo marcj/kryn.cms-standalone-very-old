@@ -503,6 +503,12 @@ ka.AdminInterface = new Class({
             'class': 'loginMessage'
         }).inject(this.middle);
 
+        this.loginBtn = new ka.Button(t('Login')).inject(form);
+        this.loginBtn.setButtonStyle('blue');
+        this.loginBtn.addEvent('click', function () {
+            this.doLogin();
+        }.bind(this));
+
         this.loaderTop = new Element('div', {
             'class': 'ka-login-loader-top'
         }).inject(form);
@@ -581,12 +587,6 @@ ka.AdminInterface = new Class({
         }
 
         ka.loadLanguage(this.loginLangSelection.getValue());
-
-        this.loginBtn = new ka.Button(t('Login')).inject(form);
-        this.loginBtn.setButtonStyle('blue');
-        this.loginBtn.addEvent('click', function () {
-            this.doLogin();
-        }.bind(this));
 
         if (parent.inChrome && parent.inChrome()) {
             parent.doLogin();
