@@ -22,6 +22,8 @@ class Utils
     }
 
     /**
+     * Returns debug information.
+     *
      * @return string
      */
     public static function getDebug()
@@ -236,7 +238,7 @@ class Utils
     {
         global $_start;
 
-        if (class_exists('PHPUnit_Framework_TestCase') || defined('KRYN_INSTALLER')) {
+        if (defined('KRYN_TESTS') || defined('KRYN_INSTALLER')) {
             return;
         }
 
@@ -253,7 +255,7 @@ class Utils
         }
     }
 
-    public static function latenctySnapshot()
+    public static function latencySnapshot()
     {
         $lastLatency = Kryn::getFastCache('core/latency');
 
