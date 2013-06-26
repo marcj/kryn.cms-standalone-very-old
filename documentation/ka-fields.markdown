@@ -50,6 +50,8 @@ Examples:
  `desc`          | String  | `''`    | Shows a grayed description text. __Warning__: This value is set as HTML. So escape `<` and `>`.
  `required`      | Boolean | `false` | Defines if this field needs a valid value.
                  |         |         |
+ `needValue`     | mixed   | `null`  | If this value is equal to the parent's value or the value of `againstFields`'s value, then this fields gets visible.
+ `againstField`  | string  | `null`  | The id of a other field in the FormField set.
  `default`       | mixed   | `null`  | The default/initial value.
  `startEmpty`    | Boolean | `false` | If this field starts with a empty value (on initialisation).
  `returnDefault` | Boolean | `false` | If this field returns the value even though it's the `default` value (in a form).
