@@ -1088,6 +1088,9 @@ class Propel extends ORMAbstract
         if (!$item) {
             throw new \Exception('Can not found entry. ' . var_export($pPk, true));
         }
+        if (!$item->getRgt()) {
+            throw new \Exception('Entry it not in a tree. ' . var_export($pPk, true));
+        }
 
         list($fields, $relations, $relationFields) = $this->getFields($pOptions['fields']);
         $selects = array_keys($fields);
