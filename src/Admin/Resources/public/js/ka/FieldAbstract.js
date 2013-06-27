@@ -14,7 +14,9 @@ ka.FieldAbstract = new Class({
          *
          * @var {Mixed}
          */
-        inputWidth: null
+        inputWidth: null,
+
+        disabled: false
     },
 
     /**

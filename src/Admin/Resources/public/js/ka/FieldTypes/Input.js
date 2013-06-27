@@ -70,6 +70,10 @@ ka.FieldTypes.Input = ka.FieldTypes.Text = new Class({
             maxLength: this.options.maxLength
         }).inject(this.fieldInstance.fieldPanel);
 
+        if (this.options.disabled) {
+            this.main.disabled = true;
+        }
+
         this.input.addEvent('change', this.checkChange);
         this.input.addEvent('keyup', this.checkChange);
     },
