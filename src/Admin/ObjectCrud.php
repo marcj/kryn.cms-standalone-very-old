@@ -1295,12 +1295,20 @@ class ObjectCrud
         $options['fields'] = '';
         $options['permissionCheck'] = $this->getPermissionCheck();
 
+        $item = \Core\Object::get($this->getObject(), $pPk, $options);
+
         //collect values
-        $data = $this->collectData();
+        $allData = $this->collectData(null, $item);
+        $data = [];
+
+        foreach ($allData as $k => $v){
+            if ($item[$k] != $allData[$k]) {
+                $data[$k] = $v;
+            }
+        }
 
         //check against additionally our own custom condition
         if ($condition = $this->getCondition()) {
-            $item = \Core\Object::get($this->getObject(), $pPk, $options);
             if (!\Core\Object::satisfy($item, $condition)) {
                 return null;
             }
@@ -1321,11 +1329,12 @@ class ObjectCrud
      * Collects all data from GET/POST that has to be saved.
      * Iterates only through all defined fields in $fields.
      *
-     * @param  mixed                        $pFields The fields definition. If empty we use $this->fields.
-     * @param  mixed                        $pData   Is used if a field is not defined through _POST or _GET
+     * @param  \Core\Config\Field[] $pFields The fields definition. If empty we use $this->fields.
+     * @param  mixed $pData   Is used if a field is not defined through _POST or _GET
+     * @param  mixed $fallbackValues
      *
      * @return array
-     * @throws \FieldCanNotBeEmptyException
+     * @throws \Core\Exceptions\InvalidFieldValueException
      */
     public function collectData($pFields = null, $pData = null)
     {
@@ -1337,15 +1346,25 @@ class ObjectCrud
             $fields =& $this->_fields;
         }
 
+        $form = new \Core\Form\Form($fields);
+
+        foreach ($fields as $field) {
+            $key = $field->getId();
+            $value = ($_POST[$key] ? : $_GET[$key]);
+            if (null == $value) {
+                $value = $pData[$key];
+            }
+
+            if ($field['customValue'] && method_exists($this, $method = $field['customValue'])) {
+                $value = $this->$method($field, $key);
+            }
+
+            $field->setValue($value);
+        }
+
         foreach ($fields as $key => $field) {
             if ($field['noSave']) {
                 continue;
-            }
-
-            $data[$key] = $pData ? $pData[$key] : ($_POST[$key] ? : $_GET[$key]);
-
-            if ($field['customValue'] && method_exists($this, $method = $field['customValue'])) {
-                $data[$key] = $this->$method($field, $key);
             }
 
             if ($field['customSave'] && method_exists($this, $method = $field['customValue'])) {
@@ -1353,19 +1372,19 @@ class ObjectCrud
                 continue;
             }
 
-            if (($field['saveOnlyFilled'] || $field['saveOnlyIfFilled']) && ($data[$key] === '' || $data[$key] === null)) {
-                unset($data[$key]);
+            if (($field['saveOnlyFilled'] || $field['saveOnlyIfFilled']) && ($value === '' || $data[$key] === null)) {
+                continue;
             }
 
-            if ($field['required'] && ($data[$key] === '' || $data[$key] === null)) {
-                throw new \FieldCanNotBeEmptyException(tf('The field %s is required.', $key));
+            if ($field->isValid()) {
+                $data[$key] = $field->getValue();
+            } else {
+                throw new \Core\Exceptions\InvalidFieldValueException(tf('The field `%s` has a invalid value.', $key));
             }
-
         }
 
         return $data;
     }
-
 
     /**
      * Each item goes through this function in getItems(). Defines whether a item is editable or deleteable.
