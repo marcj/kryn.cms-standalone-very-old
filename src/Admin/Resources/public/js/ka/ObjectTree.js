@@ -327,7 +327,6 @@ ka.ObjectTree = new Class({
     },
 
     setRootPosition: function () {
-
         if (!this.options.rootObject) {
             return;
         }
@@ -339,6 +338,7 @@ ka.ObjectTree = new Class({
         if (panePos - 20 < 0) {
             nTop = (panePos - 20) * -1;
             var maxTop = this.paneObjects.getSize().y - 20;
+            maxTop = 0 > maxTop ? 0 : maxTop;
             if (nTop > maxTop) {
                 nTop = maxTop;
             }
@@ -349,7 +349,6 @@ ka.ObjectTree = new Class({
             'left': nLeft,
             'top': nTop
         });
-
     },
 
     loadFirstLevel: function () {
