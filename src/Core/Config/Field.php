@@ -31,6 +31,11 @@ class Field extends Model
     protected $type;
 
     /**
+     * @var mixed
+     */
+    protected $value;
+
+    /**
      * @var string
      */
     protected $object;
@@ -63,6 +68,16 @@ class Field extends Model
     protected $default = null;
 
     /**
+     * @var Field
+     */
+    private $parentField;
+
+    /**
+     * @var \Core\Form\Form;
+     */
+    private $form;
+
+    /**
      * If this field starts with a empty value (on initialisation).
      *
      * @var bool
@@ -82,6 +97,11 @@ class Field extends Model
      * @var bool
      */
     protected $required = false;
+
+    /**
+     * @var string
+     */
+    protected $requiredRegex;
 
     /**
      * If this field injects a `tr`+2x`td` instead of `div`.
@@ -110,6 +130,11 @@ class Field extends Model
      * @var string
      */
     protected $help;
+
+    /**
+     * @var integer|string
+     */
+    protected $width;
 
     /**
      * @var string
@@ -535,6 +560,148 @@ class Field extends Model
     public function getAgainstField()
     {
         return $this->againstField;
+    }
+
+    /**
+     * @param int|string $width
+     */
+    public function setWidth($width)
+    {
+        $this->width = $width;
+    }
+
+    /**
+     * @return int|string
+     */
+    public function getWidth()
+    {
+        return $this->width;
+    }
+
+    /**
+     * @param mixed $value
+     */
+    public function setValue($value)
+    {
+        $this->value = $value;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getValue()
+    {
+        return $this->value;
+    }
+
+    /**
+     * @param string $requiredRegex
+     */
+    public function setRequiredRegex($requiredRegex)
+    {
+        $this->requiredRegex = $requiredRegex;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRequiredRegex()
+    {
+        return $this->requiredRegex;
+    }
+
+    /**
+     * Hidden means here if the `needValue` is correct with the parent or `getAgainstField`.
+     *
+     * @return bool
+     */
+    public function isHidden()
+    {
+        if ($parentField = $this->getParentField()) {
+            if ($parentField->isHidden()) {
+                return true;
+            }
+        }
+
+        if ($this->getNeedValue()) {
+            if ($againstFieldName = $this->getAgainstField()) {
+                if ($this->getForm()) {
+                    $againstField = $this->getForm()->getField($againstFieldName);
+                }
+            } else {
+                $againstField = $this->getParentField();
+            }
+            if ($againstField){
+                if ($againstField->isHidden()) {
+                    return true;
+                }
+                if (is_array($this->getNeedValue())) {
+                    if (!in_array($againstField->getValue(), $this->getNeedValue())) {
+                        return true;
+                    }
+                } else if ($againstField->getValue() != $this->getNeedValue()) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isValid()
+    {
+        $ok = true;
+
+        if ($this->isHidden()) {
+            return $ok;
+        }
+
+        if ($this->getRequired() && ($this->getValue() === '' || $this->getValue() === '' )){
+            $ok = false;
+        }
+
+        if ($regex = $this->getRequiredRegex()) {
+            $value = (string) $this->getValue();
+            if (!preg_match('/'.addslashes($regex).'/', $value)) {
+                $ok = false;
+            }
+        }
+
+        return $ok;
+    }
+    /**
+     * @param \Core\Config\Field $parentField
+     */
+    public function setParentField($parentField)
+    {
+        $this->parentField = $parentField;
+    }
+
+    /**
+     * @return \Core\Config\Field
+     */
+    public function getParentField()
+    {
+        return $this->parentField;
+    }
+
+    /**
+     * @param \Core\Form\Form $form
+     */
+    public function setForm($form)
+    {
+        $this->form = $form;
+    }
+
+    /**
+     * @return \Core\Form\Form
+     */
+    public function getForm()
+    {
+        return $this->form;
     }
 
 }
