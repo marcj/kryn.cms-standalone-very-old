@@ -266,6 +266,11 @@ ka.FieldForm = new Class({
                 obj.getValue = function () {
                     return true;
                 };
+
+                obj.hasParent = function () {
+                    return obj.parent;
+                };
+
                 obj.field = field;
                 obj.handleChildsMySelf = true;
 
@@ -362,7 +367,6 @@ ka.FieldForm = new Class({
      * @param pField
      */
     updateVisibility: function (pTarget, pField) {
-
         var visible = this.getVisibility(pTarget, pField);
         if (visible) {
             pField.show();
@@ -373,7 +377,6 @@ ka.FieldForm = new Class({
     },
 
     setVisibility: function (pTarget, pVisible) {
-
         var field = pTarget;
         if (typeOf(pTarget) == 'string') {
             field = this.getField(pTarget);
@@ -396,7 +399,6 @@ ka.FieldForm = new Class({
      * @return {Boolean}
      */
     getVisibility: function (pTarget, pField) {
-
         if (pTarget.isHidden()) {
             return false;
         }

@@ -455,6 +455,7 @@ ka.Field = new Class({
         if (this.isHidden()) {
             return ok;
         }
+
         if (!this.fieldObject) {
             return true;
         }

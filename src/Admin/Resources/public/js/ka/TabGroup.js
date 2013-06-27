@@ -119,7 +119,7 @@ ka.TabGroup = new Class({
 
         pButton.show = function () {
             pButton.store('visible', true);
-            pButton.setStyle('display', 'inline');
+            pButton.setStyle('display');
             this.rerender();
         }.bind(this);
 

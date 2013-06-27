@@ -13,7 +13,7 @@ ka.Window = new Class({
     children: null,
 
     initialize: function (pEntryPoint, pLink, pInstanceId, pParameter, pInline, pParentId) {
-        this.params = pParameter;
+        this.params = pParameter || {};
         this.id = pInstanceId;
         this.entryPoint = pEntryPoint;
         this.inline = pInline;
@@ -69,7 +69,7 @@ ka.Window = new Class({
      * @param {*} pParameter
      */
     setParameter: function (pParameter) {
-        this.params = pParameter;
+        this.params = pParameter || {};
         ka.wm.reloadHashtag();
     },
 

@@ -1359,6 +1359,9 @@ ka.WindowCombine = new Class({
 
     setActiveItem: function (pItem, objectKey) {
         this.currentItem = pItem;
+        if ('string' !== typeOf(objectKey)) {
+            objectKey = null;
+        }
         this.currentItemObjectKey = objectKey;
         this.selectItem(pItem, objectKey);
     },
@@ -1413,7 +1416,7 @@ ka.WindowCombine = new Class({
             if (this.win.params && this.win.params.selected) {
                 this.setView('combine', true);
                 this.nestedField.getFieldObject().select(this.win.params.selected);
-            } else if ('list' != this.win.params.type) {
+            } else if (this.win.getParameter('type') && 'list' != this.win.getParameter('type')) {
                 this.setView('combine', true);
             }
         } else {

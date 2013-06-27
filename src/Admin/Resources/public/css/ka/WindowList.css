@@ -271,7 +271,6 @@
     right: 0;
     height: 45px;
     border-top: 1px solid #DDD;
-    padding-top: 5px;
 }
 
 .ka-Table-windowList {
@@ -466,12 +465,13 @@ a.ka-list-search-button-active:link {
     padding-top: 7px;
 }
 
-.ka-windowCombine-left-toggler {
+a.ka-windowCombine-left-toggler {
     position: absolute;
     display: block;
     right: -17px;
-    width: 13px;
+    width: 12px;
     bottom: 0;
+    padding-right: 3px !important;
 }
 
 .ka-windowCombine-left-toggler:hover {
