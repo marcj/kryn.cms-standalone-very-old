@@ -20,6 +20,10 @@ ka.LabelAbstract = new Class({
         this.objectKey = objectKey;
     },
 
+    toElement: function() {
+        return this.main;
+    },
+
     render: function(values){
         return ka.htmlEntities(values[this.fieldId]);
     },

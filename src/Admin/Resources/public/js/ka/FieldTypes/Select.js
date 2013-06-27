@@ -13,7 +13,6 @@ ka.FieldTypes.Select = new Class({
     },
 
     createLayout: function () {
-
         if (typeOf(this.options.inputWidth) == 'number' || (typeOf(this.options.inputWidth) == 'string' &&
             this.options.inputWidth.replace('px', '') &&
             this.options.inputWidth.search(/[^0-9]/) === -1)) {
@@ -27,7 +26,10 @@ ka.FieldTypes.Select = new Class({
         }
 
         this.select.addEvent('change', this.fieldInstance.fireChange);
+    },
 
+    toElement: function() {
+        return this.select.toElement();
     },
 
     getObject: function () {

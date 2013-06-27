@@ -76,11 +76,6 @@
     transition-duration: .1s;
 }
 
-.ka-Select-box-active:hover,
-.ka-Select-box-active:hover > .ka-Select-arrow {
-    background-color: #fafafa;
-}
-
 .ka-Select-box-open,
 .ka-Select-box-open:link,
 .ka-Select-box:active  {

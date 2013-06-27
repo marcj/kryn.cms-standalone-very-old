@@ -111,8 +111,10 @@ ka.Select = new Class({
          * Whether to use a branch or not
          * kryn/admin/object/<object>/<objectBranch>:branch
          *
+         * Contains the pk of the branch entry.
+         *
          * Use true for the root.
-         * Define a objectScope, if the target object has multiple roots.
+         * Define `objectScope`, if the target object has multiple roots.
          *
          * @var {Boolean|String|Integer}
          */
@@ -138,7 +140,19 @@ ka.Select = new Class({
          *
          * @var {Number}
          */
-        maxItemsPerLoad: 20, //number
+        maxItemsPerLoad: 40, //number
+
+        /**
+         * Shows now border, background etc.
+         *
+         * @var {Boolean}
+         */
+        transparent: false,
+
+        /**
+         * @var {Boolean}
+         */
+        disabled: false,
 
         /**
          * Tries to select the first entry.
@@ -162,12 +176,17 @@ ka.Select = new Class({
             this.selectFirst();
         }
 
+        if (this.options.disabled)
+            this.setEnabled(false);
+
+        if (this.options.transparent) {
+            this.box.addClass('ka-Select-transparent');
+        }
         this.fireEvent('ready');
 
     },
 
     createLayout: function () {
-
         this.box = new Element('a', {
             href: 'javascript: ;',
             'class': 'ka-normalize ka-Select-box ka-Select-box-active'
@@ -795,18 +814,29 @@ ka.Select = new Class({
     },
 
     setEnabled: function (pEnabled) {
+        if (this.enabled === pEnabled) {
+            return;
+        }
 
         this.enabled = pEnabled;
-        this.arrowBox.setStyle('opacity', pEnabled ? 1 : 0.4);
 
         if (this.enabled) {
-            this.box.addClass('ka-Select-box-active');
-        }
-        else {
-            this.box.removeClass('ka-Select-box-active');
-        }
+            //add back all events
+            if (this.$eventsBackuper) {
+                this.box.cloneEvents(this.$eventsBackuper);
+            }
 
-        this.title.setStyle('opacity', pEnabled ? 1 : 0.4);
+            this.box.removeClass('ka-Select-disabled');
+            delete this.$eventsBackuper;
+
+        } else {
+            this.$eventsBackuper = new Element('span');
+            //backup all events and remove'm.
+            this.$eventsBackuper.cloneEvents(this.box);
+            this.box.removeEvents();
+
+            this.box.addClass('ka-Select-disabled');
+        }
     },
 
     inject: function (p, p2) {
