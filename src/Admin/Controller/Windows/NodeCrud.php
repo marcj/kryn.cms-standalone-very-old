@@ -69,6 +69,8 @@ class NodeCrud extends \Admin\ObjectCrud
         '__Content__' => array(
             'label' => 'Content',
             'type' => 'tab',
+            'needValue' => [0, 1],
+            'againstField' => 'type',
             'children' => array(
                 'field_1' => array(
                     'label' => '#Todo',
@@ -79,6 +81,19 @@ class NodeCrud extends \Admin\ObjectCrud
     );
 
     public $columns = array(
+        'type' => array(
+            'label' => 'Type',
+            'type' => 'select',
+            'options' => array(
+                'items' => array(
+                    array('Page', '#icon-newspaper'),
+                    array('Link', '#icon-link-5'),
+                    array('Navigation', '#icon-folder-4'),
+                    array('Deposit', '#icon-clipboard-2')
+                ),
+            ),
+            'width' => 30
+        ),
         'title' => array(
             'type' => 'text',
             'label' => 'Title',
