@@ -79,6 +79,7 @@ tr.ka-field-main > td div.desc {
 .ka-field-main > .ka-field-field {
     position: relative;
     margin: 10px 20px 2px 20px;
+    width: 400px;
 }
 
 .ka-field-main > .ka-field-field-without-margin {

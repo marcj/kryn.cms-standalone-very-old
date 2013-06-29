@@ -469,9 +469,9 @@ a.ka-windowCombine-left-toggler {
     position: absolute;
     display: block;
     right: -17px;
-    width: 12px;
+    width: 15px;
     bottom: 0;
-    padding-right: 3px !important;
+    padding-left: 0;
 }
 
 .ka-windowCombine-left-toggler:hover {

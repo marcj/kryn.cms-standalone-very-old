@@ -36,7 +36,7 @@ class User extends \Admin\ObjectCrud
         'groupMembership.name' =>
         array(
             'label' => 'Group membership',
-            'type' => 'text',
+            'type' => 'text'
         ),
     );
 
@@ -85,7 +85,7 @@ class User extends \Admin\ObjectCrud
         '__general__' => array(
             'type' => 'tab',
             'label' => '[[General]]',
-            'layout' => '   <table width="100%" style="table-layout: fixed;"><tr>
+            'layout' => '   <table style="table-layout: fixed; width: 596px"><tr>
                                 <td width="150">
                                     <div>
                                         <div style="height: 100px; margin:5px" id="picture"></div>
@@ -164,9 +164,7 @@ class User extends \Admin\ObjectCrud
                 'username' => array(
                     'label' => 'Username',
                     'desc' => '(and the administration login)',
-                    'type' => 'text',
-                    'required' => true
-                    //'empty' => false // TODO: FE users don't need a username, just an email address [Ferdi]
+                    'type' => 'text'
                 ),
                 'password' => array( //it's a virtual field from the user model
                     'label' => 'Password',
@@ -178,6 +176,7 @@ class User extends \Admin\ObjectCrud
                 'email' => array(
                     'label' => 'Email',
                     'type' => 'text',
+                    'desc' => '(and the administration login if enabled)',
                     'required' => true,
                     'requiredRegex' => '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-_]+'
                 ),
@@ -185,7 +184,9 @@ class User extends \Admin\ObjectCrud
                     'label' => 'Active account',
                     'type' => 'checkbox'
                 ),
-                'groupMembership'
+                'groupMembership' => array(
+                    'fieldWidth' => 'auto'
+                )
             )
         ),
         '__administration__' => array(

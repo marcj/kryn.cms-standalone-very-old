@@ -287,7 +287,7 @@ span.selectable span, div.selectable div {
     overflow: auto;
     -webkit-overflow-scrolling: touch;
     width: 210px;
-    background-color: #ddd;
+    background-color: #242729;
 }
 
 .ka-mainLinks {
@@ -297,7 +297,6 @@ span.selectable span, div.selectable div {
     bottom: 0;
     top: 0;
     overflow: auto;
-    background-color: #242729;
     padding-top: 15px;
     -webkit-overflow-scrolling: touch;
 }
@@ -409,7 +408,7 @@ a.ka-main-menu-item:link {
     position: relative;
     outline: 0;
     font-family: "SourceSansPro-Regular";
-    font-size: 16px;
+    font-size: 15px;
 }
 
 .ka-main-menu-top-navigation a.ka-main-menu-item,
@@ -493,7 +492,7 @@ div.ka-mainLinks a.bar-dock-logo {
 .ka-mainLinks [class*=" icon-"]:before {
     padding-right: 7px;
     color: white;
-    font-size: 18px;
+    font-size: 16px;
     line-height: 20px;
     vertical-align: text-top;
     position: absolute;
@@ -523,7 +522,6 @@ h2.ka-main-menu-title {
     padding: 5px;
     font-size: 16px;
     font-family: "SourceSansPro-Light";
-    border-bottom: 1px solid #1F1F1F;
     padding-left: 10px;
 }
 
@@ -537,7 +535,6 @@ h2.ka-main-menu-title {
     font-size: 20px;
     line-height: 12px;
     text-align: center;
-    border-right: 1px solid #d3d3d3;
     cursor: ew-resize;
 }
 

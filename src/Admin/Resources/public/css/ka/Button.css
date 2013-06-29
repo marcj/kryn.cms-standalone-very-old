@@ -30,8 +30,8 @@
 .ka-windowEdit-action-bar .ka-Button:link,
 .kwindow-win-titleGroups .ka-Button,
 .kwindow-win-titleGroups .ka-Button:link {
-    line-height: 36px;
-    height: 36px;
+    line-height: 32px;
+    height: 32px;
 }
 
 .ka-ActionBar .ka-Button:last-child {

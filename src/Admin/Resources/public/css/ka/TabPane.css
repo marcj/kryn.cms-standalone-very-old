@@ -17,6 +17,7 @@
 .ka-tabPane-pane {
     display: none;
     position: relative;
+    padding: 10px;
     background-color: #fbfbfb;
 }
 
