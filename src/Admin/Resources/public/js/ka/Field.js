@@ -59,21 +59,20 @@ ka.Field = new Class({
      * @param  {ka.FieldForm} pFieldForm
      */
     initialize: function (pDefinition, pContainer, pKey, pFieldForm) {
-
         pContainer = document.id(pContainer);
         this.key = pKey;
 
         this.fieldForm = pFieldForm;
 
         if (pDefinition.type == 'predefined') {
-            if (!pDefinition.options.object) {
-                throw 'Fields of type `predefined` need a `object` option.'
+            if (!pDefinition.object) {
+                throw 'Fields of type `predefined` need a `object` value.'
             }
-            if (!pDefinition.options.field) {
-                throw 'Fields of type `predefined` need a `field` option.'
+            if (!pDefinition.field) {
+                throw 'Fields of type `predefined` need a `field` value.'
             }
-            var definition = ka.getObjectDefinition(pDefinition.options.object);
-            this.field = Object.clone(definition.fields[pDefinition.options.field]);
+            var definition = ka.getObjectDefinition(pDefinition.object);
+            this.field = Object.clone(definition.fields[pDefinition.field]);
 
             if (pDefinition.label) {
                 this.field.label = pDefinition.label;
@@ -227,11 +226,10 @@ ka.Field = new Class({
 
         if (this.options.fieldWidth) {
             this.fieldPanel.setStyle('width', this.options.fieldWidth);
-        }
 
-        if (this.options.fieldWidth && typeOf(this.options.fieldWidth) == 'string' &&
-            this.options.fieldWidth.indexOf('%') > 0) {
-            this.fieldPanel.addClass('ka-field-field-without-margin');
+            if (typeOf(this.options.fieldWidth) == 'string' && this.options.fieldWidth.indexOf('%') > 0) {
+                this.fieldPanel.addClass('ka-field-field-without-margin');
+            }
         }
 
         if (this.options.invisible == 1) {
