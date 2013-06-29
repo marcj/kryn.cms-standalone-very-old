@@ -41,6 +41,13 @@ class Field extends Model
     protected $object;
 
     /**
+     * The key of the field this is representing. Primarily for types 'predefined'.
+     *
+     * @var string
+     */
+    protected $field;
+
+    /**
      * @var string
      */
     protected $layout;
@@ -132,9 +139,25 @@ class Field extends Model
     protected $help;
 
     /**
+     * Width of a column.
+     *
      * @var integer|string
      */
     protected $width;
+
+    /**
+     * Width of the actual input element (input, select, textarea, etc)
+     *
+     * @var string|integer
+     */
+    protected $inputWidth;
+
+    /**
+     * Width of the panel where the input is placed.
+     *
+     * @var string|integer
+     */
+    protected $fieldWidth;
 
     /**
      * @var string
@@ -702,6 +725,54 @@ class Field extends Model
     public function getForm()
     {
         return $this->form;
+    }
+
+    /**
+     * @param int|string $inputWidth
+     */
+    public function setInputWidth($inputWidth)
+    {
+        $this->inputWidth = $inputWidth;
+    }
+
+    /**
+     * @return int|string
+     */
+    public function getInputWidth()
+    {
+        return $this->inputWidth;
+    }
+
+    /**
+     * @param int|string $fieldWidth
+     */
+    public function setFieldWidth($fieldWidth)
+    {
+        $this->fieldWidth = $fieldWidth;
+    }
+
+    /**
+     * @return int|string
+     */
+    public function getFieldWidth()
+    {
+        return $this->fieldWidth;
+    }
+
+    /**
+     * @param string $field
+     */
+    public function setField($field)
+    {
+        $this->field = $field;
+    }
+
+    /**
+     * @return string
+     */
+    public function getField()
+    {
+        return $this->field;
     }
 
 }

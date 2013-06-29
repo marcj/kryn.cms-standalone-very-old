@@ -541,6 +541,16 @@ class ObjectCrud
 
             $oField = $this->objectDefinition->getField($key);
             if ($oField) {
+                if (!isset($field['type'])) {
+                    $field['type'] = 'predefined';
+                }
+                if (strtolower($field['type']) == 'predefined' && !$field['object']) {
+                    $field['object'] = $this->getObject();
+                }
+                if (strtolower($field['type']) == 'predefined' && !$field['field']) {
+                    $field['field'] = $key;
+                }
+
                 if (!isset($field['label'])) {
                     $field['label'] = $oField->getLabel();
                 }
@@ -592,36 +602,36 @@ class ObjectCrud
                 switch ($pFields->getType()) {
                     case 'predefined':
 
-                        if (!$pFields->getOption('object')) {
+                        if (!$pFields->getObject()) {
                             throw new \Exception(tf(
                                 'Fields of type `predefined` need a `object` option. [%s]',
                                 $pFields->toArray()
                             ));
                         }
 
-                        if (!$pFields->getOption('field')) {
+                        if (!$pFields->getField()) {
                             throw new \Exception(tf(
                                 'Fields of type `predefined` need a `field` option. [%s]',
                                 $pFields->toArray()
                             ));
                         }
 
-                        $object = Object::getDefinition($pFields->getOption('object'));
+                        $object = Object::getDefinition($pFields->getObject());
                         if (!$object) {
                             throw new \Exception(tf(
                                 'Object `%s` does not exist [%s]',
-                                $pFields->getOption('object'),
+                                $pFields->getObject(),
                                 $pFields->toArray()
                             ));
                         }
-                        $def = $object->getField($pFields->getOption('field'));
+                        $def = $object->getField($pFields->getField());
                         if (!$def) {
                             $objectArray = $object->toArray();
                             $fields = $objectArray['fields'];
                             throw new \Exception(tf(
                                 "Object `%s` does not have field `%s`. \n[%s]\n[%s]",
-                                $pFields->getOption('object'),
-                                $pFields->getOption('field'),
+                                $pFields->getObject(),
+                                $pFields->getField(),
                                 $pFields->toArray(),
                                 json_format($fields)
                             ));
