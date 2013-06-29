@@ -1424,7 +1424,7 @@ ka.WindowCombine = new Class({
                 this.needSelection = true;
                 this.loadAround(this.win.params.selected);
             } else {
-                if ('list' != this.win.params.type) {
+                if (this.win.params.type && 'list' != this.win.params.type) {
                     this.setView('combine', true);
                 }
                 this.loadItems(0, (this.classProperties.itemsPerPage) ? this.classProperties.itemsPerPage : 5);
