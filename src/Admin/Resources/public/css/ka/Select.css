@@ -27,10 +27,9 @@
     margin: 0 3px;
 
     background-color: #fefefe;
-    border: 1px solid #ececec;
+    border: 1px solid #ddd;
     border-bottom: 0;
     box-shadow: 0 3px 0 #d6d6d6;
-    border-right: 1px solid #e6e6e6;
 
     text-align: left;
 }
@@ -145,7 +144,6 @@
 .ka-Select-chooser {
     margin: 0px auto;
     border: 1px solid #e6e6e6;
-    border-bottom: 3px solid #e6e6e6;
 
     border-top: 0px;
 
@@ -163,13 +161,12 @@
     left: 0px;
     top: 0px;
     height: 1px;
-    border-top: 1px solid #C0C0C0;
+    border-top: 1px solid #e6e6e6;
 }
 
 .ka-Select-chooser div.group {
-    color: #333;
+    color: #999;
     text-align: left;
-    font-size: 11px;
     padding: 5px 10px;
     font-weight: bold;
 }
