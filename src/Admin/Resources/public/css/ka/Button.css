@@ -18,10 +18,9 @@
     position: relative;
 
     display: inline-block;
-    border: 1px solid #ececec;
+    border: 1px solid #ddd;
     border-bottom: 0;
     box-shadow: 0 3px 0 #d6d6d6;
-    border-right: 1px solid #e6e6e6;
 }
 
 .ka-ActionBar .ka-Button,

@@ -57,14 +57,13 @@ class NodeCrud extends \Admin\ObjectCrud
                 'accessDenied' => array(
                     'label' => 'Access denied',
                     'type' => 'checkbox',
-                    'desc' => 'For everyone. This remove the page from the navigation.',
+                    'desc' => 'For everyone. This removes the page from the navigation.',
                 ),
                 'forceHttps' => array(
                     'label' => 'Force HTTPS',
                     'type' => 'checkbox',
                 ),
             ),
-            'key' => '__Access__',
         ),
         '__Content__' => array(
             'label' => 'Content',
@@ -72,9 +71,9 @@ class NodeCrud extends \Admin\ObjectCrud
             'needValue' => [0, 1],
             'againstField' => 'type',
             'children' => array(
-                'field_1' => array(
-                    'label' => '#Todo',
-                    'type' => 'wysiwyg',
+                'content.*' => array(
+                    'noWrapper' => true,
+                    'type' => 'content',
                 ),
             ),
         ),

@@ -29,8 +29,8 @@
     font-family: Icomoon;
     font-size: 10px;
     color: gray;
-    vertical-align: middle;
     height: 30px;
+    line-height: 30px;
     display: inline-block;
 }
 
@@ -42,7 +42,7 @@
 .ka-objectTree-drag-box {
     position: relative;
     display: block;
-    line-height: 26px;
+    line-height: 30px;
     height: 30px;
     color: #444;
     cursor: default;
@@ -76,7 +76,6 @@
     position: relative;
     height: 18px;
     width: 15px;
-    vertical-align: text-top;
 }
 
 .ka-objectTree-item-masks img {
@@ -120,7 +119,6 @@
 }
 
 .ka-objectTree-item-title {
-    vertical-align: middle;
 }
 
 .ka-objectTree-item-dragOver .ka-objectTree-item-title {

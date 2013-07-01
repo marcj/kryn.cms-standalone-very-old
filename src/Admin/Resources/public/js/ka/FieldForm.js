@@ -139,7 +139,6 @@ ka.FieldForm = new Class({
      * Fires a change event and handles some internal stuff.
      */
     fireChange: function () {
-
         this.fireEvent('change');
 
         if (this.options.saveButton !== false) {
@@ -528,10 +527,11 @@ ka.FieldForm = new Class({
      * @param pInternal
      */
     setValue: function (pValues, pInternal) {
-
         if (typeOf(pValues) == 'string') {
             pValues = JSON.decode(pValues);
         }
+
+        this.value = pValues;
 
         Object.each(this.fields, function (obj, id) {
             if (id.indexOf('[') != -1) {
@@ -540,6 +540,19 @@ ka.FieldForm = new Class({
                 obj.setValue(pValues ? pValues[id] : null, pInternal);
             }
         });
+
+        if (true !== pInternal) {
+            this.fireEvent('setValue', this.value);
+        }
+    },
+
+    /**
+     * Returns the value that was set via setValue. `getValue` instead retrieves all
+     * real values from all ka.Fields.
+     * @returns {*}
+     */
+    getOriginValue: function() {
+        return this.value;
     },
 
     /**
@@ -568,7 +581,6 @@ ka.FieldForm = new Class({
      * @return {Mixed}
      */
     getValue: function (pField) {
-
         var val;
 
         var res = {};

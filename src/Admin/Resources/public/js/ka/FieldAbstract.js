@@ -67,6 +67,10 @@ ka.FieldAbstract = new Class({
         /* Override it to your needs */
     },
 
+    getContainer: function() {
+        return this.fieldInstance.fieldPanel;
+    },
+
     /**
      * Renders the UI with the new value.
      * Do not call this function in your code.

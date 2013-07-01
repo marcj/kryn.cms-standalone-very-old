@@ -108,13 +108,11 @@ class User extends \Admin\ObjectCrud
                 ),
                 'firstName' => array(
                     'label' => 'First name',
-                    'target' => 'name',
                     'type' => 'text',
                     'target' => 'names'
                 ),
                 'lastName' => array(
                     'label' => 'Last name',
-                    'target' => 'lastname',
                     'type' => 'text',
                     'target' => 'names'
                 ),

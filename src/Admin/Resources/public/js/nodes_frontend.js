@@ -6,6 +6,18 @@ var admin_nodes_frontend = new Class({
     },
 
     createLayout: function () {
+        this.win.content.setStyle('border', 0);
+        this.win.content.setStyle('background-color', 'transparent');
+
+        new ka.Field({
+            noWrapper: true,
+            type: 'content',
+            options: {
+                standalone: true
+            }
+        }, this.win.content);
+
+        return;
         this.wrapper = new Element('div', {
             'class': 'ka-admin-nodes-frontend-wrapper'
         }).inject(this.win.content);
@@ -59,7 +71,7 @@ var admin_nodes_frontend = new Class({
 //        }.bind(this));
 
         this.iframe = new Element('iframe', {
-            src: _path + '?_kryn_editor=1&_kryn_editor_id=' + id,
+            src: _path + '?_kryn_editor=1&_kryn_editor_id=' + encodeURIComponent(id) + '&_kryn_editor_node_id=',
             frameborder: 0
         }).inject(this.wrapper);
     },
