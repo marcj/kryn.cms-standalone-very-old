@@ -114,9 +114,7 @@ class Propel extends ORMAbstract
 
                 if (($pos = strpos($field, '.')) !== false) {
                     $relationName = ucfirst(substr($field, 0, $pos));
-                    $field = ucfirst(substr($field, $pos + 1));
-                    $relationFieldSelection = $field;
-                    $addRelationField = $field;
+                    $relationFieldSelection = explode(',', str_replace(' ', '', ucfirst(substr($field, $pos + 1))));
                     if (!$tableMap->hasRelation(ucfirst($relationName))) {
                         continue;
                     }
@@ -127,10 +125,27 @@ class Propel extends ORMAbstract
 
                 if ($relationName) {
                     $relation = $tableMap->getRelation(ucfirst($relationName));
-                    //check if $field exists in the foreign table
-                    if ($relationFieldSelection) {
-                        if (!$relation->getRightTable()->hasColumnByPhpName($relationFieldSelection)) {
-                            continue;
+
+                    //select at least all pks of the foreign table
+                    $pks = $relation->getRightTable()->getPrimaryKeys();
+                    foreach ($pks as $pk) {
+                        $relationFields[ucfirst($relationName)][] = $pk->getPhpName();
+                    }
+
+                    if ('*' === $relationFieldSelection[0]) {
+                        foreach ($relation->getRightTable()->getColumns() as $col) {
+                            if (!$col->isPrimaryKey()) {
+                                $relationFields[ucfirst($relationName)][] = $col->getPhpName();
+                            }
+                        }
+                    } else {
+
+                        foreach ($relationFieldSelection as $relationField) {
+                            //check if $relationField exists in the foreign table
+                            if (!$relation->getRightTable()->hasColumnByPhpName($relationField)) {
+                                continue;
+                            }
+                            $relationFields[ucfirst($relationName)][] = $relationField;
                         }
                     }
 
@@ -143,19 +158,8 @@ class Propel extends ORMAbstract
                         }
                     }
 
-                    //select at least all pks of the foreign table
-                    $pks = $relation->getRightTable()->getPrimaryKeys();
-                    foreach ($pks as $pk) {
-                        $relationFields[ucfirst($relationName)][] = $pk->getPhpName();
-                    }
-                    if ($addRelationField) {
-                        $relationFields[ucfirst($relationName)][] = $addRelationField;
-                    }
-
                     continue;
-                }
-
-                if ($tableMap->hasColumnByPhpName(ucfirst($field)) &&
+                } else if ($tableMap->hasColumnByPhpName(ucfirst($field)) &&
                     $column = $tableMap->getColumnByPhpName(ucfirst($field))
                 ) {
                     $fields[$column->getPhpName()] = $column;
