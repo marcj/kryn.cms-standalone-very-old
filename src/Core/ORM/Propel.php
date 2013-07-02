@@ -109,7 +109,7 @@ class Propel extends ORMAbstract
         } else if (is_array($pFields)) {
             foreach ($pFields as $field) {
 
-                $relationFieldSelection = '';
+                $relationFieldSelection = [];
                 $relationName = '';
 
                 if (($pos = strpos($field, '.')) !== false) {
