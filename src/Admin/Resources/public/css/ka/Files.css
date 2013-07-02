@@ -11,6 +11,10 @@
     bottom: 0;
 }
 
+.ka-Files-wrapper-header {
+
+}
+
 .ka-Files-body {
     margin-top: 18px;
 }
@@ -24,6 +28,9 @@
     bottom: 0;
 }
 
+.ka-Files-with-own-header .ka-Files-body {
+    top: 55px;
+}
 
 .admin-files-infos + .ka-Splitter-main {
     right: -16px;

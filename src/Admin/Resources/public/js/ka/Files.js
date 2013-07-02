@@ -747,21 +747,20 @@ ka.Files = new Class({
     },
 
     _createLayout: function () {
+        this.wrapper = new Element('div', {
+            'class': 'ka-Files-wrapper'
+        }).inject(this.container);
 
         if (!this.options.useWindowHeader) {
-
             this.header = new Element('div', {
+                'class': 'ka-Files-wrapper-header'
             }).inject(this.container);
-
+            this.wrapper.addClass('ka-Files-with-own-header');
         } else {
             this.header = this.win.titleGroups;
             this.win.extendHead();
             this.win.border.addClass('ka-window-extend-head-files');
         }
-
-        this.wrapper = new Element('div', {
-            'class': 'ka-Files-wrapper'
-        }).inject(this.container);
 
         if (this.options.fixed) {
             this.wrapper.addClass('ka-Files-wrapper-fixed');
@@ -906,11 +905,8 @@ ka.Files = new Class({
 
         document.id(this.mainLayout).addClass('ka-Files-body');
 
-        var fileContainerCell = this.mainLayout.getCell(1, 3);
         var sideBarCell = this.mainLayout.getCell(1, 1);
-        if (!this.options.withSidebar) {
-            fileContainerCell = this.mainLayout.getCell(1, 1);
-        }
+        var fileContainerCell = this.mainLayout.getCell(1, this.options.withSidebar ? 3 : 1);
 
         this.fileContainer = new Element('div', {
             'class': 'admin-files-droppables admin-files-fileContainer ka-scrolling'
@@ -942,10 +938,6 @@ ka.Files = new Class({
         }
 
         this.fileContainer.addEvent('scroll', this.loadImagesInViewPort.bind(this));
-
-        if (!this.options.useWindowHeader) {
-            this.fileContainer.setStyle('top', 35);
-        }
 
         if (this.container.addEventListener) {
             this.container.addEventListener('dragover', this.checkFileDragOver.bind(this));
@@ -1450,7 +1442,9 @@ ka.Files = new Class({
 
                 this.updateStatusBar();
 
-                this.infos.getChildren().removeClass('admin-files-item-selected');
+                if (this.infos) {
+                    this.infos.getChildren().removeClass('admin-files-item-selected');
+                }
                 this.fireDeselect();
 
                 if (this.sidebarFiles[this.current]) {
