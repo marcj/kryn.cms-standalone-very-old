@@ -1581,7 +1581,7 @@ ka.WindowCombine = new Class({
         var layout = '';
         var titleAdded, nameAdded;
 
-        var pk = ka.getObjectUrlId(this.classProperties['object'], pItem);
+        var pk = ka.normalizeObjectKey(this.classProperties['object']) + '/' + ka.getObjectUrlId(this.classProperties['object'], pItem);
 
         if (this.classProperties.itemLayout) {
             layout = this.classProperties.itemLayout;
@@ -1690,7 +1690,7 @@ ka.WindowCombine = new Class({
         }
 
         if (this.needSelection) {
-            if (this.win.params.selected == ka.normalizeObjectKey(this.classProperties['object']) + '/' + pk) {
+            if (this.win.params.selected == pk) {
                 item.fireEvent('click', pItem);
                 item.addClass('active');
                 this.needSelection = false;
