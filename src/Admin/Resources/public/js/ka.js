@@ -148,6 +148,14 @@ ka.findWindow = function (pElement) {
 
 }
 
+ka.setLocalSetting = function(key, data) {
+    localStorage.setItem(key, data);
+}
+
+ka.getLocalSetting = function(key) {
+    return localStorage.getItem(key);
+}
+
 ka.entrypoint = {
 
     open: function (pEntrypoint, pOptions, pSource, pInline, pDependWindowId) {
