@@ -49,6 +49,7 @@ ka.FieldTypes.Content = new Class({
                 .setButtonStyle('blue')
                 .inject(this.headerLayout.getCell(1,2));
         } else {
+            this.mainLayout.getCell(1, 1).addClass('ka-Field-content-actionBar');
             //attach to the FormField class, since we need the information which page is loaded
             //and which layout we should use.
             //todo
@@ -71,8 +72,18 @@ ka.FieldTypes.Content = new Class({
 //             }
 //        }.bind(this));
 
+        var options = {
+            standalone: this.options.standalone
+        };
+
+        var params = {
+            '_kryn_editor': 1,
+            '_kryn_editor_id': id,
+            '_kryn_editor_options': options
+        };
+
         this.iframe = new Element('iframe', {
-            src: _path + '?_kryn_editor=1&_kryn_editor_id=' + id,
+            src: _path + '?' + Object.toQueryString(params),
             frameborder: 0,
             style: 'position: absolute; display: block; border: 0; height: 100%; width: 100%;'
         }).inject(this.mainLayout.getCell(2, 1));

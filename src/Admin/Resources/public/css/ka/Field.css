@@ -318,3 +318,9 @@ tr.ka-field-main > td div.desc {
     border-top: 2px solid silver;
     padding-top: 5px;
 }
+
+.ka-Field-content-actionBar {
+    padding: 0 10px;
+    border-bottom: 1px solid #bababa;
+    padding-top: 6px;
+}

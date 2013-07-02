@@ -986,6 +986,9 @@ ka.Window = new Class({
             ]
         });
 
+        this.mainLayout.getCell(1, 1).setStyle('height', 'auto');
+        this.mainLayout.getCell(2, 1).setStyle('height', 'auto');
+
         this.title = new Element('div', {'class': 'kwindow-win-title'}).inject(this.mainLayout.getCell(1, 1));
 
         this.titlePath = new Element('span', {'class': 'ka-kwindow-titlepath'}).inject(this.title);

@@ -1,5 +1,6 @@
 ka.AdminInterface = new Class({
 
+    Binds: ['toggleMainLinks'],
     Implements: [Events, Options],
 
     mobile: false,
@@ -15,7 +16,7 @@ ka.AdminInterface = new Class({
     /**
      * Builds the login etc.
      */
-    initialize: function (pOptions) {
+    initialize: function(pOptions) {
 
         this.setOptions(pOptions);
 
@@ -39,7 +40,7 @@ ka.AdminInterface = new Class({
         }
     },
 
-    createLayout: function () {
+    createLayout: function() {
         this.border = new Element('div', {
             'class': 'ka-border ka-admin'
         }).inject(document.body);
@@ -73,13 +74,23 @@ ka.AdminInterface = new Class({
             'class': 'ka-mainLinks ka-scrolling'
         }).inject(this.mainMenu);
 
-        this.mainLinksSplitter = new Element('div', {
-            'class': 'ka-mainLinks-splitter'
-        }).inject(this.mainMenu);
+        this.mainLinksSplitter = new ka.LayoutSplitter(this.mainMenu, 'right');
+
+        document.id(this.mainLinksSplitter).addClass('ka-mainLinks-splitter');
+
+//        this.mainLinksSplitter = new Element('div', {
+//            'class': 'ka-mainLinks-splitter'
+//        }).inject(this.mainMenu);
 
         this.mainLinksSplitterText = new Element('div', {
             html: '&bullet; &bullet; &bullet;'
         }).inject(this.mainLinksSplitter);
+
+        this.mainLinkSplitterArrow = new Element('a', {
+            'class': 'icon-arrow-left-5'
+        }).inject(this.mainLinksSplitter);
+
+        this.mainLinkSplitterArrow.addEvent('click', this.toggleMainLinks);
 
         this.mainTempLinks = new Element('div', {
             'class': 'ka-mainTempLinks'
@@ -94,40 +105,40 @@ ka.AdminInterface = new Class({
             title: t('Open Frontend'),
             href: 'javascript: ;'
         })
-        .addEvent('click', function () {
-            ka.openFrontend();
-        })
-        .inject(this.mainMenuIconBar);
+            .addEvent('click', function() {
+                ka.openFrontend();
+            })
+            .inject(this.mainMenuIconBar);
 
         this.openSearchIndexBtn = new Element('a', {
             'class': 'icon-search-8',
             title: t('Search engine index'),
             href: 'javascript: ;'
         })
-        .addEvent('click', function () {
-            ka.openSearchContext();
-        })
-        .inject(this.mainMenuIconBar);
+            .addEvent('click', function() {
+                ka.openSearchContext();
+            })
+            .inject(this.mainMenuIconBar);
 
         this.clearCacheBtn = new Element('a', {
             'class': 'icon-trashcan-6',
             title: t('Clear cache'),
             href: 'javascript: ;'
         })
-        .addEvent('click', function () {
-            this.clearCache();
-        }.bind(this))
-        .inject(this.mainMenuIconBar);
+            .addEvent('click', function() {
+                this.clearCache();
+            }.bind(this))
+            .inject(this.mainMenuIconBar);
 
         this.openHelpBtn = new Element('a', {
             'class': 'icon-info-5',
             title: t('Help'),
             href: 'javascript: ;'
         })
-        .addEvent('click', function () {
-            ka.clearCache();
-        })
-        .inject(this.mainMenuIconBar);
+            .addEvent('click', function() {
+                ka.clearCache();
+            })
+            .inject(this.mainMenuIconBar);
 
         this.wmTabContainer = new Element('div', {
             'class': 'ka-main-menu-wm-tabs'
@@ -137,7 +148,7 @@ ka.AdminInterface = new Class({
             this.desktopContainer = this.border;
 
             var y;
-            window.addEvent('scroll', function () {
+            window.addEvent('scroll', function() {
                 if ((y = window.getScroll().y) > 0) {
                     this.mainMenu.setStyle('top', y);
                 } else {
@@ -149,23 +160,83 @@ ka.AdminInterface = new Class({
                 'class': 'ka-desktop ka-admin ka-scrolling'
             }).inject(this.border);
         }
+
+        this.setupMainLinksDragger();
+    },
+
+    setupMainLinksDragger: function() {
+        this.mainLinksSplitter.addEvent('resize', function() {
+            this.lastMainLinksWidth = this.mainMenu.getStyle('width');
+            this.desktopContainer.setStyle('left', this.lastMainLinksWidth);
+            this.wmTabContainer.setStyle('left', this.lastMainLinksWidth);
+
+            this.setMainLinksIcons(120 > this.lastMainLinksWidth.toInt());
+
+            if (45 > this.lastMainLinksWidth.toInt()) {
+                this.toggleMainLinks();
+            }
+
+            window.fireEvent('resize');
+        }.bind(this));
+
+        this.mainLinksSplitter.addEvent('resized', function() {
+            ka.setLocalSetting('admin/interface/links-width', this.mainMenu.getStyle('width').toInt());
+        }.bind(this));
+
+        var localSetting = ka.getLocalSetting('admin/interface/links-width');
+        if ('boolean' === typeOf(localSetting)) {
+            this.toggleMainLinks(localSetting);
+        } else if (localSetting) {
+            this.mainMenu.setStyle('width', localSetting+'px');
+            this.mainLinksSplitter.fireEvent('resize');
+        }
+    },
+
+    setMainLinksIcons: function(icons) {
+        if (icons) {
+            this.mainMenu.addClass('ka-main-menu-icons');
+        } else {
+            this.mainMenu.removeClass('ka-main-menu-icons');
+        }
+    },
+
+    toggleMainLinks: function(visible) {
+        visible = true === visible || 17 === this.mainMenu.getStyle('width').toInt();
+        ka.setLocalSetting('admin/interface/links-width', visible || this.mainMenu.getStyle('width').toInt());
+        if (visible) {
+            //not visible
+            if (this.lastMainLinksWidth) {
+                this.mainMenu.setStyle('width', this.lastMainLinksWidth);
+                this.desktopContainer.setStyle('left', this.lastMainLinksWidth);
+                this.wmTabContainer.setStyle('left', this.lastMainLinksWidth);
+            } else {
+                this.mainMenu.setStyle('width');
+                this.desktopContainer.setStyle('left');
+                this.wmTabContainer.setStyle('left');
+            }
+        } else {
+            this.lastMainLinksWidth = this.mainMenu.getStyle('width');
+            this.mainMenu.setStyle('width', 17);
+            this.desktopContainer.setStyle('left', 17);
+            this.wmTabContainer.setStyle('left', 17);
+        }
     },
 
     getWMTabContainer: function() {
         return this.wmTabContainer;
     },
 
-    isFrontPage: function () {
+    isFrontPage: function() {
         return this.options.frontPage;
     },
 
-    clearCache: function () {
+    clearCache: function() {
         if (!this.cacheToolTip) {
             this.cacheToolTip = new ka.Tooltip(this.clearCacheBtn, t('Clearing cache ...'), 'top');
         }
         this.cacheToolTip.show();
 
-        new Request.JSON({url: _pathAdmin + 'admin/backend/cache', noCache: 1, onComplete: function (res) {
+        new Request.JSON({url: _pathAdmin + 'admin/backend/cache', noCache: 1, onComplete: function(res) {
             this.cacheToolTip.stop(t('Cache cleared'));
         }.bind(this)}).get({_method: 'delete'});
     },
@@ -173,7 +244,7 @@ ka.AdminInterface = new Class({
     /*
      * Build the administration interface after login
      */
-    renderBackend: function () {
+    renderBackend: function() {
         if (this.options.frontPage) {
             return;
         }
@@ -195,13 +266,13 @@ ka.AdminInterface = new Class({
             text: window._session.username,
             'class': 'username'
         })
-            .addEvent('click', function () {
+            .addEvent('click', function() {
                 ka.wm.open('users/users/editMe', {values: {id: window._userId}});
             })
             .inject(this.mainMenuUser);
 
         this.logoutButton = new ka.Button(t('Logout'))
-            .addEvent('click', function () {
+            .addEvent('click', function() {
                 this.logout();
             }.bind(this))
             .inject(this.mainMenuUser);
@@ -233,7 +304,7 @@ ka.AdminInterface = new Class({
 
             document.id(this.searchInput).addClass('ka-search-input');
 
-            this.searchInput.addEvent('change', function () {
+            this.searchInput.addEvent('change', function() {
                 if (this.searchInput.getValue() != '') {
                     this.doMiniSearch(this.searchInput.getValue());
                 } else {
@@ -259,7 +330,7 @@ ka.AdminInterface = new Class({
 
         ka.loadStream();
 
-        window.onbeforeunload = function (evt) {
+        window.onbeforeunload = function(evt) {
 
             if (ka.wm.getWindowsCount() > 0) {
                 var message = _('There are open windows. Are you sure you want to leaving the administration?');
@@ -273,7 +344,7 @@ ka.AdminInterface = new Class({
             }
         };
 
-        window.addEvent('mouseup', function () {
+        window.addEvent('mouseup', function() {
             this.destroyLinkContext();
         }.bind(this));
 
@@ -297,7 +368,7 @@ ka.AdminInterface = new Class({
         return this.helpsystem;
     },
 
-    toggleMainbar: function () {
+    toggleMainbar: function() {
         if (this.border.getStyle('top').toInt() != 0) {
             this.border.tween('top', 0);
             document.id('arrowUp').setStyle('background-color', 'transparent');
@@ -315,7 +386,7 @@ ka.AdminInterface = new Class({
         }
     },
 
-    doMiniSearch: function () {
+    doMiniSearch: function() {
 
         if (!this._miniSearchPane) {
 
@@ -347,22 +418,22 @@ ka.AdminInterface = new Class({
 
     },
 
-    _miniSearch: function () {
+    _miniSearch: function() {
 
-        new Request.JSON({url: _pathAdmin + 'admin/backend/search', noCache: 1, onComplete: function (pResponse) {
+        new Request.JSON({url: _pathAdmin + 'admin/backend/search', noCache: 1, onComplete: function(pResponse) {
             this._miniSearchLoader.setStyle('display', 'none');
             this._renderMiniSearchResults(pResponse.data);
         }.bind(this)}).get({q: this.searchInput.getValue(), lang: window._session.lang});
 
     },
 
-    _renderMiniSearchResults: function (pRes) {
+    _renderMiniSearchResults: function(pRes) {
 
         this._miniSearchResults.empty();
 
         if (typeOf(pRes) == 'object') {
 
-            Object.each(pRes, function (subresults, subtitle) {
+            Object.each(pRes, function(subresults, subtitle) {
                 var subBox = new Element('div').inject(this._miniSearchResults);
 
                 new Element('h3', {
@@ -370,12 +441,12 @@ ka.AdminInterface = new Class({
                 }).inject(subBox);
 
                 var ol = new Element('ul').inject(subBox);
-                Array.each(subresults, function (subsubresults, index) {
+                Array.each(subresults, function(subsubresults, index) {
                     var li = new Element('li').inject(ol);
                     new Element('a', {
                         html: ' ' + subsubresults[0],
                         href: 'javascript: ;'
-                    }).addEvent('click', function () {
+                    }).addEvent('click', function() {
                             ka.wm.open(subsubresults[1], subsubresults[2]);
                             this.hideMiniSearch();
                         }.bind(this)).inject(li);
@@ -387,41 +458,41 @@ ka.AdminInterface = new Class({
 
     },
 
-    hideMiniSearch: function () {
+    hideMiniSearch: function() {
         if (this._miniSearchPane) {
             this._miniSearchPane.destroy();
             this._miniSearchPane = false;
         }
     },
 
-    prepareLoader: function () {
+    prepareLoader: function() {
         this._loader = new Element('div', {
             'class': 'ka-ai-loader'
         }).setStyle('opacity', 0).set('tween', {duration: 400}).inject(document.body);
 
-        frames['content'].onload = function () {
+        frames['content'].onload = function() {
             this.endLoading();
         };
-        frames['content'].onunload = function () {
+        frames['content'].onunload = function() {
             this.startLoading();
         };
     },
 
-    endLoading: function () {
+    endLoading: function() {
         this._loader.tween('opacity', 0);
     },
 
-    getDesktop: function () {
+    getDesktop: function() {
         return this.desktopContainer;
     },
 
-    startLoading: function () {
+    startLoading: function() {
         var co = this.desktopContainer;
         this._loader.setStyles(co.getCoordinates());
         this._loader.tween('opacity', 1);
     },
 
-    renderLogin: function () {
+    renderLogin: function() {
         this.login = new Element('div', {
             'class': 'ka-login ka-admin'
         }).inject(document.body);
@@ -453,7 +524,7 @@ ka.AdminInterface = new Class({
             action: './admin',
             method: 'post'
         }).addEvent('submit',
-            function (e) {
+            function(e) {
                 e.stop()
             }).inject(this.middle);
         this.loginForm = form;
@@ -464,7 +535,7 @@ ka.AdminInterface = new Class({
             type: 'text',
             placeholder: t('Username')
         })
-            .addEvent('keyup', function (e) {
+            .addEvent('keyup', function(e) {
                 if (e.key == 'enter') {
                     this.doLogin();
                 }
@@ -475,7 +546,7 @@ ka.AdminInterface = new Class({
             type: 'password',
             'class': 'ka-Input-text',
             placeholder: t('Password')
-        }).addEvent('keyup', function (e) {
+        }).addEvent('keyup', function(e) {
                 if (e.key == 'enter') {
                     this.doLogin();
                 }
@@ -484,12 +555,12 @@ ka.AdminInterface = new Class({
         this.loginLangSelection = new ka.Select();
         this.loginLangSelection.inject(form);
 
-        this.loginLangSelection.addEvent('change',function () {
+        this.loginLangSelection.addEvent('change',function() {
             this.loadLanguage(this.loginLangSelection.getValue());
             this.reloadLogin();
         }).inject(form);
 
-        Object.each(ka.possibleLangs, function (lang) {
+        Object.each(ka.possibleLangs, function(lang) {
             this.loginLangSelection.add(lang.code, lang.title + ' (' + lang.langtitle + ')');
         }.bind(this));
 
@@ -505,7 +576,7 @@ ka.AdminInterface = new Class({
 
         this.loginBtn = new ka.Button(t('Login')).inject(form);
         this.loginBtn.setButtonStyle('blue');
-        this.loginBtn.addEvent('click', function () {
+        this.loginBtn.addEvent('click', function() {
             this.doLogin();
         }.bind(this));
 
@@ -526,7 +597,7 @@ ka.AdminInterface = new Class({
             'class': 'ka-login-loader-bottom'
         }).inject(form);
 
-        [this.loaderTop, this.loaderBottom].each(function (item) {
+        [this.loaderTop, this.loaderBottom].each(function(item) {
             item.set('morph', {duration: 300, transition: Fx.Transitions.Quart.easeInOut});
         });
 
@@ -603,15 +674,15 @@ ka.AdminInterface = new Class({
         this.loginName.focus();
     },
 
-    reloadLogin: function () {
+    reloadLogin: function() {
         if (this.login) {
             this.login.destroy();
         }
         this.renderLogin();
     },
 
-    doLogin: function () {
-        (function () {
+    doLogin: function() {
+        (function() {
             document.activeElement.blur();
         }).delay(10, this);
         this.blockLoginForm();
@@ -619,7 +690,7 @@ ka.AdminInterface = new Class({
         if (this.loginFailedClearer) {
             clearTimeout(this.loginFailedClearer);
         }
-        new Request.JSON({url: _pathAdmin + 'admin/login', noCache: 1, onComplete: function (res) {
+        new Request.JSON({url: _pathAdmin + 'admin/login', noCache: 1, onComplete: function(res) {
             if (res.data) {
                 this.loginSuccess(res.data);
             } else {
@@ -629,7 +700,7 @@ ka.AdminInterface = new Class({
         }.bind(this)}).get({username: this.loginName.value, password: this.loginPw.value});
     },
 
-    logout: function () {
+    logout: function() {
         if (this.loaderCon) {
             this.loaderCon.destroy();
         }
@@ -674,7 +745,7 @@ ka.AdminInterface = new Class({
                 opacity: 1
             }
 
-        }).chain(function () {
+        }).chain(function() {
                 this.unblockLoginForm();
                 this.loginPw.focus();
 
@@ -683,7 +754,7 @@ ka.AdminInterface = new Class({
             }.bind(this));
 
         [this.loginMessage]
-            .each(function (i) {
+            .each(function(i) {
                 document.id(i).setStyle('display', 'block')
             });
 
@@ -691,8 +762,8 @@ ka.AdminInterface = new Class({
         window._session.userId = 0;
     },
 
-    loginSuccess: function (sessions, pAlready) {
-        (function () {
+    loginSuccess: function(sessions, pAlready) {
+        (function() {
             document.activeElement.blur();
         }).delay(10, this);
 
@@ -708,15 +779,15 @@ ka.AdminInterface = new Class({
         this.loadBackend(pAlready);
     },
 
-    loginFailed: function () {
+    loginFailed: function() {
         this.loginPw.focus();
         this.loginMessage.set('html', '<span style="color: red">' + _('Login failed') + '.</span>');
-        this.loginFailedClearer = (function () {
+        this.loginFailedClearer = (function() {
             this.loginMessage.set('html', '');
         }).delay(3000, this);
     },
 
-    blockLoginForm: function (pAlready) {
+    blockLoginForm: function(pAlready) {
         if (pAlready) {
             this.loaderTop.setStyles({'height': 91, 'border-bottom': '1px solid #ffffff'});
             this.loaderBottom.setStyles({'height': 92, 'border-top': '1px solid #ffffff'});
@@ -726,23 +797,23 @@ ka.AdminInterface = new Class({
         }
     },
 
-    unblockLoginForm: function () {
+    unblockLoginForm: function() {
         this.loaderTop.morph({'height': 0, 'border-bottom': '0px solid #ffffff'});
         this.loaderBottom.morph({'height': 0, 'border-top': '0px solid #ffffff'});
     },
 
-    loadSettings: function (keyLimitation, cb) {
+    loadSettings: function(keyLimitation, cb) {
         if (!ka.settings) {
             ka.settings = {};
         }
 
         new Request.JSON({url: _pathAdmin +
-            'admin/backend/settings', noCache: 1, async: false, onComplete: function (res) {
+            'admin/backend/settings', noCache: 1, async: false, onComplete: function(res) {
             if (res.error == 'access_denied') {
                 return;
             }
 
-            Object.each(res.data, function (val, key) {
+            Object.each(res.data, function(val, key) {
                 ka.settings[key] = val;
             })
 
@@ -770,14 +841,14 @@ ka.AdminInterface = new Class({
         }.bind(this)}).get({lang: window._session.lang, keys: keyLimitation});
     },
 
-    loadBackend: function (pAlready) {
+    loadBackend: function(pAlready) {
         if (this.alreadyLoaded) {
             this.loadDone();
             return;
         }
 
         [this.loginMessage]
-            .each(function (i) {
+            .each(function(i) {
                 document.id(i).setStyle('display', 'none')
             });
 
@@ -792,10 +863,10 @@ ka.AdminInterface = new Class({
         if (this.options.frontPage) {
             this.loadSettings();
         } else {
-            this.loadSettings(null, function () {
+            this.loadSettings(null, function() {
                 self.loaderTopLine.tween('width', 255);
 
-                self.loadMenu(function () {
+                self.loadMenu(function() {
                     self.loaderTopLine.set('tween', {duration: 200});
                     self.loaderTopLine.tween('width', 395);
                     self.loadDone.delay(200, self);
@@ -805,7 +876,7 @@ ka.AdminInterface = new Class({
         }
     },
 
-    loadDone: function () {
+    loadDone: function() {
         this.check4Updates.delay(2000, this);
 
         this.allFilesLoaded = true;
@@ -859,7 +930,7 @@ ka.AdminInterface = new Class({
                 opacity: 0
             }
 
-        }).chain(function () {
+        }).chain(function() {
                 self.loginLoadingBarText.set('html');
 
                 //load settings, bg etc
@@ -900,7 +971,7 @@ ka.AdminInterface = new Class({
         //});
     },
 
-    toggleModuleMenuIn: function (pOnlyStay) {
+    toggleModuleMenuIn: function(pOnlyStay) {
         if (this.lastModuleMenuOutTimer) {
             clearTimeout(this.lastModuleMenuOutTimer);
         }
@@ -914,7 +985,7 @@ ka.AdminInterface = new Class({
         }
 
         this.ModuleMenuOutOpen = false;
-        this._moduleMenu.set('tween', {transition: Fx.Transitions.Quart.easeOut, onComplete: function () {
+        this._moduleMenu.set('tween', {transition: Fx.Transitions.Quart.easeOut, onComplete: function() {
             this.ModuleMenuOutOpen = true;
         }});
         this._moduleMenu.tween('left', 0);
@@ -924,7 +995,7 @@ ka.AdminInterface = new Class({
         //this.moduleItemsScrollerContainer.setStyle('right', 0);
     },
 
-    toggleModuleMenuOut: function (pForce) {
+    toggleModuleMenuOut: function(pForce) {
 
         //if( !this.ModuleMenuOutOpen && pForce != true )
         //	return;
@@ -935,8 +1006,8 @@ ka.AdminInterface = new Class({
 
         this.ModuleMenuOutOpen = false;
 
-        this.lastModuleMenuOutTimer = (function () {
-            this._moduleMenu.set('tween', {transition: Fx.Transitions.Quart.easeOut, onComplete: function () {
+        this.lastModuleMenuOutTimer = (function() {
+            this._moduleMenu.set('tween', {transition: Fx.Transitions.Quart.easeOut, onComplete: function() {
                 this.ModuleMenuOutOpen = false;
             }});
             this._moduleMenu.tween('left', (this._moduleMenu.getSize().x - 33) * -1);
@@ -948,7 +1019,7 @@ ka.AdminInterface = new Class({
 
     },
 
-    toggleModuleMenu: function () {
+    toggleModuleMenu: function() {
         if (this.moduleToggler.retrieve('active') != true) {
             this.toggleModuleMenuIn();
         } else {
@@ -956,13 +1027,13 @@ ka.AdminInterface = new Class({
         }
     },
 
-    loadMenu: function (cb) {
+    loadMenu: function(cb) {
         if (this.lastLoadMenuReq) {
             this.lastLoadMenuReq.cancel();
         }
 
         this.lastLoadMenuReq =
-            new Request.JSON({url: _pathAdmin + 'admin/backend/menus', noCache: true, onComplete: function (res) {
+            new Request.JSON({url: _pathAdmin + 'admin/backend/menus', noCache: true, onComplete: function(res) {
                 this.menuItems = res.data;
                 if (cb) {
                     cb(res.data);
@@ -970,7 +1041,7 @@ ka.AdminInterface = new Class({
             }.bind(this)}).get();
     },
 
-    renderMenu: function () {
+    renderMenu: function() {
         this.mainTempLinks.dispose();
         if (ka.wm.tempLinksSplitter) {
             ka.wm.tempLinksSplitter.dispose();
@@ -991,16 +1062,18 @@ ka.AdminInterface = new Class({
         delete this.mainMenuItems;
 
         this.frontendLink = new Element('a', {
-            text: t('Frontend'),
             'class': 'ka-main-menu-item icon-eye'
-        })
-        .inject(this.mainLinks);
+        }).inject(this.mainLinks);
 
-        this.frontendLink.addEvent('click', function () {
+        new Element('span', {
+            text: t('Frontend')
+        }).inject(this.frontendLink);
+
+        this.frontendLink.addEvent('click', function() {
             ka.wm.open('admin/nodes/frontend');
         });
 
-        Object.each(this.menuItems, function (item, path) {
+        Object.each(this.menuItems, function(item, path) {
             this.addAdminLink(item, path);
         }.bind(this));
 
@@ -1008,7 +1081,7 @@ ka.AdminInterface = new Class({
         ka.wm.updateWindowBar();
     },
 
-    showDashboard: function (show) {
+    showDashboard: function(show) {
         if (this.dashboardVisible !== show) {
             if (show) {
                 this.dashboardInstance = new ka.Dashboard(this.desktopContainer);
@@ -1026,11 +1099,11 @@ ka.AdminInterface = new Class({
 
     },
 
-    makeMenu: function (pToggler, pMenu, pCalPosition, pOffset) {
+    makeMenu: function(pToggler, pMenu, pCalPosition, pOffset) {
 
         pMenu.setStyle('display', 'none');
 
-        var showMenu = function () {
+        var showMenu = function() {
             pMenu.setStyle('display', 'block');
             pMenu.store('this.makeMenu.canHide', false);
 
@@ -1051,14 +1124,14 @@ ka.AdminInterface = new Class({
             }
         };
 
-        var _hideMenu = function () {
+        var _hideMenu = function() {
             if (pMenu.retrieve('this.makeMenu.canHide') != true) {
                 return;
             }
             pMenu.setStyle('display', 'none');
         };
 
-        var hideMenu = function () {
+        var hideMenu = function() {
             pMenu.store('this.makeMenu.canHide', true);
             _hideMenu.delay(250);
         };
@@ -1071,7 +1144,7 @@ ka.AdminInterface = new Class({
         //this.additionalMainMenu, this.additionalMainMenuContainer, true, {y: 80});
     },
 
-    addAdminHeadline: function (pExtKey) {
+    addAdminHeadline: function(pExtKey) {
         var config = ka.settings.configs[pExtKey];
         if (config) {
 
@@ -1087,7 +1160,7 @@ ka.AdminInterface = new Class({
         }
     },
 
-    addTempLink: function (pWin) {
+    addTempLink: function(pWin) {
         var entryPoint = pWin.getEntryPointDefinition();
         console.log('addTempLink', entryPoint);
 
@@ -1119,11 +1192,13 @@ ka.AdminInterface = new Class({
         return mlink;
     },
 
-    addAdminLink: function (entryPoint, path) {
+    addAdminLink: function(entryPoint, path) {
         var link = new Element('a', {
-            text: entryPoint.label,
             'class': 'ka-main-menu-item'
         });
+        new Element('span', {
+            text: entryPoint.label
+        }).inject(link);
         var module = entryPoint.fullPath.split('/')[0];
 
         if ('admin/dashboard' === path) {
@@ -1202,7 +1277,7 @@ ka.AdminInterface = new Class({
                         src: _path + 'bundles/admin/images/ka-mainmenu-item-tree_minus.png'
                     }).inject(childOpener);
 
-                    childOpener.addEvent('click', function (e) {
+                    childOpener.addEvent('click', function(e) {
                         e.stop();
                         if ('block' !== parent.subMenu.getStyle('display')) {
                             parent.subMenu.setStyle('display', 'block');
@@ -1217,11 +1292,11 @@ ka.AdminInterface = new Class({
         this.linkClick(link);
     },
 
-    getMenuItem: function (pEntryPoint) {
+    getMenuItem: function(pEntryPoint) {
         return this._links[pEntryPoint];
     },
 
-    destroyLinkContext: function () {
+    destroyLinkContext: function() {
 
         if (this._lastLinkContextDiv) {
             this._lastLinkContextDiv.destroy();
@@ -1230,7 +1305,7 @@ ka.AdminInterface = new Class({
 
     },
 
-    linkClick: function (link) {
+    linkClick: function(link) {
         var entryPoint = link.retrieve('entryPoint');
 
         if (['iframe', 'list', 'combine', 'custom', 'add', 'edit'].indexOf(entryPoint.type) != -1) {
@@ -1238,7 +1313,7 @@ ka.AdminInterface = new Class({
             var item = this._links[entryPoint.fullPath];
             var link = item.object;
 
-            link.addEvent('click', function (e) {
+            link.addEvent('click', function(e) {
                 this.destroyLinkContext();
 
                 if (e.rightClick) {
@@ -1248,7 +1323,7 @@ ka.AdminInterface = new Class({
                 e.stop();
 
                 var windows = [];
-                Object.each(ka.wm.windows, function (pwindow) {
+                Object.each(ka.wm.windows, function(pwindow) {
                     if (!pwindow) {
                         return;
                     }
@@ -1273,7 +1348,7 @@ ka.AdminInterface = new Class({
                 delete windows;
             }.bind(this));
 
-            link.addEvent('mouseup', function (e) {
+            link.addEvent('mouseup', function(e) {
 
                 if (e.rightClick) {
                     e.stopPropagation();
@@ -1283,7 +1358,7 @@ ka.AdminInterface = new Class({
         }
     },
 
-    _openLinkContext: function (pLink) {
+    _openLinkContext: function(pLink) {
 
         if (this._lastLinkContextDiv) {
             this._lastLinkContextDiv.destroy();
@@ -1320,7 +1395,7 @@ ka.AdminInterface = new Class({
         this._lastLinkContextDiv = div;
 
         var windows = [];
-        Object.each(ka.wm.windows, function (pwindow) {
+        Object.each(ka.wm.windows, function(pwindow) {
             if (!pwindow) {
                 return;
             }
@@ -1333,7 +1408,7 @@ ka.AdminInterface = new Class({
             text: _('Open new %s').replace('%s', "'" + pLink.title + "'"),
             'class': 'ka-linkcontext-opener'
         }).addEvent('click',
-            function () {
+            function() {
                 ka.wm.openWindow(pLink.module + '/' + pLink.code);
                 this._lastLinkContextDiv.destroy();
             }).inject(div);
@@ -1343,11 +1418,11 @@ ka.AdminInterface = new Class({
         }
 
         var lastItem = false;
-        windows.each(function (window) {
+        windows.each(function(window) {
             lastItem = new Element('a', {
                 text: '#' + window.id + ' ' + window.getTitle()
             }).addEvent('click',
-                function () {
+                function() {
                     window.toFront();
                     this._lastLinkContextDiv.destroy();
                 }).inject(div);
@@ -1375,7 +1450,7 @@ ka.AdminInterface = new Class({
 
     },
 
-    startSearchCrawlerInfo: function (pHtml) {
+    startSearchCrawlerInfo: function(pHtml) {
         this.stopSearchCrawlerInfo();
 
         this.startSearchCrawlerInfoMenu = new Element('div', {
@@ -1394,16 +1469,16 @@ ka.AdminInterface = new Class({
         this.startSearchCrawlerInfoMenu.tween('top', 48);
     },
 
-    setSearchCrawlerInfo: function (pHtml) {
+    setSearchCrawlerInfo: function(pHtml) {
         this.startSearchCrawlerInfoMenuHtml.set('html', pHtml);
     },
 
-    stopSearchCrawlerInfo: function (pOutroText) {
+    stopSearchCrawlerInfo: function(pOutroText) {
         if (!this.startSearchCrawlerInfoMenu) {
             return;
         }
 
-        var doOut = function () {
+        var doOut = function() {
             this.startSearchCrawlerInfoMenu.tween('top', 17);
         }.bind(this);
 
@@ -1416,26 +1491,26 @@ ka.AdminInterface = new Class({
 
     },
 
-    setSearchCrawlerProgress: function (pPos) {
+    setSearchCrawlerProgress: function(pPos) {
         var maxLength = 177 - 8;
         var pos = maxLength * pPos / 100;
         this.startSearchCrawlerProgressLine.set('tween', {duration: 100});
         this.startSearchCrawlerProgressLine.tween('width', pos);
     },
 
-    stopSearchCrawlerProgres: function () {
+    stopSearchCrawlerProgres: function() {
         this.startSearchCrawlerProgressLine.set('tween', {duration: 10});
         this.startSearchCrawlerProgressLine.tween('width', 0);
     },
 
-    openSearchContextClose: function () {
+    openSearchContextClose: function() {
         if (this.openSearchContextLast) {
             this.openSearchContextLast.destroy();
         }
 
     },
 
-    openSearchContext: function () {
+    openSearchContext: function() {
         var button = this.openSearchIndexBtn;
 
         this.openSearchContextClose();
@@ -1464,16 +1539,16 @@ ka.AdminInterface = new Class({
         }).inject(this.openSearchContextLast);
 
         new ka.Button(t('Indexed pages')).addEvent('click',
-            function () {
+            function() {
                 ka.wm.open('admin/system/searchIndexerList');
             }).inject(this.openSearchContextBottom);
 
         this.openSearchContextClearIndex = new ka.Button(_('Clear index')).addEvent('click',
-            function () {
+            function() {
                 this.openSearchContextClearIndex.startTip(_('Clearing index ...'));
 
                 new Request.JSON({url: _pathAdmin +
-                    'admin/backend/searchIndexer/clearIndex', noCache: 1, onComplete: function (pRes) {
+                    'admin/backend/searchIndexer/clearIndex', noCache: 1, onComplete: function(pRes) {
                     this.openSearchContextClearIndex.stopTip(_('Done'));
                 }.bind(this)}).post();
             }).inject(this.openSearchContextBottom);
@@ -1488,7 +1563,7 @@ ka.AdminInterface = new Class({
         this.openSearchContextLoad();
     },
 
-    openSearchContextLoad: function () {
+    openSearchContextLoad: function() {
         this.openSearchContextContent.set('html',
             '<br /><br /><div style="text-align: center; color: gray;">' + _('Loading ...') + '</div>');
 
@@ -1500,14 +1575,14 @@ ka.AdminInterface = new Class({
 
         new Request.JSON({url: _pathAdmin + 'admin/backend/searchIndexer/getIndexedPages4AllDomains',
             noCache: 1,
-            onComplete: function (pRes) {
+            onComplete: function(pRes) {
 
                 this.openSearchContextContent.empty();
 
                 this.openSearchContextTable.inject(this.openSearchContextContent);
 
                 if (pRes) {
-                    pRes.each(function (domain) {
+                    pRes.each(function(domain) {
                         this.openSearchContextTable.addRow(
                             [domain.domain + '<span style="color:gray"> (' + domain.lang + ')</span>',
                                 domain.indexedcount]);
@@ -1518,7 +1593,7 @@ ka.AdminInterface = new Class({
         }.bind(this)).post();
     },
 
-    displayNewUpdates: function (pModules) {
+    displayNewUpdates: function(pModules) {
         if (this.newUpdatesMenu) {
             this.newUpdatesMenu.destroy();
         }
@@ -1540,29 +1615,29 @@ ka.AdminInterface = new Class({
          this.tween('height', 24 );
          })
          */.addEvent('click',
-            function () {
+            function() {
                 ka.wm.open('admin/system/module', {updates: 1});
             }).inject(this.border);
         this.newUpdatesMenu.tween('top', 48);
     },
 
-    buildClipboardMenu: function () {
+    buildClipboardMenu: function() {
         this.clipboardMenu = new Element('div', {
             'class': 'ka-clipboard-menu'
         }).inject(this.mainMenu, 'before');
     },
 
-    buildUploadMenu: function () {
+    buildUploadMenu: function() {
         this.uploadMenu = new Element('div', {
             'class': 'ka-upload-menu',
             styles: {
                 height: 22
             }
         }).addEvent('mouseover',
-            function () {
+            function() {
                 this.tween('height', this.scrollHeight);
             }).addEvent('mouseout',
-            function () {
+            function() {
                 this.tween('height', 22);
             }).inject(this.mainMenu, 'before');
 
@@ -1571,12 +1646,12 @@ ka.AdminInterface = new Class({
         }).inject(this.uploadMenu);
     },
 
-    check4Updates: function () {
+    check4Updates: function() {
         if (window._session.userId == 0) {
             return;
         }
         new Request.JSON({url: _pathAdmin +
-            'admin/system/module/manager/check-updates', noCache: 1, onComplete: function (res) {
+            'admin/system/module/manager/check-updates', noCache: 1, onComplete: function(res) {
             if (res && res.found) {
                 this.displayNewUpdates(res.modules);
             }

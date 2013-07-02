@@ -10,8 +10,7 @@ ka.LayoutSplitter = new Class({
     direction: 'left',
     cell: null,
 
-    initialize: function (pCell, pDirection, pOptions) {
-
+    initialize: function(pCell, pDirection, pOptions) {
         this.setOptions(pOptions);
 
         this.cell = pCell;
@@ -24,33 +23,21 @@ ka.LayoutSplitter = new Class({
         this.renderLayout();
 
         this.mapEvent();
-
     },
 
-    renderLayout: function () {
+    toElement: function() {
+        return this.main;
+    },
 
+    renderLayout: function() {
         this.main = new Element('div', {
             'class': 'ka-Splitter-main'
         }).inject(this.options.container);
 
         this.main.addClass('ka-Splitter-main-' + this.direction.toLowerCase());
-
     },
 
-    mapEvent: function () {
-
-        var diffX = 0;
-
-        /*var drag = new Drag(this.main, {
-         onStart: function(element){
-         this.startPosition = this.main.getPosition(this.cell);
-         }.bind(this),
-         onDrag: function(element){
-         diffX = this.main.getPosition(this.cell).x - this.startPosition.x;
-         this.cell.setStyle('width', this.cell.getStyle('width').toInt() + diffX);
-         }.bind(this)
-         });*/
-
+    mapEvent: function() {
         var map = {left: 'w', right: 'e', 'top': 'n', bottom: 's'};
 
         var key = map[this.direction.toLowerCase()];
@@ -73,7 +60,7 @@ ka.LayoutSplitter = new Class({
                 y: !['e', 'w'].contains(key) ? 'dragY' : null
             },
             snap: 0,
-            onBeforeStart: function (pElement) {
+            onBeforeStart: function(pElement) {
                 pElement.dragX = 0;
                 pElement.dragY = 0;
                 height = pElement.getStyle('height').toInt();
@@ -85,7 +72,10 @@ ka.LayoutSplitter = new Class({
 
                 max = ka.adminInterface.getDesktop().getSize();
             },
-            onDrag: function (pElement) {
+            onComplete: function() {
+                self.fireEvent('resized');
+            },
+            onDrag: function(pElement) {
 
                 if (key === 'n' || key == 'ne' || key == 'nw') {
                     newHeight = height - pElement.dragY;
@@ -130,12 +120,10 @@ ka.LayoutSplitter = new Class({
                 }
 
                 self.cell.fireEvent('resize');
-
+                self.fireEvent('resize');
             }
-
         };
 
-        new Drag(this.cell.get('tag') == 'td' ? this.cell : this.cell.getParent('td'), options);
-
+        new Drag(this.cell.hasClass('ka-Layout-cell') ? this.cell.getParent('td') : this.cell, options);
     }
 });

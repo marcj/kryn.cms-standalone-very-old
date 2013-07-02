@@ -829,7 +829,7 @@ ka.Files = new Class({
         this.address = new ka.Field({
             type: 'text',
             noWrapper: true,
-            inputHeight: 42
+            inputHeight: 36
         }, boxNavi);
 
         this.address.hide();
@@ -869,7 +869,7 @@ ka.Files = new Class({
         this.search = new ka.Field({
             type: 'text',
             noWrapper: true,
-            inputHeight: 42
+            inputHeight: 36
         }, searchContainer);
         document.id(this.search).setStyle('margin-left', '15px');
 

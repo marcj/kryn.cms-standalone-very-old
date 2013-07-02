@@ -37,7 +37,8 @@
 }
 
 div.ka-Files-addressFaker {
-    line-height: 38px;
+    line-height: 32px;
+    height: 34px;
     cursor: text;
     border-right: 1px solid #e9e6e6;
 }
