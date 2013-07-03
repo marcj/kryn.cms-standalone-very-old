@@ -254,6 +254,7 @@
     right: 0;
     top: 0;
     bottom: 0;
+    overflow: hidden;
     border: 1px solid #ddd;
 }
 
