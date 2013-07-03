@@ -1107,9 +1107,9 @@ ka.Window = new Class({
             }).addEvent('click', this.maximize.bind(this)).inject(this.titleBar);
         }
 
-        this.closer = new Element('div', {
-            'class': 'kwindow-win-titleBarIcon icon-cancel-4'
-        }).addEvent('click', this.close.bind(this)).inject(this.titleBar);
+//        this.closer = new Element('div', {
+//            'class': 'kwindow-win-titleBarIcon icon-cancel-4'
+//        }).addEvent('click', this.close.bind(this)).inject(this.titleBar);
 
     },
 
