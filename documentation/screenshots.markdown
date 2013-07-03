@@ -13,6 +13,8 @@ File manager
 ![Administration File manager](https://raw.github.com/KrynLabs/Kryn.cms/refactoring/documentation/images/admin-files-context-image.png)
 
 CRUD Framework
+
+![Administration CRUD Framework Window List](https://raw.github.com/KrynLabs/Kryn.cms/refactoring/documentation/images/documentation/images/admin-users-list.png)
 ![Administration CRUD Framework Window](https://raw.github.com/KrynLabs/Kryn.cms/refactoring/documentation/images/admin-users.png)
 
 Administration login
