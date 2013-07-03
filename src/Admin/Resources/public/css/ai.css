@@ -313,7 +313,8 @@ span.selectable span, div.selectable div {
 
 .ka-main-menu-additional {
     float: right;
-    height: 75px;
+    padding-top: 5px;
+    height: 70px;
     font-size: 10px;
 }
 
@@ -350,9 +351,8 @@ div.ka-main-menu-additional img.arrowUp:hover {
     padding-top: 15px;
     height: 60px;
     float: right;
-    width: 220px;
     border-left: 1px solid #39739a;
-    line-height: 25px;
+    line-height: 15px;
 }
 
 .ka-main-menu-user > h2 {
@@ -631,8 +631,8 @@ a.ka-main-menu-item-open:link {
 .ka-iconbar-item > a,
 .ka-iconbar-item > a:link {
     color: #f3f3f3;
-    font-size: 16px;
-    padding: 0 3px;
+    font-size: 14px;
+    padding: 0 2px;
     display: inline-block;
     text-decoration: none;
     position: relative;

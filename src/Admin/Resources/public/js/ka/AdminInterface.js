@@ -262,6 +262,8 @@ ka.AdminInterface = new Class({
             src: 'https://secure.gravatar.com/avatar/4cf03620f0f00793f5d034480654bd3c?s=200'
         }).inject(this.mainMenuUser);
 
+        new Element('br').inject(this.mainMenuUser);
+
         new Element('span', {
             text: window._session.username,
             'class': 'username'
