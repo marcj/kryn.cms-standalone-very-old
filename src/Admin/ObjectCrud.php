@@ -318,6 +318,15 @@ class ObjectCrud
     protected $itemsPerPage = 15;
 
     /**
+     * Uses the HTTP 'PATCH' instead of the 'PUT'.
+     * 'PUT' requires that you send all field, and 'PATCH'
+     * only the fields that need to be updated.
+     *
+     * @var bool
+     */
+    protected $usePatch = true;
+
+    /**
      * Constructor
      */
     public function __construct(EntryPoint $entryPoint = null, $withoutObjectCheck = false)
@@ -2064,6 +2073,22 @@ class ObjectCrud
     public function getItemsPerPage()
     {
         return $this->itemsPerPage;
+    }
+
+    /**
+     * @param boolean $usePatch
+     */
+    public function setUsePatch($usePatch)
+    {
+        $this->usePatch = $usePatch;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getUsePatch()
+    {
+        return $this->usePatch;
     }
 
 }

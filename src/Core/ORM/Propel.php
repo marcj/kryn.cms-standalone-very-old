@@ -821,6 +821,7 @@ class Propel extends ORMAbstract
     public function mapValues(&$pItem, &$pValues, $pSetUndefinedAsNull = true)
     {
         $pluralizer = new \Propel\Common\Pluralizer\StandardEnglishPluralizer;
+
         foreach ($this->definition['fields'] as $fieldName => $field) {
 
             $fieldValue = $pValues[$fieldName];
@@ -857,7 +858,6 @@ class Propel extends ORMAbstract
 
                         if ($field['objectRelation'] == ORMAbstract::ONE_TO_MANY) {
 
-                            $foreignItems = array();
                             $coll = new RuntimePropelObjectCollection();
                             $coll->setModel(ucfirst($foreignClass));
 

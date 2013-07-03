@@ -531,8 +531,6 @@ ka.FieldForm = new Class({
             pValues = JSON.decode(pValues);
         }
 
-        this.value = pValues;
-
         Object.each(this.fields, function (obj, id) {
             if (id.indexOf('[') != -1) {
                 obj.setArrayValue(pValues, id, pInternal);
@@ -540,6 +538,8 @@ ka.FieldForm = new Class({
                 obj.setValue(pValues ? pValues[id] : null, pInternal);
             }
         });
+
+        this.value = this.getValue();
 
         if (true !== pInternal) {
             this.fireEvent('setValue', this.value);
@@ -578,9 +578,10 @@ ka.FieldForm = new Class({
      * Returns the value of a field.
      *
      * @param {String} [pField]
+     * @param {Boolean} [patch] return only values that has been changed since the last setValue() vall.
      * @return {Mixed}
      */
-    getValue: function (pField) {
+    getValue: function (pField, patch) {
         var val;
 
         var res = {};
@@ -637,10 +638,21 @@ ka.FieldForm = new Class({
                         && (val !== '' || this.options.withEmptyFields)
                         && (val !== obj.options['default'] || obj.options.returnDefault)
                         ) {
+
                         res[id] = val;
                     }
                 }
             }.bind(this));
+        }
+
+        if (patch) {
+            var patch = {};
+            Object.each(res, function(v, k) {
+                if (v != this.value[k]) {
+                    patch[k] = v;
+                }
+            }.bind(this));
+            return patch;
         }
 
         return res;

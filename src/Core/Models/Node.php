@@ -29,13 +29,15 @@ class Node extends BaseNode
     {
         if ($this->collNestedGetLinks === null) {
 
-            $types = $pWithFolders ? array(0, 1, 2) : array(0, 1);
-            $this->collNestedGetLinks = NodeQuery::create()
-                ->childrenOf($this)
-                ->filterByVisible(1)
-                ->filterByType($types)
-                ->orderByBranch()
-                ->find();
+            if (0 < $this->getRgt()) {
+                $types = $pWithFolders ? array(0, 1, 2) : array(0, 1);
+                $this->collNestedGetLinks = NodeQuery::create()
+                    ->childrenOf($this)
+                    ->filterByVisible(1)
+                    ->filterByType($types)
+                    ->orderByBranch()
+                    ->find();
+            }
         }
 
         return $this->collNestedGetLinks;

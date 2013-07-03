@@ -753,7 +753,13 @@ ka.WindowEdit = new Class({
         this.removeEvent('click', this.removeTooltip);
     },
 
-    retrieveData: function (pWithoutEmptyCheck) {
+    /**
+     *
+     * @param [pWithoutEmptyCheck]
+     * @param [patch]
+     * @returns {*}
+     */
+    retrieveData: function (pWithoutEmptyCheck, patch) {
         if (!pWithoutEmptyCheck && !this.fieldForm.checkValid()) {
             var invalidFields = this.fieldForm.getInvalidFields();
 
@@ -785,7 +791,7 @@ ka.WindowEdit = new Class({
             return false;
         }
 
-        var req = this.fieldForm.getValue();
+        var req = this.fieldForm.getValue(null, patch);
 
         if (this.languageSelect) {
             if (!pWithoutEmptyCheck && this.languageSelect.getValue() == '') {
@@ -836,10 +842,15 @@ ka.WindowEdit = new Class({
         }
     },
 
-    buildRequest: function () {
+    /**
+     *
+     * @param [patch] Default is false|null
+     * @returns {{}}
+     */
+    buildRequest: function (patch) {
         var req = {};
 
-        var data = this.retrieveData();
+        var data = this.retrieveData(null, patch);
 
         if (!data) {
             return;
@@ -862,7 +873,9 @@ ka.WindowEdit = new Class({
             this.lastSaveRq.cancel();
         }
 
-        var request = this.buildRequest();
+        var request = this.buildRequest(this.classProperties.usePatch);
+
+        var method = this.classProperties.usePatch ? 'patch' : 'put';
 
         if (typeOf(request) != 'null') {
 
@@ -870,7 +883,7 @@ ka.WindowEdit = new Class({
 
             var objectId = ka.getObjectUrlId(this.classProperties['object'], this.winParams.item);
 
-            this.lastSaveRq = new Request.JSON({url: _pathAdmin + this.getEntryPoint() + '/' + objectId,
+            this.lastSaveRq = new Request.JSON({url: _pathAdmin + this.getEntryPoint() + '/' + objectId + '?_method=' + method,
                 noErrorReporting: ['DuplicateKeysException', 'ObjectItemNotModified'],
                 noCache: true, onComplete: function (res) {
 
@@ -920,7 +933,7 @@ ka.WindowEdit = new Class({
                         this.win.close();
                     }
 
-                }.bind(this)}).put(request);
+                }.bind(this)}).post(request);
         }
     }
 });
