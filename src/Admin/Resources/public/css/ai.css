@@ -208,7 +208,7 @@ span.selectable span, div.selectable div {
 
 .ka-desktop {
     position: absolute;
-    top: 126px;
+    top: 127px;
     left: 210px;
     right: 0;
     bottom: 0;
@@ -222,12 +222,13 @@ span.selectable span, div.selectable div {
     height: 50px;
     right: 0;
     background-color: #ddd;
+    border-bottom: 1px solid silver;
 }
 
 .ka-wm-tab {
     line-height: 45px;
     display: inline-block;
-    height: 45px;
+    height: 43px;
     padding: 0 15px;
     background-color: #d3d3d3;
     border-right: 1px solid #c5c5c5;
@@ -276,6 +277,7 @@ span.selectable span, div.selectable div {
 .ka-wm-tab-active:hover {
     border-top: 2px solid #22638e;
     background-color: #f5f5f5;
+    height: 45px;
 }
 
 .ka-main-menu {
