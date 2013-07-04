@@ -59,6 +59,8 @@ class File extends BaseFile implements FileInfoInterface
             $fileObj = FileQuery::create()->findOneByPath($path);
             if (!$fileObj) {
                 $fileObj = static::createFromPathInfo($fileInfo);
+            } else {
+                static::checkFileValues($fileInfo, $fileObj);
             }
             return $fileObj;
         }
