@@ -61,19 +61,6 @@ Screenshot
 More information:
 https://www.facebook.com/kryncms
 
-Contribution
-------------
-
-Kryn.cms is a free open-source project for almost everyone. For web agencies, freelancers or hobbyists and has
-a lot of features, where we need guys like you to maintain and enhance our quality!
-
-Do you like Kryn.cms? Do you see potential in it? Then we'd love to see you contributing!
-Because the product is still in early development, we really need everyone's help to create a awesome product.
-
-No matter if you just got ideas or give us feedback, please just drop your thoughts in the issue tracker above.
-If you're a developer and want to contribute then please contact me. We really do love to meet any new
-web freak. :-) (marc@kryn.org)
-
 PHPUnit
 --------
 
