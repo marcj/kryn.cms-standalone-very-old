@@ -70,7 +70,7 @@ class Form {
      *
      * @return Field
      */
-    public static function setForm(&$fields, $form)
+    public static function setForm($fields, $form)
     {
         foreach ($fields as $field) {
             $field->setForm($form);
