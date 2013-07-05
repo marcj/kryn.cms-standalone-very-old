@@ -37,13 +37,13 @@ ka.FieldTypes.Object = new Class({
 
         if (definition.chooserFieldJavascriptClass) {
 
-            if (!window[definition.chooserFieldJavascriptClass]) {
+            var clazz = ka.getClass(definition.chooserFieldJavascriptClass);
+            if (!clazz) {
                 throw 'Can no load custom object field class "' + definition.chooserFieldJavascriptClass +
                     '" for object ' + this.options.objects[0];
             }
 
-            this.customObj =
-                new window[definition.chooserFieldJavascriptClass](this.field, this.fieldInstance.fieldPanel, this);
+            this.customObj = new clazz(this.field, this.fieldInstance.fieldPanel, this);
 
             this.customObj.addEvent('change', function () {
                 this.fireChange();
@@ -283,14 +283,12 @@ ka.FieldTypes.Object = new Class({
 
         var chooserParams = {
             onSelect: function (pId) {
-
                 if (!this.objectId) {
                     this.objectId = [];
                 }
 
                 this.objectId.include(ka.getCroppedObjectId(pId));
                 this.renderObjectTable();
-
             }.bind(this),
             value: this.objectId,
             cookie: this.options.cookie,
