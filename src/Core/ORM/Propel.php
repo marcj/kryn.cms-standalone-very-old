@@ -880,8 +880,10 @@ class Propel extends ORMAbstract
                         } else {
 
                             $primaryKeys = array();
-                            foreach ($fieldValue as $value) {
-                                $primaryKeys[] = $foreignObjClass->normalizePrimaryKey($value);
+                            if (is_array($fieldValue)) {
+                                foreach ($fieldValue as $value) {
+                                    $primaryKeys[] = $foreignObjClass->normalizePrimaryKey($value);
+                                }
                             }
 
                             $propelPks = array();
