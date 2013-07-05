@@ -6,7 +6,6 @@ ka.LabelTypes['Object'] = new Class({
     },
 
     render: function(values) {
-        var value = values[this.fieldId] || '';
 
         var label, relation, tempValue;
         if (this.fieldId.indexOf('.') > 0) {
@@ -22,13 +21,12 @@ ka.LabelTypes['Object'] = new Class({
             //to-one relation
             tempValue = {};
             if (this.options.relationsAsArray) {
-                tempValue[label] = pValue[relation][label];
+                tempValue[label] = values[relation][label];
                 return ka.htmlEntities(tempValue);
             } else {
                 return ka.htmlEntities(values[relation] ? values[relation][label] : '');
             }
         }
-
         if (typeOf(values[relation]) == 'array') {
             //to-many relation
             //we join by pField['join'] char, default is ', '

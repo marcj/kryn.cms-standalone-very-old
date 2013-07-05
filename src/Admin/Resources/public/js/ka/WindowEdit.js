@@ -216,8 +216,7 @@ ka.WindowEdit = new Class({
 
         var titleField = this.classProperties.titleField;
         if (!this.classProperties.titleField) {
-
-            Object.each(this.fields, function (field, fieldId) {
+            Object.each(this.fieldForm.getFieldDefinitions(), function (field, fieldId) {
                 if (field.type != 'tab' && field.type != 'childrenSwitcher') {
                     if (!titleField) {
                         titleField = fieldId;
@@ -226,7 +225,7 @@ ka.WindowEdit = new Class({
             });
         }
 
-        if (!this.fields[titleField]) {
+        if (!this.fieldForm.getFieldDefinition(titleField)) {
             logger(tf('Field %s ($titleField) for the window title does not exists in the $fields variable',
                 titleField));
         }
@@ -235,7 +234,7 @@ ka.WindowEdit = new Class({
 
             var value = ka.getObjectFieldLabel(
                 value,
-                this.fields[titleField],
+                this.fieldForm.getFieldDefinition(titleField),
                 titleField,
                 this.classProperties['object']
             );

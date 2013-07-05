@@ -266,6 +266,21 @@ ka.entrypoint = {
  */
 ka.htmlEntities = function (value) {
     if ('null' === typeOf(value)) return '';
+    if ('array' === typeOf(value)) {
+        Array.each(value, function(v, k){
+            value[k] = ka.htmlEntities(v);
+        });
+        return value;
+    }
+    if ('object' === typeOf(value)) {
+        Object.each(value, function(v, k){
+            value[k] = ka.htmlEntities(v);
+        });
+        return value;
+    }
+    if ('element' === typeOf(value)) {
+        return value;
+    }
     return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
@@ -767,7 +782,6 @@ ka.getObjectLabels = function (pFields, pItem, pObjectKey, pRelationsAsArray) {
  * @return {String} Safe HTML. Escapted with ka.htmlEntities()
  */
 ka.getObjectFieldLabel = function (pValue, pField, pFieldId, pObjectKey, pRelationsAsArray) {
-
     var fields = ka.getObjectDefinition(pObjectKey);
     if (!fields) {
         throw 'Object not found ' + pObjectKey;
@@ -781,7 +795,7 @@ ka.getObjectFieldLabel = function (pValue, pField, pFieldId, pObjectKey, pRelati
     fields = fields['fields'];
     var field = fields[fieldId];
 
-    var showAsField = pField || field;
+    var showAsField = Object.clone(pField || field);
     if (!showAsField.type) {
         Object.each(field, function (v, i) {
             if (!showAsField[i]) {

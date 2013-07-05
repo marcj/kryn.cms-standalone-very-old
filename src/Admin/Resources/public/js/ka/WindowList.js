@@ -677,7 +677,6 @@ ka.WindowList = new Class({
     },
 
     loadPage: function (pPage) {
-
         pPage = pPage || 1;
         if ('null' === typeOf(this.itemsCount)) {
             this.loadItemCount(function () {
