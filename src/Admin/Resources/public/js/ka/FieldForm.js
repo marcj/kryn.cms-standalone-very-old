@@ -15,6 +15,7 @@ ka.FieldForm = new Class({
     Binds: ['fireChange'],
 
     fields: {},
+    fieldDefinitions: {},
 
     options: {
         allTableItems: false,
@@ -316,7 +317,7 @@ ka.FieldForm = new Class({
                 obj.fireEvent('check-depends');
             }
 
-            this.attachField(id, obj);
+            this.attachField(id, obj, field);
 
             if (pDependField) {
                 pDependField.children[id] = obj;
@@ -325,8 +326,9 @@ ka.FieldForm = new Class({
         }.bind(this));
     },
 
-    attachField: function (pId, pObj) {
+    attachField: function (pId, pObj, pDefinition) {
         this.fields[pId] = pObj;
+        this.fieldDefinitions[pId] = pDefinition;
     },
 
     /**
@@ -539,7 +541,7 @@ ka.FieldForm = new Class({
             }
         });
 
-        this.value = this.getValue();
+        this.value = Object.clone(this.getValue());
 
         if (true !== pInternal) {
             this.fireEvent('setValue', this.value);
@@ -562,6 +564,14 @@ ka.FieldForm = new Class({
      */
     getFields: function () {
         return this.fields;
+    },
+
+    getFieldDefinitions: function() {
+        return this.fieldDefinitions;
+    },
+
+    getFieldDefinition: function(pId) {
+        return this.fieldDefinitions[pId];
     },
 
     /**
@@ -647,11 +657,13 @@ ka.FieldForm = new Class({
 
         if (patch) {
             var patch = {};
+9
             Object.each(res, function(v, k) {
                 if (v != this.value[k]) {
                     patch[k] = v;
                 }
             }.bind(this));
+
             return patch;
         }
 
