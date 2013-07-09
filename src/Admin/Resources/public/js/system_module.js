@@ -29,12 +29,7 @@ var admin_system_module = new Class({
         }).inject(this.win.content);
 
         /* installed */
-
-        new Element('h3', {
-            text: t('All local installed composer packages.')
-        }).inject(this.panes['installed']);
         this.tableInstalled = new ka.Table().inject(this.panes['installed']);
-        document.id(this.tableInstalled).setStyle('top', 25);
         this.tableInstalled.setColumns([
             [_('Name'), null, 'html'],
             [_('Activated'), 70, 'html'],
