@@ -562,46 +562,20 @@ class Model implements \ArrayAccess
     public function toArray($printDefaults = false)
     {
         $result = array();
-        $blacklist = array('config', 'element');
-        $element = $this;
 
         $reflection = new \ReflectionClass($this);
-        $properties = $reflection->getDefaultProperties();
+        $blacklist = array('config', 'element');
 
         foreach ($reflection->getProperties() as $property) {
             $k = $property->getName();
             if ($property->isPrivate()) continue;
-
-            $v = $this->$k;
             if (in_array($k, $blacklist)) {
                 continue;
             }
 
-            $getter = 'get' . ucfirst($k) . 'Array';
-            if (!method_exists($this, $getter) || !is_callable(array($this, $getter))) {
-                $getter = 'get' . ucfirst($k);
-                if (!method_exists($this, $getter) || !is_callable(array($this, $getter))) {
-                    continue;
-                }
-            }
-            $value = $this->$getter();
-
-            if (!$printDefaults && $value === $properties[$k]) {
+            $value = $this->propertyToArray($k, $printDefaults);
+            if (null === $value){
                 continue;
-            }
-
-            if (is_array($value)) {
-                foreach ($value as $key => $item) {
-                    if (is_object($item)) {
-                        if ($item instanceof Model) {
-                            $value[$key] = $item->toArray($printDefaults);
-                        } else {
-                            $value[$key] = (array)$item;
-                        }
-                    }
-                }
-            } else if (is_object($value) && $value instanceof Model){
-                $value = $value->toArray($printDefaults);
             }
 
             $result[$k] = $value;
@@ -609,6 +583,48 @@ class Model implements \ArrayAccess
 
         return $result;
     }
+
+    /**
+     * @param $k             name of the property
+     * @param $printDefaults
+     * @return mixed
+     */
+    public function propertyToArray($k, $printDefaults = false)
+    {
+        $reflection = new \ReflectionClass($this);
+
+        $properties = $reflection->getDefaultProperties();
+
+        $getter = 'get' . ucfirst($k) . 'Array';
+        if (!method_exists($this, $getter) || !is_callable(array($this, $getter))) {
+            $getter = 'get' . ucfirst($k);
+            if (!method_exists($this, $getter) || !is_callable(array($this, $getter))) {
+                return null;
+            }
+        }
+        $value = $this->$getter();
+
+        if (!$printDefaults && $value === $properties[$k]) {
+            return null;
+        }
+
+        if (is_array($value)) {
+            foreach ($value as $key => $item) {
+                if (is_object($item)) {
+                    if ($item instanceof Model) {
+                        $value[$key] = $item->toArray($printDefaults);
+                    } else {
+                        $value[$key] = (array)$item;
+                    }
+                }
+            }
+        } else if (is_object($value) && $value instanceof Model){
+            $value = $value->toArray($printDefaults);
+        }
+
+        return $value;
+    }
+
 
     /**
      * @param mixed $values

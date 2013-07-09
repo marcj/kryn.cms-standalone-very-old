@@ -2897,39 +2897,37 @@ var admin_system_module_edit = new Class({
 
             __resources__: {
                 type: 'childrenSwitcher',
-                label: tc('extensionEditor', 'Additional JavaScript/CSS files'),
+                label: tc('extensionEditor', 'Additional backend JavaScript/CSS files'),
                 depends: {
 
-                    adminJavascript: {
+                    adminAssets: {
 
-                        label: t('Additional JavaScript files'),
-                        desc: t('Will be loaded during the login. Relative to /web/'),
+                        label: t('Admin assets'),
+                        desc: t('Will be loaded during the login. Relative to /web/.'),
                         type: 'array',
-                        asArray: true,
                         columns: [
-                            t('File')
+                            {label: t('Type'), width: 80},
+                            t('Path'),
+                            {label: t('Compression'), width: 80},
+                            {label: t('Recursive'), width: 80, desc: t('Only for assets')}
                         ],
                         withOrder: true,
                         fields: {
-                            file: {
+                            type: {
+                                type: 'select',
+                                items: {'asset': 'Asset', 'assets': 'Assets'}
+                            },
+                            path: {
                                 type: 'text'
-                            }
-                        }
-                    },
-
-                    adminCss: {
-
-                        label: t('Additional CSS files'),
-                        desc: t('Will be loaded during the login. Relative to /web/'),
-                        type: 'array',
-                        asArray: true,
-                        withOrder: true,
-                        columns: [
-                            t('File')
-                        ],
-                        fields: {
-                            file: {
-                                type: 'text'
+                            },
+                            compression: {
+                                type: 'checkbox',
+                                'default': true
+                            },
+                            recursive: {
+                                type: 'checkbox',
+                                needValue: 'assets',
+                                againstField: 'type'
                             }
                         }
                     }

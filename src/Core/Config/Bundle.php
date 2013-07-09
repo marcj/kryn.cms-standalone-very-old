@@ -228,7 +228,6 @@ class Bundle extends Model
         return $this->streams;
     }
 
-
     /**
      * @param string $filter
      * @param bool   $regex

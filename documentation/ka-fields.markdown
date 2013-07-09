@@ -78,8 +78,8 @@ All additional options have to be passed through a `options` object.
  `startWith`     | Integer | `0`     | With how many rows it is initialized.
  `asHash`        | Boolean | `false` | If the result of this field is not a array but a object/hash, indexed by the first `field` value.
  `asArray`       | Boolean | `false` | If this is true, then this returns only a array with the direct value not sub objects. Se below for more information.
- `withOrder`     | Boolean | `false` | If the items can be moved around.
- `withoutRemove` | Boolean | `false` | If the items can not be removed only added.
+ `withOrder`     | Boolean | `false` | If the items can be moved up and down.
+ `withoutRemove` | Boolean | `false` | If the items can not be removed, only added.
 
 #### Results
 

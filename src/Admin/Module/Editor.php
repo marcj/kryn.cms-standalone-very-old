@@ -25,10 +25,19 @@ class Editor
         $bundle = $this->getBundle($bundle);
         $config = $bundle->getConfig();
 
-        $result = $config->toArray();
-        unset($result['entryPoints']);
-        unset($result['plugins']);
-        unset($result['objects']);
+        $result['streams'] = $config->propertyToArray('streams');
+//        $result['falDriver'] = $config->propertyToArray('falDriver');
+//        $result['caches'] = $config->propertyToArray('caches');
+//        $result['events'] = $config->propertyToArray('events');
+
+        $adminAssets = $config->getAdminAssets();
+        $assets = [];
+        foreach ($adminAssets as $asset) {
+            $asset = array_merge($asset->toArray(), ['type' => 'Core\Config\Asset' === get_class($asset) ? 'asset' : 'assets']);
+            $assets[] = $asset;
+        }
+        $result['adminAssets'] = $assets;
+
         return $result;
     }
 
