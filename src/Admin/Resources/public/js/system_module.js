@@ -235,7 +235,7 @@ var admin_system_module = new Class({
             ], {absolute: false}).inject(tableMyDiv);
         }
 
-        new Element('h3', {
+        new Element('h2', {
             html: _('Local bundles')
         }).inject(p);
 
@@ -249,7 +249,7 @@ var admin_system_module = new Class({
         ], {absolute: false}).inject(tableLocalDiv);
 
 
-        new Element('h3', {
+        new Element('h2', {
             html: _('External bundles')
         }).inject(p);
 

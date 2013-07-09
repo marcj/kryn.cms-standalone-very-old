@@ -42,7 +42,7 @@ html, body {
 
 .ka-admin h2 {
     font-size: 26px;
-    color: #797979;
+    color: #666;
     line-height: 30px;
     margin: 5px 0;
     padding: 0;
@@ -218,7 +218,7 @@ span.selectable span, div.selectable div {
 .ka-desktop {
     position: absolute;
     top: 127px;
-    left: 210px;
+    left: 170px;
     right: 0;
     bottom: 0;
     overflow: auto;
@@ -226,7 +226,7 @@ span.selectable span, div.selectable div {
 
 .ka-main-menu-wm-tabs {
     position: absolute;
-    left: 210px;
+    left: 170px;
     top: 76px;
     height: 50px;
     right: 0;
@@ -295,7 +295,7 @@ span.selectable span, div.selectable div {
     left: 0;
     bottom: 0;
     overflow: hidden;
-    width: 210px;
+    width: 170px;
     background-color: #242729;
 }
 
