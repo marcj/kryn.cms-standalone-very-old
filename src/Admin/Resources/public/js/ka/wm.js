@@ -91,7 +91,6 @@ ka.wm = {
         var instance = Object.getLength(ka.wm.windows) + 1;
 
         if (pParentWindowId == -1) {
-            console.log('lastWindow', ka.wm.lastWindow);
             pParentWindowId = ka.wm.lastWindow ? ka.wm.lastWindow.id : false;
         }
 

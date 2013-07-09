@@ -823,49 +823,6 @@ var admin_system_module_edit = new Class({
                         againstField: 'type',
                         'default': '',
                         type: 'checkbox'
-                    },
-                    minWidth: {
-                        label: t('Min width'),
-                        needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
-                        againstField: 'type',
-                        'default': '',
-                        type: 'number'
-                    },
-                    minHeight: {
-                        label: t('Min height'),
-                        needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
-                        againstField: 'type',
-                        'default': '',
-                        type: 'number'
-                    },
-                    defaultWidth: {
-                        label: t('Default width'),
-                        needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
-                        againstField: 'type',
-                        'default': '',
-                        type: 'number'
-                    },
-                    defaultHeight: {
-                        label: t('Default height'),
-                        needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
-                        againstField: 'type',
-                        'default': '',
-                        type: 'number'
-                    },
-
-                    fixedWidth: {
-                        label: t('Fixed width'),
-                        needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
-                        againstField: 'type',
-                        'default': '',
-                        type: 'number'
-                    },
-                    fixedHeight: {
-                        label: t('Fixed height'),
-                        needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
-                        againstField: 'type',
-                        'default': '',
-                        type: 'number'
                     }
                 }
             }
@@ -893,8 +850,8 @@ var admin_system_module_edit = new Class({
 
         if (pContainer.get('tag') == 'tr') {
             if (!pContainer.childContainer) {
-                var childTr = new Element('tr', {'class': 'ka-entryPoint-childrenContainer'}).inject(pContainer,
-                    'after');
+                var childTr = new Element('tr', {'class': 'ka-entryPoint-childrenContainer'})
+                    .inject(pContainer, 'after');
                 var childTd = new Element('td', {colspan: 4}).inject(childTr);
                 var childDiv = new Element('div', {style: 'margin-left: 25px;'}).inject(childTd);
                 pContainer.childTr = childTr;
