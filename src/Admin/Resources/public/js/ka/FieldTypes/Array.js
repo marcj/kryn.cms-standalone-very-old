@@ -185,7 +185,7 @@ ka.FieldTypes.Array = new Class({
 
             var row = this.options.asArray ? [] : {};
 
-            Object.each(tr.fields, function (field, field_key) {
+            Object.each(tr.fields, function (field, fieldKey) {
 
                 if (ok == false) {
                     return;
@@ -203,7 +203,7 @@ ka.FieldTypes.Array = new Class({
                             row.push(field.getValue());
                         }
                     } else {
-                        row[field_key] = field.getValue();
+                        row[fieldKey] = field.getValue();
                     }
                 }
 
@@ -308,8 +308,7 @@ ka.FieldTypes.Array = new Class({
         var tr = new Element('tr').inject(this.tbody);
         tr.fields = {};
 
-        Object.each(this.options.fields, function (field, field_key) {
-
+        Object.each(this.options.fields, function (field, fieldKey) {
             var copy = Object.clone(field);
             copy.noWrapper = 1;
 
@@ -320,7 +319,7 @@ ka.FieldTypes.Array = new Class({
 
             if (copy.children) {
                 var parseFields = {};
-                parseFields[field_key] = copy;
+                parseFields[fieldKey] = copy;
                 var nField = new ka.FieldForm(td, parseFields, {allTableItems: true}, {win: this.win});
             } else {
                 var nField = new ka.Field(copy, td, {win: this.win});
@@ -328,12 +327,11 @@ ka.FieldTypes.Array = new Class({
 
             nField.addEvent('change', this.fieldInstance.fireChange);
 
-            if (pValue && pValue[field_key]) {
-                nField.setValue(pValue[field_key]);
+            if ('null' !== typeOf(pValue[fieldKey])) {
+                nField.setValue(pValue[fieldKey]);
             }
 
-            tr.fields[field_key] = nField;
-
+            tr.fields[fieldKey] = nField;
         }.bind(this));
 
         var td;
