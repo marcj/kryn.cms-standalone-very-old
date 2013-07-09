@@ -249,7 +249,12 @@ class Utils
 
         $error = error_get_last();
         if ($error['type'] == 1) {
-            self::exceptionHandler($error);
+            $exception = new \InternalErrorException();
+            $exception->setCode($error['type']);
+            $exception->setMessage($error['message']);
+            $exception->setFile($error['file']);
+            $exception->setLine($error['line']);
+            self::exceptionHandler($exception);
         } else {
             self::latencySnapshot();
         }

@@ -20,6 +20,18 @@ class Editor
         return $config;
     }
 
+    public function getBasic($bundle)
+    {
+        $bundle = $this->getBundle($bundle);
+        $config = $bundle->getConfig();
+
+        $result = $config->toArray();
+        unset($result['entryPoints']);
+        unset($result['plugins']);
+        unset($result['objects']);
+        return $result;
+    }
+
     public function setConfig($pName, $pConfig)
     {
         Manager::prepareName($pName);
@@ -713,7 +725,7 @@ class Editor
     {
         $bundle = Kryn::getBundle($bundleClass);
         if (!$bundle) {
-            throw new BundleNotFoundException(tf('Bundle `%s` not found.', $name));
+            throw new BundleNotFoundException(tf('Bundle `%s` not found.', $bundleClass));
         }
         return $bundle;
     }

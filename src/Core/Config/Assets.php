@@ -21,7 +21,7 @@ class Assets extends Model implements \IteratorAggregate
     /**
      * @var string
      */
-    private $path;
+    protected $path;
 
     /**
      * @var Asset[]
@@ -33,12 +33,12 @@ class Assets extends Model implements \IteratorAggregate
      *
      * @var bool
      */
-    private $compression = true;
+    protected $compression = true;
 
     /**
      * @var bool
      */
-    private $recursive = false;
+    protected $recursive = false;
 
     /**
      * @param boolean $compression

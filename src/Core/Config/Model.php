@@ -568,7 +568,11 @@ class Model implements \ArrayAccess
         $reflection = new \ReflectionClass($this);
         $properties = $reflection->getDefaultProperties();
 
-        foreach ($element as $k => $v) {
+        foreach ($reflection->getProperties() as $property) {
+            $k = $property->getName();
+            if ($property->isPrivate()) continue;
+
+            $v = $this->$k;
             if (in_array($k, $blacklist)) {
                 continue;
             }
@@ -602,6 +606,7 @@ class Model implements \ArrayAccess
 
             $result[$k] = $value;
         }
+
         return $result;
     }
 

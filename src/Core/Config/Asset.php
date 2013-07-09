@@ -19,14 +19,14 @@ class Asset extends Model
     /**
      * @var string
      */
-    private $path;
+    protected $path;
 
     /**
      * If the asset can be compressed with other equal files (js/css compression)
      *
      * @var bool
      */
-    private $compression = true;
+    protected $compression = true;
 
     /**
      * @param boolean $compression
