@@ -1195,6 +1195,10 @@ ka.AdminInterface = new Class({
     },
 
     addAdminLink: function(entryPoint, path) {
+        if (entryPoint.system) {
+            return;
+        }
+
         var link = new Element('a', {
             'class': 'ka-main-menu-item'
         });

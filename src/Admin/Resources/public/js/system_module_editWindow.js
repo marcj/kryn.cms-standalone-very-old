@@ -1601,8 +1601,6 @@ var admin_system_module_editWindow = new Class({
             win.border.setStyle('zIndex', null);
         });
 
-        win.closer.removeEvents('click');
-
         return win;
     },
 

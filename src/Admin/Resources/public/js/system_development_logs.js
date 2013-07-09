@@ -4,11 +4,9 @@ var admin_system_development_logs = new Class({
         this.win = pWin;
 
         this.win.addEvent('close', function () {
-
             if (this.lastLiveLogTimer) {
                 clearTimeout(this.lastLiveLogTimer);
             }
-
         }.bind(this));
 
         this._renderLayout();
@@ -22,7 +20,7 @@ var admin_system_development_logs = new Class({
         var bottomBar = new ka.ButtonBar(this.win.content);
 
         this.logsTop = new Element('div', {
-            style: 'position: absolute; left: 0px; top: 0px; right: 0px; height: 55px; border-bottom: 1px solid #ddd; padding: 5px;'
+            style: 'position: absolute; left: 0px; top: 0px; right: 0px; height: 65px; padding: 5px;'
         }).inject(p);
 
         this.btnDiv = new Element('div', {style: 'position: absolute; right: 15px; top: 15px;'}).inject(this.logsTop);
@@ -37,10 +35,7 @@ var admin_system_development_logs = new Class({
             style: 'padding: 0px 17px; float: right;'
         }).inject(this.btnDiv);
 
-        this.liveLog = new Element('input', {
-            type: 'checkbox',
-            id: this.win.id + 'admin-logs-liveLogCheckbox'
-        }).addEvent('change', this.toggleLiveLog.bind(this)).inject(this.btnDiv2);
+        this.liveLog = new ka.Checkbox(this.btnDiv2).addEvent('change', this.toggleLiveLog.bind(this));
 
         new Element('label', {
             'for': this.win.id + 'admin-logs-liveLogCheckbox',
@@ -76,7 +71,7 @@ var admin_system_development_logs = new Class({
             }.bind(this)).inject(this.logsTop);
 
         this.logsTable = new Element('div', {
-            style: 'position: absolute; left: 0px; top: 67px; right: 0px; bottom: 31px; overflow: auto;'
+            style: 'position: absolute; left: 0px; top: 77px; right: 0px; bottom: 31px; overflow: auto;'
         }).inject(p);
 
         this.logsTable = new ka.Table().inject(this.logsTable);

@@ -65,10 +65,11 @@ div.desc {
     padding: 3px 0px 0px 20px;
     color: #999;
     line-height: 14px;
+    font-size: 13px;
 }
 
 tr.ka-field-main > td div.desc {
-    padding-left: 2px;
+    padding-left: 0;
     line-height: 14px;
 }
 

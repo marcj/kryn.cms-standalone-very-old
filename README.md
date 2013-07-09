@@ -19,6 +19,13 @@ Installation
 4. Setup a `VirtualHost` pointing to the `./web/` directory.
 5. Open `domain.tld/install.php` in your browser and follow the instruction.
 
+Requirements
+------------
+
+1. PHP 5.4+
+2. *nix OS (Linux, BSD, OSX)
+3. PHP extensions: PDO, mbstring, gd, zip
+
 
 Features
 --------

@@ -397,6 +397,7 @@ class Backend
                             'fullPath' => $path,
                             'path' => $subEntryPoint->getPath(),
                             'type' => $subEntryPoint->getType(),
+                            'system' => $subEntryPoint->getSystem(),
                             'level' => substr_count($path, '/')
                         );
                     }

@@ -1,0 +1,20 @@
+.ka-system-settings-link {
+    display: inline-block;
+    margin: 15px;
+    padding: 5px;
+    font-size: 16px;
+    color: #444;
+    cursor: pointer;
+    text-align: center;
+}
+
+.ka-system-settings-link > span {
+    display: block;
+    padding-bottom: 7px;
+}
+
+.ka-system-settings-link:hover {
+    border: 1px solid silver;
+    background-color: #f3f3f3;
+    margin: 14px;
+}

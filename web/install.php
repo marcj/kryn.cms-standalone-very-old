@@ -878,9 +878,9 @@ function step2()
             $t = explode("-", PHP_VERSION);
             $v = ($t[0]) ? $t[0] : PHP_VERSION;
             //5.3.2 because flock()
-            if (!version_compare($v, "5.3.2") < 0) {
+            if (!version_compare($v, "5.4.0") < 0) {
                 print '<div style="color: red">PHP version too old.<br />';
-                print "You need PHP version 5.3.0 or greater.<br />";
+                print "You need PHP version 5.4.0 or greater.<br />";
                 print "Installed version: $v (" . PHP_VERSION . ")<br/></div>";
                 $anyThingOk = false;
             } else {

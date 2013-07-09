@@ -5,7 +5,7 @@ namespace Core\Config;
 
 class EntryPoint extends Model
 {
-    protected $attributes = ['path', 'type', 'icon', 'multi', 'link'];
+    protected $attributes = ['path', 'type', 'icon', 'multi', 'link', 'system'];
 
     /**
      * @var string
@@ -16,6 +16,11 @@ class EntryPoint extends Model
      * @var string
      */
     protected $type = 'acl';
+
+    /**
+     * @var bool
+     */
+    protected $system = false;
 
     /**
      * @var string
@@ -276,4 +281,24 @@ class EntryPoint extends Model
         return $this->class;
     }
 
+    /**
+     * @param boolean $system
+     */
+    public function setSystem($system)
+    {
+        $this->system = $this->bool($system);
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getSystem()
+    {
+        return $this->system;
+    }
+
+    public function isSystem()
+    {
+        return true === $this->system;
+    }
 }

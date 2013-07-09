@@ -1,13 +1,103 @@
 var admin_system = new Class({
-    initialize: function (pWindow) {
+    initialize: function(pWindow) {
         this.win = pWindow;
         this._createLayout();
     },
 
-    _createLayout: function () {
+    _createLayout: function() {
+        this.addSection('admin');
+        Object.each(ka.settings.configs, function(config, key) {
+            if ('admin' !== key) {
+                this.addSection(key);
+            }
+        }, this);
+    },
+
+    addSection: function(bundleName) {
+        var config = ka.settings.configs[bundleName];
+        var container, subContainer;
+
+        if (config.entryPoints) {
+            var systemEntryPoints = this.collectSystemEntryPoints(config.entryPoints);
+            if (0 < Object.getLength(systemEntryPoints)) {
+
+                container = new Element('div');
+
+                new Element('h2', {
+                    text: config.name || config.composer.name
+                }).inject(container);
+
+                Object.each(systemEntryPoints, function(entryPoint) {
+
+                    if (!entryPoint.type) {
+
+                        new Element('h2', {
+                            text: entryPoint.label
+                        }).inject(container);
+
+                        subContainer = new Element('div').inject(container);
+                        Object.each(entryPoint.children, function(subEntryPoint) {
+                            this.addLink(bundleName, subEntryPoint, subContainer);
+                        }, this);
+
+                    } else {
+                        this.addLink(bundleName, entryPoint, container);
+                    }
+                }, this);
+
+                container.inject(this.win.getContentContainer());
+            }
+        }
+    },
+
+    addLink: function(bundleName, entryPoint, container) {
+        var item = new Element('a', {
+            'class': 'ka-system-settings-link',
+            text: entryPoint.label
+        })
+            .addEvent('click', function() {
+                ka.wm.open(bundleName + '/' + entryPoint.fullPath);
+            })
+            .inject(container);
+
+        if (entryPoint.icon) {
+            var span = new Element('span', {
+                'class': entryPoint.icon.indexOf('#') === 0 ?  entryPoint.icon.substr(1) : null
+            }).inject(item, 'top');
+
+            if (-1 === entryPoint.icon.indexOf('#')) {
+                new Element('img', {
+                    src: ka.mediaPath(entryPoint.icon)
+                }).inject(span);
+            }
+        }
+    },
+
+    collectSystemEntryPoints: function(entryPoints) {
+        var result = {};
+
+        Object.each(entryPoints, function(entryPoint, key) {
+            if (!entryPoint.link) return;
+
+            if (entryPoint.system) {
+                result[key] = entryPoint;
+            }
+            if (entryPoint.children) {
+                result = Object.merge(result, this.collectSystemEntryPoints(entryPoint.children));
+            }
+        }, this);
+
+        return result
+    },
+
+
+    shit: function() {
+
+        logger(ka.settings);
+
 
         this.win.content.set('html',
-            '<h3>Kryn.cms</h3><br/>' +
+            '<h1>Kryn.cms</h1><br/>' +
                 'Version: {ka.settings.configs.core.version}<br/>' +
                 '<br/>' +
                 '<a href="{_path}LICENSE">LICENSE</a><br/>' +
@@ -21,6 +111,5 @@ var admin_system = new Class({
                 '<br/>');
 
         mowla.render(this.win.content);
-        this.win.content.setStyle('text-align', 'center');
     }
 });
