@@ -5,6 +5,7 @@ A enterprise open-source Content-Management-System and Content-Management-Framew
 written in PHP and JavaScript using Symfony Components, Propel, Mootools and other rock-solid libraries.
 
 We're in development. This means, there are still a _lot_ of issues in this product (not even an Alpha) and it's not everything implemented yet.
+__So, please do not install or use it, yet. Most things don't work.__
 
 [![Build Status Drone.io](https://drone.io/marcj/Kryn.cms/status.png)](https://drone.io/marcj/Kryn.cms/latest)
 [![Build Status Travis](https://travis-ci.org/KrynLabs/Kryn.cms.png?branch=refactoring)](https://travis-ci.org/KrynLabs/Kryn.cms)
