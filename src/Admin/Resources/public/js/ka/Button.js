@@ -11,7 +11,7 @@ ka.Button = new Class({
     initialize: function (pTitle, pOnClick, pTooltip) {
         this.main = new Element('a', {
             'class': 'ka-Button',
-            href: 'javascript:;',
+            href: 'javascript:void(0)',
             title: (pTooltip) ? pTooltip : null
         });
 

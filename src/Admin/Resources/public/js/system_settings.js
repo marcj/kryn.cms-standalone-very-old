@@ -318,9 +318,14 @@ var admin_system_settings = new Class({
 
         });
 
-        this.bottomBar = this.win.addBottomBar();
+        this.actionBarContainer = new Element('div', {
+            style: 'text-align: right; padding: 5px 0;'
+        }).inject(this.win.getTitleGroupContainer());
 
-        this.saveBtn = this.bottomBar.addButton(t('Save')).setButtonStyle('blue').addEvent('click', this.save);
+        this.actionBar = new ka.ButtonGroup(this.actionBarContainer);
+        this.resetBtn = this.actionBar.addButton(t('Reset'), '#icon-escape');
+        this.saveBtn = this.actionBar.addButton(t('Save'), '#icon-checkmark-6');
+        this.saveBtn.setButtonStyle('blue');
 
         this.fieldObject = new ka.FieldForm(this.win.content, fields, {
             tabsInWindowHeader: true,

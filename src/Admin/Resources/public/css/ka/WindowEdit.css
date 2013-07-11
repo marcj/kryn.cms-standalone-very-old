@@ -49,6 +49,11 @@
     background-color: #F7F7F7;
 }
 
+
+.ka-windowEdit-form > .ka-tabPane-full > .kwindow-win-tabPane-pane {
+    border: 0;
+}
+
 .ka-windowEdit-overhangingItemsContainer {
     position: absolute;
     border: 1px solid #777;

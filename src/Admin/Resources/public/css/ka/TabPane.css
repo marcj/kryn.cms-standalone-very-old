@@ -2,6 +2,7 @@
     padding: 10px;
     margin: 0px 5px;
     border: 1px solid #dcdcdc;
+    border-top: 0;
 }
 
 .kwindow-win-tabPane .kwindow-win-tabWrapperLast {
@@ -18,7 +19,7 @@
     display: none;
     position: relative;
     padding: 10px;
-    background-color: #f5f5f5;
+    background-color: #f9f9f9;
 }
 
 .ka-tabPane-full > .kwindow-win-tabPane-pane,
@@ -29,15 +30,8 @@
     right: 0px;
     top: 0px;
     bottom: 0px;
-    border: 0px;
-    border-radius: 0px;
     margin: 0px;
 }
-
-.ka-tabPane-full {
-    border: 0;
-}
-
 
 .ka-tabPane-full > .ka-tabGroup-small {
     position: relative;
@@ -60,7 +54,6 @@
 
 .ka-tabPane-tabsInWindowHeader > .kwindow-win-tabPane-pane {
     top: 0px;
-    border: 0px;
     margin: 0px;
     -moz-border-radius: 0px;
 }

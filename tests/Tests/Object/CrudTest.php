@@ -42,7 +42,6 @@ class CreateTest extends TestCaseWithCore
         //check empty
         $count = \Core\Object::getCount('Test\\Test');
         $this->assertEquals(0, $count);
-
     }
 
 }

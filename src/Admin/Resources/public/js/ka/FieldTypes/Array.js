@@ -327,7 +327,7 @@ ka.FieldTypes.Array = new Class({
 
             nField.addEvent('change', this.fieldInstance.fireChange);
 
-            if ('null' !== typeOf(pValue[fieldKey])) {
+            if (undefined !== pValue && 'null' !== typeOf(pValue[fieldKey])) {
                 nField.setValue(pValue[fieldKey]);
             }
 

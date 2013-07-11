@@ -783,13 +783,14 @@ abstract class ClientAbstract
             $pSalt . ($pPassword . $pSalt . $pPassword)
         );
 
-        for ($i = 0; $i < 501; $i++) {
+        for ($i = 0; $i < 201; $i++) {
             $hash = self::injectConfigPasswdHash($hash);
             $hash = hash(
                 'sha512',
-                $i % 2 ? $hash . $pSalt . $pPassword . $hash . $pSalt : $pSalt . $pPassword . $hash . $pPassword . $hash . $pPassword . $hash
-            ) .
-                hash('sha512', $pPassword . $hash . $pSalt . $pPassword);
+                $i % 2 ?
+                    $hash . $pSalt . $pPassword . $hash . $pSalt :
+                    $pSalt . $pPassword . $hash . $pPassword . $hash . $pPassword . $hash
+            ) . hash('sha512', $pPassword . $hash . $pSalt . $pPassword);
         }
 
         return $hash;

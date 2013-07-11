@@ -24,6 +24,7 @@ var admin_system = new Class({
                 container = new Element('div');
 
                 new Element('h2', {
+                    'class': 'light',
                     text: config.name || config.composer.name
                 }).inject(container);
 
@@ -32,6 +33,7 @@ var admin_system = new Class({
                     if (!entryPoint.type) {
 
                         new Element('h2', {
+                            'class': 'light',
                             text: entryPoint.label
                         }).inject(container);
 

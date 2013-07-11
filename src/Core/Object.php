@@ -777,6 +777,8 @@ class Object
     ) {
 
         $pPk = self::normalizePk($pObjectKey, $pPk);
+        $pObjectKey = self::normalizeObjectKey($pObjectKey);
+        $pTargetObjectKey = self::normalizeObjectKey($pTargetObjectKey);
 
         $obj = self::getClass($pObjectKey);
 
@@ -799,8 +801,9 @@ class Object
 
         if ($pTargetObjectKey && $pTargetObjectKey != $pObjectKey) {
             if ($pPosition == 'prev' || $pPosition == 'next') {
-                throw \InvalidArgumentException(
-                    'Its not possible to use `prev` or `next` to add a new entry with a different object key.'
+                throw new \Core\Exceptions\InvalidArgumentException(
+                    tf('Its not possible to use `prev` or `next` to add a new entry with a different object key. [target: %s, self: %s]',
+                        $pTargetObjectKey, $pObjectKey)
                 );
             }
 
@@ -1236,6 +1239,13 @@ class Object
         $obj = self::getClass($pObjectKey);
 
         return $obj->normalizePrimaryKey($pPk);
+    }
+
+    public static function normalizeObjectKey($pKey)
+    {
+        $pKey = str_replace('\\', ':', $pKey);
+        $pKey = str_replace('/', ':', $pKey);
+        return strtolower($pKey);
     }
 
     /**

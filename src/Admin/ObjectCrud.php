@@ -367,18 +367,29 @@ class ObjectCrud
         }
 
         if ($this->fields) {
-//            $replaceIds = function(&$fields, $id) use (&$replaceIds) {
-//                if (is_array($fields)) {
-//                    foreach ($fields as $id => $field){
-//                        $replaceIds($field, $id);
-//                    }
-//                } else {
-//                    $fields['id'] = $id;
-//                }
-//            };
-//            $replaceIds($this->fields, null);
-
             foreach ($this->fields as $key => &$field) {
+                if (is_array($field)) {
+                    $fieldInstance = new Field();
+                    $fieldInstance->fromArray($field);
+                    $fieldInstance->setId($key);
+                    $field = $fieldInstance;
+                }
+            }
+        }
+
+        if ($this->addMultipleFixedFields) {
+            foreach ($this->addMultipleFixedFields as $key => &$field) {
+                if (is_array($field)) {
+                    $fieldInstance = new Field();
+                    $fieldInstance->fromArray($field);
+                    $fieldInstance->setId($key);
+                    $field = $fieldInstance;
+                }
+            }
+        }
+
+        if ($this->addMultipleFields) {
+            foreach ($this->addMultipleFields as $key => &$field) {
                 if (is_array($field)) {
                     $fieldInstance = new Field();
                     $fieldInstance->fromArray($field);
@@ -499,6 +510,20 @@ class ObjectCrud
 
         if ($result['fields']) {
             foreach ($result['fields'] as &$field) {
+                if ($field instanceof Model) {
+                    $field = $field->toArray();
+                }
+            }
+        }
+        if ($result['addMultipleFixedFields']) {
+            foreach ($result['addMultipleFixedFields'] as &$field) {
+                if ($field instanceof Model) {
+                    $field = $field->toArray();
+                }
+            }
+        }
+        if ($result['addMultipleFields']) {
+            foreach ($result['addMultipleFields'] as &$field) {
                 if ($field instanceof Model) {
                     $field = $field->toArray();
                 }
@@ -1182,6 +1207,10 @@ class ObjectCrud
 
         $position = getArgv('_position');
 
+        if (!is_array($_REQUEST['_items'])) {
+            $_REQUEST['_items'] = [];
+        }
+
         $items = $_REQUEST['_items'];
 
         if ($position == 'first' || $position == 'next') {
@@ -1370,7 +1399,7 @@ class ObjectCrud
         foreach ($fields as $field) {
             $key = $field->getId();
             $value = ($_POST[$key] ? : $_GET[$key]);
-            if (null == $value) {
+            if (null == $value && $pData) {
                 $value = $pData[$key];
             }
 

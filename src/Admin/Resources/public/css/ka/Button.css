@@ -33,11 +33,11 @@
     height: 30px;
 }
 
-.ka-ActionBar .ka-Button:last-child {
+.ka-Button:last-child {
     margin-right: 0;
 }
 
-.ka-ActionBar .ka-Button:first-child {
+.ka-Button:first-child {
     margin-left: 0;
 }
 

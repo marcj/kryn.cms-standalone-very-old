@@ -150,15 +150,17 @@ class NodeCrud extends \Admin\ObjectCrud
         'title' => array(
             'label' => 'Title',
             'type' => 'text',
-            'required' => 'true',
+            'required' => true,
         ),
         'type' => array(
             'label' => 'Type',
-            'items' => array(
-                0 => 'Page',
-                1 => 'Link',
-                2 => 'Folder',
-                3 => 'Deposit',
+            'options' => array(
+                'items' => array(
+                    0 => 'Page',
+                    1 => 'Link',
+                    2 => 'Folder',
+                    3 => 'Deposit',
+                ),
             ),
             'type' => 'select',
             'width' => '120',

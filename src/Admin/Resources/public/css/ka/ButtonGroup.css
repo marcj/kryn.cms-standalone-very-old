@@ -22,6 +22,15 @@
     position: relative;
 }
 
+
+.ka-ButtonGroup:last-child {
+    margin-right: 0;
+}
+
+.ka-ButtonGroup:first-child {
+    margin-left: 0;
+}
+
 .ka-buttonGroup-item,
 .ka-buttonGroup-item:link {
     cursor: default;
@@ -29,8 +38,6 @@
     display: inline-block;
     text-decoration: none;
     padding: 0px 9px;
-    color: #494949;
-    background-color: #fefefe;
     border-top: 1px solid #ddd;
     border-bottom: 0;
     box-shadow: 0 3px 0 #d6d6d6;

@@ -73,9 +73,11 @@ class Form {
     public static function setForm($fields, $form)
     {
         foreach ($fields as $field) {
-            $field->setForm($form);
-            if ($field->getChildren()) {
-                static::setForm($field->getChildren(), $form);
+            if ($field && $field instanceof Field) {
+                $field->setForm($form);
+                if ($field->getChildren()) {
+                    static::setForm($field->getChildren(), $form);
+                }
             }
         }
     }

@@ -46,6 +46,10 @@ html, body {
     line-height: 30px;
     margin: 5px 0;
     padding: 0;
+}
+
+
+.ka-admin h2.light {
     font-family: "SourceSansPro-Light", "SourceSansPro-Regular", "Lucida Grande", "DejaVu Sans", "Bitstream Vera Sans", "Segoe UI", "Tahoma", sans-serif;
 }
 
