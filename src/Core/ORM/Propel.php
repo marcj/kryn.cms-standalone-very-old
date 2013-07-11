@@ -240,8 +240,7 @@ class Propel extends ORMAbstract
             return $clazz;
         }
         $clazz = Object::normalizeObjectKey($objectName ?: $this->objectKey);
-        $temp = explode(':', $clazz);
-        $clazz = ucfirst($temp[0] . '\\Models\\' . $temp[1]);
+        $clazz = ucfirst(Object::getNamespace($clazz) . '\\Models\\' . Object::getName($clazz));
         return $clazz;
     }
 

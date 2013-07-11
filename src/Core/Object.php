@@ -223,7 +223,7 @@ class Object
      *
      * @return string
      */
-    public static function getModule($pObjectKey)
+    public static function getNamespace($pObjectKey)
     {
         $pObjectKey = self::normalizeObjectKey($pObjectKey);
         $temp = explode(':', $pObjectKey);
