@@ -231,7 +231,8 @@ var admin_system_module = new Class({
         }
 
         new Element('h2', {
-            html: _('Local bundles')
+            html: _('Local bundles'),
+            'class': 'light'
         }).inject(p);
 
         tableLocalDiv = new Element('div', {style: 'position: relative'}).inject(p);
@@ -243,9 +244,9 @@ var admin_system_module = new Class({
             [_('Action'), 350]
         ], {absolute: false}).inject(tableLocalDiv);
 
-
         new Element('h2', {
-            html: _('External bundles')
+            html: _('External bundles'),
+            'class': 'light'
         }).inject(p);
 
         tableLocalDiv = new Element('div', {style: 'position: relative'}).inject(p);

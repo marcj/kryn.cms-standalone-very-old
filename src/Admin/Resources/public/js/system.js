@@ -21,7 +21,9 @@ var admin_system = new Class({
             var systemEntryPoints = this.collectSystemEntryPoints(config.entryPoints);
             if (0 < Object.getLength(systemEntryPoints)) {
 
-                container = new Element('div');
+                container = new Element('div', {
+                    'class': 'ka-system-cat'
+                }).inject(this.win.getContentContainer());
 
                 new Element('h2', {
                     'class': 'light',
@@ -29,15 +31,16 @@ var admin_system = new Class({
                 }).inject(container);
 
                 Object.each(systemEntryPoints, function(entryPoint) {
-
                     if (!entryPoint.type) {
+                        subContainer = new Element('div', {
+                            'class': 'ka-system-cat'
+                        }).inject(this.win.getContentContainer());
 
                         new Element('h2', {
                             'class': 'light',
                             text: entryPoint.label
-                        }).inject(container);
+                        }).inject(subContainer);
 
-                        subContainer = new Element('div').inject(container);
                         Object.each(entryPoint.children, function(subEntryPoint) {
                             this.addLink(bundleName, subEntryPoint, subContainer);
                         }, this);
@@ -46,8 +49,6 @@ var admin_system = new Class({
                         this.addLink(bundleName, entryPoint, container);
                     }
                 }, this);
-
-                container.inject(this.win.getContentContainer());
             }
         }
     },

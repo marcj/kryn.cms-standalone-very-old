@@ -6,6 +6,38 @@ var test_test = new Class({
 
         new ka.Button('Test').inject(pWin.getContentContainer());
 
+        var tree;
+
+        var id = new ka.Field({
+            type: 'text'
+        }).inject(this.win.content);
+
+        new ka.Button('Deselect')
+            .addEvent('click', function(){
+                tree.getFieldObject().deselect();
+            })
+            .inject(this.win.content);
+
+        new ka.Button('Reload')
+            .addEvent('click', function(){
+                tree.getFieldObject().reloadBranch({id: id.getValue()});
+            })
+            .inject(this.win.content);
+
+        new ka.Button('Reload Parent')
+            .addEvent('click', function(){
+                tree.getFieldObject().reloadParentBranch({id: id.getValue()});
+            })
+            .inject(this.win.content);
+
+        tree = new ka.Field({
+            label: t('Nodes'),
+            type: 'tree',
+            objectKey: 'Core\\Node'
+        }, this.win.content);
+
+        return;
+
         new ka.Field({
             label: 'Node',
             type: 'object',
