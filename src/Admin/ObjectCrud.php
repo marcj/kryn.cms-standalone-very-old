@@ -233,6 +233,8 @@ class ObjectCrud
 
     protected $addMultipleFixedFields = array();
 
+    protected $startCombine = false;
+
     /**
      * Defines whether the remove/delete button should be displayed
      * Also on each row the Delete-Button and the checkboxes.
@@ -2118,6 +2120,22 @@ class ObjectCrud
     public function getUsePatch()
     {
         return $this->usePatch;
+    }
+
+    /**
+     * @param boolean $startCombine
+     */
+    public function setStartCombine($startCombine)
+    {
+        $this->startCombine = $startCombine;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getStartCombine()
+    {
+        return $this->startCombine;
     }
 
 }

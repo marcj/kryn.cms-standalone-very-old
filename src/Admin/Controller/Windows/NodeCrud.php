@@ -139,6 +139,8 @@ class NodeCrud extends \Admin\ObjectCrud
 
     public $export = false;
 
+    public $startCombine = true;
+
     public $addMultipleFixedFields = array(
         'visible' => array(
             'label' => 'Visible',

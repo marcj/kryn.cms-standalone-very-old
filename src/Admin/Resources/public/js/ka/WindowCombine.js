@@ -1425,6 +1425,10 @@ ka.WindowCombine = new Class({
             }.bind(this));
         }
 
+        if (this.classProperties.startCombine) {
+            this.setView('combine', true);
+        }
+
         if (this.classProperties.asNested) {
             if (this.win.params && this.win.params.selected) {
                 this.setView('combine', true);
