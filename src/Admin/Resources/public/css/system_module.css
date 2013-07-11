@@ -5,7 +5,9 @@
     bottom: 0px;
     right: 0px;
     overflow: auto;
+    -webkit-overflow-scrolling: touch;
     display: none;
+    background-color: #f9f9f9;
 }
 
 a.extensionmanager-category-line,

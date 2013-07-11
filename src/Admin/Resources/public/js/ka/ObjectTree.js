@@ -668,9 +668,11 @@ ka.ObjectTree = new Class({
     },
 
     addRootItems: function (pItems, pContainer) {
-        Array.each(pItems, function (item) {
-            this.addItem(item, this.rootA);
-        }.bind(this));
+        if ('array' === typeOf(pItems)) {
+            Array.each(pItems, function (item) {
+                this.addItem(item, this.rootA);
+            }.bind(this));
+        }
     },
 
     addItem: function (pItem, pParent) {
@@ -925,7 +927,6 @@ ka.ObjectTree = new Class({
     },
 
     loadChildren: function (pA, pAndOpen) {
-
         this.activeLoadings++;
         var item = pA.objectEntry;
 

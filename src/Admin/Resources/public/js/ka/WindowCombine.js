@@ -1069,7 +1069,7 @@ ka.WindowCombine = new Class({
 
         this.currentAdd = new ka.WindowAdd(win, this.mainRight);
         this.currentAdd.addEvent('add', this.addSaved.bind(this));
-        this.currentAdd.addEvent('addMultiple', this.addSaved.bind(this));
+        this.currentAdd.addEvent('addMultiple', this.addSavedMultiple.bind(this));
 
         this.setWinParams();
     },
@@ -1084,7 +1084,7 @@ ka.WindowCombine = new Class({
             this.addRootBtn.setPressed(true);
         }
 
-        this.win.setTitle(this.addRootBtn.get('title'));
+        this.win.setTitle(document.id(this.addRootBtn).get('title'));
 
         this.lastItemPosition = null;
         this.currentItem = null;
@@ -1128,13 +1128,25 @@ ka.WindowCombine = new Class({
 
     },
 
-    addRootSaved: function() {
+    addRootSaved: function(request, response) {
         this.changeLanguage();
+    },
+
+    addSavedMultiple: function(request, response) {
+        //since multiple insertion returns a array as response.data, we need to make it
+        //compatible with the addSaved method. We select now the first added item.
+        console.log('addSavedMultiple', request, response);
+        if ('array' === typeOf(response.data)) {
+            response.data = response.data[0];
+        }
+        this.addSaved(request, response);
     },
 
     addSaved: function(pRequest, pResponse) {
         this.ignoreNextSoftLoad = true;
 
+        console.log('addSaved', pRequest, pResponse);
+        console.log(this.classProperties.asNested);
         if (this.currentAdd.classProperties.primary.length > 1) {
             return;
         }
@@ -1417,18 +1429,22 @@ ka.WindowCombine = new Class({
             if (this.win.params && this.win.params.selected) {
                 this.setView('combine', true);
                 this.nestedField.getFieldObject().select(this.win.params.selected);
-            } else if (this.win.getParameter('type') && 'list' != this.win.getParameter('type')) {
-                this.setView('combine', true);
             }
         } else {
             if (this.win.params && this.win.params.selected) {
                 this.needSelection = true;
                 this.loadAround(this.win.params.selected);
             } else {
-                if (this.win.params.type && 'list' != this.win.params.type) {
-                    this.setView('combine', true);
-                }
                 this.loadItems(0, (this.classProperties.itemsPerPage) ? this.classProperties.itemsPerPage : 5);
+            }
+        }
+        if (this.win.getParameter('type') && 'list' != this.win.getParameter('type')) {
+            this.setView('combine', true);
+            if ('add' === this.win.getParameter('type')) {
+                this.add();
+            }
+            if ('rootAdd' === this.win.getParameter('type')) {
+                this.addNestedRoot();
             }
         }
     },

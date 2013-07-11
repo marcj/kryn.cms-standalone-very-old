@@ -92,10 +92,6 @@ ka.AdminInterface = new Class({
 
         this.mainLinkSplitterArrow.addEvent('click', this.toggleMainLinks);
 
-        this.mainTempLinks = new Element('div', {
-            'class': 'ka-mainTempLinks'
-        }).inject(this.mainLinks);
-
         this.mainMenuIconBar = new Element('div', {
             'class': 'ka-iconbar-item'
         }).inject(this.mainMenuRight);
@@ -1044,15 +1040,7 @@ ka.AdminInterface = new Class({
     },
 
     renderMenu: function() {
-        this.mainTempLinks.dispose();
-        if (ka.wm.tempLinksSplitter) {
-            ka.wm.tempLinksSplitter.dispose();
-        }
         this.mainLinks.empty();
-        this.mainTempLinks.inject(this.mainLinks);
-        if (ka.wm.tempLinksSplitter) {
-            ka.wm.tempLinksSplitter.inject(this.mainTempLinks, 'after');
-        }
 
         if (this.additionalMainMenu) {
             this.additionalMainMenu.destroy();
@@ -1062,18 +1050,6 @@ ka.AdminInterface = new Class({
 
         this.removedMainMenuItems = [];
         delete this.mainMenuItems;
-
-        this.frontendLink = new Element('a', {
-            'class': 'ka-main-menu-item icon-eye'
-        }).inject(this.mainLinks);
-
-        new Element('span', {
-            text: t('Frontend')
-        }).inject(this.frontendLink);
-
-        this.frontendLink.addEvent('click', function() {
-            ka.wm.open('admin/nodes/frontend');
-        });
 
         Object.each(this.menuItems, function(item, path) {
             this.addAdminLink(item, path);
@@ -1260,11 +1236,11 @@ ka.AdminInterface = new Class({
                 link.inject(this.mainMenuTopNavigation);
             } else {
                 link.inject(this.mainLinks);
-            }
 
-            link.subMenu = new Element('div', {
-                'class': 'ka-menu-item-children'
-            }).inject(this.mainLinks);
+                link.subMenu = new Element('div', {
+                    'class': 'ka-menu-item-children'
+                }).inject(this.mainLinks);
+            }
         } else {
             var parentCode = path.substr(0, path.lastIndexOf('/'));
             var parent = this._links[parentCode];

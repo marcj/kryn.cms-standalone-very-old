@@ -13,8 +13,15 @@ ka.WindowAdd = new Class({
 
         this.saveBtn.setText([t('Add'), '#icon-checkmark-6']);
         this.removeBtn.hide();
+
         if (this.previewBtn) {
             this.previewBtn.hide();
+        }
+        if (this.showVersionsBtn) {
+            this.showVersionsBtn.hide();
+        }
+        if (this.resetBtn) {
+            this.resetBtn.hide();
         }
 
         this.ritem = this.retrieveData(true);
@@ -172,7 +179,7 @@ ka.WindowAdd = new Class({
                     ka.loadSettings();
                 }
 
-                var args = [request, pResponse.data];
+                var args = [request, pResponse];
                 if (this.addItemToAdd) {
                     args.push(this.addItemToAdd.tree);
                 }
@@ -208,7 +215,6 @@ ka.WindowAdd = new Class({
     },
 
     checkAddItemForm: function () {
-
         var valid = true;
 
         if (!this.addItemToAdd) {
@@ -225,10 +231,6 @@ ka.WindowAdd = new Class({
                 this.saveBtn.setEnabled(valid);
             }
         }
-//        if (this.openAddItemNextButton) {
-//            this.openAddItemNextButton.setEnabled(valid);
-//        }
-
     },
 
     populateAddMultipleForm: function (pContainer) {
@@ -250,6 +252,7 @@ ka.WindowAdd = new Class({
             fields._items = {
                 label: t('Values per entry'),
                 type: 'array',
+                fieldWidth: 'auto',
                 startWith: 1,
                 columns: [],
                 fields: {}
@@ -424,8 +427,6 @@ ka.WindowAdd = new Class({
         }
 
         var request = this.buildRequest();
-
-        console.log(request);
 
         if (typeOf(request) != 'null') {
 

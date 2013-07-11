@@ -952,7 +952,12 @@ ka.Window = new Class({
 
         window['contentLoaded_' + this.customId] = function () {
             this.content.empty();
-            this.custom = new window[ this.getEntryPoint().replace(/\//g, '_') ](this);
+            var clazz = this.getEntryPoint().replace(/\//g, '_');
+            if (!window[clazz]) {
+                this.alert(tf('Javascript class `%s` not found.', clazz));
+                return;
+            }
+            this.custom = new window[ clazz ](this);
 
             if (this.dialogContainer) {
                 this.dialogContainer.center(true);

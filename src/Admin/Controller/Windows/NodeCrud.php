@@ -163,12 +163,12 @@ class NodeCrud extends \Admin\ObjectCrud
                 ),
             ),
             'type' => 'select',
-            'width' => '120',
+            'width' => '50',
         ),
         'layout' => array(
             'label' => 'Layout',
             'type' => 'layout',
-            'width' => '220',
+            'width' => '50',
         ),
     );
 

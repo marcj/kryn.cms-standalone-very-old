@@ -452,7 +452,6 @@ ka.FieldForm = new Class({
      */
     checkValid: function () {
         var ok = true;
-        console.log('fields', this.fields);
         Object.each(this.fields, function (field, id) {
             if (id.substr(0, 2) == '__' && id.substr(id.length - 2) == '__') {
                 return;

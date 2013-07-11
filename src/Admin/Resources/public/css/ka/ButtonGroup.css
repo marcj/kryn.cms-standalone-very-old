@@ -23,11 +23,11 @@
 }
 
 
-.ka-ButtonGroup:last-child {
+.ka-ActionBar > .ka-ButtonGroup:last-child {
     margin-right: 0;
 }
 
-.ka-ButtonGroup:first-child {
+.ka-ActionBar > .ka-ButtonGroup:first-child {
     margin-left: 0;
 }
 

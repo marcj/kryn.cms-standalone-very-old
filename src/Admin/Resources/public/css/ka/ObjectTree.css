@@ -182,6 +182,7 @@
 a.ka-objectTree-positionChooser-item,
 a.ka-objectTree-positionChooser-item:link {
     color: silver;
+    margin-left: 10px;
 }
 
 a.ka-objectTree-positionChooser-item:hover {

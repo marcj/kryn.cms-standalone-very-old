@@ -82,6 +82,8 @@ ka.FieldTypes.Content = new Class({
             '_kryn_editor_options': options
         };
 
+        this.mainLayout.getCell(2, 1).setStyle('border', '1px solid silver');
+
         this.iframe = new Element('iframe', {
             src: _path + '?' + Object.toQueryString(params),
             frameborder: 0,

@@ -18,3 +18,16 @@
     background-color: #f3f3f3;
     margin: 14px;
 }
+
+.ka-system-cat {
+    border-top: 1px solid #e0e0e0;
+    padding: 5px;
+}
+
+.ka-system-cat {
+    background-color: #f3f3f3;
+}
+
+.ka-system-cat:nth-child(2n) {
+    background-color: #efefef;
+}

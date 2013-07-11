@@ -3,9 +3,10 @@ ka.NodeTree = new Class({
 
     addRootIcon: function (pItem, pA) {
 
+
+
         pA.icon = new Element('span', {
-            style: 'font-family: Icomoon; font-size: 16px; position: relative; vertical-align: middle; left: -1px',
-            html: '&#xe182;'
+            'class': 'ka-objectTree-item-masks icon-globe-3'
         }).inject(pA, 'top');
 
     },
