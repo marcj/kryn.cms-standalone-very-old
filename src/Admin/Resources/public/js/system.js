@@ -27,7 +27,7 @@ var admin_system = new Class({
 
                 new Element('h2', {
                     'class': 'light',
-                    text: config.name || config.composer.name
+                    text: config.label || config.name
                 }).inject(container);
 
                 Object.each(systemEntryPoints, function(entryPoint) {
