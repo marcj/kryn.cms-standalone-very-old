@@ -1223,9 +1223,9 @@ class ObjectCrud
             $data += $this->collectData($fields, $item);
 
             try {
-                $inserted = $this->add($data, getArgv('_pk'), $position, getArgv('_targetObjectKey'));
+                $inserted[] = $this->add($data, getArgv('_pk'), $position, getArgv('_targetObjectKey'));
             } catch (\Exception $e) {
-                $inserted[] = array('_error' => $e);
+                $inserted[] = array('error' => $e);
             }
 
         }

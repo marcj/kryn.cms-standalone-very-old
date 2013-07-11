@@ -15,12 +15,6 @@ use Propel\Runtime\Propel as RuntimePropel;
  */
 class Propel extends ORMAbstract
 {
-    /**
-     * Object definition
-     *
-     * @var ConfigObject
-     */
-    public $definition = array();
 
     /**
      * The key of the object
@@ -245,8 +239,8 @@ class Propel extends ORMAbstract
         if (!$objectName && class_exists($clazz = $this->definition->getPropelClassName())) {
             return $clazz;
         }
-        $clazz = $objectName ?: $this->objectKey;
-        $temp = explode('\\', $clazz);
+        $clazz = Object::normalizeObjectKey($objectName ?: $this->objectKey);
+        $temp = explode(':', $clazz);
         $clazz = ucfirst($temp[0] . '\\Models\\' . $temp[1]);
         return $clazz;
     }
@@ -747,7 +741,9 @@ class Propel extends ORMAbstract
         $clazz = $this->getPhpName();
         $obj = new $clazz();
 
-        if ($this->definition['nested']) {
+        $this->mapValues($obj, $pValues);
+
+        if ($this->definition->isNested()) {
 
             $query = $this->getQueryClass();
             if ($pTargetPk) {
@@ -802,14 +798,11 @@ class Propel extends ORMAbstract
             }
         }
 
-        $this->mapValues($obj, $pValues);
-
         if (!$obj->save()) {
             return false;
         }
 
         //return new pk
-
         $newPk = array();
         foreach ($this->primaryKeys as $pk) {
             $newPk[$pk] = $obj->{'get' . ucfirst($pk)}();

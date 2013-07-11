@@ -184,9 +184,9 @@ class Object
      */
     public static function getDefinition($pObjectKey)
     {
-        $pObjectKey = self::getClassName($pObjectKey);
-        $temp = explode('\\', $pObjectKey);
-        $module = strtolower($temp[0]);
+        $pObjectKey = static::normalizeObjectKey($pObjectKey);
+        $temp = explode(':', $pObjectKey);
+        $module = $temp[0];
         $name = $temp[1];
 
         $config = Kryn::getConfig($module);
@@ -198,7 +198,7 @@ class Object
 
     /**
      * Cuts of the namespace/module name of a object key.
-     * Core\Node => Node.
+     * corebundle:node => Node.
      *
      * @param  string $pObjectKey
      *
@@ -206,15 +206,18 @@ class Object
      */
     public static function getName($pObjectKey)
     {
-        $pObjectKey = self::getClassName($pObjectKey);
-        $pos = strrpos($pObjectKey, '\\');
+        $pObjectKey = self::normalizeObjectKey($pObjectKey);
+        $temp = explode(':', $pObjectKey);
+        $config = Kryn::getConfig($temp[0]);
 
-        return substr($pObjectKey, $pos + 1);
+        if ($config && ($object = $config->getObject($temp[1]))) {
+            return $object->getId();
+        }
     }
 
     /**
      * Cuts of the actual object key.
-     * Core\Node => Core.
+     * core:node => Core.
      *
      * @param  string $pObjectKey
      *
@@ -222,17 +225,11 @@ class Object
      */
     public static function getModule($pObjectKey)
     {
-        $pObjectKey = self::getClassName($pObjectKey);
-        $pos = strrpos($pObjectKey, '\\');
+        $pObjectKey = self::normalizeObjectKey($pObjectKey);
+        $temp = explode(':', $pObjectKey);
+        $config = Kryn::getConfig($temp[0]);
 
-        return substr($pObjectKey, 0, $pos);
-    }
-
-    public static function getClassName($pObjectKey)
-    {
-        $pObjectKey = str_replace('.', '\\', $pObjectKey);
-        $pObjectKey = str_replace(':', '\\', $pObjectKey);
-        return $pObjectKey;
+        return $config->getBundleClass()->getNamespace();
     }
 
     /**
@@ -406,7 +403,7 @@ class Object
     public static function checkField($pObjectKey, $pField)
     {
         $definition = self::getDefinition($pObjectKey);
-        if (!$definition['fields'][$pField]) {
+        if (!$definition->getField($pField)) {
             return false;
         }
         return true;
@@ -1245,6 +1242,7 @@ class Object
     {
         $pKey = str_replace('\\', ':', $pKey);
         $pKey = str_replace('/', ':', $pKey);
+        $pKey = str_replace('.', ':', $pKey);
         return strtolower($pKey);
     }
 

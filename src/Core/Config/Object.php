@@ -550,7 +550,7 @@ class Object extends Model
     {
         if (null !== $this->fields) {
             foreach ($this->fields as $field) {
-                if ($field->getId() === $fieldId) {
+                if (strtolower($field->getId()) === strtolower($fieldId)) {
                     return $field;
                 }
             }
