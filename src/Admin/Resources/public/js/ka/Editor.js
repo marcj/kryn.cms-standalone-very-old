@@ -407,8 +407,7 @@ ka.Editor = new Class({
     highlightSlots: function (pEnter) {
         if (pEnter) {
             this.slots.addClass('ka-slot-highlight');
-        }
-        else {
+        } else {
             this.slots.removeClass('ka-slot-highlight');
         }
     },

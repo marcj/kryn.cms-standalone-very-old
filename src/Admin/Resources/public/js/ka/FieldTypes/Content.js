@@ -158,6 +158,33 @@ ka.FieldTypes.Content = new Class({
             'class': 'ka-normalize ka-editor-sidebar ka-scrolling'
         }).inject(this.mainLayout.getCell(2, 2));
 
+         new Element('a', {
+             href: 'javascript: ;',
+             text: t('Show slots'),
+             style: 'cursor: default',
+             'class': 'ka-editor-sidebar-item icon-checkbox-partial'
+         })
+            .addEvent('mouseover', function(){
+                if (this.editor)
+                    this.editor.highlightSlots(true);
+            }.bind(this))
+            .addEvent('mouseout', function(){
+                if (this.editor)
+                    this.editor.highlightSlots(false);
+            }.bind(this))
+            .inject(this.sidebar);
+
+         new Element('a', {
+             href: 'javascript: ;',
+             text: t('Toggle preview'),
+             'class': 'ka-editor-sidebar-item icon-eye-4'
+         })
+            .addEvent('click', function(){
+                if (this.editor)
+                    this.editor.togglePreview();
+            }.bind(this))
+            .inject(this.sidebar);
+
         this.inspector = new Element('div', {
             'class': 'ka-editor-inspector'
         }).inject(this.sidebar);
@@ -226,14 +253,15 @@ ka.FieldTypes.Content = new Class({
                     'class': 'ka-editor-sidebar-item ka-editor-sidebar-draggable ' + (plugin.icon || 'icon-cube-2')
                 }).inject(this.pluginsContainer);
 
-                a.addEvent('dragstart', function() {
-                    self.dragStart(this);
+                a.addEvent('dragstart', function(e) {
+                    self.dragStart(this, e);
                 });
-                a.addEvent('dragend', function() {
-                    self.dragEnd(this);
+                a.addEvent('dragend', function(e) {
+                    self.dragEnd(this, e);
                 });
 
                 a.kaContentType = 'plugin';
+                a.kaContentValue = {bundle: bundleName, plugin: pluginId};
             }.bind(this));
         }
     },
@@ -249,18 +277,26 @@ ka.FieldTypes.Content = new Class({
             'class': 'ka-editor-sidebar-item ka-editor-sidebar-draggable ' + type.icon
         }).inject(this.contentElementsContainer);
 
-        a.addEvent('dragstart', function() {
-            self.dragStart(this);
+        a.addEvent('dragstart', function(e) {
+            self.dragStart(this, e);
         });
-        a.addEvent('dragend', function() {
-            self.dragEnd(this);
+        a.addEvent('dragend', function(e) {
+            self.dragEnd(this, e);
         });
 
         a.kaContentType = pType;
     },
 
-    dragStart: function(item) {
-        console.log('start', item);
+    dragStart: function(item, e) {
+        var data = {};
+        data.type = item.kaContentType;
+
+        if (a.kaContentValue) {
+            data.value = a.kaContentValue;
+        }
+
+        e.dataTransfer.setData('text/plain', JSON.encode(data));
+
         if (this.editor) {
             this.editor.highlightSlotsBubbles(true);
         }
