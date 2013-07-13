@@ -5,28 +5,27 @@ ka.Editor = new Class({
 
     options: {
         node: {},
-        id: ''
+        id: '',
+        standalone: false
     },
 
     container: null,
     preview: 0,
 
-    initialize: function (pContainer, pOptions) {
+    initialize: function (pOptions, pContainer) {
         this.setOptions(pOptions);
 
-        this.container = pContainer || document.body;
+        this.container = pContainer || document.documentElement;
 
         this.adjustAnchors();
         this.searchSlots();
-        this.renderSidebar();
-
-        this.container.addClass('ka-editor');
 
         this.container.addEvent('mouseenter:relay(.ka-content)', this.onOver);
         this.container.addEvent('mouseleave:relay(.ka-content)', this.onOut);
 
         this.container.addEvent('mousedown:relay(.ka-content-actionBar-move)', this.contentMouseDown);
         this.container.addEvent('mousedown:relay(.ka-editor-sidebar-draggable)', this.contentSidebarMouseDown);
+
 
         top.window.fireEvent('krynEditorLoaded', this);
     },
@@ -79,7 +78,6 @@ ka.Editor = new Class({
     },
 
     contentSidebarMouseDown: function (pEvent, pElement) {
-
         var content = pElement;
 
         var clone = pElement.clone().setStyles(pElement.getCoordinates()).setStyles({
@@ -136,7 +134,6 @@ ka.Editor = new Class({
     },
 
     startDragNDrop: function (pEvent, pElement, pClone, pCallback) {
-
         var content = pElement;
         var clone = pClone;
 
@@ -155,7 +152,6 @@ ka.Editor = new Class({
         var DOMWindow = pElement.getDocument().window;
         var droppables = DOMWindow.$$('.ka-slot, .ka-content');
 
-        logger(droppables);
         this.lastDrag = new DOMWindow.Drag.Move(clone, {
             handle: '.ka-content-actionBar-move',
             droppables: droppables,
@@ -217,7 +213,6 @@ ka.Editor = new Class({
 
     updateDragPlaceholder: function (pEvent) {
         if (!this.currentHoveredElement && !this.currentHoveredSlot) {
-
             if (this.lastPlaceHolder) {
                 this.lastPlaceHolder.destroy();
                 delete this.lastPlaceHolder;
@@ -266,59 +261,22 @@ ka.Editor = new Class({
     },
 
     adjustAnchors: function () {
+        var params = {};
+        params._kryn_editor = 1;
+        params._kryn_editor_id = this.options.id;
+
+        var options = Object.clone(this.options);
+        delete options.id;
+        delete options.node;
+        params._kryn_editor_options = options;
+
+        params = Object.toQueryString(params);
+
         this.container.getElements('a').each(function (a) {
             if (a.href) {
-                a.href = a.href + ((a.href.indexOf('?') > 0) ? '&' : '?') + '_kryn_editor=1&_kryn_editor_id=' + this.options.id;
+                a.href = a.href + ((a.href.indexOf('?') > 0) ? '&' : '?') + params
             }
         }.bind(this));
-    },
-
-    renderSidebar: function () {
-
-        this.sidebar = new Element('div', {
-            'class': 'ka-editor-sidebar'
-        }).inject(this.container);
-
-        this.showSlots = new Element('a', {
-            'html': '&#xe2da;',
-            href: 'javascript: ;',
-            'class': 'icon ka-editor-sidebar-item ka-editor-sidebar-item-showslots',
-            title: t('Show available slots')
-        })
-            .addEvent('mouseenter', function () {
-                this.highlightSlots(true);
-            }.bind(this))
-            .addEvent('mouseleave', function () {
-                this.highlightSlots(false);
-            }.bind(this))
-            .inject(this.sidebar);
-
-        this.showPreview = new Element('a', {
-            'html': '&#xe28d;',
-            href: 'javascript: ;',
-            'class': 'icon ka-editor-sidebar-item ka-editor-sidebar-item-splitter',
-            title: t('Toggle preview')
-        })
-            .addEvent('click', function () {
-                this.togglePreview();
-            }.bind(this))
-            .inject(this.sidebar);
-
-        Object.each(ka.ContentTypes, function (content, type) {
-            this.addContentTypeIcon(type, content);
-        }.bind(this));
-
-        this.saveBtn = new Element('a', {
-            'html': '&#xe2a4;',
-            href: 'javascript: ;',
-            title: t('Save changes'),
-            'class': 'icon ka-editor-sidebar-item ka-editor-sidebar-item-save'
-        })
-            .addEvent('click', function () {
-                this.save();
-            }.bind(this))
-            .inject(this.sidebar);
-
     },
 
     getValue: function () {
@@ -411,24 +369,26 @@ ka.Editor = new Class({
 
     highlightSave: function (pHighlight) {
 
-        if (!pHighlight && this.lastTimer) {
-            clearInterval(this.lastTimer);
-            delete this.lastTimer;
-            this.saveBtn.tween('color', '#ffffff');
-            return;
-        } else if (this.lastTimer) {
-            return;
-        }
-
-        this.timerIdx = 0;
-
-        this.lastTimer = (function () {
-            if (++this.timerIdx % 2) {
-                this.saveBtn.tween('color', '#2A8AEC');
-            } else {
+        if (this.saveBtn) {
+            if (!pHighlight && this.lastTimer) {
+                clearInterval(this.lastTimer);
+                delete this.lastTimer;
                 this.saveBtn.tween('color', '#ffffff');
+                return;
+            } else if (this.lastTimer) {
+                return;
             }
-        }).periodical(500, this);
+
+            this.timerIdx = 0;
+
+            this.lastTimer = (function () {
+                if (++this.timerIdx % 2) {
+                    this.saveBtn.tween('color', '#2A8AEC');
+                } else {
+                    this.saveBtn.tween('color', '#ffffff');
+                }
+            }).periodical(500, this);
+        }
 
     },
 
@@ -443,20 +403,6 @@ ka.Editor = new Class({
 
     },
 
-    addContentTypeIcon: function (pType, pContent) {
-
-        var type = new pContent;
-
-        var a = new Element('a', {
-            'html': type.icon,
-            href: 'javascript: ;',
-            'class': 'icon ka-editor-sidebar-item ka-editor-sidebar-draggable'
-        })
-            .inject(this.sidebar);
-
-        a.kaContentType = pType;
-
-    },
 
     highlightSlots: function (pEnter) {
         if (pEnter) {

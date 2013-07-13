@@ -5,7 +5,8 @@ ka.ContentTypes.Plugin = new Class({
     Extends: ka.ContentAbstract,
     Binds: ['applyValue', 'openDialog'],
 
-    icon: '&#xe271;',
+    icon: 'icon-cube-2',
+    label: 'Plugin',
 
     options: {
 
@@ -30,7 +31,6 @@ ka.ContentTypes.Plugin = new Class({
     },
 
     openDialog: function () {
-        console.log(ka.wm.lastWindow);
         this.dialog = new ka.Dialog(ka.wm.lastWindow || this.main.getDocument().body, {
             title: t('Edit plugin'),
             minWidth: '80%',

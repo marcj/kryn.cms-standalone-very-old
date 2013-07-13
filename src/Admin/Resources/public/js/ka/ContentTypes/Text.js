@@ -1,10 +1,10 @@
 ka.ContentTypes = ka.ContentTypes || {};
 
 ka.ContentTypes.Text = new Class({
-
     Extends: ka.ContentAbstract,
 
-    icon: '&#xe2dd;',
+    icon: 'icon-font',
+    label: 'Text',
 
     options: {
 

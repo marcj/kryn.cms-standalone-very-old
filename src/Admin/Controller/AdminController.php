@@ -400,12 +400,20 @@ class AdminController
         $response->setResourceCompression(false);
         $response->setDomainHandling(false);
 
+        $nodeArray['id'] = Kryn::$page->getId();
+        $nodeArray['title'] = Kryn::$page->getTitle();
+        $nodeArray['domainId'] = Kryn::$page->getDomainId();
+
         $options = [
             'id' => $_GET['_kryn_editor_id'],
-            'node' => Kryn::$page->toArray(TableMap::TYPE_STUDLYPHPNAME)
+            'node' => $nodeArray
         ];
+
+        if (is_array($_GET['_kryn_editor_options'])) {
+            $options = array_merge($options, $_GET['_kryn_editor_options']);
+        }
         $response->addJs(
-            'window.editor = new ka.Editor(document.body, ' . json_encode($options) . ');',
+            'window.editor = new ka.Editor(' . json_encode($options) . ', document.documentElement);',
             'bottom'
         );
     }
