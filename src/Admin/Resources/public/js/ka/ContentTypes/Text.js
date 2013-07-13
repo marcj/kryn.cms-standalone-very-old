@@ -152,7 +152,7 @@ ka.ContentTypes.Text = new Class({
         this.checkChange = this.checkChange.bind(this);
         this.editorReady = this.editorReady.bind(this);
 
-        this.editor = this.getDOMWindow().CKEDITOR.inline(this.main, config);
+        this.editor = CKEDITOR.inline(this.main, config);
 
         this.editor.on('instanceReady', this.editorReady);
 
@@ -248,10 +248,10 @@ ka.ContentTypes.Text = new Class({
     editorReady: function () {
         this.ready = true;
 
-        var toolbar = this.getDOMDocument().id('cke_' + this.editor.name);
+        var toolbar = document.id('cke_' + this.editor.name);
         toolbar.addClass('kryn_cke_toolbar');
 
-        top.window.fireEvent('ckEditorReady', [this, toolbar]);
+        toolbar.getWindow().fireEvent('ckEditorReady', [this, toolbar]);
 
         if (this.value) {
             this.editor.setData(this.value);

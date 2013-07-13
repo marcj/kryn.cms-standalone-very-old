@@ -13,7 +13,6 @@ ka.ContentTypes.Plugin = new Class({
     },
 
     createLayout: function () {
-
         this.main = new Element('div', {
             'class': 'ka-normalize ka-content-plugin'
         }).inject(this.contentInstance);
@@ -27,7 +26,6 @@ ka.ContentTypes.Plugin = new Class({
         }).inject(this.main);
 
         this.main.addEvent('click', this.openDialog);
-
     },
 
     openDialog: function () {
@@ -58,7 +56,6 @@ ka.ContentTypes.Plugin = new Class({
     },
 
     applyValue: function () {
-
         this.dialog.close();
 
         this.value = this.dialogPluginChoser.getValue();
@@ -67,7 +64,6 @@ ka.ContentTypes.Plugin = new Class({
         this.renderValue();
 
         this.contentInstance.fireChange();
-
     },
 
     /**
@@ -77,13 +73,20 @@ ka.ContentTypes.Plugin = new Class({
      * @return {Object}
      */
     normalizeValue: function (pValue) {
-
         if (typeOf(pValue) == 'object') {
+            var bundle = pValue.bundle || pValue.module || '';
+
+            bundle = bundle.toLowerCase();
+            if ('bundle' === bundle.substr(-6)) {
+                bundle = bundle.substr(0, bundle.length - 6);
+            }
+
+            pValue.bundle = bundle;
             return pValue;
         }
 
         if (typeOf(pValue) == 'string' && JSON.validate(pValue)) {
-            return JSON.decode(pValue);
+            return this.normalizeValue(JSON.decode(pValue));
         }
         if (typeOf(pValue) != 'string') {
             return {};
@@ -95,11 +98,11 @@ ka.ContentTypes.Plugin = new Class({
 
         options = JSON.validate(options) ? JSON.decode(options) : {};
 
-        return {
+        return this.normalizeValue({
             bundle: bundle,
             plugin: plugin,
             options: options
-        };
+        });
     },
 
     renderValue: function () {
@@ -116,7 +119,7 @@ ka.ContentTypes.Plugin = new Class({
 
             new Element('div', {
                 'class': 'ka-content-inner-title',
-                text: ka.settings.configs[bundle].name
+                text: ka.settings.configs[bundle].label || ka.settings.configs[bundle].name
             }).inject(this.inner);
 
             new Element('div', {
@@ -147,7 +150,11 @@ ka.ContentTypes.Plugin = new Class({
              */
 
         } else {
-            this.inner.set('text', tf('Plugin or extension not found: %s/%s', bundle, plugin));
+            if (!ka.settings.configs[bundle]) {
+                this.inner.set('text', tf('Bundle `%s` not found', bundle));
+            } else if (!ka.settings.configs[bundle].plugins || ka.settings.configs[bundle].plugins[plugin]) {
+                this.inner.set('text', tf('Plugin `%s` in bundle `%s` not found', plugin, bundle));
+            }
         }
 
     },

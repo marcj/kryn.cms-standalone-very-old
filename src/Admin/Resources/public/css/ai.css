@@ -118,30 +118,77 @@ td {
 }
 
 .kryn_cke_toolbar {
-    position: absolute !important;
-    top: 172px !important;
-    left: 236px !important;
-    right: 15px !important;
-    width: auto !important;
-    box-shadow: 0 0 0 #000 !important;
-    box-shadow: none !important;
-}
-
-.kwindow-win-titleGroups .kryn_cke_toolbar {
     position: relative !important;
     top: 0 !important;
     left: 0 !important;
-    right: auto !important;
-    visibility: visible;
+    right: 0 !important;
+    width: auto !important;
+    box-shadow: 0 0 0 #000 !important;
+    box-shadow: none !important;
     border: 0 !important;
 }
 
-.kwindow-win-titleGroups .kryn_cke_toolbar .cke_inner,
-.kwindow-win-titleGroups .kryn_cke_toolbar .cke_top {
+.kryn_cke_toolbar .cke_inner,
+.kryn_cke_toolbar .cke_top {
     background: transparent !important;
     border: 0 !important;
     padding: 0 !important;
 }
+
+.cke_top,
+.cke_bottom,
+.cke_chrome {
+    -webkit-box-shadow: none !important;
+    -moz-box-shadow: none !important;
+    box-shadow: none !important;
+}
+
+.cke_bottom,
+.cke_top {
+    background-image: none !important;
+    background: #E9E9E9 !important;
+}
+
+.cke_top {
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    background-image: none !important;
+}
+
+
+.kryn_cke_toolbar .cke_combo_button,
+.kryn_cke_toolbar .cke_toolgroup {
+    border-radius: 0;
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    background-image: none;
+    background: #fefefe;
+    border: 1px solid #C0C0C0;
+}
+
+.kryn_cke_toolbar .cke_combo_button:hover {
+    background-image: none !important;
+    background: #eee !important;
+}
+
+
+.kryn_cke_toolbar .cke_button_on,
+.kryn_cke_toolbar .cke_combo_on .cke_combo_button,
+.kryn_cke_toolbar .cke_combo_on .cke_combo_button:active,
+.kryn_cke_toolbar .cke_combo_on .cke_combo_button:hover {
+    background-image: none !important;
+    background: #ddd !important;
+    -webkit-box-shadow: none !important;
+    -moz-box-shadow: none !important;
+    box-shadow: none !important;
+    border: 1px solid #C0C0C0;
+}
+
+.kryn_cke_toolbar .cke_button_on {
+    border: 0;
+}
+
 
 .ka-admin div,
 .ka-admin span {
@@ -150,23 +197,6 @@ td {
     -moz-user-select: -moz-none;
     -o-user-select: none;
     user-select: none;
-}
-
-.cke_top,
-.cke_bottom,
-.cke_chrome {
-    -webkit-box-shadow: none !important;
-    box-shadow: none !important;
-}
-
-.cke_chrome {
-    border: 1px solid #C4C4C4 !important;
-}
-
-.cke_bottom,
-.cke_top {
-    background-image: none !important;
-    background: #E9E9E9 !important;
 }
 
 .ka-admin {

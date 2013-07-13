@@ -26,7 +26,6 @@ ka.Editor = new Class({
         this.container.addEvent('mousedown:relay(.ka-content-actionBar-move)', this.contentMouseDown);
         this.container.addEvent('mousedown:relay(.ka-editor-sidebar-draggable)', this.contentSidebarMouseDown);
 
-
         top.window.fireEvent('krynEditorLoaded', this);
     },
 
@@ -368,7 +367,6 @@ ka.Editor = new Class({
     },
 
     highlightSave: function (pHighlight) {
-
         if (this.saveBtn) {
             if (!pHighlight && this.lastTimer) {
                 clearInterval(this.lastTimer);
@@ -389,7 +387,6 @@ ka.Editor = new Class({
                 }
             }).periodical(500, this);
         }
-
     },
 
     togglePreview: function () {
@@ -423,7 +420,6 @@ ka.Editor = new Class({
     },
 
     hasChanges: function () {
-
         this.slots = this.container.getElements('.ka-slot');
 
         var hasChanges = false;
@@ -438,16 +434,12 @@ ka.Editor = new Class({
     },
 
     checkChange: function () {
-
         this.highlightSave(this.hasChanges());
-
     },
 
     initSlot: function (pDomSlot) {
-
         pDomSlot.slotInstance = new ka.Slot(pDomSlot, this.options, this);
         pDomSlot.slotInstance.addEvent('change', this.checkChange);
-
     }
 
 

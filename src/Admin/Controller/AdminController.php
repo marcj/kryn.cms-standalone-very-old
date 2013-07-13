@@ -395,7 +395,7 @@ class AdminController
         $response->addJsFile('@CoreBundle/mootools-more.js');
         $response->addJsFile('@CoreBundle/ckeditor/ckeditor.js');
 
-        $response->addJs('ka = parent.ka;');
+        //$response->addJs('ka = parent.ka;');
 
         $response->setResourceCompression(false);
         $response->setDomainHandling(false);
@@ -413,7 +413,7 @@ class AdminController
             $options = array_merge($options, $_GET['_kryn_editor_options']);
         }
         $response->addJs(
-            'window.editor = new ka.Editor(' . json_encode($options) . ', document.documentElement);',
+            'window.editor = new parent.ka.Editor(' . json_encode($options) . ', document.documentElement);',
             'bottom'
         );
     }

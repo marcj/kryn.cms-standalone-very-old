@@ -93,7 +93,7 @@ ka.FieldTypes.Content = new Class({
 
         this.mainLayout.getCell(2, 1).setStyles({
             'border': '1px solid silver',
-            'background': 'url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAHklEQVQIW2NkQAXGjEh8YyD7LEwAzAFJggTgHJAAAE+uAzjGgU3wAAAAAElFTkSuQmCC) repeat'
+            'background': 'url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAIklEQVQIW2NkQAL37t37zwjjgzhKSkqMYAEYB8RmROaABAAGgA+evuWXiAAAAABJRU5ErkJggg==) repeat'
 //            'background-color': '#22638e',
 //            'background-image': 'linear-gradient(rgba(255,255,255, 0.05) 1px, transparent 1px),\
 //            linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)',
@@ -106,13 +106,22 @@ ka.FieldTypes.Content = new Class({
             'border-left': 0
         });
 
-        this.frameContainer = new Element('div', {
-            style: 'position: absolute; left: 20px; top: 20px; right: 20px; bottom: 50px;'
+        this.editableAreaContainer = new Element('div', {
+            style: 'position: absolute; left: 15px; right: 15px; top: 15px; bottom: 0px;'
         }).inject(this.mainLayout.getCell(2, 1));
 
-        this.optionsContainer = new Element('div', {
-            'style': 'position: absolute; left: 20px; height: 30px; right: 20px; bottom: 5px; color: #444;'
-        }).inject(this.mainLayout.getCell(2, 1));
+        this.editableAreaLayout = new ka.Layout(this.editableAreaContainer, {
+            layout: [
+                {columns: [null], height: 1},
+                {columns: [null]},
+                {columns: [null], height: 30}
+            ]
+        });
+
+        this.toolbarContainer = this.editableAreaLayout.getCell(1, 1);
+        this.optionsContainer = this.editableAreaLayout.getCell(3, 1);
+
+        this.toolbarContainer.setStyle('padding-bottom', 5);
 
         new Element('span', {
             text: t('Zoom:'),
@@ -133,8 +142,8 @@ ka.FieldTypes.Content = new Class({
         this.iframe = new Element('iframe', {
             src: _path + '?' + Object.toQueryString(params),
             frameborder: 0,
-            style: 'position: relative; display: block; left: -2px; border: 3px solid #fff; height: 100%; width: 100%;'
-        }).inject(this.frameContainer);
+            style: 'position: relative; display: block; left: -1px; border: 1px solid #d5d5d5; height: 100%; width: 100%;'
+        }).inject(this.editableAreaLayout.getCell(2, 1));
 
         this.slider.addEvent('change', function(step) {
             if (0 == step) step = 1;
@@ -151,6 +160,10 @@ ka.FieldTypes.Content = new Class({
 
     setEditor: function(editor) {
         this.editor = editor;
+
+        window.addEvent('ckEditorReady', function(textInstance, toolbar) {
+            toolbar.inject(this.toolbarContainer);
+        }.bind(this));
     },
 
     renderSidebar: function() {
