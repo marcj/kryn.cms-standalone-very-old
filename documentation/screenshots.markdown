@@ -12,6 +12,9 @@ Frontend Inline Edit
 File manager
 ![Administration File manager](https://raw.github.com/KrynLabs/Kryn.cms/refactoring/documentation/images/admin-files-context-image.png)
 
+System
+![System settings](https://raw.github.com/KrynLabs/Kryn.cms/refactoring/documentation/images/admin-system.png)
+
 CRUD Framework
 
 ![Administration CRUD Framework Window List](https://raw.github.com/KrynLabs/Kryn.cms/refactoring/documentation/images/admin-users-list.png)
