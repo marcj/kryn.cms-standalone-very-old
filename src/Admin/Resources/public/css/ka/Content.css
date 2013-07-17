@@ -28,6 +28,11 @@
     position: absolute;
     left: 3px;
     top: -27px;
+    display: none;
+}
+
+.ka-content:hover .ka-content-actionBar {
+    display: block;
 }
 
 .ka-content-actionBar a:link {

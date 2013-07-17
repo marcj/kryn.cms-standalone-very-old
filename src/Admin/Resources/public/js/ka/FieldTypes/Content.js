@@ -56,6 +56,7 @@ ka.FieldTypes.Content = new Class({
 
             this.saveBtn = new ka.Button(t('Save'))
                 .setButtonStyle('blue')
+                .addEvent('click', this.save.bind(this))
                 .inject(this.headerLayout.getCell(1, 2));
         } else {
             this.mainLayout.getCell(1, 1).addClass('ka-Field-content-actionBar');
@@ -158,6 +159,13 @@ ka.FieldTypes.Content = new Class({
         this.renderSidebar()
     },
 
+    save: function() {
+        if (this.editor) {
+            var value = this.editor.getValue();
+            console.log('save', value);
+        }
+    },
+
     setEditor: function(editor) {
         this.editor = editor;
 
@@ -171,8 +179,7 @@ ka.FieldTypes.Content = new Class({
             'class': 'ka-normalize ka-editor-sidebar ka-scrolling'
         }).inject(this.mainLayout.getCell(2, 2));
 
-         new Element('a', {
-             href: 'javascript: ;',
+         new Element('div', {
              text: t('Show slots'),
              style: 'cursor: default',
              'class': 'ka-editor-sidebar-item icon-checkbox-partial'
@@ -187,8 +194,7 @@ ka.FieldTypes.Content = new Class({
             }.bind(this))
             .inject(this.sidebar);
 
-         new Element('a', {
-             href: 'javascript: ;',
+         new Element('div', {
              text: t('Toggle preview'),
              'class': 'ka-editor-sidebar-item icon-eye-4'
          })
@@ -259,17 +265,16 @@ ka.FieldTypes.Content = new Class({
             }).inject(this.pluginsContainer);
 
             Object.each(config.plugins, function(plugin, pluginId) {
-                a = new Element('a', {
-                    href: 'javascript: ;',
+                a = new Element('div', {
                     draggable: true,
                     text: plugin.label || plugin.id,
                     'class': 'ka-editor-sidebar-item ka-editor-sidebar-draggable ' + (plugin.icon || 'icon-cube-2')
                 }).inject(this.pluginsContainer);
 
-                a.addEvent('dragstart', function(e) {
+                a.addListener('dragstart', function(e) {
                     self.dragStart(this, e);
                 });
-                a.addEvent('dragend', function(e) {
+                a.addListener('dragend', function(e) {
                     self.dragEnd(this, e);
                 });
 
@@ -283,17 +288,16 @@ ka.FieldTypes.Content = new Class({
         var type = new pContent;
         var self = this;
 
-        var a = new Element('a', {
-            href: 'javascript: ;',
+        var a = new Element('div', {
             text: type.label,
             draggable: true,
             'class': 'ka-editor-sidebar-item ka-editor-sidebar-draggable ' + type.icon
         }).inject(this.contentElementsContainer);
 
-        a.addEvent('dragstart', function(e) {
+        a.addListener('dragstart', function(e) {
             self.dragStart(this, e);
         });
-        a.addEvent('dragend', function(e) {
+        a.addListener('dragend', function(e) {
             self.dragEnd(this, e);
         });
 
@@ -304,18 +308,19 @@ ka.FieldTypes.Content = new Class({
         var data = {};
         data.type = item.kaContentType;
 
-        if (a.kaContentValue) {
-            data.value = a.kaContentValue;
+        if (item.kaContentValue) {
+            data.content = item.kaContentValue;
         }
 
-        e.dataTransfer.setData('text/plain', JSON.encode(data));
+        e.dataTransfer.effectAllowed = 'copy';
+        e.dataTransfer.setData('application/json', JSON.encode(data));
 
         if (this.editor) {
             this.editor.highlightSlotsBubbles(true);
         }
     },
 
-    dragEnd: function(item) {
+    dragEnd: function(item, e) {
         if (this.editor) {
             this.editor.highlightSlotsBubbles(false);
         }

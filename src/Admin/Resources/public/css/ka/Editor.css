@@ -45,7 +45,7 @@
     padding: 5px 0;
 }
 
-a.ka-editor-sidebar-item:link {
+.ka-editor-sidebar-item {
     text-decoration: none;
     display: block;
     font-size: 14px;
@@ -55,40 +55,32 @@ a.ka-editor-sidebar-item:link {
     border-bottom: 1px solid #e4e4e4;
 }
 
-a.ka-editor-sidebar-item:before {
+.ka-editor-sidebar-item:before {
     padding-right: 5px;
 }
 
-.ka-editor-sidebar a:hover {
+.ka-editor-sidebar-item:hover {
     background-color: #eee;
 }
 
-a.ka-editor-sidebar-item-splitter:link {
+.ka-editor-sidebar-item-splitter {
     border-bottom: 5px solid #6F6F6F;
 }
 
-a.ka-editor-sidebar-item-active:link {
+.ka-editor-sidebar-item-active {
     color: #66ACF3;
 }
 
-a.ka-editor-sidebar-item-showslots:link {
+.ka-editor-sidebar-item-showslots {
     cursor: help;
 }
 
-a.ka-editor-sidebar-item-save:link {
+.ka-editor-sidebar-item-save {
     position: absolute;
     bottom: 0px;
     left: 0px;
     right: 0px;
     margin-bottom: 0px;
-    border: 0px;
-}
-
-a.ka-editor-sidebar-draggable:link {
-    cursor: move;
-}
-
-a.ka-editor-sidebar-draggable-active:link {
     border: 0px;
 }
 

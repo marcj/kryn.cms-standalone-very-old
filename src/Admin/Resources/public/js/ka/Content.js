@@ -14,14 +14,12 @@ ka.Content = new Class({
     contentContainer: null,
 
     initialize: function (pContent, pSlot, pOptions) {
-
         this.slot = pSlot;
         this.setOptions(pOptions);
 
         this.renderLayout();
 
         this.setValue(pContent);
-
     },
 
     getSlot: function () {
@@ -29,19 +27,22 @@ ka.Content = new Class({
     },
 
     renderLayout: function () {
-
         this.main = new Element('div', {
             'class': 'ka-content'
         }).inject(this.slot);
+
+        this.main.addListener('dragstart', function(e) {
+            e.dataTransfer.setData('application/json', JSON.encode(this.getValue()));
+            this.main.set('draggable');
+        }.bind(this));
 
         this.main.kaContentInstance = this;
 
         this.actionBar = new Element('div', {
             'class': 'ka-normalize ka-content-actionBar'
-        });
+        }).inject(this.main);
 
         this.addActionBarItems();
-
     },
 
     fireChange: function () {
@@ -50,12 +51,23 @@ ka.Content = new Class({
 
     addActionBarItems: function () {
 
-        new Element('a', {
+        var moveBtn = new Element('span', {
             html: '&#xe0c6;',
-            href: 'javascript: ;',
             'class': 'icon ka-content-actionBar-move',
             title: t('Move content')
         }).inject(this.actionBar);
+
+        moveBtn.addEvent('mouseover', function() {
+            this.main.set('draggable', true);
+        }.bind(this));
+
+//        moveBtn.addEvent('mouseout', function() {
+//            this.main.set('draggable', false);
+//        }.bind(this));
+
+//        moveBtn.addEvent('mouseover', function() {
+//            this.main.set('draggable', true);
+//        });
 
         new Element('a', {
             html: '&#xe26b;',
@@ -70,16 +82,15 @@ ka.Content = new Class({
 
     remove: function () {
         this.main.destroy();
-        this.actionBar.destroy();
     },
 
-    onOver: function () {
-        this.actionBar.inject(this.main);
-    },
-
-    onOut: function () {
-        this.actionBar.dispose();
-    },
+//    onOver: function () {
+//        this.actionBar.inject(this.main);
+//    },
+//
+//    onOut: function () {
+//        this.actionBar.dispose();
+//    },
 
     toElement: function () {
         return this.contentContainer || this.main;
@@ -89,19 +100,18 @@ ka.Content = new Class({
 
         this.lastRq = new Request.JSON({url: _pathAdmin + 'admin/content/template', noCache: true,
             onComplete: function (pResponse) {
-
+                this.actionBar.dispose();
                 this.main.empty();
                 this.main.set('html', pResponse.data);
 
                 this.contentContainer = this.main.getElement('.ka-content-container');
 
                 this.currentTemplate = pValue.template;
+                this.actionBar.inject(this.main, 'top');
                 return this.setValue(pValue);
-
             }.bind(this)}).get({
                 template: pValue.template
             });
-
     },
 
     focus: function () {
