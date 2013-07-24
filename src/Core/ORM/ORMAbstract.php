@@ -1,6 +1,7 @@
 <?php
 
 namespace Core\ORM;
+use Core\Kryn;
 
 /**
  * ORM Abstract class for objects.
@@ -201,7 +202,7 @@ abstract class ORMAbstract
 
                 $key = $this->primaryKeys[$pos];
 
-                $item[$key] = rawurldecode(str_replace('%2F', '/', $value));
+                $item[$key] = Kryn::urlDecode($value);
             }
 
             if (count($this->primaryKeys) > count($item)) {

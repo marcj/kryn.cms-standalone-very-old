@@ -1,5 +1,6 @@
 .ka-content {
     min-height: 15px;
+    padding: 1px;
     position: relative;
 }
 
@@ -41,6 +42,12 @@
     text-decoration: none;
     line-height: 25px;
     padding: 0 5px;
+}
+
+.ka-content-selected {
+    border: 1px dashed #FFF;
+    padding: 0;
+    box-shadow: 0 0 2px #000;
 }
 
 .ka-content-actionBar a:hover {

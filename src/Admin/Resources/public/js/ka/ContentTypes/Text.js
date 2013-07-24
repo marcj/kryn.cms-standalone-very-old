@@ -113,9 +113,8 @@ ka.ContentTypes.Text = new Class({
             standard: {
                 toolbarGroups: [
                     {name: 'basicstyles', groups: ['undo', 'basicstyles', 'align', 'styles', 'colors']},
+                    {name: 'insertNew', groups: ['links', 'insert']},
                     {name: 'paragraph', groups: ['list', 'indent', 'blocks']},
-                    {name: 'links'},
-                    {name: 'insert'},
                     {name: 'tools'},
                     {name: 'others'}
                ]
@@ -201,6 +200,7 @@ ka.ContentTypes.Text = new Class({
         }
 
         config.extraPlugins += ',autogrow';
+        config.removePlugins = 'magicline';
 
         if (this.options.contentsCss) {
             if (typeOf(this.options.contentsCss) == 'string') {
@@ -245,13 +245,43 @@ ka.ContentTypes.Text = new Class({
         }
     },
 
+    /**
+     * adds/loads all additional fields to the inspector.
+     */
+    loadInspector: function(container) {
+        this.toolbarContainer = new Element('div', {
+            'class': 'ka-content-text-toolbarContainer kryn_cke_toolbar'
+        }).inject(container);
+    },
+
+    deselected: function() {
+        this.toolbar.dispose();
+        delete this.selected;
+    },
+
+    selected: function() {
+        this.selected = true;
+        if (this.toolbar) {
+            this.toolbar.inject(this.toolbarContainer);
+        }
+    },
+
+    /**
+     *
+     */
+    saveInspector: function(value) {
+        value.content = this.getValue();
+    },
+
     editorReady: function () {
         this.ready = true;
 
-        var toolbar = document.id('cke_' + this.editor.name);
-        toolbar.addClass('kryn_cke_toolbar');
-
-        toolbar.getWindow().fireEvent('ckEditorReady', [this, toolbar]);
+        this.toolbar = document.id('cke_' + this.editor.name);
+        if (this.selected && this.toolbarContainer) {
+            this.toolbar.inject(this.toolbarContainer);
+        } else {
+            this.toolbar.dispose();
+        }
 
         if (this.value) {
             this.editor.setData(this.value);

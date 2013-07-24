@@ -59,6 +59,7 @@ Examples:
  `tableItem`     | Boolean | `false` | If this field injects a `tr`+2x`td` instead of `div`.
  `disabled`      | Boolean | `false` | If this fields is disabled or not.
  `noWrapper`     | Boolean | `false` | If this fields contains a default wrapper div with title, description etc or only the input itself.
+ `width`         | mixed   | `null`  | The width of the whole field. Default is `null` and therefore `400px` (defined through css). Use 'auto' to have correct 100% width.
                  |         |
  `help`          | String  | `''`    | Shows a little help icon and points to the given help id.
                  |         |         |

@@ -2,6 +2,7 @@
 
 namespace Admin\Models;
 
+use Core\Kryn;
 use Core\SystemFile;
 
 class ObjectView extends \Core\ORM\ORMAbstract
@@ -13,14 +14,7 @@ class ObjectView extends \Core\ORM\ORMAbstract
     {
         $path = $pPk['path'];
 
-        $module = $path;
-        $subPath = '';
-        if (($pos = strpos($path, '/')) !== false) {
-            $module = substr($path, 0, $pos);
-            $subPath = substr($path, $pos + 1);
-        }
-
-        $file = '/module/' . $module . '/view/' . $subPath;
+        $file = Kryn::resolvePath($path, 'Views/');
         $fileObj = SystemFile::getFile($file);
 
         return $fileObj;
@@ -101,7 +95,6 @@ class ObjectView extends \Core\ORM\ORMAbstract
      */
     public function getBranch($pPk = null, $pCondition = null, $pDepth = 1, $pScope = null, $pOptions = null)
     {
-
         $result = null;
 
         $path = $pPk['path'];
@@ -109,11 +102,8 @@ class ObjectView extends \Core\ORM\ORMAbstract
             $pDepth = 1;
         }
 
-        $module = $path;
-        $subPath = '';
-        if (($pos = strpos($path, '/')) !== false) {
-            $module = substr($path, 0, $pos);
-            $subPath = substr($path, $pos + 1);
+        if (substr($path, -1) !== '/') {
+            $path .= '/';
         }
 
         $c = 0;
@@ -125,13 +115,13 @@ class ObjectView extends \Core\ORM\ORMAbstract
 
             $result = array();
             foreach (\Core\Kryn::$extensions as $extension) {
-                $directory = '/module/' . $extension . '/view/';
+                $directory = Kryn::resolvePath('@' . $extension, 'Views/');
                 $file = SystemFile::getFile($directory);
                 if (!$file) {
                     continue;
                 }
                 $file['name'] = $extension;
-                $file['path'] = $extension . '/';
+                $file['path'] = '@' . $extension;
                 if ($offset && $offset > $c) {
                     continue;
                 }
@@ -150,12 +140,9 @@ class ObjectView extends \Core\ORM\ORMAbstract
                         $file['_children'] = $children;
                     }
                 }
-                $result[] = $file;
             }
-
         } else {
-
-            $directory = '/module/' . $module . '/view/' . $subPath;
+            $directory = Kryn::resolvePath($path, 'Views/');
             $files = SystemFile::getFiles($directory);
 
             foreach ($files as $file) {
@@ -171,17 +158,24 @@ class ObjectView extends \Core\ORM\ORMAbstract
                     continue;
                 }
 
-                $fPath = $module . '/' . substr($file['path'], strlen('/module/' . $module . '/view/'));
-                $file['path'] = $fPath;
+                $item = $file->toArray();
 
-                if ($pDepth > 0) {
-                    $children = self::getBranch(array('path' => $fPath), $pCondition, $pDepth - 1);
-                    $file['_childrenCount'] = count($children);
-                    if ($pDepth > 1 && $file['type'] == 'dir') {
-                        $file['_children'] = $children;
+                $item = array(
+                    'name' => $item['name'],
+                    'path' => $path . substr($item['path'], strlen($directory))
+                );
+
+                if ($file->isDir()) {
+                    $children = self::getBranch(array('path' => $item['path']), $pCondition, $pDepth - 1);
+                    foreach ($children as $child) {
+                        $child['name'] = $item['name'] . '/' . $child['name'];
+                        $result[] = $child;
                     }
                 }
-                $result[] = $file;
+
+                if ($file->isFile()) {
+                    $result[] = $item;
+                }
             }
         }
 

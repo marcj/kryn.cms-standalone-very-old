@@ -39,14 +39,14 @@ ka.FieldTypes.View = new Class({
 
     getValue: function () {
         var value = this.parent();
-        value = value.path;
+        value = value.path || '';
         return value.substr((this.module + '/' + this.path).length);
     },
 
     setValue: function (pValue) {
-        if (typeOf(pValue) == 'string') {
+        if (pValue) {
             pValue = (this.module + '/' + this.path) + pValue;
         }
-        this.parent({path: pValue});
+        this.parent(pValue);
     }
 });

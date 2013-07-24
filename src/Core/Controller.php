@@ -207,17 +207,18 @@ class Controller
      * @param string         $pCacheKey
      * @param string         $pView
      * @param array|callable $pData     Pass the data as array or a data provider function.
+     * @param bool           $pForce    Force to bypass the cache and always call $pData. For debuggin purposes.
      *
      * @see method `render` to get more information.
      *
      * @return string
      */
-    public function renderFullCached($pCacheKey, $pView, $pData = null)
+    public function renderFullCached($pCacheKey, $pView, $pData = null, $pForce = false)
     {
         $cache = Kryn::getDistributedCache($pCacheKey);
         $mTime = $this->getViewMTime($pView);
 
-        if (!$cache || !$cache['content'] || !is_array($cache) || $mTime != $cache['fileMTime']) {
+        if ($pForce || !$cache || !$cache['content'] || !is_array($cache) || $mTime != $cache['fileMTime']) {
 
             $oldResponse = clone Kryn::getResponse();
 

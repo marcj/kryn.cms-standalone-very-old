@@ -22,10 +22,10 @@ ka.ContentTypes.Plugin = new Class({
         }).inject(this.main);
 
         this.inner = new Element('div', {
-            'class': 'ka-content-inner'
+            'class': 'ka-content-inner ka-normalize'
         }).inject(this.main);
 
-        this.main.addEvent('click', this.openDialog);
+        //this.main.addEvent('click', this.openDialog);
     },
 
     openDialog: function () {
@@ -106,7 +106,6 @@ ka.ContentTypes.Plugin = new Class({
     },
 
     renderValue: function () {
-
         this.inner.empty();
 
         var bundle = this.value.bundle;
@@ -163,12 +162,44 @@ ka.ContentTypes.Plugin = new Class({
 
     },
 
+    /**
+     * adds/loads all additional fields to the inspector.
+     */
+    loadInspector: function(container) {
+        console.log('loadInspector', this.value);
+
+        var toolbarContainer = new Element('div', {
+            'class': 'ka-content-plugin-toolbarContainer'
+        }).inject(container);
+
+        this.pluginChoser = new ka.Field({
+            type: 'plugin',
+            noWrapper: true
+        }, toolbarContainer);
+
+        this.pluginChoser.setValue(this.value);
+
+        this.pluginChoser.addEvent('change', function () {
+            this.value = this.pluginChoser.getValue();
+            this.value = this.normalizeValue(this.value);
+
+            this.renderValue();
+
+            this.contentInstance.fireChange();
+        }.bind(this));
+    },
+
+    saveInspector: function(value) {
+        value.content = this.getValue();
+    },
+
     setValue: function (pValue) {
         if (!pValue) {
             this.value = null;
             return;
         }
         this.value = this.normalizeValue(pValue);
+        console.log('plugin setValue', this.value);
         this.renderValue();
     },
 

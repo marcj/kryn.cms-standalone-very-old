@@ -36,6 +36,10 @@ class Engine
             $view = substr($view, strlen(PATH));
         }
 
+        if (!is_file($view)) {
+            throw new TemplateException(sprintf('View `%s` does not exist.', $view));
+        }
+
         try {
             return $this->engine->render($view, $data);
         } catch (\Exception $e) {

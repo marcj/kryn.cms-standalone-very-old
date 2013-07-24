@@ -303,7 +303,6 @@ ka.Select = new Class({
     },
 
     loadObjectItems: function (pOffset, pCallback, pCount) {
-
         if (!pCount) {
             pCount = this.options.maxItemsPerLoad;
         }
@@ -321,7 +320,6 @@ ka.Select = new Class({
                     pCallback(false);
                 },
                 onComplete: function (response) {
-
                     if (response.error) {
                         //todo, handle error
                         return false;
@@ -329,16 +327,18 @@ ka.Select = new Class({
 
                         var items = [];
 
-                        Object.each(response.data, function (item, id) {
+                        if (null !== response.data) {
+                            Object.each(response.data, function (item, id) {
 
-                            items.push({
-                                id: id,
-                                label: item
-                            });
+                                items.push({
+                                    id: id,
+                                    label: item
+                                });
 
-                            this.cachedObjectItems[id] = item;
+                                this.cachedObjectItems[id] = item;
 
-                        }.bind(this));
+                            }.bind(this));
+                        }
 
                         pCallback(items);
                     }
@@ -368,22 +368,24 @@ ka.Select = new Class({
 
                         var items = [];
 
-                        Array.each(response.data, function (item) {
+                        if (null !== response.data) {
+                            Array.each(response.data, function (item) {
 
-                            var id = ka.getObjectUrlId(this.options.object, item);
+                                var id = ka.getObjectUrlId(this.options.object, item);
 
-                            if (this.hideOptions && this.hideOptions.contains(id)) {
-                                return;
-                            }
+                                if (this.hideOptions && this.hideOptions.contains(id)) {
+                                    return;
+                                }
 
-                            items.push({
-                                id: id,
-                                label: item
-                            });
+                                items.push({
+                                    id: id,
+                                    label: item
+                                });
 
-                            this.cachedObjectItems[id] = item;
+                                this.cachedObjectItems[id] = item;
 
-                        }.bind(this));
+                            }.bind(this));
+                        }
 
                         pCallback(items);
                     }
@@ -741,7 +743,6 @@ ka.Select = new Class({
     },
 
     selectFirst: function (pOffset) {
-
         this.duringFirstSelectLoading = true;
 
         if (!pOffset) {
@@ -757,14 +758,12 @@ ka.Select = new Class({
                     var item = items[i];
                     if (item && (!item.label || !item.label.isSplit)) {
                         this.chooseItem(item.id, true);
+                        this.fireEvent('firstItemLoaded', item);
                         return;
                     }
                 }
-                this.selectFirst(pOffset + 5);
             }
-
         }.bind(this), pOffset + 5);
-
     },
 
     /**
@@ -1011,14 +1010,13 @@ ka.Select = new Class({
     },
 
     setValue: function (pValue, pInternal) {
-
-        this.value = 'null' === typeOf(pValue) ? '' : pValue;
+        this.value = pValue;
 
         if (this.options.object && typeOf(this.value) == 'object') {
             this.value = ka.getObjectUrlId(this.options.object, this.value);
         }
 
-        if (typeOf(this.value) == 'null') {
+        if (typeOf(this.value) == 'null' || null === this.value) {
             return this.title.set('text', '');
         }
 
@@ -1059,12 +1057,6 @@ ka.Select = new Class({
     },
 
     getValue: function () {
-        var i = 0;
-
-        while (this.duringFirstSelectLoading) {
-            i++;
-        }
-        ;
 
         if (this.options.object) {
             return ka.getObjectId(this.options.object + '/' + this.value);

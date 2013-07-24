@@ -6,34 +6,42 @@ ka.Content = new Class({
     options: {
     },
 
-    slot: null,
     contentObject: null,
     currentType: null,
     currentTemplate: null,
 
     contentContainer: null,
 
-    initialize: function (pContent, pSlot, pOptions) {
-        this.slot = pSlot;
+    initialize: function(pContent, pContainer, pOptions) {
         this.setOptions(pOptions);
 
-        this.renderLayout();
-
+        this.renderLayout(pContainer);
         this.setValue(pContent);
     },
 
-    getSlot: function () {
-        return this.slot;
+    getSlot: function() {
+        return this.main.getParent('.ka-slot').kaSlotInstance;
     },
 
-    renderLayout: function () {
+    getEditor: function() {
+        return this.getSlot().getEditor();
+    },
+
+    renderLayout: function(container) {
         this.main = new Element('div', {
-            'class': 'ka-content'
-        }).inject(this.slot);
+            'class': 'ka-content '
+        }).inject(container);
 
         this.main.addListener('dragstart', function(e) {
+            e.dataTransfer.effectAllowed = 'move';
             e.dataTransfer.setData('application/json', JSON.encode(this.getValue()));
-            this.main.set('draggable');
+            //this.main.set('draggable');
+        }.bind(this));
+
+        this.main.addListener('dragend', function(e) {
+            if ('move' === e.dataTransfer.dropEffect) {
+                this.main.destroy();
+            }
         }.bind(this));
 
         this.main.kaContentInstance = this;
@@ -45,11 +53,12 @@ ka.Content = new Class({
         this.addActionBarItems();
     },
 
-    fireChange: function () {
+    fireChange: function() {
+        this.updateUI();
         this.fireEvent('change');
     },
 
-    addActionBarItems: function () {
+    addActionBarItems: function() {
 
         var moveBtn = new Element('span', {
             html: '&#xe0c6;',
@@ -61,13 +70,9 @@ ka.Content = new Class({
             this.main.set('draggable', true);
         }.bind(this));
 
-//        moveBtn.addEvent('mouseout', function() {
-//            this.main.set('draggable', false);
-//        }.bind(this));
-
-//        moveBtn.addEvent('mouseover', function() {
-//            this.main.set('draggable', true);
-//        });
+        moveBtn.addEvent('mouseout', function() {
+            this.main.set('draggable');
+        }.bind(this));
 
         new Element('a', {
             html: '&#xe26b;',
@@ -75,12 +80,16 @@ ka.Content = new Class({
             title: t('Remove content'),
             'class': 'icon'
         })
-            .addEvent('click', this.remove)
+            .addEvent('click', function(e) {
+                e.stop();
+                this.remove();
+            }.bind(this))
             .inject(this.actionBar);
 
     },
 
-    remove: function () {
+    remove: function() {
+        this.getEditor().deselect();
         this.main.destroy();
     },
 
@@ -92,29 +101,72 @@ ka.Content = new Class({
 //        this.actionBar.dispose();
 //    },
 
-    toElement: function () {
+    toElement: function() {
         return this.contentContainer || this.main;
     },
 
-    loadTemplate: function (pValue) {
+    setPreview: function(visible) {
+        this.preview = visible;
 
-        this.lastRq = new Request.JSON({url: _pathAdmin + 'admin/content/template', noCache: true,
-            onComplete: function (pResponse) {
-                this.actionBar.dispose();
-                this.main.empty();
-                this.main.set('html', pResponse.data);
+        if (this.preview) {
+            this.loadPreview();
+        } else {
+            this.loadTemplate(this.value);
+        }
+    },
 
-                this.contentContainer = this.main.getElement('.ka-content-container');
+    loadPreview: function() {
+        delete this.currentTemplate;
 
-                this.currentTemplate = pValue.template;
-                this.actionBar.inject(this.main, 'top');
-                return this.setValue(pValue);
-            }.bind(this)}).get({
-                template: pValue.template
+        if (this.lastRq) {
+            this.lastRq.cancel();
+        }
+
+        this.lastRq = new Request.JSON({url: _pathAdmin + 'admin/content/preview', noCache: true,
+                onComplete: function(pResponse) {
+                    this.actionBar.dispose();
+                    this.main.empty();
+                    this.main.set('html', pResponse.data);
+                }.bind(this)}
+        ).get({
+                template: this.value.template,
+                type: this.value.type,
+                content: this.value.content
             });
     },
 
-    focus: function () {
+    loadTemplate: function() {
+        this.save();
+
+        if (this.lastRq) {
+            this.lastRq.cancel();
+        }
+
+        if (null !== this.currentTemplate && this.currentTemplate == this.value.template) {
+            return;
+        }
+
+        this.lastRq = new Request.JSON({url: _pathAdmin + 'admin/content/template', noCache: true,
+                onComplete: function(pResponse) {
+                    this.actionBar.dispose();
+                    this.main.empty();
+                    this.main.set('html', pResponse.data);
+
+                    this.contentContainer = this.main.getElement('.ka-content-container') || new Element('div').inject(this.main);
+
+                    delete this.contentObject;
+                    this.currentTemplate = this.value.template;
+                    this.actionBar.inject(this.main, 'top');
+
+                    return this.setValue(this.value);
+                }.bind(this)}
+        ).get({
+                template: this.value.template,
+                type: this.value.type
+            });
+    },
+
+    focus: function() {
         if (this.contentObject) {
             this.contentObject.focus();
             this.nextFocus = false;
@@ -123,23 +175,94 @@ ka.Content = new Class({
         }
     },
 
-    getValue: function () {
-
-        if (this.contentObject) {
-            this.value.content = this.contentObject.getValue();
-        }
-
+    getValue: function() {
+        this.save();
         return this.value;
     },
 
-    setValue: function (pValue) {
+    /**
+     * Saves the value from the inspector to this.value
+     */
+    save: function() {
+        if (!this.selected) {
+            return false;
+        }
 
+        this.value = this.value || {};
+
+        this.value.template = this.template.getValue();
+
+        if (this.contentObject) {
+            this.contentObject.saveInspector(this.value);
+        }
+        console.log(this.value);
+    },
+
+    /**
+     * adds/loads all additional fields to the inspector.
+     */
+    load: function() {
+        var inspectorContainer = this.getEditor().getContentField().getInspectorContainer();
+
+        inspectorContainer.empty();
+
+        this.template = new ka.Field({
+            label: t('Template'),
+            width: 'auto',
+            type: 'contentTemplate',
+            inputWidth: '100%'
+        }, inspectorContainer);
+
+        this.template.addEvent('change', function() {
+            return this.updateUI();
+        }.bind(this));
+
+        this.template.setValue(this.value.template);
+
+        var div = new Element('div', {
+            style: 'padding-top: 5px;'
+        }).inject(inspectorContainer);
+
+        this.contentObject.loadInspector(div);
+    },
+
+    updateUI: function() {
+        this.save();
+        if (this.preview) {
+            this.loadPreview();
+        } else {
+            this.loadTemplate();
+        }
+    },
+
+    setSelected: function(selected) {
+        if (selected) {
+            this.main.addClass('ka-content-selected');
+            if (this.contentObject && this.contentObject.selected) {
+                this.contentObject.selected();
+            }
+        } else {
+            this.main.removeClass('ka-content-selected');
+            if (this.contentObject && this.contentObject.deselected) {
+                this.contentObject.deselected();
+            }
+        }
+        this.selected = selected;
+    },
+
+    setValue: function(pValue) {
         this.value = pValue;
 
-        if (!this.currentType || pValue.type != this.currentType || !this.currentTemplate ||
-            this.currentTemplate != pValue.template) {
+        console.log('setValue', this.value);
+        if (
+            !this.currentType
+                || !this.contentObject
+                || pValue.type != this.currentType
+                || !this.currentTemplate
+                || this.currentTemplate != pValue.template
+            ) {
 
-            if (!this.currentTemplate || this.currentTemplate != pValue.template) {
+            if (null === this.currentTemplate || this.currentTemplate != pValue.template) {
                 return this.loadTemplate(pValue);
             }
 
@@ -154,6 +277,8 @@ ka.Content = new Class({
                 throw tf('ka.ContentType `%s` not found.', pValue.type);
             }
 
+            this.contentObject.addEvent('change', this.fireChange);
+
             if (this.nextFocus) {
                 this.focus();
             }
@@ -161,8 +286,13 @@ ka.Content = new Class({
         }
 
         this.contentObject.setValue(pValue.content);
-        this.contentObject.addEvent('change', this.fireChange);
 
+        if (this.selected) {
+            this.load();
+            if (this.contentObject.selected) {
+                this.contentObject.selected();
+            }
+        }
     }
 
 });

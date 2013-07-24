@@ -17,13 +17,17 @@ ka.Slot = new Class({
         this.setOptions(pOptions);
         this.editor = pEditor;
 
-        var params = this.slot.get('params');
-        this.slotParams = JSON.decode(params);
+        var params = this.slot.get('params') || '';
+        this.slotParams = JSON.decode(params) || {};
 
         this.renderLayout();
         this.mapDragEvents();
 
         this.loadContents();
+    },
+
+    getParam: function(key) {
+        return this.slotParams[key];
     },
 
     getEditor: function() {
@@ -53,6 +57,7 @@ ka.Slot = new Class({
     checkDrop: function(pEvent) {
         var target = pEvent.toElement || pEvent.target;
         var slot = this.slot;
+
         if (target) {
             if (!target.hasClass('ka-slot')) {
                 slot = target.getParent('.ka-slot');
@@ -71,6 +76,7 @@ ka.Slot = new Class({
                 this.lastPlaceHolder.destroy();
             }
 
+            pEvent.stopPropagation();
             pEvent.preventDefault();
             return false;
         }
@@ -160,6 +166,12 @@ ka.Slot = new Class({
 
     hasChanges: function() {
         return JSON.encode(this.oldValue) != JSON.encode(this.getValue());
+    },
+
+    setPreview: function(visible) {
+        this.slot.getChildren('.ka-content').each(function(content, idx) {
+            content.kaContentInstance.setPreview(visible);
+        });
     },
 
     getValue: function() {

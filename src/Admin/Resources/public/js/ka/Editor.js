@@ -10,7 +10,6 @@ ka.Editor = new Class({
     },
 
     container: null,
-    preview: 0,
 
     initialize: function (pOptions, pContainer) {
         this.setOptions(pOptions);
@@ -20,7 +19,30 @@ ka.Editor = new Class({
         this.adjustAnchors();
         this.searchSlots();
 
+        this.container.addEvent('click:relay(.ka-content)', this.click.bind(this));
+        this.container.addEvent('click', this.click.bind(this));
+
         top.window.fireEvent('krynEditorLoaded', this);
+    },
+
+    click: function(e, element) {
+        if (element) {
+            e.stop();
+            this.disableNextContainerClick = true;
+            this.selectElement(element);
+        } else if (!this.disableNextContainerClick) {
+            this.deselect();
+        } else {
+            delete this.disableNextContainerClick;
+        }
+    },
+
+    selectElement: function(element) {
+        this.getContentField().selectElement(element);
+    },
+
+    deselect: function() {
+        this.getContentField().deselect();
     },
 
     getId: function() {
@@ -84,6 +106,14 @@ ka.Editor = new Class({
         });
 
         return contents;
+    },
+
+    setContentField: function(contentField) {
+        this.contentField = contentField;
+    },
+
+    getContentField: function() {
+        return this.contentField;
     },
 
     getUrl: function () {
@@ -183,15 +213,10 @@ ka.Editor = new Class({
         }
     },
 
-    togglePreview: function () {
-        var active = ++this.preview % 2;
-
-        if (active) {
-            this.showPreview.addClass('ka-editor-sidebar-item-active');
-        } else {
-            this.showPreview.removeClass('ka-editor-sidebar-item-active');
-        }
-
+    setPreview: function (visible) {
+        Array.each(this.slots, function(slot) {
+            slot.kaSlotInstance.setPreview(visible);
+        });
     },
 
 

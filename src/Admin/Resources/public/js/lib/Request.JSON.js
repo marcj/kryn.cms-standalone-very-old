@@ -38,6 +38,7 @@ Request.JSON = new Class({
                     "<br/>" + 'URI: %s'.replace('%s', this.options.url) +
                     '<br/><a class="ka-Button" href="javascript:;">Details</a>',
                 15000);
+            throw 'Response Error %s'.replace('%s', this.options.url);
         }
     },
 
@@ -54,6 +55,7 @@ Request.JSON = new Class({
                     "<br/>" + 'URI: %s'.replace('%s', this.options.url) +
                     '<br/><a class="ka-Button" onclick="ka.open(\'admin/system/rest-logger\')">Details</a>',
                 15000);
+            throw 'Request Error %s'.replace('%s', this.options.url);
         }
     },
 
@@ -86,6 +88,7 @@ Request.JSON = new Class({
                         '<br/><a class="ka-Button" onclick="ka.open(\'admin/system/rest-logger\')">Details</a>',
                     15000
                 );
+                throw 'Access Denied %s'.replace('%s', this.options.url);
             } else {
                 ka.lastRequestBubble = ka.adminInterface.getHelpSystem().newBubble(
                     t('Request error'),
@@ -96,6 +99,7 @@ Request.JSON = new Class({
                         '<br/><a class="ka-Button" onclick="ka.open(\'admin/system/rest-logger\')">Details</a>',
                     15000
                 );
+                throw 'Request Error %s'.replace('%s', this.options.url);
             }
         }
     }

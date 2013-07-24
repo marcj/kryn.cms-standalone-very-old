@@ -9,6 +9,7 @@
 
 .ka-field-main {
     padding: 5px;
+    width: 400px;
 }
 
 .ka-field-tdtitle,
@@ -58,7 +59,6 @@ h2.ka-field-headline {
 
 .ka-field-title {
     position: relative;
-    width: 420px;
 }
 
 div.desc {
@@ -79,8 +79,7 @@ tr.ka-field-main > td div.desc {
 
 .ka-field-main > .ka-field-field {
     position: relative;
-    margin: 10px 20px 2px 20px;
-    width: 400px;
+    margin: 5px 20px 2px 20px;
 }
 
 .ka-field-main > .ka-field-field-without-margin {
@@ -318,6 +317,7 @@ tr.ka-field-main > td div.desc {
 .ka-field-plugin-options {
     border-top: 2px solid silver;
     padding-top: 5px;
+    margin-top: 10px;
 }
 
 .ka-Field-content-actionBar {

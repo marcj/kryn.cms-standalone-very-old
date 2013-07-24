@@ -2860,6 +2860,9 @@ class Kryn extends Controller
     }
 
     /**
+     * Resolves a internal path (`@PublicationBundle/in/view/folder`, `Views`) into the real filesystem path.
+     * => `vendor/krynlabs/publication-bundle/Views/in/view/folder.
+     *
      * @param        $path
      * @param string $suffix Will be appended onto the replaced module path
      *
@@ -2874,8 +2877,7 @@ class Kryn extends Controller
                 foreach ($matches as $match) {
                     $dir = self::getBundleDir($match[0]);
                     if (!$dir) {
-                        var_dump(static::$bundleInstances);
-                        throw new BundleNotFoundException(sprintf('Bundle for `%s` not found.', $match[0]));
+                        throw new BundleNotFoundException(sprintf('Bundle for `%s` not found. [%s]', $match[0], json_encode(array_keys(static::$bundleInstances))));
                     }
                     $path = str_replace($match[0], $dir . $suffix, $path);
                 }

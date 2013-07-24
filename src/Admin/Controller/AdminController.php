@@ -17,7 +17,9 @@ use Admin\Utils;
 use Core\Config\EntryPoint;
 use Core\Exceptions\InvalidArgumentException;
 use Core\Kryn;
+use Core\Models\Content;
 use Core\Object;
+use Core\Render;
 use Propel\Runtime\Map\TableMap;
 
 class AdminController
@@ -240,6 +242,7 @@ class AdminController
                 ->done()
 
                 ->addGetRoute('content/template', 'getContentTemplate')
+                ->addGetRoute('content/preview', 'getContentPreview')
 
                 //->addGetRoute('editor', 'getKEditor')
 
@@ -359,6 +362,16 @@ class AdminController
         ];
 
         return Kryn::getInstance()->renderView($template, $data);
+    }
+
+    public function getContentPreview($template, $type = 'text', $content)
+    {
+        $contentObject = new Content();
+        $contentObject->setType($type);
+        $contentObject->setTemplate($template);
+        $contentObject->setContent($content);
+
+        return Render::renderContent($contentObject);
     }
 
     public static function addSessionScripts()

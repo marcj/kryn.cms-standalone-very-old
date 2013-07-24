@@ -1,5 +1,4 @@
 ka.FieldTypes.Plugin = new Class({
-
     Extends: ka.FieldAbstract,
 
     createLayout: function () {
@@ -16,7 +15,6 @@ ka.FieldTypes.Plugin = new Class({
             bundle: {
                 label: t('Bundle'),
                 type: 'select',
-                inputWidth: 240,
                 items: {}
             }
         };
@@ -36,7 +34,6 @@ ka.FieldTypes.Plugin = new Class({
                 type: 'select',
                 needValue: key,
                 againstField: 'bundle',
-                inputWidth: 240,
                 items: {}
             };
 
@@ -51,10 +48,7 @@ ka.FieldTypes.Plugin = new Class({
             fields['plugin[' + key + ']'] = plugin;
         }.bind(this));
 
-        logger(fields);
-        this.fieldForm = new ka.FieldForm(this.main, fields, {
-            allTableItems: true
-        });
+        this.fieldForm = new ka.FieldForm(this.main, fields);
 
         this.pluginPropertyContainer = new Element('div', {
             'class': 'ka-field-plugin-options'
@@ -74,15 +68,16 @@ ka.FieldTypes.Plugin = new Class({
             var def = this.normalizePlugin(ka.settings.configs[bundle].plugins[plugin]);
 
             if (def && def.options) {
-                this.pluginPropertyForm = new ka.FieldForm(this.pluginPropertyContainer, def.options, {
-                    allTableItems: true
-                });
+                this.pluginPropertyForm = new ka.FieldForm(this.pluginPropertyContainer, def.options);
                 this.pluginPropertyForm.setValue(this.value.options);
+                this.pluginPropertyForm.addEvent('change', function() {
+                    this.fieldInstance.fireChange();
+                }.bind(this));
             } else {
                 delete this.pluginPropertyForm;
             }
 
-            //this.fieldInstance.fireChange();
+            this.fieldInstance.fireChange();
         }.bind(this));
 
         if (this.value && this.value.bundle) {

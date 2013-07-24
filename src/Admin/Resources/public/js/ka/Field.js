@@ -21,7 +21,9 @@ ka.Field = new Class({
         help: null,
 
         startEmpty: false,
-        fieldWidth: null,
+        //fieldWidth: null,
+
+        width: null,
 
         'default': null,
         designMode: false,
@@ -224,12 +226,16 @@ ka.Field = new Class({
             this.inject(pContainer);
         }
 
-        if (this.options.fieldWidth) {
-            this.fieldPanel.setStyle('width', this.options.fieldWidth);
+//        if (this.options.fieldWidth) {
+//            this.fieldPanel.setStyle('width', this.options.fieldWidth);
+//
+//            if (typeOf(this.options.fieldWidth) == 'string' && this.options.fieldWidth.indexOf('%') > 0) {
+//                this.fieldPanel.addClass('ka-field-field-without-margin');
+//            }
+//        }
 
-            if (typeOf(this.options.fieldWidth) == 'string' && this.options.fieldWidth.indexOf('%') > 0) {
-                this.fieldPanel.addClass('ka-field-field-without-margin');
-            }
+        if (null !== this.options.fieldWidth) {
+            this.main.setStyle('width', this.options.width);
         }
 
         if (this.options.invisible == 1) {

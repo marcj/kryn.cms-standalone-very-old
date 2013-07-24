@@ -125,7 +125,6 @@ td {
     width: auto !important;
     box-shadow: 0 0 0 #000 !important;
     box-shadow: none !important;
-    border: 0 !important;
 }
 
 .kryn_cke_toolbar .cke_inner,
@@ -165,6 +164,14 @@ td {
     background-image: none;
     background: #fefefe;
     border: 1px solid #C0C0C0;
+}
+
+.kryn_cke_toolbar .cke_toolbar_separator {
+    display: none;
+}
+
+.kryn_cke_toolbar .cke_toolgroup .cke_toolbar_separator {
+    display: inline;
 }
 
 .kryn_cke_toolbar .cke_combo_button:hover {

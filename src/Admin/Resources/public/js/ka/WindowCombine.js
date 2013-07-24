@@ -295,8 +295,10 @@ ka.WindowCombine = new Class({
 
         this.viewActionBar = new ka.ButtonGroup(this.topActionBar);
         this.viewListBtn = this.viewActionBar.addIconButton(t('Grid'), '#icon-list-9', this.setView.bind(this, 'list'));
-        this.viewCompactBtn =
-            this.viewActionBar.addIconButton(t('Compact'), '#icon-layout', this.setView.bind(this, 'combine'));
+
+        this.viewCompactBtn = this.viewActionBar
+            .addIconButton(t('Compact'), '#icon-layout', this.setView.bind(this, 'combine'));
+
         this.viewListBtn.setPressed(true);
 
         if (this.actionBarSearchBtn) {
@@ -309,7 +311,7 @@ ka.WindowCombine = new Class({
         this.parent();
     },
 
-    setView: function(viewType, withoutParamsSet) {
+    setView: function(viewType, withoutParamsSet, withoutAnimation) {
         var btn = 'list' === viewType ? this.viewListBtn : this.viewCompactBtn;
         var btnOther = 'list' === viewType ? this.viewCompactBtn : this.viewListBtn;
 
@@ -321,7 +323,8 @@ ka.WindowCombine = new Class({
             }
 
             var options = {
-                transition: Fx.Transitions.Cubic.easeOut
+                transition: Fx.Transitions.Cubic.easeOut,
+                duration: withoutAnimation ? 0 : 500
             };
 
             if ('list' === viewType) {
@@ -1413,7 +1416,7 @@ ka.WindowCombine = new Class({
             this.languageSelect.setValue(this.win.params.list.language);
         }
 
-        this.setView('list', true);
+        this.setView('list', true, true);
 
         if (this.win.params && this.win.params.list && this.win.params.list.orderBy) {
             this.sortField = this.win.params.list.orderBy;
@@ -1426,12 +1429,12 @@ ka.WindowCombine = new Class({
         }
 
         if (this.classProperties.startCombine) {
-            this.setView('combine', true);
+            this.setView('combine', true, true);
         }
 
         if (this.classProperties.asNested) {
             if (this.win.params && this.win.params.selected) {
-                this.setView('combine', true);
+                this.setView('combine', true, true);
                 this.nestedField.getFieldObject().select(this.win.params.selected);
             }
         } else {
@@ -1443,7 +1446,7 @@ ka.WindowCombine = new Class({
             }
         }
         if (this.win.getParameter('type') && 'list' != this.win.getParameter('type')) {
-            this.setView('combine', true);
+            this.setView('combine', true, true);
             if ('add' === this.win.getParameter('type')) {
                 this.add();
             }

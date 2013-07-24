@@ -497,9 +497,12 @@ ka.getObjectUrlId = function (pObjectKey, pItem) {
     if (pks.length == 1 && typeOf(pItem) != 'object') {
         return ka.urlEncode(pItem) + '';
     } else {
+        var allNull = false;
         Array.each(pks, function (pk) {
+            allNull |= null === ka.urlEncode(pItem[pk]);
             urlId += ka.urlEncode(pItem[pk]) + ',';
         });
+        if (allNull) return null;
         return urlId.substr(0, urlId.length - 1);
     }
 
