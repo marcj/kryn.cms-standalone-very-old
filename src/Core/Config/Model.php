@@ -45,27 +45,28 @@ class Model implements \ArrayAccess
     protected $docBlock = '';
 
     /**
-     * @param \DOMElement|string $element
+     * @param \DOMElement|array|string $values
      * @param Bundle      $config
      */
-    public function __construct($element = null, Bundle $config = null)
+    public function __construct($values = null, Bundle $config = null)
     {
         if (null === $this->rootName) {
             $array = explode('\\', get_called_class());
             $this->rootName = lcfirst(array_pop($array));
         }
 
-        if ($element) {
-            if (is_string($element)) {
+        if ($values) {
+            if (is_string($values)) {
                 $dom = new \DOMDocument();
-                $dom->loadXml($element);
+                $dom->loadXml($values);
                 $this->element = $dom->firstChild;
-            } else if ($element instanceof \DOMElement) {
-                $this->element = $element;
-            } else {
-                return;
+                $this->setupObject();
+            } else if ($values instanceof \DOMElement) {
+                $this->element = $values;
+                $this->setupObject();
+            } else if (is_array($values)) {
+                $this->fromArray($values);
             }
-            $this->setupObject();
         }
     }
 
@@ -438,6 +439,7 @@ class Model implements \ArrayAccess
      * @param \DOMNode     $node
      * @param \DOMDocument $doc
      * @param boolean      $printDefaults
+     * @throws \Exception
      */
     public function appendXml(\DOMNode $node, \DOMDocument $doc, $printDefaults = false)
     {
@@ -544,13 +546,27 @@ class Model implements \ArrayAccess
                 }
             }
         } else if (is_array($value)) {
-            $element = $doc->createElement(is_integer($key) ? ($this->arrayIndexNames[$arrayType] ?: 'item') : $key);
+            if ($arrayName = $this->getElementArrayName($key)) {
+                $element = $node;
+            } else {
+                $element = $doc->createElement(is_integer($key) ? ($this->arrayIndexNames[$arrayType] ?: 'item') : $key);
+            }
             foreach ($value as $k => $v) {
                 $this->appendXmlValue($k, $v, $element, $doc, $key, $printDefaults);
             }
-            $node->appendChild($element);
+            if (!$arrayName) {
+                $node->appendChild($element);
+            }
         } else if ($value instanceof Model) {
             $value->appendXml($node, $doc, $printDefaults);
+        }
+    }
+
+    public function getElementArrayName($property) {
+        foreach ($this->elementToArray as $elementName => $propertyName) {
+            if ($propertyName == $property) {
+                return $elementName;
+            }
         }
     }
 
@@ -627,7 +643,8 @@ class Model implements \ArrayAccess
 
 
     /**
-     * @param mixed $values
+     * @param mixed  $values
+     * @param string $key
      */
     public function fromArray($values, $key = null)
     {
