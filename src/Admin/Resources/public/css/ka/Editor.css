@@ -7,10 +7,20 @@
     position: absolute;
     bottom: 0;
     top: 0;
-    left: 0;
+    left: 200px;
     right: 0;
     background: #fcfcfc;
-    overflow-x: visible;
+    pointer-events: all;
+}
+
+.ka-Editor-sidebarContainer {
+    position: absolute;
+    bottom: 0;
+    top: 0;
+    left: -200px;
+    right: 0;
+    overflow: auto;
+    pointer-events: none;
 }
 
 .ka-content-text-toolbarContainer {
@@ -39,7 +49,7 @@
     display: block !important;
 }
 
-.ka-editor-sidebar + .ka-Splitter-main {
+.ka-Editor-sidebarContainer + .ka-Splitter-main {
     left: -15px;
     width: 15px;
     border: 0;

@@ -95,7 +95,7 @@ ka.FieldTypes.Content = new Class({
         }).inject(this.optionsContainer);
 
         this.slider = new ka.Slider(this.optionsContainer, {
-            steps: 200
+            steps: 100
         });
 
         this.zoomValue = new Element('span', {
@@ -105,10 +105,15 @@ ka.FieldTypes.Content = new Class({
 
         this.slider.setValue(100);
 
+        var iframeContainer = this.editableAreaLayout.getCell(1, 1);
+
         this.iframe = new Element('iframe', {
             frameborder: 0,
-            style: 'position: relative; display: block; left: -1px; border: 1px solid #d5d5d5; height: 100%; width: 100%;'
-        }).inject(this.editableAreaLayout.getCell(1, 1));
+            style: 'display: block; border: 0; height: 100%; width: 100%;'
+        }).inject(iframeContainer);
+
+        iframeContainer.setStyle('border', '1px solid #d5d5d5');
+        iframeContainer.addClass('ka-scrolling');
 
         if (this.options.standalone) {
             this.domainSelection = new ka.Select(this.headerLayout.getCell(1, 1), {
@@ -195,9 +200,13 @@ ka.FieldTypes.Content = new Class({
     },
 
     renderSidebar: function() {
-        this.sidebar = new Element('div', {
-            'class': 'ka-normalize ka-editor-sidebar ka-scrolling'
+        this.sidebarContainer = new Element('div', {
+            'class': 'ka-Editor-sidebarContainer ka-scrolling'
         }).inject(this.mainLayout.getCell(2, 2), 'top');
+
+        this.sidebar = new Element('div', {
+            'class': 'ka-normalize ka-editor-sidebar'
+        }).inject(this.sidebarContainer);
 
         new Element('div', {
             text: t('Show slots'),

@@ -195,7 +195,6 @@ ka.Content = new Class({
         if (this.contentObject) {
             this.contentObject.saveInspector(this.value);
         }
-        console.log(this.value);
     },
 
     /**
@@ -207,7 +206,7 @@ ka.Content = new Class({
         inspectorContainer.empty();
 
         this.template = new ka.Field({
-            label: t('Template'),
+            label: t('Content Layout'),
             width: 'auto',
             type: 'contentTemplate',
             inputWidth: '100%'
@@ -253,7 +252,6 @@ ka.Content = new Class({
     setValue: function(pValue) {
         this.value = pValue;
 
-        console.log('setValue', this.value);
         if (
             !this.currentType
                 || !this.contentObject

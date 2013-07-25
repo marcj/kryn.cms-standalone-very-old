@@ -166,8 +166,6 @@ ka.ContentTypes.Plugin = new Class({
      * adds/loads all additional fields to the inspector.
      */
     loadInspector: function(container) {
-        console.log('loadInspector', this.value);
-
         var toolbarContainer = new Element('div', {
             'class': 'ka-content-plugin-toolbarContainer'
         }).inject(container);
@@ -199,7 +197,6 @@ ka.ContentTypes.Plugin = new Class({
             return;
         }
         this.value = this.normalizeValue(pValue);
-        console.log('plugin setValue', this.value);
         this.renderValue();
     },
 
