@@ -104,13 +104,7 @@ class Local extends AbstractFAL
                 }
             }
         } elseif (is_file($path)) {
-            if (!chmod($path, $this->fileMode)) {
-                throw new \FileOperationPermittedException(tf(
-                    'Operation to chmod the file %s to %o is permitted.',
-                    $path,
-                    $this->fileMode
-                ));
-            }
+            @chmod($path, $this->fileMode);
         }
 
         return true;
