@@ -18,7 +18,7 @@ use Core\Exceptions\BundleNotFoundException;
 use Core\Models\ContentQuery;
 use Core\Models\Node;
 use Core\Models\NodeQuery;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Core\EventDispatcher;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
@@ -241,7 +241,7 @@ class Kryn extends Controller
     public static $isStartpage;
 
     /**
-     * @var \Core\Config\Config[]|\Core\Config\Configs
+     * @var \Core\Config\Bundle[]|\Core\Config\Configs
      */
     public static $configs;
 
@@ -637,7 +637,7 @@ class Kryn extends Controller
                 static::$bundles[] = $bundle;
             }
         }
-        static::getBundleClasses(); //triggers loading of all bundles to $bundleInstances
+        $bundles = static::getBundleClasses(); //triggers loading of all bundles to $bundleInstances
     }
 
     public static function getBundles()
@@ -717,6 +717,15 @@ class Kryn extends Controller
             self::setFastCache('core/configs', $cached);
         }
         self::prepareWebSymlinks();
+
+
+        foreach (self::$configs as $bundleConfig) {
+            if ($events = $bundleConfig->getEvents() ) {
+                foreach ($events as $event) {
+                    static::getEventDispatcher()->attachEvent($event);
+                }
+            }
+        }
 
         return;
 
@@ -1868,7 +1877,7 @@ class Kryn extends Controller
         self::initCache();
 
         /*
-         * Load themes and configs
+         * Load themes and configs, setup the config
          */
         self::loadModuleConfigs();
 

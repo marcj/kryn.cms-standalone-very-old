@@ -52,6 +52,11 @@ class Bundle extends Model
     protected $version;
 
     /**
+     * @var Event[]
+     */
+    protected $events;
+
+    /**
      * @var Stream[]
      */
     protected $streams;
@@ -120,6 +125,10 @@ class Bundle extends Model
     }
 
     /**
+     * Returns the bundle name with the 'Bundle' suffix.
+     *
+     * Example: `CoreBundle`.
+     *
      * @return string
      */
     public function getBundleName()
@@ -128,6 +137,8 @@ class Bundle extends Model
     }
 
     /**
+     * Returns the Bundle class object.
+     *
      * @return \Core\Bundle
      */
     public function getBundleClass()
@@ -136,6 +147,10 @@ class Bundle extends Model
     }
 
     /**
+     * Returns the bundle name without the 'Bundle' suffix.
+     *
+     * Example: `Core`.
+     *
      * @return string
      */
     public function getName()
@@ -467,6 +482,22 @@ class Bundle extends Model
     public function getVersion()
     {
         return $this->version;
+    }
+
+    /**
+     * @param Event[] $events
+     */
+    public function setEvents(array $events)
+    {
+        $this->events = $events;
+    }
+
+    /**
+     * @return Event[]
+     */
+    public function getEvents()
+    {
+        return $this->events;
     }
 
 
