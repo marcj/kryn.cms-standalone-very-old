@@ -10,21 +10,43 @@ class DomainCrud extends \Admin\ObjectCrud
             'type' => 'tab',
             'children' => array(
                 'domain' => array(
-                    'type' => 'predefined',
-                    'options' => array(
-                        'object' => 'Core:Domain',
-                        'field' => 'domain'
-                    )
+                    'type' => 'predefined'
+                ),
+                'path' => array(
+                    'type' => 'predefined'
                 ),
                 'master' => array(
-                    'type' => 'predefined',
-                    'options' => array(
-                        'object' => 'Core:Domain',
-                        'field' => 'master'
-                    )
+                    'type' => 'predefined'
+                ),
+                'startnodeId' => array(
+                    'type' => 'predefined'
+                ),
+                'alias' => array(
+                    'type' => 'predefined'
+                ),
+                'redirect' => array(
+                    'type' => 'predefined'
                 ),
             ),
         ),
+        '__Extra__' => array(
+            'label' => 'Extra',
+            'type' => 'tab',
+            'children' => array(
+                'resourceCompression' => array(
+                    'type' => 'predefined'
+                ),
+                'favicon' => array(
+                    'type' => 'predefined'
+                ),
+                'robots' => array(
+                    'type' => 'predefined'
+                ),
+                'email' => array(
+                    'type' => 'predefined'
+                ),
+            )
+        )
     );
 
     public $defaultLimit = 15;
