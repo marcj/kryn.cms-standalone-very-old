@@ -718,6 +718,10 @@ class ObjectCrud
             }
         }
 
+        if ($this->getMultiLanguage()) {
+            $fields[] = 'lang';
+        }
+
         return $fields;
     }
 
