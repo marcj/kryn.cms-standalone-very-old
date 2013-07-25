@@ -2,6 +2,8 @@
 
 namespace Core;
 
+use Symfony\Component\EventDispatcher\GenericEvent;
+
 class Object
 {
     /**
@@ -763,6 +765,7 @@ class Object
      * @return mixed
      *
      * @throws \NoFieldWritePermission
+     * @throws \Core\Exceptions\InvalidArgumentException
      */
     public static function add(
         $pObjectKey,
@@ -796,6 +799,19 @@ class Object
             }
         }
 
+        $args = [
+            'pk' => $pPk,
+            'values' => &$pValues,
+            'options' => &$pOptions,
+            'position' => &$pPosition,
+            'targetObjectKey' => &$pTargetObjectKey,
+            'mode' => 'add'
+        ];
+        $eventPre = new GenericEvent($pObjectKey, $args);
+
+        Kryn::getEventDispatcher()->dispatch('core/object/modify-pre', $eventPre);
+        Kryn::getEventDispatcher()->dispatch('core/object/add-pre', $eventPre);
+
         if ($pTargetObjectKey && $pTargetObjectKey != $pObjectKey) {
             if ($pPosition == 'prev' || $pPosition == 'next') {
                 throw new \Core\Exceptions\InvalidArgumentException(
@@ -809,11 +825,18 @@ class Object
             //since propel's nested set behaviour only allows a single value as scope, we need to use the first pk
             $scope = current($pPk);
 
-            return $obj->add($pValues, null, $pPosition, $scope);
+            $result = $obj->add($pValues, null, $pPosition, $scope);
+        } else {
+            $result = $obj->add($pValues, $pPk, $pPosition);
         }
 
-        return $obj->add($pValues, $pPk, $pPosition);
+        $args['result'] = $result;
+        $event = new GenericEvent($pObjectKey, $args);
 
+        Kryn::getEventDispatcher()->dispatch('core/object/modify', $event);
+        Kryn::getEventDispatcher()->dispatch('core/object/add', $event);
+
+        return $result;
     }
 
     /**
@@ -857,10 +880,30 @@ class Object
             }
         }
 
+        $pObjectKey = self::normalizeObjectKey($pObjectKey);
         $obj = self::getClass($pObjectKey);
         $primaryKey = $obj->normalizePrimaryKey($pPk);
 
-        return $obj->update($primaryKey, $pValues);
+        $args = [
+            'pk' => $pPk,
+            'values' => &$pValues,
+            'options' => &$pOptions,
+            'mode' => 'update'
+        ];
+        $eventPre = new GenericEvent($pObjectKey, $args);
+
+        Kryn::getEventDispatcher()->dispatch('core/object/modify-pre', $eventPre);
+        Kryn::getEventDispatcher()->dispatch('core/object/update-pre', $eventPre);
+
+        $result = $obj->update($primaryKey, $pValues);
+
+        $args['result'] = $result;
+        $event = new GenericEvent($pObjectKey, $args);
+
+        Kryn::getEventDispatcher()->dispatch('core/object/modify', $event);
+        Kryn::getEventDispatcher()->dispatch('core/object/update', $event);
+
+        return $result;
     }
 
 
@@ -878,6 +921,7 @@ class Object
      */
     public static function patch($pObjectKey, $pPk, $pValues, $pOptions = null)
     {
+        $pObjectKey = self::normalizeObjectKey($pObjectKey);
         $obj = self::getClass($pObjectKey);
         $pPk = $obj->normalizePrimaryKey($pPk);
 
@@ -895,7 +939,26 @@ class Object
             }
         }
 
-        return $obj->patch($pPk, $pValues);
+        $args = [
+            'pk' => $pPk,
+            'values' => &$pValues,
+            'options' => &$pOptions,
+            'mode' => 'update'
+        ];
+        $eventPre = new GenericEvent($pObjectKey, $args);
+
+        Kryn::getEventDispatcher()->dispatch('core/object/modify-pre', $eventPre);
+        Kryn::getEventDispatcher()->dispatch('core/object/patch-pre', $eventPre);
+
+        $result = $obj->patch($pPk, $pValues);
+
+        $args['result'] = $result;
+        $event = new GenericEvent($pObjectKey, $args);
+
+        Kryn::getEventDispatcher()->dispatch('core/object/modify', $event);
+        Kryn::getEventDispatcher()->dispatch('core/object/patch', $event);
+
+        return $result;
     }
 
 
@@ -911,7 +974,7 @@ class Object
         list($objectKey, $objectIds, $params) = self::parseUrl($pObjectUrl);
         $obj = self::getClass($objectKey);
 
-        return $obj->remove($objectIds[0]);
+        return self::remove($objectKey, $objectIds[0]);
     }
 
     /**
@@ -924,10 +987,28 @@ class Object
      */
     public static function remove($pObjectKey, $pPk)
     {
+        $pObjectKey = self::normalizeObjectKey($pObjectKey);
         $obj = self::getClass($pObjectKey);
         $primaryKey = $obj->normalizePrimaryKey($pPk);
 
-        return $obj->remove($primaryKey);
+        $args = [
+            'pk' => $pPk,
+            'mode' => 'remove'
+        ];
+        $eventPre = new GenericEvent($pObjectKey, $args);
+
+        Kryn::getEventDispatcher()->dispatch('core/object/modify-pre', $eventPre);
+        Kryn::getEventDispatcher()->dispatch('core/object/remove-pre', $eventPre);
+
+        $result = $obj->remove($primaryKey);
+
+        $args['result'] = $result;
+        $event = new GenericEvent($pObjectKey, $args);
+
+        Kryn::getEventDispatcher()->dispatch('core/object/modify', $event);
+        Kryn::getEventDispatcher()->dispatch('core/object/remove', $event);
+
+        return $result;
     }
 
     /*
@@ -1089,9 +1170,9 @@ class Object
         $objectDefinition = self::getDefinition($pObjectId);
 
         $primaryFields = array();
-        foreach ($objectDefinition->getFields() as $fieldKey => $field) {
+        foreach ($objectDefinition->getFields() as $field) {
             if ($field->isPrimaryKey()) {
-                $primaryFields[$fieldKey] = $field;
+                $primaryFields[$field->getId()] = $field;
             }
         }
 
@@ -1381,6 +1462,10 @@ class Object
         $complied = null;
         $lastOperator = 'and';
 
+        if ($pCondition instanceof \Core\Config\Condition) {
+            $pCondition = $pCondition->toArray();
+        }
+
         if (is_array($pCondition) && is_string($pCondition[0])) {
             return self::checkRule($pObjectItem, $pCondition);
         }
@@ -1443,13 +1528,13 @@ class Object
         //'<', '>', '<=', '>=', '=', 'LIKE', 'IN', 'REGEXP'
         switch (strtoupper($operator)) {
             case '!=':
+            case 'NOT EQUAL':
                 return ($ovalue != $value);
 
             case 'LIKE':
                 $value = preg_quote($value, '/');
                 $value = str_replace('%', '.*', $value);
                 $value = str_replace('_', '.', $value);
-
                 return preg_match('/^' . $value . '$/', $ovalue);
 
             case 'REGEXP':
@@ -1458,28 +1543,34 @@ class Object
             case 'IN':
                 return strpos(',' . $value . ',', ',' . $ovalue . ',') !== false;
 
-            case '<';
-
+            case '<':
+            case 'LESS':
                 return ($ovalue < $value);
-            case '>';
 
+            case '>':
+            case 'GREATER':
                 return ($ovalue > $value);
-            case '<=';
-            case '=<';
 
+            case '<=':
+            case '=<':
+            case 'LESSEQUAL':
                 return ($ovalue <= $value);
-            case '>=';
-            case '=>';
 
+            case '>=':
+            case '=>':
+            case 'GREATEREQUAL':
                 return ($ovalue >= $value);
 
             case '= CURRENT_USER':
+            case 'EQUAL CURRENT_USER':
                 return Kryn::getClient() && $ovalue == Kryn::getClient()->getUserId();
 
             case '!= CURRENT_USER':
+            case 'NOT EQUAL CURRENT_USER':
                 return Kryn::getClient() && $ovalue != Kryn::getClient()->getUserId();
 
             case '=':
+            case 'EQUAL':
             default:
                 return ($ovalue == $value);
         }
