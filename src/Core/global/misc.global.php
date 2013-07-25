@@ -77,7 +77,9 @@ function copyr($source, $dest, $overwrite = true)
 {
     if (is_file($source)) {
         if ($overwrite || !is_file($dest)) {
-            copy($source, $dest);
+            if (!@copy($source, $dest)) {
+                throw new \Core\Exceptions\FilePermissionDenied(tf('Can not copy `%s` to `%s`. Permission denied.', $source, $dest));
+            }
         }
 
         return;
