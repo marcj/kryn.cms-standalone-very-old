@@ -41,6 +41,21 @@ class Field extends Model
     protected $object;
 
     /**
+     * @var string
+     */
+    protected $objectRelation;
+
+    /**
+     * @var string
+     */
+    protected $objectLabel;
+
+    /**
+     * @var string
+     */
+    protected $objectRelationName;
+
+    /**
      * The key of the field this is representing. Primarily for types 'predefined'.
      *
      * @var string
@@ -158,11 +173,6 @@ class Field extends Model
      * @var string|integer
      */
     protected $fieldWidth;
-
-    /**
-     * @var string
-     */
-    protected $objectRelation;
 
     /**
      * @var bool
@@ -774,5 +784,38 @@ class Field extends Model
     {
         return $this->field;
     }
+
+    /**
+     * @param string $objectRelationName
+     */
+    public function setObjectRelationName($objectRelationName)
+    {
+        $this->objectRelationName = $objectRelationName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getObjectRelationName()
+    {
+        return $this->objectRelationName;
+    }
+
+    /**
+     * @param string $objectLabel
+     */
+    public function setObjectLabel($objectLabel)
+    {
+        $this->objectLabel = $objectLabel;
+    }
+
+    /**
+     * @return string
+     */
+    public function getObjectLabel()
+    {
+        return $this->objectLabel;
+    }
+
 
 }
