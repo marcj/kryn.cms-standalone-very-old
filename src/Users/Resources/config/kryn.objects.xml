@@ -2,15 +2,11 @@
     <bundle>
         <objects>
 
-
             <object id="User">
                 <label>Users</label>
                 <table>system_user</table>
                 <labelField>username</labelField>
-                <nested>0</nested>
                 <dataModel>propel</dataModel>
-                <multiLanguage>0</multiLanguage>
-                <domainDepended>0</domainDepended>
                 <blacklistSelection>passwd, passwdSalt</blacklistSelection>
                 <chooserFieldDataModel>default</chooserFieldDataModel>
                 <chooserFieldType>default</chooserFieldType>
@@ -73,14 +69,7 @@
                 <table>system_group</table>
                 <labelField>name</labelField>
                 <defaultSelection>name, description</defaultSelection>
-                <limitDataSets>id</limitDataSets>
-                <limitDataSets>&gt;</limitDataSets>
-                <limitDataSets>0</limitDataSets>
-                <nested>false</nested>
                 <dataModel>propel</dataModel>
-                <multiLanguage>false</multiLanguage>
-                <domainDepended>false</domainDepended>
-                <treeFixedIcon>false</treeFixedIcon>
                 <browserColumns>
                     <field id="name" type="text">
                         <width>30%</width>
