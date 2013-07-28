@@ -163,8 +163,20 @@ ka.FieldTypes.Content = new Class({
     save: function() {
         if (this.editor) {
             var value = this.editor.getValue();
+
+            if (this.lastSaveRq) {
+                this.lastSaveRq.cancel();
+            }
+
             console.log('save', value);
+            this.lastSaveRq = new Request.JSON({url: this.getUrl(), onComplete: function (pResponse) {
+
+            }.bind(this)}).post({content: value});
         }
+    },
+
+    getUrl: function () {
+        return _pathAdmin + 'admin/object/Core:Node/' + this.editor.options.node.id + '?_method=patch';
     },
 
     selectElement: function(element) {
@@ -179,15 +191,17 @@ ka.FieldTypes.Content = new Class({
         this.inspectorContainer.setStyle('color');
         this.inspectorContainer.setStyle('text-align');
 
-        content.load();
         content.setSelected(true);
 
         this.lastContent = content;
     },
 
+    getSelected: function() {
+        return this.lastContent;
+    },
+
     deselect: function() {
         if (this.lastContent) {
-            this.lastContent.save();
             this.lastContent.setSelected(false);
             delete this.lastContent;
         }
@@ -200,13 +214,9 @@ ka.FieldTypes.Content = new Class({
     },
 
     renderSidebar: function() {
-        this.sidebarContainer = new Element('div', {
-            'class': 'ka-Editor-sidebarContainer ka-scrolling'
-        }).inject(this.mainLayout.getCell(2, 2), 'top');
-
         this.sidebar = new Element('div', {
-            'class': 'ka-normalize ka-editor-sidebar'
-        }).inject(this.sidebarContainer);
+            'class': 'ka-normalize ka-scrolling ka-editor-sidebar'
+        }).inject(this.mainLayout.getCell(2, 2), 'top');
 
         new Element('div', {
             text: t('Show slots'),
@@ -337,13 +347,12 @@ ka.FieldTypes.Content = new Class({
     },
 
     addContentTypeIcon: function(pType, pContent) {
-        var type = new pContent;
         var self = this;
 
         var a = new Element('div', {
-            text: type.label,
+            text: pContent.label,
             draggable: true,
-            'class': 'ka-editor-sidebar-item ka-editor-sidebar-draggable ' + type.icon
+            'class': 'ka-editor-sidebar-item ka-editor-sidebar-draggable ' + (pContent.icon || '')
         }).inject(this.contentElementsContainer);
 
         a.addListener('dragstart', function(e) {

@@ -2,6 +2,11 @@ ka.FieldTypes.Layout = new Class({
 
     Extends: ka.FieldTypes.Select,
 
+    Statics: {
+        label: 'Page Layout',
+        asModel: true
+    },
+
     createLayout: function () {
         this.parent();
 

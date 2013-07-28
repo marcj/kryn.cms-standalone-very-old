@@ -2,6 +2,10 @@ ka.FieldTypes.Condition = new Class({
 
     Extends: ka.FieldAbstract,
 
+    Statics: {
+        asModel: true
+    },
+
     options: {
         object: null,
         field: null,

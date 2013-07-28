@@ -2,6 +2,10 @@ ka.FieldTypes.Files = new Class({
 
     Extends: ka.FieldTypes.Select,
 
+    Statics: {
+        asModel: true
+    },
+
     initialize: function (pFieldInstance, pOptions) {
 
         pOptions.object = 'Core\\File';

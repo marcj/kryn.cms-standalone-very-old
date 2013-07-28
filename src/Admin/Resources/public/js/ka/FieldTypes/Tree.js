@@ -1,11 +1,12 @@
 ka.FieldTypes.Tree = new Class({
-
     Extends: ka.FieldAbstract,
-
     Binds: ['selected'],
 
-    options: {
+    Statics: {
+        asModel: true
+    },
 
+    options: {
         /**
          * Use a object key or a entry point.
          *

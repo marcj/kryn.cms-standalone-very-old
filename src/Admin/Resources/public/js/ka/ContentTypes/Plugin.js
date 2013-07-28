@@ -5,8 +5,10 @@ ka.ContentTypes.Plugin = new Class({
     Extends: ka.ContentAbstract,
     Binds: ['applyValue', 'openDialog'],
 
-    icon: 'icon-cube-2',
-    label: 'Plugin',
+    Statics: {
+        icon: 'icon-cube-2',
+        label: 'Plugin'
+    },
 
     options: {
 
@@ -126,28 +128,6 @@ ka.ContentTypes.Plugin = new Class({
                 text: pluginConfig.label
             }).inject(this.inner);
 
-            /*
-             var optionsText = [];
-             var text = '';
-             var value = '';
-
-             Array.each(pluginConfig[1], function(property, key){
-
-             text  = property.label;
-             value = options[key];
-
-
-             optionsText.push()
-
-             });
-
-
-             new Element('div', {
-             'class': 'ka-content-plugin-options',
-             text: optionsText.join(', ')
-             }).inject(this.inner);
-             */
-
         } else {
             if (!ka.settings.configs[bundle]) {
                 this.inner.set('text', tf('Bundle `%s` not found', bundle));
@@ -158,17 +138,13 @@ ka.ContentTypes.Plugin = new Class({
 
     },
 
-    getEditorConfig: function () {
-
-    },
-
     /**
      * adds/loads all additional fields to the inspector.
      */
-    loadInspector: function(container) {
+    selected: function(inspectorContainer) {
         var toolbarContainer = new Element('div', {
             'class': 'ka-content-plugin-toolbarContainer'
-        }).inject(container);
+        }).inject(inspectorContainer);
 
         this.pluginChoser = new ka.Field({
             type: 'plugin',
@@ -182,13 +158,8 @@ ka.ContentTypes.Plugin = new Class({
             this.value = this.normalizeValue(this.value);
 
             this.renderValue();
-
             this.contentInstance.fireChange();
         }.bind(this));
-    },
-
-    saveInspector: function(value) {
-        value.content = this.getValue();
     },
 
     setValue: function (pValue) {

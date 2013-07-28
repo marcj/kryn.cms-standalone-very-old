@@ -2,13 +2,15 @@ ka.FieldTypes.TextboxList = new Class({
 
     Extends: ka.FieldAbstract,
 
-    options: {
+    Statics: {
+        asModel: true
+    },
 
+    options: {
         items: false, //array or object
         store: false, //string
         object: false, //for object chooser
         customValue: false //boolean
-
     },
 
     createLayout: function () {

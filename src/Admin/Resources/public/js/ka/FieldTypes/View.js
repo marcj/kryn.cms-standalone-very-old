@@ -2,12 +2,20 @@ ka.FieldTypes.View = new Class({
 
     Extends: ka.FieldTypes.Select,
 
+    Statics: {
+        asModel: true,
+        options: {
+            directory: {
+                label: 'Path to directory',
+                type: 'text',
+                desc: 'Example: @CoreBundle/folder1/'
+            }
+        }
+    },
+
     options: {
-
         inputWidth: '100%',
-        module: '',
         directory: ''
-
     },
 
     module: '',

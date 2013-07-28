@@ -16,7 +16,6 @@ ka.FieldTypes.FieldForm = new Class({
     },
 
     createLayout: function() {
-        console.log(this.fieldInstance);
         if ('td' === this.fieldInstance.title.get('tag')) {
             this.fieldInstance.title.setStyle('display', 'none');
             this.fieldInstance.main.set('colspan', 2);

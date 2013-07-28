@@ -2,16 +2,33 @@ ka.FieldTypes.Date = new Class({
 
     Extends: ka.FieldAbstract,
 
-    createLayout: function () {
-        this.checkbox = new ka.Checkbox(this.fieldInstance.fieldPanel);
+    Statics: {
+        label: 'Date',
+        isModel: true,
+        options: {
+            format: {
+                type: 'text',
+                label: 'Date format',
+                help: 'admin/field-date-format'
+            }
+        }
+    },
 
-        this.checkbox.addEvent('change', this.fieldInstance.fireChange);
+    createLayout: function () {
+        this.wrapper = new Element('div', {
+            'class': 'ka-input-wrapper',
+            style: this.options.style,
+            styles: {
+                'width': this.options.inputWidth == '100%' ? null : this.options.inputWidth,
+                'height': this.options.inputHeight
+            }
+        }).inject(this.fieldInstance.fieldPanel);
 
         this.input = new Element('input', {
-            'class': 'text ka-field-dateTime',
+            'class': 'ka-Input-text ka-Input-date',
             type: 'text',
             style: 'width: 100%'
-        }).inject(this.fieldInstance.fireChange);
+        }).inject(this.wrapper);
 
         this.datePicker = new ka.DatePicker(this.input, this.options);
 

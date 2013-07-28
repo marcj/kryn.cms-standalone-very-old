@@ -2,6 +2,11 @@ ka.FieldTypes.ContentTemplate = new Class({
 
     Extends: ka.FieldTypes.Select,
 
+    Statics: {
+        label: 'Content Template',
+        asModel: true
+    },
+
     createLayout: function () {
         this.parent();
 

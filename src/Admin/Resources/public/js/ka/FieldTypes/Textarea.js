@@ -1,6 +1,10 @@
 ka.FieldTypes.Textarea = new Class({
 
-    Extends: ka.FieldTypes.Input,
+    Extends: ka.FieldTypes.Text,
+
+    Statics: {
+        asModel: true
+    },
 
     options: {
         inputWidth: '100%',

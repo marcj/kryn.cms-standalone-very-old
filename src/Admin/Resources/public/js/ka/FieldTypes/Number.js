@@ -1,6 +1,10 @@
 ka.FieldTypes.Number = new Class({
 
-    Extends: ka.FieldTypes.Input,
+    Extends: ka.FieldTypes.Text,
+
+    Statics: {
+        asModel: true
+    },
 
     createLayout: function () {
         this.parent();

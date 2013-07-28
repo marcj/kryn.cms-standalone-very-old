@@ -1,6 +1,10 @@
 ka.FieldTypes.Password = new Class({
+    Extends: ka.FieldTypes.Text,
 
-    Extends: ka.FieldTypes.Input,
+    Statics: {
+        label: 'Password',
+        asModel: true
+    },
 
     createLayout: function () {
         this.parent();

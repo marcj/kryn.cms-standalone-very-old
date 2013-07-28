@@ -325,3 +325,9 @@ tr.ka-field-main > td div.desc {
     border-bottom: 1px solid #bababa;
     padding-top: 6px;
 }
+
+.ka-Field-Codemirror {
+    border: 1px solid #cecece;
+    min-height: 20px;
+    background-color: white;
+}

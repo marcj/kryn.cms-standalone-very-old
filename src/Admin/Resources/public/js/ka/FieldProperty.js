@@ -22,57 +22,9 @@ ka.FieldProperty = new Class({
         },
         'type': {
             label: t('Type'),
-            type: 'select',
-            items: {
-                text: t('Text'),
-                password: t('Password'),
-                number: t('Number'),
-
-                checkbox: t('Checkbox'),
-                imageGroup: t('Imagegroup'),
-                checkboxgroup: t('Checkboxgroup'),
-
-                page: t('Page'),
-                file: t('File'),
-                folder: t('Folder'),
-                object: t('Object'),
-
-                select: t('Select'),
-                textlist: t('Textlist'),
-                lang: t('Language select'),
-
-                predefined: t('Predefined'),
-
-                array: t('Ka.Field Array'),
-                properties: t('Properties (multi array class)'),
-                fieldtable: t('Ka.Field table'),
-
-                fieldCondition: t('Field Condition'),
-                objectCondition: t('Object Condition'),
-
-                textarea: t('Textarea'),
-                wysiwyg: t('Wysiwyg'),
-                layoutElement: t('Layout element'),
-                codemirror: t('CodeMirror (sourcecode editor)'),
-
-                date: t('Date'),
-                datetime: t('Datetime'),
-
-                files: t('File select from folder'),
-                //filelist: t('File list (Attachments)'),
-
-                tab: t('Tab'),
-                headline: t('Headline'),
-                info: t('Info'),
-                label: t('Label'),
-                html: t('Html'),
-                childrenSwitcher: t('Children switcher'),
-
-                custom: t('Custom')
-                //,
-                //windowlist: t('Framework windowList')
-            },
+            type: 'select'/*,
             children: {
+
 
                 //datetime, date
                 format: {
@@ -177,7 +129,7 @@ ka.FieldProperty = new Class({
                     desc: t('The key of the object')
                 },
                 'field': {
-                    needValue: ['predefined', 'fieldCondition'],
+//                    needValue: ['predefined', 'fieldCondition'],
                     label: t('Field key'),
                     desc: t('The key of the field')
                 },
@@ -240,6 +192,7 @@ ka.FieldProperty = new Class({
                 }
 
             }
+            */
         },
         width: {
             label: t('Width'),
@@ -338,9 +291,9 @@ ka.FieldProperty = new Class({
 
     options: {
         addLabel: t('Add property'),
-        withTableDefinition: false, //shows the 'Is primary key?' and 'Auto increment' fields
+        asModel: false, //renders 'modelOptions' of ka.Fields instead of 'options' if available.
         asFrameworkColumn: false, //for column definition, with width field. without the optional stuff and limited range of types
-        asFrameworkSearch: false, //Remove some option fields, like 'visibility condition', 'can be empty', etc
+        asFrameworkSearch: false, //Remove some option fields, like 'visibility condition', 'required', etc
         withoutChildren: false, //deactivate children?
         tableItemLabelWidth: 330,
         allTableItems: true,
@@ -356,7 +309,6 @@ ka.FieldProperty = new Class({
         asTableItem: true,
 
         noActAsTableField: false, //Remove the field 'Acts as a table item'
-        asFrameworkFieldDefinition: false, //means for usage in ka.FieldForm (and therefore in adminWindowEdit/Add), delete some relation stuff
         arrayKey: false //allows key like foo[bar], foo[barsen], foo[bar][sen]
     },
 
@@ -382,63 +334,91 @@ ka.FieldProperty = new Class({
 
         this.kaFields = Object.clone(this.kaFields);
 
-        if (!this.options.withTableDefinition) {
+        var items = {}, children = {}, fields, options;
+
+        Object.each(ka.FieldTypes, function(field, key){
+            items[key.lcfirst()] = field.label || key;
+
+            if (this.options.asModel && !field.asModel) return;
+
+            if (field.options || field.modelOptions) {
+                fields = {};
+                options = this.options.asModel && field.modelOptions ? field.modelOptions : field.options;
+                Object.each(options, function(option, optionKey) {
+                    if ('function' === typeOf(option)) {
+                        fields[optionKey] = option();
+                    } else {
+                        fields[optionKey] = option;
+                    }
+                });
+
+                children['options.' + key.lcfirst()] = {
+                    type: 'fieldForm',
+                    fields: fields,
+                    needValue: key.lcfirst(),
+                    allTableItems: true
+                }
+            }
+        }.bind(this));
+
+        this.kaFields.type = {
+            label: t('Type'),
+            type: 'select',
+            items: items,
+            children: children
+        };
+
+        if (!this.options.asModel) {
             delete this.kaFields.primaryKey;
             delete this.kaFields.autoIncrement;
-        } else {
-            delete this.kaFields.type.items.label;
-            delete this.kaFields.type.items.html;
-            delete this.kaFields.type.items.info;
-            delete this.kaFields.type.items.headline;
-            delete this.kaFields.type.items.tab;
-            delete this.kaFields.type.items.predefined;
         }
 
         if (this.options.noActAsTableField) {
-            delete this.kaFields.__optional__.children.tableitem;
+            delete this.kaFields.__optional__.children.tableItem;
         }
 
         if (this.options.asFrameworkFieldDefinition) {
-
-            delete this.kaFields.type.children.object_label;
-            delete this.kaFields.type.children.object_label_map;
-            delete this.kaFields.type.children.object_relation;
-            delete this.kaFields.type.children.object_relation_table;
-            delete this.kaFields.type.children.object_relation_table_left;
-            delete this.kaFields.type.children.object_relation_table_right;
-
+            delete this.kaFields.type.children['options.object.objectLabel'];
+            delete this.kaFields.type.children['options.object.objectRelationName'];
+            delete this.kaFields.type.children['options.object.objectRelation'];
         } else {
             //if not frameworkField
             delete this.kaFields.__optional__.children.target;
-            if (this.kaFields.__optional__.children.tableitem) {
-                delete this.kaFields.__optional__.children.tableitem;
+            if (this.kaFields.__optional__.children.tableItem) {
+                delete this.kaFields.__optional__.children.tableItem;
             }
-
         }
 
-        if (this.options.asFrameworkSearch) {
-            delete this.kaFields.__optional__.children.empty;
-            delete this.kaFields.__optional__.children.target;
-            delete this.kaFields.__optional__.children.needValue;
-            delete this.kaFields.__optional__.children.againstField;
-            delete this.kaFields.__optional__.children.required_regexp;
-
-            if (this.kaFields.__optional__.children.tableitem) {
-                delete this.kaFields.__optional__.children.tableitem;
-            }
-
-            delete this.kaFields.type.items.window_list;
-            delete this.kaFields.type.items.childrenSwitcher;
-            delete this.kaFields.type.items.layoutelement;
-            delete this.kaFields.type.items.wysiwyg;
-            delete this.kaFields.type.items.array;
-            delete this.kaFields.type.items.tab;
-        }
+//        if (this.options.asFrameworkSearch) {
+//            delete this.kaFields.__optional__.children.target;
+//            delete this.kaFields.__optional__.children.needValue;
+//            delete this.kaFields.__optional__.children.againstField;
+//            delete this.kaFields.__optional__.children.required_regexp;
+//
+//            if (this.kaFields.__optional__.children.tableItem) {
+//                delete this.kaFields.__optional__.children.tableItem;
+//            }
+//
+//            //delete this.kaFields.type.items.window_list;
+//            delete this.kaFields.type.items.childrenSwitcher;
+//            delete this.kaFields.type.items.layoutElement;
+//            delete this.kaFields.type.items.wysiwyg;
+//            delete this.kaFields.type.items.array;
+//            delete this.kaFields.type.items.tab;
+//        }
 
         if (this.options.asFrameworkColumn) {
             delete this.kaFields.__optional__;
-            this.kaFields.type.label = t('Display type');
-            this.kaFields.type.items = {
+            this.kaFields.type.label = t('Label type');
+
+            var labelItems = {};
+
+            Object.each(ka.FieldTypes, function(field, key){
+                labelItems[key] = field.label || key;
+            });
+
+            this.kaFields.type.items = labelItems;
+            /*{
                 text: t('Text'),
                 number: t('Number'),
                 bool: t('Boolean'),
@@ -446,27 +426,27 @@ ka.FieldProperty = new Class({
                 datetime: t('Datetime'),
                 imagemap: t('Imagemap'),
                 predefined: t('Predefined')
-            };
+            };*/
 
-            this.kaFields.type.children.imageMap = {
-                label: t('Map'),
-                desc: t('To use Regex surround the value with /.'),
-                type: 'array',
-                needValue: 'imagemap',
-                columns: [
-                    {label: t('Value'), width: '50%'},
-                    {label: t('Image path')}
-                ],
-                fields: {
-                    value: {
-                        type: 'text'
-                    },
-                    imagePath: {
-                        type: 'file'
-                    }
-                }
-
-            };
+//            this.kaFields.type.children.imageMap = {
+//                label: t('Map'),
+//                desc: t('To use Regex surround the value with /.'),
+//                type: 'array',
+//                needValue: 'imagemap',
+//                columns: [
+//                    {label: t('Value'), width: '50%'},
+//                    {label: t('Image path')}
+//                ],
+//                fields: {
+//                    value: {
+//                        type: 'text'
+//                    },
+//                    imagePath: {
+//                        type: 'file'
+//                    }
+//                }
+//
+//            };
         } else if (!this.options.withWidth) {
             delete this.kaFields.width;
         }
@@ -485,24 +465,24 @@ ka.FieldProperty = new Class({
             }.bind(this));
         }
 
-        if (this.kaFields.type.items.object) {
-            this.kaFields.type.children.object.type = 'select';
-            this.kaFields.type.children.object.items = {};
-
-            Object.each(ka.settings.configs, function (config, extensionKey) {
-                if (config.objects) {
-                    extensionKey = extensionKey.charAt(0).toUpperCase() + extensionKey.substr(1);
-                    Object.each(config.objects, function (object, object_key) {
-                        object_key = object_key.charAt(0).toUpperCase() + object_key.substr(1);
-                        if ((this.options.asFrameworkFieldDefinition && object.selectable) ||
-                            !this.options.asFrameworkFieldDefinition) {
-                            this.kaFields.type.children.object.items[extensionKey + '\\' + object_key] =
-                                object.label + " (" + extensionKey + '\\' + object_key + ")";
-                        }
-                    }.bind(this));
-                }
-            }.bind(this));
-        }
+//        if (this.kaFields.type.items.object) {
+//            this.kaFields.type.children.object.type = 'select';
+//            this.kaFields.type.children.object.items = {};
+//
+//            Object.each(ka.settings.configs, function (config, extensionKey) {
+//                if (config.objects) {
+//                    extensionKey = extensionKey.charAt(0).toUpperCase() + extensionKey.substr(1);
+//                    Object.each(config.objects, function (object, object_key) {
+//                        object_key = object_key.charAt(0).toUpperCase() + object_key.substr(1);
+//                        if ((this.options.asFrameworkFieldDefinition && object.selectable) ||
+//                            !this.options.asFrameworkFieldDefinition) {
+//                            this.kaFields.type.children.object.items[extensionKey + '\\' + object_key] =
+//                                object.label + " (" + extensionKey + '\\' + object_key + ")";
+//                        }
+//                    }.bind(this));
+//                }
+//            }.bind(this));
+//        }
     },
 
     _createLayout: function () {

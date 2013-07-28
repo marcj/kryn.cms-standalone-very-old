@@ -2,6 +2,41 @@ ka.FieldTypes.Select = new Class({
 
     Extends: ka.FieldAbstract,
 
+    Statics: {
+        asModel: true,
+        options: {
+            __info__: {
+                type: 'label',
+                label: 'Use static items, a store or a object.'
+            },
+            items: {
+                label: t('static items'),
+                desc: t('Use JSON notation. Array(key==label) or Object(key => label). Example: {"item1": "[[Item 1]]"} or ["Foo", "Bar", "Three"].')
+            },
+            store: {
+                label: t('Store path'),
+                desc: t('&lt;extKey&gt;/&lt;EntryPath&gt;, Example: publication/stores/news.')
+            },
+            multi: {
+                label: t('Multiple selection'),
+                desc: t('This field returns then an array.'),
+                'default': false,
+                type: 'checkbox'
+            },
+            combobox: {
+                label: t('Combobox'),
+                'default': false,
+                desc: t('if you want to allow the user to enter a own value.'),
+                type: 'checkbox'
+            },
+            object: {
+                label: t('Objecy key'),
+                combobox: true,
+                desc: t('The key of the object')
+            }
+        }
+    },
+
     options: {
         inputWidth: 'auto',
         style: '',

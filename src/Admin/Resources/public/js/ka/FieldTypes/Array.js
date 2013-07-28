@@ -2,6 +2,26 @@ ka.FieldTypes.Array = new Class({
 
     Extends: ka.FieldAbstract,
 
+    Statics: {
+        isModel: true,
+        options: {
+            withOrder: {
+                type: 'checkbox',
+                label: t('With order possibility')
+            },
+            columns: {
+                label: t('Columns'),
+                type: 'fieldTable',
+                options: {
+                    asFrameworkColumn: true,
+                    withoutChildren: true,
+                    tableItemLabelWidth: 200,
+                    addLabel: t('Add column')
+                }
+            }
+        }
+    },
+
     options: {
         asHash: false,
 
@@ -244,6 +264,10 @@ ka.FieldTypes.Array = new Class({
 
     setValue: function (pValue) {
         this.tbody.empty();
+
+        if (null === typeOf(pValue)) {
+            return;
+        }
 
         if (typeOf(pValue) == 'string') {
             pValue = JSON.decode(pValue);

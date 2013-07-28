@@ -4,6 +4,15 @@ ka.FieldTypes.Label = new Class({
 
     container: null,
 
+    Statics: {
+        options: {
+            label: {
+                label: 'Label',
+                type: 'text'
+            }
+        }
+    },
+
     createLayout: function () {
         //remove main if ka.Field is a table item
         if (this.fieldInstance.main.get('tag') == 'td') {

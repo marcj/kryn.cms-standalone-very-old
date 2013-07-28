@@ -1,6 +1,70 @@
 ka.FieldTypes.Object = new Class({
 
     Extends: ka.FieldAbstract,
+
+    Statics: {
+        asModel: true,
+        options: {
+            object: {
+                label: 'Object key',
+                desc: 'Example: Core:Node.',
+                type: 'text',
+                required: true
+            },
+            'objectLabel': {
+                needValue: 'object',
+                label: t('Object label field (Optional)'),
+                desc: t('The key of the field which should be used as label.')
+            }
+        },
+        modelOptions: {
+            object: {
+                label: 'Object key',
+                desc: 'Example: Core:Node.',
+                type: 'text',
+                required: true
+            },
+            'objectLabel': {
+                needValue: 'object',
+                label: t('Object label field (Optional)'),
+                desc: t('The key of the field which should be used as label.')
+            },
+            'objectRelation': {
+                label: t('Relation'),
+                needValue: 'object',
+                type: 'select',
+                required: true,
+                items: {
+                    'nTo1': 'Many to One (n-1)',
+                    '1ToN': 'One to Many (1-n)',
+                    '1To1': 'One to One (1-1)',
+                    'nToM': 'Many to Many (n-n)'
+                }
+            },
+            'objectRelationName': {
+                label: t('Relation name'),
+                desc: t('Default is the camelCased field name.'),
+                required: true
+            },
+            'objectRefRelationName': {
+                label: t('Relation foreign name (Optional)'),
+                desc: t('Default is the camelCased foreign table name.')
+            },
+            'objectRelationOnDelete': {
+                label: t('OnDelete method (Optional)'),
+                type: 'select',
+                'default': 'cascade',
+                items: ['cascade', 'setnull', 'restrict', 'none']
+            },
+            'objectRelationOnUpdate': {
+                label: t('OnUpdate method (Optional)'),
+                type: 'select',
+                'default': 'cascade',
+                items: ['cascade', 'setnull', 'restrict', 'none']
+            }
+        }
+    },
+
     options: {
         object: null,
         objects: null,

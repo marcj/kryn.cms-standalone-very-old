@@ -1,9 +1,19 @@
 ka.FieldTypes.Datetime = new Class({
-
     Extends: ka.FieldAbstract,
 
-    createLayout: function () {
+    Statics: {
+        label: 'Date & Time',
+        isModel: true,
+        options: {
+            format: {
+                type: 'text',
+                label: 'Date format',
+                help: 'admin/field-date-format'
+            }
+        }
+    },
 
+    createLayout: function () {
         this.wrapper = new Element('div', {
             'class': 'ka-input-wrapper',
             style: this.options.style,
@@ -14,7 +24,7 @@ ka.FieldTypes.Datetime = new Class({
         }).inject(this.fieldInstance.fieldPanel);
 
         this.input = new Element('input', {
-            'class': 'ka-Input-text',
+            'class': 'ka-Input-text ka-Input-date',
             styles: {
                 'height': this.options.inputHeight
             },

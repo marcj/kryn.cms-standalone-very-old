@@ -2,6 +2,10 @@ ka.FieldTypes.Codemirror = new Class({
 
     Extends: ka.FieldAbstract,
 
+    Statics: {
+        isModel: true
+    },
+
     options: {
         inputHeight: 'auto'
     },
@@ -9,7 +13,7 @@ ka.FieldTypes.Codemirror = new Class({
     createLayout: function () {
 
         this.editorPanel = new Element('div', {
-            style: 'min-height: 50px; background-color: white;'
+            'class': 'ka-Field-Codemirror'
         }).inject(this.fieldInstance.fieldPanel);
 
         if (this.options.inputWidth) {
@@ -46,9 +50,8 @@ ka.FieldTypes.Codemirror = new Class({
                 options[key] = value;
             });
         }
-        this.editor = CodeMirror(this.editorPanel, options);
+        this.editor = new CodeMirror(this.editorPanel, options);
 
-        console.log(options);
         CodeMirror.modeURL = _pathAdmin + '../bundles/core/codemirror/mode/%N/%N.js';
         this.editor.setOption("mode", options.mode);
         CodeMirror.autoLoadMode(this.editor, options.mode);

@@ -6,7 +6,7 @@ ka.FieldTable = new Class({
 
     options: {
         addLabel: t('Add'),
-        withTableDefinition: false, //shows the 'Is primary key?' and 'Auto increment' fields
+        asModel: false, //renders 'modelOptions' of ka.Fields instead of 'options' if available.
         asFrameworkColumn: false, //for column definition, with width field. without the optional stuff and limited range of types
         asFrameworkSearch: false, //Remove some option fields, like 'visibility condition', 'can be empty', etc
         withoutChildren: false, //deactivate children?
@@ -22,7 +22,6 @@ ka.FieldTable = new Class({
         keyModifier: '',
 
         noActAsTableField: false, //Remove the field 'Acts as a table item'
-        asFrameworkFieldDefinition: false, //means for usage in ka.FieldForm (and therefore in adminWindowEdit/Add), delete some relation stuff
         arrayKey: false //allows key like foo[bar], foo[barsen], foo[bar][sen]
     },
 

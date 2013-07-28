@@ -1,20 +1,44 @@
 ka.FieldTypes.ImageGroup = new Class({
-
     Extends: ka.FieldAbstract,
 
-    createLayout: function () {
+    Statics: {
+        asModel: true,
+        options: {
+            items: {
+                label: 'Items',
+                type: 'array',
+                columns: [
+                    'Value', 'Label', 'Image'
+                ],
+                fields: {
+                    value: {
+                        type: 'text'
+                    },
+                    label: {
+                        type: 'text'
+                    },
+                    src: {
+                        type: 'text'
+                    }
+                }
+            }
+        }
+    },
 
+    createLayout: function () {
         this.main = new Element('div', {
             style: 'padding: 5px;',
             'class': 'ka-field-imageGroup'
         }).inject(this.fieldInstance.fieldPanel);
 
-        this.imageGroup = new ka.ImageGroup(this.input);
+        this.imageGroup = new ka.ImageGroup(this.main);
 
         this.imageGroupImages = {};
 
-        Object.each(this.field.items, function (image, value) {
-            this.imageGroupImages[ value ] = this.imageGroup.addButton(image.label, image.src);
+        var useOwnKey = 'array' === typeOf(this.options.items);
+
+        Object.each(this.options.items, function (image, value) {
+            this.imageGroupImages[useOwnKey ? image.value : value] = this.imageGroup.addButton(image.label, image.src);
         }.bind(this));
 
         this.imageGroup.addEvent('change', this.fieldInstance.fireChange);

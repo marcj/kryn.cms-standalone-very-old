@@ -2,6 +2,17 @@ ka.FieldTypes.Wysiwyg = new Class({
 
     Extends: ka.FieldAbstract,
 
+    Statics: {
+        asModel: true,
+        options: {
+            config: {
+                label: 'Config',
+                type: 'select',
+                items: ['standard', 'full']
+            }
+        }
+    },
+
     value: '',
 
     options: {

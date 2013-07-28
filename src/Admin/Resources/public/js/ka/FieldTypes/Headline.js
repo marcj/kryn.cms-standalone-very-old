@@ -1,6 +1,15 @@
 ka.FieldTypes.Headline = new Class({
-
     Extends: ka.FieldAbstract,
+
+    Statics: {
+        options: {
+            headline: {
+                label: 'HTML Element',
+                type: 'select',
+                items: ['h1', 'h2', 'h3', 'h4']
+            }
+        }
+    },
 
     options: {
         headline: 'h2'

@@ -1,6 +1,10 @@
 ka.FieldTypes.Plugin = new Class({
     Extends: ka.FieldAbstract,
 
+    Statics: {
+        asModel: true
+    },
+
     createLayout: function () {
         this.main = new Element('div').inject(this.fieldInstance.fieldPanel);
         this.renderValue();
