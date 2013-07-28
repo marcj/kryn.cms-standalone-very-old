@@ -542,9 +542,9 @@ ka.Field = new Class({
             return null;
         }
 
-//        if (typeOf(pValue) == 'null' && this.field['default']) {
-//            pValue = this.field['default'];
-//        }
+        if (typeOf(pValue) == 'null' && this.field['default']) {
+            pValue = this.field['default'];
+        }
 
         if (this.fieldObject) {
             this.fieldObject.setValue(pValue, pInternal);
