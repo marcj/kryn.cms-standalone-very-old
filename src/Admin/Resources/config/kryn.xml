@@ -36,6 +36,8 @@
             <asset compression="false">@CoreBundle/tinymce/tinymce.dev.js</asset>
 
             <asset>@AdminBundle/icons/style.css</asset>
+            <asset>@CoreBundle/codemirror/lib/codemirror.js</asset>
+            <asset>@CoreBundle/codemirror/addon/mode/loadmode.js</asset>
             <asset>@CoreBundle/codemirror/lib/codemirror.css</asset>
 
             <asset>@CoreBundle/font/SourceCodePro/Light/fonts.css</asset>
