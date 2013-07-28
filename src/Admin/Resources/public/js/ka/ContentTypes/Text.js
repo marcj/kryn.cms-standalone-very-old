@@ -3,82 +3,12 @@ ka.ContentTypes = ka.ContentTypes || {};
 ka.ContentTypes.Text = new Class({
     Extends: ka.ContentAbstract,
 
-    icon: 'icon-font',
-    label: 'Text',
+    Statics: {
+        icon: 'icon-font',
+        label: 'Text'
+    },
 
     options: {
-
-        /**
-         * If you want to add custom css classes to the main element.
-         *
-         * @var {String}
-         */
-        'class': '',
-
-        /**
-         * CSS file/s to be used as content styling. Use Path relative to install directory.
-         *
-         * Example 1:
-         *     'myExt/css/wysiwyg-style1.css'
-         * Example 2:
-         *     ['myExt/css/wysiwyg-style1.css','myExt/css/wysiwyg-style2.css']
-         *
-         * @var {String|Array}
-         */
-        contentsCss: '',
-
-        /**
-         * Preset of the toolbar. There are:
-         * `simple`, `standard` and `full`.
-         * You can modify the toolbar more detailed through `removeButtons`, `extraPlugins` and `toolbar`.
-         *
-         * @var {String}
-         */
-        preset: 'standard',
-
-        /**
-         * The position of the toolbar.
-         * `top`, `bottom`
-         *
-         * @var {String}
-         */
-        toolbarLocation: 'top',
-
-        /**
-         * Remove actions of the toolbar. Comma separated.
-         *
-         * Example 1:
-         *        remove: 'ads, asd'
-         *
-         * Example: 2
-         *
-         * @var {String}
-         */
-        removeButtons: '',
-
-        /**
-         * Includes additionally plugins. Comma separated.
-         *
-         * @var {String}
-         */
-        extraPlugins: '',
-
-        /**
-         * Custom toolbar buttons.
-         *
-         * Take a look at
-         * http://docs.cksource.com/ckeditor_api/symbols/CKEDITOR.config.html#.toolbar_Full
-         * and
-         * http://docs.cksource.com/CKEditor_3.x/Developers_Guide/Toolbar
-         * for more information.
-         *
-         *
-         * @var {Array}
-         */
-        toolbar: null,
-
-        autoGrow_onStartup: false,
-
         /**
          * Sets the height of the editor to a fix value. Default is auto.
          *
@@ -93,50 +23,31 @@ ka.ContentTypes.Text = new Class({
          */
         inputWidth: null,
 
-        /**
-         * You can set some own config variables. See here what's possible: http://docs.cksource.com/ckeditor_api/symbols/CKEDITOR.config.html
-         *
-         * @var {Object}
-         */
-        customConfig: {},
+        config: 'standard',
 
         configs: {
-            simple: {
-                toolbarGroups: [
-                    {name: 'basicstyles', groups: ['undo', 'basicstyles', 'align', 'styles']},
-                    '/',
-                    {name: 'paragraph', groups: ['list', 'indent', 'blocks', 'align']},
-                    {name: 'links'},
-                    {name: 'insert'}
-               ]
-            },
             standard: {
-                toolbarGroups: [
-                    {name: 'basicstyles', groups: ['undo', 'basicstyles', 'align', 'styles', 'colors']},
-                    {name: 'insertNew', groups: ['links', 'insert']},
-                    {name: 'paragraph', groups: ['list', 'indent', 'blocks']},
-                    {name: 'tools'},
-                    {name: 'others'}
-               ]
+                plugins: [
+                    "advlist autolink autosave link image lists charmap print preview hr anchor pagebreak spellchecker",
+                    "searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking",
+                    "table contextmenu directionality emoticons template textcolor paste fullpage textcolor"
+                ],
+                menubar: false,
+                toolbar_items_size: 'small',
+                toolbar1: "undo redo | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | styleselect formatselect fontselect fontsizeselect",
+                toolbar2: "searchreplace | bullist numlist | outdent indent blockquote | link unlink anchor image media code | forecolor backcolor",
+                toolbar3: "table | hr removeformat | subscript superscript | charmap emoticons | ltr rtl | visualchars visualblocks nonbreaking template pagebreak"
             },
             full: {
-                toolbarGroups: [
-                    {name: 'document', groups: ['mode', 'document', 'doctools']},
-                    {name: 'clipboard', groups: ['clipboard', 'undo']},
-                    {name: 'editing', groups: ['find', 'selection', 'spellchecker']},
-                    {name: 'forms'},
-                    '/',
-                    {name: 'basicstyles', groups: ['basicstyles', 'cleanup']},
-                    {name: 'paragraph', groups: ['list', 'indent', 'blocks', 'align']},
-                    {name: 'links'},
-                    {name: 'insert'},
-                    '/',
-                    {name: 'styles'},
-                    {name: 'colors'},
-                    {name: 'tools'},
-                    {name: 'others'},
-                    {name: 'about'}
-               ]
+                plugins: [
+                    "advlist autolink lists link image charmap print preview hr anchor pagebreak",
+                    "searchreplace wordcount visualblocks visualchars code fullscreen",
+                    "insertdatetime media nonbreaking save table contextmenu directionality",
+                    "emoticons template paste textcolor"
+                ],
+                toolbar1: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image",
+                toolbar2: "print preview media | forecolor backcolor emoticons",
+                tools: "inserttable"
             }
         }
     },
@@ -147,147 +58,73 @@ ka.ContentTypes.Text = new Class({
             'class': 'ka-content-text selectable'
         }).inject(this.contentInstance);
 
-        var config = this.getEditorConfig();
-        this.checkChange = this.checkChange.bind(this);
-        this.editorReady = this.editorReady.bind(this);
+        this.main.addEvent('focus', function(e){
+            this.getEditor().click(e, this.main.getParent('.ka-content'));
+        }.bind(this));
 
-        this.editor = CKEDITOR.inline(this.main, config);
+        var id = (Math.random() * 10 * (Math.random() * 10)).toString(36).slice(2).replace('.', '');
 
-        this.editor.on('instanceReady', this.editorReady);
+        this.toolbar = new Element('div', {
+            'id': id
+        }).inject(document.body);
 
-        this.editor.on('change', this.checkChange);
-        this.editor.on('blur', this.checkChange);
-        this.editor.on('focus', this.checkChange);
-        this.editor.on('key', this.checkChange);
-        this.editor.on('paste', this.checkChange);
-        this.editor.on('execCommand', this.checkChange);
-        this.main.addEvent('keyup', this.checkChange);
-    },
+        var config = this.options.configs[this.options.config];
 
-    getDOMWindow: function() {
-        return this.main.getDocument().window;
-    },
+        tinymce.init(Object.merge({
+            mode: 'exact',
+            inline: true,
+            elements: [this.main],
+            content_document: this.main.getDocument(),
+            content_window: this.main.getWindow(),
+            fixed_toolbar_container: '#' + id,
+            setup: function(editor) {
+                this.editor = editor;
+                this.ready = true;
+                if (this.value) {
+                    this.main.set('html', this.value);
+                }
+                editor.on('change', function(ed){
+                    this.checkChange();
+                }.bind(this));
+            }.bind(this)
+        }, config));
 
-    getDOMDocument: function() {
-        return this.main.getDocument();
+        this.main.addEvent('keyup', function(ed){
+            this.checkChange();
+        }.bind(this));
     },
 
     checkChange: function () {
         if (this.ready) {
-            if (this.oldData != this.editor.getData()) {
+            if (this.oldData != this.getValue()) {
                 this.contentInstance.fireChange();
+                this.oldData = this.getValue();
             }
         }
-    },
-
-    focus: function () {
-        this.main.focus();
-    },
-
-    getEditorConfig: function () {
-        var config = this.options.configs[this.options.preset] || {};
-
-        config.toolbarLocation = this.options.toolbarLocation;
-        config.autoGrow_onStartup = true;
-
-        if (this.options.removeButtons) {
-            config.removeButtons = this.options.removeButtons;
-        }
-
-        config.extraPlugins = '';
-        if (this.options.extraPlugins) {
-            config.extraPlugins = this.options.extraPlugins;
-        }
-
-        config.extraPlugins += ',autogrow';
-        config.removePlugins = 'magicline';
-
-        if (this.options.contentsCss) {
-            if (typeOf(this.options.contentsCss) == 'string') {
-                if (this.options.contentsCss.substr(0, 1) != '/') {
-                    this.options.contentsCss = _path + this.options.contentsCss;
-                }
-
-                config.contentsCss = _path + this.options.contentsCss
-            } else if (typeOf(this.options.contentsCss) == 'array') {
-
-                config.contentsCss = [];
-                Array.each(this.options.contentsCss, function (css) {
-
-                    if (css.substr(0, 1) != '/') {
-                        css = _path + css;
-                    }
-                    config.contentsCss.push(css);
-                });
-            }
-        }
-
-        Object.each(this.options.customConfig, function (v, k) {
-            config[k] = v;
-        });
-
-        return config;
     },
 
     setValue: function (pValue) {
         this.value = pValue;
-        if (this.ready) {
-            this.editor.setData(this.value);
-        }
+        this.oldData = this.value;
+        this.main.set('html', this.value);
     },
 
     getValue: function () {
-        if (!this.ready) {
-            return this.value;
-        }
-        else {
-            return this.editor.getData();
-        }
-    },
-
-    /**
-     * adds/loads all additional fields to the inspector.
-     */
-    loadInspector: function(container) {
-        this.toolbarContainer = new Element('div', {
-            'class': 'ka-content-text-toolbarContainer kryn_cke_toolbar'
-        }).inject(container);
+        return this.main.get('html');
     },
 
     deselected: function() {
         this.toolbar.dispose();
-        delete this.selected;
+        this.toolbarContainer.destroy();
+        delete this.isSelected;
     },
 
-    selected: function() {
-        this.selected = true;
-        if (this.toolbar) {
-            this.toolbar.inject(this.toolbarContainer);
-        }
-    },
-
-    /**
-     *
-     */
-    saveInspector: function(value) {
-        value.content = this.getValue();
-    },
-
-    editorReady: function () {
-        this.ready = true;
-
-        this.toolbar = document.id('cke_' + this.editor.name);
-        if (this.selected && this.toolbarContainer) {
-            this.toolbar.inject(this.toolbarContainer);
-        } else {
-            this.toolbar.dispose();
-        }
-
-        if (this.value) {
-            this.editor.setData(this.value);
-            this.oldData = this.editor.getData();
-        }
+    selected: function(inspectorContainer) {
+        this.isSelected = true;
+        this.toolbarContainer = new Element('div', {
+            'class': 'ka-content-text-toolbarContainer kryn_wysiwyg_toolbar'
+        }).inject(inspectorContainer);
+        this.toolbar.inject(this.toolbarContainer);
     }
-
 });
 

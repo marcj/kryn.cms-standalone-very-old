@@ -6,240 +6,70 @@ ka.FieldTypes.Wysiwyg = new Class({
 
     options: {
 
-        /**
-         * If you want to add custom css classes to the main element.
-         *
-         * @var {String}
-         */
-        'class': '',
-
-        /**
-         * CSS file/s to be used as content styling. Use Path relative to install directory.
-         *
-         * Example 1:
-         *     'myExt/css/wysiwyg-style1.css'
-         * Example 2:
-         *     ['myExt/css/wysiwyg-style1.css','myExt/css/wysiwyg-style2.css']
-         *
-         * @var {String|Array}
-         */
-        contentsCss: '',
-
-        /**
-         * Preset of the toolbar. There are:
-         * `simple`, `standard` and `full`.
-         * You can modify the toolbar more detailed through `removeButtons`, `extraPlugins` and `toolbar`.
-         *
-         * @var {String}
-         */
-        preset: 'standard',
-
-        /**
-         * The position of the toolbar.
-         * `top`, `bottom`
-         *
-         * @var {String}
-         */
-        toolbarLocation: 'top',
-
-        /**
-         * Remove actions of the toolbar. Comma separated.
-         *
-         * Example 1:
-         *        remove: 'ads, asd'
-         *
-         * Example: 2
-         *
-         * @var {String}
-         */
-        removeButtons: '',
-
-        /**
-         * Includes additionally plugins. Comma separated.
-         *
-         * @var {String}
-         */
-        extraPlugins: '',
-
-        /**
-         * Custom toolbar buttons.
-         *
-         * Take a look at
-         * http://docs.cksource.com/ckeditor_api/symbols/CKEDITOR.config.html#.toolbar_Full
-         * and
-         * http://docs.cksource.com/CKEditor_3.x/Developers_Guide/Toolbar
-         * for more information.
-         *
-         *
-         * @var {Array}
-         */
-        toolbar: null,
-
-        autoGrow_onStartup: false,
-
-        /**
-         * Sets the height of the editor to a fix value. Default is auto.
-         *
-         * @var {String}
-         */
-        inputHeight: null,
-
-        /**
-         * Sets the width of the editor to a fix value. Default is auto.
-         *
-         * @var {String}
-         */
-        inputWidth: null,
-
-        /**
-         * You can set some own config variables. See here what's possible: http://docs.cksource.com/ckeditor_api/symbols/CKEDITOR.config.html
-         *
-         * @var {Object}
-         */
-        customConfig: {},
+        config: 'full',
 
         configs: {
-            simple: {
-                toolbar: [
-                    ['Bold', 'Italic', 'Underline', 'Strike'],
-                    ['Undo', 'Redo'],
-                    ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent'],
-                    ['Link', 'Unlink'],
-                    ['Format'],
-                    [ 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord'],
-                    ['Source']
-                ]
-            },
             standard: {
-                toolbar: [
-                    ['Bold', 'Italic', 'Underline', 'Strike'],
-                    ['Styles', 'Format', 'Font', 'FontSize'],
-                    ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', 'Blockquote'],
-                    '/',
-                    ['Undo', 'Redo'],
-                    ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent'],
-                    ['Link', 'Unlink', 'Anchor'],
-                    ['Image', 'Flash', 'Table', 'HorizontalRule', 'Smiley'],
-                    [ 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord']
-                ]
+                plugins: [
+                    "advlist autolink lists link image charmap print preview anchor",
+                    "searchreplace visualblocks code fullscreen",
+                    "insertdatetime media table contextmenu paste moxiemanager"
+                ],
+                toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image"
             },
             full: {
-                toolbarGroups: [
-                    { name: 'document', groups: [ 'mode', 'document', 'doctools' ] },
-                    { name: 'clipboard', groups: [ 'clipboard', 'undo' ] },
-                    { name: 'editing', groups: [ 'find', 'selection', 'spellchecker' ] },
-                    { name: 'forms' },
-                    '/',
-                    { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
-                    { name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align' ] },
-                    { name: 'links' },
-                    { name: 'insert' },
-                    '/',
-                    { name: 'styles' },
-                    { name: 'colors' },
-                    { name: 'tools' },
-                    { name: 'others' },
-                    { name: 'about' }
-                ]
+                plugins: [
+                    "advlist autolink lists link image charmap print preview hr anchor pagebreak",
+                    "searchreplace wordcount visualblocks visualchars code fullscreen",
+                    "insertdatetime media nonbreaking save table contextmenu directionality",
+                    "emoticons template paste textcolor"
+                ],
+                toolbar1: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image",
+                toolbar2: "print preview media | forecolor backcolor emoticons",
+                tools: "inserttable",
             }
         }
 
     },
 
     createLayout: function () {
-
         this.main = new Element('div', {
             contentEditable: "true",
             'class': 'selectable ka-field-wysiwyg'
         }).inject(this.fieldInstance.fieldPanel);
 
-        if (this.options.inputHeight) {
-            this.main.setStyle('height', this.options.inputHeight);
-        }
+        var config = this.options.configs[this.options.config];
 
-        if (this.options.inputWidth) {
-            this.main.setStyle('width', this.options.inputWidth);
-        }
+        tinymce.init(Object.merge({
+            mode: 'exact',
+            inline: true,
+            elements: [this.main],
+            content_document: this.main.getDocument(),
+            content_window: this.main.getWindow(),
+            setup: function(editor) {
+                this.editor = editor;
+                this.ready = true;
+                if (this.value) {
+                    this.main.set('html', this.value);
+                }
+                editor.on('change', function(ed){
+                    this.checkChange();
+                }.bind(this));
+            }.bind(this)
+        }, config));
 
-        if (this.options['class']) {
-            this.main.addClass(this.options['class']);
-        }
-
-        var config = this.getEditorConfig();
-
-        this.editor = CKEDITOR.replace(this.main, config);
-        this.checkChange = this.checkChange.bind(this);
-        this.editorReady = this.editorReady.bind(this);
-
-        this.editor.on('instanceReady', this.editorReady);
-        this.editor.on('change', this.checkChange);
-        this.editor.on('blur', this.checkChange);
-        this.editor.on('focus', this.checkChange);
-        this.editor.on('key', this.checkChange);
-        this.editor.on('paste', this.checkChange);
-        this.editor.on('execCommand', this.checkChange);
-        this.main.addEvent('keyup', this.checkChange);
-
+        this.main.addEvent('keyup', function(ed){
+            this.checkChange();
+        }.bind(this));
     },
 
     checkChange: function () {
-
         if (this.ready) {
-            if (this.oldData != this.editor.getData()) {
+            if (this.oldData != this.getValue()) {
                 this.fieldInstance.fireChange();
+                this.oldData = this.getValue();
             }
         }
-
-    },
-
-    getEditorConfig: function () {
-
-        var config = this.options.configs[this.options.preset] || {};
-
-        config.toolbarLocation = this.options.toolbarLocation;
-        config.autoGrow_onStartup = true;
-
-        if (this.options.removeButtons) {
-            config.removeButtons = this.options.removeButtons;
-        }
-
-        config.extraPlugins = '';
-        if (this.options.extraPlugins) {
-            config.extraPlugins = this.options.extraPlugins;
-        }
-
-        config.extraPlugins += ',autogrow';
-
-        if (this.options.contentsCss) {
-            if (typeOf(this.options.contentsCss) == 'string') {
-                if (this.options.contentsCss.substr(0, 1) != '/') {
-                    this.options.contentsCss = _path + this.options.contentsCss;
-                }
-
-                config.contentsCss = _path + this.options.contentsCss
-            } else if (typeOf(this.options.contentsCss) == 'array') {
-
-                config.contentsCss = [];
-                Array.each(this.options.contentsCss, function (css) {
-
-                    if (css.substr(0, 1) != '/') {
-                        css = _path + css;
-                    }
-                    config.contentsCss.push(css);
-                });
-            }
-        }
-
-        Object.each(this.options.customConfig, function (v, k) {
-            config[k] = v;
-        });
-
-        return config;
-    },
-
-    editorReady: function () {
-        this.ready = true;
-        //this.main.inject(this.fieldInstance.fieldPanel);
     },
 
     toElement: function () {
@@ -248,18 +78,16 @@ ka.FieldTypes.Wysiwyg = new Class({
 
     setValue: function (pValue) {
         this.value = pValue;
-        if (this.ready) {
-            this.editor.setData(this.value);
-            this.oldValue = this.editor.getData();
-        }
+        this.oldData = this.value;
+        this.main.set('html', this.value);
     },
 
     getValue: function () {
         if (!this.ready) {
             return this.value;
+        } else {
+            return this.editor.getContent();
         }
-        else {
-            return this.editor.getData();
-        }
-    }
+    },
+
 });

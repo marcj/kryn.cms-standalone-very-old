@@ -117,6 +117,50 @@ td {
     bottom: 0;
 }
 
+.kryn_wysiwyg_toolbar > div > div {
+    display: block !important;
+    width: auto !important;
+
+}
+
+.kryn_wysiwyg_toolbar .mce-menubar {
+    width: auto !important;
+    height: auto !important;
+}
+.kryn_wysiwyg_toolbar .mce-container {
+    position: relative !important;
+    top: 0 !important;
+    background: transparent;
+    border: 0;
+}
+
+.kryn_wysiwyg_toolbar .mce-container,
+.kryn_wysiwyg_toolbar .mce-container > div,
+.kryn_wysiwyg_toolbar .mce-container > div > div {
+    width: auto !important;
+    height: auto !important;
+    white-space: normal !important;
+    text-align: center;
+    border-radius: 0;
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    box-shadow: none;
+}
+
+.kryn_wysiwyg_toolbar .mce-btn-group .mce-btn.mce-disabled,
+.kryn_wysiwyg_toolbar .mce-btn-group .mce-btn.mce-disabled:hover,
+.kryn_wysiwyg_toolbar .mce-btn-group .mce-btn.mce-active,
+.kryn_wysiwyg_toolbar .mce-btn-group .mce-btn.mce-active:hover,
+.kryn_wysiwyg_toolbar .mce-btn-group .mce-btn:active,
+.kryn_wysiwyg_toolbar .mce-btn-group .mce-btn:hover,
+.kryn_wysiwyg_toolbar .mce-btn-group .mce-btn:focus,
+.kryn_wysiwyg_toolbar .mce-btn:hover,
+.kryn_wysiwyg_toolbar .mce-btn:focus,
+.kryn_wysiwyg_toolbar .mce-btn {
+    background-image: none;
+    box-shadow: none;
+}
+/*
 .kryn_cke_toolbar {
     position: relative !important;
     top: 0 !important;
@@ -195,6 +239,7 @@ td {
 .kryn_cke_toolbar .cke_button_on {
     border: 0;
 }
+*/
 
 
 .ka-admin div,
