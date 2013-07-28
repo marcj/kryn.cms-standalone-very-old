@@ -331,11 +331,9 @@ class ObjectCrud
     /**
      * Constructor
      */
-    public function __construct(EntryPoint $entryPoint = null, $withoutObjectCheck = false)
+    public function __construct(EntryPoint $entryPoint = null)
     {
         $this->entryPoint = $entryPoint;
-
-        $this->initialize($withoutObjectCheck);
     }
 
     /**
@@ -355,7 +353,7 @@ class ObjectCrud
                 $this->table = $this->objectDefinition->getTable();
             }
             if (!$this->fields) {
-                $this->fields = $this->objectDefinition->getFields();
+                $this->fields = $this->objectDefinition->getFields(true);
             }
             if (!$this->titleField) {
                 $this->titleField = $this->objectDefinition->getLabel();
@@ -483,7 +481,6 @@ class ObjectCrud
 
         $this->translate($this->nestedRootAddLabel);
         $this->translate($this->addLabel);
-
     }
 
     public function translate(&$pField)
@@ -626,7 +623,6 @@ class ObjectCrud
         } else {
 
             /*TODO
-
             if ($pFields['needAccess'] && !Kryn::checkUrlAccess($pFields['needAccess'])) {
                 $pFields = null;
 
@@ -634,7 +630,6 @@ class ObjectCrud
             }*/
 
             if (substr($pFields->getId(), 0, 2) != '__' && substr($pFields->getId(), -2) != '__') {
-
                 switch ($pFields->getType()) {
                     case 'predefined':
 
@@ -713,7 +708,7 @@ class ObjectCrud
         $fields = array();
 
         foreach ($this->_fields as $key => $field) {
-            if (!$field['customValue'] && !$field['startEmpty']) {
+            if (!$field->isVirtual() && !$field['customValue'] && !$field['startEmpty']) {
                 $fields[] = $field->getId();
             }
         }
@@ -1137,6 +1132,10 @@ class ObjectCrud
 
         $options['fields'] = $fields;
 
+        if (!$options['fields']) {
+            $options['fields'] = array_keys($this->getColumns() ? : array());
+        }
+
         if ($options['fields'] === null) {
             $options['fields'] = $this->getDefaultFieldList();
         }
@@ -1403,7 +1402,7 @@ class ObjectCrud
         $form = new \Core\Form\Form($fields);
 
         foreach ($fields as $field) {
-            $key = $field->getId();
+            $key = lcfirst($field->getId());
             $value = ($_POST[$key] ? : $_GET[$key]);
             if (null == $value && $pData) {
                 $value = $pData[$key];

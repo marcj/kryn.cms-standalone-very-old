@@ -346,6 +346,7 @@ class ObjectCrudController extends Server
 
         if (class_exists($class)) {
             $obj = new $class($this->entryPoint);
+            $obj->initialize();
         } else {
             throw new \Exception(tf('Class %s not found', $class));
         }
