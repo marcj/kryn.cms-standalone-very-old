@@ -1,0 +1,10 @@
+<config>
+  <bundle>
+    <events>
+      <event key="core/object/modify" subject="core:domain">
+        <clearCache>core/domains.created</clearCache>
+        <clearCache>core/domains</clearCache>
+      </event>
+    </events>
+  </bundle>
+</config>
