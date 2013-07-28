@@ -56,7 +56,8 @@ class WorkspaceBehavior extends Behavior
         static::doBackupRecord(\$this, \$con);
 
         //save workspace_action=deleted
-        \$updateValues = clone \$this;
+        \$clazz = get_called_class();
+        \$updateValues = new \$clazz;
         self::appendWorkspaceInfo(\$updateValues, 'delete');
 
         //update the record
@@ -394,7 +395,7 @@ class WorkspaceBehavior extends Behavior
         $colAction = "'" . $this->getTable()->getColumn($prefix . 'action')->getFullyQualifiedName() . "'";
 
         $script .= '
-    private static function appendWorkspaceInfo(&$criteria, $mode = "select")
+    private static function appendWorkspaceInfo($criteria, $mode = "select")
     {
         $colId = ' . $colId . ';
         $colAction = ' . $colAction . ';
