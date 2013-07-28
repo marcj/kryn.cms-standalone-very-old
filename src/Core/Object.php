@@ -218,8 +218,26 @@ class Object
     }
 
     /**
-     * Cuts of the actual object key.
+     * Cuts of the object name of the object key.
+     *
      * core:node => Core.
+     *
+     * @param $pObjectKey
+     * @return null|string
+     */
+    public static function getBundleName($pObjectKey) {
+        $pObjectKey = self::normalizeObjectKey($pObjectKey);
+        $temp = explode(':', $pObjectKey);
+        $config = Kryn::getConfig($temp[0]);
+
+        return $config ? $config->getName() : null;
+    }
+
+    /**
+     * Returns the namespace of the bundle of the object key.
+     *
+     * core:node => Core.
+     * bundleWithNameSpace:myObject => Bundle\With\Namespace.
      *
      * @param  string $pObjectKey
      *
@@ -231,7 +249,7 @@ class Object
         $temp = explode(':', $pObjectKey);
         $config = Kryn::getConfig($temp[0]);
 
-        return $config->getBundleClass()->getNamespace();
+        return $config ? $config->getBundleClass()->getNamespace() : null;
     }
 
     /**
