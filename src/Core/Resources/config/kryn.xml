@@ -5,6 +5,12 @@
         <clearCache>core/domains.created</clearCache>
         <clearCache>core/domains</clearCache>
       </event>
+      <event key="core/object/modify" subject="core:content">
+        <clearCache>core/contents</clearCache>
+      </event>
+      <event key="core/object/modify" subject="core:node">
+        <clearCache>core/contents</clearCache>
+      </event>
     </events>
   </bundle>
 </config>
