@@ -4,6 +4,7 @@ namespace Core\ORM\Sync;
 
 use Admin\Exceptions\BuildException;
 use Core\Bundle;
+use Core\Config\Field;
 use Core\Config\Object;
 use Core\SystemFile;
 
@@ -22,7 +23,7 @@ class Propel implements SyncInterface {
     public function getColumnFromField(
         $pObject,
         $pFieldKey,
-        $pField,
+        Field $pField,
         &$pTable,
         &$pDatabase,
         &$pRefColumn = null,
@@ -37,6 +38,10 @@ class Propel implements SyncInterface {
         }
 
         $object = \Core\Object::getDefinition($pObject);
+
+        if ($pField->getVirtual()) {
+            return;
+        }
 
         switch (strtolower($pField['type'])) {
 
@@ -152,7 +157,7 @@ class Propel implements SyncInterface {
 
                 $relationName = $pField['objectRelationName'] ?: $foreignObject->getId();
 
-                if ($pField['objectRelation'] == 'nTo1') {
+                if ($pField['objectRelation'] == 'nTo1' || $pField['objectRelation'] == '1ToN') {
 
                     $leftPrimaries = \Core\Object::getPrimaryList($pObject);
                     $rightPrimaries = \Core\Object::getPrimaries($pField['object']);
@@ -172,6 +177,14 @@ class Propel implements SyncInterface {
 
                     $foreignKey['phpName'] = $relationName;
                     $foreignKey['foreignTable'] = $foreignObject['table'];
+
+                    if ($pField['objectRelationOnDelete']) {
+                        $foreignKey['onDelete'] = $pField['objectRelationOnDelete'];
+                    }
+
+                    if ($pField['objectRelationOnUpdate']) {
+                        $foreignKey['onUpdate'] = $pField['objectRelationOnUpdate'];
+                    }
 
                     if (count($rightPrimaries) == 1) {
 
@@ -212,7 +225,6 @@ class Propel implements SyncInterface {
                     }
 
                 } else {
-
                     //n-n, we need a extra table
 
                     $probablyName = $bundle->getName() . '_' . camelcase2Underscore(
