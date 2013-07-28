@@ -50,9 +50,6 @@
     <index>
       <index-column name="node_id"/>
     </index>
-    <foreign-key foreignTable="system_node" onDelete="cascade" phpName="Node">
-      <reference local="node_id" foreign="id"/>
-    </foreign-key>
     <behavior name="Core\WorkspaceBehavior"/>
     <behavior name="sortable">
       <parameter name="rank_column" value="sort"/>
@@ -62,6 +59,9 @@
     <vendor type="mysql">
       <parameter name="Charset" value="utf8"/>
     </vendor>
+    <foreign-key phpName="Node" foreignTable="system_node" onDelete="cascade" onUpdate="cascade">
+      <reference local="node_id" foreign="id"/>
+    </foreign-key>
   </table>
   <table name="system_domain" phpName="Domain" idMethod="native">
     <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true"/>
@@ -74,7 +74,7 @@
     <column name="page404_id" phpName="Page404id" type="INTEGER" required="false"/>
     <column name="page404_interface" phpName="Page404interface" type="VARCHAR" size="128" required="false"/>
     <column name="master" type="BOOLEAN" required="false"/>
-    <column name="resource_compression" type="INTEGER" required="false"/>
+    <column name="resource_compression" type="BOOLEAN" required="false"/>
     <column name="layouts" type="LONGVARCHAR" required="false"/>
     <column name="phplocale" type="VARCHAR" size="128" required="false"/>
     <column name="path" type="VARCHAR" size="64" required="false"/>
@@ -94,12 +94,12 @@
     <index>
       <index-column name="master"/>
     </index>
-    <index>
-      <index-column name="startnode_id"/>
-    </index>
     <vendor type="mysql">
       <parameter name="Charset" value="utf8"/>
     </vendor>
+    <foreign-key phpName="startnode" foreignTable="system_node" onDelete="cascade" onUpdate="cascade">
+      <reference local="startnode_id" foreign="id"/>
+    </foreign-key>
   </table>
   <table name="system_framework_version" phpName="FrameworkVersion" idMethod="native">
     <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true"/>
@@ -299,11 +299,11 @@
     <column name="title" type="VARCHAR"/>
     <column name="owner_id" type="INTEGER"/>
     <column name="created" type="BIGINT"/>
-    <foreign-key phpName="owner" foreignTable="system_user" onDelete="cascade">
-      <reference local="owner_id" foreign="id"/>
-    </foreign-key>
     <vendor type="mysql">
       <parameter name="Charset" value="utf8"/>
     </vendor>
+    <foreign-key phpName="owner" foreignTable="system_user" onDelete="cascade" onUpdate="cascade">
+      <reference local="owner_id" foreign="id"/>
+    </foreign-key>
   </table>
 </database>
