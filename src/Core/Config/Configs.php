@@ -26,6 +26,13 @@ class Configs implements \IteratorAggregate
         $this->configElements = $this->parseConfig($this->configElements);
     }
 
+    public function setup()
+    {
+        foreach ($this->configElements as $config) {
+            $config->setup($this);
+        }
+    }
+
     /**
      * $configs = $configs[$bundleName][$priority][] = $bundleDomElement;
      *

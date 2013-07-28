@@ -62,7 +62,7 @@ class Bundle extends Model
     protected $streams;
 
     /**
-     * @param string      $bundleName
+     * @param string $bundleName
      * @param \DOMElement $bundleDoc
      */
     public function __construct($bundleName = '', \DOMElement $bundleDoc = null)
@@ -70,6 +70,18 @@ class Bundle extends Model
         $this->element = $bundleDoc;
         $this->bundleName = $bundleName;
         $this->rootName = 'bundle';
+    }
+
+    /**
+     *  All bundle configs have been loaded. Do whatever is needed with it.
+     */
+    public function setup(Configs $configs)
+    {
+        if ($this->getObjects()) {
+            foreach ($this->getObjects() as $object) {
+                $object->syncRelations();
+            }
+        }
     }
 
     public function toArray($element = null)
@@ -97,7 +109,7 @@ class Bundle extends Model
 
     /**
      * @param string $path
-     * @param bool   $withDefaults
+     * @param bool $withDefaults
      *
      * @return bool
      *
@@ -109,7 +121,7 @@ class Bundle extends Model
         $doc = new \DOMDocument();
         $doc->formatOutput = true;
         $doc->loadXML("<config>$xml</config>");
-        $xml = substr($doc->saveXML(), strlen('<?xml version="1.0"?>')+1);
+        $xml = substr($doc->saveXML(), strlen('<?xml version="1.0"?>') + 1);
         if ((!file_exists($path) && !is_writable(dirname($path))) || (file_exists($path) && !is_writable($path))) {
             throw new \FileNotWritableException(tf('The file `%s` is not writable.', $path));
         }
@@ -226,7 +238,6 @@ class Bundle extends Model
     }
 
 
-
     /**
      * @param Stream[] $streams
      */
@@ -245,7 +256,7 @@ class Bundle extends Model
 
     /**
      * @param string $filter
-     * @param bool   $regex
+     * @param bool $regex
      *
      * @return Asset[]|Assets[]
      */
@@ -282,10 +293,10 @@ class Bundle extends Model
 
     /**
      *
-     * @param bool   $localPath   Return the real local accessible path or the defined.
+     * @param bool $localPath   Return the real local accessible path or the defined.
      * @param string $filter      a filter value
-     * @param bool   $regex       if you pass a own regex as $filter set this to true
-     * @param bool   $compression if true or false it returns only assets with this compression value. null returns all
+     * @param bool $regex       if you pass a own regex as $filter set this to true
+     * @param bool $compression if true or false it returns only assets with this compression value. null returns all
      *
      * @return string[]
      */
@@ -434,6 +445,9 @@ class Bundle extends Model
     public function setObjects(array $objects)
     {
         $this->objects = $objects;
+        foreach ($this->objects as $object) {
+            $object->setBundle($this);
+        }
     }
 
     /**

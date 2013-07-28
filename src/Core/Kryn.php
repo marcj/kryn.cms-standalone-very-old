@@ -710,6 +710,7 @@ class Kryn extends Controller
 
         if (!self::$configs) {
             self::$configs = new Config\Configs(Kryn::$bundles);
+            self::$configs->setup();
             $cached = serialize([
                 'md5'  => $hash,
                 'data' => self::$configs
@@ -1908,7 +1909,7 @@ class Kryn extends Controller
      */
     public static function getConfig($bundleName)
     {
-        return self::$configs->getConfig($bundleName);
+        return self::$configs ? self::$configs->getConfig($bundleName) : null;
     }
 
     /**
