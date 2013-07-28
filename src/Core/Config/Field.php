@@ -41,6 +41,14 @@ class Field extends Model
     protected $object;
 
     /**
+     * One of
+     *
+     * \Core\ORM\ORMAbstract::
+     *       MANY_TO_ONE = 'nTo1',
+     *       ONE_TO_MANY = '1ToN',
+     *       ONE_TO_ONE = '1To1',
+     *       MANY_TO_MANY = 'nToM';
+     *
      * @var string
      */
     protected $objectRelation;
@@ -54,6 +62,27 @@ class Field extends Model
      * @var string
      */
     protected $objectRelationName;
+
+    /**
+     * The virtualField name of the field in the foreign object.
+     *
+     * @var string
+     */
+    protected $objectRefRelationName;
+
+    /**
+     * onDelete cascade|setnull|restrict|none
+     *
+     * @var string
+     */
+    protected $objectRelationOnDelete = 'cascade';
+
+    /**
+     * onUpdate cascade|setnull|restrict|none
+     *
+     * @var string
+     */
+    protected $objectRelationOnUpdate = 'cascade';
 
     /**
      * The key of the field this is representing. Primarily for types 'predefined'.
@@ -195,6 +224,14 @@ class Field extends Model
     protected $options;
 
     /**
+     * If this is a virtual field or not. Virtual fields a dummy fields
+     * to keep the relation between object fields in sync.
+     *
+     * @var boolean
+     */
+    protected $virtual = false;
+
+    /**
      * @param array  $values
      * @param string $key
      */
@@ -205,6 +242,31 @@ class Field extends Model
             $this->setId($key);
         }
     }
+
+    /**
+     * @param boolean $virtual
+     */
+    public function setVirtual($virtual)
+    {
+        $this->virtual = $virtual;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getVirtual()
+    {
+        return $this->virtual;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isVirtual()
+    {
+        return true == $this->virtual;
+    }
+
 
     /**
      * @param Options $options
@@ -802,6 +864,22 @@ class Field extends Model
     }
 
     /**
+     * @param string $objectRefRelationName
+     */
+    public function setObjectRefRelationName($objectRefRelationName)
+    {
+        $this->objectRefRelationName = $objectRefRelationName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getObjectRefRelationName()
+    {
+        return $this->objectRefRelationName;
+    }
+
+    /**
      * @param string $objectLabel
      */
     public function setObjectLabel($objectLabel)
@@ -817,5 +895,36 @@ class Field extends Model
         return $this->objectLabel;
     }
 
+    /**
+     * @param string $objectRelationOnUpdate
+     */
+    public function setObjectRelationOnUpdate($objectRelationOnUpdate)
+    {
+        $this->objectRelationOnUpdate = $objectRelationOnUpdate;
+    }
+
+    /**
+     * @return string
+     */
+    public function getObjectRelationOnUpdate()
+    {
+        return $this->objectRelationOnUpdate;
+    }
+
+    /**
+     * @param string $objectRelationOnDelete
+     */
+    public function setObjectRelationOnDelete($objectRelationOnDelete)
+    {
+        $this->objectRelationOnDelete = $objectRelationOnDelete;
+    }
+
+    /**
+     * @return string
+     */
+    public function getObjectRelationOnDelete()
+    {
+        return $this->objectRelationOnDelete;
+    }
 
 }
