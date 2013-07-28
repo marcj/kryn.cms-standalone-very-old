@@ -173,14 +173,6 @@ class AdminController
                 $object->setObject($objectKey);
                 $object->setAllowCustomSelectFields(true);
 
-                $autoFields = array();
-                foreach ($definition->getFields(true) as $field) {
-                    if (!$field->isVirtual() && $field->getType() != 'object') {
-                        $autoFields[$field->getId()] = $field;
-                    }
-                }
-
-                $object->setColumns($autoFields);
                 $object->initialize();
 
                 $epc = new ObjectCrudController(Kryn::getAdminPrefix() . '/'. $entryPoint->getFullPath());
