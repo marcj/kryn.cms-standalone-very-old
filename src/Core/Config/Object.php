@@ -2,6 +2,8 @@
 
 namespace Core\Config;
 
+use Core\Kryn;
+
 class Object extends Model
 {
     protected $attributes = ['id'];
@@ -12,6 +14,11 @@ class Object extends Model
      * @var string
      */
     protected $id;
+
+    /**
+     * @var Bundle
+     */
+    private $bundle;
 
     /**
      * A label of the object.
@@ -295,7 +302,78 @@ class Object extends Model
     /**
      * @var array
      */
+    private $virtualFields;
+
+    /**
+     * @var array
+     */
     private $primaryKeys;
+
+//    public function fromArray($values, $key = null)
+//    {
+//        parent::fromArray($values, $key);
+//        $this->syncRelations();
+//    }
+//
+//    public function setupObject()
+//    {
+//        parent::setupObject();
+//        $this->syncRelations();
+//    }
+
+    public function syncRelations()
+    {
+        ///resolve relations
+        //if a object has a MANY_TO_ONE relation to another, then we create a virtual field to the other.
+        foreach ($this->getFields() as $field) {
+            if ($field->getObjectRelation() == \Core\ORM\ORMAbstract::MANY_TO_ONE) {
+                $objectName = \Core\Object::getName($field['object']);
+                $bundleName = strtolower(\Core\Object::getBundleName($field['object']));
+                $fieldName = lcfirst($field['objectRefRelationName'] ? : $this->getId());
+
+                $bundle = Kryn::getConfig($bundleName);
+                if ($bundle && $object = $bundle->getObject($objectName)) {
+                    $objectName = $this->getBundle()->getName() . ':' . $this->getId();
+                    $virtualField = new Field(array(
+                        'id' => $fieldName,
+                        'virtual' => true,
+                        'label' => 'Auto Object Relation (' . $objectName . ')',
+                        'object' => $objectName,
+                        'objectRelation' => \Core\ORM\ORMAbstract::ONE_TO_MANY
+                    ));
+
+                    $object->addVirtualField($virtualField);
+                }
+            }
+        }
+    }
+
+    /**
+     * @param Field[] $virtualFields
+     */
+    public function setVirtualFields(array $virtualFields)
+    {
+        $this->virtualFields = $virtualFields;
+    }
+
+    /**
+     * @param Field $virtualField
+     */
+    public function addVirtualField(Field $virtualField)
+    {
+        if (!in_array($virtualField, $this->virtualFields ?: [], true)) {
+            $this->virtualFields[] = $virtualField;
+        }
+    }
+
+    /**
+     * @return Field[]
+     */
+    public function getVirtualFields()
+    {
+        return $this->virtualFields;
+    }
+
 
     /**
      * @param string $blacklistSelection
@@ -482,11 +560,12 @@ class Object extends Model
     }
 
     /**
+     * @param bool $withVirtual returns the virtual fields as well
      * @return Field[]
      */
-    public function getFields()
+    public function getFields($withVirtual = false)
     {
-        return $this->fields;
+        return $withVirtual ? array_merge($this->fields ?: [], $this->virtualFields ?: []) : $this->fields;
     }
 
     public function getFieldsArray()
@@ -1091,5 +1170,20 @@ class Object extends Model
         return $this->table;
     }
 
+    /**
+     * @param Bundle $bundle
+     */
+    public function setBundle(Bundle $bundle)
+    {
+        $this->bundle = $bundle;
+    }
+
+    /**
+     * @return Bundle
+     */
+    public function getBundle()
+    {
+        return $this->bundle;
+    }
 
 }
