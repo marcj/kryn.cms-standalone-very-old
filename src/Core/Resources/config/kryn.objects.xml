@@ -65,7 +65,6 @@
           <label>Modified</label>
         </field>
       </fields>
-      <browserColumns/>
     </object>
     <object id="Node">
       <label>Node</label>
@@ -138,15 +137,15 @@
         <field id="searchWords" type="text"/>
         <field id="unsearchable" type="checkbox"/>
       </fields>
-      <browserColumns/>
       <publicUrlGenerator>Core\PageController::getPublicUrl</publicUrlGenerator>
     </object>
-    <object id="Domain">
+    <object>
       <label>Domain</label>
       <table>system_domain</table>
       <labelField>domain</labelField>
       <labelTemplate>[{lang}] {domain}</labelTemplate>
       <defaultSelection>domain, lang</defaultSelection>
+      <multiLanguage>true</multiLanguage>
       <fields>
         <field id="id" type="number" primaryKey="true" autoIncrement="true">
           <label>ID</label>
@@ -197,7 +196,6 @@
           <label>Favicon path.</label>
         </field>
       </fields>
-      <browserColumns/>
     </object>
     <object id="Language">
       <label>Language</label>
@@ -205,7 +203,6 @@
       <labelField>title</labelField>
       <labelTemplate>{title} ({langtitle}, {code})</labelTemplate>
       <defaultSelection>title, langtitle, code</defaultSelection>
-      <limitDataSets>true</limitDataSets>
       <fields>
         <field id="code" type="text" primaryKey="true"/>
         <field id="title" type="text"/>
@@ -213,7 +210,6 @@
         <field id="userdefined" type="checkbox"/>
         <field id="visible" type="checkbox"/>
       </fields>
-      <browserColumns/>
     </object>
     <object id="Workspace">
       <label>Workspace</label>
@@ -231,10 +227,8 @@
         </field>
         <field id="created" type="datetime"/>
       </fields>
-      <browserColumns/>
     </object>
     <object id="EntryPoint">
-      <label/>
       <class>\Admin\ObjectEntryPoint</class>
       <labelField>title</labelField>
       <dataModel>custom</dataModel>
@@ -244,7 +238,6 @@
         <field id="title" type="text"/>
         <field id="type" type="text"/>
       </fields>
-      <browserColumns/>
     </object>
     <object id="Content">
       <label>Node Content</label>
@@ -272,7 +265,6 @@
         <field id="hide" type="checkbox"/>
         <field id="unsearchable" type="text"/>
       </fields>
-      <browserColumns/>
     </object>
     <object id="View">
       <label>Template View</label>
@@ -289,7 +281,6 @@
           <label>File name</label>
         </field>
       </fields>
-      <browserColumns/>
     </object>
   </objects>
 </bundle>
