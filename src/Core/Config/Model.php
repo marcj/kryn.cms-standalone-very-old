@@ -473,7 +473,7 @@ class Model implements \ArrayAccess
             } else {
                 $val = $this->$getter();
             }
-            if ($defaultProperties[$key] === $val && (!$printDefaults || in_array($key, $this->excludeDefaults))) {
+            if ($defaultProperties[$key] == $val && (!$printDefaults || in_array($key, $this->excludeDefaults))) {
                 continue;
             }
             if (array_key_exists($key, $modelProperties)) {
