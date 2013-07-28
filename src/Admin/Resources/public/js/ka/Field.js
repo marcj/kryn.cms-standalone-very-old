@@ -1057,15 +1057,16 @@ ka.Field = new Class({
         }
 
         var values = pValues;
-        var keys = pKey.split('[');
+        pKey = pKey.replace('[', '.').replace(']', '');
+        var keys = pKey.split('.');
         var notFound = false;
         Array.each(keys, function (key) {
 
             if (notFound) {
                 return;
             }
-            if (values[ key.replace(']', '')]) {
-                values = values[ key.replace(']', '')];
+            if (values[key]) {
+                values = values[key];
             } else {
                 notFound = true;
             }

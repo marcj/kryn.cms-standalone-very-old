@@ -533,7 +533,8 @@ ka.FieldForm = new Class({
         }
 
         Object.each(this.fields, function (obj, id) {
-            if (id.indexOf('[') != -1) {
+            id = id.replace('[', '.').replace(']', '');
+            if (id.indexOf('.') != -1) {
                 obj.setArrayValue(pValues, id, pInternal);
             } else {
                 obj.setValue(pValues ? pValues[id] : null, pInternal);
@@ -615,14 +616,15 @@ ka.FieldForm = new Class({
                     return;
                 }
 
-                if (id.indexOf('[') != -1) {
-                    var items = id.split('[');
+                id = id.replace('[', '.').replace(']', '');
+                if (id.indexOf('.') != -1) {
+                    var items = id.split('.');
                     var key = '';
                     var last = {};
                     var newRes = last;
 
                     items.each(function (item, pos) {
-                        key = item.replace(']', '');
+                        key = item;
 
                         if (pos == items.length - 1) {
                             val = obj.getValue();
