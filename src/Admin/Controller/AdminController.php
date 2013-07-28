@@ -174,13 +174,13 @@ class AdminController
                 $object->setAllowCustomSelectFields(true);
 
                 $autoFields = array();
-                foreach ($definition->getFields() as $key => $field) {
-                    if ($field->getType() != 'object') {
-                        $autoFields[$key] = $field;
+                foreach ($definition->getFields(true) as $field) {
+                    if (!$field->isVirtual() && $field->getType() != 'object') {
+                        $autoFields[$field->getId()] = $field;
                     }
                 }
 
-                $object->setFields($autoFields);
+                $object->setColumns($autoFields);
                 $object->initialize();
 
                 $epc = new ObjectCrudController(Kryn::getAdminPrefix() . '/'. $entryPoint->getFullPath());
@@ -406,7 +406,6 @@ class AdminController
         $response = Kryn::getResponse();
         $response->addJsFile('@CoreBundle/mootools-core.js');
         $response->addJsFile('@CoreBundle/mootools-more.js');
-        $response->addJsFile('@CoreBundle/ckeditor/ckeditor.js');
 
         //$response->addJs('ka = parent.ka;');
 
