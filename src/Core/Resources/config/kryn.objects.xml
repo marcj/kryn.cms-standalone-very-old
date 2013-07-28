@@ -171,7 +171,7 @@
         <field id="startnodeId" type="object">
           <label>Startpage</label>
           <object>Core\Node</object>
-          <objectRelation>nTo1</objectRelation>
+          <objectRelation>1ToN</objectRelation>
           <objectRelationName>startnode</objectRelationName>
           <required>true</required>
         </field>
@@ -181,7 +181,7 @@
         </field>
         <field id="path" type="text">
           <label>Path</label>
-          <desc>If you installation is not pointed to a domain name directly but is in a subfolder, then this is the name of this folder. Default /.</desc>
+          <desc>If your installation does not point to a domain name directly but is in a subfolder, then this is the name of this folder. Default /.</desc>
           <default>/</default>
           <required>true</required>
         </field>
@@ -260,9 +260,11 @@
           <object>Core\Node</object>
           <objectRelation>nTo1</objectRelation>
           <objectLabel>title</objectLabel>
+          <objectRelationName>Node</objectRelationName>
+          <objectRefRelationName>Content</objectRefRelationName>
         </field>
         <field id="boxId" type="number"/>
-        <field id="sortableId" type="number"/>
+        <field id="sort" type="number"/>
         <field id="title" type="text"/>
         <field id="content" type="textarea"/>
         <field id="template" type="text"/>
