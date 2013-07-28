@@ -6,6 +6,7 @@ use Core\Config\Object as ConfigObject;
 use Core\Object;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\ModelCriteria;
+use Propel\Runtime\Collection\ObjectCollection;
 use Propel\Runtime\Map\RelationMap;
 use Propel\Runtime\Map\TableMap;
 use Propel\Runtime\Propel as RuntimePropel;
@@ -185,17 +186,17 @@ class Propel extends ORMAbstract
         //filter
         if ($blacklistSelection = $this->definition->getBlacklistSelection()) {
 
-            $allowedFields = strtolower(',' . str_replace(' ', '', trim($blacklistSelection)) . ',');
+            $blacklistedFields = strtolower(',' . str_replace(' ', '', trim($blacklistSelection)) . ',');
 
             $filteredFields = array();
             foreach ($fields as $name => $def) {
-                if (strpos($allowedFields, strtolower(',' . $name . ',')) === false) {
+                if (strpos($blacklistedFields, strtolower(',' . $name . ',')) === false) {
                     $filteredFields[$name] = $def;
                 }
             }
             $filteredRelations = array();
             foreach ($relations as $name => $def) {
-                if (strpos($allowedFields, strtolower(',' . $name . ',')) === false) {
+                if (strpos($blacklistedFields, strtolower(',' . $name . ',')) === false) {
                     $filteredRelations[$name] = $def;
                 }
             }
@@ -814,7 +815,9 @@ class Propel extends ORMAbstract
     {
         $pluralizer = new \Propel\Common\Pluralizer\StandardEnglishPluralizer;
 
-        foreach ($this->definition['fields'] as $fieldName => $field) {
+        foreach ($this->definition->getFields(true) as $field) {
+            $fieldName = $field->getId();
+            $fieldName = lcfirst($fieldName);
 
             $fieldValue = $pValues[$fieldName];
 
@@ -823,7 +826,6 @@ class Propel extends ORMAbstract
             }
 
             $fieldName = ucfirst($fieldName);
-
             $set = 'set' . $fieldName;
             $methodExist = method_exists($pItem, $set);
 
@@ -832,25 +834,22 @@ class Propel extends ORMAbstract
             }
 
             if ($field['type'] == 'object' || $this->tableMap->hasRelation($fieldName)) {
-
                 if ($field['objectRelation'] == ORMAbstract::MANY_TO_MANY || $field['objectRelation'] == ORMAbstract::ONE_TO_MANY) {
 
                     $name = $pluralizer->getPluralForm(underscore2Camelcase($fieldName));
-                    //$getItems = 'get'.underscore2Camelcase($fieldName).'s';
                     $setItems = 'set' . $name;
                     $getItems = 'get' . $name;
                     $clearItems = 'clear' . $name;
                     $addItem = 'add' . underscore2Camelcase($fieldName);
 
                     if ($fieldValue) {
-
                         $foreignQuery = $this->getQueryClass($field['object']);
                         $foreignClass = $this->getPhpName($field['object']);
                         $foreignObjClass = \Core\Object::getClass($field['object']);
 
                         if ($field['objectRelation'] == ORMAbstract::ONE_TO_MANY) {
 
-                            $coll = new RuntimePropelObjectCollection();
+                            $coll = new ObjectCollection();
                             $coll->setModel(ucfirst($foreignClass));
 
                             foreach ($fieldValue as $foreignItem) {
@@ -899,13 +898,6 @@ class Propel extends ORMAbstract
                 }
 
                 $pItem->$set($fieldValue);
-            } else {
-                throw new \FieldNotFoundException(tf(
-                    'Field %s in object %s not found (%s)',
-                    $fieldName,
-                    $this->objectKey,
-                    $set
-                ));
             }
 
         }
