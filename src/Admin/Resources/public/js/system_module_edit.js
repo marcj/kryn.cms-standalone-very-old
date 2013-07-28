@@ -1949,10 +1949,10 @@ var admin_system_module_edit = new Class({
         }).inject(this.panes['objects']);
 
         this.objectsTable = new ka.Table([
-            ['', 20],
+        //    ['', 20],
             [t('Object key'), 260],
             [t('Object label'), 260],
-            [t('Actinons')]
+            [t('Actions')]
         ]).inject(this.objectsPane);
 
         this.objectTBody = this.objectsTable.getBody();
@@ -2096,7 +2096,7 @@ var admin_system_module_edit = new Class({
 
         var req = {};
         req.objects = JSON.encode(objects);
-        req.name = this.mod;
+        req.bundle = this.mod;
 
         this.lr = new Request.JSON({url: _pathAdmin +
             'admin/system/module/editor/objects', noCache: 1, onComplete: function (response) {
@@ -2594,12 +2594,12 @@ var admin_system_module_edit = new Class({
 
 //        tr.definition = pDefinition || {};
 
-        var helpText = new Element('td', {
-            style: 'text-align: right; color: gray; padding-left: 3px;',
-            text: this.mod.charAt(0).toUpperCase() + this.mod.slice(1) + '\\'
-        });
-
-        row.push(helpText);
+//        var helpText = new Element('td', {
+//            style: 'text-align: right; color: gray; padding-left: 3px;',
+//            text: this.mod.charAt(0).toUpperCase() + this.mod.slice(1) + '\\'
+//        });
+//
+//        row.push(helpText);
 
         var actions = new Element('div');
         var iKey = new ka.Field({
@@ -2615,7 +2615,6 @@ var admin_system_module_edit = new Class({
             noWrapper: true,
             value: pDefinition ? pDefinition['label'] : ''
         });
-
 
         row.push(iKey);
         row.push(iLabel);
@@ -2660,10 +2659,9 @@ var admin_system_module_edit = new Class({
                 width: '90%',
                 height: '95%'
             });
-            dialog.center();
 
             new ka.Button(t('Cancel')).addEvent('click',function () {
-                dialog.close();
+                dialog.closeAnimated();
             }).inject(dialog.bottom);
 
             new Element('div', {
@@ -2712,11 +2710,13 @@ var admin_system_module_edit = new Class({
             new ka.Button(t('Apply')).addEvent('click', function () {
 
                 tr.definition.fields = fieldTable.getValue();
-                dialog.close();
+                dialog.closeAnimated();
 
             })
             .setButtonStyle('blue')
             .inject(dialog.bottom);
+
+            dialog.center(true);
 
         }.bind(this));
     },
