@@ -611,7 +611,7 @@ ka.WindowList = new Class({
             orderBy: this.sortField,
             filter: this.searchEnabled,
             filterVals: (this.searchEnabled) ? this.getSearchVals() : '',
-            language: (this.languageSelect) ? this.languageSelect.getValue() : false,
+            lang: (this.languageSelect) ? this.languageSelect.getValue() : false,
             orderByDirection: this.sortDirection,
             params: JSON.encode(this.win.params)
         });

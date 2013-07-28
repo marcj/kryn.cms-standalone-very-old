@@ -1132,10 +1132,6 @@ class ObjectCrud
 
         $options['fields'] = $fields;
 
-        if (!$options['fields']) {
-            $options['fields'] = array_keys($this->getColumns() ? : array());
-        }
-
         if ($options['fields'] === null) {
             $options['fields'] = $this->getDefaultFieldList();
         }
@@ -1394,9 +1390,16 @@ class ObjectCrud
         $data = array();
 
         if ($pFields) {
-            $fields =& $pFields;
+            $fields = $pFields;
         } else {
-            $fields =& $this->_fields;
+            $fields = $this->_fields;
+        }
+
+        if ($this->getMultiLanguage()) {
+            $langField = new Field();
+            $langField->setId('lang');
+            $langField->setRequired(true);
+            $fields[] = $langField;
         }
 
         $form = new \Core\Form\Form($fields);
@@ -1415,7 +1418,8 @@ class ObjectCrud
             $field->setValue($value);
         }
 
-        foreach ($fields as $key => $field) {
+        foreach ($fields as $field) {
+            $key = $field->getId();
             if ($field['noSave']) {
                 continue;
             }

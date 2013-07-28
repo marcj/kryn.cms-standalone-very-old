@@ -726,7 +726,7 @@ ka.WindowCombine = new Class({
                 offset: pFrom,
                 limit: pMax,
                 order: this.order,
-                language: (this.languageSelect) ? this.languageSelect.getValue() : false
+                lang: (this.languageSelect) ? this.languageSelect.getValue() : false
             });
     },
 
@@ -1463,9 +1463,6 @@ ka.WindowCombine = new Class({
         if ('list' === this.currentViewType) {
             params.type = 'list';
             params.list = {order: this.order};
-            if (this.languageSelect) {
-                params.list.language = this.languageSelect.getValue()
-            }
         } else {
             if ((this.currentEdit || this.currentRootEdit)) {
 
@@ -1479,6 +1476,11 @@ ka.WindowCombine = new Class({
             } else {
                 params.type = 'combine';
             }
+        }
+
+        if (this.languageSelect) {
+            if (!params.list) params.list = {};
+            params.list.language = this.languageSelect.getValue()
         }
 
         if (selected) {
@@ -1561,7 +1563,7 @@ ka.WindowCombine = new Class({
                     getPosition: ka.getCroppedObjectId(pPrimary),
                     order: this.order,
                     filter: this.searchEnable,
-                    language: (this.languageSelect) ? this.languageSelect.getValue() : null,
+                    lang: (this.languageSelect) ? this.languageSelect.getValue() : null,
                     filterVals: (this.searchEnable) ? this.getSearchVals() : null
                 });
     },
