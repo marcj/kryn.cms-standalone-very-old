@@ -3,12 +3,8 @@
         <adminAssets>
             <asset>@CoreBundle/mootools-core-1.4.5-fixed-memory-leak.js</asset>
             <asset>@CoreBundle/mootools-more.js</asset>
+            <assets>@AdminBundle/js/mootools-extras/*.js</assets>
             <asset>@CoreBundle/mowla.min.js</asset>
-            <asset>@AdminBundle/js/mootools-extras/String.sprintf.js</asset>
-
-            <asset compression="false">@CoreBundle/ckeditor/ckeditor.js</asset>
-            <asset compression="false">@CoreBundle/codemirror/lib/codemirror.js</asset>
-            <asset compression="false">@CoreBundle/codemirror/addon/mode/loadmode.js</asset>
 
             <asset>@AdminBundle/js/ka.js</asset>
             <asset>@AdminBundle/js/ka/AdminInterface.js</asset>
@@ -27,7 +23,7 @@
             <assets>@AdminBundle/js/ka/DashboardWidgets/Base.js</assets>
             <assets>@AdminBundle/js/ka/DashboardWidgets/*.js</assets>
 
-            <asset>@AdminBundle/js/ka/FieldTypes/Input.js</asset>
+            <asset>@AdminBundle/js/ka/FieldTypes/Text.js</asset>
             <asset>@AdminBundle/js/ka/FieldTypes/Object.js</asset>
             <asset>@AdminBundle/js/ka/FieldTypes/Select.js</asset>
             <assets>@AdminBundle/js/ka/FieldTypes/*.js</assets>
@@ -36,8 +32,8 @@
             <assets>@AdminBundle/js/ka/ContentTypes/*.js</assets>
             <assets>@AdminBundle/js/ka/ui/*.js</assets>
 
-            <assets>@AdminBundle/js/mootools-extras/*.js</assets>
             <assets>@AdminBundle/js/extras/*.js</assets>
+            <asset compression="false">@CoreBundle/tinymce/tinymce.dev.js</asset>
 
             <asset>@AdminBundle/icons/style.css</asset>
             <asset>@CoreBundle/codemirror/lib/codemirror.css</asset>
@@ -47,7 +43,6 @@
             <asset>@CoreBundle/font/SourceSansPro/Light/fonts.css</asset>
             <asset>@CoreBundle/font/SourceSansPro/Regular/fonts.css</asset>
             <asset>@CoreBundle/font/SourceSansPro/Semibold/fonts.css</asset>
-            <asset>@CoreBundle/ckeditor/skins/moono/editor.css</asset>
             <assets>@AdminBundle/css/ai.css</assets>
             <assets>@AdminBundle/css/ka/*.css</assets>
             <assets>@AdminBundle/css/ka/ui/*.css</assets>
