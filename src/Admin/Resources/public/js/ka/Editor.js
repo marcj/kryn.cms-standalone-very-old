@@ -27,7 +27,7 @@ ka.Editor = new Class({
 
     click: function(e, element) {
         if (element) {
-            e.stop();
+            e.stopPropagation();
             this.disableNextContainerClick = true;
             this.selectElement(element);
         } else if (!this.disableNextContainerClick) {
@@ -117,7 +117,7 @@ ka.Editor = new Class({
     },
 
     getUrl: function () {
-        return _path + 'admin/object/Core:Node/' + this.options.node.id + '?_method=patch';
+        return _pathAdmin + 'admin/object/Core:Node/' + this.options.node.id + '?_method=patch';
     },
 
     save: function () {

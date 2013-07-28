@@ -3,8 +3,7 @@ ka.Content = new Class({
     Binds: ['onOver', 'onOut', 'remove', 'fireChange'],
     Implements: [Options, Events],
 
-    options: {
-    },
+    drop: null,
 
     contentObject: null,
     currentType: null,
@@ -12,9 +11,8 @@ ka.Content = new Class({
 
     contentContainer: null,
 
-    initialize: function(pContent, pContainer, pOptions) {
-        this.setOptions(pOptions);
-
+    initialize: function(pContent, pContainer, pDrop) {
+        this.drop = pDrop;
         this.renderLayout(pContainer);
         this.setValue(pContent);
     },
@@ -40,7 +38,7 @@ ka.Content = new Class({
 
         this.main.addListener('dragend', function(e) {
             if ('move' === e.dataTransfer.dropEffect) {
-                this.main.destroy();
+                this.destroy();
             }
         }.bind(this));
 
@@ -51,6 +49,13 @@ ka.Content = new Class({
         }).inject(this.main);
 
         this.addActionBarItems();
+    },
+
+    destroy: function() {
+        if (this === this.getEditor().getContentField().getSelected()) {
+            this.getEditor().getContentField().deselect();
+        }
+        this.main.destroy();
     },
 
     fireChange: function() {
@@ -136,8 +141,6 @@ ka.Content = new Class({
     },
 
     loadTemplate: function() {
-        this.save();
-
         if (this.lastRq) {
             this.lastRq.cancel();
         }
@@ -176,31 +179,20 @@ ka.Content = new Class({
     },
 
     getValue: function() {
-        this.save();
+        if (this.selected) {
+            this.value = this.value || {};
+
+            this.value.template = this.template.getValue();
+        }
+
+        if (this.contentObject) {
+            this.value.content = this.contentObject.getValue();
+        }
+
         return this.value;
     },
 
-    /**
-     * Saves the value from the inspector to this.value
-     */
-    save: function() {
-        if (!this.selected) {
-            return false;
-        }
-
-        this.value = this.value || {};
-
-        this.value.template = this.template.getValue();
-
-        if (this.contentObject) {
-            this.contentObject.saveInspector(this.value);
-        }
-    },
-
-    /**
-     * adds/loads all additional fields to the inspector.
-     */
-    load: function() {
+    loadInspector: function() {
         var inspectorContainer = this.getEditor().getContentField().getInspectorContainer();
 
         inspectorContainer.empty();
@@ -218,15 +210,13 @@ ka.Content = new Class({
 
         this.template.setValue(this.value.template);
 
-        var div = new Element('div', {
+        this.inspectorContainer = new Element('div', {
             style: 'padding-top: 5px;'
         }).inject(inspectorContainer);
-
-        this.contentObject.loadInspector(div);
     },
 
     updateUI: function() {
-        this.save();
+        this.value = this.getValue();
         if (this.preview) {
             this.loadPreview();
         } else {
@@ -237,13 +227,17 @@ ka.Content = new Class({
     setSelected: function(selected) {
         if (selected) {
             this.main.addClass('ka-content-selected');
+            this.loadInspector();
             if (this.contentObject && this.contentObject.selected) {
-                this.contentObject.selected();
+                this.contentObject.selected(this.inspectorContainer);
             }
         } else {
             this.main.removeClass('ka-content-selected');
             if (this.contentObject && this.contentObject.deselected) {
                 this.contentObject.deselected();
+            }
+            if (this.inspectorContainer) {
+                this.inspectorContainer.destroy();
             }
         }
         this.selected = selected;
@@ -270,7 +264,7 @@ ka.Content = new Class({
 
             var clazz = ka.ContentTypes[pValue.type] || ka.ContentTypes[pValue.type.capitalize()];
             if (clazz) {
-                this.contentObject = new clazz(this);
+                this.contentObject = new clazz(this, this.options);
             } else {
                 throw tf('ka.ContentType `%s` not found.', pValue.type);
             }
@@ -286,10 +280,7 @@ ka.Content = new Class({
         this.contentObject.setValue(pValue.content);
 
         if (this.selected) {
-            this.load();
-            if (this.contentObject.selected) {
-                this.contentObject.selected();
-            }
+            this.setSelected(true);
         }
     }
 

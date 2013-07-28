@@ -43,6 +43,14 @@ ka.ContentAbstract = new Class({
         this.createLayout();
     },
 
+    getEditor: function() {
+        return this.contentInstance.getEditor();
+    },
+
+    getSlot: function() {
+        return this.contentInstance.getSlot();
+    },
+
     /**
      * Use this method to create your field layout.
      * Please do not the constructor for this job.
@@ -51,6 +59,15 @@ ka.ContentAbstract = new Class({
      */
     createLayout: function () {
         /* Override it to your needs */
+    },
+
+
+    selected: function(inspectorContainer) {
+        //your field got selected
+    },
+
+    deselected: function() {
+        //your field got deselected
     },
 
     getContentInstance: function () {
@@ -204,7 +221,6 @@ ka.ContentAbstract = new Class({
      *
      */
     showValid: function () {
-
         if (this.invalidIcon) {
             //we was invalid before, highlight a smooth green
             if (this.input) {
@@ -221,7 +237,6 @@ ka.ContentAbstract = new Class({
 
             this.invalidIcon = null;
         }
-
     }
 
 });

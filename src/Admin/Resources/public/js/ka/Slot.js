@@ -67,12 +67,36 @@ ka.Slot = new Class({
                 }
             }
 
+            var items = pEvent.dataTransfer.files.length > 0 ? pEvent.dataTransfer.files : pEvent.dataTransfer.items,
+                data, content;
+
             if (this.lastPlaceHolder) {
-                var data = pEvent.dataTransfer.getData('application/json');
-                if (data && JSON.validate(data) && (data = JSON.decode(data))) {
-                    var content = this.addContent(data, true);
-                    document.id(content).inject(this.lastPlaceHolder, 'after');
-                }
+                Array.each(items, function(item) {
+
+                    data = null;
+
+                    if ('application/json' === item.type) {
+                        data = pEvent.dataTransfer.getData('application/json');
+                        if (data && (!JSON.validate(data) || !(data = JSON.decode(data)))) {
+                            data = null;
+                        }
+                    } else {
+                        //search for plugin that handles it
+                        Object.each(ka.ContentTypes, function(type, key) {
+                            if ('array' === typeOf(type.mimeTypes) && type.mimeTypes.contains(item.type)) {
+                                data = {
+                                    type: key
+                                };
+                            }
+                        });
+                    }
+
+                    if (data) {
+                        content = this.addContent(data, true, item);
+                        document.id(content).inject(this.lastPlaceHolder, 'before');
+                    }
+                }.bind(this));
+
                 this.lastPlaceHolder.destroy();
             }
 
@@ -192,7 +216,7 @@ ka.Slot = new Class({
 
     },
 
-    addContent: function(pContent, pFocus) {
+    addContent: function(pContent, pFocus, pDrop) {
         if (!pContent) {
             pContent = {type: 'text'};
         }
@@ -201,11 +225,11 @@ ka.Slot = new Class({
             pContent.template = '@CoreBundle/content_default.tpl';
         }
 
-        var content = new ka.Content(pContent, this);
+        var content = new ka.Content(pContent, this, pDrop);
         content.addEvent('change', this.fireChange);
 
         if (pFocus) {
-            content.focus();
+            this.getEditor().getContentField().select(content);
         }
 
         return content;
