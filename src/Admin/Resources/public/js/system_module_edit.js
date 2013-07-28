@@ -2673,7 +2673,7 @@ var admin_system_module_edit = new Class({
                 addLabel: t('Add field'),
                 mode: 'object',
                 keyModifier: 'camelcase|trim|lcfirst',
-                withTableDefinition: true,
+                asModel: true,
                 withoutChildren: true
             });
 
