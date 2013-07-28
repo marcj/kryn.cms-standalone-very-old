@@ -139,7 +139,7 @@
       </fields>
       <publicUrlGenerator>Core\PageController::getPublicUrl</publicUrlGenerator>
     </object>
-    <object>
+    <object id="Domain">
       <label>Domain</label>
       <table>system_domain</table>
       <labelField>domain</labelField>
