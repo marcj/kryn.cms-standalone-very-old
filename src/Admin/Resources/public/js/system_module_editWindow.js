@@ -321,7 +321,6 @@ var admin_system_module_editWindow = new Class({
                         label: t('Fields for all items'),
                         type: 'fieldTable',
                         tableItem: false,
-                        asFrameworkFieldDefinition: true,
                         arrayKey: true
                     },
 
@@ -329,7 +328,6 @@ var admin_system_module_editWindow = new Class({
                         label: t('Fields per item'),
                         type: 'fieldTable',
                         tableItem: false,
-                        asFrameworkFieldDefinition: true,
                         arrayKey: true,
                         withWidth: true
                     }
@@ -452,8 +450,7 @@ var admin_system_module_editWindow = new Class({
                                 options: {
                                     asFrameworkSearch: true,
                                     withoutChildren: true,
-                                    addLabel: t('Add field'),
-                                    asFrameworkFieldDefinition: true
+                                    addLabel: t('Add field')
                                 }
                             }
                         }
@@ -1976,8 +1973,7 @@ var admin_system_module_editWindow = new Class({
                 allTableItems: false,
                 withActions: false,
                 withoutChildren: true,
-                asTableItem: false,
-                asFrameworkFieldDefinition: true
+                asTableItem: false
             });
 
             this.lastFieldProperty.addEvent('change', this.applyFieldProperties);

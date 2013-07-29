@@ -352,7 +352,7 @@ var admin_system_module = new Class({
         this.panes['install'].empty();
 
         this.searchPane = new Element('div', {
-            'style': 'position: absolute; left: 0px; top: 0px; right: 0px; height: 30px; text-align: right; padding-top: 5px; border-bottom: 1px solid #bbb; padding-right: 3px;'
+            'style': 'position: absolute; left: 0px; top: 0px; right: 0px; height: 38px; text-align: right; padding-top: 7px; border-bottom: 1px solid #bbb; padding-right: 3px;'
         }).inject(this.panes['install']);
 
         this.searchLeftPane = new Element('div', {
@@ -413,11 +413,11 @@ var admin_system_module = new Class({
         }.bind(this)).inject(this.searchPane);
 
         this.mainPane = new Element('div', {
-            'style': 'position: absolute; top: 36px; left: 0px; right: 221px; bottom: 0px; background-color: #f4f4f4; padding: 5px; overflow: auto;'
+            'style': 'position: absolute; top: 46px; left: 0px; right: 221px; bottom: 0px; background-color: #f4f4f4; padding: 5px; overflow: auto;'
         }).inject(this.panes['install']);
 
         this.boxPane = new Element('div', {
-            'style': 'position: absolute; top: 36px; width: 220px; right: 0px; bottom: 0px; background-color: #f4f4f4; border-left: 1px solid #ddd; overflow: auto'
+            'style': 'position: absolute; top: 46px; width: 220px; right: 0px; bottom: 0px; background-color: #f4f4f4; border-left: 1px solid #ddd; overflow: auto'
         }).inject(this.panes['install']);
 
         this.viewPath();

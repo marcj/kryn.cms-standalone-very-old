@@ -372,6 +372,7 @@ ka.Window = new Class({
     newDialog: function (pText, pAbsoluteContent) {
         return new ka.Dialog(this, {
             content: pText,
+            autoDisplay: true,
             absolute: pAbsoluteContent
         });
     },
