@@ -7,7 +7,8 @@ ka.FieldTypes.Array = new Class({
         options: {
             withOrder: {
                 type: 'checkbox',
-                label: t('With order possibility')
+                label: t('With order possibility'),
+                'default': false
             },
             columns: {
                 label: t('Columns'),
@@ -18,6 +19,34 @@ ka.FieldTypes.Array = new Class({
                     tableItemLabelWidth: 200,
                     addLabel: t('Add column')
                 }
+            },
+            startWith: {
+                label: 'Start with',
+                type: 'number',
+                'default': 0
+            },
+            addText: {
+                label: 'Add button label',
+                type: 'text'
+            },
+            withoutRemove: {
+                label: 'Without remove button',
+                type: 'checkbox',
+                'default': false
+            },
+            asHash: {
+                label: 'As Hash',
+                type: 'checkbox',
+                'default': false
+            },
+            asArray: {
+                label: 'As array',
+                type: 'checkbox',
+                'default': false
+            },
+            tableLayout: {
+                type: 'checkbox',
+                'default': false
             }
         }
     },
@@ -82,7 +111,13 @@ ka.FieldTypes.Array = new Class({
          * With how many items should we start?
          * @var {Number}
          */
-        startWith: 0
+        startWith: 0,
+
+        asArray: false,
+
+        addText: '',
+
+        tableLayout: false
     },
 
     createLayout: function () {
@@ -94,13 +129,17 @@ ka.FieldTypes.Array = new Class({
             'class': 'ka-field-array'
         }).inject(this.fieldInstance.fieldPanel);
 
+        if (this.options.tableLayout) {
+            table.addClass('ka-Table');
+        }
+
         //this.fieldInstance.fireChange.setStyle('margin-left', 11);
 
         var thead = new Element('thead').inject(table);
         this.tbody = new Element('tbody').inject(table);
 
         var actions = new Element('div', {
-
+            'class': 'ka-ActionBar ka-ActionBar-left'
         }).inject(this.fieldInstance.fieldPanel);
 
         var tr = new Element('tr').inject(thead);
