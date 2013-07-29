@@ -270,6 +270,24 @@ ka.Field = new Class({
     },
 
     renderField: function () {
+        var definition, field;
+
+        if ('predefined' == this.options.type.toLowerCase()) {
+            if (!this.options.object || !this.options.field) {
+                throw 'Object or Field option is missing.';
+            }
+
+            definition = ka.getObjectDefinition(this.options.object);
+            if (!definition) {
+                throw 'Object `%s` not found'.sprintf(this.options.object);
+            }
+
+            if (!(field = definition.fields[this.options.field.lcfirst()])) {
+                throw 'Field `%s` in object `%s` not found'.sprintf(this.options.field, this.options.object);
+            }
+
+            this.options = Object.merge(this.options, field);
+        }
 
         this.options.type = this.options.type ? this.options.type : 'text';
         var clazz = ka.FieldTypes[this.options.type] || ka.FieldTypes[this.options.type.capitalize()];
@@ -280,159 +298,6 @@ ka.Field = new Class({
             this.fieldObject = new clazz(this, options);
         } else {
             this.fieldPanel.set('text', 'The ka.Field type `' + this.options.type + '` is not available.');
-        }
-
-        return;
-
-        if (this.field.type) {
-            this.field.type = this.field.type.toLowerCase();
-        }
-
-        switch (this.field.type) {
-            case 'password':
-                this.renderPassword();
-                break;
-            case 'select':
-                this.renderSelect();
-                break;
-            case 'textlist':
-                this.renderTextlist();
-                break;
-            case 'textarea':
-                this.renderTextarea();
-                break;
-            case 'array':
-                this.renderArray();
-                break;
-            case 'wysiwyg':
-                this.renderWysiwyg();
-                break;
-            case 'date':
-                this.renderDate();
-                break;
-            case 'datetime':
-                this.renderDate({time: true});
-                break;
-            case 'checkbox':
-                this.renderCheckbox();
-                break;
-            case 'file':
-            case 'filechooser':
-
-                this.field.withoutObjectWrapper = 1;
-                this.field.objectOptions = {
-                    returnPath: 1,
-                    onlyLocal: 1
-                };
-
-                this.renderChooser(['file']);
-                break;
-            case 'pagechooser':
-            case 'page':
-            case 'node':
-                this.renderChooser(['node']);
-                break;
-            case 'object':
-                this.renderChooser(typeOf(this.field.object) == 'array' ? this.field.object : [this.field.object]);
-                break;
-            case 'chooser':
-                this.renderChooser();
-                break;
-            case 'filelist':
-                this.renderFileList();
-                break;
-            case 'multiupload':
-                this.initMultiUpload();
-                break;
-            case 'layoutelement':
-                this.initLayoutElement();
-                break;
-            case 'headline':
-                this.renderHeadline();
-                break;
-            case 'info':
-                this.renderInfo();
-                break;
-            case 'label':
-                this.renderLabel(true);
-                break;
-            case 'html':
-                this.renderLabel();
-                break;
-            case 'imagegroup':
-                this.renderImageGroup();
-                break;
-            case 'custom':
-                this.renderCustom();
-                break;
-            case 'integer':
-            case 'number':
-                this.renderNumber();
-                break;
-            case 'childrenswitcher':
-                this.renderChildrenSwitcher();
-                break;
-            case 'checkboxgroup':
-                this.renderCheckboxGroup();
-                break;
-            case 'windowlist':
-                this.renderWindowList();
-                break;
-            case 'fieldtable':
-                this.renderFieldTable();
-                break;
-            case 'codemirror':
-                this.renderCodemirror();
-                break;
-            case 'condition':
-                this.renderCondition();
-                break;
-            case 'objectcondition':
-
-                this.renderCondition({
-                    object: this.field.object
-                });
-
-                break;
-            case 'fieldcondition':
-
-                this.renderCondition({
-                    object: this.options.object,
-                    field: this.options.field
-                });
-
-                break;
-            case 'lang':
-            case 'language':
-
-                this.field.items = {}
-                Object.each(ka.settings.langs, function (lang, id) {
-                    this.field.items[id] = lang.langtitle + ' (' + lang.title + ', ' + id + ')';
-                }.bind(this));
-
-                if (this.options.multi) {
-                    this.renderTextlist();
-                }
-                else {
-                    this.renderSelect();
-                }
-
-                break;
-
-            case 'text':
-            default:
-                this.renderText();
-                break;
-        }
-        if (this.input) {
-
-            /*
-             if (this.field.length + 0 > 0) {
-             this.input.setStyle('width', (this.field.length.toInt() * 9));
-             }
-             */
-
-            this.input.store('oldClass', this.input.get('class'));
         }
     },
 
