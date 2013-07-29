@@ -5,6 +5,7 @@ namespace Core\Config;
 class Field extends Model
 {
     protected $attributes = ['id', 'type', 'primaryKey', 'autoIncrement'];
+    protected $arrayKey = 'id';
 
     /**
      * @var string
@@ -274,6 +275,16 @@ class Field extends Model
     public function setOptions(Options $options)
     {
         $this->options = $options;
+    }
+
+    /**
+     * @param $key
+     * @param $value
+     */
+    public function setOption($key, $value)
+    {
+        $this->options = $this->options ?: new Options();
+        $this->options->setOption($key, $value);
     }
 
     /**

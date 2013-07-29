@@ -2,10 +2,7 @@
 
 namespace Core\Config;
 
-class RouteDefault extends SimpleModel
+class RouteDefault extends SimpleKeyModel
 {
-    /**
-     * @var string
-     */
-    protected $idKey = 'key';
+    protected $rootName = 'default';
 }

@@ -6,7 +6,9 @@ class Route extends Model
 {
     protected $attributes = ['id', 'pattern'];
 
-    protected $elementToArray = ['requirement' => 'requirements'];
+    protected $elementToArray = ['requirement' => 'requirements', 'default' => 'defaults'];
+
+
 
     /**
      * @var string
@@ -24,26 +26,9 @@ class Route extends Model
     protected $defaults;
 
     /**
-     * @var string[]
+     * @var RouteRequirement[]
      */
     protected $requirements;
-//
-//    public function setupObject()
-//    {
-//        parent::setupObject();
-//
-//        $defaults = $this->element->getElementsByTagName('default');
-//        $this->defaults = array();
-//        foreach ($defaults as $default) {
-//            $this->defaults[] = new RouteDefault($default);
-//        }
-//
-//        $requirements = $this->element->getElementsByTagName('requirement');
-//        $this->requirements = array();
-//        foreach ($requirements as $requirement) {
-//            $this->requirements[] = new RouteRequirement($requirement);
-//        }
-//    }
 
     /**
      * @param RouteDefault[] $defaults
@@ -54,6 +39,22 @@ class Route extends Model
     }
 
     /**
+     * @param RouteDefault $default
+     */
+    public function addDefault(RouteDefault $default)
+    {
+        $this->defaults[] = $default;
+    }
+
+    /**
+     * @param RouteRequirement $requirement
+     */
+    public function addRequirement(RouteRequirement $requirement)
+    {
+        $this->requirements[] = $requirement;
+    }
+
+    /**
      * @return RouteDefault[]
      */
     public function getDefaults()
@@ -61,16 +62,43 @@ class Route extends Model
         return $this->defaults;
     }
 
-    public function getArrayDefaults()
+    /**
+     * @param string $key
+     * @return RouteDefault
+     */
+    public function getDefault($key)
     {
-        if (null !== $this->defaults) {
-            $result = array();
+        if ($this->defaults) {
             foreach ($this->defaults as $default) {
-                $result[$default->getId()] = $default->getValue();
+                if (strtolower($default->getKey()) == strtolower($key)) {
+                    return $default;
+                }
             }
-            return $result;
         }
     }
+
+    /**
+     * @param string $key
+     * @return string
+     */
+    public function getDefaultValue($key)
+    {
+        $default = $this->getDefault($key);
+        if ($default) {
+            return $default->getValue();
+        }
+    }
+
+//    public function getArrayDefaults()
+//    {
+//        if (null !== $this->defaults) {
+//            $result = array();
+//            foreach ($this->defaults as $default) {
+//                $result[$default->getId()] = $default->getValue();
+//            }
+//            return $result;
+//        }
+//    }
 
     /**
      * @param string $id
@@ -105,7 +133,7 @@ class Route extends Model
     }
 
     /**
-     * @param string[] $requirements
+     * @param RouteRequirement[] $requirements
      */
     public function setRequirements(array $requirements)
     {
@@ -113,7 +141,7 @@ class Route extends Model
     }
 
     /**
-     * @return string[]
+     * @return RouteRequirement[]
      */
     public function getRequirements()
     {

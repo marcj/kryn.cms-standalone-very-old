@@ -6,23 +6,23 @@ namespace Core\Config;
  * Class SimpleModel
  *
  * Model with two fields:
- *  id and value.
+ *  key and value.
  *
- * <item id="$id">$value</item>
+ * <item key="$key">$value</item>
  *
  * @package Core\Config
  */
-class SimpleModel extends Model
+class SimpleKeyModel extends Model
 {
-    protected $attributes = ['id'];
+    protected $attributes = ['key'];
 
     protected $nodeValueVar = 'value';
-    protected $arrayKey = 'id';
+    protected $arrayKey = 'key';
 
     /**
      * @var string
      */
-    protected $id;
+    protected $key;
 
     /**
      * @var string
@@ -30,19 +30,19 @@ class SimpleModel extends Model
     protected $value;
 
     /**
-     * @param string $id
+     * @param string $key
      */
-    public function setId($id)
+    public function setKey($key)
     {
-        $this->id = $id;
+        $this->key = $key;
     }
 
     /**
      * @return string
      */
-    public function getId()
+    public function getKey()
     {
-        return $this->id;
+        return $this->key;
     }
 
     /**

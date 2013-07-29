@@ -9,12 +9,7 @@ class Plugin extends Model
     /**
      * @var string
      */
-    protected $class;
-
-    /**
-     * @var string
-     */
-    protected $method;
+    protected $id;
 
     /**
      * @var string
@@ -24,7 +19,12 @@ class Plugin extends Model
     /**
      * @var string
      */
-    protected $id;
+    protected $class;
+
+    /**
+     * @var string
+     */
+    protected $method;
 
     /**
      * @var Route[]
@@ -42,6 +42,14 @@ class Plugin extends Model
     public function setRoutes(array $routes)
     {
         $this->routes = $routes;
+    }
+
+    /**
+     * @param Route $route
+     */
+    public function addRoute(Route $route)
+    {
+        $this->routes[] = $route;
     }
 
     /**
@@ -117,11 +125,26 @@ class Plugin extends Model
     }
 
     /**
-     * @param Field $option
+     * @param Field $field
      */
-    public function addOption(Field $option)
+    public function addOption(Field $field)
     {
-        $this->options[] = $option;
+        $this->options[] = $field;
+    }
+
+    /**
+     * @param string $id
+     * @return Field
+     */
+    public function getOption($id)
+    {
+        if ($this->options) {
+            foreach ($this->options as $option) {
+                if (strtolower($option->getId()) == strtolower($id)) {
+                    return $option;
+                }
+            }
+        }
     }
 
     /**
