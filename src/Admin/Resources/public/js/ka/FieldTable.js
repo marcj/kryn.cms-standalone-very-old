@@ -63,11 +63,15 @@ ka.FieldTable = new Class({
             'class': 'ka-Table-body'
         }).inject(this.main);
 
+        this.actionBar = new Element('div', {
+            'class': 'ka-ActionBar ka-ActionBar-left'
+        }).inject(this.main);
+
         new ka.Button([this.options.addLabel, '#icon-plus-5'])
             .addEvent('click', function () {
                 this.add(null, null, this.itemContainer);
             }.bind(this))
-            .inject(this.main);
+            .inject(this.actionBar);
 
     },
 
