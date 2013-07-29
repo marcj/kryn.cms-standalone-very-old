@@ -232,13 +232,13 @@ ka.FieldForm = new Class({
                         if (this.options.tabsInWindowHeader) {
                             this.firstLevelTabPane = new ka.TabPane(target, true, this.refs.win);
                         } else {
-                            this.firstLevelTabPane = new ka.TabPane(target, field.tabFullPage ? true : false);
+                            this.firstLevelTabPane = new ka.TabPane(target, field.fullPage ? true : false);
                         }
                     }
                 } else if (pDependField) {
                     //this tabPane is not on first level
                     if (!target.tabPane) {
-                        target.tabPane = new ka.TabPane(target, field.tabFullPage ? true : false);
+                        target.tabPane = new ka.TabPane(target, field.fullPage ? true : false);
                     }
                 }
 
