@@ -29,6 +29,7 @@ class Model implements \ArrayAccess
     protected $excludeDefaults = [];
     protected $nodeValueVar;
     protected $elementToArray = [];
+    protected $arrayKey;
 
     /**
      * Defines a header comment of values (not attributes).
@@ -625,15 +626,19 @@ class Model implements \ArrayAccess
         }
 
         if (is_array($value)) {
+            $result = [];
             foreach ($value as $key => $item) {
                 if (is_object($item)) {
                     if ($item instanceof Model) {
-                        $value[$key] = $item->toArray($printDefaults);
+                        $result[$item->getArrayKey() ? $item->getArrayKeyValue() : $key] = $item->toArray($printDefaults);
                     } else {
-                        $value[$key] = (array)$item;
+                        $result[$key] = (array)$item;
                     }
+                } else {
+                    $result[$key] = $item;
                 }
             }
+            return $result;
         } else if (is_object($value) && $value instanceof Model){
             $value = $value->toArray($printDefaults);
         }
@@ -641,20 +646,43 @@ class Model implements \ArrayAccess
         return $value;
     }
 
+    public function getArrayKey()
+    {
+        return $this->arrayKey;
+    }
+
+    public function getArrayKeyValue()
+    {
+        if (!$this->arrayKey) return;
+        $getter = 'get' . ucfirst($this->arrayKey);
+        return $this->$getter();
+    }
+
+    public function setArrayKeyValue($value)
+    {
+        if (!$this->arrayKey) return;
+        $setter = 'set' . ucfirst($this->arrayKey);
+        $this->$setter($value);
+    }
+
 
     /**
      * @param mixed  $values
-     * @param string $key
+     * @param string $arrayKeyValue
      */
-    public function fromArray($values, $key = null)
+    public function fromArray($values, $arrayKeyValue = null)
     {
         $reflection = new \ReflectionClass($this);
+
+        if ($this->arrayKey && null !== $arrayKeyValue) {
+            $this->setArrayKeyValue($arrayKeyValue);
+        }
 
         if (!is_array($values)) {
             if (null !== $this->nodeValueVar) {
                 $setter = 'set' . ucfirst($this->nodeValueVar);
                 if (method_exists($this, $setter)) {
-                    $this->setter($values);
+                    $this->$setter($values);
                 }
             }
         } else {
@@ -673,7 +701,7 @@ class Model implements \ArrayAccess
                         $firstParameter = $parameters[0];
                         if ($firstParameter->getClass() && $className = $firstParameter->getClass()->name) {
                             $setterValue = new $className();
-                            $setterValue->fromArray($value);
+                            $setterValue->fromArray($value, $key);
                         }
                         if ($firstParameter->isArray() && is_array($value)){
                             $setterValue = array();
