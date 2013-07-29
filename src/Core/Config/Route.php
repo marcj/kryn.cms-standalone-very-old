@@ -89,16 +89,33 @@ class Route extends Model
         }
     }
 
-//    public function getArrayDefaults()
-//    {
-//        if (null !== $this->defaults) {
-//            $result = array();
-//            foreach ($this->defaults as $default) {
-//                $result[$default->getId()] = $default->getValue();
-//            }
-//            return $result;
-//        }
-//    }
+    /**
+     * @return array
+     */
+    public function getArrayDefaults()
+    {
+        if (null !== $this->defaults) {
+            $result = array();
+            foreach ($this->defaults as $default) {
+                $result[$default->getKey()] = $default->getValue();
+            }
+            return $result;
+        }
+    }
+
+    /**
+     * @return array
+     */
+    public function getArrayRequirements()
+    {
+        if (null !== $this->requirements) {
+            $result = array();
+            foreach ($this->requirements as $requirement) {
+                $result[$requirement->getKey()] = $requirement->getValue();
+            }
+            return $result;
+        }
+    }
 
     /**
      * @param string $id

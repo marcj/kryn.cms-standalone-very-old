@@ -1719,7 +1719,7 @@ class Kryn extends Controller
                         new Route(
                             $url . '/' . $route->getPattern(),
                             $defaults,
-                            $route->getRequirements() ? : array()
+                            $route->getArrayRequirements() ? : array()
                         )
                     );
                 }
