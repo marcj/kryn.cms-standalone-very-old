@@ -1,13 +1,13 @@
 var admin_system_module_edit = new Class({
 
-    initialize: function (pWin) {
+    initialize: function(pWin) {
         this.win = pWin;
         this.mod = this.win.params.name;
         this.win.setTitle(this.mod);
         this._createLayout();
     },
 
-    _createLayout: function () {
+    _createLayout: function() {
         this.win.content.setStyle('top', 0);
         this.win.content.setStyle('border-top', 0);
 
@@ -29,7 +29,7 @@ var admin_system_module_edit = new Class({
         this.buttons['language'] = this.topNavi.addButton(t('Language'), '', this.viewType.bind(this, 'language'));
 
         this.panes = {};
-        Object.each(this.buttons, function (button, id) {
+        Object.each(this.buttons, function(button, id) {
             this.panes[id] = new Element('div', {
                 'class': 'admin-system-modules-edit-pane ka-scrolling'
             }).inject(this.win.content);
@@ -46,7 +46,7 @@ var admin_system_module_edit = new Class({
      *
      */
 
-    loadPlugins: function () {
+    loadPlugins: function() {
 
         if (this.lr) {
             this.lr.cancel();
@@ -60,13 +60,13 @@ var admin_system_module_edit = new Class({
 
         this.pluginTBody = new Element('table', {
             'class': 'ka-Table-head ka-Table-body',
-            style: 'position: relative; top: 0px; background-color: #eee; width: 100%',
+            style: 'position: relative; top: 0px; background-color: #eee; width: 100%; table-layout: auto;',
             cellpadding: 0, cellspacing: 0
         }).inject(this.pluginsPane);
 
         var tr = new Element('tr').inject(this.pluginTBody);
         new Element('th', {
-            text: t('Key'),
+            text: t('Id'),
             style: 'width: 150px;'
         }).inject(tr);
 
@@ -76,17 +76,17 @@ var admin_system_module_edit = new Class({
         }).inject(tr);
 
         new Element('th', {
+            text: t('Class method'),
+            style: 'width: 150px;'
+        }).inject(tr);
+
+        new Element('th', {
             text: t('Plugin title'),
-            style: 'width: 250px;'
+            style: 'width: 200px;'
         }).inject(tr);
 
         new Element('th', {
-            text: t('Properties')
-        }).inject(tr);
-
-        new Element('th', {
-            text: t('Actions'),
-            style: 'width: 80px;'
+            text: t('Actions')
         }).inject(tr);
 
         var buttonBar = new ka.ButtonBar(this.panes['plugins']);
@@ -95,10 +95,10 @@ var admin_system_module_edit = new Class({
         saveBtn.setButtonStyle('blue');
 
         this.lr = new Request.JSON({url: _pathAdmin +
-            'admin/system/module/editor/plugins', noCache: 1, onComplete: function (res) {
+            'admin/system/module/editor/plugins', noCache: 1, onComplete: function(res) {
 
             if (res) {
-                Object.each(res.data, function (item, key) {
+                Object.each(res.data, function(item, key) {
                     this.addPlugin(item, key)
                 }.bind(this));
             }
@@ -107,22 +107,22 @@ var admin_system_module_edit = new Class({
         }.bind(this)}).get({bundle: this.mod});
     },
 
-    savePlugins: function () {
+    savePlugins: function() {
 
         var req = {plugins: {}};
 
-        this.pluginsPane.getElements('.plugin').each(function (pluginDiv) {
-
-            var inputs = pluginDiv.getElements('input');
-            var fieldTable = pluginDiv.retrieve('fieldTable');
+        this.pluginsPane.getElements('.plugin').each(function(pluginTr) {
 
             var plugin = {
-                'class': inputs[1].value,
-                label: inputs[2].value,
-                options: fieldTable.getValue()
+                'id': pluginTr.pluginId.getValue(),
+                'class': pluginTr.pluginPhpClass.getValue(),
+                'method': pluginTr.pluginPhpMethod.getValue(),
+                'label': pluginTr.pluginLabel.getValue(),
+                options: pluginTr.pluginOptions,
+                routes: pluginTr.pluginRoutes
             };
 
-            req.plugins[inputs[0].value] = plugin;
+            req.plugins[plugin.id] = plugin;
         });
 
         if (this.lr) {
@@ -131,25 +131,23 @@ var admin_system_module_edit = new Class({
         this.win.setLoading(true, t('Saving ...'));
 
         req.plugins = JSON.encode(req.plugins);
-        req.name = this.mod;
+        req.bundle = this.mod;
         this.lr = new Request.JSON({url: _pathAdmin +
-            'admin/system/module/editor/plugins', noCache: 1, onComplete: function (res) {
+            'admin/system/module/editor/plugins', noCache: 1, onComplete: function(res) {
             this.win.setLoading(false);
             ka.loadSettings();
         }.bind(this)}).post(req);
 
     },
 
-    normalizePluginDef: function (pPlugin) {
+    normalizePluginDef: function(pPlugin) {
         var plugin = {};
         plugin.label = pPlugin[0];
         plugin.options = pPlugin[1];
         return plugin;
     },
 
-    addPlugin: function (pPlugin, pKey) {
-
-        logger(pPlugin);
+    addPlugin: function(pPlugin, pKey) {
         if (typeOf(pPlugin) == 'array') {
             pPlugin = this.normalizePluginDef(pPlugin);
         }
@@ -158,39 +156,159 @@ var admin_system_module_edit = new Class({
             'class': 'plugin'
         }).inject(this.pluginTBody);
 
-        var leftTd = new Element('td').inject(tr);
+        var idTd = new Element('td').inject(tr);
         var classTd = new Element('td').inject(tr);
-        var rightTd = new Element('td').inject(tr);
-        var right2Td = new Element('td').inject(tr);
+        var methodTd = new Element('td').inject(tr);
+        var titleTd = new Element('td').inject(tr);
         var actionTd = new Element('td').inject(tr);
 
-        var tr2 = new Element('tr').inject(this.pluginTBody);
-        var bottomTd = new Element('td', {style: 'border-bottom: 1px solid silver', colspan: 4}).inject(tr2);
-
-        new Element('input', {'class': 'text', style: 'width: 150px;', value: pKey ? pKey : ''}).inject(leftTd);
+        tr.pluginOptions = pPlugin.options;
+        tr.pluginRoutes = pPlugin.routes;
 
         var mod = this.mod.substr(0, 1).toUpperCase() + this.mod.substr(1);
         var clazz = '\\' + mod + '\\Plugin\\';
 
-        new Element('input',
-            {'class': 'text', style: 'width: 250px;', value: pPlugin && pPlugin['class'] ? pPlugin['class'] :
-                clazz}).inject(classTd);
+        tr.pluginId = new ka.Field({
+            type: 'text',
+            modifier: 'phpclass',
+            noWrapper: true
+        }, idTd);
 
-        new Element('input',
-            {'class': 'text', style: 'width: 250px;', value: pPlugin ? pPlugin.label : ''}).inject(rightTd);
+        tr.pluginPhpClass = new ka.Field({
+            type: 'text',
+            modifier: 'phpclass',
+            noWrapper: true
+        }, classTd);
+
+        tr.pluginPhpMethod = new ka.Field({
+            type: 'text',
+            modifier: 'phpmethod',
+            noWrapper: true
+        }, methodTd);
+
+        tr.pluginLabel = new ka.Field({
+            type: 'text',
+            noWrapper: true
+        }, titleTd);
+
+        tr.pluginId.setValue(pKey ? pKey : '');
+        tr.pluginPhpClass.setValue(pPlugin && pPlugin['class'] ? pPlugin['class'] : clazz);
+        tr.pluginPhpMethod.setValue(pPlugin && pPlugin.method ? pPlugin.method : '');
+        tr.pluginLabel.setValue(pPlugin && pPlugin.label) ? pPlugin.label : '';
+
+        new ka.Button(t('Options'))
+            .addEvent('click', function(){
+                var dialog = new ka.Dialog(this.win, {
+                    withButtons: true,
+                    title: tf('Options of `%s`', tr.pluginLabel.getValue())
+                });
+
+                var fieldTable = new ka.FieldTable(dialog.getContentContainer(), this.win, {
+                    arrayKey: true
+                });
+
+                dialog.addEvent('apply', function() {
+                    tr.pluginOptions = fieldTable.getValue();
+                });
+
+                if (tr.pluginOptions) {
+                    fieldTable.setValue(tr.pluginOptions);
+                }
+
+                dialog.center(true);
+            }.bind(this))
+            .inject(actionTd);
+
+        new ka.Button(t('Routes'))
+            .addEvent('click', function(){
+                var dialog = new ka.Dialog(this.win, {
+                    withButtons: true,
+                    minWidth: '80%',
+                    title: tf('Routes of `%s`', tr.pluginLabel.getValue())
+                });
+
+                var routes = new ka.Field({
+                    type: 'array',
+                    width: 'auto',
+                    withOrder: true,
+                    tableLayout: true,
+                    addText: t('Add route'),
+                    columns: [
+                        {label: 'Pattern', width: 150},
+                        {label: 'Defaults'},
+                        {label: 'Requirements'}
+                    ],
+                    fields: {
+                        pattern: {
+                            type: 'text',
+                            required: true
+                        },
+                        defaults: {
+                            type: 'array',
+                            asHash: true,
+                            tableLayout: true,
+                            addText: t('Add default'),
+                            columns: [
+                                {label: 'Key'},
+                                {label: 'value'}
+                            ],
+                            fields: {
+                                key: {
+                                    type: 'text',
+                                    required: true
+                                },
+                                value: {
+                                    type: 'text',
+                                    required: true
+                                }
+                            }
+                        },
+                        requirements: {
+                            type: 'array',
+                            asHash: true,
+                            tableLayout: true,
+                            addText: t('Add requirement'),
+                            columns: [
+                                {label: 'Key'},
+                                {label: 'RegEx'}
+                            ],
+                            fields: {
+                                key: {
+                                    type: 'text',
+                                    required: true
+                                },
+                                regex: {
+                                    type: 'text',
+                                    required: true
+                                }
+                            }
+                        }
+                    }
+                }, dialog.getContentContainer());
+
+                dialog.addEvent('apply', function() {
+                    tr.pluginRoutes = routes.getValue();
+                });
+
+                if (tr.pluginRoutes) {
+                    routes.setValue(tr.pluginRoutes);
+                }
+
+                dialog.center(true);
+            }.bind(this))
+            .inject(actionTd);
 
         new Element('a', {
             style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
             title: t('Delete plugin'),
             html: '&#xe26b;'
         })
-            .addEvent('click', function () {
-                this.win._confirm(t('Really delete'), function (ok) {
+            .addEvent('click', function() {
+                this.win._confirm(t('Really delete'), function(ok) {
                     if (!ok) {
                         return;
                     }
                     tr.destroy();
-                    tr2.destroy();
                 });
             }.bind(this))
             .inject(actionTd);
@@ -200,14 +318,13 @@ var admin_system_module_edit = new Class({
             title: t('Move up'),
             html: '&#xe2ca;'
         })
-            .addEvent('click', function () {
+            .addEvent('click', function() {
                 var previous = tr.getPrevious();
                 if (previous.getElement('th')) {
                     return;
                 }
 
                 tr.inject(previous.getPrevious(), 'before');
-                tr2.inject(tr, 'after');
             })
             .inject(actionTd);
 
@@ -216,49 +333,13 @@ var admin_system_module_edit = new Class({
             title: t('Move down'),
             html: '&#xe2cc;'
         })
-            .addEvent('click', function () {
-                if (!tr2.getNext()) {
+            .addEvent('click', function() {
+                if (!tr.getNext()) {
                     return false;
                 }
-                tr2.inject(tr2.getNext().getNext(), 'after');
-                tr.inject(tr2, 'before');
+                tr.inject(tr.getNext(), 'after');
             })
             .inject(actionTd);
-
-        var a = new Element('a', {
-            text: t('Properties'),
-            style: 'display: block; padding: 2px; cursor: pointer'
-        }).inject(right2Td);
-
-        new Element('img', {
-            src: _path + '/admin/images/icons/tree_plus.png',
-            style: 'margin-left: 2px; margin-right: 3px;'
-        }).inject(a, 'top');
-
-        var propertyPanel = new Element('div', {
-            style: 'display: none; margin: 15px; margin-top: 5px; border: 1px solid silver; background-color: #e7e7e7;',
-            'class': 'ka-extmanager-plugins-properties-panel'
-        }).inject(bottomTd);
-
-        a.addEvent('click', function () {
-            if (propertyPanel.getStyle('display') == 'block') {
-                propertyPanel.setStyle('display', 'none');
-                this.getElement('img').set('src', _path + 'bundles/admin/images/icons/tree_plus.png');
-            } else {
-                propertyPanel.setStyle('display', 'block');
-                this.getElement('img').set('src', _path + 'bundles/admin/images/icons/tree_minus.png');
-            }
-
-        });
-
-        var fieldTable = new ka.FieldTable(propertyPanel, this.win, {
-            arrayKey: true
-        });
-
-        tr.store('fieldTable', fieldTable);
-        if (pPlugin) {
-            fieldTable.setValue(pPlugin.options);
-        }
 
     },
 
@@ -269,18 +350,18 @@ var admin_system_module_edit = new Class({
      */
 
 
-    saveDocu: function () {
+    saveDocu: function() {
         if (this.lr) {
             this.lr.cancel();
         }
         this.win.setLoading(true, t('Saving ...'));
         this.lr = new Request.JSON({url: _pathAdmin +
-            'admin/system/module/editor/docu', noCache: 1, onComplete: function (res) {
+            'admin/system/module/editor/docu', noCache: 1, onComplete: function(res) {
             this.win.setLoading(false);
-        }.bind(this)}).post({text: this.text.getValue(),bundle: this.mod});
+        }.bind(this)}).post({text: this.text.getValue(), bundle: this.mod});
     },
 
-    loadDocu: function () {
+    loadDocu: function() {
 
         if (this.lr) {
             this.lr.cancel();
@@ -302,29 +383,29 @@ var admin_system_module_edit = new Class({
         this.text.input.setStyle('width', '100%');
 
         this.lr = new Request.JSON({url: _pathAdmin +
-            'admin/system/module/editor/docu', noCache: 1, onComplete: function (res) {
+            'admin/system/module/editor/docu', noCache: 1, onComplete: function(res) {
             this.text.setValue(res);
         }.bind(this)}).get({bundle: this.mod});
 
         this.win.setLoading(false);
     },
 
-    saveWindows: function () {
+    saveWindows: function() {
 
     },
 
-    loadWindows: function () {
+    loadWindows: function() {
         if (this.lr) {
             this.lr.cancel();
         }
         this.lr = new Request.JSON({url: _pathAdmin + 'admin/system/module/editor/windows', noCache: 1,
-            onComplete: function (pResult) {
+            onComplete: function(pResult) {
                 this.win.setLoading(false);
                 this._renderWindows(pResult.data);
             }.bind(this)}).get({bundle: this.mod});
     },
 
-    _renderWindows: function (pWindows) {
+    _renderWindows: function(pWindows) {
 
         this.panes['windows'].empty();
 
@@ -356,17 +437,17 @@ var admin_system_module_edit = new Class({
             style: 'width: 80px;'
         }).inject(tr);
 
-        Object.each(pWindows, function (form, key) {
+        Object.each(pWindows, function(form, key) {
             this.addWindow(key, form);
         }.bind(this));
 
         var buttonBar = new ka.ButtonBar(this.panes['windows']);
-        buttonBar.addButton(t('Add window'), function () {
+        buttonBar.addButton(t('Add window'), function() {
             this.createWindow('');
         }.bind(this));
     },
 
-    createWindow: function (pName) {
+    createWindow: function(pName) {
 
         var dialog = this.win.newDialog(new Element('h2', {text: t('New Window')}));
         dialog.setStyle('width', 400);
@@ -396,13 +477,13 @@ var admin_system_module_edit = new Class({
         }, td);
 
         this.newWindowDialogCancelBtn = new ka.Button(t('Cancel'))
-            .addEvent('click', function () {
+            .addEvent('click', function() {
                 dialog.close();
             })
             .inject(dialog.bottom);
 
         this.newWindowDialogApplyBtn = new ka.Button(t('Apply'))
-            .addEvent('click', function () {
+            .addEvent('click', function() {
 
                 if (name.value == '') {
 
@@ -416,7 +497,7 @@ var admin_system_module_edit = new Class({
 
                 new Request.JSON({url: _path + 'admin/system/module/editor/window', noCache: 1,
                     noErrorReporting: ['FileAlreadyExistException'],
-                    onComplete: function (pResponse) {
+                    onComplete: function(pResponse) {
 
                         this.newWindowDialogApplyBtn.stopTip();
 
@@ -441,7 +522,7 @@ var admin_system_module_edit = new Class({
 
     },
 
-    addWindow: function (pClassPath, pClassName) {
+    addWindow: function(pClassPath, pClassName) {
 
         var className = this.windowsTBody.getLast().hasClass('two') ? 'one' : 'two';
 
@@ -450,28 +531,30 @@ var admin_system_module_edit = new Class({
         }).inject(this.windowsTBody);
 
         var td = new Element('td', {
-            text: pClassName
+            text: pClassName,
+            style: 'white-space: normal;'
         }).inject(tr);
 
         var td = new Element('td', {
-            text: pClassPath
+            text: pClassPath,
+            style: 'white-space: normal;'
         }).inject(tr);
 
         var td = new Element('td').inject(tr);
 
         new ka.Button(t('Edit window'))
-        .addEvent('click', function () {
-            ka.wm.open('admin/system/module/editWindow', {bundle: this.mod, className: pClassName});
-        }.bind(this))
-        .inject(td);
+            .addEvent('click', function() {
+                ka.wm.open('admin/system/module/editWindow', {bundle: this.mod, className: pClassName});
+            }.bind(this))
+            .inject(td);
 
         new Element('a', {
             style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
             title: t('Remove'),
             html: '&#xe26b;'
-        }).addEvent('click', function () {
-            tr.destroy();
-        }.bind(this)).inject(td);
+        }).addEvent('click', function() {
+                tr.destroy();
+            }.bind(this)).inject(td);
 
     },
 
@@ -482,18 +565,18 @@ var admin_system_module_edit = new Class({
      *
      *
      */
-    loadDb: function () {
+    loadDb: function() {
         if (this.lr) {
             this.lr.cancel();
         }
         this.lr = new Request.JSON({url: _pathAdmin +
-            'admin/system/module/editor/model', noCache: 1, onComplete: function (res) {
+            'admin/system/module/editor/model', noCache: 1, onComplete: function(res) {
             this.win.setLoading(false);
             this._renderDb(res.data);
         }.bind(this)}).get({bundle: this.mod});
     },
 
-    saveDb: function () {
+    saveDb: function() {
 
         var req = {};
         req.name = this.mod;
@@ -502,19 +585,19 @@ var admin_system_module_edit = new Class({
         this.saveButton.startTip(t('Saving ...'));
 
         this.lr = new Request.JSON({url: _pathAdmin +
-            'admin/system/module/editor/model', noCache: 1, onComplete: function () {
+            'admin/system/module/editor/model', noCache: 1, onComplete: function() {
 
             this.updateORM();
             ka.loadSettings();
         }.bind(this)}).post(req);
     },
 
-    _renderDb: function (pModel) {
+    _renderDb: function(pModel) {
         this.panes['db'].empty();
 
         this.dbEditorPane = new Element('div', {
             'class': 'admin-system-modules-edit-pane',
-            style: 'bottom: 40px;'
+            style: 'bottom: 40px; padding: 0;'
         }).inject(this.panes['db']);
 
         this.dbEditor = new ka.Field({
@@ -523,11 +606,11 @@ var admin_system_module_edit = new Class({
             input_height: '100%'
         }, this.dbEditorPane);
 
-        this.dbEditor.setValue(pModel.contetn);
+        this.dbEditor.setValue(pModel.content);
         var buttonBar = new ka.ButtonBar(this.panes['db']);
 
         var info = new Element('div', {
-            style: 'position: absolute; left: 5px; top: 7px; color: gray;',
+            style: 'position: absolute; left: 5px; top: 0; color: gray;',
             text: pModel.path + ', '
         }).inject(document.id(buttonBar));
 
@@ -553,20 +636,20 @@ var admin_system_module_edit = new Class({
      *  Help
      */
 
-    loadHelp: function () {
+    loadHelp: function() {
         if (this.lr) {
             this.lr.cancel();
         }
 
         this.lr =
-            new Request.JSON({url: _pathAdmin + 'admin/system/module/getHelp', noCache: 1, onComplete: function (res) {
+            new Request.JSON({url: _pathAdmin + 'admin/system/module/getHelp', noCache: 1, onComplete: function(res) {
                 this.win.setLoading(false);
                 this._renderHelp(res);
 
             }.bind(this)}).post({bundle: this.mod/*, lang: this.languageSelect.value*/});
     },
 
-    _renderHelp: function (pHelp) {
+    _renderHelp: function(pHelp) {
         this.panes['help'].empty();
 
         this.helpPane = new Element('div', {
@@ -574,7 +657,7 @@ var admin_system_module_edit = new Class({
             style: 'bottom: 40px;'
         }).inject(this.panes['help']);
 
-        Object.each(pHelp, function (item, index) {
+        Object.each(pHelp, function(item, index) {
             this.addHelpItem(item);
         }.bind(this));
 
@@ -584,10 +667,10 @@ var admin_system_module_edit = new Class({
 
     },
 
-    saveHelp: function () {
+    saveHelp: function() {
         var req = {};
         var items = [];
-        this.helpPane.getElements('div.ka-admin-system-module-help').each(function (div) {
+        this.helpPane.getElements('div.ka-admin-system-module-help').each(function(div) {
 
             var item = {};
             item.title = div.getElements('input')[0].value;
@@ -605,12 +688,12 @@ var admin_system_module_edit = new Class({
         this.win.setLoading(true, t('Saving ...'));
 
         this.lr =
-            new Request.JSON({url: _pathAdmin + 'admin/system/module/saveHelp', noCache: 1, onComplete: function () {
+            new Request.JSON({url: _pathAdmin + 'admin/system/module/saveHelp', noCache: 1, onComplete: function() {
                 this.win.setLoading(false);
             }.bind(this)}).post(req);
     },
 
-    addHelpItem: function (pItem) {
+    addHelpItem: function(pItem) {
         if (!pItem) {
             pItem = {};
         }
@@ -649,7 +732,7 @@ var admin_system_module_edit = new Class({
             style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
             title: _('Remove'),
             html: '&#xe26b;'
-        }).addEvent('click', function () {
+        }).addEvent('click', function() {
                 main.destroy();
             }.bind(this)).inject(main);
 
@@ -660,19 +743,19 @@ var admin_system_module_edit = new Class({
 
     },
 
-    loadLinks: function () {
+    loadLinks: function() {
         if (this.lr) {
             this.lr.cancel();
         }
 
         this.lr = new Request.JSON({url: _pathAdmin +
-            'admin/system/module/editor/entry-points', noCache: 1, onComplete: function (res) {
+            'admin/system/module/editor/entry-points', noCache: 1, onComplete: function(res) {
             this.win.setLoading(false);
             this._renderLinks(res.data);
         }.bind(this)}).get({bundle: this.mod});
     },
 
-    _renderLinks: function (entryPoints) {
+    _renderLinks: function(entryPoints) {
         this.panes['links'].empty();
 
         var p = new Element('div', {
@@ -766,7 +849,7 @@ var admin_system_module_edit = new Class({
                         children: {
                             table_key: {
                                 label: t('Table primary column'),
-                                needValue: function (n) {
+                                needValue: function(n) {
                                     if (n != '') {
                                         return true;
                                     } else {
@@ -776,7 +859,7 @@ var admin_system_module_edit = new Class({
                             },
                             table_label: {
                                 label: t('Table label column'),
-                                needValue: function (n) {
+                                needValue: function(n) {
                                     if (n != '') {
                                         return true;
                                     } else {
@@ -829,14 +912,14 @@ var admin_system_module_edit = new Class({
         };
 
         if (entryPoints) {
-            Object.each(entryPoints, function (link, key) {
+            Object.each(entryPoints, function(link, key) {
                 this.entryPointsAdd(key, link, this.entryPointsTable);
             }.bind(this));
         }
 
         var buttonBar = new ka.ButtonBar(this.panes['links']);
 
-        buttonBar.addButton(t('Add link'), function () {
+        buttonBar.addButton(t('Add link'), function() {
             var count = this.entryPointsTable.getElements('tr').length;
             this.entryPointsAdd('first_lvl_id_' + (count + 1), {}, this.entryPointsTable);
         }.bind(this));
@@ -846,7 +929,7 @@ var admin_system_module_edit = new Class({
 
     },
 
-    entryPointsAdd: function (pKey, pDefinition, pContainer) {
+    entryPointsAdd: function(pKey, pDefinition, pContainer) {
 
         if (pContainer.get('tag') == 'tr') {
             if (!pContainer.childContainer) {
@@ -875,7 +958,7 @@ var admin_system_module_edit = new Class({
             modifier: 'dash|trim'
         }, td);
 
-        tr.getValue = function () {
+        tr.getValue = function() {
 
             tr.definition.type = tr.typeField.getValue();
             tr.definition.title = tr.titleField.getValue();
@@ -884,7 +967,7 @@ var admin_system_module_edit = new Class({
 
             if (tr.childContainer) {
                 data.children = [];
-                tr.childContainer.getChildren('.ka-entryPoint-item').each(function (item) {
+                tr.childContainer.getChildren('.ka-entryPoint-item').each(function(item) {
                     var itemValue = item.getValue();
                     data.children.push(itemValue);
                 });
@@ -926,56 +1009,56 @@ var admin_system_module_edit = new Class({
         var tdActions = new Element('td', {width: 250}).inject(tr);
 
         new ka.Button(t('Settings'))
-        .addEvent('click', function () {
+            .addEvent('click', function() {
 
-            var dialog = this.win.newDialog('', true);
+                var dialog = this.win.newDialog('', true);
 
-            dialog.setStyle('width', '90%');
-            dialog.setStyle('height', '90%');
+                dialog.setStyle('width', '90%');
+                dialog.setStyle('height', '90%');
 
-            var applyBtn = new ka.Button(t('Apply'));
+                var applyBtn = new ka.Button(t('Apply'));
 
-            var fieldObject = new ka.FieldForm(dialog.content, this.entryPointSettingsFields, {
-                allTableItems: true,
-                tableItemLabelWidth: 300,
-                saveButton: applyBtn
-            });
+                var fieldObject = new ka.FieldForm(dialog.content, this.entryPointSettingsFields, {
+                    allTableItems: true,
+                    tableItemLabelWidth: 300,
+                    saveButton: applyBtn
+                });
 
-            fieldObject.setValue(tr.definition);
+                fieldObject.setValue(tr.definition);
 
-            fieldObject.getField('type').setValue(tr.typeField.getValue(), true);
-            fieldObject.getField('label').setValue(tr.titleField.getValue(), true);
+                fieldObject.getField('type').setValue(tr.typeField.getValue(), true);
+                fieldObject.getField('label').setValue(tr.titleField.getValue(), true);
 
-            new ka.Button(t('Cancel'))
-            .addEvent('click', dialog.closeAnimated)
-            .inject(dialog.bottom);
+                new ka.Button(t('Cancel'))
+                    .addEvent('click', dialog.closeAnimated)
+                    .inject(dialog.bottom);
 
-            applyBtn.addEvent('click', function () {
-                if (!fieldObject.isValid()) {
-                    return;
-                }
+                applyBtn.addEvent('click', function() {
+                        if (!fieldObject.isValid()) {
+                            return;
+                        }
 
-                tr.definition = fieldObject.getValue();
-                tr.typeField.setValue(tr.definition.type);
-                tr.titleField.setValue(tr.definition.title);
+                        tr.definition = fieldObject.getValue();
+                        tr.typeField.setValue(tr.definition.type);
+                        tr.titleField.setValue(tr.definition.title);
 
-                dialog.close();
+                        dialog.close();
+
+                    }.bind(this))
+                    .setButtonStyle('blue')
+                    .inject(dialog.bottom);
+
+                dialog.center(true);
 
             }.bind(this))
-            .setButtonStyle('blue')
-            .inject(dialog.bottom);
-
-            dialog.center(true);
-
-        }.bind(this))
-        .inject(tdActions);
+            .inject(tdActions);
 
         new Element('a', {
             style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 5px;",
             title: t('Add children'),
             html: '&#xe109;'
         })
-            .addEvent('click', function () {
+            .addEvent('click', function() {
                 this.entryPointsAdd('', {}, tr);
             }.bind(this))
             .inject(tdActions);
@@ -985,118 +1068,118 @@ var admin_system_module_edit = new Class({
             title: _('Remove'),
             html: '&#xe26b;'
         })
-        .addEvent('click', function () {
-            this.win._confirm(t('Really delete?'), function (ok) {
-                if (ok) {
-                    tr.fireEvent('delete');
-                    tr.removeEvents('change');
-                    tr.destroy();
-                    if (tr.childTr) {
-                        tr.childTr.destroy();
+            .addEvent('click', function() {
+                this.win._confirm(t('Really delete?'), function(ok) {
+                    if (ok) {
+                        tr.fireEvent('delete');
+                        tr.removeEvents('change');
+                        tr.destroy();
+                        if (tr.childTr) {
+                            tr.childTr.destroy();
+                        }
                     }
-                }
-            }.bind(this));
-        }.bind(this))
-        .inject(tdActions);
+                }.bind(this));
+            }.bind(this))
+            .inject(tdActions);
 
         new Element('a', {
             style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
             title: t('Move up'),
             html: '&#xe2ca;'
         })
-        .addEvent('click', function () {
+            .addEvent('click', function() {
 
-            var previous = tr.getPrevious('.ka-entryPoint-item');
-            if (!previous) {
-                return;
-            }
-            tr.inject(previous, 'before');
+                var previous = tr.getPrevious('.ka-entryPoint-item');
+                if (!previous) {
+                    return;
+                }
+                tr.inject(previous, 'before');
 
-            if (tr.childTr) {
-                tr.childTr.inject(tr, 'after');
-            }
+                if (tr.childTr) {
+                    tr.childTr.inject(tr, 'after');
+                }
 
-        }.bind(this))
-        .inject(tdActions);
+            }.bind(this))
+            .inject(tdActions);
 
         new Element('a', {
             style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
             title: t('Move down'),
             html: '&#xe2cc;'
         })
-        .addEvent('click', function () {
+            .addEvent('click', function() {
 
-            var next = tr.getNext('.ka-entryPoint-item');
-            if (!next) {
-                return;
-            }
-            tr.inject(next.childTr || next, 'after');
+                var next = tr.getNext('.ka-entryPoint-item');
+                if (!next) {
+                    return;
+                }
+                tr.inject(next.childTr || next, 'after');
 
-            if (tr.childTr) {
-                tr.childTr.inject(tr, 'after');
-            }
+                if (tr.childTr) {
+                    tr.childTr.inject(tr, 'after');
+                }
 
-        }.bind(this))
-        .inject(tdActions);
+            }.bind(this))
+            .inject(tdActions);
 
         new Element('a', {
             style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
             title: t('Open'),
             html: '&#xe28d;'
         })
-        .addEvent('click', function () {
+            .addEvent('click', function() {
 
-            if (['list', 'add', 'edit', 'combine', 'custom'].contains(tr.definition.type)) {
-                var extension = this.mod;
-                var parent = tr, code = tr.key.getValue();
-                while ((parent = parent.getParent('.ka-entryPoint-childrenContainer')) &&
-                    (parent = parent.getPrevious('.ka-entryPoint-item'))) {
+                if (['list', 'add', 'edit', 'combine', 'custom'].contains(tr.definition.type)) {
+                    var extension = this.mod;
+                    var parent = tr, code = tr.key.getValue();
+                    while ((parent = parent.getParent('.ka-entryPoint-childrenContainer')) &&
+                        (parent = parent.getPrevious('.ka-entryPoint-item'))) {
 
-                    code = parent.key.getValue() + '/' + code;
+                        code = parent.key.getValue() + '/' + code;
+                    }
+                    code = extension + '/' + code;
+                    ka.wm.open(code);
+                    logger(code);
                 }
-                code = extension + '/' + code;
-                ka.wm.open(code);
-                logger(code);
-            }
 
-        }.bind(this))
-        .inject(tdActions);
+            }.bind(this))
+            .inject(tdActions);
 
         if (pDefinition.children) {
-            Object.each(pDefinition.children, function (link, key) {
+            Object.each(pDefinition.children, function(link, key) {
                 this.entryPointsAdd(key, link, tr);
             }.bind(this));
         }
 
     },
 
-    saveLinks: function () {
+    saveLinks: function() {
 
         var entryPoints = [];
 
-        this.entryPointsTable.getChildren('.ka-entryPoint-item').each(function (item) {
+        this.entryPointsTable.getChildren('.ka-entryPoint-item').each(function(item) {
             var itemData = item.getValue();
             entryPoints.push(itemData);
         });
 
         this.win.setLoading(true, t('Saving ...'));
 
-        this.lr = new Request.JSON({url: _pathAdmin + 'admin/system/module/editor/entry-points?bundle='+decodeURIComponent(this.mod),
-            noCache: 1, onComplete: function () {
-            this.win.setLoading(false);
-            ka.loadSettings();
-            ka.adminInterface.loadMenu();
-        }.bind(this)}).post({entryPoints: entryPoints});
+        this.lr = new Request.JSON({url: _pathAdmin + 'admin/system/module/editor/entry-points?bundle=' + decodeURIComponent(this.mod),
+            noCache: 1, onComplete: function() {
+                this.win.setLoading(false);
+                ka.loadSettings();
+                ka.adminInterface.loadMenu();
+            }.bind(this)}).post({entryPoints: entryPoints});
 
     },
 
-    _getLayoutSetting: function (pLayoutItem) {
+    _getLayoutSetting: function(pLayoutItem) {
         var res = {};
 
         var kaParser = pLayoutItem.retrieve('kaparser');
         res = kaParser.getValue();
 
-        Object.each(res, function (v, k) {
+        Object.each(res, function(v, k) {
             if (v === '') {
                 delete res[k];
             }
@@ -1104,7 +1187,7 @@ var admin_system_module_edit = new Class({
 
         res['childs'] = {};
 
-        pLayoutItem.getElement('.layoutChilds').getChildren('.ka-extension-manager-links-item').each(function (item) {
+        pLayoutItem.getElement('.layoutChilds').getChildren('.ka-extension-manager-links-item').each(function(item) {
             var input = item.getElement('input');
             res['childs'][input.value ] = this._getLayoutSetting(item);
         }.bind(this));
@@ -1377,7 +1460,7 @@ var admin_system_module_edit = new Class({
      },
      */
 
-    _loadGeneral: function (pConfig) {
+    _loadGeneral: function(pConfig) {
         this.panes['general'].empty();
 
         var p = new Element('div', {
@@ -1518,51 +1601,51 @@ var admin_system_module_edit = new Class({
         if (ka.settings.system.communityId > 0 && !pConfig.owner > 0) {
             var ownerField = this.generalFieldsObj.getField('owner');
             new ka.Button(t('Set to my extension: ' + ka.settings.system.communityEmail))
-            .addEvent('click', function () {
-                this.setToMyExtension = ka.settings.system.communityId;
-                ownerField.setValue(ka.settings.system.communityEmail);
-            }.bind(this)).inject(document.id(ownerField).getElement('.ka-field-field'));
+                .addEvent('click', function() {
+                    this.setToMyExtension = ka.settings.system.communityId;
+                    ownerField.setValue(ka.settings.system.communityEmail);
+                }.bind(this)).inject(document.id(ownerField).getElement('.ka-field-field'));
         }
 
         this.generalFieldsObj.setValue(value);
 
     },
 
-    saveGeneral: function () {
+    saveGeneral: function() {
         var req = this.generalFieldsObj.getValue();
 
         this.win.setLoading(true, t('Saving ...'));
         this.lr = new Request.JSON({url: _pathAdmin +
-            'admin/system/module/editor/general?name=' + decodeURIComponent(this.mod), onComplete: function () {
+            'admin/system/module/editor/general?name=' + decodeURIComponent(this.mod), onComplete: function() {
             this.win.setLoading(false);
         }.bind(this)}).post(req);
     },
 
-    loadGeneral: function () {
+    loadGeneral: function() {
         this.win.setLoading(true, t('Saving ...'));
         if (this.lr) {
             this.lr.cancel();
         }
         this.lr = new Request.JSON({url: _pathAdmin +
-            'admin/system/module/editor/config', noCache: 1, onComplete: function (pResult) {
+            'admin/system/module/editor/config', noCache: 1, onComplete: function(pResult) {
             this._loadGeneral(pResult.data);
             this.win.setLoading(false);
         }.bind(this)}).get({bundle: this.mod});
     },
 
-    loadLayouts: function () {
+    loadLayouts: function() {
         this.win.setLoading(true, t('Saving ...'));
         if (this.lr) {
             this.lr.cancel();
         }
         this.lr = new Request.JSON({url: _pathAdmin +
-            'admin/system/module/editor/config', noCache: 1, onComplete: function (pResult) {
+            'admin/system/module/editor/config', noCache: 1, onComplete: function(pResult) {
             this._loadLayouts(pResult.data);
             this.win.setLoading(false);
         }.bind(this)}).get({bundle: this.mod});
     },
 
-    _loadLayouts: function (pConfig) {
+    _loadLayouts: function(pConfig) {
         this.panes['layouts'].empty();
         var p = new Element('div', {
             'class': 'admin-system-modules-edit-pane',
@@ -1572,48 +1655,48 @@ var admin_system_module_edit = new Class({
         this.layoutsAddThemeButton = new Element('div').inject(p);
 
         if (pConfig.themes) {
-            Object.each(pConfig.themes, function (templates, themeTitle) {
+            Object.each(pConfig.themes, function(templates, themeTitle) {
                 this._layoutsAddTheme(themeTitle, templates);
             }.bind(this));
         }
 
         var buttonBar = new ka.ButtonBar(this.panes['layouts']);
 
-        buttonBar.addButton(t('Add theme'), function () {
+        buttonBar.addButton(t('Add theme'), function() {
             this._layoutsAddTheme('Theme title', {});
         }.bind(this));
         var saveBtn = buttonBar.addButton(t('Save'), this.saveLayouts.bind(this));
         saveBtn.setButtonStyle('blue');
     },
 
-    saveLayouts: function () {
+    saveLayouts: function() {
         this.win.setLoading(true, t('Saving ...'));
 
         var themes = {};
-        this.panes['layouts'].getElements('div[class=themeContainer]').each(function (container) {
+        this.panes['layouts'].getElements('div[class=themeContainer]').each(function(container) {
             var themeTitle = container.getElement('input.themeTitle').value;
             var themeTemplates = {layouts: {}, navigations: {}, contents: {}, properties: {}, publicProperties: {}};
 
-            container.getElements('ol.layoutContainerLayout li').each(function (template) {
+            container.getElements('ol.layoutContainerLayout li').each(function(template) {
                 themeTemplates.layouts[template.getElements('input')[0].value] = template.getElements('input')[1].value;
             });
 
-            container.getElements('ol.layoutContainerContent li').each(function (template) {
+            container.getElements('ol.layoutContainerContent li').each(function(template) {
                 themeTemplates.contents[template.getElements('input')[0].value] =
                     template.getElements('input')[1].value;
             });
 
-            container.getElements('ol.layoutContainerNavigation li').each(function (template) {
+            container.getElements('ol.layoutContainerNavigation li').each(function(template) {
                 themeTemplates.navigations[template.getElements('input')[0].value] =
                     template.getElements('input')[1].value;
             });
 
-            container.getElements('div.themeProperties li').each(function (template) {
+            container.getElements('div.themeProperties li').each(function(template) {
                 themeTemplates.properties[template.getElements('input')[0].value] =
                     template.getElements('input')[1].value;
             });
 
-            container.getElements('div.publicProperties li').each(function (template) {
+            container.getElements('div.publicProperties li').each(function(template) {
                 themeTemplates.publicProperties[template.getElements('input')[0].value] =
                     [template.getElements('input')[1].value, template.getElements('select')[0].value];
             });
@@ -1622,13 +1705,13 @@ var admin_system_module_edit = new Class({
         });
 
         this.lr =
-            new Request.JSON({url: _pathAdmin + 'admin/system/module/saveLayouts', noCache: 1, onComplete: function () {
+            new Request.JSON({url: _pathAdmin + 'admin/system/module/saveLayouts', noCache: 1, onComplete: function() {
                 this.win.setLoading(false);
                 ka.loadSettings();
             }.bind(this)}).post({bundle: this.mod, themes: JSON.encode(themes) });
     },
 
-    _addPublicProperty: function (pContainer, pKey, pTitle, pType) {
+    _addPublicProperty: function(pContainer, pKey, pTitle, pType) {
         var li = new Element('li').inject(pContainer);
 
         new Element('input', {
@@ -1661,7 +1744,7 @@ var admin_system_module_edit = new Class({
             'checkbox': 'Checkbox',
             page: 'Page/Deposit',
             file: 'File'
-        }, function (title, key) {
+        }, function(title, key) {
             new Element('option', {
                 html: _(title),
                 value: key
@@ -1674,8 +1757,8 @@ var admin_system_module_edit = new Class({
             style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
             title: _('Remove'),
             html: '&#xe26b;'
-        }).addEvent('click', function () {
-                this.win._confirm(t('Really delete'), function (ok) {
+        }).addEvent('click', function() {
+                this.win._confirm(t('Really delete'), function(ok) {
                     if (!ok) {
                         return;
                     }
@@ -1684,7 +1767,7 @@ var admin_system_module_edit = new Class({
             }.bind(this)).inject(li);
     },
 
-    _addThemeProperty: function (pContainer, pKey, pValue) {
+    _addThemeProperty: function(pContainer, pKey, pValue) {
         var li = new Element('li').inject(pContainer);
 
         new Element('input', {
@@ -1706,9 +1789,9 @@ var admin_system_module_edit = new Class({
             style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
             title: _('Remove'),
             html: '&#xe26b;'
-        }).addEvent('click', function () {
+        }).addEvent('click', function() {
 
-                this.win._confirm(t('Really delete'), function (ok) {
+                this.win._confirm(t('Really delete'), function(ok) {
                     if (!ok) {
                         return;
                     }
@@ -1717,7 +1800,7 @@ var admin_system_module_edit = new Class({
             }.bind(this)).inject(li);
     },
 
-    _layoutsAddTheme: function (pTitle, pTemplates) {
+    _layoutsAddTheme: function(pTitle, pTemplates) {
         var myp = new Element('div', {'class': 'themeContainer'}).inject(this.layoutsAddThemeButton, 'before');
 
         new Element('input', {
@@ -1730,8 +1813,8 @@ var admin_system_module_edit = new Class({
             style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
             title: _('Remove'),
             html: '&#xe26b;'
-        }).addEvent('click', function () {
-                this.win._confirm(t('Really delete this theme ?'), function (res) {
+        }).addEvent('click', function() {
+                this.win._confirm(t('Really delete this theme ?'), function(res) {
                     if (!res) {
                         return;
                     }
@@ -1744,7 +1827,7 @@ var admin_system_module_edit = new Class({
             'class': 'layoutContainer'
         }).inject(myp);
 
-        var addTemplate = function (pLayoutTitle, pLayoutFile, pTo) {
+        var addTemplate = function(pLayoutTitle, pLayoutFile, pTo) {
             var li = new Element('li').inject(pTo);
             new Element('input', {
                 'class': 'text', value: pLayoutTitle
@@ -1758,15 +1841,15 @@ var admin_system_module_edit = new Class({
                 title: _('Edit template'),
                 html: '&#xe00f;'
             }).addEvent('click',
-                function () {
+                function() {
                     ka.wm.open('admin/files/edit', {file: {path: '/' + file.value}});
                 }).inject(li);
             new Element('a', {
                 style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
                 title: _('Remove'),
                 html: '&#xe26b;'
-            }).addEvent('click', function () {
-                    this.win._confirm(t('Really delete this template ?'), function (res) {
+            }).addEvent('click', function() {
+                    this.win._confirm(t('Really delete this template ?'), function(res) {
                         if (!res) {
                             return;
                         }
@@ -1790,12 +1873,12 @@ var admin_system_module_edit = new Class({
             'src': _path + 'bundles/admin/images/icons/add.png',
             title: t('Add public property'),
             style: 'cursor: pointer; position: relative; top: 3px; margin-left: 3px;'
-        }).addEvent('click', function () {
+        }).addEvent('click', function() {
                 this._addPublicProperty(olpp);
             }.bind(this)).inject(title);
 
         if (pTemplates.publicProperties) {
-            Object.each(pTemplates.publicProperties, function (val, key) {
+            Object.each(pTemplates.publicProperties, function(val, key) {
                 this._addPublicProperty(olpp, key, val[0], val[1]);
             }.bind(this));
         }
@@ -1815,12 +1898,12 @@ var admin_system_module_edit = new Class({
             'src': _path + 'bundles/admin/images/icons/add.png',
             title: t('Add property'),
             style: 'cursor: pointer; position: relative; top: 3px; margin-left: 3px;'
-        }).addEvent('click', function () {
+        }).addEvent('click', function() {
                 this._addThemeProperty(ol);
             }.bind(this)).inject(title);
 
         if (pTemplates.properties) {
-            Object.each(pTemplates.properties, function (val, key) {
+            Object.each(pTemplates.properties, function(val, key) {
                 this._addThemeProperty(ol, key, val);
             }.bind(this));
         }
@@ -1837,12 +1920,12 @@ var admin_system_module_edit = new Class({
             'src': _path + 'bundles/admin/images/icons/add.png',
             title: t('Add layout template'),
             style: 'cursor: pointer; position: relative; top: 3px; margin-left: 3px'
-        }).addEvent('click', function () {
+        }).addEvent('click', function() {
                 addTemplate('My title', this.mod + '/layout_mytitle.tpl', this.layoutsLayoutContainer);
             }.bind(this)).inject(title);
 
         if (pTemplates.layouts) {
-            Object.each(pTemplates.layouts, function (file, title) {
+            Object.each(pTemplates.layouts, function(file, title) {
                 addTemplate(title, file, this.layoutsLayoutContainer);
             }.bind(this));
         }
@@ -1860,12 +1943,12 @@ var admin_system_module_edit = new Class({
             'src': _path + 'bundles/admin/images/icons/add.png',
             title: t('Add element template'),
             style: 'cursor: pointer; position: relative; top: 3px; margin-left: 3px'
-        }).addEvent('click', function () {
+        }).addEvent('click', function() {
                 addTemplate('My title', this.mod + '/content_mytitle.tpl', this.layoutsContentContainer);
             }.bind(this)).inject(title);
 
         if (pTemplates.contents) {
-            Object.each(pTemplates.contents, function (file, title) {
+            Object.each(pTemplates.contents, function(file, title) {
                 addTemplate(title, file, this.layoutsContentContainer);
             }.bind(this));
         }
@@ -1882,19 +1965,19 @@ var admin_system_module_edit = new Class({
             'src': _path + 'bundles/admin/images/icons/add.png',
             title: t('Add navigation template'),
             style: 'cursor: pointer; position: relative; top: 3px; margin-left: 3px'
-        }).addEvent('click', function () {
+        }).addEvent('click', function() {
                 addTemplate('My title', this.mod + '/navigation_mytitle.tpl', this.layoutsNavigationContainer);
             }.bind(this)).inject(title);
 
         if (pTemplates.navigations) {
-            Object.each(pTemplates.navigations, function (file, title) {
+            Object.each(pTemplates.navigations, function(file, title) {
                 addTemplate(title, file, this.layoutsNavigationContainer);
             }.bind(this));
         }
 
     },
 
-    loadLanguage: function () {
+    loadLanguage: function() {
 
         this.win.setLoading(false);
 
@@ -1914,13 +1997,13 @@ var admin_system_module_edit = new Class({
 
         var right = new Element('div', {style: 'position: absolute; right: 10px; top: 50px;'}).inject(div)
         this.langTranslateBtn = new ka.Button(t('Translate')).inject(right);
-        this.langTranslateBtn.addEvent('click', function () {
+        this.langTranslateBtn.addEvent('click', function() {
             ka.wm.open('admin/system/languages/edit', {/*lang: this.languageSelect.value, */module: this.mod});
         }.bind(this));
         this.langTranslateBtn.deactivate();
 
         this.lr = new Request.JSON({url: _path + 'admin/system/languages/overviewExtract', noCache: 1,
-            onComplete: function (pRes) {
+            onComplete: function(pRes) {
 
                 this.langProgressBars.setUnlimited(false);
                 this.langProgressBars.setValue((pRes.countTranslated / pRes.count) * 100);
@@ -1936,7 +2019,7 @@ var admin_system_module_edit = new Class({
 
     },
 
-    loadObjects: function () {
+    loadObjects: function() {
 
         if (this.lr) {
             this.lr.cancel();
@@ -1949,7 +2032,7 @@ var admin_system_module_edit = new Class({
         }).inject(this.panes['objects']);
 
         this.objectsTable = new ka.Table([
-        //    ['', 20],
+            //    ['', 20],
             [t('Object key'), 260],
             [t('Object label'), 260],
             [t('Actions')]
@@ -1958,7 +2041,7 @@ var admin_system_module_edit = new Class({
         this.objectTBody = this.objectsTable.getBody();
 
         var buttonBar = new ka.ButtonBar(this.panes['objects']);
-        buttonBar.addButton([t('Add object'), '#icon-plus-alt'], function () {
+        buttonBar.addButton([t('Add object'), '#icon-plus-alt'], function() {
             this.addObject();
         }.bind(this));
 
@@ -1970,10 +2053,10 @@ var admin_system_module_edit = new Class({
         document.id(this.saveButtonORM).addClass('ka-Button-blue');
 
         this.lr = new Request.JSON({url: _pathAdmin + 'admin/system/module/editor/objects', noCache: 1,
-            onComplete: function (pResult) {
+            onComplete: function(pResult) {
 
                 if (pResult.data) {
-                    Object.each(pResult.data, function (item, key) {
+                    Object.each(pResult.data, function(item, key) {
                         this.addObject(item, key);
                     }.bind(this));
                 }
@@ -1983,7 +2066,7 @@ var admin_system_module_edit = new Class({
             }.bind(this)}).get({bundle: this.mod});
     },
 
-    updateOrm: function (pCmd, pCallback) {
+    updateOrm: function(pCmd, pCallback) {
 
         if (this.lr) {
             this.lr.cancel();
@@ -1993,21 +2076,21 @@ var admin_system_module_edit = new Class({
             onComplete: pCallback}).get();
     },
 
-    updateOrmWriteModel: function (pCallback) {
+    updateOrmWriteModel: function(pCallback) {
 
         if (this.lr) {
             this.lr.cancel();
         }
 
         this.lr = new Request.JSON({url: _pathAdmin + 'admin/system/module/editor/model/from-objects', noCache: 1,
-            onComplete: function (response) {
+            onComplete: function(response) {
                 if (!response.error) {
                     pCallback(response);
                 }
             }.bind(this)}).post({bundle: this.mod});
     },
 
-    printOrmError: function (pResponse) {
+    printOrmError: function(pResponse) {
         this.currentButton.stopTip(t('Failed.'));
 
         var div = new Element('div');
@@ -2037,18 +2120,18 @@ var admin_system_module_edit = new Class({
             .inject(dialog.bottom);
     },
 
-    updateORM: function () {
+    updateORM: function() {
 
         this.currentButton.startTip(t('Object saved. Write model.xml ...'));
 
-        this.updateOrmWriteModel(function () {
+        this.updateOrmWriteModel(function() {
             this.currentButton.startTip(t('Saved. Update PHP models ...'));
-            this.updateOrm('models', function (response) {
+            this.updateOrm('models', function(response) {
                 if (response.error) {
                     this.printOrmError(response);
                 } else {
                     this.currentButton.startTip(t('Saved. Update database tables ...'));
-                    this.updateOrm('update', function (response) {
+                    this.updateOrm('update', function(response) {
                         if (response.error) {
                             this.printOrmError(response);
                         } else {
@@ -2060,11 +2143,11 @@ var admin_system_module_edit = new Class({
         }.bind(this));
     },
 
-    writeObjectModel: function (pObjectKey) {
+    writeObjectModel: function(pObjectKey) {
 
         this.win.setLoading(true, t('Write model to model.xml'));
 
-        new Request.JSON({url: _path + 'admin/system/module/editor/model/from-object', onComplete: function (pResult) {
+        new Request.JSON({url: _path + 'admin/system/module/editor/model/from-object', onComplete: function(pResult) {
 
             this.win.setLoading(false);
 
@@ -2072,11 +2155,11 @@ var admin_system_module_edit = new Class({
 
     },
 
-    saveObjects: function (pWithUpdate) {
+    saveObjects: function(pWithUpdate) {
 
         var objects = {};
 
-        this.objectTBody.getChildren('.object').each(function (object) {
+        this.objectTBody.getChildren('.object').each(function(object) {
 
             var definition = object.definition;
             var iKey = object.getElements('input')[0];
@@ -2099,7 +2182,7 @@ var admin_system_module_edit = new Class({
         req.bundle = this.mod;
 
         this.lr = new Request.JSON({url: _pathAdmin +
-            'admin/system/module/editor/objects', noCache: 1, onComplete: function (response) {
+            'admin/system/module/editor/objects', noCache: 1, onComplete: function(response) {
             if (response.status == 200) {
                 ka.loadSettings(['configs']);
                 if (pWithUpdate) {
@@ -2115,7 +2198,7 @@ var admin_system_module_edit = new Class({
 
     },
 
-    openObjectSettings: function (pTr) {
+    openObjectSettings: function(pTr) {
 
         this.dialog = this.win.newDialog('', true);
 
@@ -2128,7 +2211,7 @@ var admin_system_module_edit = new Class({
         var kaFields = {
             '__general__': {
                 type: 'tab',
-                tabFullPage: true,
+                fullPage: true,
                 label: t('General'),
                 depends: {
                     'desc': {
@@ -2254,7 +2337,7 @@ var admin_system_module_edit = new Class({
             },
             '__selection__': {
                 type: 'tab',
-                tabFullPage: true,
+                fullPage: true,
                 label: t('Appearence'),
                 children: {
                     __fieldUi__: {
@@ -2555,7 +2638,7 @@ var admin_system_module_edit = new Class({
 
         new ka.Button(t('Cancel')).addEvent('click', this.cancelObjectSettings.bind(this)).inject(this.dialog.bottom);
 
-        new ka.Button(t('Apply')).addEvent('click', function () {
+        new ka.Button(t('Apply')).addEvent('click', function() {
 
                 var fields = Object.clone(pTr.definition.fields);
                 var values = kaParseObj.getValue();
@@ -2581,7 +2664,7 @@ var admin_system_module_edit = new Class({
 
     },
 
-    cancelObjectSettings: function () {
+    cancelObjectSettings: function() {
         if (this.dialog) {
             this.dialog.close();
             delete this.dialog;
@@ -2589,7 +2672,7 @@ var admin_system_module_edit = new Class({
 
     },
 
-    addObject: function (pDefinition, pKey) {
+    addObject: function(pDefinition, pKey) {
         var row = [];
 
 //        tr.definition = pDefinition || {};
@@ -2633,8 +2716,8 @@ var admin_system_module_edit = new Class({
 
         if (pDefinition) {
             new ka.Button(t('Window wizard'))
-            .addEvent('click', this.openObjectWizard.bind(this, pKey, pDefinition))
-            .inject(actions);
+                .addEvent('click', this.openObjectWizard.bind(this, pKey, pDefinition))
+                .inject(actions);
         }
 
         new Element('a', {
@@ -2642,17 +2725,17 @@ var admin_system_module_edit = new Class({
             title: _('Remove'),
             html: '&#xe26b;'
         })
-        .addEvent('click', function () {
-            this.win._confirm(t('Really delete'), function (ok) {
-                if (!ok) {
-                    return;
-                }
-                tr.destroy();
-            });
-        }.bind(this))
-        .inject(actions);
+            .addEvent('click', function() {
+                this.win._confirm(t('Really delete'), function(ok) {
+                    if (!ok) {
+                        return;
+                    }
+                    tr.destroy();
+                });
+            }.bind(this))
+            .inject(actions);
 
-        fieldsBtn.addEvent('click', function () {
+        fieldsBtn.addEvent('click', function() {
 
             var dialog = this.win.newDialog('', true);
             dialog.setStyles({
@@ -2660,7 +2743,7 @@ var admin_system_module_edit = new Class({
                 height: '95%'
             });
 
-            new ka.Button(t('Cancel')).addEvent('click',function () {
+            new ka.Button(t('Cancel')).addEvent('click',function() {
                 dialog.closeAnimated();
             }).inject(dialog.bottom);
 
@@ -2682,7 +2765,7 @@ var admin_system_module_edit = new Class({
                 width: 150
             }).inject(fieldTable.headerTr.getFirst(), 'after');
 
-            fieldTable.addEvent('add', function (item) {
+            fieldTable.addEvent('add', function(item) {
                 //todo, add span to item and listen on item.getelement(input) bla
                 item.underscoreDisplay = new Element('td', {
                     'text': '',
@@ -2690,8 +2773,8 @@ var admin_system_module_edit = new Class({
                     width: 150
                 }).inject(item.tdType, 'before');
 
-                var updateUnderscore = function () {
-                    var ucv = item.iKey.getValue().replace(/([^a-z])/g, function ($1) {
+                var updateUnderscore = function() {
+                    var ucv = item.iKey.getValue().replace(/([^a-z])/g, function($1) {
                         return "_" + $1.toLowerCase().replace(/[^a-z]/, '');
                     });
                     item.underscoreDisplay.set('text', ucv);
@@ -2707,21 +2790,21 @@ var admin_system_module_edit = new Class({
                 fieldTable.setValue(tr.definition.fields);
             }
 
-            new ka.Button(t('Apply')).addEvent('click', function () {
+            new ka.Button(t('Apply')).addEvent('click', function() {
 
                 tr.definition.fields = fieldTable.getValue();
                 dialog.closeAnimated();
 
             })
-            .setButtonStyle('blue')
-            .inject(dialog.bottom);
+                .setButtonStyle('blue')
+                .inject(dialog.bottom);
 
             dialog.center(true);
 
         }.bind(this));
     },
 
-    openObjectWizard: function (pKey, pDefinition) {
+    openObjectWizard: function(pKey, pDefinition) {
 
         this.dialog = this.win.newDialog('', true);
 
@@ -2742,7 +2825,7 @@ var admin_system_module_edit = new Class({
         var colCount = 0;
         var useIt = false;
 
-        Object.each(pDefinition.fields, function (field, key) {
+        Object.each(pDefinition.fields, function(field, key) {
 
             useIt = false;
             if (!field.primaryKey && colCount <= 4) {
@@ -2763,14 +2846,14 @@ var admin_system_module_edit = new Class({
 
         var reqs = {};
 
-        var checkClassName = function (pValue, pFieldObject, pFieldId) {
+        var checkClassName = function(pValue, pFieldObject, pFieldId) {
 
             if (reqs[pFieldId]) {
                 reqs[pFieldId].cancel();
             }
 
             reqs[pFieldId] = new Request.JSON({url: _path + 'admin/system/module/windowsExists', noCache: 1,
-                onComplete: function (pResult) {
+                onComplete: function(pResult) {
                     if (pFieldObject.existsInfo) {
                         pFieldObject.existsInfo.destroy();
                     }
@@ -2862,11 +2945,11 @@ var admin_system_module_edit = new Class({
 
         var kaParseObj = new ka.FieldForm(tbody, kaFields, {allTableItems: true}, {win: this.win});
 
-        this.objectWizardCloseBtn = new ka.Button(t('Cancel')).addEvent('click', function () {
+        this.objectWizardCloseBtn = new ka.Button(t('Cancel')).addEvent('click', function() {
             this.dialog.close();
         }.bind(this)).inject(this.dialog.bottom);
 
-        this.objectWizardSaveBtn = new ka.Button(t('Apply')).addEvent('click', function () {
+        this.objectWizardSaveBtn = new ka.Button(t('Apply')).addEvent('click', function() {
 
                 var values = kaParseObj.getValue();
                 this.dialog.canClosed = false;
@@ -2876,7 +2959,7 @@ var admin_system_module_edit = new Class({
                 this.win.setLoading(true, t('Creating windows ...'));
 
                 this.lr = new Request.JSON({url: _pathAdmin +
-                    'admin/system/module/createWindows', noCache: 1, onComplete: function (res) {
+                    'admin/system/module/createWindows', noCache: 1, onComplete: function(res) {
 
                     this.win.setLoading(false);
                     this.dialog.close();
@@ -2891,7 +2974,7 @@ var admin_system_module_edit = new Class({
 
     },
 
-    loadExtras: function () {
+    loadExtras: function() {
 
         var extrasFields = {
 
@@ -3050,7 +3133,6 @@ var admin_system_module_edit = new Class({
                                 type: 'fieldTable',
                                 options: {
                                     withoutChildren: true,
-                                    asFrameworkFieldDefinition: true,
                                     fieldTypesBlacklist: ['window_list', 'layoutelement']
                                 }
                             }
@@ -3078,7 +3160,7 @@ var admin_system_module_edit = new Class({
         saveBtn.setButtonStyle('blue');
 
         this.lr = new Request.JSON({url: _pathAdmin + 'admin/system/module/editor/basic', noCache: 1,
-            onComplete: function (pResult) {
+            onComplete: function(pResult) {
 
                 if (pResult.data) {
                     this.extraFieldsObj.setValue(pResult.data);
@@ -3089,7 +3171,7 @@ var admin_system_module_edit = new Class({
 
     },
 
-    saveExtras: function () {
+    saveExtras: function() {
 
         var req = this.extraFieldsObj.getValue();
         req.name = this.mod;
@@ -3097,14 +3179,14 @@ var admin_system_module_edit = new Class({
         this.win.setLoading(true, t('Saving ...'));
 
         this.lr =
-            new Request.JSON({url: _pathAdmin + 'admin/system/module/saveExtras', noCache: 1, onComplete: function () {
+            new Request.JSON({url: _pathAdmin + 'admin/system/module/saveExtras', noCache: 1, onComplete: function() {
                 this.win.setLoading(false);
                 ka.loadSettings();
             }.bind(this)}).post(req);
     },
 
-    viewType: function (pType) {
-        Object.each(this.buttons, function (button, id) {
+    viewType: function(pType) {
+        Object.each(this.buttons, function(button, id) {
             button.setPressed(false);
             this.panes[id].setStyle('display', 'none');
         }.bind(this));

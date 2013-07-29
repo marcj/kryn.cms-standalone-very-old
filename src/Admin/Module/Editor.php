@@ -8,6 +8,7 @@ use Core\Config\Bundle;
 use Core\Config\EntryPoint;
 use Core\Config\Model;
 use Core\Config\Object;
+use Core\Config\Plugin;
 use Core\Exceptions\BundleNotFoundException;
 use Core\Kryn;
 use Core\SystemFile;
@@ -105,28 +106,34 @@ class Editor
         return $windows;
     }
 
-    public function getPlugins($pName)
+    public function getPlugins($bundle)
     {
-        Manager::prepareName($pName);
+        $bundle = $this->getBundle($bundle);
+        $config = $bundle->getConfig();
 
-        $config = $this->getConfig($pName);
-        if (!$config) {
-            throw new \ModuleNotFoundException(tf('Module %s not found.', $pName));
-        }
-
-        return $config['plugins'];
+        return $config->getPluginsArray();
     }
 
-    public function savePlugins($pName)
+    public function savePlugins($bundle, $plugins)
     {
-        Manager::prepareName($pName);
+        $bundle = $this->getBundle($bundle);
 
-        $config = $this->getConfig($pName);
+        $pluginsDef = [];
+        if (is_string($plugins)) {
+            $plugins = json_decode($plugins, 1);
+        }
 
-        $plugins = json_decode(getArgv('plugins'), true);
-        $config['plugins'] = $plugins;
+        foreach ($plugins as $pluginArray) {
+            $plugin = new Plugin();
+            $plugin->fromArray($pluginArray);
+            $pluginsDef[] = $plugin;
+        }
 
-        return $this->setConfig($pName, $config);
+        $config = new Bundle();
+        $config->setPlugins($pluginsDef);
+
+        $file = $bundle->getPath() . 'Resources/config/kryn.plugins.xml';
+        return $config->saveConfig($file);
     }
 
     public function getObjects($bundle)
