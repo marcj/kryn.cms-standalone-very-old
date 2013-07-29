@@ -8,7 +8,7 @@ ka.FieldTypes.Lang = new Class({
 
     initialize: function (pFieldInstance, pOptions) {
         pOptions.withoutObjectWrapper = 1;
-        pOptions.objects = ['Core\\Language'];
+        pOptions.objects = ['Core:Language'];
 
         this.parent(pFieldInstance, pOptions);
     }

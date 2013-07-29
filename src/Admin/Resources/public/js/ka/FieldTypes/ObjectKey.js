@@ -22,9 +22,16 @@ ka.FieldTypes.ObjectKey = new Class({
 
                 Object.each(config.objects, function (object, object_key) {
                     object_key = object_key.charAt(0).toUpperCase() + object_key.substr(1);
-                    this.select.add(extensionKey + ':' + object_key,( object.label || object_key) + " (" + extensionKey + ':' + object_key + ")");
+                    this.select.add(
+                        ka.normalizeObjectKey(extensionKey + ':' + object_key),
+                        (object.label || object_key) + " (" + extensionKey + ':' + object_key + ")"
+                    );
                 }.bind(this));
             }
         }.bind(this));
+    },
+
+    setValue: function(value) {
+        this.parent(value ? ka.normalizeObjectKey(value) : value);
     }
 });

@@ -150,6 +150,13 @@ ka.Select = new Class({
         transparent: false,
 
         /**
+         * @TODO
+         *
+         * @var {Boolean}
+         */
+        combobox: false,
+
+        /**
          * @var {Boolean}
          */
         disabled: false,

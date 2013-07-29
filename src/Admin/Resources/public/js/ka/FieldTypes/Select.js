@@ -32,6 +32,7 @@ ka.FieldTypes.Select = new Class({
             object: {
                 label: t('Objecy key'),
                 combobox: true,
+                type: 'objectKey',
                 desc: t('The key of the object')
             }
         }
@@ -40,7 +41,7 @@ ka.FieldTypes.Select = new Class({
     options: {
         inputWidth: 'auto',
         style: '',
-
+        combobox: false,
         items: false, //array or object
         store: false, //string
         object: false //for object chooser

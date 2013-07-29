@@ -6,7 +6,15 @@ ka.FieldTypes.Text = new Class({
 
     Statics: {
         label: 'Text input',
-        asModel: true
+        asModel: true,
+        options: {
+            modifier: {
+                label: 'Value modifier',
+                type: 'text',
+                desc: 'A pipe separated list of modifiers. Exampple: trim|ucfirst|camelcase.' +
+                    'Possible: trim, lower, ucfirst, lcfirst, phpfunction, phpclass, underscore, camelcase, dash'
+            }
+        }
     },
 
     options: {

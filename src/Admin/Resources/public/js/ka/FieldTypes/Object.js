@@ -8,7 +8,7 @@ ka.FieldTypes.Object = new Class({
             object: {
                 label: 'Object key',
                 desc: 'Example: Core:Node.',
-                type: 'text',
+                type: 'objectKey',
                 required: true
             },
             'objectLabel': {
@@ -21,7 +21,7 @@ ka.FieldTypes.Object = new Class({
             object: {
                 label: 'Object key',
                 desc: 'Example: Core:Node.',
-                type: 'text',
+                type: 'objectKey',
                 required: true
             },
             'objectLabel': {

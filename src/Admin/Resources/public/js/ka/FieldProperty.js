@@ -1,17 +1,14 @@
 ka.FieldProperty = new Class({
-
     Implements: [Events, Options],
 
     Binds: ['fireChange', 'openProperties', 'applyFieldProperties'],
 
     kaFields: {
         key: {
-
             label: t('Key'),
             desc: t('Surround the value with __ and __ to let it only act as UI.'),
             modifier: 'trim',
             required: true
-
         },
 
         label: {
@@ -22,177 +19,7 @@ ka.FieldProperty = new Class({
         },
         'type': {
             label: t('Type'),
-            type: 'select'/*,
-            children: {
-
-
-                //datetime, date
-                format: {
-                    type: 'text',
-                    label: t('Date format'),
-                    help: 'admin/field-date-format',
-                    needValue: ['date', 'datetime'],
-                    againstField: 'type',
-                    inputWidth: 150
-                },
-
-                //array
-                withOrder: {
-                    type: 'checkbox',
-                    label: t('With order possibility'),
-                    needValue: 'array',
-                    againstField: 'type'
-                },
-
-                columns: {
-                    label: t('Columns'),
-                    needValue: 'array',
-                    againstField: 'type',
-
-                    type: 'fieldTable',
-                    options: {
-                        asFrameworkColumn: true,
-                        withoutChildren: true,
-                        tableItemLabelWidth: 200,
-                        addLabel: t('Add column')
-                    }
-                },
-
-                //select
-                '__info__': {
-                    needValue: 'select',
-                    type: 'label',
-                    label: t('Use a store, a table, SQL or static items.')
-                },
-                'table': {
-                    needValue: 'select',
-                    label: t('Table name'),
-                    desc: t('Start with / to use a table which is not defined in kryn or is in a different database.'),
-                    type: 'text'
-                },
-                __or__: {
-                    needValue: 'select',
-                    type: 'label',
-                    label: t('- or -')
-                },
-                'sql': {
-                    needValue: 'select',
-                    label: t('SQL'),
-                    desc: t('Please only select in your SQL the table_key and table_label from below.'),
-                    type: 'text'
-                },
-                table_key: {
-                    needValue: 'select',
-                    label: t('Table primary column')
-                },
-                table_label: {
-                    needValue: 'select',
-                    label: t('Table label column')
-                },
-                items: {
-                    needValue: ['select', 'checkboxGroup', 'imageGroup'],
-                    label: t('static items'),
-                    desc: t('Use JSON notation. Array(key==label) or Object(key => label). Example: {"item1": "[[Item 1]]"} or ["Foo", "Bar", "Three"].')
-                },
-
-                //select,textlist
-                'store': {
-                    needValue: ['select', 'textlist'],
-                    label: t('Store path'),
-                    desc: t('&lt;extKey&gt;/&lt;EntryPath&gt;, Example: publication/stores/news.')
-                },
-
-                //select, file and folder
-                'multi': {
-                    needValue: ['select', 'file', 'folder'],
-                    label: t('Multiple selection'),
-                    desc: t('This field returns then an array.'),
-                    'default': 'false',
-                    type: 'checkbox'
-                },
-
-                //select, file and folder
-                'combobox': {
-                    needValue: ['select', 'file', 'folder', 'object'],
-                    label: t('Combobox'),
-                    'default': 'false',
-                    desc: t('if you want to allow the user to enter a own value.'),
-                    type: 'checkbox'
-                },
-
-                //object
-                'object': {
-                    needValue: ['object', 'predefined', 'fieldCondition', 'objectCondition'],
-                    label: t('Objecy key'),
-                    required: true,
-                    combobox: true,
-                    desc: t('The key of the object')
-                },
-                'field': {
-//                    needValue: ['predefined', 'fieldCondition'],
-                    label: t('Field key'),
-                    desc: t('The key of the field')
-                },
-                'objectLabel': {
-                    needValue: 'object',
-                    label: t('Object label field (Optional)'),
-                    desc: t('The key of the field which should be used as label.')
-                },
-
-                'objectRelation': {
-                    label: t('Relation'),
-                    needValue: 'object',
-                    type: 'select',
-                    required: true,
-                    items: {
-                        'nTo1': 'Many to One',
-                        'nToM': 'Many to Many'
-                    }
-                },
-
-                'objectRelationTable': {
-                    needValue: 'nToM',
-                    againstField: 'objectRelation',
-                    label: t('Relation table name (Optional)'),
-                    desc: t('The columns of this table are based on the primary keys of left and right table. Propel ORM generates a new model based on this value. Default value is &lt;moduleKey&gt;_&lt;currentObjectKey&gt;_&lt;fieldKey&gt;')
-                },
-
-                'objectRelationName': {
-                    againstField: 'objectRelation',
-                    label: t('Relation name (Optional)'),
-                    desc: t('Default is the camelCased field name.')
-                },
-
-                //tab
-                tabFullPage: {
-                    label: t('Full page'),
-                    type: 'checkbox',
-                    needValue: 'tab'
-                },
-
-                //textlist
-                'doubles': {
-                    needValue: 'textlist',
-                    label: t('Allow double entries'),
-                    type: 'checkbox'
-                },
-
-                //files
-                'withoutExtension': {
-                    needValue: 'files',
-                    type: 'checkbox',
-                    label: t('File names without extensions'),
-                    'default': 1
-                },
-
-                directory: {
-                    needValue: 'files',
-                    label: t('List files from this folder'),
-                    desc: t('Relative from Kryn.cms installation folder.')
-                }
-
-            }
-            */
+            type: 'select'
         },
         width: {
             label: t('Width'),
@@ -289,10 +116,83 @@ ka.FieldProperty = new Class({
         }
     },
 
+    Statics: {
+        options: {
+            addLabel: {
+                label: 'Add button label'
+            },
+            asModel: {
+                label: 'As Model',
+                desc: 'renders `modelOptions` of ka.Fields instead of `options` if available. Includes ORM specific stuff.',
+                type: 'checkbox'
+            },
+            asFrameworkColumn: {
+                label: 'As Column',
+                desc: 'for column definition, with width field. renders all fields of ka.LabelTypes.',
+                type: 'checkbox'
+            },
+            asFrameworkSearch: {
+                label: 'As Search field',
+                desc: 'Remove some option fields, like `visibility condition`, `required`, etc',
+                type: 'checkbox'
+            },
+            withoutChildren: {
+                label: 'Without children',
+                type: 'checkbox'
+            },
+            allTableItems: {
+                label: 'All as table items',
+                type: 'checkbox',
+                'default': true
+            },
+            withActions: {
+                label: 'With actions',
+                type: 'checkbox',
+                'default': true
+            },
+            withWidth: {
+                label: 'With width',
+                desc: 'Is enabled if `as Column` is active. Otherwise you can enable it here manually',
+                type: 'checkbox'
+            },
+            fieldTypes: {
+                label: 'Fields whitelist',
+                desc: 'A comma separated list of types that are allowed.',
+                type: 'text'
+            },
+            fieldTypesBlacklist: {
+                label: 'Fields blacklist',
+                desc: 'A comma separated list of types that are NOT allowed.',
+                type: 'text'
+            },
+            arrayKey: {
+                label: 'Allow array keys',
+                desc: 'Allows key like foo[bar], foo[barsen], foo[bar][sen]',
+                type: 'checkbox'
+            },
+            noActAsTableField: {
+                label: 'Without `actAsTable`',
+                desc: 'Removes the field `Acts as a table item`',
+                type: 'checkbox'
+            },
+            asTableItem: {
+                label: 'asTableItem',
+                type: 'checkbox',
+                'default': true
+            },
+            keyModifier: {
+                label: 'Key field modifier',
+                type: 'text',
+                desc: 'A pipe separated list of modifiers. Exampple: trim|ucfirst|camelcase. Same as `modifier` at Text field.'
+            }
+        }
+
+    },
+
     options: {
         addLabel: t('Add property'),
-        asModel: false, //renders 'modelOptions' of ka.Fields instead of 'options' if available.
-        asFrameworkColumn: false, //for column definition, with width field. without the optional stuff and limited range of types
+        asModel: false, //renders 'modelOptions' of ka.Fields instead of 'options' if available. Includes ORM specific stuff.
+        asFrameworkColumn: false, //for column definition, with width field. renders all fields of ka.LabelTypes.
         asFrameworkSearch: false, //Remove some option fields, like 'visibility condition', 'required', etc
         withoutChildren: false, //deactivate children?
         tableItemLabelWidth: 330,
@@ -336,7 +236,9 @@ ka.FieldProperty = new Class({
 
         var items = {}, children = {}, fields, options;
 
-        Object.each(ka.FieldTypes, function(field, key){
+        var sourceFields = this.options.asFrameworkColumn ? ka.LabelTypes : ka.FieldTypes;
+
+        Object.each(sourceFields, function(field, key){
             items[key.lcfirst()] = field.label || key;
 
             if (this.options.asModel && !field.asModel) return;
@@ -377,78 +279,18 @@ ka.FieldProperty = new Class({
             delete this.kaFields.__optional__.children.tableItem;
         }
 
-        if (this.options.asFrameworkFieldDefinition) {
-            delete this.kaFields.type.children['options.object.objectLabel'];
-            delete this.kaFields.type.children['options.object.objectRelationName'];
-            delete this.kaFields.type.children['options.object.objectRelation'];
-        } else {
-            //if not frameworkField
-            delete this.kaFields.__optional__.children.target;
-            if (this.kaFields.__optional__.children.tableItem) {
-                delete this.kaFields.__optional__.children.tableItem;
-            }
-        }
-
-//        if (this.options.asFrameworkSearch) {
-//            delete this.kaFields.__optional__.children.target;
-//            delete this.kaFields.__optional__.children.needValue;
-//            delete this.kaFields.__optional__.children.againstField;
-//            delete this.kaFields.__optional__.children.required_regexp;
-//
-//            if (this.kaFields.__optional__.children.tableItem) {
-//                delete this.kaFields.__optional__.children.tableItem;
-//            }
-//
-//            //delete this.kaFields.type.items.window_list;
-//            delete this.kaFields.type.items.childrenSwitcher;
-//            delete this.kaFields.type.items.layoutElement;
-//            delete this.kaFields.type.items.wysiwyg;
-//            delete this.kaFields.type.items.array;
-//            delete this.kaFields.type.items.tab;
-//        }
-
         if (this.options.asFrameworkColumn) {
             delete this.kaFields.__optional__;
             this.kaFields.type.label = t('Label type');
-
-            var labelItems = {};
-
-            Object.each(ka.FieldTypes, function(field, key){
-                labelItems[key] = field.label || key;
-            });
-
-            this.kaFields.type.items = labelItems;
-            /*{
-                text: t('Text'),
-                number: t('Number'),
-                bool: t('Boolean'),
-                lang: t('Language select'),
-                datetime: t('Datetime'),
-                imagemap: t('Imagemap'),
-                predefined: t('Predefined')
-            };*/
-
-//            this.kaFields.type.children.imageMap = {
-//                label: t('Map'),
-//                desc: t('To use Regex surround the value with /.'),
-//                type: 'array',
-//                needValue: 'imagemap',
-//                columns: [
-//                    {label: t('Value'), width: '50%'},
-//                    {label: t('Image path')}
-//                ],
-//                fields: {
-//                    value: {
-//                        type: 'text'
-//                    },
-//                    imagePath: {
-//                        type: 'file'
-//                    }
-//                }
-//
-//            };
         } else if (!this.options.withWidth) {
             delete this.kaFields.width;
+        }
+
+        if (typeOf(this.options.fieldTypes) === 'string') {
+            this.options.fieldTypes = this.options.fieldTypes.replace(' ', '').split(',');
+        }
+        if (typeOf(this.options.fieldTypesBlacklist) === 'string') {
+            this.options.fieldTypesBlacklist = this.options.fieldTypesBlacklist.replace(' ', '').split(',');
         }
 
         if (typeOf(this.options.fieldTypes) == 'array') {
@@ -464,25 +306,6 @@ ka.FieldProperty = new Class({
                 delete this.kaFields.type.items[key];
             }.bind(this));
         }
-
-//        if (this.kaFields.type.items.object) {
-//            this.kaFields.type.children.object.type = 'select';
-//            this.kaFields.type.children.object.items = {};
-//
-//            Object.each(ka.settings.configs, function (config, extensionKey) {
-//                if (config.objects) {
-//                    extensionKey = extensionKey.charAt(0).toUpperCase() + extensionKey.substr(1);
-//                    Object.each(config.objects, function (object, object_key) {
-//                        object_key = object_key.charAt(0).toUpperCase() + object_key.substr(1);
-//                        if ((this.options.asFrameworkFieldDefinition && object.selectable) ||
-//                            !this.options.asFrameworkFieldDefinition) {
-//                            this.kaFields.type.children.object.items[extensionKey + '\\' + object_key] =
-//                                object.label + " (" + extensionKey + '\\' + object_key + ")";
-//                        }
-//                    }.bind(this));
-//                }
-//            }.bind(this));
-//        }
     },
 
     _createLayout: function () {

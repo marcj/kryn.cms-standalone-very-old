@@ -3,7 +3,13 @@ ka.FieldTypes.TextboxList = new Class({
     Extends: ka.FieldAbstract,
 
     Statics: {
-        asModel: true
+        asModel: true,
+        options: {
+            'doubles': {
+                label: t('Allow double entries'),
+                type: 'checkbox'
+            }
+        }
     },
 
     options: {
