@@ -6,9 +6,9 @@ ka.FieldTable = new Class({
 
     options: {
         addLabel: t('Add'),
-        asModel: false, //renders 'modelOptions' of ka.Fields instead of 'options' if available.
-        asFrameworkColumn: false, //for column definition, with width field. without the optional stuff and limited range of types
-        asFrameworkSearch: false, //Remove some option fields, like 'visibility condition', 'can be empty', etc
+        asModel: false, //renders 'modelOptions' of ka.Fields instead of 'options' if available. Includes ORM specific stuff.
+        asFrameworkColumn: false, //for column definition, with width field. renders all fields of ka.LabelTypes.
+        asFrameworkSearch: false, //Remove some option fields, like 'visibility condition', 'required', etc
         withoutChildren: false, //deactivate children?
         tableItemLabelWidth: 330,
         allTableItems: true,
@@ -20,6 +20,8 @@ ka.FieldTable = new Class({
         fieldTypesBlacklist: false, //if as array defined, we only have types which are not in this list
 
         keyModifier: '',
+
+        asTableItem: true,
 
         noActAsTableField: false, //Remove the field 'Acts as a table item'
         arrayKey: false //allows key like foo[bar], foo[barsen], foo[bar][sen]
