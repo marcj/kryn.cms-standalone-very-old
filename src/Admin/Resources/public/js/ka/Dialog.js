@@ -20,7 +20,9 @@ ka.Dialog = new Class({
         absolute: false,
         fixed: false,
 
-        autoDisplay: true,
+        autoDisplay: false,
+
+        title: '',
 
         animatedTransition: Fx.Transitions.Cubic.easeOut,
         animatedTransitionOut: Fx.Transitions.Cubic.easeIn,
@@ -74,10 +76,16 @@ ka.Dialog = new Class({
             'class': 'ka-dialog-content'
         }).inject(this.main);
 
-        if (typeOf(this.options.content) == 'string') {
+        if (typeOf(this.options.content) == 'string' && this.options.content) {
             this.content.set('text', this.options.content);
         } else if (typeOf(this.options.content) == 'element') {
             this.options.content.inject(this.content);
+        }
+
+        if (this.options.title) {
+            new Element('h2', {
+                text: this.options.title
+            }).inject(this.content, 'top');
         }
 
         ['minWidth', 'maxWidth', 'minHeight', 'maxHeight', 'height', 'width'].each(function (item) {
@@ -111,6 +119,7 @@ ka.Dialog = new Class({
                 this.cancelButton = this
                     .addButton(t('Cancel'))
                     .addEvent('click', function () {
+                        this.fireEvent('cancel');
                         this.closeAnimated(true);
                     }.bind(this));
             }
@@ -128,7 +137,9 @@ ka.Dialog = new Class({
             }
         }
 
-        this.center();
+        if (this.options.autoDisplay) {
+            this.center();
+        }
     },
 
     setStyle: function (p1, p2) {
@@ -252,9 +263,7 @@ ka.Dialog = new Class({
      */
     center: function (pAnimated) {
         if (!this.overlay.getParent()) {
-            if (this.options.autoDisplay) {
-                this.overlay.inject(this.container);
-            }
+            this.overlay.inject(this.container);
         }
 
         var size = this.container.getSize();
@@ -280,6 +289,5 @@ ka.Dialog = new Class({
     toElement: function () {
         return this.main;
     }
-
 
 });
