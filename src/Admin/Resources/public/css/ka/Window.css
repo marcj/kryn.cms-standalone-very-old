@@ -362,6 +362,7 @@ h3.kryn-headline {
     width: 200px;
     margin: auto;
     height: 30px;
+    line-height: 20px;
 
     border-radius: 2px;
     -moz-border-radius: 2px;
