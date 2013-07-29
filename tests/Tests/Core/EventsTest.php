@@ -20,12 +20,12 @@ class EventTest extends TestCaseWithCore
 
         $event = new Event($xml);
 
-        $this->assertEquals($event->getKey(), 'core/object/modify');
-        $this->assertEquals($event->getSubject(), 'core:domain');
-        $this->assertEquals($event->getClearCaches(), [
+        $this->assertEquals('core/object/modify', $event->getKey());
+        $this->assertEquals('core:domain', $event->getSubject());
+        $this->assertEquals([
             'core/domains.created',
             'core/domains'
-        ]);
+        ], $event->getClearCaches());
         $this->assertEquals($xml, $event->toXml());
 
         $eventArray = [
@@ -39,15 +39,14 @@ class EventTest extends TestCaseWithCore
 
         $event = new Event($eventArray);
 
-        $this->assertEquals($event->getKey(), 'core/object/modify');
-        $this->assertEquals($event->getSubject(), 'core:domain');
-        $this->assertEquals($event->getClearCaches(), [
+        $this->assertEquals('core/object/modify', $event->getKey());
+        $this->assertEquals('core:domain', $event->getSubject());
+        $this->assertEquals([
             'core/domains.created',
             'core/domains'
-        ]);
-        $this->assertEquals($event->toArray(), $eventArray);
-
-        $this->assertEquals($event->toXml(), $xml);
+        ], $event->getClearCaches());
+        $this->assertEquals($eventArray, $event->toArray());
+        $this->assertEquals($xml, $event->toXml());
     }
 
     public function testCall()
@@ -59,11 +58,11 @@ class EventTest extends TestCaseWithCore
 
         $event = new Event($xml);
 
-        $this->assertEquals($event->getKey(), 'core/object/modify');
-        $this->assertEquals($event->getSubject(), 'core:domain');
-        $this->assertEquals($event->getCalls(), [
+        $this->assertEquals('core/object/modify', $event->getKey());
+        $this->assertEquals('core:domain', $event->getSubject());
+        $this->assertEquals([
             'core/test'
-        ]);
+        ], $event->getCalls());
 
         $this->assertEquals($xml, $event->toXml());
     }
