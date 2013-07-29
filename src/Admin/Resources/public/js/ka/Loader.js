@@ -82,8 +82,8 @@ ka.Loader = new Class({
 
         this.loader.setStyle('background-image', 'url(' + this.src + ')');
 
-        this.fps = Math.round(100 / 9);
-        this.delay = 1 / this.fps;
+        this.fps = Math.round(100 / 8);
+        this.delay = (1 / this.fps);
 
         this.startAnimation();
     },
@@ -99,7 +99,9 @@ ka.Loader = new Class({
     },
 
     continueAnimation: function () {
-
+        if (this.lastAnimationTimer) {
+            clearTimeout(this.lastAnimationTimer);
+        }
         if (!this.toElement()) {
             return;
         }
@@ -119,7 +121,6 @@ ka.Loader = new Class({
         this.loader.setStyle('background-position', (-this.posX) + 'px 0');
 
         this.lastAnimationTimer = this.continueAnimation.delay(this.delay * 1000);
-
     },
 
     setStyle: function (p, p2) {
