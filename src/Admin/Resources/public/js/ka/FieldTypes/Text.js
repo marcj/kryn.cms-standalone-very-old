@@ -115,7 +115,7 @@ ka.FieldTypes.Text = new Class({
         var range = this.input.getSelectedRange();
 
         if (typeOf(this.options.modifier) == 'string') {
-            var modifiers = this.options.modifier.split('|');
+            var modifiers = this.options.modifier.toLowerCase().split('|');
 
             Array.each(modifiers, function (modifier) {
                 if (this.options.modifiers[modifier]) {
