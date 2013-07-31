@@ -646,7 +646,7 @@ ka.getObjectLabel = function (pUri, pCb) {
         Object.each(ka.getObjectLabelQ[objectKey], function (cbs, requestedUri) {
             uri += ka.getCroppedObjectId(requestedUri) + '/';
         });
-        if (uri.substr(uri.length - 1, 1) == ';') {
+        if (uri.substr(-1) == '/') {
             uri = uri.substr(0, uri.length - 1);
         }
 

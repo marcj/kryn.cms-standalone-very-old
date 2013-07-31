@@ -51,6 +51,7 @@ input.text:focus {
 }
 
 .ka-Input-text[disabled],
+.ka-Input-text-disabled,
 .ka-field-disabled {
     color: #a5a5a5;
     background: #f6f6f6;
