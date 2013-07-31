@@ -44,16 +44,22 @@ ka.FieldAbstract = new Class({
         this.fieldInstance = pFieldInstance;
         this.win = this.fieldInstance.win;
         this.setOptions(pOptions);
-        this.createLayout();
+        this.createLayout(this.fieldInstance.fieldPanel);
+    },
+
+    getWin: function() {
+        return this.win || this.fieldInstance.findWin();
     },
 
     /**
      * Use this method to create your field layout.
      * Please do not the constructor for this job.
      *
-     * Inject your elements to this.fieldInstance.fieldPanel.
+     * Inject your elements to this.fieldInstance.fieldPanel or use `container`.
+     *
+     * @param {Element} container Inject your element into this element.
      */
-    createLayout: function () {
+    createLayout: function (container) {
         /* Override it to your needs */
     },
 
