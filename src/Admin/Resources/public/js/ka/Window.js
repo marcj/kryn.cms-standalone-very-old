@@ -68,8 +68,19 @@ ka.Window = new Class({
      *
      * @param {*} pParameter
      */
-    setParameter: function (pParameter) {
-        this.params = pParameter || {};
+    setParameters: function (pParameters) {
+        this.params = pParameters || {};
+        ka.wm.reloadHashtag();
+    },
+
+    /**
+     *
+     * @param key
+     * @param value
+     */
+    setParameter: function (key, value) {
+        this.params = this.params || {};
+        this.params[key] = value;
         ka.wm.reloadHashtag();
     },
 
