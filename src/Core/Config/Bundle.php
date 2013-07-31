@@ -203,14 +203,27 @@ class Bundle extends Model
      */
     public function getPluginsArray()
     {
-        if (null !== $this->plugins) {
+        if ($this->plugins) {
             $plugins = [];
             foreach ($this->plugins as $plugin) {
                 $plugins[$plugin->getId()] = $plugin->toArray();
             }
             return $plugins;
         }
-        return $this->plugins;
+    }
+
+    /**
+     * @return Theme[]
+     */
+    public function getThemesArray()
+    {
+        if ($this->themes) {
+            $themes = [];
+            foreach ($this->themes as $theme) {
+                $themes[$theme->getId()] = $theme->toArray();
+            }
+            return $themes;
+        }
     }
 
     /**
