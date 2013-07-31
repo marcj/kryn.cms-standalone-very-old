@@ -1470,7 +1470,6 @@ class ObjectCrud
 
         $pItem['_editable'] = $editable;
         $pItem['_deleteable'] = $deleteable;
-
     }
 
     /**

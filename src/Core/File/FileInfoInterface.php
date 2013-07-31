@@ -18,4 +18,9 @@ interface FileInfoInterface {
     public function getCreatedTime();
     public function getModifiedTime();
 
+    /**
+     * @return array
+     */
+    public function toArray();
+
 }

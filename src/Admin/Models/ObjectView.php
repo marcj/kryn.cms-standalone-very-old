@@ -17,7 +17,7 @@ class ObjectView extends \Core\ORM\ORMAbstract
         $file = Kryn::resolvePath($path, 'Views/');
         $fileObj = SystemFile::getFile($file);
 
-        return $fileObj;
+        return $fileObj->toArray();
     }
 
     /**
