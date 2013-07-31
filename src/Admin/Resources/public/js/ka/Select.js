@@ -999,7 +999,6 @@ ka.Select = new Class({
                                     return pCallback(false);
                                 }
 
-                                console.log('getLabel', pId, response.data);
                                 var id = ka.getObjectUrlId(this.options.object, response.data);
                                 pCallback({
                                     id: id,
@@ -1067,7 +1066,6 @@ ka.Select = new Class({
     },
 
     getValue: function () {
-        console.log('getValue', this.value);
         if (this.options.object) {
             return ka.getObjectId(this.options.object + '/' + this.value);
         }
