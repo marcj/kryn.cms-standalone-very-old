@@ -14,6 +14,7 @@ ka.Dialog = new Class({
 
         cancelButton: true,
         applyButton: true,
+        applyButtonLabel: '',
         withButtons: false,
         noBottom: false,
 
@@ -126,7 +127,7 @@ ka.Dialog = new Class({
 
             if (this.options.applyButton) {
                 this.applyButton = this
-                    .addButton(t('Apply'))
+                    .addButton(this.options.applyButtonLabel || t('Apply'))
                     .addEvent('click', function () {
                         this.fireEvent('apply');
                         this.closeAnimated(true);
@@ -213,6 +214,8 @@ ka.Dialog = new Class({
                     this.lastFocusedElement.focus();
                 }
                 this.fireEvent('postClose');
+                this.fireEvent('closed');
+                this.main.dispose();
             }.bind(this));
 
             this.fxOut.start({
@@ -232,16 +235,17 @@ ka.Dialog = new Class({
             this.fireEvent('close');
         }
 
+        this.container.getDocument().hiddenCount--;
+        if (this.container.getDocument().hiddenCount == 0) {
+            this.container.getDocument().body.removeClass('hide-scrollbar');
+        }
+
         if (!pAnimated) {
             this.overlay.destroy();
             if (this.lastFocusedElement) {
                 this.lastFocusedElement.focus();
             }
-        }
-
-        this.container.getDocument().hiddenCount--;
-        if (this.container.getDocument().hiddenCount == 0) {
-            this.container.getDocument().body.removeClass('hide-scrollbar');
+            this.fireEvent('closed');
         }
     },
 
