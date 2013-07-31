@@ -124,6 +124,8 @@ div.button-list {
 .ka-Button-blue:link {
     color: white;
     background: #22638E;
+    border: 1px solid #265F85;
+    border-bottom: 0;
 }
 
 .ka-Button-blue:hover {
@@ -142,4 +144,6 @@ a.ka-Button-deactivate:hover {
     cursor: default;
     color: gray;
     background: #f8f8f8;
+    border: 1px solid #ddd;
+    border-bottom: 0;
 }
