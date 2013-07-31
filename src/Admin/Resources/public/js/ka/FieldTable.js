@@ -100,12 +100,12 @@ ka.FieldTable = new Class({
     },
 
     setValue: function (pValue) {
+        this.table.getChildren('tr').destroy();
 
         if (typeOf(pValue) == 'object') {
             Object.each(pValue, function (property, key) {
                 this.add(key, property);
             }.bind(this));
-
         }
     },
 
