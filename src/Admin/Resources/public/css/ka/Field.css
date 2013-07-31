@@ -12,6 +12,11 @@
     width: 400px;
 }
 
+td.ka-field {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .ka-field-tdtitle,
 .ka-field-inputTd {
     border-bottom: 1px solid #f0f0f0;
