@@ -49,63 +49,10 @@ ka.FieldForm = new Class({
         this.main = document.id(pContainer);
         this.definition = pFieldDefinition;
 
-        if (Object.getLength(pFieldDefinition) == 0) {
-            return false;
+        if (pFieldDefinition && 0 < Object.getLength(pFieldDefinition)) {
+            this.parseLevel(pFieldDefinition, this.main);
         }
 
-        this.parseLevel(pFieldDefinition, this.main);
-
-        //parse all fields which have 'againstField'
-        Object.each(this.fields, function (obj, id) {
-
-            obj.addEvent('change', this.fireChange);
-
-            if (obj.field.againstField) {
-                if (typeOf(obj.field.againstField) == 'array') {
-
-                    var check = function () {
-
-                        var visible = false;
-                        Array.each(obj.field.againstField, function (fieldKey) {
-                            if (self.getVisibility(self.fields[fieldKey], obj)) {
-                                visible = true;
-                            }
-                        });
-
-                        if (visible) {
-                            obj.show();
-                        } else {
-                            obj.hide();
-                        }
-
-                        self.updateChildrenContainerVisibility(this);
-                    };
-
-                    Array.each(obj.field.againstField, function (fieldKey) {
-                        this.fields[fieldKey].addEvent('check-depends', check);
-                    }.bind(this));
-
-                    check();
-
-                    Array.each(obj.field.againstField, function (fieldKey) {
-                        this.updateChildrenContainerVisibility(this.fields[fieldKey]);
-                    }.bind(this));
-
-                } else {
-                    if (this.fields[obj.field.againstField]) {
-                        this.fields[obj.field.againstField].addEvent('check-depends', function () {
-                            this.updateVisibility(this.fields[obj.field.againstField], obj);
-                            if (obj.hasParent()) {
-                                self.updateChildrenContainerVisibility(obj.getParent());
-                            }
-                        }.bind(this));
-                        this.fields[obj.field.againstField].fireEvent('check-depends');
-                    } else {
-                        logger('ka.Field "againstField" does not exist: ', obj.field.againstField, obj);
-                    }
-                }
-            }
-        }.bind(this));
     },
 
     /**
@@ -113,7 +60,6 @@ ka.FieldForm = new Class({
      * @return {Object}
      */
     getTabButtons: function () {
-
         var res = {};
 
         Object.each(this.definition, function (item, key) {
@@ -218,10 +164,6 @@ ka.FieldForm = new Class({
                 target = pContainer;
             }
 
-            if (field.children) {
-                field.depends = field.children;
-            }
-
             if (field.type == 'tab') {
                 var tab;
 
@@ -253,9 +195,11 @@ ka.FieldForm = new Class({
                 }
 
                 obj = tab.button;
+                obj.getChildrenContainer = function(){
+                    return obj.childContainer;
+                };
                 obj.childContainer = tab.pane;
                 obj.parent = pDependField;
-                obj.depends = {};
                 obj.toElement = function () {
                     return tab.button;
                 };
@@ -283,18 +227,16 @@ ka.FieldForm = new Class({
                 pDependField.children[id] = obj;
             }
 
-            if (field.depends) {
+            if (field.children) {
 
-                if (!obj.childContainer) {
+                if (!obj.getChildrenContainer()) {
                     obj.prepareChildContainer();
                 }
 
-                this.parseLevel(field.depends, obj.childContainer, obj);
+                this.parseLevel(field.children, obj.childContainer, obj);
 
                 if (!obj.handleChildsMySelf) {
-
                     obj.addEvent('check-depends', function () {
-
                         Object.each(this.children, function (sub, subid) {
 
                             if ('null' !== typeOf(sub.id)) {
@@ -310,7 +252,6 @@ ka.FieldForm = new Class({
                         }.bind(this));
 
                         self.updateChildrenContainerVisibility(this);
-
                     }.bind(obj));
                 }
 
@@ -326,9 +267,60 @@ ka.FieldForm = new Class({
         }.bind(this));
     },
 
-    attachField: function (pId, pObj, pDefinition) {
-        this.fields[pId] = pObj;
-        this.fieldDefinitions[pId] = pDefinition;
+    attachField: function (id, obj, def) {
+        var self = this;
+        this.fields[id] = obj;
+        this.fieldDefinitions[id] = def || obj.getDefinition();
+
+        obj.addEvent('change', this.fireChange);
+
+        if (!instanceOf(obj, ka.FieldForm)) {
+            if (obj.field.againstField) {
+                if (typeOf(obj.field.againstField) == 'array') {
+
+                    var check = function () {
+
+                        var visible = false;
+                        Array.each(obj.field.againstField, function (fieldKey) {
+                            if (self.getVisibility(self.fields[fieldKey], obj)) {
+                                visible = true;
+                            }
+                        });
+
+                        if (visible) {
+                            obj.show();
+                        } else {
+                            obj.hide();
+                        }
+
+                        self.updateChildrenContainerVisibility(this);
+                    };
+
+                    Array.each(obj.field.againstField, function (fieldKey) {
+                        this.fields[fieldKey].addEvent('check-depends', check);
+                    }.bind(this));
+
+                    check();
+
+                    Array.each(obj.field.againstField, function (fieldKey) {
+                        this.updateChildrenContainerVisibility(this.fields[fieldKey]);
+                    }.bind(this));
+
+                } else {
+                    if (this.fields[obj.field.againstField]) {
+                        this.fields[obj.field.againstField].addEvent('check-depends', function () {
+                            this.updateVisibility(this.fields[obj.field.againstField], obj);
+                            if (obj.hasParent()) {
+                                self.updateChildrenContainerVisibility(obj.getParent());
+                            }
+                        }.bind(this));
+                        this.fields[obj.field.againstField].fireEvent('check-depends');
+                    } else {
+                        logger('ka.Field "againstField" does not exist: ', obj.field.againstField, obj);
+                    }
+                }
+            }
+        }
     },
 
     /**
@@ -336,7 +328,6 @@ ka.FieldForm = new Class({
      * @param pObj
      */
     updateChildrenContainerVisibility: function (pObj) {
-
         if (pObj.handleChildsMySelf) {
             return;
         }
@@ -533,6 +524,11 @@ ka.FieldForm = new Class({
         }
 
         Object.each(this.fields, function (obj, id) {
+            if (instanceOf(obj, ka.FieldForm)) {
+                obj.setValue(pValues, pInternal);
+                return;
+            }
+
             id = id.replace('[', '.').replace(']', '');
             if (id.indexOf('.') != -1) {
                 obj.setArrayValue(pValues, id, pInternal);
@@ -607,6 +603,11 @@ ka.FieldForm = new Class({
 
         } else {
             Object.each(this.fields, function (obj, id) {
+
+                if (instanceOf(obj, ka.FieldForm)) {
+                    res = Object.merge(res, obj.getValue());
+                    return;
+                }
 
                 if (id.substr(0, 2) == '__' && id.substr(id.length - 2) == '__') {
                     return;
