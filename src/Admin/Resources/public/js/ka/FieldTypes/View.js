@@ -9,13 +9,19 @@ ka.FieldTypes.View = new Class({
                 label: 'Path to directory',
                 type: 'text',
                 desc: 'Example: @CoreBundle/folder1/'
+            },
+            fullPath: {
+                label: 'Full path',
+                desc: 'Returns and uses the full path instead of the relative to the `directory` option.',
+                type: 'checkbox'
             }
         }
     },
 
     options: {
         inputWidth: '100%',
-        directory: ''
+        directory: '',
+        fullPath: false
     },
 
     module: '',
@@ -25,7 +31,7 @@ ka.FieldTypes.View = new Class({
 
         pOptions.object = 'Core\\View';
 
-        if (pOptions.directory == '') {
+        if (!pOptions.directory) {
             throw 'Option `directory` is empty in ka.Field `view`.';
         }
 
@@ -48,11 +54,11 @@ ka.FieldTypes.View = new Class({
     getValue: function () {
         var value = this.parent();
         value = value.path || '';
-        return value.substr((this.module + '/' + this.path).length);
+        return this.options.fullPath ? value : value.substr((this.module + '/' + this.path).length);
     },
 
     setValue: function (pValue) {
-        if (pValue) {
+        if (pValue && !this.options.fullPath) {
             pValue = (this.module + '/' + this.path) + pValue;
         }
         this.parent(pValue);
