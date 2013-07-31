@@ -321,6 +321,7 @@ var admin_system_module_editWindow = new Class({
                         label: t('Fields for all items'),
                         type: 'fieldTable',
                         tableItem: false,
+                        width: 'auto',
                         arrayKey: true
                     },
 
@@ -329,6 +330,7 @@ var admin_system_module_editWindow = new Class({
                         type: 'fieldTable',
                         tableItem: false,
                         arrayKey: true,
+                        width: 'auto',
                         withWidth: true
                     }
 

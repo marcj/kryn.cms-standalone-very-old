@@ -102,10 +102,6 @@
     background-color: #f3f3f3;
 }
 
-.ka-system-module-windowEdit-methods-notoverwritten {
-    bottom: 0px;
-}
-
 .ka-system-module-windoeEdit-method-actionbar {
     position: absolute;
     display: none;
@@ -117,6 +113,8 @@
     background-color: silver;
     text-align: center;
     padding-top: 50px;
+    bottom: 0px;
+    z-index: 10;
 }
 
 .ka-system-module-windowEdit-methods-notoverwritten h2 {
