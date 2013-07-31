@@ -764,7 +764,9 @@ ka.Select = new Class({
                 for (i = 0; i < items.length; i++) {
                     var item = items[i];
                     if (item && (!item.label || !item.label.isSplit)) {
-                        this.chooseItem(item.id, true);
+                        if (null === this.value) {
+                            this.chooseItem(item.id, true);
+                        }
                         this.fireEvent('firstItemLoaded', item);
                         return;
                     }
@@ -997,6 +999,7 @@ ka.Select = new Class({
                                     return pCallback(false);
                                 }
 
+                                console.log('getLabel', pId, response.data);
                                 var id = ka.getObjectUrlId(this.options.object, response.data);
                                 pCallback({
                                     id: id,
@@ -1064,7 +1067,7 @@ ka.Select = new Class({
     },
 
     getValue: function () {
-
+        console.log('getValue', this.value);
         if (this.options.object) {
             return ka.getObjectId(this.options.object + '/' + this.value);
         }
