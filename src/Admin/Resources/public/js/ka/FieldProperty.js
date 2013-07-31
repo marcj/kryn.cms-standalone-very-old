@@ -6,14 +6,12 @@ ka.FieldProperty = new Class({
     kaFields: {
         key: {
             label: t('Key'),
-            desc: t('Surround the value with __ and __ to let it only act as UI.'),
             modifier: 'trim',
             required: true
         },
 
         label: {
             label: t('Label'),
-            desc: t('Surround the value with [[ and ]] to make it multilingual.'),
             type: 'text',
             required: true
         },
@@ -540,7 +538,7 @@ ka.FieldProperty = new Class({
         if (!this.options.withoutChildren && this.childContainer) {
             property.children = {};
 
-            this.childContainer.getChildren('tr').each(function (child) {
+            this.childContainer.getChildren('tr.ka-fieldProperty-item').each(function (child) {
                 var fieldProperty = child.retrieve('ka.FieldProperty');
                 var value = fieldProperty.getValue();
                 property.children[value.key] = value.definition;
