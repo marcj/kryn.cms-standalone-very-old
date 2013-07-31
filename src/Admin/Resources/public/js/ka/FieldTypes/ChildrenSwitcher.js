@@ -3,7 +3,6 @@ ka.FieldTypes.ChildrenSwitcher = new Class({
     Extends: ka.FieldAbstract,
 
     createLayout: function () {
-
         this.fieldInstance.title.empty();
 
         this.toggler = new Element('a', {
@@ -28,7 +27,6 @@ ka.FieldTypes.ChildrenSwitcher = new Class({
         this.fieldInstance.addEvent('childrenPrepared', function () {
             this.setValue(this.value);
         }.bind(this));
-
     },
 
     setValue: function (pValue) {
