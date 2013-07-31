@@ -261,13 +261,11 @@ ka.FieldProperty = new Class({
 
             if (this.options.asFrameworkColumn || this.options.withWidth) {
                 this.tdWidth = new Element('td', {width: 80}).inject(this.main);
-
                 var width = Object.clone(this.kaFields.width);
                 width.noWrapper = true;
                 this.widthField = new ka.Field(width, this.tdWidth);
 
                 this.widthField.setValue(this.definition && this.definition.width ? this.definition.width : '');
-
             }
 
             this.tdType = new Element('td', {width: 150}).inject(this.main);
@@ -519,7 +517,6 @@ ka.FieldProperty = new Class({
             var newItem = false;
 
             try {
-
                 //check if json array
                 if (pval.substr(0, 1) == '[' && pval.substr(pval.length - 1) == ']' &&
                     pval.substr(0, 2) != '[[' && pval.substr(pval.length - 2) != ']]') {
@@ -552,6 +549,10 @@ ka.FieldProperty = new Class({
             if (Object.getLength(property.children) === 0) {
                 delete property.children;
             }
+        }
+
+        if (property.options && property.options[property.type]) {
+            property.options = property.options[property.type];
         }
 
         return {
