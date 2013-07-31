@@ -23,9 +23,19 @@ class Theme extends Model
     protected $contents;
 
     /**
+     * @var ThemeNavigation[]
+     */
+    protected $navigations;
+
+    /**
      * @var ThemeLayout[]
      */
     protected $layouts;
+
+    /**
+     * @var Field[]
+     */
+    protected $options;
 
     /**
      * @param ThemeContent[] $contents
@@ -92,5 +102,38 @@ class Theme extends Model
     {
         return $this->label;
     }
+
+    /**
+     * @param Field[] $options
+     */
+    public function setOptions(array $options)
+    {
+        $this->options = $options;
+    }
+
+    /**
+     * @return Field[]
+     */
+    public function getOptions()
+    {
+        return $this->options;
+    }
+
+    /**
+     * @param ThemeNavigation[] $navigations
+     */
+    public function setNavigations(array $navigations)
+    {
+        $this->navigations = $navigations;
+    }
+
+    /**
+     * @return ThemeNavigation[]
+     */
+    public function getNavigations()
+    {
+        return $this->navigations;
+    }
+
 
 }

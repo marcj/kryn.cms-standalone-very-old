@@ -3,6 +3,10 @@ var admin_system_module_edit = new Class({
     initialize: function(pWin) {
         this.win = pWin;
         this.mod = this.win.params.name;
+        if (!this.mod) {
+            this.win.alert('No bundle given.');
+            return;
+        }
         this.win.setTitle(this.mod);
         this._createLayout();
     },
@@ -15,17 +19,17 @@ var admin_system_module_edit = new Class({
         this.buttons = {};
         this.buttons['general'] = this.topNavi.addButton(t('General'), '', this.viewType.bind(this, 'general'));
         this.buttons['extras'] = this.topNavi.addButton(t('Extras'), '', this.viewType.bind(this, 'extras'));
-        this.buttons['links'] = this.topNavi.addButton(t('Admin entry points'), '', this.viewType.bind(this, 'links'));
+        this.buttons['entryPoints'] = this.topNavi.addButton(t('Admin entry points'), '', this.viewType.bind(this, 'entryPoints'));
 
         this.buttons['objects'] = this.topNavi.addButton(t('Objects'), '', this.viewType.bind(this, 'objects'));
-        this.buttons['db'] = this.topNavi.addButton(t('Model'), '', this.viewType.bind(this, 'db'));
+        this.buttons['model'] = this.topNavi.addButton(t('Model'), '', this.viewType.bind(this, 'model'));
 
         this.buttons['windows'] = this.topNavi.addButton(t('Windows'), '', this.viewType.bind(this, 'windows'));
         this.buttons['plugins'] = this.topNavi.addButton(t('Plugins'), '', this.viewType.bind(this, 'plugins'));
 
         this.buttons['docu'] = this.topNavi.addButton(t('Docu'), '', this.viewType.bind(this, 'docu'));
         this.buttons['help'] = this.topNavi.addButton(t('Help'), '', this.viewType.bind(this, 'help'));
-        this.buttons['layouts'] = this.topNavi.addButton(t('Themes'), '', this.viewType.bind(this, 'layouts'));
+        this.buttons['themes'] = this.topNavi.addButton(t('Themes'), '', this.viewType.bind(this, 'themes'));
         this.buttons['language'] = this.topNavi.addButton(t('Language'), '', this.viewType.bind(this, 'language'));
 
         this.panes = {};
@@ -37,7 +41,7 @@ var admin_system_module_edit = new Class({
 
         this.win.setLoading(false);
 
-        this.viewType('general');
+        this.viewType(this.win.getParameter('tab') || 'general');
     },
 
     /*
@@ -576,29 +580,35 @@ var admin_system_module_edit = new Class({
         }.bind(this)}).get({bundle: this.mod});
     },
 
-    saveDb: function() {
-
+    saveDb: function(andUpdate) {
         var req = {};
-        req.name = this.mod;
+        req.bundle = this.mod;
         req.model = this.dbEditor.getValue();
 
         this.saveButton.startTip(t('Saving ...'));
 
-        this.lr = new Request.JSON({url: _pathAdmin +
-            'admin/system/module/editor/model', noCache: 1, onComplete: function() {
+        if (this.lr) {
+            this.lr.cancel();
+        }
 
-            this.updateORM();
+        this.lr = new Request.JSON({url: _pathAdmin + 'admin/system/module/editor/model', noCache: 1, onComplete: function() {
+            this.saveButton.stopTip(t('Saved'));
+
+            if (true === andUpdate) {
+                this.updateORM();
+            }
+
             ka.loadSettings();
         }.bind(this)}).post(req);
     },
 
     _renderDb: function(pModel) {
-        this.panes['db'].empty();
+        this.panes['model'].empty();
 
         this.dbEditorPane = new Element('div', {
             'class': 'admin-system-modules-edit-pane',
             style: 'bottom: 40px; padding: 0;'
-        }).inject(this.panes['db']);
+        }).inject(this.panes['model']);
 
         this.dbEditor = new ka.Field({
             type: 'codemirror',
@@ -607,7 +617,7 @@ var admin_system_module_edit = new Class({
         }, this.dbEditorPane);
 
         this.dbEditor.setValue(pModel.content);
-        var buttonBar = new ka.ButtonBar(this.panes['db']);
+        var buttonBar = new ka.ButtonBar(this.panes['model']);
 
         var info = new Element('div', {
             style: 'position: absolute; left: 5px; top: 0; color: gray;',
@@ -629,6 +639,7 @@ var admin_system_module_edit = new Class({
         }).inject(info);
 
         this.saveButton = buttonBar.addButton(t('Save'), this.saveDb.bind(this));
+        this.currentbutton = buttonBar.addButton(t('Save and update ORM'), this.saveDb.bind(this, [true]));
         this.saveButton.setButtonStyle('blue');
     },
 
@@ -756,12 +767,12 @@ var admin_system_module_edit = new Class({
     },
 
     _renderLinks: function(entryPoints) {
-        this.panes['links'].empty();
+        this.panes['entryPoints'].empty();
 
         var p = new Element('div', {
             'class': 'admin-system-modules-edit-pane',
             style: 'bottom: 40px; padding: 5px;'
-        }).inject(this.panes['links']);
+        }).inject(this.panes['entryPoints']);
 
         this.entryPointsTable = new Element('table', {
             'class': 'ka-Table-body'
@@ -917,7 +928,7 @@ var admin_system_module_edit = new Class({
             }.bind(this));
         }
 
-        var buttonBar = new ka.ButtonBar(this.panes['links']);
+        var buttonBar = new ka.ButtonBar(this.panes['entryPoints']);
 
         buttonBar.addButton(t('Add link'), function() {
             var count = this.entryPointsTable.getElements('tr').length;
@@ -1639,76 +1650,165 @@ var admin_system_module_edit = new Class({
             this.lr.cancel();
         }
         this.lr = new Request.JSON({url: _pathAdmin +
-            'admin/system/module/editor/config', noCache: 1, onComplete: function(pResult) {
-            this._loadLayouts(pResult.data);
+            'admin/system/module/editor/themes', noCache: 1, onComplete: function(pResult) {
+            this.setupThemes(pResult.data);
             this.win.setLoading(false);
         }.bind(this)}).get({bundle: this.mod});
     },
 
-    _loadLayouts: function(pConfig) {
-        this.panes['layouts'].empty();
+    setupThemes: function(themes) {
+        this.panes['themes'].empty();
         var p = new Element('div', {
             'class': 'admin-system-modules-edit-pane',
             style: 'bottom: 40px;'
-        }).inject(this.panes['layouts']);
+        }).inject(this.panes['themes']);
 
-        this.layoutsAddThemeButton = new Element('div').inject(p);
+        this.themes = new ka.Field({
+            type: 'array',
+            width: 'auto',
+            noWrapper: true,
+            columns: [
+                {label: t('Id'), width: 150},
+                {label: t('Label')},
+                {label: t('Actions'), width: 250}
+            ],
+            fields: {
+                id: {
+                    type: 'text',
+                    modifier: 'camelcase'
+                },
+                label: {
+                    type: 'text'
+                },
+                __container__: {
+                    type: 'container',
+                    children: {
+                        __options__: {
+                            type: 'dialog',
+                            label: 'Options',
+                            minWidth: '80%',
+                            noWrapper: true,
+                            children: {
+                                options: {
+                                    label: 'Options',
+                                    width: 'auto',
+                                    type: 'fieldTable'
+                                }
+                            }
+                        },
+                        __contents__: {
+                            type: 'dialog',
+                            label: 'Content Layouts',
+                            noWrapper: true,
+                            children: {
+                                contents: {
+                                    label: 'Content Layouts',
+                                    type: 'array',
+                                    columns: [
+                                        {label: t('Label')},
+                                        {label: t('View')}
+                                    ],
+                                    fields: {
+                                        label: {
+                                            type: 'text'
+                                        },
+                                        file: {
+                                            type: 'view',
+                                            fullPath: true,
+                                            directory: '@' + this.mod
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        __layouts__: {
+                            type: 'dialog',
+                            label: 'Page Layouts',
+                            noWrapper: true,
+                            children: {
+                                layouts: {
+                                    label: 'Page Layouts',
+                                    type: 'array',
+                                    columns: [
+                                        {label: t('Label')},
+                                        {label: t('View')}
+                                    ],
+                                    fields: {
+                                        label: {
+                                            type: 'text'
+                                        },
+                                        file: {
+                                            type: 'view',
+                                            fullPath: true,
+                                            directory: '@' + this.mod
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        __navigations__: {
+                            type: 'dialog',
+                            label: 'Navigation Layouts',
+                            noWrapper: true,
+                            children: {
+                                navigations: {
+                                    label: 'Navigation Layouts',
+                                    type: 'array',
+                                    columns: [
+                                        {label: t('Label')},
+                                        {label: t('View')}
+                                    ],
+                                    fields: {
+                                        label: {
+                                            type: 'text'
+                                        },
+                                        file: {
+                                            type: 'view',
+                                            fullPath: true,
+                                            directory: '@' + this.mod
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }, p);
 
-        if (pConfig.themes) {
-            Object.each(pConfig.themes, function(templates, themeTitle) {
-                this._layoutsAddTheme(themeTitle, templates);
-            }.bind(this));
+        if ('object' === typeOf(themes)) {
+            var copy = [];
+            Object.each(themes, function(theme) {
+                copy.push(theme);
+            });
+            themes = copy;
         }
 
-        var buttonBar = new ka.ButtonBar(this.panes['layouts']);
+        if (themes) {
+            this.themes.setValue(themes);
+        }
+
+        var buttonBar = new ka.ButtonBar(this.panes['themes']);
 
         buttonBar.addButton(t('Add theme'), function() {
-            this._layoutsAddTheme('Theme title', {});
+            this.addTheme('Theme title', {});
         }.bind(this));
-        var saveBtn = buttonBar.addButton(t('Save'), this.saveLayouts.bind(this));
+        var saveBtn = buttonBar.addButton(t('Save'), this.saveThemes.bind(this));
         saveBtn.setButtonStyle('blue');
     },
 
-    saveLayouts: function() {
+    saveThemes: function() {
+        var themes = this.themes.getValue();
         this.win.setLoading(true, t('Saving ...'));
 
-        var themes = {};
-        this.panes['layouts'].getElements('div[class=themeContainer]').each(function(container) {
-            var themeTitle = container.getElement('input.themeTitle').value;
-            var themeTemplates = {layouts: {}, navigations: {}, contents: {}, properties: {}, publicProperties: {}};
+        if (this.lr) {
+            this.lr.cancel();
+        }
 
-            container.getElements('ol.layoutContainerLayout li').each(function(template) {
-                themeTemplates.layouts[template.getElements('input')[0].value] = template.getElements('input')[1].value;
-            });
-
-            container.getElements('ol.layoutContainerContent li').each(function(template) {
-                themeTemplates.contents[template.getElements('input')[0].value] =
-                    template.getElements('input')[1].value;
-            });
-
-            container.getElements('ol.layoutContainerNavigation li').each(function(template) {
-                themeTemplates.navigations[template.getElements('input')[0].value] =
-                    template.getElements('input')[1].value;
-            });
-
-            container.getElements('div.themeProperties li').each(function(template) {
-                themeTemplates.properties[template.getElements('input')[0].value] =
-                    template.getElements('input')[1].value;
-            });
-
-            container.getElements('div.publicProperties li').each(function(template) {
-                themeTemplates.publicProperties[template.getElements('input')[0].value] =
-                    [template.getElements('input')[1].value, template.getElements('select')[0].value];
-            });
-
-            themes[themeTitle] = themeTemplates;
-        });
-
-        this.lr =
-            new Request.JSON({url: _pathAdmin + 'admin/system/module/saveLayouts', noCache: 1, onComplete: function() {
-                this.win.setLoading(false);
-                ka.loadSettings();
-            }.bind(this)}).post({bundle: this.mod, themes: JSON.encode(themes) });
+        this.lr = new Request.JSON({url: _pathAdmin + 'admin/system/module/editor/themes', noCache: 1, onComplete: function() {
+            this.win.setLoading(false);
+            ka.loadSettings();
+        }.bind(this)}).post({bundle: this.mod, themes: JSON.encode(themes)});
     },
 
     _addPublicProperty: function(pContainer, pKey, pTitle, pType) {
@@ -3198,19 +3298,21 @@ var admin_system_module_edit = new Class({
             this.lr.cancel();
         }
 
+        this.win.setParameter('tab', pType);
+
         this.lastType = pType;
         switch (pType) {
             case 'language':
                 return this.loadLanguage();
-            case 'layouts':
+            case 'themes':
                 return this.loadLayouts();
             case 'general':
                 return this.loadGeneral();
             case 'extras':
                 return this.loadExtras();
-            case 'links':
+            case 'entryPoints':
                 return this.loadLinks();
-            case 'db':
+            case 'model':
                 return this.loadDb();
             case 'windows':
                 return this.loadWindows();

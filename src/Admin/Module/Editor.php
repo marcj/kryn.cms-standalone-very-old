@@ -9,6 +9,7 @@ use Core\Config\EntryPoint;
 use Core\Config\Model;
 use Core\Config\Object;
 use Core\Config\Plugin;
+use Core\Config\Theme;
 use Core\Exceptions\BundleNotFoundException;
 use Core\Kryn;
 use Core\SystemFile;
@@ -35,9 +36,11 @@ class Editor
 
         $adminAssets = $config->getAdminAssets();
         $assets = [];
-        foreach ($adminAssets as $asset) {
-            $asset = array_merge($asset->toArray(), ['type' => 'Core\Config\Asset' === get_class($asset) ? 'asset' : 'assets']);
-            $assets[] = $asset;
+        if ($adminAssets) {
+            foreach ($adminAssets as $asset) {
+                $asset = array_merge($asset->toArray(), ['type' => 'Core\Config\Asset' === get_class($asset) ? 'asset' : 'assets']);
+                $assets[] = $asset;
+            }
         }
         $result['adminAssets'] = $assets;
 
@@ -114,6 +117,36 @@ class Editor
         return $config->getPluginsArray();
     }
 
+    public function getThemes($bundle)
+    {
+        $bundle = $this->getBundle($bundle);
+        $config = $bundle->getConfig();
+
+        return $config->getThemesArray();
+    }
+
+    public function saveThemes($bundle, $themes)
+    {
+        $bundle = $this->getBundle($bundle);
+
+        $def = [];
+        if (is_string($themes)) {
+            $themes = json_decode($themes, 1);
+        }
+
+        foreach ($themes as $array) {
+            $theme = new Theme();
+            $theme->fromArray($array);
+            $def[] = $theme;
+        }
+
+        $config = new Bundle();
+        $config->setThemes($def);
+
+        $file = $bundle->getPath() . 'Resources/config/kryn.themes.xml';
+        return $config->saveConfig($file);
+    }
+
     public function savePlugins($bundle, $plugins)
     {
         $bundle = $this->getBundle($bundle);
@@ -178,22 +211,20 @@ class Editor
 
     }
 
-    public function saveModel($pName, $pModel)
+    public function saveModel($bundle, $model)
     {
-        Manager::prepareName($pName);
-
-        $path = \Core\Kryn::getModuleDir($pName) . 'model.xml';
+        $bundleClass = $this->getBundle($bundle);
+        $path = $bundleClass->getPath() . 'Resources/config/models.xml';
 
         if (!is_writable($path)) {
-            throw new \FileNotWritableException(tf('The model file %s for %s is not writable.', $path, $pName));
+            throw new \FileNotWritableException(tf('The model file `%s` for `%s` is not writable.', $path, $bundle));
         }
 
-        if (!@file_put_contents($path, $pModel)) {
-            throw new \FileIOErrorException(tf('Can not write model file %s for %s.', $path, $pName));
+        if (!@file_put_contents($path, $model)) {
+            throw new \FileIOErrorException(tf('Can not write model file `%s` for `%s`.', $path, $bundle));
         }
 
         return true;
-
     }
 
     public function setModelFromObjects($bundle)

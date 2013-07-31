@@ -314,6 +314,9 @@ class AdminController
                         ->addPostRoute('model', 'saveModel')
                         ->addGetRoute('model', 'getModel')
 
+                        ->addPostRoute('themes', 'saveThemes')
+                        ->addGetRoute('themes', 'getThemes')
+
                         ->addPostRoute('language', 'saveLanguage')
                         ->addGetRoute('language', 'getLanguage')
                         ->addGetRoute('language/extract', 'getExtractedLanguage')
