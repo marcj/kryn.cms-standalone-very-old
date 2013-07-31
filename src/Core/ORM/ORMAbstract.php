@@ -186,6 +186,7 @@ abstract class ORMAbstract
         foreach ($groups as $group) {
 
             $item = array();
+            if ('' === $group) continue;
             $primaryGroups = explode(',', $group);
 
             foreach ($primaryGroups as $pos => $value) {
