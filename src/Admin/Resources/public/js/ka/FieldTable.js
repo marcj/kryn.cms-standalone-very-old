@@ -87,7 +87,7 @@ ka.FieldTable = new Class({
 
         var result = {};
 
-        this.table.getChildren('tr').each(function (item) {
+        this.table.getChildren('tr.ka-fieldProperty-item').each(function (item) {
 
             var fieldProperty = item.retrieve('ka.FieldProperty');
             var value = fieldProperty.getValue();
