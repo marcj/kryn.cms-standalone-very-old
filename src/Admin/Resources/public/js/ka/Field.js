@@ -43,7 +43,6 @@ ka.Field = new Class({
     field: {},
     refs: {},
     key: '',
-    depends: {},
     childContainer: false,
     container: false,
 
@@ -450,7 +449,6 @@ ka.Field = new Class({
      * @return {ka.Window} The window instance or null
      */
     findWin: function () {
-
         if (this.win) {
             return this.win;
         }
@@ -471,13 +469,11 @@ ka.Field = new Class({
      * @return {Element} The newly created child container, or null if already exist.
      */
     prepareChildContainer: function () {
-
         if (this.childContainer) {
             return null;
         }
 
         if (this.options.tableItem) {
-
             this.childrenContainerTr = new Element('tr').inject(document.id(this), 'after');
             this.childrenContainerTd = new Element('td',
                 {colspan: 2, style: 'padding: 0px; border-bottom: 0px;'}).inject(this.childrenContainerTr);
@@ -661,7 +657,6 @@ ka.Field = new Class({
      * @return {ka.Field}    this
      */
     inject: function (pTo, pP) {
-
         var field = this.toElement();
         pP = pP ? pP : 'bottom';
 
@@ -915,7 +910,6 @@ ka.Field = new Class({
     },
 
     setArrayValue: function (pValues, pKey) {
-
         if (typeOf(pValues) === 'null') {
             this.setValue(null, true);
             return;
