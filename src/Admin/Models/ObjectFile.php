@@ -18,13 +18,14 @@ class ObjectFile extends \Core\ORM\Propel
         if ($pPrimaryKey === '') {
             return false;
         }
-        $groups = explode(',', $pPrimaryKey);
+        $groups = explode('/', $pPrimaryKey);
 
         $result = array();
 
         foreach ($groups as $group) {
 
             $item = array();
+            if ('' === $group) continue;
             $primaryGroups = explode(',', $group);
 
             foreach ($primaryGroups as $pos => $value) {
