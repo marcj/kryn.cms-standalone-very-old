@@ -182,8 +182,9 @@ ka.FieldProperty = new Class({
                 children['options.' + key.lcfirst()] = {
                     type: 'fieldForm',
                     fields: fields,
+                    noWrapper: true,
                     needValue: key.lcfirst(),
-                    allTableItems: true
+                    allTableItems: this.options.allTableItems
                 }
             }
         }.bind(this));

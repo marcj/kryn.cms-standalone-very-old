@@ -16,12 +16,24 @@ ka.FieldTypes.FieldForm = new Class({
     },
 
     createLayout: function() {
-        if ('td' === this.fieldInstance.title.get('tag')) {
+        if (this.fieldInstance.title && 'td' === this.fieldInstance.title.get('tag')) {
             this.fieldInstance.title.setStyle('display', 'none');
             this.fieldInstance.main.set('colspan', 2);
         }
 
         this.fieldForm = new ka.FieldForm(this.fieldInstance.fieldPanel, this.options.fields, this.options);
+    },
+
+    show: function() {
+        Object.each(this.fieldForm.getFields(), function(field) {
+            field.show();
+        });
+    },
+
+    hide: function() {
+        Object.each(this.fieldForm.getFields(), function(field) {
+            field.hide();
+        });
     },
 
     setValue: function(value) {

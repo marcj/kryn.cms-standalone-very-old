@@ -68,6 +68,10 @@
     top: 25px;
 }
 
+.ka-system-module-editWindow-windowInspector-content .ka-field-main {
+    width: auto;
+}
+
 .ka-system-module-editWindow-windowInspector-actionbar {
     position: absolute;
     height: 30px;

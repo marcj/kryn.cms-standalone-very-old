@@ -17,6 +17,16 @@ td.ka-field {
     white-space: nowrap;
 }
 
+.ka-fields-sub {
+    margin-left: 28px;
+    border-left: 1px solid #ebebeb;
+}
+
+td > .ka-fields-sub {
+    padding-left: 15px;
+    margin-left: 8px;
+}
+
 .ka-field-tdtitle,
 .ka-field-inputTd {
     border-bottom: 1px solid #f0f0f0;
