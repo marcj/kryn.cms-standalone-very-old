@@ -686,7 +686,6 @@ class Model implements \ArrayAccess
                 }
             }
         } else {
-
             foreach ($values as $key => $value) {
                 $setter = 'set' . ucfirst($key);
                 $getter = 'get' . ucfirst($key);

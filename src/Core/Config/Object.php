@@ -900,7 +900,7 @@ class Object extends Model
     /**
      * @param TreeIconMapping $treeIconMapping
      */
-    public function setTreeIconMapping($treeIconMapping)
+    public function setTreeIconMapping(TreeIconMapping $treeIconMapping)
     {
         $this->treeIconMapping = $treeIconMapping;
     }

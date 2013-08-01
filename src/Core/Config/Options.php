@@ -85,7 +85,7 @@ class Options extends Model
             $node->appendChild($element);
 
             if (is_array($value)) {
-                $this->appendOptions($value, $element, $doc, 'item');
+                $this->appendOptions($value, $element, $doc, $name);
             } else {
                 $value = is_bool($value) ? $value?'true':'false' : (string)$value;
                 $element->nodeValue = $value;

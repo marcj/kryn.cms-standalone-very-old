@@ -11,7 +11,7 @@
       <treeLabel>name</treeLabel>
       <treeIcon>type</treeIcon>
       <treeIconMapping>
-        <item>#icon-folder-4</item>
+        <icon id="dir">#icon-folder-4</icon>
       </treeIconMapping>
       <treeDefaultIcon>#icon-paper</treeDefaultIcon>
       <browserInterfaceClass>ka.Files</browserInterfaceClass>
@@ -120,7 +120,7 @@
         </field>
         <field id="accessDenied" type="checkbox">
           <label>Access denied</label>
-          <desc>For everyone. This remove the page from the navigation.</desc>
+          <desc>For everyone. This removes the page from the navigation.</desc>
         </field>
         <field id="meta" type="text">
           <label>Meta tags</label>
