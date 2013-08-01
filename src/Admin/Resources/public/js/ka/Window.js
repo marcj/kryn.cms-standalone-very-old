@@ -14,6 +14,7 @@ ka.Window = new Class({
 
     initialize: function (pEntryPoint, pLink, pInstanceId, pParameter, pInline, pParentId) {
         this.params = pParameter || {};
+        this.originParams = Object.clone(this.params);
         this.id = pInstanceId;
         this.entryPoint = pEntryPoint;
         this.inline = pInline;
@@ -62,6 +63,14 @@ ka.Window = new Class({
      */
     getParameter: function (key) {
         return key && this.params ? this.params[key] : this.params;
+    },
+
+    getParameters: function() {
+        return this.params;
+    },
+
+    getOriginParameters: function() {
+        return this.originParams;
     },
 
     /**
@@ -794,14 +803,14 @@ ka.Window = new Class({
             return;
         }
 
-        if (this.entryPointDefinition.multi === false || this.entryPointDefinition.multi === 0) {
+        if (!this.entryPointDefinition.multi) {
             var win = ka.wm.checkOpen(this.getEntryPoint(), this.id);
             if (win) {
-                this.close(true);
                 if (win.softOpen) {
                     win.softOpen(this.params);
                 }
                 win.toFront();
+                this.close(true);
                 return;
             }
         }

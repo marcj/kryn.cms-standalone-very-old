@@ -2,6 +2,7 @@
 ka.wm = {
     windows: {},
 
+    instanceIdx: 0,
     /* depend: [was => mitWem] */
     depend: {},
     lastWindow: null,
@@ -19,7 +20,7 @@ ka.wm = {
             return;
         }
 
-        if ((win = this.checkOpen(pEntryPoint)) && !pInline) {
+        if ((win = this.checkOpen(pEntryPoint, null, pParams)) && !pInline) {
             return win.toFront();
         }
 
@@ -88,7 +89,7 @@ ka.wm = {
     },
 
     loadWindow: function (pEntryPoint, pLink, pParentWindowId, pParams, pInline) {
-        var instance = Object.getLength(ka.wm.windows) + 1;
+        var instance = ++ka.wm.instanceIdx;
 
         if (pParentWindowId == -1) {
             pParentWindowId = ka.wm.lastWindow ? ka.wm.lastWindow.id : false;
@@ -129,7 +130,6 @@ ka.wm = {
     },
 
     bringLastWindow2Front: function () {
-
         var lastWindow;
 
         Object.each(ka.wm.windows, function (win) {
@@ -268,11 +268,16 @@ ka.wm = {
     },
 
     checkOpen: function (pEntryPoint, pInstanceId, pParams) {
-        opened = false;
+        var opened = false;
         Object.each(ka.wm.windows, function (win) {
             if (win && win.getEntryPoint() == pEntryPoint) {
-                if (pInstanceId > 0 && pInstanceId == win.id) {
+                if (pInstanceId && pInstanceId == win.id) {
                     return;
+                }
+                if (pParams) {
+                    if (JSON.encode(win.getOriginParameters()) != JSON.encode(pParams)){
+                        return;
+                    }
                 }
                 opened = win;
             }
