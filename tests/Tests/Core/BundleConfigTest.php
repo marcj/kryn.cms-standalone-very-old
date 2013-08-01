@@ -17,6 +17,7 @@ use Core\Config\Connection;
 use Core\Config\Theme;
 use Core\Config\ThemeContent;
 use Core\Config\ThemeLayout;
+use Core\Config\TreeIconMapping;
 use Tests\TestCaseWithCore;
 
 class BundleConfigTest extends TestCaseWithCore
@@ -102,6 +103,9 @@ class BundleConfigTest extends TestCaseWithCore
   <labelField>name</labelField>
   <dataModel>custom</dataModel>
   <nested>true</nested>
+  <treeIconMapping>
+    <icon id="dir">#icon-folder-4</icon>
+  </treeIconMapping>
   <fields>
     <field id="path" type="text" primaryKey="true">
       <label>Path</label>
@@ -112,6 +116,34 @@ class BundleConfigTest extends TestCaseWithCore
   </fields>
 </object>';
 
+        $arrayObject = new Object(array (
+            'id' => 'View',
+            'label' => 'Template View',
+            'desc' => 'Template views',
+            'class' => '\\Admin\\ObjectView',
+            'labelField' => 'name',
+            'dataModel' => 'custom',
+            'nested' => true,
+            'treeIconMapping' => array (
+                'dir' => '#icon-folder-4',
+            ),
+            'fields' => array (
+                'path' => array (
+                    'id' => 'path',
+                    'label' => 'Path',
+                    'type' => 'text',
+                    'primaryKey' => true,
+                ),
+                'name' => array (
+                    'id' => 'name',
+                    'label' => 'File name',
+                    'type' => 'text',
+                ),
+            ),
+        ));
+
+        $xmlObject = new Object($xml);
+
         $object = new Object();
         $object->setId('View');
         $object->setLabel('Template View');
@@ -120,6 +152,10 @@ class BundleConfigTest extends TestCaseWithCore
         $object->setDataModel('custom');
         $object->setNested(true);
         $object->setClass('\Admin\ObjectView');
+
+        $treeIconMapping = new TreeIconMapping();
+        $treeIconMapping->setOption('dir', '#icon-folder-4');
+        $object->setTreeIconMapping($treeIconMapping);
 
         $field1 = new Field();
         $field1->setId('path');
@@ -134,7 +170,15 @@ class BundleConfigTest extends TestCaseWithCore
 
         $object->setFields(array($field1, $field2));
 
+
         $this->assertEquals($xml, $object->toXml());
+        $this->assertEquals($xmlObject->toXml(), $object->toXml());
+        $this->assertEquals($xml, $xmlObject->toXml());
+
+        $this->assertEquals($xmlObject->toArray(), $object->toArray());
+        $this->assertEquals($xmlObject->toArray(), $arrayObject->toArray());
+        $this->assertEquals($xmlObject->toXml(), $arrayObject->toXml());
+        $this->assertEquals($xml, $arrayObject->toXml());
     }
 
     public function testObjectBrowserColumns()
