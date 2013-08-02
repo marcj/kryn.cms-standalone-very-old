@@ -233,7 +233,7 @@ ka.FieldForm = new Class({
                     obj.prepareChildContainer();
                 }
 
-                this.parseLevel(field.children, obj.childContainer, obj);
+                this.parseLevel(field.children, obj.getChildrenContainer(), obj);
 
                 if (!obj.handleChildsMySelf) {
                     obj.addEvent('check-depends', function () {
@@ -254,7 +254,6 @@ ka.FieldForm = new Class({
                         self.updateChildrenContainerVisibility(this);
                     }.bind(obj));
                 }
-
                 obj.fireEvent('check-depends');
             }
 
