@@ -833,7 +833,7 @@ var admin_system_module_edit = new Class({
                             global: t('Call global defined function'),
                             code: t('Execture code')
                         },
-                        depends: {
+                        children: {
                             functionName: {
                                 type: 'text',
                                 label: t('Function name'),
@@ -1205,271 +1205,6 @@ var admin_system_module_edit = new Class({
 
         return res;
     },
-    /*
-     _createLayoutLinkSettings: function (pSub, pLink) {
-
-     var table = new Element('table', {width: '100%'}).inject(pSub);
-     var tbody = table;
-
-     var kaFields = {
-     title: {
-     label: t('Title'),
-     desc: t('Surround the value with [[ and ]] to make it multilingual.')
-     },
-     type: {
-     label: t('Type'),
-     type: 'select',
-     items: {
-     '': t('Default'),
-     store: t('Store'),
-     'function': t('Background function'),
-     custom: t('[Window] Custom'),
-     iframe: t('[Window] iFrame'),
-     list: t('[Window] Framework list'),
-     edit: t('[Window] Framework edit'),
-     add: t('[Window] Framework add'),
-     combine: t('[Window] Framework Combine')
-     },
-     depends: {
-     'class': {
-     label: t('PHP Class'),
-     desc: t('Scheme: module/&lt;extKey&gt;/&lt;class&gt;.class.php'),
-     needValue: ['list', 'edit', 'add', 'combine', 'store']
-     },
-     'javascriptClass': {
-     label: t('Custom javascript user interface class (Optional)'),
-     desc: t('Should be extended from ka.WindowList, ka.WindowEdit, ka.WindowAdd or ka.WindowCombine.'),
-     needValue: ['list', 'edit', 'add', 'combine']
-     },
-     functionType: {
-     needValue: 'function',
-     type: 'select',
-     label: t('Function type'),
-     items: {
-     global: t('Call global defined function'),
-     code: t('Execture code')
-     },
-     depends: {
-     functionName: {
-     type: 'text',
-     label: t('Function name'),
-     needValue: 'global'
-     },
-     functionCode: {
-     type: 'codemirror',
-     needValue: 'code',
-     codemirrorOptions: {
-     mode: 'javascript'
-     },
-     label: t('Javascript code')
-     }
-     }
-     },
-     __or__: {
-     label: t('or'),
-     type: 'label',
-     needValue: 'store'
-     },
-     table: {
-     label: t('Table'),
-     needValue: 'store',
-     depends: {
-     table_key: {
-     label: t('Table primary column'),
-     needValue: function(n){if(n!='')return true;else return false;}
-     },
-     table_label: {
-     label: t('Table label column'),
-     needValue: function(n){if(n!='')return true;else return false;}
-
-     }
-     }
-     },
-     '__info_js_name__': {
-     type: 'label',
-     needValue: 'custom',
-     label: t('File name and class information'),
-     help: 'admin/extension-custom-javascript',
-     desc: t('Javascript file: &lt;extKey&gt;/admin/js/&lt;pathWithUnderscore&gt;.js and class name: &lt;extKey&gt;_&lt;pathWithUnderscore&gt;.')
-     }
-     }
-     },
-     isLink: {
-     label: t('Is link in administration menu bar?'),
-     desc: t('Only in the first and second level.'),
-     type: 'checkbox',
-     depends: {
-     icon: {
-     needValue: 1,
-     label: t('Icon (Optional)'),
-     desc: t('Relative to web/'),
-     type: 'text'
-     }
-     }
-     },
-     __optional__: {
-     label: t('Optional'),
-     type: 'childrenSwitcher',
-     needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
-     againstField: 'type',
-     depends: {
-     multi: {
-     label: t('Allow multiple instances?'),
-     needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
-     againstField: 'type',
-     type: 'checkbox'
-     },
-     minWidth: {
-     label: t('Min width'),
-     needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
-     againstField: 'type',
-     type: 'number'
-     },
-     minHeight: {
-     label: t('Min height'),
-     needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
-     againstField: 'type',
-     type: 'number'
-     },
-     defaultWidth: {
-     label: t('Default width'),
-     needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
-     againstField: 'type',
-     type: 'number'
-     },
-     defaultHeight: {
-     label: t('Default height'),
-     needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
-     againstField: 'type',
-     type: 'number'
-     },
-
-     fixedWidth: {
-     label: t('Fixed width'),
-     needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
-     againstField: 'type',
-     type: 'number'
-     },
-     fixedHeight: {
-     label: t('Fixed height'),
-     needValue: ['custom', 'iframe', 'list', 'edit', 'add', 'combine'],
-     againstField: 'type',
-     type: 'number'
-     }
-     }
-     }
-     }
-
-     var kaParser = new ka.FieldForm(tbody, kaFields, {allTableItems:1}, {win: this.win});
-     pSub.getParent().store('kaparser', kaParser);
-     kaParser.setValue(pLink);
-     },
-
-     _linksAddNewLevel: function (pKey, pLink, pParent) {
-
-     var lvl1 = new Element('div', {
-     style: 'border: 1px solid #ccc; padding-left: 0px; padding-bottom: 5px; background-color: #e8e8e8; margin: 5px 0px; position: relative;',
-     'class': 'layoutItem ka-extension-manager-links-item'
-     }).inject(pParent);
-
-     var header = new Element('div',{
-     'style': 'border-bottom: 1px solid silver; background-color: #e1e1e1; padding: 2px;'
-     }).inject(lvl1);
-
-     new Element('input', {
-     value: pKey,
-     'class': 'text',
-     style: 'margin-left: 4px;'
-     }).inject(header);
-
-     var subDelBtn = new Element('a', {
-     style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
-     title: _('Remove entry point'),
-     html: '&#xe26b;'
-     }).addEvent('click', function () {
-     this.win._confirm(t('Delete?'), function (res) {
-     if (!res)return;
-     lvl1.destroy();
-     });
-     }.bind(this)).inject(header);
-
-     new Element('a', {
-     style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
-     title: t('Move up'),
-     html: '&#xe2ca;'
-     }).addEvent('click', function () {
-     if (lvl1.getPrevious()) {
-     lvl1.inject(lvl1.getPrevious(), 'before');
-     }
-     }.bind(this)).inject(header);
-
-     new Element('a', {
-     style: "cursor: pointer; font-family: 'icomoon'; padding: 0px 2px;",
-     title: t('Move down'),
-     html: '&#xe2cc;'
-     }).addEvent('click', function () {
-     if (lvl1.getNext()) {
-     lvl1.inject(lvl1.getNext(), 'after');
-     }
-     }.bind(this)).inject(header);
-
-     var showDefinition = new Element('div', {
-     'class': 'admin-system-modules-edit-pane-showDefinition',
-     style: 'width: 250px;'
-     }).inject(header);
-
-     var ch = new ka.Checkbox(showDefinition);
-     ch.addEvent('change', function(){
-     if(ch.getValue()){
-     lvl1.addClass('admin-system-modules-show-layoutSettings');
-     } else {
-     lvl1.removeClass('admin-system-modules-show-layoutSettings');
-     }
-     });
-
-     new Element('div',{
-     style: 'position: absolute; left: 70px; top: 6px; color: gray;',
-     text: t('Show definition')
-     }).inject(showDefinition);
-
-     var sub = new Element('div', {
-     style: 'padding: 2px; padding-left: 25px',
-     'class': 'layoutSettings'
-     }).inject(lvl1);
-
-     var childs = new Element('div', {
-     style: 'padding: 2px; padding-left: 25px;',
-     'class': 'layoutChilds'
-     }).inject(lvl1);
-
-     this._createLayoutLinkSettings(sub, pLink);
-
-     //
-     //        var subAddBtn = new Element('img', {
-     //            'src': _path + 'bundles/admin/images/icons/add.png',
-     //            title: t('Add Link'),
-     //            style: 'cursor: pointer; position: relative; top: 3px; left: 2px;'
-     //        }).addEvent('click', function () {
-     //            this._linksAddNewLevel('mykey', {}, childs);
-     //        }.bind(this)).inject(sub);
-
-
-     document.id(new ka.Button('Add children'))
-     .addEvent('click', function(){
-     var count = childs.getChildren().length+1;
-     this._linksAddNewLevel('path_key_'+count, {}, childs);
-     }.bind(this))
-     .setStyle('margin-left', 15)
-     .inject(lvl1)
-
-     if (pLink.childs) {
-     Object.each(pLink.childs, function (item, key) {
-     this._linksAddNewLevel(key, item, childs);
-     }.bind(this));
-     }
-
-     },
-     */
 
     _loadGeneral: function(pConfig) {
         this.panes['general'].empty();
@@ -2313,7 +2048,7 @@ var admin_system_module_edit = new Class({
                 type: 'tab',
                 fullPage: true,
                 label: t('General'),
-                depends: {
+                children: {
                     'desc': {
                         label: t('Description')
                     },
@@ -2327,7 +2062,7 @@ var admin_system_module_edit = new Class({
                             'propel': t('Propel ORM'),
                             'custom': t('Custom class')
                         },
-                        depends: {
+                        children: {
                             'class': {
                                 needValue: 'custom',
                                 label: t('Class name'),
@@ -2386,7 +2121,7 @@ var admin_system_module_edit = new Class({
                                         label: t('Root as object (Optional)'),
                                         desc: t('Display an object item as the root item.'),
                                         type: 'checkbox',
-                                        depends: {
+                                        children: {
                                             nestedRootObject: {
                                                 needValue: 1,
                                                 label: t('Object key'),
@@ -2471,7 +2206,7 @@ var admin_system_module_edit = new Class({
                                     'custom': 'Custom class'
                                 },
                                 'default': 'default',
-                                depends: {
+                                children: {
                                     fieldDataModelClass: {
                                         label: t('PHP Class'),
                                         needValue: 'custom',
@@ -2502,7 +2237,7 @@ var admin_system_module_edit = new Class({
                         type: 'childrenSwitcher',
                         label: t('Browser UI (tree)'),
                         desc: t('Only for nested objects.'),
-                        depends: {
+                        children: {
 
                             treeInterface: {
                                 label: t('Javascript UI class'),
@@ -2513,7 +2248,7 @@ var admin_system_module_edit = new Class({
                                     'custom': 'Custom class'
                                 },
                                 type: 'select',
-                                depends: {
+                                children: {
                                     treeInterfaceClass: {
                                         needValue: 'custom',
                                         label: t('Javascript class'),
@@ -2532,7 +2267,7 @@ var admin_system_module_edit = new Class({
                                 },
                                 'default': 'default',
                                 type: 'select',
-                                depends: {
+                                children: {
                                     treeDataModelClass: {
                                         label: t('PHP Class'),
                                         needValue: 'custom',
@@ -2565,7 +2300,7 @@ var admin_system_module_edit = new Class({
                             treeFixedIcon: {
                                 type: 'checkbox',
                                 label: t('Fixed icon'),
-                                depends: {
+                                children: {
                                     treeIconPath: {
                                         needValue: 1,
                                         type: 'file',
@@ -2607,7 +2342,7 @@ var admin_system_module_edit = new Class({
                                 needValue: 1,
                                 againstField: 'nestedRootAsObject',
                                 label: t('Fixed root icon'),
-                                depends: {
+                                children: {
                                     treeRootObjectIconPath: {
                                         needValue: 1,
                                         type: 'file',
@@ -2664,7 +2399,7 @@ var admin_system_module_edit = new Class({
                     __browserUi__: {
                         label: t('Browser UI (chooser)'),
                         type: 'childrenSwitcher',
-                        depends: {
+                        children: {
                             browserInterface: {
                                 label: t('Javascript UI Class'),
                                 type: 'select',
@@ -2713,7 +2448,7 @@ var admin_system_module_edit = new Class({
                                     'custom': 'Custom PHP class',
                                     'none': 'None'
                                 },
-                                depends: {
+                                children: {
                                     browserDataModelClass: {
                                         label: t('PHP Class'),
                                         needValue: 'custom',
@@ -3081,7 +2816,7 @@ var admin_system_module_edit = new Class({
             __resources__: {
                 type: 'childrenSwitcher',
                 label: tc('extensionEditor', 'Additional backend JavaScript/CSS files'),
-                depends: {
+                children: {
 
                     adminAssets: {
 
@@ -3120,7 +2855,7 @@ var admin_system_module_edit = new Class({
             __caches__: {
                 type: 'childrenSwitcher',
                 label: tc('extensionEditor', 'Cache'),
-                depends: {
+                children: {
 
                     caches: {
 
@@ -3163,7 +2898,7 @@ var admin_system_module_edit = new Class({
             __events__: {
                 type: 'childrenSwitcher',
                 label: tc('extensionEditor', 'Events'),
-                depends: {
+                children: {
 
                     events: {
                         type: 'array',
@@ -3210,7 +2945,7 @@ var admin_system_module_edit = new Class({
             __cdn__: {
                 type: 'childrenSwitcher',
                 label: tc('extensionEditor', 'FAL driver'),
-                depends: {
+                children: {
 
                     falDriver: {
                         type: 'array',
