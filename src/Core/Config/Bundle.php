@@ -57,6 +57,11 @@ class Bundle extends Model
     protected $events;
 
     /**
+     * @var Event[]
+     */
+    protected $listeners;
+
+    /**
      * @var Stream[]
      */
     protected $streams;
@@ -527,5 +532,20 @@ class Bundle extends Model
         return $this->events;
     }
 
+    /**
+     * @param Event[] $listeners
+     */
+    public function setListeners(array $listeners)
+    {
+        $this->listeners = $listeners;
+    }
+
+    /**
+     * @return Event[]
+     */
+    public function getListeners()
+    {
+        return $this->listeners;
+    }
 
 }

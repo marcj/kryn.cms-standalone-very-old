@@ -1,6 +1,14 @@
 <config>
   <bundle>
     <events>
+      <event key="core/object/modify">
+        <desc>Fired on every object modification.</desc>
+      </event>
+      <event key="core/object/update">
+        <desc></desc>
+      </event>
+    </events>
+    <listeners>
       <event key="core/object/modify" subject="core:domain">
         <clearCache>core/domains.created</clearCache>
         <clearCache>core/domains</clearCache>
@@ -11,6 +19,6 @@
       <event key="core/object/modify" subject="core:node">
         <clearCache>core/contents</clearCache>
       </event>
-    </events>
+    </listeners>
   </bundle>
 </config>

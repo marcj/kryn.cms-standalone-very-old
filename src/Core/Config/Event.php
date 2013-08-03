@@ -30,6 +30,11 @@ class Event extends Model
     protected $subject;
 
     /**
+     * @var string
+     */
+    protected $desc;
+
+    /**
      * @var array
      */
     protected $clearCaches;
@@ -152,6 +157,22 @@ class Event extends Model
     public function getCondition()
     {
         return $this->condition;
+    }
+
+    /**
+     * @param string $desc
+     */
+    public function setDesc($desc)
+    {
+        $this->desc = $desc;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDesc()
+    {
+        return $this->desc;
     }
 
 }
