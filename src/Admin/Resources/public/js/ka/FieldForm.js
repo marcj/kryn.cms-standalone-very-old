@@ -472,7 +472,7 @@ ka.FieldForm = new Class({
                 return;
             }
 
-            if (field.isHidden()) {
+            if (instanceOf(field, ka.Field) && field.isHidden()) {
                 return;
             }
 
