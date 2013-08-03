@@ -2899,18 +2899,18 @@ var admin_system_module_edit = new Class({
                 type: 'childrenSwitcher',
                 label: tc('extensionEditor', 'Events'),
                 children: {
-
                     events: {
                         type: 'array',
-                        label: t('Own events'),
-                        desc: t('Here you can define events, where others can attach their code. Call krynEvent::fire() to fire it.'),
+                        label: t('Define events'),
+                        desc: t('Here you can define events, where others can attach to.'),
                         columns: [
                             {label: t('Key'), width: '40%'},
                             {label: t('Description')}
                         ],
                         fields: {
                             key: {
-                                type: 'text'
+                                type: 'text',
+                                required: true
                             },
                             desc: {
                                 type: 'text'
@@ -2918,21 +2918,66 @@ var admin_system_module_edit = new Class({
                         }
                     },
 
-                    attachEvents: {
+                    listeners: {
 
-                        label: t('Attach events'),
-                        desc: t('You can attach here directly your methods to a event (additional to the way through krynEvent::attach())'),
+                        label: t('Event listener'),
+                        desc: t('You can attach here directly your action to an event.'),
                         type: 'array',
                         columns: [
-                            {label: t('Key'), width: '40%'},
-                            {label: t('Method')}
+                            {label: t('Key'), width: '35%'},
+                            {label: t('Subject'), width: '35%'},
+                            {label: t('Actions')}
                         ],
                         fields: {
                             key: {
+                                type: 'text',
+                                required: true
+                            },
+                            subject: {
                                 type: 'text'
                             },
-                            desc: {
-                                type: 'text'
+                            actions: {
+                                type: 'container',
+                                children: {
+                                    callsButton: {
+                                        type: 'dialog',
+                                        noWrapper: true,
+                                        label: 'PHP Calls',
+                                        children: {
+                                            calls: {
+                                                type: 'array',
+                                                asArray: true,
+                                                columns: [
+                                                    {label: t('Method'), desc: t('Example `\BundleName\ClassName::methodName`')}
+                                                ],
+                                                fields: {
+                                                    method: {
+                                                        type: 'text'
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    clearCacheButton: {
+                                        type: 'dialog',
+                                        noWrapper: true,
+                                        label: 'Clear Caches',
+                                        children: {
+                                            clearCaches: {
+                                                type: 'array',
+                                                asArray: true,
+                                                columns: [
+                                                    {label: t('Cache key')}
+                                                ],
+                                                fields: {
+                                                    cacheKey: {
+                                                        type: 'text'
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
 
@@ -3009,12 +3054,13 @@ var admin_system_module_edit = new Class({
     saveExtras: function() {
 
         var req = this.extraFieldsObj.getValue();
-        req.name = this.mod;
+        req.bundle = this.mod;
 
         this.win.setLoading(true, t('Saving ...'));
 
+        console.log(req);
         this.lr =
-            new Request.JSON({url: _pathAdmin + 'admin/system/module/saveExtras', noCache: 1, onComplete: function() {
+            new Request.JSON({url: _pathAdmin + 'admin/system/module/editor/basic', noCache: 1, onComplete: function() {
                 this.win.setLoading(false);
                 ka.loadSettings();
             }.bind(this)}).post(req);

@@ -30,6 +30,8 @@ class Editor
         $config = $bundle->getConfig();
 
         $result['streams'] = $config->propertyToArray('streams');
+        $result['listeners'] = $config->propertyToArray('listeners');
+        $result['events'] = $config->propertyToArray('events');
 //        $result['falDriver'] = $config->propertyToArray('falDriver');
 //        $result['caches'] = $config->propertyToArray('caches');
 //        $result['events'] = $config->propertyToArray('events');
