@@ -2,6 +2,8 @@
 
 namespace Core\Config;
 
+use Core\Exceptions\FileNotWritableException;
+
 class Model implements \ArrayAccess
 {
     /**
@@ -12,6 +14,8 @@ class Model implements \ArrayAccess
     protected $element;
 
     /**
+     * The name of the element of this class.
+     *
      * @var string
      */
     protected $rootName;
@@ -23,16 +27,107 @@ class Model implements \ArrayAccess
      */
     protected $attributes = [];
 
+    /**
+     * Contains the additional (not defined properties) children nodes.
+     *
+     * @var array
+     */
     protected $additionalNodes = [];
+
+    /**
+     * Contains the additional (not defined properties) attributes.
+     *
+     * @var array
+     */
     protected $additionalAttributes = [];
+
+    /**
+     * Defines the element name in the xml structure of array items in array properties.
+     *
+     * Scenario:
+     *
+     *   ConfigClass =>
+     *      protected $modules; //@var array
+     *      protected $arrayIndexNames = ['modules' => 'module'];
+     *
+     *   Resulted xml:
+     *
+     *    <config>
+     *      <modules>
+     *        <module>value</module>
+     *        <module>value2</module>
+     *      </modules>
+     *    </config>
+     *
+     *   If you not defined $arrayIndexNames and if you don't have a proper class name as @var
+     *   then it will export '<item>' children instead of the '<module>'.
+     *
+     * @var array
+     */
     protected $arrayIndexNames = [];
+
+    /**
+     * Defines which properties should be excluded when they have the default value.
+     *
+     * @var array
+     */
     protected $excludeDefaults = [];
+
+    /**
+     * Defines which property is used as the nodeValue.
+     *
+     * @var string
+     */
     protected $nodeValueVar;
+
+    /**
+     * Defines a key-value array that defines which xml element belongs tho
+     * which class (array) property. Useful if you don't group multiple elements.
+     *
+     * Scenario:
+     *   <xml>
+     *     <config>
+     *       <element></element>
+     *       <cache>foo</cache>
+     *       <cache>bar</cache>
+     *     </config>
+     *   </xml>
+     *
+     * Example:
+     *
+     * ConfigClass =>
+     *   protected $elementToArray = ['cache' => 'caches'];
+     *   protected $caches; //@var ConfigCacheClass[]
+     *
+     * @var array
+     */
     protected $elementToArray = [];
+
+    /**
+     * If this class should have a custom array key.
+     *
+     * Scenario:
+     *
+     *   ConfigClass =>
+     *     protected $caches; //@var ConfigCacheClass[]
+     *
+     *   ConfigCacheClass =>
+     *     protected $id;
+     *     protected $value;
+     *     protected $arrayKey => 'id';
+     *
+     *    ConfigClass->propertyToArray('caches') -> array('<id>' => $ConfigCacheClass, ...)
+     *
+     * @var string
+     */
     protected $arrayKey;
 
     /**
-     * Defines a header comment of values (not attributes).
+     * Defines a header comment for each property (not attributes).
+     *
+     * Example:
+     *
+     *  ['caches' => 'blabla']
      *
      * @var array
      */
@@ -44,6 +139,9 @@ class Model implements \ArrayAccess
      * @var string
      */
     protected $docBlock = '';
+
+    protected $_defaultProperties;
+    protected $_modelProperties;
 
     /**
      * @param \DOMElement|array|string $values
@@ -106,12 +204,19 @@ class Model implements \ArrayAccess
      */
     public function setupObject()
     {
-        $this->importNode($this->element);
+        if ($this->element) {
+            $this->importNode($this->element);
+        }
     }
 
+    /**
+     * @param \DOMNode $element
+     * @return array imported properties
+     */
     public function importNode(\DOMNode $element)
     {
         $reflection = new \ReflectionClass($this);
+        $imported = [];
 
         /** @var \DOMNode $child */
         foreach ($element->childNodes as $child) {
@@ -130,8 +235,9 @@ class Model implements \ArrayAccess
             }
 
             $elementToArrayProperty = $this->elementToArray[$nodeName];
-            $setter = 'set' . ucfirst($elementToArrayProperty ?: $nodeName);
-            $getter = 'get' . ucfirst($elementToArrayProperty ?: $nodeName);
+            $propertyName = $elementToArrayProperty ?: $nodeName;
+            $setter = 'set' . ucfirst($propertyName);
+            $getter = 'get' . ucfirst($propertyName);
             $setterValue = $value;
 
             if (method_exists($this, $setter)) {
@@ -211,7 +317,10 @@ class Model implements \ArrayAccess
             } else if (!$this->$nodeName) {
                 $this->extractExtraNodes($child, $this->additionalNodes);
             }
+
+            $imported[] = $propertyName;
         }
+
         foreach ($element->attributes as $attribute) {
             $nodeName = $attribute->nodeName;
             $value    = $attribute->nodeValue;
@@ -222,7 +331,11 @@ class Model implements \ArrayAccess
             } else if (!$this->$nodeName) {
                 $this->additionalAttributes[$nodeName] = $value;
             }
+
+            $imported[] = $nodeName;
         }
+
+        return $imported;
     }
 
     private function char2Camelcase($value, $char = '_')
@@ -411,7 +524,7 @@ class Model implements \ArrayAccess
         $doc = new \DOMDocument();
         $doc->formatOutput = true;
 
-        $this->appendXml($doc, $doc, $printDefaults);
+        $this->appendXml($doc, $printDefaults);
 
         return trim(str_replace("<?xml version=\"1.0\"?>\n", '', $doc->saveXML()));
     }
@@ -423,13 +536,13 @@ class Model implements \ArrayAccess
      * @param boolean $withDefaults
      *
      * @return boolean
-     * @throws \FileNotWritableException
+     * @throws FileNotWritableException
      */
     public function save($path, $withDefaults = false)
     {
         $string = $this->toXml($withDefaults);
         if ((!file_exists($path) && !is_writable(dirname($path))) || (file_exists($path) && !is_writable($path))) {
-            throw new \Core\Exceptions\FileNotWritableException(sprintf('The file `%s` is not writable.', $path));
+            throw new FileNotWritableException(sprintf('The file `%s` is not writable.', $path));
         }
         return false !== file_put_contents($path, $string);
     }
@@ -438,12 +551,15 @@ class Model implements \ArrayAccess
      * Appends the xml structure with our values.
      *
      * @param \DOMNode     $node
-     * @param \DOMDocument $doc
      * @param boolean      $printDefaults
      * @throws \Exception
+     *
+     * @return \DOMElement
      */
-    public function appendXml(\DOMNode $node, \DOMDocument $doc, $printDefaults = false)
+    public function appendXml(\DOMNode $node, $printDefaults = false)
     {
+        $doc = $node instanceof \DOMDocument ? $node : $node->ownerDocument;
+
         if ($this->docBlock) {
             $comment = $doc->createComment($this->docBlock);
             $node->appendChild($comment);
@@ -451,51 +567,69 @@ class Model implements \ArrayAccess
 
         try {
             $rootNode = $doc->createElement($this->rootName);
+            $node->appendChild($rootNode);
         } catch (\DOMException $e ){
-            throw new \Exception(tf('Can not create xml element ``', $this->rootName), 0, $e);
+            throw new \Exception(tf('Can not create xml element `%s`', $this->rootName), 0, $e);
         }
-        $node->appendChild($rootNode);
-
-        $reflection = new \ReflectionClass($this);
-        $defaultProperties = $reflection->getDefaultProperties();
-
-        $reflectionModel = new \ReflectionClass(__CLASS__);
-        $modelProperties = $reflectionModel->getDefaultProperties();
 
         foreach ($this as $key => $val) {
-            $getter = 'get' . ucfirst($key);
-            if (!method_exists($this, $getter)) {
-                continue;
-            }
-
-            $method = new \ReflectionMethod($this, $getter);
-            if ($method->getParameters()[0] && 'orCreate' === $method->getParameters()[0]->getName()) {
-                $val = $this->$getter($printDefaults);
-            } else {
-                $val = $this->$getter();
-            }
-            if ($defaultProperties[$key] == $val && (!$printDefaults || in_array($key, $this->excludeDefaults))) {
-                continue;
-            }
-            if (array_key_exists($key, $modelProperties)) {
-                continue;
-            }
-
-            $setter = 'append' . ucfirst($key) . 'Xml';
-
-            if (is_callable(array($this, $setter))) {
-                $this->$setter($rootNode, $doc, $printDefaults);
-            } else {
-                $this->appendXmlValue($key, $val, $rootNode, $doc, null, $printDefaults);
-            }
+            $this->appendXmlProperty($key, $rootNode, $printDefaults);
         }
 
         foreach ($this->additionalNodes as $k => $v) {
-            $this->appendXmlValue($k, $v, $rootNode, $doc);
+            $this->appendXmlValue($k, $v, $rootNode);
         }
 
         foreach ($this->additionalAttributes as $k => $v) {
             $rootNode->setAttribute($k, (string)$v);
+        }
+
+        return $rootNode;
+    }
+
+    /**
+     * @param string   $key
+     * @param \DOMNode $parentNode
+     * @param bool     $printDefaults
+     */
+    public function appendXmlProperty($key, \DOMNode $parentNode, $printDefaults)
+    {
+        if (!$this->_defaultProperties) {
+            $reflection = new \ReflectionClass($this);
+            $this->_defaultProperties = $reflection->getDefaultProperties();
+        }
+
+        if (!$this->_modelProperties) {
+            $reflectionModel = new \ReflectionClass(__CLASS__);
+            $this->_modelProperties = $reflectionModel->getDefaultProperties();
+        }
+
+        $getter = 'get' . ucfirst($key);
+        if (!method_exists($this, $getter)) {
+            return;
+        }
+
+        $method = new \ReflectionMethod($this, $getter);
+        if ($method->getParameters()[0] && 'orCreate' === $method->getParameters()[0]->getName()) {
+            $val = $this->$getter($printDefaults);
+        } else {
+            $val = $this->$getter();
+        }
+
+        if ($this->_defaultProperties[$key] == $val && (!$printDefaults || in_array($key, $this->excludeDefaults))) {
+            return;
+        }
+
+        if (array_key_exists($key, $this->_modelProperties)) {
+            return;
+        }
+
+        $setter = 'append' . ucfirst($key) . 'Xml';
+
+        if (is_callable(array($this, $setter))) {
+            return $this->$setter($parentNode, $printDefaults);
+        } else {
+            return $this->appendXmlValue($key, $val, $parentNode, null, $printDefaults);
         }
     }
 
@@ -505,29 +639,35 @@ class Model implements \ArrayAccess
      * @param string       $key
      * @param mixed        $value
      * @param \DOMNode     $node
-     * @param \DOMDocument $doc
      * @param boolean      $arrayType
      * @param boolean      $printDefaults
+     *
+     * @return \DOMNode
      */
     public function appendXmlValue(
         $key,
         $value,
         \DOMNode $node,
-        \DOMDocument $doc,
         $arrayType = false,
         $printDefaults = false
     )
     {
+        $doc = $node instanceof \DOMDocument ? $node : $node->ownerDocument;
+
+        $append = function($el) use ($node){
+            return $node->appendChild($el);
+        };
+
         if (null === $value || (is_scalar($value) && !in_array($key, $this->attributes)) || is_array($value) || $value instanceof Model) {
             if ($comment = $this->docBlocks[$key]) {
                 $comment = $doc->createComment($comment);
-                $node->appendChild($comment);
+                $append($comment);
             }
         }
 
         if (null !== $this->nodeValueVar && $key == $this->nodeValueVar){
             $textNode = $doc->createTextNode($value);
-            $node->appendChild($textNode);
+            $result = $append($textNode);
         } else if (is_scalar($value) || null === $value) {
             $value = is_bool($value) ? $value?'true':'false' : (string)$value;
             if ($arrayType) {
@@ -536,14 +676,14 @@ class Model implements \ArrayAccess
                     $element->setAttribute('key', (string)$key);
                 }
                 $element->nodeValue = $value;
-                $node->appendChild($element);
+                $result = $append($element);
             } else {
                 if (in_array($key, $this->attributes)) {
-                    $node->setAttribute($key, $value);
+                    $result = $node->setAttribute($key, $value);
                 } else {
                     $element = $doc->createElement(is_integer($key) ? ($this->arrayIndexNames[$arrayType] ?: 'item') : $key);
                     $element->nodeValue = $value;
-                    $node->appendChild($element);
+                    $result = $append($element);
                 }
             }
         } else if (is_array($value)) {
@@ -553,14 +693,18 @@ class Model implements \ArrayAccess
                 $element = $doc->createElement(is_integer($key) ? ($this->arrayIndexNames[$arrayType] ?: 'item') : $key);
             }
             foreach ($value as $k => $v) {
-                $this->appendXmlValue($k, $v, $element, $doc, $key, $printDefaults);
+                $this->appendXmlValue($k, $v, $element, $key, $printDefaults);
             }
             if (!$arrayName) {
-                $node->appendChild($element);
+                $result = $append($element);
+            } else {
+                $result = $element;
             }
         } else if ($value instanceof Model) {
-            $value->appendXml($node, $doc, $printDefaults);
+            $result = $value->appendXml($node, $printDefaults);
         }
+
+        return $result;
     }
 
     public function getElementArrayName($property) {

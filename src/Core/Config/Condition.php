@@ -53,12 +53,12 @@ class Condition extends Model
      * Appends the xml structure with our values.
      *
      * @param \DOMNode $node
-     * @param \DOMDocument $doc
      * @param boolean $printDefaults
      * @throws \Exception
      */
-    public function appendXml(\DOMNode $node, \DOMDocument $doc, $printDefaults = false)
+    public function appendXml(\DOMNode $node, $printDefaults = false)
     {
+        $doc = $node->ownerDocument;
         if ($this->rules) {
             $condition = $doc->createElement('condition');
             foreach ($this->rules as $rule) {
@@ -74,7 +74,6 @@ class Condition extends Model
      * @param string       $key
      * @param mixed        $value
      * @param \DOMNode     $node
-     * @param \DOMDocument $doc
      * @param boolean      $arrayType
      * @param boolean      $printDefaults
      */
@@ -82,11 +81,11 @@ class Condition extends Model
         $key,
         $value,
         \DOMNode $node,
-        \DOMDocument $doc,
         $arrayType = false,
         $printDefaults = false
     )
     {
+        $doc = $node->ownerDocument;
         if (is_array($value)) {
             if (is_array($value[0])) {
                 //we have a group

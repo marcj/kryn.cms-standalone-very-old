@@ -11,24 +11,36 @@ class Configs implements \IteratorAggregate
      */
     private $configElements = array();
 
-    public function __construct(array $bundles)
+    /**
+     * @param array $bundles
+     */
+    public function __construct(array $bundles = null)
     {
-        foreach ($bundles as $bundleName) {
-            $bundle = Kryn::getBundle($bundleName);
-            if (!$bundle) {
-                continue;
+        if ($bundles) {
+            foreach ($bundles as $bundleName) {
+                $bundle = Kryn::getBundle($bundleName);
+                if (!$bundle) {
+                    continue;
+                }
+
+                $configs = $bundle->getConfigs();
+                $this->configElements = array_merge($this->configElements, $configs);
             }
 
-            $configs = $bundle->getConfigs();
-            $this->configElements = array_merge_recursive_distinct($this->configElements, $configs);
+            $this->configElements = $this->parseConfig($this->configElements);
         }
-
-        $this->configElements = $this->parseConfig($this->configElements);
     }
 
+    /**
+     * Handles the <modify> element.
+     * Calls on each config object the setup method.
+     */
     public function setup()
     {
         foreach ($this->configElements as $config) {
+
+            //todo, handle modify tag.
+
             $config->setup($this);
         }
     }
@@ -38,7 +50,7 @@ class Configs implements \IteratorAggregate
      *
      * @param array $configs
      *
-     * @return array
+     * @return \Core\Config\Bundle[]
      */
     public function parseConfig(array $configs)
     {
@@ -47,12 +59,12 @@ class Configs implements \IteratorAggregate
             ksort($priorities); //sort by priority
 
             foreach ($priorities as $configs) {
-                foreach ($configs as $bundleElement) {
-                    if ($bundleConfigs[$bundleName]) {
-                        $bundleConfigs[$bundleName]->import($bundleElement);
-                    } else {
-                        $bundleConfigs[$bundleName] = new Bundle($bundleName, $bundleElement);
+                foreach ($configs as $file => $bundleElement) {
+                    if (!$bundleConfigs[$bundleName]) {
+                        $bundleConfigs[$bundleName] = new Bundle($bundleName);
                     }
+
+                    $bundleConfigs[$bundleName]->import($bundleElement, $file);
                 }
             }
 

@@ -63,20 +63,25 @@ class Options extends Model
 
     /**
      * @param \DOMNode     $node
-     * @param \DOMDocument $doc
      * @param bool         $printDefaults
      */
-    protected function appendOptionsXml(\DOMNode $node, \DOMDocument $doc, $printDefaults = false)
+    protected function appendOptionsXml(\DOMNode $node, $printDefaults = false)
     {
         if (null === $this->options || 0 === count($this->options)) {
             return;
         }
 
-        $this->appendOptions($this->options, $node, $doc);
+        $this->appendOptions($this->options, $node);
     }
 
-    protected function appendOptions(array $values, \DOMNode $node, \DOMDocument $doc, $name = null)
+    /**
+     * @param array    $values
+     * @param \DOMNode $node
+     * @param string   $name
+     */
+    protected function appendOptions(array $values, \DOMNode $node, $name = null)
     {
+        $doc = $node->ownerDocument;
         foreach ($values as $key => $value) {
             $element = $doc->createElement($name ? : $this->optionName);
             if (!is_integer($key)) {
@@ -85,7 +90,7 @@ class Options extends Model
             $node->appendChild($element);
 
             if (is_array($value)) {
-                $this->appendOptions($value, $element, $doc, $name);
+                $this->appendOptions($value, $element, $name);
             } else {
                 $value = is_bool($value) ? $value?'true':'false' : (string)$value;
                 $element->nodeValue = $value;

@@ -28,7 +28,7 @@ class Bundle
     /**
      * Returns the path to this bundle.
      *
-     * @return string
+     * @return string path with trailing slash.
      */
     final public function getPath()
     {
@@ -44,7 +44,15 @@ class Bundle
             }
         }
 
-        return $this->path . '/';
+        return $this->path . (substr($this->path, -1) === '/' ? '' : '/');
+    }
+
+    /**
+     * @param string $path
+     */
+    final public function setPath($path)
+    {
+        $this->path = $path;
     }
 
     /**
@@ -101,10 +109,9 @@ class Bundle
     {
         if (null === $this->name) {
             $this->name = get_class($this);
-            if (false !== ($pos = strpos($this->name, '\\'))) {
+            if (false !== ($pos = strrpos($this->name, '\\'))) {
                 $this->name = substr($this->name, 1 + $pos);
             }
-
         }
 
         if ($withoutSuffix && substr($this->name, -6) == 'Bundle') {
@@ -164,12 +171,19 @@ class Bundle
      */
     public function getConfigFiles()
     {
-        $folder = $this->getPath() . '/Resources/config/';
-        if (file_exists($folder)) {
-            return glob($folder . 'kryn*.xml');
+        $folder = $this->getPath() . 'Resources/config/';
+        $baseFile = $folder . 'kryn.xml';
+
+        $files = [];
+        if (file_exists($baseFile)) {
+            $files = [$folder . 'kryn.xml'];
         }
 
-        return [];
+        if (file_exists($folder)) {
+            $files = array_merge($files, glob($folder . 'kryn.*.xml'));
+        }
+
+        return $files;
     }
 
     /**
@@ -207,7 +221,7 @@ class Bundle
                     }
                     $priority = $bundle->attributes->getNamedItem('priority')->nodeValue ? : 0;
 
-                    $configs[$bundleName][$priority][] = $bundle;
+                    $configs[$bundleName][$priority][$file] = $bundle;
                 }
             }
         }
