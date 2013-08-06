@@ -160,8 +160,8 @@ class SystemConfigTest extends TestCaseWithCore
     <class>\Vendor\Other\CacheClass</class>
     <options>
       <option key="servers">
-        <item>127.0.0.1</item>
-        <item>192.168.0.1</item>
+        <option>127.0.0.1</option>
+        <option>192.168.0.1</option>
       </option>
       <option key="compression">true</option>
       <option key="foo">bar</option>

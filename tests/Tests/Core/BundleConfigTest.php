@@ -3,14 +3,18 @@
 namespace Tests\Core;
 
 use Core\Config\Bundle;
+use Core\Config\BundleCache;
 use Core\Config\Cache;
 use Core\Config\Client;
+use Core\Config\Configs;
 use Core\Config\Database;
 use Core\Config\EntryPoint;
 use Core\Config\Errors;
+use Core\Config\Event;
 use Core\Config\Field;
 use Core\Config\FilePermission;
 use Core\Config\Object;
+use Core\Config\Plugin;
 use Core\Config\SessionStorage;
 use Core\Config\SystemConfig;
 use Core\Config\Connection;
@@ -18,10 +22,311 @@ use Core\Config\Theme;
 use Core\Config\ThemeContent;
 use Core\Config\ThemeLayout;
 use Core\Config\TreeIconMapping;
+use Tests\Core\FileImportTest\BundleTestBundle;
 use Tests\TestCaseWithCore;
 
 class BundleConfigTest extends TestCaseWithCore
 {
+
+    private static $krynXml = 'tests/Tests/Core/FileImportTest/Resources/config/kryn.xml';
+    private static $krynObjectsXml = 'tests/Tests/Core/FileImportTest/Resources/config/kryn.objects.xml';
+
+    public function setUp()
+    {
+
+        @unlink(static::$krynXml);
+        @unlink(static::$krynObjectsXml);
+    }
+
+    public function testFileImport()
+    {
+        $configs = new Configs();
+        $testBundle = new BundleTestBundle();
+
+        copy(static::$krynXml. '.dist', static::$krynXml);
+        copy(static::$krynObjectsXml. '.dist', static::$krynObjectsXml);
+
+        $configStrings = $testBundle->getConfigs();
+        $configObjects = $configs->parseConfig($configStrings);
+
+        $testBundleConfig = $configObjects['BundleTestBundle'];
+        $this->assertNotNull($testBundleConfig);
+        $testBundleConfig->setBundleClass($testBundle);
+
+        $this->assertEquals(static::$krynXml, $testBundleConfig->getPropertyFilePath('caches'));
+        $this->assertEquals(static::$krynObjectsXml, $testBundleConfig->getPropertyFilePath('objects'));
+
+        unlink(static::$krynXml);
+        unlink(static::$krynObjectsXml);
+    }
+
+    public function testFileImportSaveObjects()
+    {
+        $configs = new Configs();
+        $testBundle = new BundleTestBundle();
+
+        copy(static::$krynXml. '.dist', static::$krynXml);
+        copy(static::$krynObjectsXml. '.dist', static::$krynObjectsXml);
+
+        $configStrings = $testBundle->getConfigs();
+        $configObjects = $configs->parseConfig($configStrings);
+
+        $testBundleConfig = $configObjects['BundleTestBundle'];
+        $this->assertNotNull($testBundleConfig);
+        $testBundleConfig->setBundleClass($testBundle);
+
+        $export = $testBundleConfig->exportFileBased('objects');
+
+        $this->assertStringEqualsFile(static::$krynObjectsXml, $export, 'no changes');
+
+        $objects = $testBundleConfig->getObjects();
+        $objects[0]->setId('Test2');
+        $testBundleConfig->setObjects($objects);
+
+        $testBundleConfig->saveFileBased('objects');
+
+        $xml = '<config>
+  <bundle>
+    <objects>
+      <object id="Test2">
+        <label>Test</label>
+        <class>Core\Models\Test</class>
+        <dataModel>custom</dataModel>
+        <fields>
+          <field id="id" type="number" primaryKey="true">
+            <label>ID</label>
+          </field>
+          <field id="name" type="text">
+            <label>Name</label>
+          </field>
+        </fields>
+      </object>
+    </objects>
+  </bundle>
+</config>';
+
+        $this->assertEquals(static::$krynObjectsXml, $testBundleConfig->getPropertyFilePath('objects'));
+        $this->assertStringEqualsFile($testBundleConfig->getPropertyFilePath('objects'), $xml);
+
+        unlink(static::$krynXml);
+        unlink(static::$krynObjectsXml);
+    }
+
+    public function testFileImportSaveMixed()
+    {
+        $configs = new Configs();
+        $testBundle = new BundleTestBundle();
+
+        copy(static::$krynXml. '.dist', static::$krynXml);
+        copy(static::$krynObjectsXml. '.dist', static::$krynObjectsXml);
+
+        $configStrings = $testBundle->getConfigs();
+        $configObjects = $configs->parseConfig($configStrings);
+
+        $testBundleConfig = $configObjects['BundleTestBundle'];
+        $this->assertNotNull($testBundleConfig);
+        $testBundleConfig->setBundleClass($testBundle);
+
+        $export = $testBundleConfig->exportFileBased('objects');
+        $exportCaches = $testBundleConfig->exportFileBased('caches');
+
+        $this->assertStringEqualsFile(static::$krynObjectsXml, $export, 'no changes');
+        $this->assertStringEqualsFile(static::$krynXml, $exportCaches, 'no changes');
+
+        $objects = $testBundleConfig->getObjects();
+        $objects[0]->setId('Test2');
+        $testBundleConfig->setObjects($objects);
+
+        $caches = $testBundleConfig->getCaches();
+        $caches[1]->setMethod('testMethod2');
+        $testBundleConfig->setCaches($caches);
+
+        $events = $testBundleConfig->getEvents();
+        $events[1]->setKey('core/object/updateModified');
+        $testBundleConfig->setEvents($events);
+
+        $testBundleConfig->saveFileBased('objects');
+
+        $xml = '<config>
+  <bundle>
+    <objects>
+      <object id="Test2">
+        <label>Test</label>
+        <class>Core\Models\Test</class>
+        <dataModel>custom</dataModel>
+        <fields>
+          <field id="id" type="number" primaryKey="true">
+            <label>ID</label>
+          </field>
+          <field id="name" type="text">
+            <label>Name</label>
+          </field>
+        </fields>
+      </object>
+    </objects>
+  </bundle>
+</config>';
+
+        $this->assertEquals(static::$krynObjectsXml, $testBundleConfig->getPropertyFilePath('objects'));
+        $this->assertStringEqualsFile($testBundleConfig->getPropertyFilePath('objects'), $xml);
+
+        $this->assertEquals(static::$krynXml, $testBundleConfig->getPropertyFilePath('caches'));
+        $this->assertEquals(static::$krynXml, $testBundleConfig->getPropertyFilePath('events'));
+
+        $testBundleConfig->saveFileBased('caches');
+
+        $xmlCaches = '<config>
+  <bundle>
+    <caches>
+      <cache>core/contents</cache>
+      <cache method="testMethod2">core/contents2</cache>
+    </caches>
+    <events>
+      <event key="core/object/modify">
+        <desc>Fires on every object modification (add/delete/update). Subject is the normalized object key.</desc>
+      </event>
+      <event key="core/object/update">
+        <desc>Fires on every object update. Subject is the normalized object key.</desc>
+      </event>
+    </events>
+    <listeners>
+      <event key="core/object/modify" subject="core:domain">
+        <clearCache>core/domains.created</clearCache>
+        <clearCache>core/domains</clearCache>
+      </event>
+      <event key="core/object/modify" subject="core:content">
+        <clearCache>core/contents</clearCache>
+      </event>
+      <event key="core/object/modify" subject="core:node">
+        <clearCache>core/contents</clearCache>
+      </event>
+    </listeners>
+  </bundle>
+</config>';
+        $this->assertStringEqualsFile($testBundleConfig->getPropertyFilePath('caches'), $xmlCaches);
+
+        $testBundleConfig->saveFileBased('events');
+
+        $xmlEvents = '<config>
+  <bundle>
+    <caches>
+      <cache>core/contents</cache>
+      <cache method="testMethod2">core/contents2</cache>
+    </caches>
+    <events>
+      <event key="core/object/modify">
+        <desc>Fires on every object modification (add/delete/update). Subject is the normalized object key.</desc>
+      </event>
+      <event key="core/object/updateModified">
+        <desc>Fires on every object update. Subject is the normalized object key.</desc>
+      </event>
+    </events>
+    <listeners>
+      <event key="core/object/modify" subject="core:domain">
+        <clearCache>core/domains.created</clearCache>
+        <clearCache>core/domains</clearCache>
+      </event>
+      <event key="core/object/modify" subject="core:content">
+        <clearCache>core/contents</clearCache>
+      </event>
+      <event key="core/object/modify" subject="core:node">
+        <clearCache>core/contents</clearCache>
+      </event>
+    </listeners>
+  </bundle>
+</config>';
+
+        $this->assertStringEqualsFile($testBundleConfig->getPropertyFilePath('events'), $xmlEvents);
+
+        $configStrings = $testBundle->getConfigs();
+        $configObjects = $configs->parseConfig($configStrings);
+
+        $testBundleConfig = $configObjects['BundleTestBundle'];
+        $this->assertNotNull($testBundleConfig);
+        $testBundleConfig->setBundleClass($testBundle);
+
+        $this->assertCount(1, $testBundleConfig->getObjects());
+        $this->assertCount(2, $testBundleConfig->getCaches());
+        $this->assertCount(2, $testBundleConfig->getEvents());
+
+        $this->assertEquals('Test2', $testBundleConfig->getObjects()[0]->getId());
+        $this->assertEquals('testMethod2', $testBundleConfig->getCaches()[1]->getMethod());
+        $this->assertEquals('core/object/updateModified', $testBundleConfig->getEvents()[1]->getKey());
+
+        unlink(static::$krynXml);
+        unlink(static::$krynObjectsXml);
+    }
+
+    public function testBundle()
+    {
+        $config = new Bundle();
+
+        $events = [
+            ['key' => 'core/object/modify', 'desc' => 'foo'],
+            ['key' => 'core/object/update', 'desc' => 'bar']
+        ];
+
+        foreach ($events as $item) {
+            $items[] = new Event($item);
+        }
+        $config->setEvents($items);
+        $config->setBundleName('FooBar');
+
+        $caches = [
+            new BundleCache([
+                'key' => 'foo',
+                'method' => 'bar'
+            ]),
+            new BundleCache([
+                'key' => 'foo2'
+            ])
+        ];
+
+        $config->setCaches($caches);
+
+        $array = array (
+            'name' => 'FooBar',
+            'caches' => array (
+                array (
+                    'key' => 'foo',
+                    'method' => 'bar',
+                ),
+                array (
+                    'key' => 'foo2',
+                ),
+            ),
+            'events' => array (
+                array (
+                    'key' => 'core/object/modify',
+                    'desc' => 'foo',
+                ),
+                array (
+                    'key' => 'core/object/update',
+                    'desc' => 'bar',
+                ),
+            ),
+        );
+
+        $xml = '<bundle>
+  <caches>
+    <cache method="bar">foo</cache>
+    <cache>foo2</cache>
+  </caches>
+  <events>
+    <event key="core/object/modify">
+      <desc>foo</desc>
+    </event>
+    <event key="core/object/update">
+      <desc>bar</desc>
+    </event>
+  </events>
+</bundle>';
+
+        $this->assertEquals($array, $config->toArray());
+        $this->assertEquals($xml, $config->toXml());
+    }
+
+
     public function testTheme()
     {
         $xml = '<theme id="krynDemoTheme">
