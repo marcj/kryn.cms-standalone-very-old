@@ -4,8 +4,11 @@ namespace Admin\Module;
 
 use Admin\Exceptions\BuildException;
 use Admin\Module\Manager;
+use Core\Config\Asset;
+use Core\Config\Assets;
 use Core\Config\Bundle;
 use Core\Config\EntryPoint;
+use Core\Config\Event;
 use Core\Config\Model;
 use Core\Config\Object;
 use Core\Config\Plugin;
@@ -32,9 +35,8 @@ class Editor
         $result['streams'] = $config->propertyToArray('streams');
         $result['listeners'] = $config->propertyToArray('listeners');
         $result['events'] = $config->propertyToArray('events');
+        $result['caches'] = $config->propertyToArray('caches');
 //        $result['falDriver'] = $config->propertyToArray('falDriver');
-//        $result['caches'] = $config->propertyToArray('caches');
-//        $result['events'] = $config->propertyToArray('events');
 
         $adminAssets = $config->getAdminAssets();
         $assets = [];
@@ -47,6 +49,39 @@ class Editor
         $result['adminAssets'] = $assets;
 
         return $result;
+    }
+
+    /**
+     * @param $bundle
+     * @param array $events
+     * @param array $listeners
+     * @param array $adminAssets
+     * @param array $falDrivers
+     * @return bool
+     */
+    public function saveBasic($bundle, $events = null, $listeners = null, $adminAssets = null, $falDrivers = null)
+    {
+        $bundle = $this->getBundle($bundle);
+        $config = $bundle->getConfig();
+
+        $config->propertyFromArray('events', $events);
+        $config->propertyFromArray('listeners', $listeners);
+
+        if ($adminAssets) {
+            $items = [];
+            foreach ($adminAssets as $item) {
+                if ('asset' === $item['type']) {
+                    $items[] = new Asset($item);
+                } else {
+                    $items[] = new Assets($item);
+                }
+            }
+            $config->setAdminAssets($items);
+        }
+
+        return $config->saveFileBased('events')
+                && $config->saveFileBased('listeners')
+                && $config->saveFileBased('assets');
     }
 
     public function getLanguage($pName, $pLang = null)

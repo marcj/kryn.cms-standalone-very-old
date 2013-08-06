@@ -293,7 +293,10 @@ class AdminController
                     //admin/system/module/editor
                     ->addSubController('module/editor', '\Admin\Module\Editor')
                         ->addGetRoute('config', 'getConfig')
+
                         ->addGetRoute('basic', 'getBasic')
+                        ->addPostRoute('basic', 'saveBasic')
+
                         ->addGetRoute('entry-points', 'getEntryPoints')
                         ->addPostRoute('entry-points', 'saveEntryPoints')
 

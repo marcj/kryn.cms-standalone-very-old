@@ -4,12 +4,18 @@ namespace Core\Config;
 
 use Admin\Utils;
 use Core\Kryn;
+use Core\SystemFile;
 
 class Bundle extends Model
 {
     protected $attributes = ['id'];
 
-    public static $propertyToFile = [];
+    public static $propertyToFile = [
+        'objects' => 'kryn.objects.xml',
+        'entryPoints' => 'kryn.entryPoints.xml',
+        'themes' => 'kryn.themes.xml',
+        'plugins' => 'kryn.plugins.xml',
+    ];
 
     protected $id;
 
@@ -148,12 +154,12 @@ class Bundle extends Model
         if ((!file_exists($path) && !is_writable(dirname($path))) || (file_exists($path) && !is_writable($path))) {
             throw new \FileNotWritableException(tf('The file `%s` is not writable.', $path));
         }
-        return false !== file_put_contents($path, $xml);
+        return SystemFile::setContent($path, $xml);
     }
 
     public function getPropertyFilePath($property)
     {
-        return $this->imported[$property] ?: $this->getBundleClass()->getPath() . 'Resource/config/' . (static::$propertyToFile[$property] ?: 'kryn.xml');
+        return $this->imported[$property] ?: $this->getBundleClass()->getPath() . 'Resources/config/' . (static::$propertyToFile[$property] ?: 'kryn.xml');
     }
 
     /**
@@ -202,8 +208,7 @@ class Bundle extends Model
     public function saveFileBased($property) {
         $xml = $this->exportFileBased($property);
         $xmlFile = $this->getPropertyFilePath($property);
-        $bytes = file_put_contents($xmlFile, $xml);
-        return $bytes > 0 && $bytes !== false;
+        return SystemFile::setContent($xmlFile, $xml);
     }
 
 

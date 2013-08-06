@@ -1,8 +1,55 @@
 var test_test = new Class({
 
     initialize: function(pWin){
-
         this.win = pWin;
+
+        var form = new ka.FieldForm(pWin.getContentContainer(), {
+            'bla': {
+                type: 'childrenSwitcher',
+                label: 'switch',
+                children: {
+                    test: {
+                        label: 'ficki',
+                        type: 'text'
+                    }
+                }
+            }
+        });
+        return;
+
+        var button = new ka.Button('test window').inject(pWin.getContentContainer());
+        button.addEvent('click', function(){
+            ka.wm.open('admin/system/module/edit',{name: "Admin\\AdminBundle"});
+        });
+
+        return;
+
+        var field2 = new ka.Field({
+            type: 'object',
+            object: 'core:file',
+            combobox: true
+        }, pWin.getContentContainer());
+
+        field2.setValue('#penis');
+
+        var button = new ka.Button('test').inject(field2, 'after');
+
+        button.addEvent('click', function(){
+            console.log(field2.getValue());
+        });
+
+        return;
+
+        var field1 = new ka.Field({
+            type: 'view',
+            directory: '@KrynDemoThemeBundle',
+            fullPath: true,
+            label: t('View')
+        }, pWin.getContentContainer());
+
+        field1.setValue('@KrynDemoThemeBundle/layout_default.tpl');
+
+        return;
 
         new ka.Button('Test').inject(pWin.getContentContainer());
 

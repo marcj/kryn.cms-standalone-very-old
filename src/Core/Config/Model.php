@@ -816,7 +816,6 @@ class Model implements \ArrayAccess
      */
     public function fromArray($values, $arrayKeyValue = null)
     {
-        $reflection = new \ReflectionClass($this);
 
         if ($this->arrayKey && null !== $arrayKeyValue) {
             $this->setArrayKeyValue($arrayKeyValue);
@@ -831,54 +830,65 @@ class Model implements \ArrayAccess
             }
         } else {
             foreach ($values as $key => $value) {
-                $setter = 'set' . ucfirst($key);
-                $getter = 'get' . ucfirst($key);
-                $setterValue = $value;
+                $this->propertyFromArray($key, $value);
+            }
+        }
+    }
 
-                if (method_exists($this, $setter)) {
-                    $reflectionMethod = $reflection->getMethod($setter);
-                    $reflectionMethodGet = $reflection->getMethod($getter);
-                    $parameters = $reflectionMethod->getParameters();
-                    $phpDocs = $this->getMethodMetaData($reflectionMethodGet);
-                    if (1 <= count($parameters)) {
-                        $firstParameter = $parameters[0];
-                        if ($firstParameter->getClass() && $className = $firstParameter->getClass()->name) {
-                            $setterValue = new $className();
-                            $setterValue->fromArray($value, $key);
-                        }
-                        if ($firstParameter->isArray() && is_array($value)){
-                            $setterValue = array();
+    /**
+     * @param string $key
+     * @param mixed $value
+     */
+    public function propertyFromArray($key, $value)
+    {
+        $reflection = new \ReflectionClass($this);
 
-                            $result = str_replace(array('[', ']'), '', $phpDocs['return']['type']);
-                            $returnType = explode('|', $result)[0];
+        $setter = 'set' . ucfirst($key);
+        $getter = 'get' . ucfirst($key);
+        $setterValue = $value;
 
-                            if (!class_exists($clazz = $returnType)) {
-                                if (!class_exists($clazz = '\Core\Config\\' . $returnType)) {
-                                    if (!class_exists($clazz = '\Core\Config\\' . $key)) {
-                                        if (!class_exists($clazz = '\Core\Config\\' . $key)) {
-                                            $clazz = null;
-                                        }
-                                    }
-                                }
-                            }
+        if (method_exists($this, $setter)) {
+            $reflectionMethod = $reflection->getMethod($setter);
+            $reflectionMethodGet = $reflection->getMethod($getter);
+            $parameters = $reflectionMethod->getParameters();
+            $phpDocs = $this->getMethodMetaData($reflectionMethodGet);
+            if (1 <= count($parameters)) {
+                $firstParameter = $parameters[0];
+                if ($firstParameter->getClass() && $className = $firstParameter->getClass()->name) {
+                    $setterValue = new $className();
+                    $setterValue->fromArray($value, $key);
+                }
+                if ($firstParameter->isArray() && is_array($value)){
+                    $setterValue = array();
 
-                            foreach ($value as $subKey => $subValue) {
-                                if ($clazz) {
-                                    $object = new $clazz();
-                                    $object->fromArray($subValue, $subKey);
-                                    $setterValue[] = $object;
-                                } else {
-                                    $setterValue[] = $subValue;
+                    $result = str_replace(array('[', ']'), '', $phpDocs['return']['type']);
+                    $returnType = explode('|', $result)[0];
+
+                    if (!class_exists($clazz = $returnType)) {
+                        if (!class_exists($clazz = '\Core\Config\\' . $returnType)) {
+                            if (!class_exists($clazz = '\Core\Config\\' . $key)) {
+                                if (!class_exists($clazz = '\Core\Config\\' . $key)) {
+                                    $clazz = null;
                                 }
                             }
                         }
                     }
-                }
 
-                if (is_callable(array($this, $setter))) {
-                    $this->$setter($setterValue);
+                    foreach ($value as $subKey => $subValue) {
+                        if ($clazz) {
+                            $object = new $clazz();
+                            $object->fromArray($subValue, $subKey);
+                            $setterValue[] = $object;
+                        } else {
+                            $setterValue[] = $subValue;
+                        }
+                    }
                 }
             }
+        }
+
+        if (is_callable(array($this, $setter))) {
+            $this->$setter($setterValue);
         }
     }
 

@@ -2856,11 +2856,9 @@ var admin_system_module_edit = new Class({
                 type: 'childrenSwitcher',
                 label: tc('extensionEditor', 'Cache'),
                 children: {
-
                     caches: {
-
                         label: t('Cache keys'),
-                        desc: t('Define here all cache keys your extension use, so that we can delete all properly. You can optional define a method, if you have stored this cache not through our cache layer and want to do own stuff.'),
+                        desc: t('Define here all cache keys your extension use, so we can delete all properly if needed. You can optional define a method, if you have stored this cache not through our cache layer and want to do own stuff.'),
                         type: 'array',
                         columns: [
                             {label: t('Key'), width: '50%'},
@@ -2874,24 +2872,7 @@ var admin_system_module_edit = new Class({
                                 type: 'text'
                             }
                         }
-
-                    },
-
-                    cacheInvalidation: {
-
-                        label: t('Cache invalidation keys'),
-                        desc: t('Define here all "invalidation"-keys your extension use, so that we can flag all key properly.'),
-                        type: 'array',
-                        columns: [
-                            {label: t('Key')}
-                        ],
-                        fields: {
-                            key: {
-                                type: 'text'
-                            }
-                        }
                     }
-
                 }
             },
 
@@ -3058,7 +3039,6 @@ var admin_system_module_edit = new Class({
 
         this.win.setLoading(true, t('Saving ...'));
 
-        console.log(req);
         this.lr =
             new Request.JSON({url: _pathAdmin + 'admin/system/module/editor/basic', noCache: 1, onComplete: function() {
                 this.win.setLoading(false);
