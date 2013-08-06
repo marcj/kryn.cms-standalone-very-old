@@ -1,11 +1,16 @@
 <config>
   <bundle>
+    <caches>
+      <cache>core/contents</cache>
+      <cache>core/domains</cache>
+      <cache>core/domains.created</cache>
+    </caches>
     <events>
       <event key="core/object/modify">
-        <desc>Fired on every object modification.</desc>
+        <desc>Fires on every object modification (add/delete/update). Subject is the normalized object key.</desc>
       </event>
       <event key="core/object/update">
-        <desc></desc>
+        <desc>Fires on every object update. Subject is the normalized object key.</desc>
       </event>
     </events>
     <listeners>
