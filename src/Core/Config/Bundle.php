@@ -9,7 +9,14 @@ class Bundle extends Model
 {
     protected $attributes = ['id'];
 
+    public static $propertyToFile = [];
+
     protected $id;
+
+    /**
+     * @var \Core\Bundle
+     */
+    private $bundleClass;
 
     /**
      * @var string
@@ -52,6 +59,11 @@ class Bundle extends Model
     protected $version;
 
     /**
+     * @var BundleCache[]
+     */
+    protected $caches;
+
+    /**
      * @var Event[]
      */
     protected $events;
@@ -65,6 +77,11 @@ class Bundle extends Model
      * @var Stream[]
      */
     protected $streams;
+
+    /**
+     * @var array
+     */
+    private $imported = [];
 
     /**
      * @param string $bundleName
@@ -91,8 +108,9 @@ class Bundle extends Model
 
     public function toArray($element = null)
     {
-        $value = parent::toArray($element);
         $value['name'] = $this->getBundleName();
+        $value = array_merge($value, parent::toArray($element));
+
         return $value;
     }
 
@@ -126,12 +144,68 @@ class Bundle extends Model
         $doc = new \DOMDocument();
         $doc->formatOutput = true;
         $doc->loadXML("<config>$xml</config>");
-        $xml = substr($doc->saveXML(), strlen('<?xml version="1.0"?>') + 1);
+        $xml = trim(substr($doc->saveXML(), strlen('<?xml version="1.0"?>') + 1));
         if ((!file_exists($path) && !is_writable(dirname($path))) || (file_exists($path) && !is_writable($path))) {
             throw new \FileNotWritableException(tf('The file `%s` is not writable.', $path));
         }
         return false !== file_put_contents($path, $xml);
     }
+
+    public function getPropertyFilePath($property)
+    {
+        return $this->imported[$property] ?: $this->getBundleClass()->getPath() . 'Resource/config/' . (static::$propertyToFile[$property] ?: 'kryn.xml');
+    }
+
+    /**
+     * @param string $property
+     * @return string
+     */
+    public function exportFileBased($property)
+    {
+        $xmlFile = $this->getPropertyFilePath($property);
+
+        $doc = new \DOMDocument();
+        $doc->formatOutput = true;
+        $doc->preserveWhiteSpace = false;
+        $doc->load($xmlFile);
+        $xpath = new \DOMXPath($doc);
+
+        $elements = $xpath->query('/config/bundle/' . $property);
+        if (0 < $elements->length) {
+            $element = $elements->item(0);
+        }
+
+        if ($element) {
+            $newNode = $this->appendXmlProperty($property, $element->parentNode, false);
+
+            if ($newNode instanceof \DOMElement) {
+                $element->parentNode->replaceChild($newNode, $element);
+            }
+        } else {
+            $elements = $xpath->query('/config/bundle');
+            if (0 < $elements->length) {
+                $element = $elements->item(0);
+            }
+            $this->appendXmlProperty($property, $element, false);
+        }
+
+        $xml = $doc->saveXML();
+        $xml = substr($xml, strlen('<?xml version="1.0"?>') + 1);
+        $xml = trim($xml);
+        return $xml;
+    }
+
+    /**
+     * @param $property
+     * @return bool
+     */
+    public function saveFileBased($property) {
+        $xml = $this->exportFileBased($property);
+        $xmlFile = $this->getPropertyFilePath($property);
+        $bytes = file_put_contents($xmlFile, $xml);
+        return $bytes > 0 && $bytes !== false;
+    }
+
 
     /**
      * @param string $bundleName
@@ -160,7 +234,18 @@ class Bundle extends Model
      */
     public function getBundleClass()
     {
-        return Kryn::getBundle($this->getBundleName());
+        if (!$this->bundleClass) {
+            $this->bundleClass = Kryn::getBundle($this->getBundleName());
+        }
+        return $this->bundleClass;
+    }
+
+    /**
+     * @param \Core\Bundle $class
+     */
+    public function setBundleClass(\Core\Bundle $class)
+    {
+        $this->bundleClass = $class;
     }
 
     /**
@@ -177,20 +262,15 @@ class Bundle extends Model
 
     /**
      * @param \DOMNode $node
+     * @param string $file
      */
-    public function import(\DOMNode $node)
+    public function import(\DOMNode $node, $file = null)
     {
         if ('bundle' === $node->nodeName) {
-            foreach ($node->childNodes as $child) {
-                $this->import($child);
-            }
-        } else if ('#text' !== $node->nodeName) {
-            $actualElement = $this->getDirectChild($node->nodeName);
-            if ($actualElement) {
-                //todo, element(section) already there, so merge both children
-            } else {
-                //not there yet, just append it
-                $this->element->appendChild($this->element->ownerDocument->importNode($node, true));
+            $imported = $this->importNode($node);
+
+            foreach ($imported as $property) {
+                $this->imported[$property] = $file;
             }
         }
     }
@@ -547,5 +627,22 @@ class Bundle extends Model
     {
         return $this->listeners;
     }
+
+    /**
+     * @param BundleCache[] $caches
+     */
+    public function setCaches(array $caches)
+    {
+        $this->caches = $caches;
+    }
+
+    /**
+     * @return BundleCache[]
+     */
+    public function getCaches()
+    {
+        return $this->caches;
+    }
+
 
 }
