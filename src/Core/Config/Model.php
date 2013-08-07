@@ -874,13 +874,15 @@ class Model implements \ArrayAccess
                         }
                     }
 
-                    foreach ($value as $subKey => $subValue) {
-                        if ($clazz) {
-                            $object = new $clazz();
-                            $object->fromArray($subValue, $subKey);
-                            $setterValue[] = $object;
-                        } else {
-                            $setterValue[] = $subValue;
+                    if (is_array($value)) {
+                        foreach ($value as $subKey => $subValue) {
+                            if ($clazz) {
+                                $object = new $clazz();
+                                $object->fromArray($subValue, $subKey);
+                                $setterValue[] = $object;
+                            } else {
+                                $setterValue[] = $subValue;
+                            }
                         }
                     }
                 }

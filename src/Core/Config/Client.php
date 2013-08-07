@@ -35,7 +35,7 @@ class Client extends Model
     /**
      * @param Options $options
      */
-    public function setOptions(Options $options)
+    public function setOptions(Options $options = null)
     {
         $this->options = $options;
     }
@@ -80,7 +80,7 @@ class Client extends Model
     /**
      * @param SessionStorage $sessionStorage
      */
-    public function setSessionStorage(SessionStorage $sessionStorage)
+    public function setSessionStorage(SessionStorage $sessionStorage = null)
     {
         $this->sessionStorage = $sessionStorage;
     }

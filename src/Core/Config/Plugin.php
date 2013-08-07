@@ -39,7 +39,7 @@ class Plugin extends Model
     /**
      * @param Route[] $routes
      */
-    public function setRoutes(array $routes)
+    public function setRoutes(array $routes = null)
     {
         $this->routes = $routes;
     }
@@ -111,7 +111,7 @@ class Plugin extends Model
     /**
      * @param Field[] $options
      */
-    public function setOptions(array $options)
+    public function setOptions(array $options = null)
     {
         $this->options = $options;
     }
@@ -127,7 +127,7 @@ class Plugin extends Model
     /**
      * @param Field $field
      */
-    public function addOption(Field $field)
+    public function addOption(Field $field = null)
     {
         $this->options[] = $field;
     }

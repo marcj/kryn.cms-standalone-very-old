@@ -146,7 +146,7 @@ class Event extends Model
     /**
      * @param Condition $condition
      */
-    public function setCondition(Condition $condition)
+    public function setCondition(Condition $condition = null)
     {
         $this->condition = $condition;
     }

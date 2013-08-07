@@ -173,7 +173,15 @@ class Bundle extends Model
         $doc = new \DOMDocument();
         $doc->formatOutput = true;
         $doc->preserveWhiteSpace = false;
-        $doc->load($xmlFile);
+        if (file_exists($xmlFile)) {
+            $doc->load($xmlFile);
+        } else {
+            $configElement = $doc->createElement('config');
+            $doc->appendChild($configElement);
+            $bundleElement = $doc->createElement('bundle');
+            $configElement->appendChild($bundleElement);
+        }
+
         $xpath = new \DOMXPath($doc);
 
         $elements = $xpath->query('/config/bundle/' . $property);
@@ -208,7 +216,16 @@ class Bundle extends Model
     public function saveFileBased($property) {
         $xml = $this->exportFileBased($property);
         $xmlFile = $this->getPropertyFilePath($property);
-        return SystemFile::setContent($xmlFile, $xml);
+
+        $emptyXml = '<config>
+  <bundle/>
+</config>';
+
+        if ($xml == $emptyXml) {
+            SystemFile::remove($xmlFile);
+        } else {
+            return SystemFile::setContent($xmlFile, $xml);
+        }
     }
 
 
@@ -335,7 +352,7 @@ class Bundle extends Model
     /**
      * @param Plugin[] $plugins
      */
-    public function setPlugins(array $plugins)
+    public function setPlugins(array $plugins = null)
     {
         $this->plugins = $plugins;
     }
@@ -344,7 +361,7 @@ class Bundle extends Model
     /**
      * @param Stream[] $streams
      */
-    public function setStreams(array $streams)
+    public function setStreams(array $streams = null)
     {
         $this->streams = $streams;
     }
@@ -389,7 +406,7 @@ class Bundle extends Model
     /**
      * @param Asset[]|Assets[] $adminAssets
      */
-    public function setAdminAssets(array $adminAssets)
+    public function setAdminAssets(array $adminAssets = null)
     {
         $this->adminAssets = $adminAssets;
     }
@@ -444,7 +461,7 @@ class Bundle extends Model
     /**
      * @param EntryPoint[] $entryPoints
      */
-    public function setEntryPoints(array $entryPoints)
+    public function setEntryPoints(array $entryPoints = null)
     {
         $this->entryPoints = $entryPoints;
     }
@@ -545,7 +562,7 @@ class Bundle extends Model
     /**
      * @param Object[] $objects
      */
-    public function setObjects(array $objects)
+    public function setObjects(array $objects = null)
     {
         $this->objects = $objects;
         foreach ($this->objects as $object) {
@@ -580,7 +597,7 @@ class Bundle extends Model
     /**
      * @param Theme[] $themes
      */
-    public function setThemes(array $themes)
+    public function setThemes(array $themes = null)
     {
         $this->themes = $themes;
     }
@@ -604,7 +621,7 @@ class Bundle extends Model
     /**
      * @param Event[] $events
      */
-    public function setEvents(array $events)
+    public function setEvents(array $events = null)
     {
         $this->events = $events;
     }
@@ -620,7 +637,7 @@ class Bundle extends Model
     /**
      * @param Event[] $listeners
      */
-    public function setListeners(array $listeners)
+    public function setListeners(array $listeners = null)
     {
         $this->listeners = $listeners;
     }
@@ -636,7 +653,7 @@ class Bundle extends Model
     /**
      * @param BundleCache[] $caches
      */
-    public function setCaches(array $caches)
+    public function setCaches(array $caches = null)
     {
         $this->caches = $caches;
     }

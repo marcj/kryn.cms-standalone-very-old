@@ -44,7 +44,7 @@ class Database extends Model
     /**
      * @param Connection[] $connections
      */
-    public function setConnections(array $connections)
+    public function setConnections(array $connections = null)
     {
         $this->connections = $connections;
     }

@@ -8,8 +8,6 @@ class Route extends Model
 
     protected $elementToArray = ['requirement' => 'requirements', 'default' => 'defaults'];
 
-
-
     /**
      * @var string
      */
@@ -33,7 +31,7 @@ class Route extends Model
     /**
      * @param RouteDefault[] $defaults
      */
-    public function setDefaults(array $defaults)
+    public function setDefaults(array $defaults = null)
     {
         $this->defaults = $defaults;
     }
@@ -41,7 +39,7 @@ class Route extends Model
     /**
      * @param RouteDefault $default
      */
-    public function addDefault(RouteDefault $default)
+    public function addDefault(RouteDefault $default = null)
     {
         $this->defaults[] = $default;
     }
@@ -49,7 +47,7 @@ class Route extends Model
     /**
      * @param RouteRequirement $requirement
      */
-    public function addRequirement(RouteRequirement $requirement)
+    public function addRequirement(RouteRequirement $requirement = null)
     {
         $this->requirements[] = $requirement;
     }
@@ -152,7 +150,7 @@ class Route extends Model
     /**
      * @param RouteRequirement[] $requirements
      */
-    public function setRequirements(array $requirements)
+    public function setRequirements(array $requirements = null)
     {
         $this->requirements = $requirements;
     }

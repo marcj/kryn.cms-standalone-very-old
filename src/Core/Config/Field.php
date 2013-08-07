@@ -309,7 +309,7 @@ class Field extends Model
     /**
      * @param Field[] $children
      */
-    public function setChildren(array $children)
+    public function setChildren(array $children = null)
     {
         $this->children = $children;
     }

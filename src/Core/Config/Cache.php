@@ -27,7 +27,7 @@ class Cache extends Model
     /**
      * @param Options $options
      */
-    public function setOptions(Options $options)
+    public function setOptions(Options $options = null)
     {
         $this->options = $options;
     }

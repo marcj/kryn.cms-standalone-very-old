@@ -38,7 +38,7 @@ class EntryPoint extends Model
     protected $link = false;
 
     /**
-     * @var label
+     * @var string
      */
     protected $label;
 
@@ -97,7 +97,7 @@ class EntryPoint extends Model
         }
     }
 
-    public function setParentInstance(EntryPoint $parentInstance)
+    public function setParentInstance(EntryPoint $parentInstance = null)
     {
         $this->parentInstance = $parentInstance;
     }
@@ -218,7 +218,7 @@ class EntryPoint extends Model
     }
 
     /**
-     * @param \Core\Config\label $label
+     * @param string $label
      */
     public function setLabel($label)
     {
@@ -226,7 +226,7 @@ class EntryPoint extends Model
     }
 
     /**
-     * @return \Core\Config\label
+     * @return string
      */
     public function getLabel()
     {

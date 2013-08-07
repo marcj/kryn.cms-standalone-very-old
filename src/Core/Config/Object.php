@@ -351,7 +351,7 @@ class Object extends Model
     /**
      * @param Field[] $virtualFields
      */
-    public function setVirtualFields(array $virtualFields)
+    public function setVirtualFields(array $virtualFields = null)
     {
         $this->virtualFields = $virtualFields;
     }
@@ -554,7 +554,7 @@ class Object extends Model
     /**
      * @param Field[] $fields
      */
-    public function setFields(array $fields)
+    public function setFields(array $fields = null)
     {
         $this->fields = $fields;
     }
@@ -582,7 +582,7 @@ class Object extends Model
     /**
      * @param Field[] $fields
      */
-    public function setBrowserColumns(array $fields)
+    public function setBrowserColumns(array $fields = null)
     {
         $this->browserColumns = $fields;
     }
@@ -900,7 +900,7 @@ class Object extends Model
     /**
      * @param TreeIconMapping $treeIconMapping
      */
-    public function setTreeIconMapping(TreeIconMapping $treeIconMapping)
+    public function setTreeIconMapping(TreeIconMapping $treeIconMapping = null)
     {
         $this->treeIconMapping = $treeIconMapping;
     }
@@ -1092,7 +1092,7 @@ class Object extends Model
     /**
      * @param Field[] $browserOptions
      */
-    public function setBrowserOptions(array $browserOptions)
+    public function setBrowserOptions(array $browserOptions = null)
     {
         $this->browserOptions = $browserOptions;
     }
@@ -1173,7 +1173,7 @@ class Object extends Model
     /**
      * @param Bundle $bundle
      */
-    public function setBundle(Bundle $bundle)
+    public function setBundle(Bundle $bundle = null)
     {
         $this->bundle = $bundle;
     }

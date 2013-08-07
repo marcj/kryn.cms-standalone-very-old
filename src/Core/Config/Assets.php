@@ -119,5 +119,4 @@ class Assets extends Model implements \IteratorAggregate
         return new \ArrayIterator($this->getAssets() ? : array());
     }
 
-
 }

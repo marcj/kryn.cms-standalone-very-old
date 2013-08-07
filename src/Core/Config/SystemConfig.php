@@ -117,7 +117,7 @@ class SystemConfig extends Model {
     /**
      * @param string[] $bundles
      */
-    public function setBundles(array $bundles)
+    public function setBundles(array $bundles = null)
     {
         $this->bundles = $bundles;
     }
@@ -186,7 +186,7 @@ class SystemConfig extends Model {
     /**
      * @param Cache $cache
      */
-    public function setCache(Cache $cache)
+    public function setCache(Cache $cache = null)
     {
         $this->cache = $cache;
     }
@@ -207,7 +207,7 @@ class SystemConfig extends Model {
     /**
      * @param Client $client
      */
-    public function setClient(Client $client)
+    public function setClient(Client $client = null)
     {
         $this->client = $client;
     }
@@ -228,7 +228,7 @@ class SystemConfig extends Model {
     /**
      * @param Errors $errors
      */
-    public function setErrors(Errors $errors)
+    public function setErrors(Errors $errors = null)
     {
         $this->errors = $errors;
     }
@@ -249,7 +249,7 @@ class SystemConfig extends Model {
     /**
      * @param FilePermission $file
      */
-    public function setFile(FilePermission $file)
+    public function setFile(FilePermission $file = null)
     {
         $this->file = $file;
     }
@@ -270,7 +270,7 @@ class SystemConfig extends Model {
     /**
      * @param MountPoint[] $mountPoints
      */
-    public function setMountPoints(array $mountPoints)
+    public function setMountPoints(array $mountPoints = null)
     {
         $this->mountPoints = $mountPoints;
     }

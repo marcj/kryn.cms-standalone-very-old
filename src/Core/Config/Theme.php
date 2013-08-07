@@ -40,7 +40,7 @@ class Theme extends Model
     /**
      * @param ThemeContent[] $contents
      */
-    public function setContents(array $contents)
+    public function setContents(array $contents = null)
     {
         $this->contents = $contents;
     }
@@ -58,7 +58,7 @@ class Theme extends Model
     /**
      * @param ThemeLayout[] $layouts
      */
-    public function setLayouts(array $layouts)
+    public function setLayouts(array $layouts = null)
     {
         $this->layouts = $layouts;
     }
@@ -106,7 +106,7 @@ class Theme extends Model
     /**
      * @param Field[] $options
      */
-    public function setOptions(array $options)
+    public function setOptions(array $options = null)
     {
         $this->options = $options;
     }
@@ -122,7 +122,7 @@ class Theme extends Model
     /**
      * @param ThemeNavigation[] $navigations
      */
-    public function setNavigations(array $navigations)
+    public function setNavigations(array $navigations = null)
     {
         $this->navigations = $navigations;
     }
