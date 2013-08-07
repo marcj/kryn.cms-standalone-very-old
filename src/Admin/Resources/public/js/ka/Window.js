@@ -511,7 +511,6 @@ ka.Window = new Class({
     },
 
     addHotkey: function (pKey, pControlOrMeta, pAlt, pCallback) {
-
         if (!this.hotkeyBinds) {
             this.hotkeyBinds = [];
         }
@@ -538,16 +537,14 @@ ka.Window = new Class({
 
         this.hotkeyBinds.push(bind);
 
-        document.body.addEvent('keydown', bind);
+        document.body.addEvent('keyup', bind);
 
     },
 
     removeHotkeys: function () {
-
         Array.each(this.hotkeyBinds, function (bind) {
-            document.removeEvent('keydown', bind);
+            document.removeEvent('keyup', bind);
         })
-
     },
 
     _highlight: function () {

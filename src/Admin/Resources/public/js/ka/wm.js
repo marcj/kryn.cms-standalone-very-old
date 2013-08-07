@@ -243,7 +243,6 @@ ka.wm = {
         ka.wm.hashHandled = true;
 
         if (window.location.hash) {
-
             var first = window.location.hash.indexOf('?');
             var entryPoint = window.location.hash.substr(1);
             var parameters = null;

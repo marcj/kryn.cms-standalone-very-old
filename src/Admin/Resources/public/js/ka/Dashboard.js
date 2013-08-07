@@ -1,5 +1,7 @@
 ka.Dashboard = new Class({
 
+    Implements: [Events],
+
     options: {
 
     },
@@ -22,6 +24,7 @@ ka.Dashboard = new Class({
         this.main.setStyle('opacity', 0);
 
         this.loadWidgets();
+        this.fireEvent('load');
     },
 
     loadWidgets: function () {

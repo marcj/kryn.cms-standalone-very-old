@@ -9,7 +9,6 @@
             <asset>@AdminBundle/js/ka.js</asset>
             <asset>@AdminBundle/js/ka/AdminInterface.js</asset>
             <asset>@AdminBundle/js/ka/Button.js</asset>
-            <asset>@AdminBundle/js/globals.js</asset>
             <asset>@AdminBundle/js/ka/Select.js</asset>
             <asset>@AdminBundle/js/ka/Checkbox.js</asset>
 

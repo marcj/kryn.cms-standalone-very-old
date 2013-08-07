@@ -25,6 +25,10 @@ ka.Dialog = new Class({
 
         title: '',
 
+        yOffset: 0,
+
+        autoClose: false,
+
         animatedTransition: Fx.Transitions.Cubic.easeOut,
         animatedTransitionOut: Fx.Transitions.Cubic.easeIn,
         animatedDuration: 200
@@ -56,11 +60,36 @@ ka.Dialog = new Class({
 
             //todo, register `esc` listener for closing.
         }
+
+        if (this.options.autoClose) {
+            this.overlay.addEvent('click', function(e){
+                if (e.target === this.overlay) {
+                    this.closeAnimated();
+                }
+            }.bind(this));
+
+            this.checkClose = this.checkClose.bind(this);
+            var body = this.container.getDocument().body;
+
+            var span = new Element('span');
+            span.cloneEvents(body);
+            body.removeEvents();
+            body.addEvent('keyup', this.checkClose);
+            body.cloneEvents(span);
+            span.destroy();
+        }
+    },
+
+    checkClose: function(e) {
+        if (document.activeElement == document.body && 'esc' === e.key) {
+            this.closeAnimated();
+            return false;
+        }
     },
 
     renderLayout: function () {
         this.overlay = new Element('div', {
-            'class': 'ka-admin ka-dialog-overlay'
+            'class': 'ka-dialog-overlay'
         });
 
         if (this.options.autoDisplay) {
@@ -70,7 +99,7 @@ ka.Dialog = new Class({
         this.overlay.kaDialog = this;
 
         this.main = new Element('div', {
-            'class': 'ka-dialog selectable'
+            'class': 'ka-dialog selectable ka-scrolling'
         }).inject(this.overlay);
 
         this.content = new Element('div', {
@@ -184,7 +213,6 @@ ka.Dialog = new Class({
     },
 
     close: function (pInternal, pAnimated) {
-
         if (this.cancelNextClosing) {
             delete this.cancelNextClosing;
             return;
@@ -196,6 +224,25 @@ ka.Dialog = new Class({
 
         if (!this.canClosed) {
             return;
+        }
+
+        if (pInternal) {
+            this.fireEvent('close');
+        }
+
+        if (this.window) {
+            this.window.removeEvent('resize', this.center);
+        } else {
+            this.container.getDocument().getWindow().removeEvent('resize', this.center);
+        }
+
+        this.container.getDocument().hiddenCount--;
+        if (this.container.getDocument().hiddenCount == 0) {
+            this.container.getDocument().body.removeClass('hide-scrollbar');
+        }
+
+        if (this.options.autoClose) {
+            this.container.getDocument().body.removeEvent('keyup', this.checkClose);
         }
 
         if (pAnimated) {
@@ -215,33 +262,16 @@ ka.Dialog = new Class({
                 }
                 this.fireEvent('postClose');
                 this.fireEvent('closed');
-                this.main.dispose();
             }.bind(this));
 
             this.fxOut.start({
                 top: dsize.y * -1
             });
         } else {
-            this.main.dispose();
-        }
-
-        if (this.window) {
-            this.window.removeEvent('resize', this.center);
-        } else {
-            this.container.getDocument().getWindow().removeEvent('resize', this.center);
-        }
-
-        if (pInternal) {
-            this.fireEvent('close');
-        }
-
-        this.container.getDocument().hiddenCount--;
-        if (this.container.getDocument().hiddenCount == 0) {
-            this.container.getDocument().body.removeClass('hide-scrollbar');
+            this.overlay.destroy();
         }
 
         if (!pAnimated) {
-            this.overlay.destroy();
             if (this.lastFocusedElement) {
                 this.lastFocusedElement.focus();
             }
@@ -260,6 +290,11 @@ ka.Dialog = new Class({
         return this.bottom;
     },
 
+    inject: function(){
+        if (!this.overlay.getParent()) {
+            this.overlay.inject(this.container);
+        }
+    },
     /**
      * Position the dialog to the correct position.
      *
@@ -285,8 +320,10 @@ ka.Dialog = new Class({
                 });
             }
             this.fx.start({
-                top: 0
+                top: this.options.yOffset
             });
+        } else {
+            this.main.setStyle('top', this.options.yOffset);
         }
     },
 

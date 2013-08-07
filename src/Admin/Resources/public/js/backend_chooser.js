@@ -3,7 +3,7 @@ var admin_backend_chooser = new Class({
     Implements: [Events, Options],
 
     options: {
-        cookie: 'kFieldChooser',
+        cookie: 'kaFieldChooser',
         value: false,
 
         objects: [], //

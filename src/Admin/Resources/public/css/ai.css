@@ -299,8 +299,8 @@ span.selectable span, div.selectable div {
 
 .ka-desktop {
     position: absolute;
-    top: 127px;
-    left: 170px;
+    top: 92px;
+    left: 0;
     right: 0;
     bottom: 0;
     overflow: auto;
@@ -308,22 +308,22 @@ span.selectable span, div.selectable div {
 
 .ka-main-menu-wm-tabs {
     position: absolute;
-    left: 170px;
-    top: 76px;
-    height: 50px;
+    left: 0;
+    top: 61px;
+    height: 30px;
     right: 0;
     background-color: #ddd;
     border-bottom: 1px solid silver;
 }
 
 .ka-wm-tab {
-    line-height: 45px;
+    line-height: 30px;
     display: inline-block;
-    height: 45px;
+    height: 30px;
     padding: 0 15px;
+    padding-right: 25px;
     background-color: #d3d3d3;
     border-right: 1px solid #c5c5c5;
-    margin-top: 5px;
     cursor: default;
     color: #555;
     position: relative;
@@ -333,7 +333,7 @@ span.selectable span, div.selectable div {
 .ka-wm-tab > a:link {
     position: absolute;
     right: 3px;
-    top: 2px;
+    top: 3px;
     display: block;
     font-size: 14px;
     height: 12px;
@@ -367,20 +367,19 @@ span.selectable span, div.selectable div {
 .ka-wm-tab-active,
 .ka-wm-tab-active:hover {
     background-color: #f5f5f5;
-    height: 47px;
+    height: 31px;
 }
 
 .ka-main-menu {
     position: absolute;
-    text-align: left;
-    top: 76px;
+    top: 0;
     left: 0;
     bottom: 0;
+    right: 0;
     overflow: hidden;
-    width: 170px;
-    background-color: #242729;
+    text-align: center;
 }
-
+/*
 .ka-main-menu-icons .ka-mainLinks {
     overflow-x: hidden;
 }
@@ -406,17 +405,17 @@ span.selectable span, div.selectable div {
     padding-top: 5px;
     height: 70px;
     font-size: 10px;
-}
+}*/
 
 .ka-main-menu-top {
-    height: 75px;
-    line-height: 75px;
+    height: 60px;
+    line-height: 60px;
     color: white;
     background-color: #22638e;
     border-bottom: 1px solid black;
     z-index: 1000;
 }
-
+/*
 .ka-main-menu-top-navigation {
     display: inline-block;
     height: 75px;
@@ -433,31 +432,30 @@ span.selectable span, div.selectable div {
 
 div.ka-main-menu-additional img.arrowUp:hover {
     background-color: #399bc7;
-}
+}*/
 
 .ka-main-menu-user {
     color: white;
-    padding: 0 10px;
-    padding-top: 15px;
+    padding: 0 15px;
     height: 60px;
     float: right;
     border-left: 1px solid #39739a;
-    line-height: 15px;
+    line-height: 18px;
 }
 
 .ka-main-menu-user > h2 {
     margin: 0;
     padding: 0;
     color: white;
-    margin-bottom: 5px;
     display: inline-block;
     font-size: 14px;
     font-weight: normal;
+    line-height: 20px;
+    padding-top: 12px;
 }
 
 .ka-main-menu-user .username {
     color: #ddd;
-    margin-bottom: 15px;
 }
 
 .ka-border .ka-main-menu-user a.ka-Button,
@@ -484,7 +482,7 @@ div.ka-main-menu-additional img.arrowUp:hover {
     max-width: 20px;
     margin: 0 15px;
     vertical-align: text-bottom;
-}
+}/*
 
 .ka-menu-item-children {
     padding-left: 15px;
@@ -559,7 +557,7 @@ div.ka-mainLinks a.ka-menu-item-childopener:link img {
 
 .ka-main-menu .ka-main-menu-item-hasNoIcon {
     padding-left: 45px;
-}
+}*/
 
 .ka-menu-withRightTopBorderRadius {
     -moz-border-radius-topright: 5px;
@@ -579,7 +577,7 @@ div.ka-mainLinks a.bar-dock-logo {
     padding-top: 8px;
     font-weight: bold;
 }
-
+/*
 .bar-dock-logo-menu-submenu {
     position: absolute;
     right: 0px;
@@ -662,8 +660,8 @@ div.ka-mainLinks-splitter {
 .ka-mainLinks-splitter > a:hover {
     background-color: #888;
     cursor: default;
-}
-
+}*/
+/*
 a.ka-main-menu-item:hover {
     background-color: rgba(47, 140, 189, 0.3);
 }
@@ -708,7 +706,7 @@ a.ka-main-menu-item-open:link {
     background-color: transparent;
     color: white;
     left: 17px;
-}
+}*/
 
 .ka-iconbar-item {
     white-space: nowrap;
@@ -761,11 +759,73 @@ a.ka-main-menu-item-open:link {
     border: 0;
 }
 
-.ka-main-menu-top-logo {
-    height: 45px;
-    margin-left: 23px;
+.ka-menu-dialog-cat {
+    background-color: #F3F3F3;
+    border-top: 1px solid #E0E0E0;
+    padding: 5px;
+}
+
+.ka-menu-dialog-cat:nth-child(2n) {
+    background-color: #EFEFEF;
+}
+
+.ka-menu-dialog-link {
+    display: inline-block;
+    margin: 15px;
+    padding: 5px;
+    font-size: 16px;
+    color: #444;
+    cursor: pointer;
+    text-align: center;
+}
+
+.ka-menu-dialog-link > span {
+    display: block;
+    padding-bottom: 7px;
+}
+
+.ka-menu-dialog-link:hover {
+    border: 1px solid #C0C0C0;
+    background-color: #F3F3F3;
+    margin: 14px;
+}
+
+.ka-main-menu a {
     position: relative;
-    top: 12px;
+    top: 2px;
+    cursor: pointer;
+    display: inline-block;
+    padding: 6px 11px;
+    border-top-right-radius: 4px;
+    border-top-left-radius: 4px;
+    background-color: #236a97;
+    background-color: #175074;
+    font-size: 13px;
+    color: white;
+    line-height: 14px;
+}
+
+.ka-main-menu a:before {
+    padding-right: 5px;
+}
+
+a.ka-main-menu-start {
+    width: 40px;
+}
+
+.ka-main-menu a:hover {
+    background-color: #47799B;
+}
+
+img.ka-main-menu-start {
+    width: 30px;
+}
+
+.ka-main-menu-top-logo {
+    width: 115px;
+    margin-left: 18px;
+    position: relative;
+    top: 18px;
     vertical-align: top;
 }
 

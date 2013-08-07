@@ -1,6 +1,6 @@
 ka.AdminInterface = new Class({
 
-    Binds: ['toggleMainLinks'],
+    Binds: [/*'toggleMainLinks', */'openDashboard', 'openApps', 'openSettings'],
     Implements: [Events, Options],
 
     mobile: false,
@@ -40,6 +40,115 @@ ka.AdminInterface = new Class({
         }
     },
 
+    openDashboard: function() {
+        var dialog = new ka.Dialog(this.border, {
+            yOffset: 61,
+            minWidth: '90%',
+            autoClose: true
+        });
+
+        dialog.inject();
+
+        new Element('h1', {
+            text: t('Dashboard')
+        }).inject(dialog.getContentContainer());
+
+        var dashboardInstance = new ka.Dashboard(dialog.getContentContainer());
+
+        dialog.addEvent('closed', function() {
+            dashboardInstance.destroy();
+        });
+
+        dialog.center(true);
+    },
+
+    openApps: function() {
+        var dialog = new ka.Dialog(this.border, {
+            yOffset: 61,
+            minWidth: '60%',
+            autoClose: true
+        });
+
+        var lastBundleName;
+        var currentContainer;
+
+        var addLink = function(item, parentContainer) {
+            if (item.system) {
+                return;
+            }
+
+            var currentBundleName = item.fullPath.split('/')[0];
+
+            if (lastBundleName) {
+                if (lastBundleName != currentBundleName) {
+                    currentContainer = new Element('div', {
+                        'class': 'ka-menu-dialog-cat'
+                    }).inject(parentContainer);
+
+                    if (ka.settings.configs[currentBundleName]) {
+                        new Element('h2', {
+                            'class': 'light',
+                            text: ka.settings.configs[currentBundleName].label || ka.settings.configs[currentBundleName].name
+                        }).inject(currentContainer);
+                    }
+                }
+            } else {
+                currentContainer = new Element('div', {
+                    'class': 'ka-menu-dialog-cat'
+                }).inject(parentContainer);
+                new Element('h1', {
+                    text: 'Apps'
+                }).inject(currentContainer, 'before');
+            }
+
+            lastBundleName = currentBundleName;
+
+            var a = new Element('a', {
+                'class': 'ka-menu-dialog-link',
+                text: item.label
+            })
+                .addEvent('click', function(){
+                    dialog.closeAnimated();
+                    ka.wm.open(item.fullPath);
+                })
+                .inject(currentContainer);
+
+            if (item.icon) {
+                var icon = new Element('span').inject(a, 'top');
+                if ('#' === item.icon.substr(0, 1)) {
+                    icon.addClass(item.icon.substr(1));
+                } else {
+                    new Element('img', {
+                        src: ka.mediaPath(item.icon)
+                    }).inject(icon);
+                }
+            }
+
+        };
+
+        Object.each(this.menuItems, function(item, path) {
+            addLink(item, dialog.getContentContainer());
+        }.bind(this));
+
+
+        dialog.center(true);
+    },
+
+    openSettings: function() {
+        var dialog = new ka.Dialog(this.border, {
+            yOffset: 61,
+            minWidth: '60%',
+            autoClose: true
+        });
+
+        var system = new ka.System(dialog.getContentContainer());
+        system.addEvent('click', function(){
+            dialog.closeAnimated();
+        });
+
+        dialog.center(true);
+    },
+
     createLayout: function() {
         this.border = new Element('div', {
             'class': 'ka-border ka-admin'
@@ -50,91 +159,118 @@ ka.AdminInterface = new Class({
         }).inject(this.border);
 
         this.mainMenu = new Element('div', {
-            'class': 'ka-main-menu ka-admin'
-        }).inject(this.border);
+            'class': 'ka-main-menu'
+        }).inject(this.mainMenuTop);
+
+        new Element('a',{
+            'class': 'icon-stats-up',
+            text: tc('mainMenu', 'Dashboard')
+        })
+            .addEvent('click', this.openDashboard)
+            .inject(this.mainMenu);
+
+        this.mainMenuStartButton = new Element('a',{
+            'class': 'ka-main-menu-start',
+            text: tc('mainMenu', 'Apps')
+        })
+            .addEvent('click', this.openApps)
+            .inject(this.mainMenu);
+
+        new Element('img', {
+            'class': 'ka-main-menu-start',
+            src: _path + 'bundles/admin/images/kryn-icon.png'
+        })
+            .inject(this.mainMenuStartButton, 'top');
+
+        new Element('a',{
+            'class': 'icon-cog-2',
+            text: tc('mainMenu', 'System')
+        })
+            .addEvent('click', this.openSettings)
+            .inject(this.mainMenu);
 
         this.mainMenuTopLogo = new Element('img', {
             'class': 'ka-main-menu-top-logo',
-            src: _path + 'bundles/admin/images/logo.png'
+            src: _path + 'bundles/admin/images/logo-without-icon.png'
         }).inject(this.mainMenuTop);
 
-        this.mainMenuTopNavigation = new Element('div', {
-            'class': 'ka-main-menu-top-navigation'
-        }).inject(this.mainMenuTop);
-
+//        this.mainMenuTopNavigation = new Element('div', {
+//            'class': 'ka-main-menu-top-navigation'
+//        }).inject(this.mainMenuTop);
+//
         this.mainMenuUser = new Element('div', {
             'class': 'ka-main-menu-user'
         }).inject(this.mainMenuTop);
+//
+//        this.mainMenuRight = new Element('div', {
+//            'class': 'ka-main-menu-additional'
+//        }).inject(this.mainMenuTop);
+//
+//        this.mainLinks = new Element('div', {
+//            'class': 'ka-mainLinks ka-scrolling'
+//        }).inject(this.mainMenu);
 
-        this.mainMenuRight = new Element('div', {
-            'class': 'ka-main-menu-additional'
-        }).inject(this.mainMenuTop);
-
-        this.mainLinks = new Element('div', {
-            'class': 'ka-mainLinks ka-scrolling'
-        }).inject(this.mainMenu);
-
-        this.mainLinksSplitter = new ka.LayoutSplitter(this.mainMenu, 'right');
-
-        document.id(this.mainLinksSplitter).addClass('ka-mainLinks-splitter');
+//        this.mainLinksSplitter = new ka.LayoutSplitter(this.mainMenu, 'right');
+//
+//        document.id(this.mainLinksSplitter).addClass('ka-mainLinks-splitter');
 
 //        this.mainLinksSplitter = new Element('div', {
 //            'class': 'ka-mainLinks-splitter'
 //        }).inject(this.mainMenu);
 
-        this.mainLinksSplitterText = new Element('div', {
-            html: '&bullet; &bullet; &bullet;'
-        }).inject(this.mainLinksSplitter);
-
-        this.mainLinkSplitterArrow = new Element('a', {
-            'class': 'icon-arrow-left-5'
-        }).inject(this.mainLinksSplitter);
-
-        this.mainLinkSplitterArrow.addEvent('click', this.toggleMainLinks);
-
-        this.mainMenuIconBar = new Element('div', {
-            'class': 'ka-iconbar-item'
-        }).inject(this.mainMenuRight);
-
-        this.openFrontendBtn = new Element('a', {
-            'class': 'icon-eye',
-            title: t('Open Frontend'),
-            href: 'javascript: ;'
-        })
-            .addEvent('click', function() {
-                ka.openFrontend();
-            })
-            .inject(this.mainMenuIconBar);
-
-        this.openSearchIndexBtn = new Element('a', {
-            'class': 'icon-search-8',
-            title: t('Search engine index'),
-            href: 'javascript: ;'
-        })
-            .addEvent('click', function() {
-                ka.openSearchContext();
-            })
-            .inject(this.mainMenuIconBar);
-
-        this.clearCacheBtn = new Element('a', {
-            'class': 'icon-trashcan-6',
-            title: t('Clear cache'),
-            href: 'javascript: ;'
-        })
-            .addEvent('click', function() {
-                this.clearCache();
-            }.bind(this))
-            .inject(this.mainMenuIconBar);
-
-        this.openHelpBtn = new Element('a', {
-            'class': 'icon-info-5',
-            title: t('Help'),
-            href: 'javascript: ;'
-        })
-            .addEvent('click', function() {
-                ka.clearCache();
-            })
-            .inject(this.mainMenuIconBar);
+//        this.mainLinksSplitterText = new Element('div', {
+//            html: '&bullet; &bullet; &bullet;'
+//        }).inject(this.mainLinksSplitter);
+//
+//        this.mainLinkSplitterArrow = new Element('a', {
+//            'class': 'icon-arrow-left-5'
+//        }).inject(this.mainLinksSplitter);
+//
+//        this.mainLinkSplitterArrow.addEvent('click', this.toggleMainLinks);
+//
+//        this.mainMenuIconBar = new Element('div', {
+//            'class': 'ka-iconbar-item'
+//        }).inject(this.mainMenuRight);
+//
+//        this.openFrontendBtn = new Element('a', {
+//            'class': 'icon-eye',
+//            title: t('Open Frontend'),
+//            href: 'javascript: ;'
+//        })
+//            .addEvent('click', function() {
+//                ka.openFrontend();
+//            })
+//            .inject(this.mainMenuIconBar);
+//
+//        this.openSearchIndexBtn = new Element('a', {
+//            'class': 'icon-search-8',
+//            title: t('Search engine index'),
+//            href: 'javascript: ;'
+//        })
+//            .addEvent('click', function() {
+//                ka.openSearchContext();
+//            })
+//            .inject(this.mainMenuIconBar);
+//
+//        this.clearCacheBtn = new Element('a', {
+//            'class': 'icon-trashcan-6',
+//            title: t('Clear cache'),
+//            href: 'javascript: ;'
+//        })
+//            .addEvent('click', function() {
+//                this.clearCache();
+//            }.bind(this))
+//            .inject(this.mainMenuIconBar);
+//
+//        this.openHelpBtn = new Element('a', {
+//            'class': 'icon-info-5',
+//            title: t('Help'),
+//            href: 'javascript: ;'
+//        })
+//            .addEvent('click', function() {
+//                ka.clearCache();
+//            })
+//            .inject(this.mainMenuIconBar);
 
         this.wmTabContainer = new Element('div', {
             'class': 'ka-main-menu-wm-tabs'
@@ -157,66 +293,66 @@ ka.AdminInterface = new Class({
             }).inject(this.border);
         }
 
-        this.setupMainLinksDragger();
+        //this.setupMainLinksDragger();
     },
 
-    setupMainLinksDragger: function() {
-        this.mainLinksSplitter.addEvent('resize', function() {
-            this.lastMainLinksWidth = this.mainMenu.getStyle('width');
-            this.desktopContainer.setStyle('left', this.lastMainLinksWidth);
-            this.wmTabContainer.setStyle('left', this.lastMainLinksWidth);
+//    setupMainLinksDragger: function() {
+//        this.mainLinksSplitter.addEvent('resize', function() {
+//            this.lastMainLinksWidth = this.mainMenu.getStyle('width');
+//            this.desktopContainer.setStyle('left', this.lastMainLinksWidth);
+//            this.wmTabContainer.setStyle('left', this.lastMainLinksWidth);
+//
+//            this.setMainLinksIcons(120 > this.lastMainLinksWidth.toInt());
+//
+//            if (45 > this.lastMainLinksWidth.toInt()) {
+//                this.toggleMainLinks();
+//            }
+//
+//            window.fireEvent('resize');
+//        }.bind(this));
+//
+//        this.mainLinksSplitter.addEvent('resized', function() {
+//            ka.setLocalSetting('admin/interface/links-width', this.mainMenu.getStyle('width').toInt());
+//        }.bind(this));
+//
+//        var localSetting = ka.getLocalSetting('admin/interface/links-width');
+//        if ('boolean' === typeOf(localSetting)) {
+//            this.toggleMainLinks(localSetting);
+//        } else if (localSetting) {
+//            this.mainMenu.setStyle('width', localSetting+'px');
+//            this.mainLinksSplitter.fireEvent('resize');
+//        }
+//    },
 
-            this.setMainLinksIcons(120 > this.lastMainLinksWidth.toInt());
+//    setMainLinksIcons: function(icons) {
+//        if (icons) {
+//            this.mainMenu.addClass('ka-main-menu-icons');
+//        } else {
+//            this.mainMenu.removeClass('ka-main-menu-icons');
+//        }
+//    },
 
-            if (45 > this.lastMainLinksWidth.toInt()) {
-                this.toggleMainLinks();
-            }
-
-            window.fireEvent('resize');
-        }.bind(this));
-
-        this.mainLinksSplitter.addEvent('resized', function() {
-            ka.setLocalSetting('admin/interface/links-width', this.mainMenu.getStyle('width').toInt());
-        }.bind(this));
-
-        var localSetting = ka.getLocalSetting('admin/interface/links-width');
-        if ('boolean' === typeOf(localSetting)) {
-            this.toggleMainLinks(localSetting);
-        } else if (localSetting) {
-            this.mainMenu.setStyle('width', localSetting+'px');
-            this.mainLinksSplitter.fireEvent('resize');
-        }
-    },
-
-    setMainLinksIcons: function(icons) {
-        if (icons) {
-            this.mainMenu.addClass('ka-main-menu-icons');
-        } else {
-            this.mainMenu.removeClass('ka-main-menu-icons');
-        }
-    },
-
-    toggleMainLinks: function(visible) {
-        visible = true === visible || 17 === this.mainMenu.getStyle('width').toInt();
-        ka.setLocalSetting('admin/interface/links-width', visible || this.mainMenu.getStyle('width').toInt());
-        if (visible) {
-            //not visible
-            if (this.lastMainLinksWidth) {
-                this.mainMenu.setStyle('width', this.lastMainLinksWidth);
-                this.desktopContainer.setStyle('left', this.lastMainLinksWidth);
-                this.wmTabContainer.setStyle('left', this.lastMainLinksWidth);
-            } else {
-                this.mainMenu.setStyle('width');
-                this.desktopContainer.setStyle('left');
-                this.wmTabContainer.setStyle('left');
-            }
-        } else {
-            this.lastMainLinksWidth = this.mainMenu.getStyle('width');
-            this.mainMenu.setStyle('width', 17);
-            this.desktopContainer.setStyle('left', 17);
-            this.wmTabContainer.setStyle('left', 17);
-        }
-    },
+//    toggleMainLinks: function(visible) {
+//        visible = true === visible || 17 === this.mainMenu.getStyle('width').toInt();
+//        ka.setLocalSetting('admin/interface/links-width', visible || this.mainMenu.getStyle('width').toInt());
+//        if (visible) {
+//            //not visible
+//            if (this.lastMainLinksWidth) {
+//                this.mainMenu.setStyle('width', this.lastMainLinksWidth);
+//                this.desktopContainer.setStyle('left', this.lastMainLinksWidth);
+//                this.wmTabContainer.setStyle('left', this.lastMainLinksWidth);
+//            } else {
+//                this.mainMenu.setStyle('width');
+//                this.desktopContainer.setStyle('left');
+//                this.wmTabContainer.setStyle('left');
+//            }
+//        } else {
+//            this.lastMainLinksWidth = this.mainMenu.getStyle('width');
+//            this.mainMenu.setStyle('width', 17);
+//            this.desktopContainer.setStyle('left', 17);
+//            this.wmTabContainer.setStyle('left', 17);
+//        }
+//    },
 
     getWMTabContainer: function() {
         return this.wmTabContainer;
@@ -250,7 +386,7 @@ ka.AdminInterface = new Class({
         this.mainMenuUser.empty();
 
         new Element('h2', {
-            text: tf('Welcome, %s %s', window._session.firstName, window._session.lastName)
+            text: tf('%s %s', window._session.firstName, window._session.lastName)
         }).inject(this.mainMenuUser);
 
         new Element('img', {
@@ -283,38 +419,38 @@ ka.AdminInterface = new Class({
             this._iconSessionCounterDiv.destroy();
         }
 
-        this._iconSessionCounterDiv = new Element('div', {
-            'class': 'ka-iconbar-item',
-            title: t('Visitors')
-        }).inject(this.mainMenuRight);
+//        this._iconSessionCounterDiv = new Element('div', {
+//            'class': 'ka-iconbar-item',
+//            title: t('Visitors')
+//        }).inject(this.mainMenuRight);
 
-        this._iconSessionCounter = new Element('a', {'class': 'icon-users', text: 0}).inject(this._iconSessionCounterDiv);
+//        this._iconSessionCounter = new Element('a', {'class': 'icon-users', text: 0}).inject(this._iconSessionCounterDiv);
 
-        if (!this.searchContainer) {
-            this.searchContainer = new Element('div', {
-                'class': 'ka-iconbar-item ka-search'
-            }).inject(this.mainMenuRight);
-
-            this.searchInput = new ka.Field({
-                type: 'text',
-                noWrapper: true
-            }, this.searchContainer);
-
-            document.id(this.searchInput).addClass('ka-search-input');
-
-            this.searchInput.addEvent('change', function() {
-                if (this.searchInput.getValue() != '') {
-                    this.doMiniSearch(this.searchInput.getValue());
-                } else {
-                    this.hideMiniSearch();
-                }
-            }.bind(this));
-
-            this.searchIcon = new Element('img', {
-                'class': 'ka-search-query-icon',
-                src: 'bundles/admin/images/icon-search-loupe.png'
-            }).inject(this.searchContainer);
-        }
+//        if (!this.searchContainer) {
+//            this.searchContainer = new Element('div', {
+//                'class': 'ka-iconbar-item ka-search'
+//            }).inject(this.mainMenuRight);
+//
+//            this.searchInput = new ka.Field({
+//                type: 'text',
+//                noWrapper: true
+//            }, this.searchContainer);
+//
+//            document.id(this.searchInput).addClass('ka-search-input');
+//
+//            this.searchInput.addEvent('change', function() {
+//                if (this.searchInput.getValue() != '') {
+//                    this.doMiniSearch(this.searchInput.getValue());
+//                } else {
+//                    this.hideMiniSearch();
+//                }
+//            }.bind(this));
+//
+//            this.searchIcon = new Element('img', {
+//                'class': 'ka-search-query-icon',
+//                src: 'bundles/admin/images/icon-search-loupe.png'
+//            }).inject(this.searchContainer);
+//        }
 
         window.fireEvent('init');
 
@@ -359,7 +495,8 @@ ka.AdminInterface = new Class({
         //            }
         //        });
 
-        this.renderMenu();
+        ka.wm.handleHashtag();
+        ka.wm.updateWindowBar();
     },
 
     getHelpSystem: function() {
@@ -1040,6 +1177,8 @@ ka.AdminInterface = new Class({
     },
 
     renderMenu: function() {
+        return;
+
         this.mainLinks.empty();
 
         if (this.additionalMainMenu) {
@@ -1122,21 +1261,21 @@ ka.AdminInterface = new Class({
         //this.additionalMainMenu, this.additionalMainMenuContainer, true, {y: 80});
     },
 
-    addAdminHeadline: function(pExtKey) {
-        var config = ka.settings.configs[pExtKey];
-        if (config) {
-
-            new Element('div', {
-                'class': 'ka-main-menu-splitter'
-            }).inject(this.mainLinks);
-
-            new Element('h2', {
-                'class': 'ka-main-menu-headline',
-                text: config.title,
-                title: config.desc ? config.desc : ''
-            }).inject(this.mainLinks);
-        }
-    },
+//    addAdminHeadline: function(pExtKey) {
+//        var config = ka.settings.configs[pExtKey];
+//        if (config) {
+//
+//            new Element('div', {
+//                'class': 'ka-main-menu-splitter'
+//            }).inject(this.mainLinks);
+//
+//            new Element('h2', {
+//                'class': 'ka-main-menu-headline',
+//                text: config.title,
+//                title: config.desc ? config.desc : ''
+//            }).inject(this.mainLinks);
+//        }
+//    },
 
     addTempLink: function(pWin) {
         var entryPoint = pWin.getEntryPointDefinition();

@@ -1,10 +1,16 @@
-var admin_system = new Class({
-    initialize: function(pWindow) {
-        this.win = pWindow;
-        this._createLayout();
+ka.System = new Class({
+    Implements: [Events],
+
+    initialize: function(pContainer) {
+        this.container = pContainer;
+        this.createLayout();
     },
 
-    _createLayout: function() {
+    createLayout: function() {
+        new Element('h1', {
+            text: t('System')
+        }).inject(this.container);
+
         this.addSection('admin');
         Object.each(ka.settings.configs, function(config, key) {
             if ('admin' !== key) {
@@ -23,7 +29,7 @@ var admin_system = new Class({
 
                 container = new Element('div', {
                     'class': 'ka-system-cat'
-                }).inject(this.win.getContentContainer());
+                }).inject(this.container);
 
                 new Element('h2', {
                     'class': 'light',
@@ -34,7 +40,7 @@ var admin_system = new Class({
                     if (!entryPoint.type) {
                         subContainer = new Element('div', {
                             'class': 'ka-system-cat'
-                        }).inject(this.win.getContentContainer());
+                        }).inject(this.container);
 
                         new Element('h2', {
                             'class': 'light',
@@ -60,7 +66,8 @@ var admin_system = new Class({
         })
             .addEvent('click', function() {
                 ka.wm.open(bundleName + '/' + entryPoint.fullPath);
-            })
+                this.fireEvent('click', entryPoint)
+            }.bind(this))
             .inject(container);
 
         if (entryPoint.icon) {
@@ -91,28 +98,5 @@ var admin_system = new Class({
         }, this);
 
         return result
-    },
-
-
-    shit: function() {
-
-        logger(ka.settings);
-
-
-        this.win.content.set('html',
-            '<h1>Kryn.cms</h1><br/>' +
-                'Version: {ka.settings.configs.core.version}<br/>' +
-                '<br/>' +
-                '<a href="{_path}LICENSE">LICENSE</a><br/>' +
-                '<br/>' +
-                '<a href="http://forum.kryn.org" target="_blank">forum.kryn.org</a><br />' +
-                '<a href="mailto:support@kryn.org">support@kryn.org</a><br />' +
-                '<a href="http://docu.kryn.org" target="_blank">docu.kryn.org</a><br/>' +
-                '<br/>' +
-                '<div>&copy; <a target="_blank" href="http://www.kryn.org">www.kryn.org</a>. All Rights Reserved.' +
-                '<br/>' +
-                '<br/>');
-
-        mowla.render(this.win.content);
     }
 });

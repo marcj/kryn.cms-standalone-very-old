@@ -1335,7 +1335,7 @@ var admin_system_module_edit = new Class({
         this.saveBtn = buttonBar.addButton(t('Save'), this.saveGeneral.bind(this));
         this.saveBtn.setButtonStyle('blue');
 
-        this.generalFieldsObj = new ka.FieldForm(p, fields, {allTableItems: 1, saveButton: saveBtn});
+        this.generalFieldsObj = new ka.FieldForm(p, fields, {allTableItems: 1, saveButton: this.saveBtn});
 
         var value = pConfig;
 
@@ -1368,7 +1368,7 @@ var admin_system_module_edit = new Class({
     },
 
     loadGeneral: function() {
-        this.win.setLoading(true, t('Saving ...'));
+        this.win.setLoading(true, t('Loading ...'));
         if (this.lr) {
             this.lr.cancel();
         }
@@ -1380,7 +1380,7 @@ var admin_system_module_edit = new Class({
     },
 
     loadLayouts: function() {
-        this.win.setLoading(true, t('Saving ...'));
+        this.win.setLoading(true, t('Loading ...'));
         if (this.lr) {
             this.lr.cancel();
         }
@@ -1538,6 +1538,7 @@ var admin_system_module_edit = new Class({
         if (this.lr) {
             this.lr.cancel();
         }
+
         this.saveBtn.startTip(t('Saving ...'));
 
         this.lr = new Request.JSON({url: _pathAdmin + 'admin/system/module/editor/themes', noCache: 1, onComplete: function() {

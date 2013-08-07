@@ -29,7 +29,7 @@ if (typeOf(ka.langs) != 'object') {
  *
  * @params {*}
  */
-ka.logger = function () {
+window.logger = ka.logger = function () {
     if (typeOf(console) != "undefined") {
         var args = arguments;
         if (args.length == 1) {
@@ -70,8 +70,8 @@ ka.openFrontend = function () {
  * @param int    pCount   the count for plural
  * @param string pContext the message id of the context (msgctxt)
  */
-ka.t = function (pMsg, pPlural, pCount, pContext) {
-    return _kml2html(ka.translate(pMsg, pPlural, pCount, pContext));
+window._ = window.t = ka.t = function (pMsg, pPlural, pCount, pContext) {
+    return ka._kml2html(ka.translate(pMsg, pPlural, pCount, pContext));
 }
 
 ka.translate = function (pMsg, pPlural, pCount, pContext) {
@@ -122,7 +122,7 @@ window.tf = ka.tf = function () {
  * @param string pContext the message id of the context
  * @param string pMsg     message id
  */
-ka.tc = function (pContext, pMsg) {
+window.tc = ka.tc = function (pContext, pMsg) {
     return t(pMsg, null, null, pContext);
 }
 
