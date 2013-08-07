@@ -721,7 +721,7 @@ class Kryn extends Controller
 
 
         foreach (self::$configs as $bundleConfig) {
-            if ($events = $bundleConfig->getEvents() ) {
+            if ($events = $bundleConfig->getListeners() ) {
                 foreach ($events as $event) {
                     static::getEventDispatcher()->attachEvent($event);
                 }
