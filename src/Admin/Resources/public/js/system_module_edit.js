@@ -95,8 +95,8 @@ var admin_system_module_edit = new Class({
 
         var buttonBar = new ka.ButtonBar(this.panes['plugins']);
         buttonBar.addButton(t('Add plugin'), this.addPlugin.bind(this));
-        var saveBtn = buttonBar.addButton(t('Save'), this.savePlugins.bind(this));
-        saveBtn.setButtonStyle('blue');
+        this.saveBtn = buttonBar.addButton(t('Save'), this.savePlugins.bind(this));
+        this.saveBtn.setButtonStyle('blue');
 
         this.lr = new Request.JSON({url: _pathAdmin +
             'admin/system/module/editor/plugins', noCache: 1, onComplete: function(res) {
@@ -132,13 +132,13 @@ var admin_system_module_edit = new Class({
         if (this.lr) {
             this.lr.cancel();
         }
-        this.win.setLoading(true, t('Saving ...'));
+        this.saveBtn.startTip(t('Saving ...'));
 
         req.plugins = JSON.encode(req.plugins);
         req.bundle = this.mod;
         this.lr = new Request.JSON({url: _pathAdmin +
             'admin/system/module/editor/plugins', noCache: 1, onComplete: function(res) {
-            this.win.setLoading(false);
+            this.saveBtn.stopTip(t('Saved'));
             ka.loadSettings();
         }.bind(this)}).post(req);
 
@@ -1173,11 +1173,11 @@ var admin_system_module_edit = new Class({
             entryPoints.push(itemData);
         });
 
-        this.win.setLoading(true, t('Saving ...'));
+        this.entryPointsSaveButton.startTip(t('Saving ...'));
 
         this.lr = new Request.JSON({url: _pathAdmin + 'admin/system/module/editor/entry-points?bundle=' + decodeURIComponent(this.mod),
             noCache: 1, onComplete: function() {
-                this.win.setLoading(false);
+                this.entryPointsSaveButton.stopTip(t('Saved'));
                 ka.loadSettings();
                 ka.adminInterface.loadMenu();
             }.bind(this)}).post({entryPoints: entryPoints});
@@ -1332,8 +1332,8 @@ var admin_system_module_edit = new Class({
         }
 
         var buttonBar = new ka.ButtonBar(this.panes['general']);
-        var saveBtn = buttonBar.addButton(t('Save'), this.saveGeneral.bind(this));
-        saveBtn.setButtonStyle('blue');
+        this.saveBtn = buttonBar.addButton(t('Save'), this.saveGeneral.bind(this));
+        this.saveBtn.setButtonStyle('blue');
 
         this.generalFieldsObj = new ka.FieldForm(p, fields, {allTableItems: 1, saveButton: saveBtn});
 
@@ -1360,10 +1360,10 @@ var admin_system_module_edit = new Class({
     saveGeneral: function() {
         var req = this.generalFieldsObj.getValue();
 
-        this.win.setLoading(true, t('Saving ...'));
+        this.saveBtn.startTip(t('Saving ...'));
         this.lr = new Request.JSON({url: _pathAdmin +
             'admin/system/module/editor/general?name=' + decodeURIComponent(this.mod), onComplete: function() {
-            this.win.setLoading(false);
+            this.saveBtn.stopTip(t('Saved'));
         }.bind(this)}).post(req);
     },
 
@@ -1528,20 +1528,20 @@ var admin_system_module_edit = new Class({
         buttonBar.addButton(t('Add theme'), function() {
             this.addTheme('Theme title', {});
         }.bind(this));
-        var saveBtn = buttonBar.addButton(t('Save'), this.saveThemes.bind(this));
-        saveBtn.setButtonStyle('blue');
+        this.saveBtn = buttonBar.addButton(t('Save'), this.saveThemes.bind(this));
+        this.saveBtn.setButtonStyle('blue');
     },
 
     saveThemes: function() {
         var themes = this.themes.getValue();
-        this.win.setLoading(true, t('Saving ...'));
 
         if (this.lr) {
             this.lr.cancel();
         }
+        this.saveBtn.startTip(t('Saving ...'));
 
         this.lr = new Request.JSON({url: _pathAdmin + 'admin/system/module/editor/themes', noCache: 1, onComplete: function() {
-            this.win.setLoading(false);
+            this.saveBtn.stopTip(t('Saved'));
             ka.loadSettings();
         }.bind(this)}).post({bundle: this.mod, themes: JSON.encode(themes)});
     },
@@ -3017,8 +3017,8 @@ var admin_system_module_edit = new Class({
             new ka.FieldForm(this.extrasPane, extrasFields, {allTableItems: 1, tableItemLabelWidth: 270});
 
         var buttonBar = new ka.ButtonBar(this.panes['extras']);
-        var saveBtn = buttonBar.addButton(t('Save'), this.saveExtras.bind(this));
-        saveBtn.setButtonStyle('blue');
+        this.saveBtn = buttonBar.addButton(t('Save'), this.saveExtras.bind(this));
+        this.saveBtn.setButtonStyle('blue');
 
         this.lr = new Request.JSON({url: _pathAdmin + 'admin/system/module/editor/basic', noCache: 1,
             onComplete: function(pResult) {
@@ -3037,11 +3037,11 @@ var admin_system_module_edit = new Class({
         var req = this.extraFieldsObj.getValue();
         req.bundle = this.mod;
 
-        this.win.setLoading(true, t('Saving ...'));
+        this.saveBtn.startTip(t('Saving ...'));
 
         this.lr =
             new Request.JSON({url: _pathAdmin + 'admin/system/module/editor/basic', noCache: 1, onComplete: function() {
-                this.win.setLoading(false);
+                this.saveBtn.startTip(t('Saved'));
                 ka.loadSettings();
             }.bind(this)}).post(req);
     },
