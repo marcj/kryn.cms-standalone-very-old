@@ -19,6 +19,12 @@ use Core\SystemFile;
 
 class Editor
 {
+    /**
+     * Returns the composer config.
+     *
+     * @param string $bundle
+     * @return array
+     */
     public function getConfig($bundle)
     {
         $bundle = Kryn::getBundle($bundle);
@@ -27,6 +33,12 @@ class Editor
         return $config;
     }
 
+    /**
+     * Returns the basic configuration. Usually in Resources/config/kryn.xml
+     *
+     * @param string $bundle
+     * @return array
+     */
     public function getBasic($bundle)
     {
         $bundle = $this->getBundle($bundle);
@@ -52,6 +64,9 @@ class Editor
     }
 
     /**
+     *
+     * Saves the basic configuration. Usually in Resources/config/kryn.xml
+     *
      * @param $bundle
      * @param array $events
      * @param array $listeners
@@ -108,6 +123,12 @@ class Editor
 
     }
 
+    /**
+     * Returns all php classes that uses the window framework classes as parents.
+     *
+     * @param string $bundle
+     * @return array
+     */
     public function getWindows($bundle)
     {
         $bundle = $this->getBundle($bundle);
@@ -146,6 +167,12 @@ class Editor
         return $windows;
     }
 
+    /**
+     * Returns all defined plugins. Usually in Resources/config/kryn.plugins.xml
+     *
+     * @param string $bundle
+     * @return array
+     */
     public function getPlugins($bundle)
     {
         $bundle = $this->getBundle($bundle);
@@ -154,6 +181,12 @@ class Editor
         return $config->getPluginsArray();
     }
 
+    /**
+     * Returns all defined themes.  Usually in Resources/config/kryn.themes.xml
+     *
+     * @param string $bundle
+     * @return array
+     */
     public function getThemes($bundle)
     {
         $bundle = $this->getBundle($bundle);
@@ -162,50 +195,54 @@ class Editor
         return $config->getThemesArray();
     }
 
-    public function saveThemes($bundle, $themes)
+    /**
+     * Saves themes.  Usually in Resources/config/kryn.themes.xml
+     *
+     * @param string $bundle
+     * @param array $themes
+     * @return bool
+     */
+    public function saveThemes($bundle, $themes = null)
     {
         $bundle = $this->getBundle($bundle);
+        $config = $bundle->getConfig();
 
-        $def = [];
         if (is_string($themes)) {
             $themes = json_decode($themes, 1);
         }
 
-        foreach ($themes as $array) {
-            $theme = new Theme();
-            $theme->fromArray($array);
-            $def[] = $theme;
-        }
+        $config->propertyFromArray('themes', $themes);
 
-        $config = new Bundle();
-        $config->setThemes($def);
-
-        $file = $bundle->getPath() . 'Resources/config/kryn.themes.xml';
-        return $config->saveConfig($file);
+        return $config->saveFileBased('themes');
     }
 
-    public function savePlugins($bundle, $plugins)
+    /**
+     * Saves plugins.  Usually in Resources/config/kryn.plugins.xml
+     *
+     * @param string $bundle
+     * @param array $plugins
+     * @return bool
+     */
+    public function savePlugins($bundle, $plugins = null)
     {
         $bundle = $this->getBundle($bundle);
+        $config = $bundle->getConfig();
 
-        $pluginsDef = [];
         if (is_string($plugins)) {
             $plugins = json_decode($plugins, 1);
         }
 
-        foreach ($plugins as $pluginArray) {
-            $plugin = new Plugin();
-            $plugin->fromArray($pluginArray);
-            $pluginsDef[] = $plugin;
-        }
+        $config->propertyFromArray('plugins', $plugins);
 
-        $config = new Bundle();
-        $config->setPlugins($pluginsDef);
-
-        $file = $bundle->getPath() . 'Resources/config/kryn.plugins.xml';
-        return $config->saveConfig($file);
+        return $config->saveFileBased('plugins');
     }
 
+    /**
+     * Returns all objects. Usually in Resources/config/kryn.objects.xml
+     *
+     * @param string $bundle
+     * @return array
+     */
     public function getObjects($bundle)
     {
         $bundle = $this->getBundle($bundle);
@@ -214,28 +251,33 @@ class Editor
         return $config->getObjectsArray();
     }
 
-    public function saveObjects($bundle, $objects)
+    /**
+     * Saves objects. Usually in Resources/config/kryn.objects.xml
+     *
+     * @param string $bundle
+     * @param array $objects
+     * @return bool
+     */
+    public function saveObjects($bundle, $objects = null)
     {
         $bundle = $this->getBundle($bundle);
+        $config = $bundle->getConfig();
 
-        $objectsDef = [];
         if (is_string($objects)) {
             $objects = json_decode($objects, 1);
         }
 
-        foreach ($objects as $objectArray) {
-            $object = new Object();
-            $object->fromArray($objectArray);
-            $objectsDef[] = $object;
-        }
+        $config->propertyFromArray('objects', $objects);
 
-        $config = new Bundle();
-        $config->setObjects($objectsDef);
-
-        $file = $bundle->getPath() . 'Resources/config/kryn.objects.xml';
-        return $config->saveConfig($file);
+        return $config->saveFileBased('objects');
     }
 
+    /**
+     * Returns the content and full path of Propel's Resources/config/models.xml.
+     *
+     * @param string $bundle
+     * @return array
+     */
     public function getModel($bundle)
     {
         $bundleClass = $this->getBundle($bundle);
@@ -248,7 +290,16 @@ class Editor
 
     }
 
-    public function saveModel($bundle, $model)
+    /**
+     * Saves Propel's Resources/config/models.xml file.
+     *
+     * @param $bundle
+     * @param $model
+     * @return bool
+     * @throws \FileNotWritableException
+     * @throws \FileIOErrorException
+     */
+    public function saveModel($bundle, $model = '')
     {
         $bundleClass = $this->getBundle($bundle);
         $path = $bundleClass->getPath() . 'Resources/config/models.xml';
@@ -257,13 +308,18 @@ class Editor
             throw new \FileNotWritableException(tf('The model file `%s` for `%s` is not writable.', $path, $bundle));
         }
 
-        if (!@file_put_contents($path, $model)) {
-            throw new \FileIOErrorException(tf('Can not write model file `%s` for `%s`.', $path, $bundle));
-        }
+        SystemFile::setContent($path, $model);
 
         return true;
     }
 
+    /**
+     * Modifies Propel's Resources/config/models.xml based on the object definition in $bundle.
+     *
+     * @param $bundle
+     * @return array
+     * @throws \Admin\Exceptions\BuildException
+     */
     public function setModelFromObjects($bundle)
     {
         $bundle = $this->getBundle($bundle);
@@ -307,23 +363,12 @@ class Editor
         return $bundle;
     }
 
-    public function saveGeneral($name)
-    {
-        $bundle = $this->getBundle($name);
-        $config = $bundle->getComposer();
-
-        $values = ['name', 'description', 'keywords', 'version', 'license', 'require', 'authors', 'homepage'];
-        foreach ($values as $key) {
-            if ('' !== $_POST[$key]) {
-                $config[$key] = $_POST[$key];
-            } else {
-                unset($config[$key]);
-            }
-        }
-
-        return $bundle->setComposer($config);
-    }
-
+    /**
+     * Returns entryPoints. Usually in Resources/config/kryn.entryPoints.xml.
+     *
+     * @param string $bundle
+     * @return array
+     */
     public function getEntryPoints($bundle)
     {
         $bundle = $this->getBundle($bundle);
@@ -333,25 +378,34 @@ class Editor
         return $entryPoints;
     }
 
-    public function saveEntryPoints($bundle, $entryPoints)
+    /**
+     * Saves entryPoints. Usually in Resources/config/kryn.entryPoints.xml.
+     *
+     * @param string $bundle
+     * @param array $entryPoints
+     * @return bool
+     */
+    public function saveEntryPoints($bundle, $entryPoints = null)
     {
         $bundle = $this->getBundle($bundle);
+        $config = $bundle->getConfig();
 
-        $entryPointsDef = [];
-        foreach ($entryPoints as $entryPointArray) {
-            $entryPoint = new EntryPoint();
-            $entryPoint->fromArray($entryPointArray);
-            $entryPointsDef[] = $entryPoint;
-        }
+        $config->propertyFromArray('entryPoints', $entryPoints);
 
-        $config = new Bundle();
-        $config->setEntryPoints($entryPointsDef);
-
-        $file = $bundle->getPath() . 'Resources/config/kryn.entrypoints.xml';
-        return $config->saveConfig($file);
+        return $config->saveFileBased('entryPoints');
     }
 
-    public function saveWindowDefinition($pClass)
+    /**
+     * Saves the php class definition into a php class.
+     *
+     * @param string $pClass
+     * @param array $listing
+     * @param array $add
+     * @param array $general
+     * @param array $methods
+     * @return bool
+     */
+    public function saveWindowDefinition($pClass, $listing = null, $add = null, $general = null, $methods = null)
     {
         if (substr($pClass, 0, 1) != '\\') {
             $pClass = '\\' . $pClass;
@@ -380,21 +434,18 @@ class Editor
             $this->addVar($sourcecode, 'fields', $fields);
         }
 
-        $listing = getArgv('list');
         if (is_array($listing)) {
             foreach ($listing as $listVarName => $listVar) {
                 $this->addVar($sourcecode, $listVarName, $listVar);
             }
         }
 
-        $add = getArgv('add');
         if (is_array($add)) {
             foreach ($add as $varName => $var) {
                 $this->addVar($sourcecode, $varName, $var);
             }
         }
 
-        $general = getArgv('general');
         $blacklist = array('class', 'file');
         if (is_array($general)) {
             foreach ($general as $varName => $var) {
@@ -405,7 +456,6 @@ class Editor
             }
         }
 
-        $methods = getArgv('methods');
         if (is_array($methods)) {
             foreach ($methods as $name => $source) {
                 $this->addMethod($sourcecode, $source);
@@ -416,16 +466,12 @@ class Editor
 
         $sourcecode = str_replace("\r", '', $sourcecode);
 
-        SystemFile::setContent($path, $sourcecode);
-
-        return true;
-
+        return SystemFile::setContent($path, $sourcecode);
     }
 
     public function addMethod(&$pSourceCode, $pSource)
     {
         $pSourceCode .= substr($pSource, 6, -4) . "\n";
-
     }
 
     public function addVar(&$pSourceCode, $pName, $pVar, $pVisibility = 'public', $pStatic = false)
