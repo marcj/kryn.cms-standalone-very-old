@@ -12,7 +12,7 @@ ka.FieldTypes.Layout = new Class({
 
         Object.each(ka.settings.configs, function(config, key) {
             if (config.themes) {
-                Array.each(config.themes, function(theme){
+                Object.each(config.themes, function(theme){
                     var layouts = {};
                     if (theme.layouts) {
                         Array.each(theme.layouts, function(layout){
