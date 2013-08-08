@@ -31,10 +31,12 @@ ka.System = new Class({
                     'class': 'ka-system-cat'
                 }).inject(this.container);
 
-                new Element('h2', {
-                    'class': 'light',
-                    text: config.label || config.name
-                }).inject(container);
+                if ('admin' !== bundleName) {
+                    new Element('h2', {
+                        'class': 'light',
+                        text: config.label || config.name
+                    }).inject(container);
+                }
 
                 Object.each(systemEntryPoints, function(entryPoint) {
                     if (!entryPoint.type) {
@@ -87,14 +89,16 @@ ka.System = new Class({
         var result = {};
 
         Object.each(entryPoints, function(entryPoint, key) {
+            if (entryPoint.children) {
+                result = Object.merge(result, this.collectSystemEntryPoints(entryPoint.children));
+            }
+
             if (!entryPoint.link) return;
 
             if (entryPoint.system) {
                 result[key] = entryPoint;
             }
-            if (entryPoint.children) {
-                result = Object.merge(result, this.collectSystemEntryPoints(entryPoint.children));
-            }
+
         }, this);
 
         return result
