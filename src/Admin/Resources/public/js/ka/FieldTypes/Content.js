@@ -30,6 +30,7 @@ ka.FieldTypes.Content = new Class({
                 {columns: [null, 100]}
             ]
         });
+        this.headerLayout.getCell(1, 1).addClass('ka-ActionBar-left');
 
         this.buttonGroup = new ka.ButtonGroup(this.headerLayout.getCell(1, 1));
         this.layoutBtn = this.buttonGroup.addButton(t('Layout'), '#icon-layout');
