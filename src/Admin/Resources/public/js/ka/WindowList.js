@@ -224,7 +224,7 @@ ka.WindowList = new Class({
     },
 
     renderLoader: function () {
-        this.loader = new ka.Loader(this.main);
+        this.win.setLoading(true, t('Loading ...'));
     },
 
     renderMultilanguage: function () {
@@ -255,7 +255,6 @@ ka.WindowList = new Class({
     renderLayout: function () {
         this.container.setStyle('opacity', 0);
         this.renderLayoutTable();
-        this.renderSearchPane();
     },
 
     renderLayoutNested: function (pContainer) {
@@ -297,10 +296,9 @@ ka.WindowList = new Class({
     },
 
     openAddItem: function () {
-        ka.entrypoint.open(ka.entrypoint.getRelative(this.win.getEntryPoint(), this.classProperties.addEntrypoint), {
+        ka.wm.open(ka.entrypoint.getRelative(this.win.getEntryPoint(), this.classProperties.addEntrypoint), {
             lang: (this.languageSelect) ? this.languageSelect.getValue() : false
-        }, this);
-
+        }, this.win.getId(), true);
     },
 
     renderLayoutTable: function () {
@@ -368,95 +366,6 @@ ka.WindowList = new Class({
             //todo
         } else {
             this.loadPage(1);
-        }
-    },
-
-    renderSearchPane: function () {
-        this.searchPane = new Element('div', {
-            'class': 'ka-list-search-pane'
-        }).inject(this.main, 'after');
-
-        this.searchFields = new Hash();
-        var doSearchNow = false;
-
-        if (this.classProperties.filter && this.classProperties.filter.each) {
-            this.classProperties.filter.each(function (filter, key) {
-
-                var mkey = key;
-
-                if (typeOf(key) == 'number') {
-                    mkey = filter;
-                }
-
-                var field = this.classProperties.filterFields[ mkey ];
-
-                var title = this.classProperties.columns[mkey].label;
-                field.label = _(title);
-                field.small = true;
-
-                var fieldObj = new ka.Field(field, this.searchPane, {win: this.win}).addEvent('change',
-                    this.doSearch.bind(this));
-
-                this.searchFields.set(mkey, fieldObj);
-
-                if (field.type == 'select') {
-                    fieldObj.select.add('', _('-- Please choose --'), 'top');
-                    fieldObj.setValue('');
-                }
-
-                if (this.win.params && this.win.params.filter) {
-                    Object.each(this.win.params.filter, function (item, key) {
-                        if (item == mkey) {
-                            fieldObj.setValue(this.win.params.item[key]);
-                            doSearchNow = true;
-                        }
-                    }.bind(this));
-                }
-
-            }.bind(this));
-        } else {
-            this.filterButton.destroy();
-        }
-
-        if (doSearchNow) {
-            this.toggleSearch();
-            this.loadAlreadyTriggeredBySearch = true;
-            this.doSearch();
-        }
-    },
-
-    doSearch: function () {
-        if (this.lastTimer) {
-            clearTimeout(this.lastTimer);
-        }
-
-        var mySearch = function () {
-            this.loadPage(1);
-        }.bind(this);
-        this.lastTimer = mySearch.delay(200);
-    },
-
-    getSearchVals: function () {
-        var res = new Hash();
-
-        this.searchFields.each(function (field, key) {
-            res.set(key, field.getValue());
-        });
-
-        return JSON.encode(res);
-    },
-
-    toggleSearch: function () {
-        if (this.searchEnabled == 1) {
-            this.filterButton.set('class', 'ka-list-search-button');
-            this.searchEnabled = 0;
-            this.searchPane.tween('height', 1);
-            this.main.tween('bottom', 30);
-        } else {
-            this.searchEnabled = 1;
-            this.filterButton.set('class', 'ka-list-search-button ka-list-search-button-active');
-            this.searchPane.tween('height', 121);
-            this.main.tween('bottom', 120 + 30);
         }
     },
 
@@ -568,17 +477,11 @@ ka.WindowList = new Class({
                     return;
                 }
 
-                if (this.loader) {
-                    this.loader.show();
-                }
-
                 new Request.JSON({url: _pathAdmin + this.win.getEntryPoint() +
                     '?cmd=removeSelected', noCache: 1, onComplete: function (res) {
 
                     //todo, handle errors
-                    if (this.loader) {
-                        this.loader.hide();
-                    }
+                    this.win.setLoading(false);
 
                     if (this.combine) {
                         this.reload();
@@ -701,9 +604,7 @@ ka.WindowList = new Class({
 
         this.prepareLoadPage();
 
-        if (this.loader) {
-            this.loader.show();
-        }
+        this.win.setLoading(true, t('Loading ...'));
 
         var req = {};
         this.ctrlPage.value = pPage;
@@ -726,38 +627,26 @@ ka.WindowList = new Class({
             onComplete: function (res) {
                 this.currentPage = pPage;
 
-                this.renderItems(res.data);
+                this.renderItems(res.data || []);
             }.bind(this)}).get(req);
     },
 
     renderItems: function (pResult) {
         this.checkboxes = [];
 
-        if (this.loader) {
-            this.loader.hide();
-        }
+        this.win.setLoading(false);
 
         this.lastResult = pResult;
 
         [this.ctrlPrevious, this.ctrlNext].each(function (item) {
             document.id(item).setStyle('opacity', 1);
         });
-
         if (this.lastNoItemsDiv) {
             this.lastNoItemsDiv.destroy();
         }
 
         if (1 === this.currentPage && 0 === pResult.length) {
             this.ctrlPage.value = 0;
-            this.lastNoItemsDiv = new Element('div', {
-                style: 'position: absolute; left: 0; right: 0; top: 0; bottom: 0; background-color: #eee',
-                styles: {
-                    opacity: 0.6,
-                    textAlign: 'center',
-                    padding: 25
-                },
-                text: t('No entries, yet.')
-            }).inject(this.main);
         }
 
         if (this.currentPage <= 1) {
