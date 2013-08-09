@@ -857,26 +857,19 @@ ka.AdminInterface = new Class({
         this.login.setStyle('display', 'block');
 
         this.loginFx.start({
-            0: { //loadingBackendAnimationLeft
-                width: 0,
-                left: 0
-            },
-            1: { //loadingBackendAnimationTop
-                height: 0
-            },
-            2: { //middle
+            0: { //middle
                 marginTop: 200,
                 left: 0,
                 width: 325,
                 height: 280
             },
-            3: { //middleTop
+            1: { //middleTop
                 marginLeft: 0
             },
-            4: { //loginForm
+            2: { //loginForm
                 opacity: 1
             },
-            5: { //loginLoadingBarText
+            3: { //loginLoadingBarText
                 opacity: 1
             }
 
@@ -1018,22 +1011,10 @@ ka.AdminInterface = new Class({
 
         var self = this;
 
-        this.loadingBackendAnimationLeft = new Element('div', {
-            'class': 'ka-login-animation-left',
-            style: 'width: 0px'
-        }).inject(this.middle);
-
-        this.loadingBackendAnimationTop = new Element('div', {
-            'class': 'ka-login-animation-top',
-            style: 'height: 0px'
-        }).inject(this.middleTop, 'after');
-
         this.loaderTopLine.setStyle('display', 'none');
         this.loginLoadingBarText.setStyle('display', 'none');
 
         this.loginFx = new Fx.Elements([
-            this.loadingBackendAnimationLeft,
-            this.loadingBackendAnimationTop,
             this.middle,
             this.middleTop,
             this.loginForm
@@ -1045,23 +1026,16 @@ ka.AdminInterface = new Class({
         this.middle.setStyle('border', '0px solid #ffffff');
 
         this.loginFx.start({
-            0: { //loadingBackendAnimationLeft
-                width: 220,
-                left: -220
-            },
-            1: { //loadingBackendAnimationTop
-                height: 40
-            },
-            2: { //middle
+            0: { //middle
                 marginTop: 0,
-                left: 110,
-                width: window.getSize().x - 220,
+                left: 0,
+                width: window.getSize().x,
                 height: window.getSize().y
             },
-            3: { //middleTop
-                marginLeft: -220
+            1: { //middleTop
+                marginLeft: 0
             },
-            4: { //loginForm
+            2: { //loginForm
                 opacity: 0
             }
 
