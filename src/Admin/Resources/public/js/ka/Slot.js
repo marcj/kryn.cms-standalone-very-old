@@ -35,7 +35,7 @@ ka.Slot = new Class({
     },
 
     mapDragEvents: function() {
-        this.slot.addEventListener('dragover', function(e) {
+        this.slot.addListener('dragover', function(e) {
             return this.checkDragOver(e);
         }.bind(this), false);
 
@@ -49,7 +49,7 @@ ka.Slot = new Class({
             }).delay(100, this);
         }.bind(this), false);
 
-        this.slot.addEventListener('drop', function(e) {
+        this.slot.addListener('drop', function(e) {
             return this.checkDrop(e);
         }.bind(this), false);
     },
@@ -257,6 +257,7 @@ ka.Slot = new Class({
 
         if (pFocus) {
             this.getEditor().getContentField().select(content);
+            content.focus();
         }
 
         return content;
