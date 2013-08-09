@@ -52,14 +52,18 @@ ka.ContentTypes.Text = new Class({
         }
     },
 
-    createLayout: function () {
+    focus: function() {
+        this.main.focus();
+    },
+
+    createLayout: function() {
         this.main = new Element('div', {
             contentEditable: true,
             html: '<p><br/></p>',
             'class': 'ka-content-text selectable'
         }).inject(this.contentInstance);
 
-        this.main.addEvent('focus', function(e){
+        this.main.addEvent('focus', function(e) {
             this.getEditor().click(e, this.main.getParent('.ka-content'));
         }.bind(this));
 
@@ -84,18 +88,18 @@ ka.ContentTypes.Text = new Class({
                 if (this.value) {
                     this.main.set('html', this.value);
                 }
-                editor.on('change', function(ed){
+                editor.on('change', function(ed) {
                     this.checkChange();
                 }.bind(this));
             }.bind(this)
         }, config));
 
-        this.main.addEvent('keyup', function(ed){
+        this.main.addEvent('keyup', function(ed) {
             this.checkChange();
         }.bind(this));
     },
 
-    checkChange: function () {
+    checkChange: function() {
         if (this.ready) {
             if (this.oldData != this.getValue()) {
                 this.contentInstance.fireChange();
@@ -104,13 +108,13 @@ ka.ContentTypes.Text = new Class({
         }
     },
 
-    setValue: function (pValue) {
+    setValue: function(pValue) {
         this.value = pValue;
         this.oldData = this.value;
         this.main.set('html', this.value || '<p><br/></p>');
     },
 
-    getValue: function () {
+    getValue: function() {
         return this.main.get('html');
     },
 
