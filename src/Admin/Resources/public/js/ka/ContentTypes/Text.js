@@ -55,6 +55,7 @@ ka.ContentTypes.Text = new Class({
     createLayout: function () {
         this.main = new Element('div', {
             contentEditable: true,
+            html: '<p><br/></p>',
             'class': 'ka-content-text selectable'
         }).inject(this.contentInstance);
 
@@ -106,7 +107,7 @@ ka.ContentTypes.Text = new Class({
     setValue: function (pValue) {
         this.value = pValue;
         this.oldData = this.value;
-        this.main.set('html', this.value);
+        this.main.set('html', this.value || '<p><br/></p>');
     },
 
     getValue: function () {
