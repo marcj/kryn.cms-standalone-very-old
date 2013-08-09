@@ -35,9 +35,9 @@ ka.Slot = new Class({
     },
 
     mapDragEvents: function() {
-        this.slot.addListener('dragover', function(e) {
+        this.slot.addEventListener('dragover', function(e) {
             return this.checkDragOver(e);
-        }.bind(this));
+        }.bind(this), false);
 
         this.slot.addListener('dragleave', function(e) {
             this.removePlaceholder = true;
@@ -47,9 +47,9 @@ ka.Slot = new Class({
                 }
                 delete this.removePlaceholder;
             }).delay(100, this);
-        }.bind(this));
+        }.bind(this), false);
 
-        this.slot.addListener('drop', function(e) {
+        this.slot.addEventListener('drop', function(e) {
             return this.checkDrop(e);
         }.bind(this), false);
     },
@@ -70,34 +70,58 @@ ka.Slot = new Class({
             var items = pEvent.dataTransfer.files.length > 0 ? pEvent.dataTransfer.files : pEvent.dataTransfer.items,
                 data, content;
 
-            if (this.lastPlaceHolder) {
-                Array.each(items, function(item) {
-
-                    data = null;
-
-                    if ('application/json' === item.type) {
-                        data = pEvent.dataTransfer.getData('application/json');
-                        if (data && (!JSON.validate(data) || !(data = JSON.decode(data)))) {
-                            data = null;
+            if (!items && pEvent.dataTransfer.types) {
+                items = []
+                Array.each(pEvent.dataTransfer.types, function(type) {
+                    var dataType = pEvent.dataTransfer.getData(type);
+                    items.push({
+                        type: type,
+                        getAsString: function(cb) {
+                            cb(dataType);
                         }
-                    } else {
-                        //search for plugin that handles it
-                        Object.each(ka.ContentTypes, function(type, key) {
-                            if ('array' === typeOf(type.mimeTypes) && type.mimeTypes.contains(item.type)) {
-                                data = {
-                                    type: key
-                                };
+                    });
+                });
+            }
+
+            if (this.lastPlaceHolder) {
+                if (items) {
+                    Array.each(items, function(item) {
+
+                        data = null;
+
+                        if ('application/json' === item.type) {
+                            item.getAsString(function(data) {
+                                if (data && (!JSON.validate(data) || !(data = JSON.decode(data)))) {
+                                    data = null;
+                                }
+                                if (data) {
+                                    content = this.addContent(data, true, item);
+                                    document.id(content).inject(this.lastPlaceHolder, 'before');
+                                }
+
+                                this.lastPlaceHolder.destroy();
+                            }.bind(this));
+                        } else {
+                            //search for plugin that handles it
+                            Object.each(ka.ContentTypes, function(type, key) {
+                                if ('array' === typeOf(type.mimeTypes) && type.mimeTypes.contains(item.type)) {
+                                    data = {
+                                        type: key
+                                    };
+                                }
+                            });
+
+                            if (data) {
+                                content = this.addContent(data, true, item);
+                                document.id(content).inject(this.lastPlaceHolder, 'before');
+                                this.lastPlaceHolder.destroy();
                             }
-                        });
-                    }
+                        }
 
-                    if (data) {
-                        content = this.addContent(data, true, item);
-                        document.id(content).inject(this.lastPlaceHolder, 'before');
-                    }
-                }.bind(this));
-
-                this.lastPlaceHolder.destroy();
+                    }.bind(this));
+                } else {
+                    this.lastPlaceHolder.destroy();
+                }
             }
 
             pEvent.stopPropagation();
@@ -118,6 +142,8 @@ ka.Slot = new Class({
                     return;
                 }
             }
+
+            pEvent.dataTransfer.dropEffect = 'copy';
 
             delete this.removePlaceholder;
 
@@ -152,6 +178,7 @@ ka.Slot = new Class({
                 }
             }
 
+            pEvent.stopPropagation();
             pEvent.preventDefault();
             return false;
         }
