@@ -270,6 +270,10 @@ ka.WindowCombine = new Class({
             this.extraActionBar = new ka.ButtonGroup(this.topActionBar);
             this.actionBarSearchBtn.inject(this.extraActionBar);
         }
+
+//        this.editAddSidebarContainer = new Element('div', {
+//
+//        }).inject()
     },
 
     renderActionBar: function() {
@@ -1215,6 +1219,9 @@ ka.WindowCombine = new Class({
 
             win.entryPoint = ka.entrypoint.getRelative(this.win.entryPoint, _this.classProperties.editEntrypoint);
             win.params = {item: pItem};
+//            win.getSidebar = function() {
+//                return this.editAddSidebarContainer;
+//            }.bind(this);
 //            win.getTitleGroupContainer = function() {
 //                return this.combineActionBar;
 //            }.bind(this);

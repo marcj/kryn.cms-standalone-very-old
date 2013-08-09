@@ -413,7 +413,7 @@ span.selectable span, div.selectable div {
     color: white;
     background-color: #22638e;
     border-bottom: 1px solid black;
-    z-index: 1000;
+    position: relative;
 }
 /*
 .ka-main-menu-top-navigation {

@@ -1086,10 +1086,12 @@ ka.Window = new Class({
     },
 
     addSidebar: function() {
-        if (!this.sidebar) {
+        if (!this.getSidebar()) {
             this.sidebar = new Element('div', {
                 'class': 'ka-Window-sidebar'
             }).inject(this.border);
+
+            this.sidebarContainer = new Element('div').inject(this.sidebar);
 
             this.sidebarSplitter = new ka.LayoutSplitter(this.sidebar, 'left');
 
@@ -1100,7 +1102,7 @@ ka.Window = new Class({
             this.setSidebarWidth(200);
         }
 
-        return this.sidebar
+        return this.getSidebar();
     },
 
     setSidebarWidth: function(width) {
@@ -1109,7 +1111,7 @@ ka.Window = new Class({
     },
 
     getSidebar: function() {
-        return this.sidebar;
+        return this.sidebarContainer;
     },
 
     addButtonGroup: function () {

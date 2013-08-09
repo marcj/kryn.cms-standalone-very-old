@@ -3,7 +3,6 @@
     position: relative;
     white-space: nowrap;
     background-color: #E4E4E4;
-    padding: 3px;
     padding-bottom: 0;
 }
 
@@ -23,12 +22,7 @@ a.ka-tabGroup-item {
     height: 42px;
     font-size: 15px;
     border-right: 1px solid #c9c9c9;
-    border-top: 1px solid #c9c9c9;
     background-color: #E4E4E4;
-}
-
-a.ka-tabGroup-item:first-child {
-    border-left: 1px solid #c9c9c9;
 }
 
 .ka-tabGroup-item-with-image:before {

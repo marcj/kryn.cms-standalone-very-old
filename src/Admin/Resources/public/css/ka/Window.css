@@ -474,8 +474,25 @@ h3.kryn-headline {
     padding: 0 15px;
     text-align: left;
     margin: 0;
+    cursor: pointer;
 }
 
+.ka-Window-sidebar .ka-Splitter-main {
+    left: -20px;
+    border-left: 0;
+    width: 20px;
+}
+.ka-Window-sidebar .ka-ButtonGroup {
+    margin: 0;
+    display: block;
+    white-space: pre;
+    border-top: 1px solid gray;
+}
+
+
+.ka-Window-sidebar .ka-ButtonGroup:first-child {
+    border-top: 0;
+}
 
 .ka-Window-sidebar .ka-Button:hover {
     background-color: #6e6e6e;

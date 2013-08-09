@@ -423,7 +423,7 @@ ka.WindowEdit = new Class({
 
         this.renderActionBar();
 
-        this.renderMultilanguage();
+        //this.renderMultilanguage();
 
         this.renderFields();
 
@@ -504,7 +504,7 @@ ka.WindowEdit = new Class({
 
     },
 
-    renderMultilanguage: function () {
+/*    renderMultilanguage: function () {
 
         if (this.classProperties.multiLanguage) {
 
@@ -534,7 +534,7 @@ ka.WindowEdit = new Class({
 
         }
 
-    },
+    },*/
 
     changeVersion: function () {
         var value = this.versioningSelect.getValue();
@@ -597,27 +597,26 @@ ka.WindowEdit = new Class({
     renderActionBar: function (container) {
         var container = this.win.addSidebar();
 
-        this.saveBtn = new ka.Button([t('Save'), '#icon-checkmark-6'])
-            .addEvent('click', function () {
-                this.save();
-            }.bind(this))
-            .setButtonStyle('blue')
-            .inject(container);
+        this.actionGroup = new ka.ButtonGroup(container);
+
+        this.saveBtn = this.actionGroup.addButton(t('Save'), '#icon-checkmark-6', function () {
+            this.save();
+        }.bind(this));
+
+        this.saveBtn.setButtonStyle('blue')
 
 
-        this.removeBtn = new ka.Button([t('Remove'), '#icon-warning'])
-            .setButtonStyle('red')
-            .addEvent('click', this.remove.bind(this))
-            .inject(container);
+        this.removeBtn = this.actionGroup.addButton(t('Remove'), '#icon-warning', this.remove.bind(this));
+        this.removeBtn.setButtonStyle('red');
 
-        this.resetBtn = new ka.Button([t('Reset'), '#icon-escape'], this.reset.bind(this)).inject(container);
+        this.resetBtn = this.actionGroup.addButton(t('Reset'), '#icon-escape', this.reset.bind(this));
 
 //        if (this.classProperties.workspace) {
 //            this.showVersionsBtn = this.actionBarGroup1.addButton(t('Versions'), '#icon-history', this.showVersions);
 //        }
 
         if (true) {
-            this.previewBtn = new ka.Button([t('Preview'), '#icon-eye']);
+            this.previewBtn = this.actionGroup.addButton(t('Preview'), '#icon-eye');
         }
 
         this.checkTabFieldWidth();
