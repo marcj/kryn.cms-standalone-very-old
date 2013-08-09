@@ -195,6 +195,7 @@ ka.WindowList = new Class({
         this.container.empty();
 
         this.renderTopActionBar();
+        this.renderSideActionBar();
         this.renderMultilanguage();
 
         this.renderLayout();
@@ -254,6 +255,7 @@ ka.WindowList = new Class({
 
     renderLayout: function () {
         this.container.setStyle('opacity', 0);
+        this.win.getTitleGroupContainer().setStyle('margin-bottom', 10);
         this.renderLayoutTable();
     },
 
@@ -408,36 +410,44 @@ ka.WindowList = new Class({
         }.bind(this));
     },
 
-    renderTopActionBar: function (container) {
-        this.topActionBar = container || this.win.getTitleGroupContainer();
+    renderSideActionBar: function() {
+        var container = this.win.addSidebar();
 
-        this.actionsNavi = new ka.ButtonGroup(this.topActionBar);
-        document.id(this.actionsNavi).addClass('ka-window-list-buttonGroup');
+        new Element('h2', {
+            'class': 'light',
+            text: t('Actions')
+        }).inject(container);
 
-        if (this.classProperties.remove) {
-            this.actionsNavi.addButton(t('Remove'), ka.mediaPath(this.classProperties.removeIcon), function () {
-                this.removeSelected();
-            }.bind(this));
+        if (this.classProperties.add) {
+            this.addBtn = new ka.Button([this.options.addLabel || this.classProperties.addLabel, ka.mediaPath(this.classProperties.addIcon)])
+                .addEvent('click', function() {
+                    this.openAddItem();
+                }.bind(this))
+                .inject(container);
         }
 
         if (this.classProperties.asNested && (this.classProperties.nestedRootAdd)) {
-
-            this.addRootBtn = this.actionsNavi.addButton(this.options.nestedRootAddLabel ||
-                this.classProperties.nestedRootAddLabel,
-                ka.mediaPath(this.classProperties.nestedRootAddIcon), function () {
+            this.addRootBtn = new ka.Button([this.options.nestedRootAddLabel ||
+                this.classProperties.nestedRootAddLabel, ka.mediaPath(this.classProperties.nestedRootAddIcon)])
+                .addEvent('click', function() {
                     this.addNestedRoot();
-                }.bind(this));
+                }.bind(this))
+                .inject(container);
         }
 
-        if (this.classProperties.add) {
-
-            this.addBtn = this.actionsNavi.addButton(this.options.addLabel || this.classProperties.addLabel,
-                ka.mediaPath(this.classProperties.addIcon), function () {
-                    this.openAddItem();
-                }.bind(this));
+        if (this.classProperties.remove) {
+            this.removeBtn = new ka.Button([t('Remove'), ka.mediaPath(this.classProperties.removeIcon)])
+                .addEvent('click', function() {
+                    this.removeSelected();
+                }.bind(this))
+                .inject(container);
         }
+    },
 
-        this.actionBarSearchBtn = this.actionsNavi.addButton(t('Search'), '#icon-search');
+    renderTopActionBar: function (container) {
+        this.topActionBar = container || this.win.getTitleGroupContainer();
+
+        this.actionBarSearchBtn = new ka.Button([t('Search'), '#icon-search']).inject(this.topActionBar);
 
         /*
          TODO

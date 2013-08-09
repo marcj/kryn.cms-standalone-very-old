@@ -159,7 +159,6 @@ ka.getLocalSetting = function(key) {
 ka.entrypoint = {
 
     open: function (pEntrypoint, pOptions, pSource, pInline, pDependWindowId) {
-
         var entrypoint = ka.entrypoint.get(pEntrypoint);
 
         if (!entrypoint) {
@@ -172,7 +171,6 @@ ka.entrypoint = {
         } else if (entrypoint.type == 'function') {
             ka.entrypoint.exec(entrypoint, pOptions, pSource);
         }
-
     },
 
     getRelative: function (pCurrent, pEntryPoint) {

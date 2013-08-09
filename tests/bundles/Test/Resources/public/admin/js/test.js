@@ -3,6 +3,13 @@ var test_test = new Class({
     initialize: function(pWin){
         this.win = pWin;
 
+
+        var field1 = new ka.Field({
+            type: 'layout',
+            label: t('Layout')
+        }, pWin.getContentContainer());
+
+        return;
         var form = new ka.FieldForm(pWin.getContentContainer(), {
             'bla': {
                 type: 'childrenSwitcher',

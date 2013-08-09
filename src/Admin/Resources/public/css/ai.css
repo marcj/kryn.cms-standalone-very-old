@@ -13,7 +13,6 @@ html, body {
     -webkit-font-smoothing: antialiased;
     text-rendering: geometricPrecision;
     font-smooth: never;
-
 }
 
 .ka-admin table {
@@ -49,7 +48,8 @@ html, body {
 }
 
 
-.ka-admin h2.light {
+.ka-admin h2.light,
+.ka-admin h3.light {
     font-family: "SourceSansPro-Light", "SourceSansPro-Regular", "Lucida Grande", "DejaVu Sans", "Bitstream Vera Sans", "Segoe UI", "Tahoma", sans-serif;
 }
 
@@ -253,7 +253,7 @@ td {
 
 .ka-admin {
     -webkit-tap-highlight-color: transparent;
-    background-color: #e8e8e8;
+    background-color: #eee;
 }
 
 /* ie9 hack for gradients */
@@ -366,7 +366,7 @@ span.selectable span, div.selectable div {
 
 .ka-wm-tab-active,
 .ka-wm-tab-active:hover {
-    background-color: #f5f5f5;
+    background-color: #eee;
     height: 31px;
 }
 

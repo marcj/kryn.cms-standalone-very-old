@@ -4,19 +4,18 @@
             <entryPoint path="test" type="custom" icon="#icon-warning" link="true">
                 <label>Test</label>
                 <children>
-                    <entryPoint path="testObjectList" type="combine" link="true">
-                        <title>Test Object</title>
-                        <class>\Test\Admin\TestCrud</class>
-                        <label>Test</label>
+                    <entryPoint path="testObjectList" type="list" link="true">
+                        <label>Test Object CRUD</label>
+                        <class>\Test\Controller\Admin\TestCrud</class>
                         <children>
-                            <entryPoint path="add" type="add">
-                                <title>Test Object Add</title>
-                                <class>\Test\Admin\TestCrud</class>
-                            </entryPoint>
-                            <entryPoint id="edit" type="edit">
-                                <title>Test Object Edit</title>
-                                <class>\Test\Admin\TestCrud</class>
-                            </entryPoint>
+                          <entryPoint path="add" type="add">
+                            <label>Add</label>
+                            <class>\Test\Controller\Admin\TestCrud</class>
+                          </entryPoint>
+                          <entryPoint path="edit" type="edit">
+                            <label>Edit</label>
+                            <class>\Test\Controller\Admin\TestCrud</class>
+                          </entryPoint>
                         </children>
                     </entryPoint>
                 </children>

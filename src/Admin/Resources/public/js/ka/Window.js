@@ -721,7 +721,6 @@ ka.Window = new Class({
     },
 
     destroy: function () {
-
         this.removeHotkeys();
 
         if (window['contentCantLoaded_' + this.customId]) {
@@ -734,11 +733,6 @@ ka.Window = new Class({
 
         if (this.custom) {
             delete this.custom;
-        }
-
-        if (this.title) {
-            this.title.destroy();
-            delete this.title;
         }
 
         if (this.customCssAsset) {
@@ -1004,15 +998,13 @@ ka.Window = new Class({
         this.mainLayout = new ka.Layout(this.win, {
             layout: [
                 {columns: [null], height: 1},
-                {columns: [null], height: 1},
                 {columns: [null], height: '100%'}
             ]
         });
 
         this.mainLayout.getCell(1, 1).setStyle('height', 'auto');
-        this.mainLayout.getCell(2, 1).setStyle('height', 'auto');
 
-        this.title = new Element('div', {'class': 'kwindow-win-title'}).inject(this.mainLayout.getCell(1, 1));
+        this.title = new Element('div', {'class': 'kwindow-win-title'}).inject(this.win);
 
         this.titlePath = new Element('span', {'class': 'ka-kwindow-titlepath'}).inject(this.title);
         this.titleTextContainer = new Element('span', {'class': 'ka-kwindow-titlepath-main'}).inject(this.titlePath);
@@ -1020,20 +1012,16 @@ ka.Window = new Class({
         this.titleAdditional = new Element('span', {'class': 'ka-kwindow-titlepath-additional'}).inject(this.titlePath);
 
         this.titleGroups =
-            new Element('div', {'class': 'kwindow-win-titleGroups'}).inject(this.mainLayout.getCell(2, 1));
-
-        this.createTitleBar();
+            new Element('div', {'class': 'kwindow-win-titleGroups'}).inject(this.mainLayout.getCell(1, 1));
 
         if (this.isInline()) {
             this.title.setStyle('display', 'none');
             this.titleGroups.setStyle('display', 'none');
-            this.titleBar.setStyle('display', 'none');
             if (this.linker) {
                 this.linker.setStyle('display', 'none');
             }
         }
-
-        this.content = new Element('div', {'class': 'kwindow-win-content'}).inject(this.mainLayout.getCell(3, 1));
+        this.content = new Element('div', {'class': 'kwindow-win-content'}).inject(this.mainLayout.getCell(2, 1));
 
         this.inFront = true;
 
@@ -1097,6 +1085,33 @@ ka.Window = new Class({
         return this.content;
     },
 
+    addSidebar: function() {
+        if (!this.sidebar) {
+            this.sidebar = new Element('div', {
+                'class': 'ka-Window-sidebar'
+            }).inject(this.border);
+
+            this.sidebarSplitter = new ka.LayoutSplitter(this.sidebar, 'left');
+
+            this.sidebarSplitter.addEvent('resize', function() {
+                document.id(this.mainLayout).setStyle('right', this.sidebar.getStyle('width').toInt() + 20);
+            }.bind(this));
+
+            this.setSidebarWidth(200);
+        }
+
+        return this.sidebar
+    },
+
+    setSidebarWidth: function(width) {
+        document.id(this.sidebar).setStyle('width', width);
+        document.id(this.mainLayout).setStyle('right', width + 20);
+    },
+
+    getSidebar: function() {
+        return this.sidebar;
+    },
+
     addButtonGroup: function () {
         return new ka.ButtonGroup(this.getTitleGroupContainer());
     },
@@ -1116,24 +1131,6 @@ ka.Window = new Class({
 
         this.content.addClass('kwindow-win-content-with-bottom');
         return this.bottomBar;
-    },
-
-    createTitleBar: function () {
-
-        this.titleBar = new Element('div', {
-            'class': 'kwindow-win-titleBar'
-        }).inject(this.win);
-
-        if (!this.isPopup()) {
-            this.maximizer = new Element('div', {
-                'class': 'kwindow-win-titleBarIcon icon-expand-4'
-            }).addEvent('click', this.maximize.bind(this)).inject(this.titleBar);
-        }
-
-//        this.closer = new Element('div', {
-//            'class': 'kwindow-win-titleBarIcon icon-cancel-4'
-//        }).addEvent('click', this.close.bind(this)).inject(this.titleBar);
-
     },
 
     setBlocked: function (pBlocked) {

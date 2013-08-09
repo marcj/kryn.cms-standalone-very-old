@@ -22,39 +22,11 @@ ka.WindowCombine = new Class({
         }).inject(this.win.content);
 
         this.combineContainer.setStyle('opacity', 0);
+        this.win.getTitleGroupContainer().setStyle('margin-bottom', 10);
 
         this.renderLayoutTable();
 
-        this.mainLayout = new ka.Layout(this.combineContainer, {
-            layout: [
-                {
-                    height: 60,
-                    columns: [null]
-                },
-                {
-                    columns: [null]
-                }
-            ]
-        });
-
-        this.headerLayout = new ka.Layout(this.mainLayout.getCell(1, 1), {
-            layout: [
-                {
-                    columns: [null, 250]
-                }
-            ]
-        });
-
-        this.win.setTitle('');
-        this.win.titleText.inject(this.headerLayout.getCell(1, 1));
-        this.win.titleText.addClass('ka-windowCombine-title');
-
-        // for windowEdit/Add actionbars
-        this.combineActionBar = new Element('div', {
-            'class': 'ka-windowCombine-combine-actionbar'
-        }).inject(this.headerLayout.getCell(1, 2));
-
-        this.contentLayout = new ka.Layout(this.mainLayout.getCell(2, 1), {
+        this.contentLayout = new ka.Layout(this.combineContainer, {
             layout: [
                 {
                     columns: [300, 15, null]
@@ -160,13 +132,6 @@ ka.WindowCombine = new Class({
             this.renderSearchPane();
             this.createItemLoader();
         }
-
-        this.win.listingTitle = new Element('div', {
-            text: t('Browse'),
-            'class': 'ka-windowCombine-title'
-        }).inject(this.container, 'top');
-
-        document.id(this.table).setStyle('top', 60);
     },
 
     isCombineLeftVisible: function() {
@@ -336,20 +301,17 @@ ka.WindowCombine = new Class({
 
                 this.lastViewFx = new Fx.Elements([
                     this.listContainer,
-                    this.combineActionBar,
                     this.actionBarNavigation,
                     this.combineContainer
                 ], options).start({
                         0: {opacity: 1},
-                        1: {opacity: 0},
-                        2: {opacity: 1},
-                        3: {
+                        1: {opacity: 1},
+                        2: {
                             left: 200,
                             right: -200,
                             opacity: 0
                         }
                     }).chain(function() {
-                        this.combineActionBar.setStyle('display', 'none');
                         this.combineContainer.setStyle('display', 'none');
                     }.bind(this));
 
@@ -358,7 +320,6 @@ ka.WindowCombine = new Class({
                 }
 
             } else {
-                this.combineActionBar.setStyle('display', 'block');
 
                 this.combineContainer.setStyles({
                     display: 'block',
@@ -369,14 +330,12 @@ ka.WindowCombine = new Class({
 
                 this.lastViewFx = new Fx.Elements([
                     this.listContainer,
-                    this.combineActionBar,
                     this.actionBarNavigation,
                     this.combineContainer
                 ], options).start({
                         0: {opacity: 0},
-                        1: {opacity: 1},
-                        2: {opacity: 0},
-                        3: {
+                        1: {opacity: 0},
+                        2: {
                             left: 0,
                             right: 0,
                             opacity: 1
@@ -386,6 +345,10 @@ ka.WindowCombine = new Class({
                         this.actionBarNavigation.setStyle('display', 'none');
                     }.bind(this));
             }
+
+            if (this.table)
+                this.table.updateTableHeader();
+
             if (true !== withoutParamsSet) {
                 this.setWinParams();
             }
@@ -1066,9 +1029,9 @@ ka.WindowCombine = new Class({
 
         win.entryPoint = ka.entrypoint.getRelative(this.getEntryPoint(), this.classProperties.editEntrypoint);
 
-        win.getTitleGroupContainer = function() {
-            return this.combineActionBar;
-        }.bind(this);
+//        win.getTitleGroupContainer = function() {
+//            return this.combineActionBar;
+//        }.bind(this);
 
         this.currentAdd = new ka.WindowAdd(win, this.mainRight);
         this.currentAdd.addEvent('add', this.addSaved.bind(this));
@@ -1121,9 +1084,9 @@ ka.WindowCombine = new Class({
 
         win.entryPoint = ka.entrypoint.getRelative(this.getEntryPoint(), this.classProperties.nestedRootAddEntrypoint);
 
-        win.getTitleGroupContainer = function() {
-            return this.combineActionBar;
-        }.bind(this);
+//        win.getTitleGroupContainer = function() {
+//            return this.combineActionBar;
+//        }.bind(this);
 
         this.currentRootAdd = new ka.WindowAdd(win, this.mainRight);
         this.currentRootAdd.addEvent('add', this.addRootSaved.bind(this));
@@ -1252,9 +1215,9 @@ ka.WindowCombine = new Class({
 
             win.entryPoint = ka.entrypoint.getRelative(this.win.entryPoint, _this.classProperties.editEntrypoint);
             win.params = {item: pItem};
-            win.getTitleGroupContainer = function() {
-                return this.combineActionBar;
-            }.bind(this);
+//            win.getTitleGroupContainer = function() {
+//                return this.combineActionBar;
+//            }.bind(this);
 
             this.currentEdit = new ka.WindowEdit(win, this.mainRight);
 
@@ -1331,9 +1294,9 @@ ka.WindowCombine = new Class({
             win.entryPoint =
                 ka.entrypoint.getRelative(this.win.entryPoint, this.classProperties.nestedRootEditEntrypoint);
             win.params = {item: pItem};
-            win.getTitleGroupContainer = function() {
-                return this.combineActionBar;
-            }.bind(this);
+//            win.getTitleGroupContainer = function() {
+//                return this.combineActionBar;
+//            }.bind(this);
 
             this.currentRootEdit = new ka.WindowEdit(win, this.mainRight);
 

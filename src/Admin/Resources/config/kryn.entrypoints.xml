@@ -26,7 +26,7 @@
                     </entryPoint>
                 </children>
             </entryPoint>
-            <entryPoint path="dashboard" type="custom" icon="#icon-chart-5" link="true">
+            <entryPoint path="dashboard" icon="#icon-chart-5">
                 <label>Dashboard</label>
             </entryPoint>
             <entryPoint path="pages" type="custom" link="true" icon="#icon-monitor">
@@ -79,7 +79,7 @@
                     </entryPoint>
                 </children>
             </entryPoint>
-            <entryPoint path="system" type="custom" link="true" icon="#icon-cog-4">
+            <entryPoint path="system" type="custom" icon="#icon-cog-4">
                 <label>System</label>
                 <children>
                     <entryPoint path="desktop-settings" type="custom" multi="true">

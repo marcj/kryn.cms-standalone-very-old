@@ -6,7 +6,14 @@
     bottom: 0;
     overflow: auto;
     min-height: 250px;
-    background-color: #f5f5f5;
+    background-color: #eee;
+}
+
+.kwindow-border > .ka-Layout-main-fixed {
+    bottom: 35px;
+    left: 25px;
+    right: 25px;
+    top: 25px;
 }
 
 .ka-frontpage-backend .kwindow-border {
@@ -119,13 +126,15 @@
 
 .kwindow-win-title,
 .kwindow-win-title-inaktive {
+    position: absolute;
+    bottom: 10px;
+    left: 25px;
     min-height: 22px;
     line-height: 20px;
     vertical-align: middle;
     font-weight: bold;
     text-align: left;
     color: #555;
-    position: relative;
     cursor: default;
 }
 
@@ -152,11 +161,6 @@
     content: "\a0";
 }
 
-.kwindow-win-titleGroups {
-    display: block;
-    margin: 0 15px;
-}
-
 /*
 .kwindow-win-titleGroups {
     display: block;
@@ -178,11 +182,11 @@
 
 .kwindow-win-content {
     position: absolute;
-    left: 15px;
-    right: 15px;
-    top: 15px;
-    bottom: 15px;
-    overflow: auto;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: white;
 }
 
 
@@ -283,12 +287,10 @@
 
 .ka-kwindow-titlepath {
     display: block;
-    line-height: 26px;
-    font-size: 14px;
+    line-height: 25px;
+    font-size: 12px;
     font-weight: normal;
-    color: #8d8d8d;
-    margin: 5px 15px;
-    border-radius: 2px;
+    color: #aaa;
 }
 
 .ka-kwindow-titlepath img {
@@ -444,4 +446,37 @@ h3.kryn-headline {
     cursor: nw-resize;
     left: -4px;
     top: -4px;
+}
+
+.ka-Window-sidebar {
+    position: absolute;
+    right: 0;
+    top: 25px;
+    bottom: 35px;
+    width: 150px;
+    background-color: #5c5c5c;
+}
+
+
+.ka-Window-sidebar h2 {
+    color: white;
+    padding: 0 15px;
+}
+
+.ka-Window-sidebar .ka-Button,
+.ka-Window-sidebar .ka-Button:hover,
+.ka-Window-sidebar .ka-Button:active {
+    display: block;
+    background-color: transparent;
+    box-shadow: none;
+    color: white;
+    border: 0;
+    padding: 0 15px;
+    text-align: left;
+    margin: 0;
+}
+
+
+.ka-Window-sidebar .ka-Button:hover {
+    background-color: #6e6e6e;
 }

@@ -2,7 +2,7 @@
 
 namespace Test\Controller\Admin;
  
-class TestCrud extends \Admin\ObjectWindow {
+class TestCrud extends \Admin\ObjectCrud {
 
     public $fields = array (
   '__Gazzo__' => 
@@ -50,13 +50,9 @@ class TestCrud extends \Admin\ObjectWindow {
 
     public $addIcon = '#icon-plus-5';
 
-    public $addEntrypoint = 'add';
-
     public $add = true;
 
     public $editIcon = '#icon-pencil-8';
-
-    public $editEntrypoint = 'edit';
 
     public $edit = true;
 
@@ -78,5 +74,8 @@ class TestCrud extends \Admin\ObjectWindow {
 
     public $versioning = true;
 
+
+    protected $addEntrypoint = 'add';
+    protected $editEntrypoint = 'edit';
 
 }

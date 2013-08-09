@@ -3,6 +3,10 @@
     text-align: right;
 }
 
+.ka-ActionBar:before {
+     content: "\a0";
+ }
+
 .ka-ActionBar-left {
     text-align: left;
 }

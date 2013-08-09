@@ -1,19 +1,14 @@
 ka.WindowEdit = new Class({
-
     Implements: [Events, Options],
-
     Binds: ['showVersions'],
 
     inline: false,
 
     options: {
-
         saveLabel: ''
-
     },
 
     fieldToTabOIndex: {}, //index fieldkey to main-tabid
-
     winParams: {}, //copy of pWin.params in constructor
 
     initialize: function (pWin, pContainer) {
@@ -600,44 +595,30 @@ ka.WindowEdit = new Class({
     },
 
     renderActionBar: function (container) {
-        this.actionBar = new Element('div', {
-            'class': 'ka-windowEdit-action-bar'
-        }).inject(container || this.win.getTitleGroupContainer());
-
-        this.removeBtn = new ka.Button([t('Remove'), '#icon-warning'])
-            .addEvent('click', this.remove.bind(this))
-            .inject(this.actionBar);
-        document.id(this.removeBtn).addClass('ka-Button-red');
-
-        this.actionBarGroup1 = new ka.ButtonGroup(this.actionBar);
-
-        this.resetBtn = this.actionBarGroup1.addButton(t('Reset'), '#icon-escape', this.reset.bind(this));
-
-        if (this.classProperties.workspace) {
-            this.showVersionsBtn = this.actionBarGroup1.addButton(t('Versions'), '#icon-history', this.showVersions);
-        }
-
-        if (true) {
-            this.previewBtn = this.actionBarGroup1.addButton(t('Preview'), '#icon-eye');
-        }
-
-        /*if (this.classProperties.versioning == true){
-
-         this.saveAndPublishBtn = new ka.Button([t('Save'), '#icon-checkmark-6'])
-         .addEvent('click', this._save.bind(this, [false,true]))
-         .inject(this.actionBar);
-         // this.saveAndPublishBtn = this.actionsNavi.addButton(t('Save and publish'), '#icon-disk-2', function () {
-         //     _this._save(false, true);
-         // }.bind(this));
-         }*/
+        var container = this.win.addSidebar();
 
         this.saveBtn = new ka.Button([t('Save'), '#icon-checkmark-6'])
             .addEvent('click', function () {
                 this.save();
             }.bind(this))
-            .inject(this.actionBar);
+            .setButtonStyle('blue')
+            .inject(container);
 
-        document.id(this.saveBtn).addClass('ka-Button-blue');
+
+        this.removeBtn = new ka.Button([t('Remove'), '#icon-warning'])
+            .setButtonStyle('red')
+            .addEvent('click', this.remove.bind(this))
+            .inject(container);
+
+        this.resetBtn = new ka.Button([t('Reset'), '#icon-escape'], this.reset.bind(this)).inject(container);
+
+//        if (this.classProperties.workspace) {
+//            this.showVersionsBtn = this.actionBarGroup1.addButton(t('Versions'), '#icon-history', this.showVersions);
+//        }
+
+        if (true) {
+            this.previewBtn = new ka.Button([t('Preview'), '#icon-eye']);
+        }
 
         this.checkTabFieldWidth();
     },
