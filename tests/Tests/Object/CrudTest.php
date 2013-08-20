@@ -2,6 +2,7 @@
 
 namespace Tests\Object;
 
+use Core\Object;
 use Tests\TestCaseWithCore;
 
 class CreateTest extends TestCaseWithCore
@@ -42,6 +43,26 @@ class CreateTest extends TestCaseWithCore
         //check empty
         $count = \Core\Object::getCount('Test\\Test');
         $this->assertEquals(0, $count);
+    }
+
+    public function testAdd()
+    {
+        $values = array(
+            'title' => 'News item',
+            'intro' => 'Lorem ipsum',
+            'newsDate' => strtotime(array_rand(['+', '-']) . rand(1, 30) . ' day', array_rand(['+', '-']) . rand(1, 24) . ' hours')
+        );
+        $pk = Object::add('Publication\\News', $values);
+
+        $item = Object::get('publication:news', $pk);
+
+        $this->assertEquals($values['title'], $item['title']);
+        $this->assertEquals($values['intro'], $item['intro']);
+        $this->assertEquals($values['newsDate'], $item['newsDate']);
+
+        $this->assertTrue(Object::remove('publication:news', $pk));
+
+        $this->assertNull(Object::get('publication:news', $pk));
     }
 
 }

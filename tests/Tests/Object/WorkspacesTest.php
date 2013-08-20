@@ -2,12 +2,14 @@
 
 namespace Tests\Object;
 
-use Tests\TestCaseWithCore;
 use Core\Object;
 use Core\WorkspaceManager;
+use Publication\Models\Base\NewsCategoryQuery;
 use Publication\Models\News;
+use Publication\Models\NewsCategory;
 use Publication\Models\NewsQuery;
 use Publication\Models\NewsVersionQuery;
+use Tests\TestCaseWithCore;
 
 class WorkspacesTest extends TestCaseWithCore
 {
@@ -63,11 +65,14 @@ class WorkspacesTest extends TestCaseWithCore
 
         $id11 = 0;
 
-        for ($i=1; $i<=50;$i++) {
-            $pk = Object::add('Publication\\News', array(
-                'title' => 'News '.$i,
-                'intro' => str_repeat('L', $i)
-            ));
+        for ($i = 1; $i <= 50; $i++) {
+            $values = array(
+                'title' => 'News ' . $i,
+                'intro' => str_repeat('L', $i),
+                'newsDate' => strtotime(array_rand(['+', '-']) . rand(1, 30) . ' day', array_rand(['+', '-']) . rand(1, 24) . ' hours')
+            );
+            $pk = Object::add('Publication\\News', $values);
+
             if ($i == 11) $id11 = $pk['id'];
         }
 
@@ -111,20 +116,30 @@ class WorkspacesTest extends TestCaseWithCore
         NewsQuery::create()->deleteAll();
         NewsVersionQuery::create()->deleteAll();
 
+        NewsCategoryQuery::create()->deleteAll();
+
+        $category1 = new NewsCategory();
+        $category1->setTitle('General');
+        $category2 = new NewsCategory();
+        $category2->setTitle('Company');
+
         $count = NewsQuery::create()->count();
         $this->assertEquals(0, $count);
 
         $id = 0;
 
-        for ($i=1; $i<=50;$i++) {
-
+        for ($i = 1; $i <= 50; $i++) {
             $object = new News;
-            $object->setTitle('News '.$i);
+            $object->setTitle('News ' . $i);
             $object->setIntro(str_repeat('L', $i));
+            $object->setNewsDate(
+                strtotime(array_rand_item(['+', '-']) . rand(1, 30) . ' day')
+                + strtotime(array_rand_item(['+', '-']) . rand(1, 24) . ' hours', 0)
+            );
+            $object->setCategory(array_rand_item([$category1, $category2]));
             $object->save();
             if ($i == 11)
                 $id = $object->getId();
-
         }
 
         $count = NewsQuery::create()->count();
