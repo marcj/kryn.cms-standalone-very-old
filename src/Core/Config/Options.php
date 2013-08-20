@@ -114,11 +114,27 @@ class Options extends Model
         return $this->options;
     }
 
+    /**
+     * @param string $key
+     */
+    public function removeOption($key)
+    {
+        unset($this->options[$key]);
+    }
+
+    /**
+     * @param string $key
+     * @param $val
+     */
     public function setOption($key, $val)
     {
         $this->options[$key] = $val;
     }
 
+    /**
+     * @param string $key
+     * @return mixed
+     */
     public function getOption($key)
     {
         return $this->options[$key];

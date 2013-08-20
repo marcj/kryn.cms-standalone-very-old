@@ -57,6 +57,11 @@ function debugPrint($pText = null, $pStop = null)
     }
 }
 
+function array_rand_item($array)
+{
+    return $array[array_rand($array)];
+}
+
 /**
  * Returns the value in $_REQUEST[$pVal] but with the possibility to escape the
  * value with pEscape.

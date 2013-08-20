@@ -311,7 +311,6 @@ class AdminController
                         ->addGetRoute('plugins', 'getPlugins')
                         ->addPostRoute('plugins', 'savePlugins')
 
-                        ->addPostRoute('model/from-object', 'setModelFromObject')
                         ->addPostRoute('model/from-objects', 'setModelFromObjects')
 
                         ->addPostRoute('model', 'saveModel')

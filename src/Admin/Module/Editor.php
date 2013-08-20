@@ -336,7 +336,7 @@ class Editor
             try {
                 $result[$object->getId()] = $this->setModelFromObject($bundle, $object);
             } catch (BuildException $e) {
-                $result[$object->getId()] = $e;
+                $result[$object->getId()] = $e->getMessage();
             }
         }
 
@@ -405,13 +405,12 @@ class Editor
      * @param array $methods
      * @return bool
      */
-    public function saveWindowDefinition($pClass, $listing = null, $add = null, $general = null, $methods = null)
+    public function saveWindowDefinition($pClass, $list = null, $add = null, $general = null, $methods = null)
     {
         if (substr($pClass, 0, 1) != '\\') {
             $pClass = '\\' . $pClass;
         }
 
-        $general = getArgv('general');
         $path = $general['file'];
 
         $sourcecode = "<?php\n\n";
@@ -434,8 +433,8 @@ class Editor
             $this->addVar($sourcecode, 'fields', $fields);
         }
 
-        if (is_array($listing)) {
-            foreach ($listing as $listVarName => $listVar) {
+        if (is_array($list)) {
+            foreach ($list as $listVarName => $listVar) {
                 $this->addVar($sourcecode, $listVarName, $listVar);
             }
         }

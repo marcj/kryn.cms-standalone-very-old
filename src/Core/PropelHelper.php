@@ -395,7 +395,12 @@ class PropelHelper
             }
         } catch (\PDOException $e) {
             dbRollback();
-            throw new \PDOException($e->getMessage() . ' in SQL: ' . $query);
+            $lastStatus = '';
+            if ('mysql' == Kryn::getSystemConfig()->getDatabase()->getMainConnection()->getType()) {
+                $lastStatus = dbExFetch('SHOW ENGINE INNODB STATUS');
+                $lastStatus = "\n" . $lastStatus['Status'];
+            }
+            throw new \PDOException($e->getMessage() . ' in SQL: ' . $query.$lastStatus);
         }
         dbCommit();
 

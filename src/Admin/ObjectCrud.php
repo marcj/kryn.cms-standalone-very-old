@@ -211,7 +211,7 @@ class ObjectCrud
     protected $nestedRootAdd = false;
     protected $nestedAddWithPositionSelection = true;
     protected $nestedRootAddIcon = '#icon-plus-2';
-    protected $nestedRootAddLabel = '[[Root]]';
+    protected $nestedRootNewLabel = '[[New Root]]';
     protected $nestedRootRemove = false;
 
     protected $nestedRootEditEntrypoint = 'root/';
@@ -225,7 +225,7 @@ class ObjectCrud
      * @var boolean
      */
     protected $add = false;
-    protected $addLabel = '[[Add]]';
+    protected $newLabel = '[[New]]';
     protected $addMultiple = false;
     protected $addMultipleFieldContainerWidth = '70%';
 
@@ -479,8 +479,8 @@ class ObjectCrud
             }
         }
 
-        $this->translate($this->nestedRootAddLabel);
-        $this->translate($this->addLabel);
+        $this->translate($this->nestedRootNewLabel);
+        $this->translate($this->newLabel);
     }
 
     public function translate(&$pField)
@@ -1950,14 +1950,14 @@ class ObjectCrud
         return $this->nestedRootAddIcon;
     }
 
-    public function setNestedRootAddLabel($nestedRootAddLabel)
+    public function setNestedRootNewLabel($nestedRootNewLabel)
     {
-        $this->nestedRootAddLabel = $nestedRootAddLabel;
+        $this->nestedRootNewLabel = $nestedRootNewLabel;
     }
 
-    public function getNestedRootAddLabel()
+    public function getNestedRootNewLabel()
     {
-        return $this->nestedRootAddLabel;
+        return $this->nestedRootNewLabel;
     }
 
     public function setNestedRootEdit($nestedRootEdit)
@@ -2020,14 +2020,14 @@ class ObjectCrud
         return $this->nestedAddWithPositionSelection;
     }
 
-    public function setAddLabel($addLabel)
+    public function setNewLabel($newLabel)
     {
-        $this->addLabel = $addLabel;
+        $this->newLabel = $newLabel;
     }
 
-    public function getAddLabel()
+    public function getNewLabel()
     {
-        return $this->addLabel;
+        return $this->newLabel;
     }
 
     public function setRemoveEntrypoint($removeEntrypoint)

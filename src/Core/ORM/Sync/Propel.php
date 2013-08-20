@@ -9,6 +9,179 @@ use Core\Config\Object;
 use Core\SystemFile;
 
 class Propel implements SyncInterface {
+
+    public function getPropelColumnType($field) {
+
+        switch (strtolower($field['type'])) {
+            case 'textarea':
+            case 'wysiwyg':
+            case 'codemirror':
+            case 'textlist':
+            case 'filelist':
+            case 'layoutelement':
+            case 'textlist':
+            case 'array':
+            case 'fieldtable':
+            case 'fieldcondition':
+            case 'objectcondition':
+            case 'filelist':
+
+                return 'LONGVARCHAR';
+
+            case 'text':
+            case 'password':
+            case 'files':
+
+                return 'VARCHAR';
+
+            case 'page':
+                return 'INTEGER';
+
+            case 'file':
+            case 'folder':
+
+                return 'VARCHAR';
+
+            case 'properties':
+
+                return 'OBJECT';
+
+            case 'select':
+
+                if ($field['multi']) {
+                    return 'LONGVARCHAR';
+                } else {
+                    return 'VARCHAR';
+                }
+
+            case 'lang':
+
+                return 'VARCHAR';
+
+            case 'number':
+
+                return $field['number_type'] ?: 'INTEGER';
+
+            case 'checkbox':
+
+                return'BOOLEAN';
+
+            case 'custom':
+
+                return $field['propelType'];
+
+            case 'date':
+            case 'datetime':
+
+                if ($field['asUnixTimestamp'] === false) {
+                    return $field['type'] == 'date' ? 'DATE' : 'TIMESTAMP';
+                }
+                return 'BIGINT';
+
+            default:
+                return false;
+        }
+    }
+
+    public function getPropelAdditional($field) {
+
+        $column = [];
+
+        switch (strtolower($field['type'])) {
+            case 'textarea':
+            case 'wysiwyg':
+            case 'codemirror':
+            case 'textlist':
+            case 'filelist':
+            case 'layoutelement':
+            case 'textlist':
+            case 'array':
+            case 'fieldtable':
+            case 'fieldcondition':
+            case 'objectcondition':
+            case 'filelist':
+
+                unset($column['size']);
+                break;
+
+            case 'text':
+            case 'password':
+            case 'files':
+
+                if ($field['maxlength']) {
+                    $column['size'] = $field['maxlength'];
+                }
+                break;
+
+            case 'page':
+                unset($column['size']);
+                break;
+
+            case 'file':
+            case 'folder':
+
+                $column['size'] = 255;
+                break;
+
+            case 'properties':
+                unset($column['size']);
+                break;
+
+            case 'select':
+
+                if (!$field['multi']) {
+                    $column['size'] = 255;
+                }
+
+                break;
+
+            case 'lang':
+
+                $column['size'] = 3;
+
+                break;
+
+            case 'number':
+
+                if ($field['maxlength']) {
+                    $column['size'] = $field['maxlength'];
+                }
+
+                break;
+
+            case 'checkbox':
+
+                break;
+
+            case 'custom':
+
+                if ($field['column']) {
+                    foreach ($field['column'] as $k => $v) {
+                        $column[$k] = $v;
+                    }
+                }
+
+                break;
+
+            case 'date':
+            case 'datetime':
+
+                break;
+
+            case 'object':
+
+                if ($field['objectRelation'] == 'nTo1' || $field['objectRelation'] == '1ToN') {
+
+                    $rightPrimaries = \Core\Object::getPrimaries($field['object']);
+                }
+
+                break;
+        }
+
+        return $column;
+    }
+
+
     /**
      * @param  string $pObject
      * @param  string $pFieldKey
@@ -32,9 +205,11 @@ class Propel implements SyncInterface {
     {
 
         $columns = array();
-        $column = array();
         if ($pRefColumn) {
             $column =& $pRefColumn;
+        } else {
+            $column = $this->getPropelAdditional($pField);
+            $column['type'] = $this->getPropelColumnType($pField);
         }
 
         $object = \Core\Object::getDefinition($pObject);
@@ -44,118 +219,16 @@ class Propel implements SyncInterface {
         }
 
         switch (strtolower($pField['type'])) {
-
-            case 'textarea':
-            case 'wysiwyg':
-            case 'codemirror':
-            case 'textlist':
-            case 'filelist':
-            case 'layoutelement':
-            case 'textlist':
-            case 'array':
-            case 'fieldtable':
-            case 'fieldcondition':
-            case 'objectcondition':
-            case 'filelist':
-
-                $column['type'] = 'LONGVARCHAR';
-                unset($column['size']);
-                break;
-
-            case 'text':
-            case 'password':
-            case 'files':
-
-                $column['type'] = 'VARCHAR';
-
-                if ($pField['maxlength']) {
-                    $column['size'] = $pField['maxlength'];
-                }
-                break;
-
-            case 'page':
-                $column['type'] = 'INTEGER';
-                unset($column['size']);
-                break;
-
-            case 'file':
-            case 'folder':
-
-                $column['type'] = 'VARCHAR';
-                $column['size'] = 255;
-                break;
-
-            case 'properties':
-                $column['type'] = 'OBJECT';
-                unset($column['size']);
-                break;
-
-            case 'select':
-
-                if ($pField['multi']) {
-                    $column['type'] = 'LONGVARCHAR';
-                } else {
-                    $column['type'] = 'VARCHAR';
-                    $column['size'] = 255;
-                }
-
-                break;
-
-            case 'lang':
-
-                $column['type'] = 'VARCHAR';
-                $column['size'] = 3;
-
-                break;
-
-            case 'number':
-
-                $column['type'] = 'INTEGER';
-
-                if ($pField['maxlength']) {
-                    $column['size'] = $pField['maxlength'];
-                }
-
-                if ($pField['number_type']) {
-                    $column['type'] = $pField['number_type'];
-                }
-
-                break;
-
-            case 'checkbox':
-
-                $column['type'] = 'BOOLEAN';
-                break;
-
-            case 'custom':
-
-                if ($pField['column']) {
-                    foreach ($pField['column'] as $k => $v) {
-                        $column[$k] = $v;
-                    }
-                }
-
-                break;
-
-            case 'date':
-            case 'datetime':
-
-                if ($pField['asUnixTimestamp'] === false) {
-                    $column['type'] = $pField['type'] == 'date' ? 'DATE' : 'TIMESTAMP';
-                }
-
-                $column['type'] = 'BIGINT';
-
-                break;
-
             case 'object':
 
                 $foreignObject = \Core\Object::getDefinition($pField['object']);
+
                 if (!$foreignObject) {
+                    throw new BuildException(tf('The object `%s` does not exist in field `%s`.', $pField['object'], $pField['id']));
                     continue;
                 }
 
-                $relationName = $pField['objectRelationName'] ?: $foreignObject->getId();
+                $relationName = ucfirst($pField['objectRelationName'] ?: $foreignObject->getId());
 
                 if ($pField['objectRelation'] == 'nTo1' || $pField['objectRelation'] == '1ToN') {
 
@@ -165,10 +238,10 @@ class Propel implements SyncInterface {
                     $foreignObject = \Core\Object::getDefinition($pField['object']);
 
                     if (!$foreignObject['table']) {
-                        continue;
+                        throw new BuildException(tf('The object `%s` has no table defined. Used in field `%s`.', $pField['object'], $pField['id']));
                     }
 
-                    $foreigns = $pTable->xpath('foreign-key[@foreignTable=\'' . $foreignObject['table'] . '\']');
+                    $foreigns = $pTable->xpath('foreign-key[@phpName=\'' . $relationName . '\']');
                     if ($foreigns) {
                         $foreignKey = current($foreigns);
                     } else {
@@ -186,6 +259,11 @@ class Propel implements SyncInterface {
                         $foreignKey['onUpdate'] = $pField['objectRelationOnUpdate'];
                     }
 
+                    $references = $foreignKey->xpath("reference[not(@custom='true')]");
+                    foreach ($references as $i => $ref) {
+                        unset($references[$i][0]);
+                    }
+
                     if (count($rightPrimaries) == 1) {
 
                         $references = $foreignKey->xpath('reference[@local=\'' . camelcase2Underscore($pFieldKey) . '\']');
@@ -198,7 +276,12 @@ class Propel implements SyncInterface {
                         $reference['local'] = camelcase2Underscore($pFieldKey);
                         $reference['foreign'] = key($rightPrimaries);
 
+                        $column = $this->getPropelAdditional(current($rightPrimaries));
+                        $column['type'] = $this->getPropelColumnType(current($rightPrimaries));
+
                     } else {
+
+                        $columns = [];
 
                         //add left primary keys
                         foreach ($rightPrimaries as $key => $def) {
@@ -213,15 +296,17 @@ class Propel implements SyncInterface {
                             $reference['foreign'] = $key;
 
                             //create additional fields
-                            $this->getColumnFromField(
+                            $columns = array_merge($columns, $this->getColumnFromField(
                                 $pObject,
                                 underscore2Camelcase($pFieldKey . '_' . $key),
                                 $def,
                                 $pTable,
                                 $pDatabase,
                                 $bundle
-                            );
+                            ));
                         }
+
+                        return $columns;
                     }
 
                 } else {
@@ -425,6 +510,20 @@ class Propel implements SyncInterface {
 
         $columnsDefined = array();
 
+        $clonedTable = simplexml_load_string($objectTable->asXML());
+
+        //removed all non-custom foreign-keys
+        $foreignKeys = $objectTable->xpath("foreign-key[not(@custom='true')]");
+        foreach ($foreignKeys as $k => $fk) {
+            unset($foreignKeys[$k][0]);
+        }
+
+        //removed all non-custom behaviors
+        $items = $objectTable->xpath("behavior[not(@custom='true')]");
+        foreach ($items as $k => $v) {
+            unset($items[$k][0]);
+        }
+
         foreach ($object->getFields() as $field) {
 
             $columns = $this->getColumnFromField(
@@ -446,12 +545,10 @@ class Propel implements SyncInterface {
                 $eColumns = $objectTable->xpath('column[@name =\'' . $key . '\']');
 
                 if ($eColumns) {
-
                     $newCol = current($eColumns);
                     if ($newCol['custom'] == true) {
                         continue;
                     }
-
                 } else {
                     $newCol = $objectTable->addChild('column');
                 }
@@ -463,17 +560,26 @@ class Propel implements SyncInterface {
                     $newCol[$k] = $v;
                 }
             }
+        }
 
+        //check for deleted columns
+        $columns = $objectTable->xpath("column[not(@custom='true')]");
+        foreach ($columns as $k => $column) {
+            $col = $object->getField(underscore2Camelcase($column['name']));
+            if (!$col) {
+                var_dump('unset ' . $column['name']);
+                unset($columns[$k][0]);
+            }
         }
 
         if ($object['workspace']) {
-            $behaviors = $objectTable->xpath('behavior[@name=\'workspace\']');
+            $behaviors = $objectTable->xpath('behavior[@name=\'Core\WorkspaceBehavior\']');
             if ($behaviors) {
                 $behavior = current($behaviors);
             } else {
                 $behavior = $objectTable->addChild('behavior');
             }
-            $behavior['name'] = 'workspace';
+            $behavior['name'] = 'Core\WorkspaceBehavior';
         }
 
         $vendors = $objectTable->xpath('vendor[@type=\'mysql\']');

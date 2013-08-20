@@ -154,12 +154,15 @@ class Propel extends ORMAbstract
                     }
 
                     continue;
-                } else if ($tableMap->hasColumnByPhpName(ucfirst($field)) &&
+                }
+
+                if ($tableMap->hasColumnByPhpName(ucfirst($field)) &&
                     $column = $tableMap->getColumnByPhpName(ucfirst($field))
                 ) {
                     $fields[$column->getPhpName()] = $column;
                 }
             }
+
         }
 
         //filer relation fields

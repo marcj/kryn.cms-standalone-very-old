@@ -274,6 +274,13 @@ class Field extends Model
      */
     public function setOptions(Options $options)
     {
+        foreach ($options->getOptions() as $key => $option){
+            $setter = 'set' . ucfirst($key);
+            if (is_callable(array($this, $setter))) {
+                $this->$setter($option);
+                $options->removeOption($key);
+            }
+        }
         $this->options = $options;
     }
 
