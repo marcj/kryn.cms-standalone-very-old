@@ -55,8 +55,8 @@ ka.FieldTypes.Wysiwyg = new Class({
             mode: 'exact',
             inline: true,
             elements: [this.main],
-            content_document: this.main.getDocument(),
-            content_window: this.main.getWindow(),
+//            content_document: this.main.getDocument(),
+//            content_window: this.main.getWindow(),
             setup: function(editor) {
                 this.editor = editor;
                 this.ready = true;
@@ -94,7 +94,7 @@ ka.FieldTypes.Wysiwyg = new Class({
     },
 
     getValue: function () {
-        if (!this.ready) {
+        if (!this.ready || !this.editor.bodyElement) {
             return this.value;
         } else {
             return this.editor.getContent();

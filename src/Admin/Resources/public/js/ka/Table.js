@@ -218,8 +218,8 @@ ka.Table = new Class({
             var th = new Element('th', {
                 html: ('element' !== typeOf(column[0]) ? column[0] : null),
                 styles: {
-                    width: (column[1]) ? column[1] : null,
-                    textAlign: (column[2]) ? column[2] : null
+                    width: column[1],
+                    textAlign: column[2]
                 }
             }).inject(tr);
 
@@ -265,8 +265,8 @@ ka.Table = new Class({
 
             var td = new Element('td', {
                 styles: {
-                    width: (column[1]) ? column[1] : null,
-                    textAlign: (column[2]) ? column[2] : null
+                    width: !isNaN(column[1]) ? parseInt(column[1]) : column[1],
+                    textAlign: column[2]
                 }
             }).inject(tr);
 

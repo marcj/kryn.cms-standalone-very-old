@@ -5,7 +5,7 @@ ka.Loader = new Class({
 
     options: {
         loader: 'bundles/admin/images/loader-sprites-18.png',
-        spriteWidth: 18,
+            spriteWidth: 18,
         absolute: false,
         big: false,
         overlay: false
@@ -95,7 +95,7 @@ ka.Loader = new Class({
     },
 
     getLoader: function () {
-        return this.loader
+        return this.loader;
     },
 
     continueAnimation: function () {
@@ -154,7 +154,6 @@ ka.Loader = new Class({
     },
 
     show: function () {
-
         this.toElement().setStyle('display', this.toElement().get('tag') == 'table' ? 'table' : 'block');
 
         if (this.transBg) {
@@ -166,7 +165,6 @@ ka.Loader = new Class({
     },
 
     hide: function () {
-
         if (this.lastAnimationTimer) {
             clearTimeout(this.lastAnimationTimer);
         }

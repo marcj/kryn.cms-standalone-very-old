@@ -39,6 +39,16 @@ window.logger = ka.logger = function () {
     }
 };
 
+window.error = ka.error = function () {
+    if (typeOf(console) != "undefined") {
+        var args = arguments;
+        if (args.length == 1) {
+            args = args[0];
+        }
+        console.error(args);
+    }
+};
+
 /**
  * Is true if the current browser has a mobile user agent.
  * @type {Boolean}
@@ -807,10 +817,6 @@ ka.getObjectFieldLabel = function (pValue, pField, pFieldId, pObjectKey, pRelati
 
     pValue = Object.clone(pValue);
 
-    if (!field) {
-        return ka.htmlEntities(typeOf(pValue[fieldId]) != 'null' ? pValue[fieldId] : '');
-    }
-
     if (showAsField.type == 'predefined') {
         if (ka.getObjectDefinition(showAsField.object)) {
             showAsField = ka.getObjectDefinition(showAsField.object).fields[showAsField.field];
@@ -818,9 +824,11 @@ ka.getObjectFieldLabel = function (pValue, pField, pFieldId, pObjectKey, pRelati
     }
 
     showAsField.type = showAsField.type || 'text';
-    field.type = field.type || 'text';
+    if (field) {
+        field.type = field.type || 'text';
+    }
 
-    var clazz = showAsField.type.charAt(0).toUpperCase() + showAsField.type.slice(1);
+    var clazz = showAsField.type.ucfirst();
     if (!ka.LabelTypes[clazz]) {
         clazz = 'Text';
     }

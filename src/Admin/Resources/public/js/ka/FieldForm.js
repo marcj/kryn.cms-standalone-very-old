@@ -237,8 +237,8 @@ ka.FieldForm = new Class({
 
                 if (!obj.handleChildsMySelf) {
                     obj.addEvent('check-depends', function () {
-                        Object.each(this.children, function (sub, subid) {
 
+                        Object.each(this.children, function (sub, subid) {
                             if ('null' !== typeOf(sub.id)) {
                                 subid = sub.id;
                             }
@@ -248,7 +248,6 @@ ka.FieldForm = new Class({
                             }
 
                             self.updateVisibility(this, sub);
-
                         }.bind(this));
 
                         self.updateChildrenContainerVisibility(this);
@@ -354,8 +353,8 @@ ka.FieldForm = new Class({
     /**
      * Updates the visibility of a field.
      *
-     * @param pTarget
-     * @param pField
+     * @param {string|ka.Field} pTarget
+     * @param {ka.Field} pField
      */
     updateVisibility: function (pTarget, pField) {
         var visible = this.getVisibility(pTarget, pField);
@@ -385,8 +384,8 @@ ka.FieldForm = new Class({
     /**
      * Returns whether a field should be visible or not.
      *
-     * @param pTarget
-     * @param pField
+     * @param {ka.Field} pTarget
+     * @param {ka.Field} pField
      * @return {Boolean}
      */
     getVisibility: function (pTarget, pField) {
@@ -397,6 +396,7 @@ ka.FieldForm = new Class({
         if (typeOf(pField.field.needValue) == 'null') {
             return true;
         }
+
         if (pField.field.needValue === '') {
             return true;
         }
@@ -519,7 +519,11 @@ ka.FieldForm = new Class({
      */
     setValue: function (pValues, pInternal) {
         if (typeOf(pValues) == 'string') {
-            pValues = JSON.decode(pValues);
+            try {
+                pValues = JSON.decode(pValues);
+            } catch (e){
+                error(tf('Can not decode JSON `%s`', pValues), e);
+            }
         }
 
         Object.each(this.fields, function (obj, id) {

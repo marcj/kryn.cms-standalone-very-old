@@ -84,7 +84,6 @@ ka.FieldTable = new Class({
     },
 
     getValue: function () {
-
         var result = {};
 
         this.table.getChildren('tr.ka-fieldProperty-item').each(function (item) {
@@ -110,13 +109,11 @@ ka.FieldTable = new Class({
     },
 
     add: function (pKey, pDefinition) {
-
         var fieldProperty = new ka.FieldProperty(pKey, pDefinition, this.table, this.options, this.win);
         fieldProperty.addEvent('change', this.fireChange);
 
         this.fireEvent('add', fieldProperty);
         return fieldProperty;
-
     }
 
 });

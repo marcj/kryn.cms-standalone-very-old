@@ -1856,10 +1856,10 @@ var admin_system_module_edit = new Class({
     },
 
     loadObjects: function() {
-
         if (this.lr) {
             this.lr.cancel();
         }
+
         this.panes['objects'].empty();
 
         this.objectsPane = new Element('div', {
@@ -1883,7 +1883,7 @@ var admin_system_module_edit = new Class({
 
         this.saveButton = buttonBar.addButton(t('Save'), this.saveObjects.bind(this, false));
         this.saveButton.setButtonStyle('blue');
-        this.saveButtonORM = buttonBar.addButton(t('Save and ORM Update'), this.saveObjects.bind(this, true));
+        this.saveButtonORM = buttonBar.addButton(t('Save, write models.xml and ORM Update'), this.saveObjects.bind(this, true));
 
         document.id(this.saveButton).addClass('ka-Button-blue');
         document.id(this.saveButtonORM).addClass('ka-Button-blue');
@@ -1920,8 +1920,56 @@ var admin_system_module_edit = new Class({
 
         this.lr = new Request.JSON({url: _pathAdmin + 'admin/system/module/editor/model/from-objects', noCache: 1,
             onComplete: function(response) {
-                if (!response.error) {
-                    pCallback(response);
+                if (response.data) {
+                    var atLeastOneFailed = false;
+                    Object.each(response.data, function(success, id){
+                        if (true !== success) {
+                            atLeastOneFailed = true;
+                        }
+                    });
+                    if (atLeastOneFailed) {
+                        var dialog = new ka.Dialog(this.win);
+                        dialog.setStyle('width', '80%');
+                        dialog.setStyle('height', '90%');
+
+                        var content = '';
+
+                        new Element('h1', {
+                            text: t('One or more objects have errors.')
+                        }).inject(dialog.getContentContainer());
+
+
+                        Object.each(response.data, function(success, id){
+                            var div = new Element('div').inject(dialog.getContentContainer());
+
+                            new Element('h2', {
+                                text: id
+                            }).inject(div);
+
+                            if (true === success) {
+                                new Element('div', {
+                                    text: t('Success'),
+                                    style: 'padding: 5px; text-align: center; color: green; border: 1px solid silver;'
+                                }).inject(div);
+                            } else {
+                                new Element('div', {
+                                    text: success,
+                                    style: 'padding: 5px; color: red; border: 1px solid silver;'
+                                }).inject(div);
+                            }
+                        });
+
+                        dialog.center();
+
+                        var ok = new ka.Button(t('Ok'))
+                            .addEvent('click', dialog.close)
+                            .setButtonStyle('blue')
+                            .inject(dialog.bottom);
+
+                        this.currentButton.stopTip(t('Failed.'));
+                    } else {
+                        pCallback(response);
+                    }
                 }
             }.bind(this)}).post({bundle: this.mod});
     },
@@ -1996,14 +2044,13 @@ var admin_system_module_edit = new Class({
         var objects = {};
 
         this.objectTBody.getChildren('.object').each(function(object) {
-
             var definition = object.definition;
             var iKey = object.getElements('input')[0];
             var iLabel = object.getElements('input')[1];
 
+            definition.id = iKey.value;
             definition.label = iLabel.value;
             objects[iKey.value] = definition;
-
         });
 
         if (this.lr) {
@@ -2014,7 +2061,7 @@ var admin_system_module_edit = new Class({
         this.currentButton.startTip(t('Saving ...'));
 
         var req = {};
-        req.objects = JSON.encode(objects);
+        req.objects = objects;
         req.bundle = this.mod;
 
         this.lr = new Request.JSON({url: _pathAdmin +
@@ -2525,9 +2572,8 @@ var admin_system_module_edit = new Class({
             type: 'text',
             noWrapper: true,
             modifier: 'camelcase|trim|ucfirst',
-            value: pKey ? pKey : ''
+            value: pDefinition ? pDefinition.id : ''
         });
-
 
         var iLabel = new ka.Field({
             type: 'text',

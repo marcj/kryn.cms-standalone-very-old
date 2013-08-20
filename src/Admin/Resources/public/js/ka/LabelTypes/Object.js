@@ -22,14 +22,13 @@ ka.LabelTypes['Object'] = new Class({
     },
 
     render: function(values) {
-
         var label, relation, tempValue;
         if (this.fieldId.indexOf('.') > 0) {
             relation = this.fieldId.split('.')[0];
             label = this.fieldId.split('.')[1];
         } else {
             //find label
-            var def = ka.getObjectDefinition(this.objectKey);
+            var def = ka.getObjectDefinition(this.options.objectKey);
             label = def.labelField;
         }
 
@@ -50,7 +49,7 @@ ka.LabelTypes['Object'] = new Class({
             Array.each(values[relation], function (relValue) {
                 tempValue.push(relValue[label]);
             });
-            var joined = tempValue.join(this.originField['join'] || ', ');
+            var joined = tempValue.join(this.originField ? this.originField['join'] || ', ' : ', ');
             if (this.options.relationsAsArray) {
                 tempValue = {};
                 tempValue[label] = joined;

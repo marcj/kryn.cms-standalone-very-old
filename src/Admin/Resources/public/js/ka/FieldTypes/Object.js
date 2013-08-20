@@ -43,12 +43,12 @@ ka.FieldTypes.Object = new Class({
             },
             'objectRelationName': {
                 label: t('Relation name'),
-                desc: t('Default is the camelCased field name.'),
+                desc: t('Example: for a nTo1 relation with the column name `categoryId` you should use here `category`.'),
                 required: true
             },
             'objectRefRelationName': {
                 label: t('Relation foreign name (Optional)'),
-                desc: t('Default is the camelCased foreign table name.')
+                desc: t('Default is the camelCased table name of this object. Use another if the foreign object/table has already a relation with this name.')
             },
             'objectRelationOnDelete': {
                 label: t('OnDelete method (Optional)'),

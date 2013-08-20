@@ -71,16 +71,14 @@ ka.WindowEdit = new Class({
             this.topTabGroup.destroy();
         }
 
-        if (this.actionsNavi) {
-            this.actionsNavi.destroy();
+        if (this.actionGroup) {
+            this.actionGroup.destroy();
+            delete this.actionGroup;
         }
 
         if (this.actionBar) {
             this.actionBar.destroy();
-        }
-
-        if (this.actionsNaviDel) {
-            this.actionsNaviDel.destroy();
+            delete this.actionBar;
         }
 
         if (this.versioningSelect) {

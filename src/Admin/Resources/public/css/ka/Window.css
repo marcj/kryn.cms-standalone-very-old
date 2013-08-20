@@ -477,6 +477,15 @@ h3.kryn-headline {
     cursor: pointer;
 }
 
+.ka-Window-sidebar a.ka-Button-pressed,
+.ka-Window-sidebar a.ka-Button-pressed:link,
+.ka-Window-sidebar a.ka-Button-pressed:hover,
+.ka-Window-sidebar a.ka-Button-pressed:active {
+    top: 0;
+    box-shadow: none;
+    background-color: #9B9B9B;
+}
+
 .ka-Window-sidebar .ka-Splitter-main {
     left: -20px;
     border-left: 0;

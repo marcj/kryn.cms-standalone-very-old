@@ -271,9 +271,6 @@ ka.WindowCombine = new Class({
             this.actionBarSearchBtn.inject(this.extraActionBar);
         }
 
-//        this.editAddSidebarContainer = new Element('div', {
-//
-//        }).inject()
     },
 
     renderActionBar: function() {
@@ -319,10 +316,6 @@ ka.WindowCombine = new Class({
                         this.combineContainer.setStyle('display', 'none');
                     }.bind(this));
 
-                if (!this.currentPage) {
-                    this.loadPage(1);
-                }
-
             } else {
 
                 this.combineContainer.setStyles({
@@ -347,7 +340,13 @@ ka.WindowCombine = new Class({
                     }).chain(function() {
                         this.listContainer.setStyle('display', 'none');
                         this.actionBarNavigation.setStyle('display', 'none');
+
                     }.bind(this));
+
+                if (!this.initialLoaded) {
+                    this.initialLoaded = true;
+                    this.loadItems(0, (this.classProperties.itemsPerPage) ? this.classProperties.itemsPerPage : 5);
+                }
             }
 
             if (this.table)
@@ -771,8 +770,7 @@ ka.WindowCombine = new Class({
         if (!this.itemLoader) {
             return;
         }
-        this.itemLoader.set('html',
-            '<img src="' + _path + 'bundles/admin/images/loading.gif" />' + '<br />' + _('Loading entries ...'));
+        new ka.Loader(this.itemLoader);
     },
 
     itemLoaderNoItems: function() {
@@ -1411,8 +1409,6 @@ ka.WindowCombine = new Class({
             if (this.win.params && this.win.params.selected) {
                 this.needSelection = true;
                 this.loadAround(this.win.params.selected);
-            } else {
-                this.loadItems(0, (this.classProperties.itemsPerPage) ? this.classProperties.itemsPerPage : 5);
             }
         }
         if (this.win.getParameter('type') && 'list' != this.win.getParameter('type')) {

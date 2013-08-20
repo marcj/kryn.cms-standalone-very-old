@@ -5,8 +5,8 @@ ka.WindowList = new Class({
 
     options: {
 
-        nestedRootAddLabel: null,
-        addLabel: null
+        nestedRootNewLabel: null,
+        newLabel: null
 
     },
 
@@ -343,7 +343,7 @@ ka.WindowList = new Class({
 
         var columnsIds = [];
         Object.each(this.classProperties.columns, function (column, columnId) {
-            columns.push([t(column.label), column.width, column.align]);
+            columns.push([t(column.label || columnId), column.width, column.align]);
             columnsIds.push(columnId);
         }.bind(this));
 
@@ -419,7 +419,7 @@ ka.WindowList = new Class({
         }).inject(container);
 
         if (this.classProperties.add) {
-            this.addBtn = new ka.Button([this.options.addLabel || this.classProperties.addLabel, ka.mediaPath(this.classProperties.addIcon)])
+            this.addBtn = new ka.Button([this.options.newLabel || this.classProperties.newLabel, ka.mediaPath(this.classProperties.addIcon)])
                 .addEvent('click', function() {
                     this.openAddItem();
                 }.bind(this))
@@ -427,8 +427,8 @@ ka.WindowList = new Class({
         }
 
         if (this.classProperties.asNested && (this.classProperties.nestedRootAdd)) {
-            this.addRootBtn = new ka.Button([this.options.nestedRootAddLabel ||
-                this.classProperties.nestedRootAddLabel, ka.mediaPath(this.classProperties.nestedRootAddIcon)])
+            this.addRootBtn = new ka.Button([this.options.nestedRootNewLabel ||
+                this.classProperties.nestedRootNewLabel, ka.mediaPath(this.classProperties.nestedRootAddIcon)])
                 .addEvent('click', function() {
                     this.addNestedRoot();
                 }.bind(this))
@@ -707,7 +707,6 @@ ka.WindowList = new Class({
         var pk = ka.getObjectUrlId(this.classProperties['object'], pItem);
 
         if (this.classProperties.remove == true) {
-
             var checkbox = new Element('input', {
                 value: pk,
                 type: 'checkbox'

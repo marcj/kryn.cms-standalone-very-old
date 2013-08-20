@@ -139,6 +139,7 @@ ka.FieldProperty = new Class({
 
     childDiv: false,
     main: false,
+    definition: {},
 
     children: [], //instances of ka.FieldProperty
 
@@ -148,11 +149,11 @@ ka.FieldProperty = new Class({
         this.win = pWin;
         this.key = pKey;
         this.container = pContainer;
-        this.definition = pDefinition || {};
 
         this.prepareFields();
-
         this._createLayout();
+
+        this.setValue(pKey, pDefinition);
     },
 
     prepareFields: function () {
@@ -163,6 +164,8 @@ ka.FieldProperty = new Class({
 
         var sourceFields = this.options.asFrameworkColumn ? ka.LabelTypes : ka.FieldTypes;
 
+        this.fieldOptionsMap = {};
+
         Object.each(sourceFields, function(field, key){
             items[key.lcfirst()] = field.label || key;
 
@@ -170,6 +173,8 @@ ka.FieldProperty = new Class({
 
             if (field.options || field.modelOptions) {
                 fields = {};
+                this.fieldOptionsMap[key.lcfirst()] = [];
+
                 options = this.options.asModel && field.modelOptions ? field.modelOptions : field.options;
                 Object.each(options, function(option, optionKey) {
                     if ('function' === typeOf(option)) {
@@ -177,7 +182,8 @@ ka.FieldProperty = new Class({
                     } else {
                         fields[optionKey] = option;
                     }
-                });
+                    this.fieldOptionsMap[key.lcfirst()].push(optionKey);
+                }.bind(this));
 
                 children['options.' + key.lcfirst()] = {
                     type: 'fieldForm',
@@ -385,7 +391,6 @@ ka.FieldProperty = new Class({
     },
 
     openProperties: function () {
-
         this.dialog = new ka.Dialog(this.win, {
             absolute: true,
             minWidth: '90%',
@@ -403,6 +408,10 @@ ka.FieldProperty = new Class({
         var main = new Element('div', {'class': 'ka-fieldTable-definition'}).inject(this.dialog.content);
 
         var fieldContainer;
+
+        new Element('h2', {
+            text: tf('Field: %s', this.iKey.getValue())
+        }).inject(main);
 
         if (this.options.allTableItems) {
             var table = new Element('table', {
@@ -484,11 +493,9 @@ ka.FieldProperty = new Class({
         }
 
         new ka.FieldProperty(pKey, pDefinition, this.childContainer, this.options, this.win);
-
     },
 
     getValue: function () {
-
         var key;
 
         if (this.options.asTableItem) {
@@ -550,8 +557,12 @@ ka.FieldProperty = new Class({
             }
         }
 
-        if (property.options && property.options[property.type]) {
-            property.options = property.options[property.type];
+        if (property.options){
+            if (property.options[property.type]) {
+                property.options = property.options[property.type];
+            } else {
+                delete property.options;
+            }
         }
 
         return {
@@ -560,8 +571,7 @@ ka.FieldProperty = new Class({
         };
     },
 
-    setValue: function (pKey, pDefinition) {
-
+    normalizeValues: function(pDefinition) {
         if (pDefinition.type == 'select' && pDefinition.tableItems) {
             if (typeOf(pDefinition.tableItems) == 'object') {
                 pDefinition.items = Object.clone(pDefinition.tableItems);
@@ -585,17 +595,39 @@ ka.FieldProperty = new Class({
             }
         }
 
+        if (!pDefinition.type) {
+            pDefinition.type = 'text';
+        }
+
+        var options = {};
+        Object.each(this.fieldOptionsMap, function(fields, type) {
+            options[type] = {};
+            Array.each(fields, function(field) {
+                var value = pDefinition[field];
+                if (pDefinition.options && pDefinition.options[field]) {
+                    value = pDefinition.options[field];
+                }
+                options[type][field] = value;
+            });
+        });
+
+        pDefinition.options = options;
+    },
+
+    setValue: function (pKey, pDefinition) {
+        this.definition = Object.clone(pDefinition || {});
+        this.normalizeValues(this.definition);
+
         if (this.options.asTableItem) {
             this.iKey.setValue(pKey);
-            this.typeField.setValue(pDefinition.type);
-            this.definition = pDefinition;
+            this.typeField.setValue(this.definition.type);
 
             if (this.options.asFrameworkColumn || this.options.withWidth) {
-                this.widthField.setValue(pDefinition.width);
+                this.widthField.setValue(this.definition.width);
             }
 
         } else {
-            this.fieldObject.setValue(pDefinition);
+            this.fieldObject.setValue(this.definition);
         }
 
         delete this.children;
@@ -606,8 +638,8 @@ ka.FieldProperty = new Class({
         }
 
         if (!this.options.withoutChildren) {
-            if (pDefinition.children) {
-                Object.each(pDefinition.children, function (definition, key) {
+            if (this.definition.children) {
+                Object.each(this.definition.children, function (definition, key) {
 
                     this.addChild(key, definition);
 

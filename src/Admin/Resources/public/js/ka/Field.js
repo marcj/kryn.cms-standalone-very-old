@@ -797,7 +797,7 @@ ka.Field = new Class({
             this.childContainer.hide();
         }
 
-        if (this.options.noWrapper) {
+        if (this.options.noWrapper && !this.options.tableItem) {
             if (!this.getFieldObject()) return;
             return this.getFieldObject().hide();
         }
@@ -805,7 +805,6 @@ ka.Field = new Class({
         var field = this.tr || this.main;
 
         field.setStyle('display', 'none');
-
 
         this.fireEvent('check-depends');
         this.fireEvent('hide');
@@ -830,7 +829,7 @@ ka.Field = new Class({
      * Let the item appears.
      */
     show: function () {
-        if (this.options.noWrapper) {
+        if (this.options.noWrapper && !this.options.tableItem) {
             if (!this.getFieldObject()) return;
             return this.getFieldObject().show();
         }
@@ -915,12 +914,11 @@ ka.Field = new Class({
             return;
         }
 
-        var values = pValues;
+        var values = Object.clone(pValues);
         pKey = pKey.replace('[', '.').replace(']', '');
         var keys = pKey.split('.');
         var notFound = false;
         Array.each(keys, function (key) {
-
             if (notFound) {
                 return;
             }
