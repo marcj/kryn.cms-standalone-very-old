@@ -326,7 +326,7 @@ class Propel extends ORMAbstract
 
         if ($pCondition) {
             $conditionParams = $params;
-            $condition = dbConditionToSql($pCondition, $conditionParams, $pQuery->getPrimaryTableName());
+            $condition = dbConditionToSql($pCondition, $conditionParams, $this->getObjectKey());
         }
 
 

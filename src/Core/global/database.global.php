@@ -822,13 +822,12 @@ function dbPrimaryKeyToCondition($pCondition, $pObjectKey = null, $pTable = '')
  *
  * @param mixed   $pConditions
  * @param array   &$pData The data for prepared statement.
- * @param string  $pTablePrefix
  * @param string  $pObjectKey
  * @param array   &$pFieldNames
  *
  * @return bool|string
  */
-function dbConditionToSql($pConditions, &$pData, $pTablePrefix = '', $pObjectKey = '', &$pFieldNames = null)
+function dbConditionToSql($pConditions, &$pData, $pObjectKey = '', &$pFieldNames = null)
 {
     if ($pConditions === null) {
         return '';
@@ -843,7 +842,6 @@ function dbConditionToSql($pConditions, &$pData, $pTablePrefix = '', $pObjectKey
         return dbConditionToSql(
             dbPrimaryKeyToCondition($pConditions, $pObjectKey),
             $pData,
-            $pTablePrefix,
             $pObjectKey,
             $pFieldNames
         );
@@ -855,7 +853,6 @@ function dbConditionToSql($pConditions, &$pData, $pTablePrefix = '', $pObjectKey
         return dbConditionToSql(
             dbPrimaryKeyToCondition($pConditions, $pObjectKey),
             $pData,
-            $pTablePrefix,
             $pObjectKey,
             $pFieldNames
         );
@@ -866,13 +863,12 @@ function dbConditionToSql($pConditions, &$pData, $pTablePrefix = '', $pObjectKey
         return dbConditionToSql(
             dbPrimaryKeyToCondition($pConditions, $pObjectKey),
             $pData,
-            $pTablePrefix,
             $pObjectKey,
             $pFieldNames
         );
     }
 
-    return dbFullConditionToSql($pConditions, $pData, $pTablePrefix, $pFieldNames);
+    return dbFullConditionToSql($pConditions, $pData, $pObjectKey, $pFieldNames);
 
 }
 
@@ -888,9 +884,6 @@ function dbConditionToSql($pConditions, &$pData, $pTablePrefix = '', $pObjectKey
 function dbFullConditionToCriteria($pConditions, $pObjectKey)
 {
     $criteria = new \Criteria;
-
-    $conds = array();
-    $where = array();
     $peer = $pObjectKey . 'Peer';
 
     $dbMap = Propel::getDatabaseMap($peer::DATABASE_NAME);
@@ -1003,21 +996,21 @@ function dbConditionToCriteria($pConditions, $pObjectKey = '')
  *
  * @param array  $pConditions
  * @param array  $pData
- * @param string $pTablePrefix
+ * @param string $pObjectKey
  * @param array  &$pFieldNames
  *
  * @return string
  */
-function dbFullConditionToSql($pConditions, &$pData, $pTablePrefix, &$pFieldNames = null)
+function dbFullConditionToSql($pConditions, &$pData, $pObjectKey, &$pFieldNames = null)
 {
     $result = '';
     if (is_array($pConditions)) {
         foreach ($pConditions as $condition) {
 
             if (is_array($condition) && is_array($condition[0])) {
-                $result .= ' (' . dbFullConditionToSql($condition, $pData, $pTablePrefix, $pFieldNames) . ')';
+                $result .= ' (' . dbFullConditionToSql($condition, $pData, $pObjectKey, $pFieldNames) . ')';
             } elseif (is_array($condition)) {
-                $result .= dbConditionSingleField($condition, $pData, $pTablePrefix, $pFieldNames);
+                $result .= dbConditionSingleField($condition, $pData, $pObjectKey, $pFieldNames);
             } elseif (is_string($condition)) {
                 $result .= ' ' . $condition . ' ';
             }
@@ -1035,28 +1028,39 @@ function dbFullConditionToSql($pConditions, &$pData, $pTablePrefix, &$pFieldName
  *
  * @param array  $pCondition
  * @param array  &$pData
- * @param string $pTable
+ * @param string $pObjectKey
  * @param array  &$pFieldNames
  *
  * @return string
  */
-function dbConditionSingleField($pCondition, &$pData, $pTable = '', &$pFieldNames = null)
+function dbConditionSingleField($pCondition, &$pData, $pObjectKey, &$pFieldNames = null)
 {
     if ($pCondition[0] === null) {
         return '';
     }
 
+    if ($pObjectKey) {
+        $def = \Core\Object::getDefinition($pObjectKey);
+        $tableName = \Core\Kryn::getSystemConfig()->getDatabase()->getPrefix() . $def->getTable();
+    }
+
+    $fieldName = $pCondition[0];
+    if (false !== ($pos = strpos($fieldName, '.'))) {
+        $tableName = substr($fieldName, 0, $pos);
+        $fieldName = substr($fieldName, $pos + 1);
+    }
+
+    if ($def) {
+        $field = $def->getField($fieldName);
+        $columnName = $field->getColumnName();
+    } else {
+        $columnName = camelcase2Underscore($fieldName);
+    }
+
     if (!is_numeric($pCondition[0])) {
-        if (($pos = strpos($pCondition[0], '.')) === false) {
-            $result = ($pTable ? dbQuote($pTable) . '.' : '') . dbQuote($pCondition[0]) . ' ';
-            if ($pFieldNames !== null) {
-                $pFieldNames[] = $pCondition[0];
-            }
-        } else {
-            $result = dbQuote(substr($pCondition[0], 0, $pos)) . '.' . dbQuote(substr($pCondition[0], $pos)) . ' ';
-            if ($pFieldNames !== null) {
-                $pFieldNames[] = substr($pCondition[0], $pos);
-            }
+        $result = ($tableName ? dbQuote($tableName) . '.' : '') . dbQuote($columnName) . ' ';
+        if ($pFieldNames !== null) {
+            $pFieldNames[] = $pCondition[0];
         }
     } else {
         $result = $pCondition[0];
@@ -1099,7 +1103,7 @@ function dbExtractConditionFields($pCondition)
     $fields = array();
     $data = array();
 
-    dbConditionToSql($pCondition, $data, null, null, $fields);
+    dbConditionToSql($pCondition, $data, null, $fields);
 
     return $fields;
 }
