@@ -483,7 +483,7 @@ h3.kryn-headline {
 .ka-Window-sidebar a.ka-Button-pressed:active {
     top: 0;
     box-shadow: none;
-    background-color: #9B9B9B;
+    background-color: #3d3d3d;
 }
 
 .ka-Window-sidebar .ka-Splitter-main {

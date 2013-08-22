@@ -18,8 +18,7 @@ ka.WindowList = new Class({
 
         if (pContainer) {
             this.container = pContainer;
-        }
-        else {
+        } else {
             this.container = this.win.content;
         }
 
@@ -288,13 +287,11 @@ ka.WindowList = new Class({
     },
 
     addNestedRoot: function () {
-
         //open
         ka.entrypoint.open(ka.entrypoint.getRelative(this.win.getEntryPoint(),
             this.classProperties.nestedRootAddEntrypoint), {
             lang: (this.languageSelect) ? this.languageSelect.getValue() : false
         }, this);
-
     },
 
     openAddItem: function () {
@@ -310,9 +307,7 @@ ka.WindowList = new Class({
         });
 
         this.win.addEvent('resize', this.table.updateTableHeader);
-
         document.id(this.table).addClass('ka-Table-windowList');
-
         this.table.inject(this.container);
 
         //[ ["label", optionalWidth], ["label", optionalWidth], ... ]
@@ -375,14 +370,14 @@ ka.WindowList = new Class({
         var _this = this;
 
         this.actionBarNavigation = new Element('div', {
-            'class': 'ka-list-actionBarNavigation'
+            'class': 'ka-WindowList-actionBarNavigation'
         }).inject(this.container);
 
         this.navigateActionBar = new ka.ButtonGroup(this.actionBarNavigation, {
             onlyIcons: true
         });
 
-        document.id(this.navigateActionBar).addClass('ka-list-navigationBar');
+        document.id(this.navigateActionBar).addClass('ka-WindowList-navigationBar');
 
         this.ctrlPrevious =
             this.navigateActionBar.addIconButton(t('Go to previous page'), '#icon-arrow-left-15', function () {
@@ -390,7 +385,7 @@ ka.WindowList = new Class({
             }.bind(this));
 
         this.ctrlPage = new Element('input', {
-            'class': 'ka-Input-text ka-list-actionBar-page'
+            'class': 'ka-Input-text ka-WindowList-actionBar-page'
         }).addEvent('keydown',function (e) {
                 if (e.key == 'enter') {
                     _this.loadPage(parseInt(_this.ctrlPage.value));
@@ -401,7 +396,7 @@ ka.WindowList = new Class({
             }).inject(this.navigateActionBar);
 
         this.ctrlMax = new Element('div', {
-            'class': 'ka-list-actionBar-page-count',
+            'class': 'ka-WindowList-actionBar-page-count',
             text: '/ 0'
         }).inject(this.navigateActionBar);
 
@@ -413,7 +408,7 @@ ka.WindowList = new Class({
     renderSideActionBar: function() {
         var container = this.win.addSidebar();
 
-        new Element('h2', {
+        this.sideBarTitle = new Element('h2', {
             'class': 'light',
             text: t('Actions')
         }).inject(container);
@@ -447,7 +442,20 @@ ka.WindowList = new Class({
     renderTopActionBar: function (container) {
         this.topActionBar = container || this.win.getTitleGroupContainer();
 
-        this.actionBarSearchBtn = new ka.Button([t('Search'), '#icon-search']).inject(this.topActionBar);
+        this.actionBarSearchContainer = new Element('div', {
+            'class': 'ka-WindowList-searchContainer'
+        }).inject(this.topActionBar);
+
+        this.actionBarSearchInput = new ka.Field({
+            noWrapper: true,
+            type: 'text',
+            inputIcon: '#icon-search-8',
+            inputWidth: 150
+        }, this.actionBarSearchContainer);
+
+        this.actionBarSearchInput.addEvent('change', function(){
+            this.loadPage(1);
+        }.bind(this));
 
         /*
          TODO
@@ -624,12 +632,8 @@ ka.WindowList = new Class({
 
         req.orderBy = {};
         req.orderBy[this.sortField] = this.sortDirection;
-
-        if (this.searchEnabled) {
-            var vals = this.getSearchVals();
-            Object.each(vals, function (val, id) {
-                req['_' + id] = val;
-            });
+        if (this.actionBarSearchInput) {
+            req.q = this.actionBarSearchInput.getValue();
         }
 
         this.lastLoadPageRequest = new Request.JSON({url: _pathAdmin + this.win.getEntryPoint(),
