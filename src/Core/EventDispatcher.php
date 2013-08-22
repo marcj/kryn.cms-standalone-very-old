@@ -2,7 +2,7 @@
 
 namespace Core;
 
-use Core\Config\Event;
+use Core\Config\Event as ConfigEvent;
 use Symfony\Component\EventDispatcher\EventDispatcher as SyEventDispatcher;
 use Symfony\Component\EventDispatcher\GenericEvent;
 
@@ -10,7 +10,7 @@ class EventDispatcher extends SyEventDispatcher
 {
     private $events = [];
 
-    public function attachEvent(Event $event)
+    public function attachEvent(ConfigEvent $event)
     {
         $fn = function (GenericEvent $genericEvent) use ($event) {
             if ($event->isCallable($genericEvent)) {
