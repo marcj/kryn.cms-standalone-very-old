@@ -797,10 +797,16 @@ ka.Files = new Class({
 //        this.upBtn = boxNavi.addButton(t('Up'), '#icon-arrow-up-14', this.up.bind(this));
 //        this.upBtn.fileObj = this;
 
-        var boxAction = new ka.ButtonGroup(actionsContainer);
+        var sidebar = this.win.getSidebar();
+
+        new Element('h2', {
+            text: 'Actions',
+            'class': 'light'
+        }).inject(sidebar);
+        var boxAction = new ka.ButtonGroup(sidebar);
         this.boxAction = boxAction;
-        boxAction.addButton(t('File'), '#icon-file-add', this.newFile.bind(this));
-        boxAction.addButton(t('Folder'), '#icon-folder-4', this.newFolder.bind(this));
+        boxAction.addButton(t('New File'), '#icon-file-add', this.newFile.bind(this));
+        boxAction.addButton(t('New Folder'), '#icon-folder-4', this.newFolder.bind(this));
 
         this.newUploadBtn();
 
@@ -822,6 +828,7 @@ ka.Files = new Class({
         //address
         var addressContainer = this.headerLayout.getCell(1, 2);
 
+        addressContainer.setStyle('padding', '0 8px');
         var boxNavi = new ka.ButtonGroup(addressContainer, {onlyIcons: true});
         document.id(boxNavi).addClass('ka-Files-addressFaker-container');
 
@@ -870,7 +877,6 @@ ka.Files = new Class({
             noWrapper: true,
             inputHeight: 36
         }, searchContainer);
-        document.id(this.search).setStyle('margin-left', '15px');
 
         this.search.getFieldObject().input.addEvent('keyup', function (e) {
             if (e.key == 'enter') {
@@ -888,7 +894,7 @@ ka.Files = new Class({
 
         new Element('img', {
             src: _path + 'bundles/admin/images/icon-search-loupe.png',
-            style: 'position: absolute; right: 12px; top: 15px;'
+            style: 'position: absolute; right: 12px; top: 12px;'
         }).inject(searchContainer);
 
         this.mainLayout = new ka.Layout(this.wrapper, {
@@ -1482,7 +1488,7 @@ ka.Files = new Class({
     },
 
     render: function (data) {
-        this.win.setParameter({path: this.currentFile.path});
+        this.win.setParameters({path: this.currentFile.path});
 
         if (this.currentFile.type == 'file') {
             this.renderFile(data);
