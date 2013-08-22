@@ -21,6 +21,8 @@ ka.FieldTypes.Text = new Class({
         maxLength: 255,
         inputWidth: '100%',
 
+        inputIcon: '',
+
         /**
          * Can be an array like
          *   ['regex', 'modifier' 'replacement']
@@ -85,6 +87,30 @@ ka.FieldTypes.Text = new Class({
 
         if (this.options.disabled) {
             this.main.disabled = true;
+        }
+
+        if (this.options.inputIcon) {
+            this.main = new Element('div', {
+                'class': 'ka-Input-text-container',
+                styles: {
+                    'width': this.options.inputWidth == '100%' ? null : this.options.inputWidth,
+                    'height': this.options.inputHeight ? parseInt(this.options.inputHeight) - 2 : null
+                }
+            }).inject(this.fieldInstance.fieldPanel);
+            this.input.inject(this.main);
+
+            this.input.addClass('withIcon');
+
+            if ('#' === this.options.inputIcon.substr(0, 1)) {
+                new Element('span', {
+                    'class': 'ka-Input-text-icon ' + this.options.inputIcon.substr(1)
+                }).inject(this.main);
+            } else {
+                new Element('img', {
+                    'class': 'ka-Input-text-icon',
+                    src: ka.mediaPath(this.options.inputIcon)
+                }).inject(this.main);
+            }
         }
 
         this.input.addEvent('change', this.checkChange);
