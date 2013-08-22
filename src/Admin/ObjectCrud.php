@@ -769,6 +769,60 @@ class ObjectCrud
     }
 
     /**
+     * Returns a single item.
+     *
+     * $pPk is an array with the primary key values.
+     *
+     * If one primary key:
+     *   array(
+     *    'id' => 1234
+     *   )
+     *
+     * If multiple primary keys:
+     *   array(
+     *    'id' => 1234
+     *    'secondId' => 5678
+     *   )
+     *
+     * Use dbPrimaryKeyToCondition() to convert it to a full condition definition.
+     *
+     * @param  array $pPk
+     *
+     * @return array
+     */
+    public function getItem($pPk, $pFields = null)
+    {
+        $this->primaryKey = $pPk;
+        $options['fields'] = $this->getSelection($pFields);
+
+        $options['permissionCheck'] = $this->getPermissionCheck();
+
+        $item = \Core\Object::get($this->object, $pPk, $options);
+
+        //add custom values
+        foreach ($this->_fields as $key => $field) {
+
+            if ($field['customValue'] && method_exists($this, $method = $field['customValue'])) {
+                $item[$key] = $this->$method($field, $key);
+            }
+
+        }
+
+        //check against additionaly our own custom condition
+        if ($item && $condition = $this->getCondition()) {
+            if (!\Core\Object::satisfy($item, $condition)) {
+                $item = null;
+            }
+        }
+
+        if ($item) {
+            $this->prepareRow($item);
+        }
+
+        return $item;
+    }
+
+    /**
      * Returns items with some information.
      *
      *   array(
@@ -783,7 +837,7 @@ class ObjectCrud
      *
      * @return array
      */
-    public function getItems($pFilter = null, $pLimit = null, $pOffset = null)
+    public function getItems($pFilter = null, $pLimit = null, $pOffset = null, $query = '', $pFields = null)
     {
         $options = array();
         $options['permissionCheck'] = $this->getPermissionCheck();
@@ -798,20 +852,19 @@ class ObjectCrud
 
         $options['order'] = $this->getOrder();
 
-        $options['fields'] = array_keys($this->getColumns() ? : array());
+        $options['fields'] = $this->getSelection($pFields);
 
         if ($pFilter) {
             $condition = self::buildFilter($pFilter);
         }
 
         if ($this->getMultiLanguage()) {
-
             //does the object have a lang field?
-            if ($this->objectDefinition['fields']['lang']) {
+            if ($this->objectDefinition->getField('lang')) {
 
                 //add language condition
                 $langCondition = array(
-                    array('lang', '=', (string)getArgv('lang')),
+                    array('lang', '=', substr((string)getArgv('lang'), 0, 3)),
                     'OR',
                     array('lang', 'IS NULL'),
                 );
@@ -823,9 +876,67 @@ class ObjectCrud
             }
         }
 
+        if ($query) {
+            $queryCondition = $this->getQueryCondition($query, $options['fields']);
+            if ($condition) {
+                $condition = array($condition, 'AND', $queryCondition);
+            } else {
+                $condition = $queryCondition;
+            }
+        }
+
         $items = \Core\Object::getList($this->object, $condition, $options);
 
         return $items;
+    }
+
+    /**
+     * Returns the selection (field names)
+     *
+     * @param array $fields
+     * @return array
+     */
+    public function getSelection($fields)
+    {
+        $result = [];
+        if ($fields && $this->getAllowCustomSelectFields()) {
+            if (!is_array($fields)) {
+                if ('*' !== $fields) {
+                    $result = explode(',', trim(preg_replace('/[^a-zA-Z0-9_\.\-,]/', '', $fields)));
+                }
+            }
+        }
+
+        if (!$result) {
+            $result = array_keys($this->getColumns() ? : array());
+        }
+
+        if (!$result) {
+            $result = $this->getDefaultFieldList();
+        }
+
+        return $result;
+    }
+
+    public function getQueryCondition($query, $fields)
+    {
+        $fields = $this->getSelection($fields);
+
+        $query = preg_replace('/(?<!\\\\)\\*/', '$1%', $query);
+        $query = str_replace('\\*', '*', $query);
+
+        $result = [];
+        foreach ($fields as $field) {
+            if ($result) {
+                $result[] = 'OR';
+            }
+
+            $result[] = [
+                $field, 'LIKE', $query . '%'
+            ];
+        }
+
+        return $result;
     }
 
     /**
@@ -1094,73 +1205,6 @@ class ObjectCrud
      */
     public function getCustomListingCondition()
     {
-    }
-
-    /**
-     * Returns a single item.
-     *
-     * $pPk is an array with the primary key values.
-     *
-     * If one primary key:
-     *   array(
-     *    'id' => 1234
-     *   )
-     *
-     * If multiple primary keys:
-     *   array(
-     *    'id' => 1234
-     *    'secondId' => 5678
-     *   )
-     *
-     * Use dbPrimaryKeyToCondition() to convert it to a full condition definition.
-     *
-     * @param  array $pPk
-     *
-     * @return array
-     */
-    public function getItem($pPk, $pFields = null)
-    {
-        $this->primaryKey = $pPk;
-
-        if ($pFields && $this->getAllowCustomSelectFields()) {
-            if (is_array($pFields)) {
-                $fields = $pFields;
-            } else {
-                $fields = explode(',', trim(preg_replace('/[^a-zA-Z0-9_\.\-,]/', '', $pFields)));
-            }
-        }
-
-        $options['fields'] = $fields;
-
-        if ($options['fields'] === null) {
-            $options['fields'] = $this->getDefaultFieldList();
-        }
-
-        $options['permissionCheck'] = $this->getPermissionCheck();
-
-        $item = \Core\Object::get($this->object, $pPk, $options);
-
-        //add custom values
-        foreach ($this->_fields as $key => $field) {
-
-            if ($field['customValue'] && method_exists($this, $method = $field['customValue'])) {
-                $item[$key] = $this->$method($field, $key);
-            }
-
-        }
-
-        //check against additionaly our own custom condition
-        if ($item && $condition = $this->getCondition()) {
-            if (!\Core\Object::satisfy($item, $condition)) {
-                $item = null;
-            }
-        }
-
-        if ($item) {
-            $this->prepareRow($item);
-        }
-
-        return $item;
     }
 
     /**

@@ -234,11 +234,13 @@ class ObjectCrudController extends Server
      * @param  array  $_
      * @param  int    $pLimit
      * @param  int    $pOffset
+     * @param  array  $pFields
      * @param  int    $pGetPosition
      *
      * @return mixed
      */
-    public function getItems($pUrl = null, $_ = null, $pLimit = null, $pOffset = null, $pGetPosition = null)
+    public function getItems($pUrl = null, $_ = null, $pLimit = null, $pOffset = null, $pFields = null,
+                             $pGetPosition = null, $q = '')
     {
         $obj = $this->getObj();
 
@@ -249,9 +251,9 @@ class ObjectCrudController extends Server
         if ($pUrl !== null) {
             $pk = \Core\Object::parsePk($obj->getObject(), $pUrl);
 
-            return $obj->getItem($pk[0]);
+            return $obj->getItem($pk[0], $pFields);
         } else {
-            return $obj->getItems($_, $pLimit, $pOffset);
+            return $obj->getItems($_, $pLimit, $pOffset, $q, $pFields);
         }
 
     }
