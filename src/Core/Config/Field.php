@@ -404,6 +404,16 @@ class Field extends Model
     }
 
     /**
+     * Returns the column name for database access.
+     *
+     * @return string
+     */
+    public function getColumnName()
+    {
+        return camelcase2Underscore($this->getId());
+    }
+
+    /**
      * @param string $label
      */
     public function setLabel($label)
