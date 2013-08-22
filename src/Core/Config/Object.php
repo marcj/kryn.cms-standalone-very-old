@@ -629,7 +629,7 @@ class Object extends Model
     {
         if (null !== $this->fields) {
             foreach ($this->fields as $field) {
-                if (strtolower($field->getId()) === strtolower($fieldId)) {
+                if (strtolower($field->getId()) === strtolower($fieldId) || strtolower($field->getColumnName()) === strtolower($fieldId)) {
                     return $field;
                 }
             }
