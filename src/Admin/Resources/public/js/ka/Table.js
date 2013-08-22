@@ -306,6 +306,13 @@ ka.Table = new Class({
                     columns[index].setStyle('width', td.getSize().x - 10); //10 padding
                 }.bind(this));
             }
+
+            var height = parseInt(this.tableHead.getSize().y);
+            if (31 > height) {
+                height = 31;
+            }
+            this.body.setStyle('top', height);
+            this.head.setStyle('height', height);
         }
     },
 

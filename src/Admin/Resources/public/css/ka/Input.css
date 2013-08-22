@@ -14,10 +14,8 @@ input.text {
 
     display: inline-block;
 
-    border: 1px solid #cecece;
+    border: 1px solid #d3d3d3;
     background-color: white;
-
-    box-shadow: 0px 1px 0 white;
 
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
@@ -28,6 +26,22 @@ input.text {
 
 textarea.ka-Input-text {
     line-height: 18px;
+}
+
+.ka-Input-text-container {
+    display: inline-block;
+    position: relative;
+}
+
+.ka-Input-text-icon {
+    position: absolute;
+    left: 5px;
+    top: 8px;
+    color: gray;
+}
+
+.ka-Input-text.withIcon {
+    text-indent: 22px;
 }
 
 .ka-main-menu-top .ka-Input-text {

@@ -1,9 +1,10 @@
 .ka-ButtonGroup {
-    margin: 0 10px;
+    margin: 0 4px;
     display: inline-block;
 
     white-space: nowrap;
     position: relative;
+    vertical-align: top;
 }
 
 .ka-ButtonGroup:first-child {

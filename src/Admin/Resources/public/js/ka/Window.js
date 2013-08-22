@@ -69,6 +69,10 @@ ka.Window = new Class({
         return this.params;
     },
 
+    hasParameters: function() {
+        return this.params && Object.toQueryString(this.params);
+    },
+
     getOriginParameters: function() {
         return this.originParams;
     },
@@ -1086,7 +1090,7 @@ ka.Window = new Class({
     },
 
     addSidebar: function() {
-        if (!this.getSidebar()) {
+        if (!this.sidebar) {
             this.sidebar = new Element('div', {
                 'class': 'ka-Window-sidebar'
             }).inject(this.border);
@@ -1097,12 +1101,13 @@ ka.Window = new Class({
 
             this.sidebarSplitter.addEvent('resize', function() {
                 document.id(this.mainLayout).setStyle('right', this.sidebar.getStyle('width').toInt() + 20);
+                this.fireEvent('resize');
             }.bind(this));
 
             this.setSidebarWidth(200);
         }
 
-        return this.getSidebar();
+        return this.sidebarContainer;
     },
 
     setSidebarWidth: function(width) {
@@ -1111,7 +1116,7 @@ ka.Window = new Class({
     },
 
     getSidebar: function() {
-        return this.sidebarContainer;
+        return this.sidebarContainer || this.addSidebar();
     },
 
     addButtonGroup: function () {

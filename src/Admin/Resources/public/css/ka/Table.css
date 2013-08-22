@@ -46,9 +46,14 @@
     text-align: left;
     padding: 5px;
     color: #555;
+    border-top: 1px solid #ececec;
     border-bottom: 1px solid #d6d6d6;
     line-height: 20px;
     background: #FCFCFC;
+}
+
+.ka-Table-absolute tr > th {
+    border-top: 0;
 }
 
 .ka-Table-head-container {
@@ -94,7 +99,7 @@
 
 .ka-Table tr.active > td,
 .ka-Table-body tr.active > td {
-    background-color: #808080;
+    background-color: #22638e;
     color: white;
 }
 

@@ -11,7 +11,6 @@ ka.WindowAdd = new Class({
         //ist in render() am ende also lösche unnötigen balast
         this.win.setLoading(false);
 
-        this.saveBtn.setText([t('Add'), '#icon-checkmark-6']);
         this.removeBtn.hide();
 
         if (this.previewBtn) {
