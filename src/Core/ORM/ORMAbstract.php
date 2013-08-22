@@ -105,7 +105,7 @@ abstract class ORMAbstract
      */
     public function getObjectKey()
     {
-        return $this->object_key;
+        return $this->objectKey;
     }
 
     /**
