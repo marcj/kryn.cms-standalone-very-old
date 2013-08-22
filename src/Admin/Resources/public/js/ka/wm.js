@@ -220,14 +220,15 @@ ka.wm = {
     },
 
     reloadHashtag: function (pForce) {
-
-        var hash = '';
+        var hash = []
 
         Object.each(ka.wm.windows, function (win) {
-            if (win.isInFront() && !win.isInline()) {
-                hash = win.getEntryPoint() + ( win.getParameter() ? '?' + Object.toQueryString(win.getParameter()) : '' );
+            if (!win.isInline()) {
+                hash.push(win.getEntryPoint() + ( win.hasParameters() ? '?' + Object.toQueryString(win.getParameters()) : '' ));
             }
         });
+
+        hash = hash.join(';');
 
         if (hash != window.location.hash) {
             window.location.hash = hash;
@@ -242,20 +243,27 @@ ka.wm = {
 
         ka.wm.hashHandled = true;
 
-        if (window.location.hash) {
-            var first = window.location.hash.indexOf('?');
-            var entryPoint = window.location.hash.substr(1);
-            var parameters = null;
-            if (first !== -1) {
-                entryPoint = entryPoint.substr(0, first - 1);
+        if (!window.location.hash.substr(1)) {
+            return;
+        }
 
-                parameters = window.location.hash.substr(first + 1);
-                if (parameters && 'string' === typeOf(parameters)) {
-                    parameters = parameters.parseQueryString();
+        var hashes = window.location.hash.substr(1).split(';');
+
+        if (hashes) {
+            Array.each(hashes, function(hash){
+                var first = hash.indexOf('?');
+                var entryPoint = hash;
+                var parameters = null;
+                if (first !== -1) {
+                    entryPoint = entryPoint.substr(0, first);
+
+                    parameters = hash.substr(first + 1);
+                    if (parameters && 'string' === typeOf(parameters)) {
+                        parameters = parameters.parseQueryString();
+                    }
                 }
-            }
-
-            ka.wm.open(entryPoint, parameters);
+                ka.wm.open(entryPoint, parameters);
+            });
         }
     },
 
