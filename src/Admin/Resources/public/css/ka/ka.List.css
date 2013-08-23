@@ -1,4 +1,4 @@
-.ka-List-items {
+.ka-List {
     position: absolute;
     left: 0;
     top: 46px;
@@ -8,6 +8,13 @@
     background-color: white;
     overflow: auto;
     -webkit-overflow-scrolling: touch;
+}
+
+.ka-List-split {
+    padding: 6px;
+    border-bottom: 1px solid #ddd;
+    background-color: #eee;
+    color: gray;
 }
 
 .ka-List-item {
@@ -28,6 +35,7 @@
     padding: 0px;
     margin: 1px 0px 4px 0px;
     font-size: 16px;
+    line-height: 18px;
     font-weight: normal;
 }
 
@@ -49,4 +57,18 @@
 .ka-List-item.active h2,
 .ka-List-item.active h3 {
     color: white;
+}
+
+
+.ka-List-loader:hover {
+    background-image: none;
+    background-color: transparent;
+}
+
+.ka-List-info,
+.ka-List-loader {
+    padding: 10px;
+    color: silver;
+    text-align: center;
+    cursor: default;
 }

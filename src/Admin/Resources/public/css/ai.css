@@ -325,7 +325,7 @@ span.selectable span, div.selectable div {
     background-color: #d3d3d3;
     border-right: 1px solid #c5c5c5;
     cursor: default;
-    color: #555;
+    color: #666;
     position: relative;
 }
 
@@ -357,7 +357,7 @@ span.selectable span, div.selectable div {
 
 .ka-wm-tab:before {
     padding-right: 10px;
-    color: #555;
+    color: #444;
 }
 
 .ka-wm-tab:hover {
@@ -368,6 +368,7 @@ span.selectable span, div.selectable div {
 .ka-wm-tab-active:hover {
     background-color: #eee;
     height: 31px;
+    color: #555;
 }
 
 .ka-main-menu {
