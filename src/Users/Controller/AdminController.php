@@ -89,12 +89,11 @@ class AdminController extends Server
      */
     public static function setAclCount(&$pItems, $pType)
     {
-        foreach ($pItems as &$item) {
-
-            $item['ruleCount'] = self::load($pType, $item['id'], true);
-
+        if (is_array($pItems)) {
+            foreach ($pItems as &$item) {
+                $item['ruleCount'] = self::load($pType, $item['id'], true);
+            }
         }
-
     }
 
     public static function load($pType, $pId, $pAsCount = false)

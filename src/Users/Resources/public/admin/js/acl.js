@@ -23,32 +23,25 @@ var users_acl = new Class({
         this.win.content.setStyle('overflow', 'hidden');
 
         this.left = new Element('div', {
-            'class': 'users-acl-left'
+            'class': 'users-acl-left ka-List'
         }).inject(this.win.content);
 
         this.right = new Element('div', {
             'class': 'users-acl-right'
         }).inject(this.win.content);
 
-        this.query = new Element('input', {
-            'class': 'text gradient users-acl-query',
-            type: 'text'
-        })
-        .addEvent('keyup', function () {
+        this.query = new ka.Field({
+            type: 'text',
+            noWrapper: true,
+            inputIcon: '#icon-search-8'
+        }, this.win.titleGroups);
+
+        this.query.addEvent('change', function () {
             if (this.timeout) {
                 clearTimeout(this.timeout);
             }
             this.timeout = this.loadList.delay(100, this);
         }.bind(this))
-        .addEvent('mousedown', function (e) {
-            e.stopPropagation();
-        })
-        .inject(this.win.titleGroups);
-
-        this.qImage = new Element('img', {
-            src: _path + 'bundles/admin/images/icon-search-loupe.png',
-            style: 'position: absolute; left: 11px; top: 8px;'
-        }).inject(this.win.titleGroups);
 
         this.tabs = new ka.TabPane(this.right, true, this.win);
 
@@ -64,7 +57,7 @@ var users_acl = new Class({
         this.loadEntryPoints();
         this.loadObjects();
 
-        document.id(this.tabs.buttonGroup).setStyle('margin-left', 215);
+        document.id(this.tabs.buttonGroup).setStyle('margin-left', 63);
 
         this.loadList();
     },
@@ -79,7 +72,7 @@ var users_acl = new Class({
 
         this.objectsExactContainer.empty();
 
-        this.objectList.getElements('.ka-list-combine-item').removeClass('active');
+        this.objectList.getElements('.ka-List-item').removeClass('active');
         this.objectDivs[ka.normalizeObjectKey(pObjectKey)].addClass('active');
 
         this.currentDefinition = ka.getObjectDefinition(pObjectKey);
@@ -331,7 +324,7 @@ var users_acl = new Class({
             Object.each(ruleGrouped[1], function (rules, code) {
 
                 var div = new Element('div', {
-                    'class': 'ka-list-combine-item'
+                    'class': 'ka-List-item'
                 }).inject(this.objectsExactContainer);
 
                 div.addEvent('click', function () {
@@ -354,7 +347,7 @@ var users_acl = new Class({
         Object.each(ruleGrouped[2], function (rules, code) {
 
             var div = new Element('div', {
-                'class': 'ka-list-combine-item'
+                'class': 'ka-List-item'
             }).inject(this.objectsCustomContainer);
             div.addEvent('click', function () {
                 this.filterRules(2, code, div)
@@ -402,7 +395,7 @@ var users_acl = new Class({
             this.objectConstraintsContainer.getElements('.active').removeClass('active');
 
             if (pDomObject) {
-                if (pDomObject.hasClass('ka-list-combine-item')) {
+                if (pDomObject.hasClass('ka-List-item')) {
                     pDomObject.addClass('active');
                     if (this.lastObjectTree) {
                         this.lastObjectTree.getFieldObject().getTree().deselect();
@@ -464,7 +457,7 @@ var users_acl = new Class({
                     child.savedHeight = child.getSize().y - 12;
                 }
 
-                child.addClass('ka-list-combine-item');
+                child.addClass('ka-List-item');
 
             } else {
 
@@ -473,7 +466,7 @@ var users_acl = new Class({
                 }
 
                 if (completelyHide) {
-                    child.removeClass('ka-list-combine-item');
+                    child.removeClass('ka-List-item');
                 }
 
                 child.morph({
@@ -490,7 +483,7 @@ var users_acl = new Class({
     renderObjectRulesAdd: function (pRule) {
 
         var div = new Element('div', {
-            'class': 'ka-list-combine-item users-acl-object-rule'
+            'class': 'ka-List-item users-acl-object-rule'
         }).inject(this.objectRulesContainer);
 
         div.rule = pRule;
@@ -769,14 +762,14 @@ var users_acl = new Class({
     addObjectsToList: function (pConfig, pExtKey) {
 
         new Element('div', {
-            'class': 'ka-list-combine-splititem',
+            'class': 'ka-List-split',
             text: ka.getExtensionTitle(pExtKey)
         }).inject(this.objectList);
 
         Object.each(pConfig.objects, function (object, objectKey) {
 
             var div = new Element('div', {
-                'class': 'ka-list-combine-item'
+                'class': 'ka-List-item'
             })
             .addEvent('click', function () {
                 this.loadObjectRules(pExtKey + ':' + objectKey)
@@ -793,7 +786,7 @@ var users_acl = new Class({
 
             if (object.desc) {
                 new Element('div', {
-                    'class': 'subline',
+                    'class': 'sub',
                     text: object.desc
                 }).inject(div);
             }
@@ -821,7 +814,7 @@ var users_acl = new Class({
         }).inject(this.objectConstraints);
 
         new Element('div', {
-            'class': 'ka-list-combine-splititem',
+            'class': 'ka-List-split',
             text: t('Constraints')
         }).inject(this.objectRulesFilter);
 
@@ -841,7 +834,7 @@ var users_acl = new Class({
             .inject(this.objectConstraints);
 
         var allDiv = new Element('div', {
-            'class': 'ka-list-combine-item'
+            'class': 'ka-List-item'
         }).inject(this.objectConstraintsContainer);
 
         allDiv.addEvent('click', function () {
@@ -869,7 +862,7 @@ var users_acl = new Class({
             .inject(h2);
 
         this.objectsCustomSplit = new Element('div', {
-            'class': 'ka-list-combine-splititem',
+            'class': 'ka-List-split',
             text: t('Custom')
         }).inject(this.objectConstraintsContainer);
 
@@ -892,7 +885,7 @@ var users_acl = new Class({
             .inject(this.objectsCustomSplit);
 
         this.objectsExactSplit = new Element('div', {
-            'class': 'ka-list-combine-splititem',
+            'class': 'ka-List-split',
             text: t('Exact') + ' '
         }).inject(this.objectConstraintsContainer);
 
@@ -924,7 +917,7 @@ var users_acl = new Class({
         }).inject(this.objectRules);
 
         new Element('div', {
-            'class': 'ka-list-combine-splititem',
+            'class': 'ka-List-split',
             text: t('Rules')
         }).inject(this.objectRulesFilter);
 
@@ -1385,12 +1378,12 @@ var users_acl = new Class({
 
     loadList: function () {
 
-        var q = this.query.value;
+        var q = this.query.getValue();
 
         this.left.empty();
 
         new Element('div', {
-            'class': 'ka-list-combine-itemloader',
+            'class': 'ka-List-loader',
             text: t('Loading ...')
         }).inject(this.left);
 
@@ -1415,16 +1408,23 @@ var users_acl = new Class({
 
             this.left.empty();
 
+            if (!pItems.users && !pItems.groups) {
+                new Element('div', {
+                    'class': 'ka-List-info',
+                    text: t('No users and groups.')
+                }).inject(this.left);
+            }
+
             if (typeOf(pItems.users) == 'array' && pItems.users.length > 0) {
                 new Element('div', {
-                    'class': 'ka-list-combine-splititem',
+                    'class': 'ka-List-split',
                     text: t('Users')
                 }).inject(this.left);
 
                 Array.each(pItems.users, function (item) {
 
                     var div = new Element('div', {
-                        'class': 'ka-list-combine-item'
+                        'class': 'ka-List-item'
                     })
                     .addEvent('click', function(){
                         this.loadRules('user', item, false);
@@ -1443,7 +1443,7 @@ var users_acl = new Class({
                     }).inject(h2);
 
                     var subline = new Element('div', {
-                        'class': 'subline'
+                        'class': 'sub'
                     }).inject(div);
 
                     var name = [];
@@ -1470,8 +1470,7 @@ var users_acl = new Class({
                     });
 
                     var subline = new Element('div', {
-                        'class': 'subline',
-                        style: 'color: silver',
+                        'class': 'sub',
                         text: groups.join(', ')
                     }).inject(div);
 
@@ -1481,14 +1480,14 @@ var users_acl = new Class({
             if (typeOf(pItems.groups) == 'array' && pItems.groups.length > 0) {
 
                 new Element('div', {
-                    'class': 'ka-list-combine-splititem',
+                    'class': 'ka-List-split',
                     text: t('Groups')
                 }).inject(this.left);
 
                 Array.each(pItems.groups, function (item) {
 
                     var div = new Element('div', {
-                        'class': 'ka-list-combine-item'
+                        'class': 'ka-List-item'
                     })
                     .addEvent('click', function(){
                         this.loadRules('group', item, false);
@@ -1530,7 +1529,7 @@ var users_acl = new Class({
             return;
         }
 
-        this.left.getElements('.ka-list-combine-item').removeClass('active');
+        this.left.getElements('.ka-List-item').removeClass('active');
         div.addClass('active');
 
         var title;
@@ -1566,7 +1565,7 @@ var users_acl = new Class({
                     paddingTop: 50,
                     textAlign: 'center'
                 },
-                text: t('User admin and the administration group has full access to anything.')
+                text: t('User admin and the administration group have full access to anything.')
             }).inject(this.right);
 
             this.win.setLoading(false);
@@ -1821,7 +1820,7 @@ var users_acl = new Class({
         this.updateObjectRulesCounter();
         this.updateEntryPointRules();
 
-        this.objectList.getElements('.ka-list-combine-item').removeClass('active');
+        this.objectList.getElements('.ka-List-item').removeClass('active');
 
         this.tabs.show();
         this.actions.show();
