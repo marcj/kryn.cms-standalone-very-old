@@ -336,57 +336,6 @@ a.ka-WindowList-search-button-active:link {
     height: 1px;
 }
 
-.ka-WindowList-combine-itemloader,
-.ka-WindowList-combine-item {
-    border-bottom: 1px solid #ddd;
-    cursor: pointer;
-    padding: 6px;
-    color: #333;
-    position: relative;
-
-    -moz-transition-duration: .4s;
-    -webkit-transition-duration: .4s;
-    -o-transition-duration: .4s;
-    -ms-transition-duration: .4s;
-    transition-duration: .4s;
-}
-
-.ka-WindowList-combine-item h2 {
-    padding: 0px;
-    margin: 1px 0px 4px 0px;
-    font-size: 16px;
-    font-weight: normal;
-}
-
-.ka-WindowList-combine-item .sub {
-    color: #aaa;
-}
-
-/*.ka-WindowList-combine-item.active .sub {*/
-    /*color: silver;*/
-/*}*/
-
-/*.ka-WindowList-combine-item.active h2 {*/
-    /*text-shadow: 0px 1px 0px black;*/
-    /*color: white;*/
-/*}*/
-
-.ka-WindowList-combine-item:hover {
-    background-color: #F6F6F6;
-}
-
-.ka-WindowList-combine-item.active,
-.ka-WindowList-combine-item.active:hover {
-    background-color: #22638e;
-    color: white;
-}
-
-.ka-WindowList-combine-item.active h1,
-.ka-WindowList-combine-item.active h2,
-.ka-WindowList-combine-item.active h3 {
-    color: white;
-}
-
 .ka-WindowList-combine-splititem {
     border-bottom: 1px solid #ddd;
     padding: 0px 6px;
@@ -406,18 +355,6 @@ a.ka-WindowList-search-button-active:link {
 .ka-WindowList-combine-left-top .ka-Select-box,
 .ka-WindowList-combine-left-top .ka-Select-box:link {
     margin-left: 0;
-}
-
-.ka-WindowList-combine-items {
-    position: absolute;
-    left: 0;
-    top: 46px;
-    bottom: 0px;
-    right: 0;
-    border: 1px solid #ddd;
-    background-color: white;
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
 }
 
 .ka-WindowList-combine-items + .ka-Splitter-main {

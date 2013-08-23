@@ -68,7 +68,7 @@ ka.WindowCombine = new Class({
         } else {
             //classic list
             this.mainLeftItems = new Element('div', {
-                'class': 'ka-WindowList-combine-items'
+                'class': 'ka-WindowList-combine-items ka-List-items'
             })
                 .addEvent('scroll', this.checkScrollPosition.bind(this, true))
                 .inject(this.mainLeft, 'top');
@@ -177,7 +177,7 @@ ka.WindowCombine = new Class({
         if (pE.key == 'down') {
 
             if (active) {
-                newTarget = active.getNext('.ka-WindowList-combine-item');
+                newTarget = active.getNext('.ka-List-item');
             }
 
             if (!newTarget) {
@@ -185,12 +185,12 @@ ka.WindowCombine = new Class({
             }
 
             /*if( !newTarget )
-             newTarget = this.mainLeftItems.getElement('.ka-WindowList-combine-item');
+             newTarget = this.mainLeftItems.getElement('.ka-List-item');
              */
         } else if (pE.key == 'up') {
 
             if (active) {
-                newTarget = active.getPrevious('.ka-WindowList-combine-item');
+                newTarget = active.getPrevious('.ka-List-item');
             }
 
             if (!newTarget) {
@@ -199,7 +199,7 @@ ka.WindowCombine = new Class({
 
             /*
              if( !newTarget )
-             newTarget = this.mainLeftItems.getLast('.ka-WindowList-combine-item');
+             newTarget = this.mainLeftItems.getLast('.ka-List-item');
              */
         }
 
@@ -503,9 +503,9 @@ ka.WindowCombine = new Class({
             this.loadMore(pAndScrollToSelect);
 
             /*
-             } else if( this.mainLeftItems.getLast('.ka-WindowList-combine-item') == this.mainLeftItems.getElement('.active')  ){
+             } else if( this.mainLeftItems.getLast('.ka-List-item') == this.mainLeftItems.getElement('.active')  ){
              this.loadMore();
-             } else if( this.mainLeftItems.getFirst('.ka-WindowList-combine-item') == this.mainLeftItems.getElement('.active')  ){
+             } else if( this.mainLeftItems.getFirst('.ka-List-item') == this.mainLeftItems.getElement('.active')  ){
              this.loadPrevious();
              */
         }
@@ -746,11 +746,11 @@ ka.WindowCombine = new Class({
     createItemLoader: function() {
 
         this.itemLoader = new Element('div', {
-            'class': 'ka-WindowList-combine-itemloader'
+            'class': 'ka-List-itemloader'
         }).inject(this.mainLeftItems);
 
         this.prevItemLoader = new Element('div', {
-            'class': 'ka-WindowList-combine-itemloader',
+            'class': 'ka-List-itemloader',
             'style': 'display: none;'
         }).inject(this.mainLeftItems, 'top');
 
@@ -987,13 +987,6 @@ ka.WindowCombine = new Class({
             }
             return value;
         }
-
-    },
-
-    prepareLoadPage: function() {
-
-        //this.mainLeftItems.empty();
-        this.itemLoaderStart();
 
     },
 
@@ -1589,7 +1582,7 @@ ka.WindowCombine = new Class({
 
         var item = new Element('div', {
             html: layout,
-            'class': 'ka-WindowList-combine-item'
+            'class': 'ka-List-item'
         });
         item._item = pItem;
         item._pk = pk;
@@ -1613,11 +1606,11 @@ ka.WindowCombine = new Class({
             if (pItem['remove']) {
 
                 var removeBox = new Element('div', {
-                    'class': 'ka-WindowList-combine-item-remove'
+                    'class': 'ka-List-item-remove'
                 }).inject(item);
 
                 var removeCheckBox = new Element('div', {
-                    'class': 'ka-WindowList-combine-item-removecheck'
+                    'class': 'ka-List-item-removecheck'
                 }).inject(item);
 
                 var checkbox = new Element('input', {

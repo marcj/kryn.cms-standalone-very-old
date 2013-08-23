@@ -562,12 +562,6 @@ ka.WindowList = new Class({
         }).inject(tr);
     },
 
-    prepareLoadPage: function () {
-        if (this.table) {
-            this.table.empty();
-        }
-    },
-
     loadItemCount: function (callback) {
 
         var req = {};
@@ -619,8 +613,6 @@ ka.WindowList = new Class({
         if (this.lastLoadPageRequest) {
             this.lastLoadPageRequest.cancel();
         }
-
-        this.prepareLoadPage();
 
         this.win.setLoading(true, t('Loading ...'));
 

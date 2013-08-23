@@ -593,10 +593,9 @@ ka.WindowEdit = new Class({
     },
 
     renderActionBar: function (container) {
-        var container = this.win.addSidebar();
+        var container = this.win.getSidebar();
 
         this.actionGroup = new ka.ButtonGroup(container);
-
         this.saveBtn = this.actionGroup.addButton(t('Save'), '#icon-checkmark-6', function () {
             this.save();
         }.bind(this));
