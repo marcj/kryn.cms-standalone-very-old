@@ -68,7 +68,7 @@ ka.WindowCombine = new Class({
         } else {
             //classic list
             this.mainLeftItems = new Element('div', {
-                'class': 'ka-WindowList-combine-items ka-List-items'
+                'class': 'ka-WindowList-combine-items ka-List'
             })
                 .addEvent('scroll', this.checkScrollPosition.bind(this, true))
                 .inject(this.mainLeft, 'top');
@@ -744,13 +744,12 @@ ka.WindowCombine = new Class({
     },
 
     createItemLoader: function() {
-
         this.itemLoader = new Element('div', {
-            'class': 'ka-List-itemloader'
+            'class': 'ka-WindowList-combine-itemloader'
         }).inject(this.mainLeftItems);
 
         this.prevItemLoader = new Element('div', {
-            'class': 'ka-List-itemloader',
+            'class': 'ka-WindowList-combine-itemloader',
             'style': 'display: none;'
         }).inject(this.mainLeftItems, 'top');
 
@@ -839,7 +838,7 @@ ka.WindowCombine = new Class({
     findSplit: function(pSplitTitle) {
         var res = false;
 
-        var splits = this.mainLeftItems.getElements('.ka-WindowList-combine-splititem');
+        var splits = this.mainLeftItems.getElements('.ka-List-split');
         splits.each(function(item, id) {
 
             if (item.get('html') == pSplitTitle) {
@@ -893,7 +892,7 @@ ka.WindowCombine = new Class({
 
                     res.inject(this.itemLoader, 'before');
 
-                    var split = res.getPrevious('.ka-WindowList-combine-splititem');
+                    var split = res.getPrevious('.ka-List-split');
 
                     if (split) {
                         if (split.get('html') != splitTitle) {
@@ -909,7 +908,7 @@ ka.WindowCombine = new Class({
 
                     res.inject(this.prevItemLoader, 'before');
 
-                    var split = res.getNext('.ka-WindowList-combine-splititem');
+                    var split = res.getNext('.ka-List-split');
 
                     var found = true;
 
@@ -924,7 +923,7 @@ ka.WindowCombine = new Class({
                     }
 
                     if (!found) {
-                        var split = res.getPrevious('.ka-WindowList-combine-splititem');
+                        var split = res.getPrevious('.ka-List-split');
                         if (split) {
                             if (split.get('html') != splitTitle) {
                                 var split = this.addSplitTitle(splitTitle);
@@ -1529,7 +1528,7 @@ ka.WindowCombine = new Class({
 
     addSplitTitle: function(pItem) {
         return new Element('div', {
-            'class': 'ka-WindowList-combine-splititem',
+            'class': 'ka-List-split',
             html: pItem
         });
     },
