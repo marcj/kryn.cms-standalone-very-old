@@ -1,6 +1,6 @@
 <?php
 
-namespace Admin;
+namespace Admin\Models;
 
 class ObjectEntryPoint extends \Core\ORM\ORMAbstract
 {

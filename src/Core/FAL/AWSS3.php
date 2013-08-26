@@ -1,12 +1,14 @@
 <?php
 
-class adminFS_AWS_S3 extends adminFS
+namespace Core\FAL;
+
+class AWSS3 extends AbstractFAL
 {
     private $config = array();
 
     private $aws;
 
-    public function __construct($pParams)
+    public function __construct($pMountPoint, $pParams = null)
     {
         require_once 'inc/lib/amazonSdk/sdk.class.php';
         $this->config = $pParams;
@@ -300,7 +302,7 @@ class adminFS_AWS_S3 extends adminFS
         return false;
     }
 
-    public function setPublicAccess($pPath, $pAccess)
+    public function setPublicAccess($pPath, $pAccess = false)
     {
         $response = $this->aws->set_object_acl(
             $this->config['bucket'],
@@ -310,5 +312,59 @@ class adminFS_AWS_S3 extends adminFS
 
         return $response->isOK();
     }
+
+    /**
+     * Returns the file count inside $pFolderPath
+     *
+     * @static
+     *
+     * @param  string $pFolderPath
+     *
+     * @return mixed
+     */
+    public function getCount($pFolderPath)
+    {
+        // TODO: Implement getCount() method.
+    }
+
+    /**
+     * Disk usage
+     *
+     * @param  string $pPath
+     *
+     * @return array|bool [size(bytes), fileCount, folderCount]
+     */
+    public function getSize($pPath)
+    {
+        // TODO: Implement getSize() method.
+    }
+
+    /**
+     * Searchs files in a path by a regex pattern.
+     *
+     * @param  string $pPath
+     * @param  string $pPattern      Preg regex
+     * @param  integer $pDepth        Maximum depth. -1 for unlimited.
+     * @param  integer $pCurrentDepth Internal
+     *
+     * @return array   Files array
+     */
+    public function search($pPath, $pPattern, $pDepth = -1, $pCurrentDepth = 1)
+    {
+        // TODO: Implement search() method.
+    }
+
+    /**
+     * Removes a file or folder (recursive).
+     *
+     * @param  string $pPath
+     *
+     * @return bool|int
+     */
+    public function remove($pPath)
+    {
+        // TODO: Implement remove() method.
+    }
+
 
 }

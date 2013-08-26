@@ -1,10 +1,11 @@
 <?php
 
-namespace Users\Plugins;
+namespace Users\Controller\Plugins;
 
 use Core\Kryn;
+use \Core\Controller;
 
-class Login extends \Controller
+class Login extends Controller
 {
     public function display($pPluginProperties)
     {

@@ -2,7 +2,7 @@
 
 namespace Admin\Controller\Stores;
 
-use Admin\Store;
+use Admin\Controller\Store;
 use Core\Kryn;
 
 class Layout extends Store
