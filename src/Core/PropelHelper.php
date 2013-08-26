@@ -66,11 +66,11 @@ class PropelHelper
     }
 
     /**
-     * @param $pCmd
+     * @param $cmd
      *
      * @return array|bool|string
      */
-    public static function callGen($pCmd)
+    public static function callGen($cmd)
     {
         $errors = self::checkModelXml();
         if ($errors) {
@@ -81,7 +81,7 @@ class PropelHelper
         self::writeBuildProperties();
         self::collectSchemas();
 
-        switch ($pCmd) {
+        switch ($cmd) {
             case 'models':
                 $result = self::generateClasses();
                 break;
@@ -367,14 +367,14 @@ class PropelHelper
      *
      * This function inits the Propel class.
      *
-     * @param  bool $pWithDrop
+     * @param  bool $withDrop
      *
      * @return string
      * @throws \Exception
      */
-    public static function updateSchema($pWithDrop = false)
+    public static function updateSchema($withDrop = false)
     {
-        $sql = self::getSqlDiff($pWithDrop);
+        $sql = self::getSqlDiff($withDrop);
 
         if (is_array($sql)) {
             throw new \Exception("Propel updateSchema failed: \n" . $sql[0]);

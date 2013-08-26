@@ -7,16 +7,16 @@ class XCache implements CacheInterface
     /**
      * {@inheritdoc}
      */
-    public function __construct($pConfig)
+    public function __construct($config)
     {
-        $this->testConfig($pConfig);
+        $this->testConfig($config);
 
     }
 
     /**
      * {@inheritdoc}
      */
-    public function testConfig($pConfig)
+    public function testConfig($config)
     {
         if (!function_exists('xcache_set')) {
             throw new \Exception('The module Apc is not activated in your PHP environment.');
@@ -28,24 +28,24 @@ class XCache implements CacheInterface
     /**
      * {@inheritdoc}
      */
-    public function get($pKey)
+    public function get($key)
     {
-        return xcache_get($pKey);
+        return xcache_get($key);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function set($pKey, $pValue, $pTimeout = null)
+    public function set($key, $value, $timeout = null)
     {
-        return xcache_set($pKey, $pValue, $pTimeout);
+        return xcache_set($key, $value, $timeout);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function delete($pKey)
+    public function delete($key)
     {
-        return xcache_unset($pKey);
+        return xcache_unset($key);
     }
 }

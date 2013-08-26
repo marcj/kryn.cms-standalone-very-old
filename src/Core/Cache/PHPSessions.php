@@ -14,9 +14,9 @@ class PHPSessions implements CacheInterface
     /**
      * {@inheritdoc}
      */
-    public function __construct($pConfig)
+    public function __construct($config)
     {
-        $this->config = $pConfig;
+        $this->config = $config;
         $this->startSession();
 
         //since we store don't want to have a second cookie beside our own from ClientAbstract,
@@ -27,7 +27,7 @@ class PHPSessions implements CacheInterface
     /**
      * {@inheritdoc}
      */
-    public function testConfig($pConfig)
+    public function testConfig($config)
     {
         return true;
     }
@@ -35,7 +35,7 @@ class PHPSessions implements CacheInterface
     /**
      * {@inheritdoc}
      */
-    public function startSession($pNewSession = null)
+    public function startSession($newSession = null)
     {
         if ($this->config['ClientInstance']) {
             $this->tokenId = $this->config['ClientInstance']->getTokenId();
@@ -57,24 +57,24 @@ class PHPSessions implements CacheInterface
     /**
      * {@inheritdoc}
      */
-    public function get($pKey)
+    public function get($key)
     {
-        return $_SESSION[$pKey];
+        return $_SESSION[$key];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function set($pKey, $pValue, $pTimeout = null)
+    public function set($key, $value, $timeout = null)
     {
-        return ($_SESSION[$pKey] = $pValue) ? true : false;
+        return ($_SESSION[$key] = $value) ? true : false;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function delete($pKey)
+    public function delete($key)
     {
-        unset($_SESSION[$pKey]);
+        unset($_SESSION[$key]);
     }
 }

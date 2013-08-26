@@ -18,11 +18,11 @@ namespace Core;
 
 class Lang
 {
-    public static function getLanguage($pModuleName, $pLang)
+    public static function getLanguage($moduleName, $lang)
     {
-        $res = self::parsePo($pModuleName, $pLang);
+        $res = self::parsePo($moduleName, $lang);
 
-        $pluralForm = self::getPluralForm($pLang);
+        $pluralForm = self::getPluralForm($lang);
         preg_match('/^nplurals=([0-9]+);/', $pluralForm, $match);
 
         $res['pluralCount'] = intval($match[1]);
@@ -60,10 +60,10 @@ class Lang
         }
     }
 
-    public static function toPoString($pString)
+    public static function toPoString($string)
     {
         $res = '"';
-        $res .= preg_replace('/([^\\\\])"/', '$1\"', str_replace("\n", '\n"' . "\n" . '"', $pString));
+        $res .= preg_replace('/([^\\\\])"/', '$1\"', str_replace("\n", '\n"' . "\n" . '"', $string));
         $res .= '"';
 
         return $res;
@@ -104,9 +104,9 @@ class Lang
         return Kryn::getTempFolder() . $file;
     }
 
-    public static function parsePo($pModuleName, $pLang)
+    public static function parsePo($moduleName, $lang)
     {
-        $file = Kryn::resolvePath("@$pModuleName/$pLang.po", 'Resources/translations');
+        $file = Kryn::resolvePath("@$moduleName/$lang.po", 'Resources/translations');
 
         $res = array('header' => array(), 'translations' => array());
         if (!file_exists($file)) {
@@ -181,19 +181,19 @@ class Lang
 
     }
 
-    public static function saveLanguage($pModuleName, $pLang, $pLangs)
+    public static function saveLanguage($moduleName, $lang, $langs)
     {
-        Kryn::clearLanguageCache($pLang);
-        $file = PATH_MODULE . $pModuleName . '/lang/' . $pLang . '.po';
-        if ($pModuleName == 'Kryn') {
-            $file = PATH_CORE . 'lang/' . $pLang . '.po';
+        Kryn::clearLanguageCache($lang);
+        $file = PATH_MODULE . $moduleName . '/lang/' . $lang . '.po';
+        if ($moduleName == 'Kryn') {
+            $file = PATH_CORE . 'lang/' . $lang . '.po';
         }
 
         mkdir(dirname($file));
 
-        $translations = json_decode($pLangs, true);
+        $translations = json_decode($langs, true);
 
-        $current = self::parsePo($pModuleName, $pLang);
+        $current = self::parsePo($moduleName, $lang);
 
         $fh = fopen($file, 'w');
 
@@ -202,8 +202,8 @@ class Lang
         }
 
         $pluralForms = 'nplurals=2; plural=(n!=1);';
-        if (self::getPluralForm($pLang)) {
-            $pluralForms = self::getPluralForm($pLang);
+        if (self::getPluralForm($lang)) {
+            $pluralForms = self::getPluralForm($lang);
         }
 
         if ($current) {
@@ -226,11 +226,11 @@ class Lang
                 '
                msgid ""
                msgstr ""
-               "Project-Id-Version: Kryn.cms - ' . $pModuleName . '\n"
+               "Project-Id-Version: Kryn.cms - ' . $moduleName . '\n"
 "PO-Revision-Date: ' . date('Y-m-d H:iO') . '\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: ' . $pLang . '\n"
+"Language: ' . $lang . '\n"
 "Plural-Forms: ' . $pluralForms . '\n"' . "\n\n"
             );
 
@@ -269,19 +269,19 @@ class Lang
         }
         fclose($fh);
 
-        Kryn::clearLanguageCache($pLang);
+        Kryn::clearLanguageCache($lang);
 
         return true;
 
     }
 
-    public static function extractLanguage($pModuleName)
+    public static function extractLanguage($moduleName)
     {
         $GLOBALS['moduleTempLangs'] = array();
 
-        $mod = $pModuleName;
+        $mod = $moduleName;
 
-        if ($pModuleName == 'Kryn') {
+        if ($moduleName == 'Kryn') {
 
             $config = 'inc/Kryn/config.json';
             self::readDirectory(PHP_CORE);
@@ -325,18 +325,18 @@ class Lang
         return $GLOBALS['moduleTempLangs'];
     }
 
-    public static function extractFrameworkFields($pFields)
+    public static function extractFrameworkFields($fields)
     {
-        foreach ($pFields as $field) {
+        foreach ($fields as $field) {
             $GLOBALS['moduleTempLangs'][$field['label']] = $field['label'];
             $GLOBALS['moduleTempLangs'][$field['desc']] = $field['desc'];
         }
     }
 
-    public static function extractAdmin($pAdmin)
+    public static function extractAdmin($admin)
     {
-        if (is_array($pAdmin)) {
-            foreach ($pAdmin as $key => $value) {
+        if (is_array($admin)) {
+            foreach ($admin as $key => $value) {
                 if ($value['title']) {
                     $GLOBALS['moduleTempLangs'][$value['title']] = $value['title'];
                 }
@@ -366,9 +366,9 @@ class Lang
      * @params string $pFile
      */
 
-    public static function extractFile($pFile)
+    public static function extractFile($file)
     {
-        $content = file_get_contents($pFile);
+        $content = file_get_contents($file);
 
         $regex = array(
 
@@ -398,7 +398,7 @@ class Lang
             '/\{tc\s+"(((\\\\.)|[^"])*)"\s*"(((\\\\.)|[^"])*)"\s*\}/' => '[\Core\Lang::evalString($p[1]."\004".$p[4])] = true',
 
         );
-        //$GLOBALS['moduleTempLangs'][$pFile] = true;
+        //$GLOBALS['moduleTempLangs'][$file] = true;
 
         foreach ($regex as $k => $val) {
             if (is_numeric($k)) {
@@ -421,17 +421,17 @@ class Lang
         }
     }
 
-    public static function readDirectory($pPath)
+    public static function readDirectory($path)
     {
-        $h = opendir($pPath);
+        $h = opendir($path);
         while ($file = readdir($h)) {
             if ($file == '.' || $file == '..' || $file == '.svn') {
                 continue;
             }
-            if (is_dir($pPath . '/' . $file)) {
-                self::readDirectory($pPath . '/' . $file);
+            if (is_dir($path . '/' . $file)) {
+                self::readDirectory($path . '/' . $file);
             } else {
-                self::extractFile($pPath . '/' . $file);
+                self::extractFile($path . '/' . $file);
             }
         }
     }

@@ -894,10 +894,10 @@ class Model implements \ArrayAccess
         }
     }
 
-    public function getMethodMetaData(\ReflectionMethod $pMethod)
+    public function getMethodMetaData(\ReflectionMethod $method)
     {
-        $file = $pMethod->getFileName();
-        $startLine = $pMethod->getStartLine();
+        $file = $method->getFileName();
+        $startLine = $method->getStartLine();
 
         $fh = fopen($file, 'r');
         if (!$fh) return false;
@@ -952,12 +952,12 @@ class Model implements \ArrayAccess
     /**
      * Parse phpDoc string and returns an array.
      *
-     * @param  string $pString
+     * @param  string $string
      * @return array
      */
-    public function parsePhpDoc($pString)
+    public function parsePhpDoc($string)
     {
-        preg_match('#^/\*\*(.*)\*/#s', trim($pString), $comment);
+        preg_match('#^/\*\*(.*)\*/#s', trim($string), $comment);
 
         $comment = trim($comment[1]);
 

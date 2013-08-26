@@ -46,7 +46,7 @@ class Utils
         return $html;
     }
 
-    public static function exceptionHandler(\Exception $pException)
+    public static function exceptionHandler(\Exception $exception)
     {
         $output = '';
         for ($i = ob_get_level(); $i >= 0; $i--) {
@@ -69,24 +69,24 @@ class Utils
         ) {
             $response = array(
                 'status' => 500,
-                'error' => get_class($pException),
-                'message' => $pException->getMessage(). "[$output]",
-                'previous' => $pException->getPrevious()
+                'error' => get_class($exception),
+                'message' => $exception->getMessage(). "[$output]",
+                'previous' => $exception->getPrevious()
             );
 
             if (Kryn::getSystemConfig()->getErrors()->getDisplayRest()) {
-                $response['file'] = $pException->getFile();
-                $response['line'] = $pException->getLine();
-                $response['backstrace'] = $pException->getTrace();
+                $response['file'] = $exception->getFile();
+                $response['line'] = $exception->getLine();
+                $response['backstrace'] = $exception->getTrace();
             }
 
             json($response);
         }
 
         if (self::$inErrorHandler === true) {
-            print get_class($pException) . ', ' . $pException->getMessage() . ' in ' .
-                $pException->getFile() . ' +'. $pException->getLine();
-            if ($trace = $pException->getTrace()) {
+            print get_class($exception) . ', ' . $exception->getMessage() . ' in ' .
+                $exception->getFile() . ' +'. $exception->getLine();
+            if ($trace = $exception->getTrace()) {
                 print_r($trace);
             } else {
                 print_r(debug_backtrace());
@@ -96,10 +96,10 @@ class Utils
 
         self::$inErrorHandler = true;
 
-        $exceptions = array();
-        self::extractException($pException, $exceptions);
+        $exception2s = array();
+        self::extractException($exception, $exception2s);
         $data = array(
-            'exceptions' => $exceptions,
+            'exceptions' => $exception2s,
             'output' => $output
         );
 
@@ -110,16 +110,16 @@ class Utils
         exit;
     }
 
-    public static function extractException(\Exception $pException, array &$exceptions)
+    public static function extractException(\Exception $exception, array &$exception2s)
     {
-        $exception = array(
-            'title' => get_class($pException),
-            'message' => $pException->getMessage(),
-            'line' => $pException->getLine(),
-            'file' => $pException->getFile()
+        $exception2 = array(
+            'title' => get_class($exception),
+            'message' => $exception->getMessage(),
+            'line' => $exception->getLine(),
+            'file' => $exception->getFile()
         );
 
-        $backtrace = [$exception] + $pException->getTrace();
+        $backtrace = [$exception2] + $exception->getTrace();
 
         $traces = array();
         $count = count($backtrace);
@@ -154,12 +154,12 @@ class Utils
             $traces[] = $trace;
         }
 
-        $exception['backtrace'] = $traces;
-        $exception['file'] = substr($pException->getFile(), strlen(PATH));
-        $exceptions[] = $exception;
+        $exception2['backtrace'] = $traces;
+        $exception2['file'] = substr($exception->getFile(), strlen(PATH));
+        $exception2s[] = $exception2;
 
-        if ($pException->getPrevious()){
-            self::extractException($pException->getPrevious(), $exceptions);
+        if ($exception->getPrevious()){
+            self::extractException($exception->getPrevious(), $exception2s);
         }
     }
 
@@ -287,27 +287,27 @@ class Utils
         Kryn::setFastCache('core/latency', $lastLatency);
     }
 
-    public static function getFileContent($pFile, $pLine, $pOffset = 10)
+    public static function getFileContent($file, $line, $offset = 10)
     {
-        if (!file_exists($pFile)) {
+        if (!file_exists($file)) {
             return;
         }
-        $fh = fopen($pFile, 'r');
+        $fh = fopen($file, 'r');
 
         if ($fh) {
-            $line = 1;
+            $line2 = 1;
             $code = '';
             while (($buffer = fgets($fh, 4096)) !== false) {
 
-                if ($line >= ($pLine - $pOffset) && $line <= ($pLine + $pOffset)) {
+                if ($line2 >= ($line - $offset) && $line2 <= ($line + $offset)) {
                     $code .= $buffer;
                 }
 
-                if ($line == $pLine) {
-                    $highlightLine = $line;
+                if ($line2 == $line) {
+                    $highlightLine = $line2;
                 }
 
-                $line++;
+                $line2++;
             }
 
             if ("\n" !== substr($code, 0, -1)){
@@ -341,22 +341,22 @@ class Utils
     }
 
     /**
-     * Locks the process until the lock of $pId has been acquired for this process.
+     * Locks the process until the lock of $id has been acquired for this process.
      * If no lock has been acquired for this id, it returns without waiting true.
      *
-     * @param  string  $pId
-     * @param  integer $pTimeout Milliseconds
+     * @param  string  $id
+     * @param  integer $timeout Milliseconds
      *
      * @return boolean
      */
-    public static function appLock($pId, $pTimeout = 15)
+    public static function appLock($id, $timeout = 15)
     {
-        if (self::appTryLock($pId, $pTimeout)) {
+        if (self::appTryLock($id, $timeout)) {
             return true;
         } else {
             for ($i = 0; $i < 1000; $i++) {
                 usleep(15 * 1000); //15ms
-                if (self::appTryLock($pId, $pTimeout)) {
+                if (self::appTryLock($id, $timeout)) {
                     return true;
                 }
             }
@@ -371,26 +371,26 @@ class Utils
      *
      * @see appLock()
      *
-     * @param  string $pId
-     * @param  int    $pTimeout Default is 30sec
+     * @param  string $id
+     * @param  int    $timeout Default is 30sec
      *
      * @return bool
      */
-    public static function appTryLock($pId, $pTimeout = 30)
+    public static function appTryLock($id, $timeout = 30)
     {
         //already aquired by this process?
-        if (self::$lockedKeys[$pId] === true) {
+        if (self::$lockedKeys[$id] === true) {
             return true;
         }
 
         $now = ceil(microtime(true) * 1000);
-        $timeout = $now + $pTimeout;
+        $timeout2 = $now + $timeout;
 
         dbDelete('system_app_lock', 'timeout <= ' . $now);
 
         try {
-            dbInsert('system_app_lock', array('id' => $pId, 'timeout' => $timeout));
-            self::$lockedKeys[$pId] = true;
+            dbInsert('system_app_lock', array('id' => $id, 'timeout' => $timeout2));
+            self::$lockedKeys[$id] = true;
 
             return true;
         } catch (\Exception $e) {
@@ -400,16 +400,16 @@ class Utils
 
     /**
      * Releases a lock.
-     * If you're not the owner of the lock with $pId, then you'll kill it anyway.
+     * If you're not the owner of the lock with $id, then you'll kill it anyway.
      *
-     * @param string $pId
+     * @param string $id
      */
-    public static function appRelease($pId)
+    public static function appRelease($id)
     {
-        unset(self::$lockedKeys[$pId]);
+        unset(self::$lockedKeys[$id]);
 
         try {
-            dbDelete('system_app_lock', array('id' => $pId));
+            dbDelete('system_app_lock', array('id' => $id));
         } catch (\Exception $e) {
         }
     }

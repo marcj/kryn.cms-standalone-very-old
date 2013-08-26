@@ -56,24 +56,24 @@ class WebFile
      *
      * @static
      *
-     * @param  string $pPath
+     * @param  string $path
      *
      * @return \Core\FAL\FALAbstract
      * @throws \ClassNotFoundException
      */
-    public static function getLayer($pPath)
+    public static function getLayer($path)
     {
         $class = 'Core\FAL\Local';
         $params['root'] = PATH . PATH_WEB;
         $mountName = '';
 
-        if ($pPath != '/') {
+        if ($path != '/') {
 
-            $sPos = strpos(substr($pPath, 1), '/');
+            $sPos = strpos(substr($path, 1), '/');
             if ($sPos === false) {
-                $firstFolder = substr($pPath, 1);
+                $firstFolder = substr($path, 1);
             } else {
-                $firstFolder = substr($pPath, 1, $sPos);
+                $firstFolder = substr($path, 1, $sPos);
             }
 
             //if firstFolder a mounted folder?
@@ -155,19 +155,19 @@ class WebFile
      *
      * @static
      *
-     * @param  string $pName
+     * @param  string $name
      *
      * @return string
      */
-    public static function normalizeName($pName)
+    public static function normalizeName($name)
     {
         $s = array('ä', 'ö', 'ü', 'ß');
         $r = array('ae', 'oe', 'ue', 'ss');
-        $name = @str_replace($s, $r, $pName);
-        $name = @preg_replace('/[^a-zA-Z0-9\.\_\(\)]/', "-", $name);
-        $name = @preg_replace('/--+/', '-', $name);
+        $name2 = @str_replace($s, $r, $name);
+        $name2 = @preg_replace('/[^a-zA-Z0-9\.\_\(\)]/', "-", $name2);
+        $name2 = @preg_replace('/--+/', '-', $name2);
 
-        return $name;
+        return $name2;
     }
 
     /**
@@ -175,15 +175,15 @@ class WebFile
      *
      * @static
      *
-     * @param  string $pPath
+     * @param  string $path
      *
      * @return bool|string
      */
-    public static function getContent($pPath)
+    public static function getContent($path)
     {
-        $fs = static::getLayer($pPath);
+        $fs = static::getLayer($path);
 
-        return $fs->getContent(static::normalizePath($pPath));
+        return $fs->getContent(static::normalizePath($path));
 
     }
 
@@ -195,16 +195,16 @@ class WebFile
      *
      * @static
      *
-     * @param  string $pPath
-     * @param  string $pContent
+     * @param  string $path
+     * @param  string $content
      *
      * @return bool
      */
-    public static function setContent($pPath, $pContent)
+    public static function setContent($path, $content)
     {
-        $fs = static::getLayer($pPath);
+        $fs = static::getLayer($path);
 
-        return $fs->setContent(static::normalizePath($pPath), $pContent);
+        return $fs->setContent(static::normalizePath($path), $content);
 
     }
 
@@ -213,15 +213,15 @@ class WebFile
      *
      * @static
      *
-     * @param  string $pPath
+     * @param  string $path
      *
      * @return bool
      */
-    public static function exists($pPath)
+    public static function exists($path)
     {
-        $fs = static::getLayer($pPath);
+        $fs = static::getLayer($path);
 
-        return $fs->fileExists(static::normalizePath($pPath));
+        return $fs->fileExists(static::normalizePath($path));
 
     }
 
@@ -231,15 +231,15 @@ class WebFile
      *
      * @static
      *
-     * @param  string $pPath
+     * @param  string $path
      *
      * @return bool
      */
-    public static function createFile($pPath, $pContent)
+    public static function createFile($path, $content)
     {
-        $fs = static::getLayer($pPath);
+        $fs = static::getLayer($path);
 
-        return $fs->createFile(static::normalizePath($pPath), $pContent);
+        return $fs->createFile(static::normalizePath($path), $content);
 
     }
 
@@ -249,15 +249,15 @@ class WebFile
      *
      * @static
      *
-     * @param  string $pPath
+     * @param  string $path
      *
      * @return bool
      */
-    public static function createFolder($pPath)
+    public static function createFolder($path)
     {
-        $fs = static::getLayer($pPath);
+        $fs = static::getLayer($path);
 
-        return $fs->createFolder(static::normalizePath($pPath));
+        return $fs->createFolder(static::normalizePath($path));
 
     }
 
@@ -266,15 +266,15 @@ class WebFile
      *
      * @static
      *
-     * @param string $pPath
+     * @param string $path
      *
      * @return bool
      */
-    public static function remove($pPath)
+    public static function remove($path)
     {
-        $fs = static::getLayer($pPath);
+        $fs = static::getLayer($path);
 
-        return $fs->remove(static::normalizePath($pPath));
+        return $fs->remove(static::normalizePath($path));
 
     }
 
@@ -295,16 +295,16 @@ class WebFile
      *
      * @static
      *
-     * @param string $pPath
+     * @param string $path
      *
      * @return \Core\File\FileInfoInterface
      */
-    public static function getFile($pPath)
+    public static function getFile($path)
     {
-        $fs = static::getLayer($pPath);
-        $path = static::normalizePath($pPath);
+        $fs = static::getLayer($path);
+        $path2 = static::normalizePath($path);
 
-        $file = $fs->getFile($path);
+        $file = $fs->getFile($path2);
         return static::wrap($file);
     }
 
@@ -327,22 +327,22 @@ class WebFile
      *
      * @static
      *
-     * @param string $pPath
+     * @param string $path
      *
      * @return \Core\File\FileInfoInterface[]
      */
-    public static function getFiles($pPath)
+    public static function getFiles($path)
     {
-        //$access = krynAcl::check(3, $pPath, 'read', true);
+        //$access = krynAcl::check(3, $path, 'read', true);
         //if (!$access) return false;
-        $fs = static::getLayer($pPath);
-        $path = static::normalizePath($pPath);
+        $fs = static::getLayer($path);
+        $path2 = static::normalizePath($path);
 
-        if ($pPath == '/trash') {
+        if ($path == '/trash') {
             return static::getTrashFiles();
         }
 
-        $items = $fs->getFiles(static::normalizePath($pPath));
+        $items = $fs->getFiles(static::normalizePath($path));
         if (!is_array($items)) {
             return $items;
         }
@@ -361,7 +361,7 @@ class WebFile
                 }
             }
 
-            if ('/' === $pPath) {
+            if ('/' === $path) {
                 foreach (Kryn::getSystemConfig()->getMountPoints() as $mountPoint) {
                     $fileInfo = new FileInfo();
                     $fileInfo->setPath('/' . $mountPoint->getPath());
@@ -381,19 +381,19 @@ class WebFile
     }
 
     /**
-     * Returns the file count inside $pFolderPath
+     * Returns the file count inside $folderPath
      *
      * @static
      *
-     * @param  string $pFolderPath
+     * @param  string $folderPath
      *
      * @return mixed
      */
-    public static function getCount($pFolderPath)
+    public static function getCount($folderPath)
     {
-        $fs = static::getLayer($pFolderPath);
+        $fs = static::getLayer($folderPath);
 
-        return $fs->getCount(static::normalizePath($pFolderPath));
+        return $fs->getCount(static::normalizePath($folderPath));
     }
 
     /**
@@ -486,19 +486,19 @@ class WebFile
         return $to;
     }
 
-    public static function copyFolder($pFrom, $pTo)
+    public static function copyFolder($from, $to)
     {
-        $fs = self::getFs($pTo);
-        $fs->createFolder(self::normalizePath($pTo));
+        $fs = self::getFs($to);
+        $fs->createFolder(self::normalizePath($to));
 
-        $normalizedPath = self::normalizePath($pTo);
+        $normalizedPath = self::normalizePath($to);
 
-        $files = find($pFrom . '/*');
+        $files = find($from . '/*');
 
         $result = true;
 
         foreach ($files as $file) {
-            $newName = $normalizedPath . '/' . substr($file, strlen($pFrom) + 1);
+            $newName = $normalizedPath . '/' . substr($file, strlen($from) + 1);
 
             if (is_dir($file)) {
                 $result &= $fs->createFolder(self::normalizePath($newName));
@@ -560,19 +560,19 @@ class WebFile
 
     /**
      *
-     * Returns the public URL of the file $pPath
+     * Returns the public URL of the file $path
      * With HTTP or HTTPs, depends on Core\Kryn::$ssl.
      *
      * @static
      *
-     * @param  string $pPath
+     * @param  string $path
      *
      * @return string
      */
-    public static function getUrl($pPath)
+    public static function getUrl($path)
     {
-        $fs = static::getLayer($pPath);
-        $url = $fs->getPublicUrl(static::normalizePath($pPath));
+        $fs = static::getLayer($path);
+        $url = $fs->getPublicUrl(static::normalizePath($path));
 
         //TODO, check if $url contains http(s)://, and then decide if we need to add it
         if (strpos($url, 'http://') === 0 || strpos($url, 'https://') === 0) {
@@ -588,18 +588,18 @@ class WebFile
      *
      * @static
      *
-     * @param  integer|string $pId String for backward compatibility
+     * @param  integer|string $id String for backward compatibility
      *
      * @return string
      */
-    public static function getPath($pId)
+    public static function getPath($id)
     {
-        if (!is_numeric($pId)) {
-            return PATH_WEB . $pId;
+        if (!is_numeric($id)) {
+            return PATH_WEB . $id;
         }
 
         //page bases caching here
-        $sql = 'SELECT id, path FROM ' . pfx . 'system_file WHERE id = ' . ($pId + 0);
+        $sql = 'SELECT id, path FROM ' . pfx . 'system_file WHERE id = ' . ($id + 0);
         $item = dbExfetch($sql);
 
         return $item['path'];
@@ -676,38 +676,38 @@ class WebFile
     /**
      * Resize a image and returns it's object.
      *
-     * @param string  $pPath
-     * @param integer $pWidth
-     * @param int     $pHeight
+     * @param string  $path
+     * @param integer $width
+     * @param int     $height
      *
      * @return \PHPImageWorkshop\Core\ImageWorkshopLayer
      */
-    public static function getResizeMax($pPath, $pWidth, $pHeight)
+    public static function getResizeMax($path, $width, $height)
     {
 
-        $content = \Core\WebFile::getContent($pPath);
+        $content = \Core\WebFile::getContent($path);
         if (!$content) {
             return null;
         }
 
         $image = \PHPImageWorkshop\ImageWorkshop::initFromString($content);
 
-        $width = $image->getWidth();
-        $height = $image->getHeight();
+        $width2 = $image->getWidth();
+        $height2 = $image->getHeight();
 
-        if ($width > $height) {
-            $newWidth = $pWidth;
+        if ($width2 > $height2) {
+            $newWidth = $width;
         } else {
-            $newHeight = $pHeight;
+            $newHeight = $height;
         }
 
         $image->resizeInPixel($newWidth, $newHeight, true);
 
-        if ($image->getHeight() > $pHeight) {
-            $image->resizeInPixel(null, $pHeight, true);
+        if ($image->getHeight() > $height) {
+            $image->resizeInPixel(null, $height, true);
         }
-        if ($image->getWidth() > $pWidth) {
-            $image->resizeInPixel($pWidth, null, true);
+        if ($image->getWidth() > $width) {
+            $image->resizeInPixel($width, null, true);
         }
 
         return $image;
@@ -716,20 +716,20 @@ class WebFile
     /**
      *
      *
-     * @param string $pPath
-     * @param string $pResolution <width>x<height>
-     * @param bool   $pResize
+     * @param string $path
+     * @param string $resolution <width>x<height>
+     * @param bool   $resize
      *
      * @return resource
      */
-    public static function getThumbnail($pPath, $pResolution, $pResize = false)
+    public static function getThumbnail($path, $resolution, $resize = false)
     {
-        $fs = static::getLayer($pPath);
+        $fs = static::getLayer($path);
 
-        $content = $fs->getContent(static::normalizePath($pPath));
+        $content = $fs->getContent(static::normalizePath($path));
         $image = imagecreatefromstring($content);
 
-        list($newWidth, $newHeight) = explode('x', $pResolution);
+        list($newWidth, $newHeight) = explode('x', $resolution);
         $thumbWidth = $newWidth;
         $thumbHeight = $newHeight;
 
@@ -741,7 +741,7 @@ class WebFile
         imagealphablending($image, false);
         imagesavealpha($image, true);
 
-        if (!$pResize && $thumbWidth >= $oriWidth && $thumbHeight > $oriHeight) {
+        if (!$resize && $thumbWidth >= $oriWidth && $thumbHeight > $oriHeight) {
             return $image;
         }
 

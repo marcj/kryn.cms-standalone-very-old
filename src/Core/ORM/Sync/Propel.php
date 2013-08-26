@@ -183,80 +183,80 @@ class Propel implements SyncInterface {
 
 
     /**
-     * @param  string $pObject
-     * @param  string $pFieldKey
-     * @param  array $pField
-     * @param  xml $pTable
-     * @param  xml $pDatabase
-     * @param  xml $pRefColumn
+     * @param  string $object
+     * @param  string $fieldKey
+     * @param  array $field
+     * @param  xml $table
+     * @param  xml $database
+     * @param  xml $refColumn
      * @param  Bundle $bundle
      *
      * @return array|bool
      */
     public function getColumnFromField(
-        $pObject,
-        $pFieldKey,
-        Field $pField,
-        &$pTable,
-        &$pDatabase,
-        &$pRefColumn = null,
+        $object,
+        $fieldKey,
+        Field $field,
+        &$table,
+        &$database,
+        &$refColumn = null,
         Bundle $bundle = null
     )
     {
 
         $columns = array();
-        if ($pRefColumn) {
-            $column =& $pRefColumn;
+        if ($refColumn) {
+            $column =& $refColumn;
         } else {
-            $column = $this->getPropelAdditional($pField);
-            $column['type'] = $this->getPropelColumnType($pField);
+            $column = $this->getPropelAdditional($field);
+            $column['type'] = $this->getPropelColumnType($field);
         }
 
-        $object = \Core\Object::getDefinition($pObject);
+        $object2 = \Core\Object::getDefinition($object);
 
-        if ($pField->getVirtual()) {
+        if ($field->getVirtual()) {
             return;
         }
 
-        switch (strtolower($pField['type'])) {
+        switch (strtolower($field['type'])) {
             case 'object':
 
-                $foreignObject = \Core\Object::getDefinition($pField['object']);
+                $foreignObject = \Core\Object::getDefinition($field['object']);
 
                 if (!$foreignObject) {
-                    throw new BuildException(tf('The object `%s` does not exist in field `%s`.', $pField['object'], $pField['id']));
+                    throw new BuildException(tf('The object `%s` does not exist in field `%s`.', $field['object'], $field['id']));
                     continue;
                 }
 
-                $relationName = ucfirst($pField['objectRelationName'] ?: $foreignObject->getId());
+                $relationName = ucfirst($field['objectRelationName'] ?: $foreignObject->getId());
 
-                if ($pField['objectRelation'] == 'nTo1' || $pField['objectRelation'] == '1ToN') {
+                if ($field['objectRelation'] == 'nTo1' || $field['objectRelation'] == '1ToN') {
 
-                    $leftPrimaries = \Core\Object::getPrimaryList($pObject);
-                    $rightPrimaries = \Core\Object::getPrimaries($pField['object']);
+                    $leftPrimaries = \Core\Object::getPrimaryList($object);
+                    $rightPrimaries = \Core\Object::getPrimaries($field['object']);
 
-                    $foreignObject = \Core\Object::getDefinition($pField['object']);
+                    $foreignObject = \Core\Object::getDefinition($field['object']);
 
                     if (!$foreignObject['table']) {
-                        throw new BuildException(tf('The object `%s` has no table defined. Used in field `%s`.', $pField['object'], $pField['id']));
+                        throw new BuildException(tf('The object `%s` has no table defined. Used in field `%s`.', $field['object'], $field['id']));
                     }
 
-                    $foreigns = $pTable->xpath('foreign-key[@phpName=\'' . $relationName . '\']');
+                    $foreigns = $table->xpath('foreign-key[@phpName=\'' . $relationName . '\']');
                     if ($foreigns) {
                         $foreignKey = current($foreigns);
                     } else {
-                        $foreignKey = $pTable->addChild('foreign-key');
+                        $foreignKey = $table->addChild('foreign-key');
                     }
 
                     $foreignKey['phpName'] = $relationName;
                     $foreignKey['foreignTable'] = $foreignObject['table'];
 
-                    if ($pField['objectRelationOnDelete']) {
-                        $foreignKey['onDelete'] = $pField['objectRelationOnDelete'];
+                    if ($field['objectRelationOnDelete']) {
+                        $foreignKey['onDelete'] = $field['objectRelationOnDelete'];
                     }
 
-                    if ($pField['objectRelationOnUpdate']) {
-                        $foreignKey['onUpdate'] = $pField['objectRelationOnUpdate'];
+                    if ($field['objectRelationOnUpdate']) {
+                        $foreignKey['onUpdate'] = $field['objectRelationOnUpdate'];
                     }
 
                     $references = $foreignKey->xpath("reference[not(@custom='true')]");
@@ -266,14 +266,14 @@ class Propel implements SyncInterface {
 
                     if (count($rightPrimaries) == 1) {
 
-                        $references = $foreignKey->xpath('reference[@local=\'' . camelcase2Underscore($pFieldKey) . '\']');
+                        $references = $foreignKey->xpath('reference[@local=\'' . camelcase2Underscore($fieldKey) . '\']');
                         if ($references) {
                             $reference = current($references);
                         } else {
                             $reference = $foreignKey->addChild('reference');
                         }
 
-                        $reference['local'] = camelcase2Underscore($pFieldKey);
+                        $reference['local'] = camelcase2Underscore($fieldKey);
                         $reference['foreign'] = key($rightPrimaries);
 
                         $column = $this->getPropelAdditional(current($rightPrimaries));
@@ -285,23 +285,23 @@ class Propel implements SyncInterface {
 
                         //add left primary keys
                         foreach ($rightPrimaries as $key => $def) {
-                            $references = $pTable->xpath('reference[@local=\'' . $pFieldKey . '_' . $key . '\']');
+                            $references = $table->xpath('reference[@local=\'' . $fieldKey . '_' . $key . '\']');
                             if ($references) {
                                 $reference = current($references);
                             } else {
                                 $reference = $foreignKey->addChild('reference');
                             }
 
-                            $reference['local'] = camelcase2Underscore($pFieldKey) . '_' . $key;
+                            $reference['local'] = camelcase2Underscore($fieldKey) . '_' . $key;
                             $reference['foreign'] = $key;
 
                             //create additional fields
                             $columns = array_merge($columns, $this->getColumnFromField(
-                                $pObject,
-                                underscore2Camelcase($pFieldKey . '_' . $key),
+                                $object,
+                                underscore2Camelcase($fieldKey . '_' . $key),
                                 $def,
-                                $pTable,
-                                $pDatabase,
+                                $table,
+                                $database,
                                 $bundle
                             ));
                         }
@@ -313,20 +313,20 @@ class Propel implements SyncInterface {
                     //n-n, we need a extra table
 
                     $probablyName = $bundle->getName() . '_' . camelcase2Underscore(
-                            \Core\Object::getName($pObject)
-                        ) . '_' . camelcase2Underscore($pFieldKey) . '_relation';
+                            \Core\Object::getName($object)
+                        ) . '_' . camelcase2Underscore($fieldKey) . '_relation';
 
-                    $tableName = $pField['objectRelationTable'] ? $pField['objectRelationTable'] : $probablyName;
+                    $table2Name = $field['objectRelationTable'] ? $field['objectRelationTable'] : $probablyName;
 
                     //search if we've already the table defined.
-                    $tables = $pDatabase->xpath('table[@name=\'' . $tableName . '\']');
+                    $table2s = $database->xpath('table[@name=\'' . $table2Name . '\']');
 
-                    if (!$tables) {
-                        $relationTable = $pDatabase->addChild('table');
-                        $relationTable['name'] = $tableName;
+                    if (!$table2s) {
+                        $relationTable = $database->addChild('table');
+                        $relationTable['name'] = $table2Name;
                         $relationTable['isCrossRef'] = "true";
                     } else {
-                        $relationTable = current($tables);
+                        $relationTable = current($table2s);
                     }
 
                     $relationTable['phpName'] = $relationName;
@@ -334,29 +334,29 @@ class Propel implements SyncInterface {
                     $foreignKeys = array();
 
                     //left columns
-                    $leftPrimaries = \Core\Object::getPrimaries($pObject);
+                    $leftPrimaries = \Core\Object::getPrimaries($object);
                     foreach ($leftPrimaries as $key => $primary) {
 
-                        $name = strtolower(\Core\Object::getName($pObject)) . '_' . $key;
+                        $name = strtolower(\Core\Object::getName($object)) . '_' . $key;
                         $cols = $relationTable->xpath('column[@name=\'' . $name . '\']');
-                        $foreignKeys[$object['table']][$key] = $name;
+                        $foreignKeys[$object2['table']][$key] = $name;
                         if ($cols) {
                             continue;
                         }
 
                         $col = $relationTable->addChild('column');
                         $col['name'] = $name;
-                        $this->getColumnFromField($pObject, $key, $primary, $pTable, $pDatabase, $col, $bundle);
+                        $this->getColumnFromField($object, $key, $primary, $table, $database, $col, $bundle);
                         unset($col['autoIncrement']);
                         $col['required'] = "true";
 
                     }
 
                     //right columns
-                    $rightPrimaries = \Core\Object::getPrimaries($pField['object']);
+                    $rightPrimaries = \Core\Object::getPrimaries($field['object']);
                     foreach ($rightPrimaries as $key => $primary) {
 
-                        $name = camelcase2Underscore(\Core\Object::getName($pField['object'])) . '_' . $key;
+                        $name = camelcase2Underscore(\Core\Object::getName($field['object'])) . '_' . $key;
                         $foreignKeys[$foreignObject['table']][$key] = $name;
                         $cols = $relationTable->xpath('column[@name=\'' . $name . '\']');
                         if ($cols) {
@@ -365,31 +365,31 @@ class Propel implements SyncInterface {
 
                         $col = $relationTable->addChild('column');
                         $col['name'] = $name;
-                        $this->getColumnFromField($pObject, $key, $primary, $pTable, $pDatabase, $col, $bundle);
+                        $this->getColumnFromField($object, $key, $primary, $table, $database, $col, $bundle);
                         unset($col['autoIncrement']);
                         $col['required'] = "true";
 
                     }
 
                     //foreign keys
-                    foreach ($foreignKeys as $table => $keys) {
+                    foreach ($foreignKeys as $table2 => $keys) {
 
-                        $foreigns = $relationTable->xpath('foreign-key[@foreignTable=\'' . $table . '\']');
+                        $foreigns = $relationTable->xpath('foreign-key[@foreignTable=\'' . $table2 . '\']');
                         if ($foreigns) {
                             $foreignKey = current($foreigns);
                         } else {
                             $foreignKey = $relationTable->addChild('foreign-key');
                         }
 
-                        $foreignKey['foreignTable'] = $table;
+                        $foreignKey['foreignTable'] = $table2;
 
-                        if ($table == $foreignObject['table']) {
-                            $foreignKey['phpName'] = ucfirst($pFieldKey);
+                        if ($table2 == $foreignObject['table']) {
+                            $foreignKey['phpName'] = ucfirst($fieldKey);
                         } else {
-                            $foreignKey['phpName'] = ucfirst($pFieldKey) . \Core\Object::getName($pObject);
+                            $foreignKey['phpName'] = ucfirst($fieldKey) . \Core\Object::getName($object);
                         }
 
-                        if ($object['workspace']) {
+                        if ($object2['workspace']) {
                             $references = $foreignKey->xpath('reference[@local=\'workspace_id\']');
                             if ($references) {
                                 $reference = current($references);
@@ -415,8 +415,8 @@ class Propel implements SyncInterface {
                         }
                     }
 
-                    //workspace behavior if $pObject is workspaced
-                    if ($object['workspace']) {
+                    //workspace behavior if $object is workspaced
+                    if ($object2['workspace']) {
 
                         $behaviors = $relationTable->xpath('behavior[@name=\'workspace\']');
                         if ($behaviors) {
@@ -456,18 +456,18 @@ class Propel implements SyncInterface {
 
         }
 
-        if ($pField['empty'] === 0 || $pField['empty'] === false) {
+        if ($field['empty'] === 0 || $field['empty'] === false) {
             $column['required'] = "true";
         }
 
-        if ($pField['primaryKey']) {
+        if ($field['primaryKey']) {
             $column['primaryKey'] = "true";
         }
-        if ($pField['autoIncrement']) {
+        if ($field['autoIncrement']) {
             $column['autoIncrement'] = "true";
         }
 
-        $columns[camelcase2Underscore($pFieldKey)] = $column;
+        $columns[camelcase2Underscore($fieldKey)] = $column;
 
         return $columns;
     }

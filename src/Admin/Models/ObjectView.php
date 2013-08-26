@@ -10,9 +10,9 @@ class ObjectView extends \Core\ORM\ORMAbstract
     /**
      * {@inheritDoc}
      */
-    public function getItem($pPk, $pOptions = null)
+    public function getItem($pk, $options = null)
     {
-        $path = $pPk['path'];
+        $path = $pk['path'];
 
         $file = Kryn::resolvePath($path, 'Views/');
         $fileObj = SystemFile::getFile($file);
@@ -23,42 +23,42 @@ class ObjectView extends \Core\ORM\ORMAbstract
     /**
      * {@inheritDoc}
      */
-    public function getItems($pCondition = null, $pOptions = null)
+    public function getItems($condition = null, $options = null)
     {
     }
 
     /**
      * {@inheritDoc}
      */
-    public function remove($pPrimaryKey)
+    public function remove($primaryKey)
     {
     }
 
     /**
      * {@inheritDoc}
      */
-    public function add($pValues, $pBranchPk = null, $pMode = 'into', $pScope = null)
+    public function add($values, $branchPk = null, $mode = 'into', $scope = null)
     {
     }
 
     /**
      * {@inheritDoc}
      */
-    public function update($pPrimaryKey, $pValues)
+    public function update($primaryKey, $values)
     {
     }
 
     /**
      * {@inheritDoc}
      */
-    public function patch($pPrimaryKey, $pValues)
+    public function patch($primaryKey, $values)
     {
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getCount($pCondition = null)
+    public function getCount($condition = null)
     {
     }
 
@@ -80,12 +80,12 @@ class ObjectView extends \Core\ORM\ORMAbstract
     /**
      * {@inheritDoc}
      */
-    public static function normalizePath(&$pPath)
+    public static function normalizePath(&$path)
     {
-        $pPath = str_replace('.', '/', $pPath); //debug
+        $path = str_replace('.', '/', $path); //debug
 
-        if (substr($pPath, -1) == '/') {
-            $pPath = substr($pPath, 0, -1);
+        if (substr($path, -1) == '/') {
+            $path = substr($path, 0, -1);
         }
 
     }
@@ -93,13 +93,13 @@ class ObjectView extends \Core\ORM\ORMAbstract
     /**
      * {@inheritDoc}
      */
-    public function getBranch($pPk = null, $pCondition = null, $pDepth = 1, $pScope = null, $pOptions = null)
+    public function getBranch($pk = null, $condition = null, $depth = 1, $scope = null, $options = null)
     {
         $result = null;
 
-        $path = $pPk['path'];
-        if ($pDepth === null) {
-            $pDepth = 1;
+        $path = $pk['path'];
+        if ($depth === null) {
+            $depth = 1;
         }
 
         if (substr($path, -1) !== '/') {
@@ -107,8 +107,8 @@ class ObjectView extends \Core\ORM\ORMAbstract
         }
 
         $c = 0;
-        $offset = $pOptions['offset'];
-        $limit = $pOptions['limit'];
+        $offset = $options['offset'];
+        $limit = $options['limit'];
         $result = array();
 
         if (!$path) {
@@ -128,15 +128,15 @@ class ObjectView extends \Core\ORM\ORMAbstract
                 if ($limit && $limit < $c) {
                     continue;
                 }
-                if ($pCondition && !\Core\Object::satisfy($file, $pCondition)) {
+                if ($condition && !\Core\Object::satisfy($file, $condition)) {
                     continue;
                 }
                 $c++;
 
-                if ($pDepth > 0) {
-                    $children = self::getBranch(array('path' => $extension), $pCondition, $pDepth - 1);
+                if ($depth > 0) {
+                    $children = self::getBranch(array('path' => $extension), $condition, $depth - 1);
                     $file['_childrenCount'] = count($children);
-                    if ($pDepth > 1 && $file['type'] == 'dir') {
+                    if ($depth > 1 && $file['type'] == 'dir') {
                         $file['_children'] = $children;
                     }
                 }
@@ -146,7 +146,7 @@ class ObjectView extends \Core\ORM\ORMAbstract
             $files = SystemFile::getFiles($directory);
 
             foreach ($files as $file) {
-                if ($pCondition && !\Core\Object::satisfy($file, $pCondition)) {
+                if ($condition && !\Core\Object::satisfy($file, $condition)) {
                     continue;
                 }
 
@@ -166,7 +166,7 @@ class ObjectView extends \Core\ORM\ORMAbstract
                 );
 
                 if ($file->isDir()) {
-                    $children = self::getBranch(array('path' => $item['path']), $pCondition, $pDepth - 1);
+                    $children = self::getBranch(array('path' => $item['path']), $condition, $depth - 1);
                     foreach ($children as $child) {
                         $child['name'] = $item['name'] . '/' . $child['name'];
                         $result[] = $child;
@@ -185,25 +185,25 @@ class ObjectView extends \Core\ORM\ORMAbstract
     /**
      * {@inheritDoc}
      */
-    public function getParent($pPk)
+    public function getParent($pk)
     {
-        parent::getParent($pPk);
+        parent::getParent($pk);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getParents($pPk)
+    public function getParents($pk)
     {
-        parent::getParents($pPk);
+        parent::getParents($pk);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getParentId($pPrimaryKey)
+    public function getParentId($primaryKey)
     {
-        return parent::getParentId($pPrimaryKey);
+        return parent::getParentId($primaryKey);
     }
 
 }

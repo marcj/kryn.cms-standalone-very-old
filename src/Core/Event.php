@@ -7,17 +7,17 @@ class Event
     private static $events = array();
 
     /**
-     * Adds $pFn to $pEventKey event.
+     * Adds $fn to $eventKey event.
      *
      * @static
      *
-     * @param string $pEventKey
-     * @param mixed  $pFn       'myClass::staticFn', array($obj, 'methodName'), 'globalFunction'
+     * @param string $eventKey
+     * @param mixed  $fn       'myClass::staticFn', array($obj, 'methodName'), 'globalFunction'
      */
-    public static function listen($pEventKey, $pFn)
+    public static function listen($eventKey, $fn)
     {
-        $pEventKey = strtolower($pEventKey);
-        self::$events[$pEventKey][] = $pFn;
+        $eventKey = strtolower($eventKey);
+        self::$events[$eventKey][] = $fn;
     }
 
     /**
@@ -25,15 +25,15 @@ class Event
      *
      * @static
      *
-     * @param string $pEventKey
-     * @param mixed  $pArgument
+     * @param string $eventKey
+     * @param mixed  $argument
      */
-    public static function fire($pEventKey, &$pArgument = null)
+    public static function fire($eventKey, &$argument = null)
     {
-        $pEventKey = strtolower($pEventKey);
-        if (self::$events[$pEventKey]) {
-            foreach (self::$events[$pEventKey] as $fn) {
-                call_user_func_array($fn, array($pArgument));
+        $eventKey = strtolower($eventKey);
+        if (self::$events[$eventKey]) {
+            foreach (self::$events[$eventKey] as $fn) {
+                call_user_func_array($fn, array($argument));
             }
         }
 

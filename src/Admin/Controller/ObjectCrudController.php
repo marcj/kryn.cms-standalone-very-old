@@ -81,12 +81,12 @@ class ObjectCrudController extends Server
         }
     }
 
-    public function getVersion($pPk, $pId)
+    public function getVersion($pk, $id)
     {
         //todo
     }
 
-    public function getVersions($pPk)
+    public function getVersions($pk)
     {
         //todo
     }
@@ -103,11 +103,11 @@ class ObjectCrudController extends Server
         return $obj->getCount();
     }
 
-    public function moveItem($pPk, $pTargetPk, $pPosition = 'first', $pTargetObjectKey = '')
+    public function moveItem($pk, $targetPk, $position = 'first', $targetObjectKey = '')
     {
         $obj = $this->getObj();
 
-        return $obj->moveItem($pPk, $pTargetPk, $pPosition, $pTargetObjectKey);
+        return $obj->moveItem($pk, $targetPk, $position, $targetObjectKey);
 
     }
 
@@ -118,40 +118,40 @@ class ObjectCrudController extends Server
         return $obj->getRoots();
     }
 
-    public function getRoot($pScope = null)
+    public function getRoot($scope = null)
     {
         $obj = $this->getObj();
 
-        return $obj->getRoot($pScope);
+        return $obj->getRoot($scope);
     }
 
-    public function getParent($pPk)
+    public function getParent($pk)
     {
         $obj = $this->getObj();
 
-        return $obj->getParent($pPk);
+        return $obj->getParent($pk);
     }
 
-    public function getParents($pPk)
+    public function getParents($pk)
     {
         $obj = $this->getObj();
 
-        return $obj->getParents($pPk);
+        return $obj->getParents($pk);
     }
 
     /**
      * Translate the label/title item of $fields.
      *
-     * @param $pFields
+     * @param $fields
      */
-    public static function translateFields(&$pFields)
+    public static function translateFields(&$fields)
     {
-        if (is_array($pFields)) {
-            foreach ($pFields as &$field) {
+        if (is_array($fields)) {
+            foreach ($fields as &$field) {
                 self::translateFields($field);
             }
-        } elseif (is_string($pFields) && substr($pFields, 0, 2) == '[[' && substr($pFields, -2) == ']]') {
-            $pFields = t(substr($pFields, 2, -2));
+        } elseif (is_string($fields) && substr($fields, 0, 2) == '[[' && substr($fields, -2) == ']]') {
+            $fields = t(substr($fields, 2, -2));
         }
 
     }
@@ -159,14 +159,14 @@ class ObjectCrudController extends Server
     /**
      * Proxy method for REST DELETE to remove().
      *
-     * @param  string $pObject
+     * @param  string $object
      *
      * @return mixed
      */
-    public function removeItem($pObject = null)
+    public function removeItem($object = null)
     {
         $obj = $this->getObj();
-        $pk = \Core\Object::parsePk($obj->getObject(), $pObject);
+        $pk = \Core\Object::parsePk($obj->getObject(), $object);
 
         return $obj->remove($pk[0]);
     }
@@ -174,15 +174,15 @@ class ObjectCrudController extends Server
     /**
      * Proxy method for REST PUT to update().
      *
-     * @param  null  $pObject
+     * @param  null  $object
      *
      * @return mixed
      */
-    public function updateItem($pObject = null)
+    public function updateItem($object = null)
     {
         $obj = $this->getObj();
 
-        $pk = \Core\Object::parsePk($obj->getObject(), $pObject);
+        $pk = \Core\Object::parsePk($obj->getObject(), $object);
 
         return $obj->update($pk[0]);
     }
@@ -190,15 +190,15 @@ class ObjectCrudController extends Server
     /**
      * Proxy method for REST PATCH to patch().
      *
-     * @param  null  $pObject
+     * @param  null  $object
      *
      * @return mixed
      */
-    public function patchItem($pObject = null)
+    public function patchItem($object = null)
     {
         $obj = $this->getObj();
 
-        $pk = \Core\Object::parsePk($obj->getObject(), $pObject);
+        $pk = \Core\Object::parsePk($obj->getObject(), $object);
 
         return $obj->patch($pk[0]);
     }
@@ -230,86 +230,86 @@ class ObjectCrudController extends Server
     /**
      * Proxy method for REST GET to getItem/getItems/getPosition.
      *
-     * @param  string $pUrl
+     * @param  string $url
      * @param  array  $_
-     * @param  int    $pLimit
-     * @param  int    $pOffset
-     * @param  array  $pFields
-     * @param  int    $pGetPosition
+     * @param  int    $limit
+     * @param  int    $offset
+     * @param  array  $fields
+     * @param  int    $getPosition
      *
      * @return mixed
      */
-    public function getItems($pUrl = null, $_ = null, $pLimit = null, $pOffset = null, $pFields = null,
-                             $pGetPosition = null, $q = '')
+    public function getItems($url = null, $_ = null, $limit = null, $offset = null, $fields = null,
+                             $getPosition = null, $q = '')
     {
         $obj = $this->getObj();
 
-        if ($pGetPosition !== null) {
-            return $obj->getPosition($pGetPosition);
+        if ($getPosition !== null) {
+            return $obj->getPosition($getPosition);
         }
 
-        if ($pUrl !== null) {
-            $pk = \Core\Object::parsePk($obj->getObject(), $pUrl);
+        if ($url !== null) {
+            $pk = \Core\Object::parsePk($obj->getObject(), $url);
 
-            return $obj->getItem($pk[0], $pFields);
+            return $obj->getItem($pk[0], $fields);
         } else {
-            return $obj->getItems($_, $pLimit, $pOffset, $q, $pFields);
+            return $obj->getItems($_, $limit, $offset, $q, $fields);
         }
 
     }
 
     public function getRootBranchItems(
-        $pScope = null,
-        $pFields = null,
-        $pDepth = 1,
-        $pLimit = null,
-        $pOffset = null,
+        $scope = null,
+        $fields = null,
+        $depth = 1,
+        $limit = null,
+        $offset = null,
         $_ = null
     ) {
         $obj = $this->getObj();
 
-        return $obj->getBranchItems(null, $_, $pFields, $pScope, $pDepth, $pLimit, $pOffset);
+        return $obj->getBranchItems(null, $_, $fields, $scope, $depth, $limit, $offset);
     }
 
     public function getBranchItems(
-        $pPk = null,
-        $pFields = null,
-        $pScope = null,
-        $pDepth = 1,
-        $pLimit = null,
-        $pOffset = null,
+        $pk = null,
+        $fields = null,
+        $scope = null,
+        $depth = 1,
+        $limit = null,
+        $offset = null,
         $_ = null
     ) {
         $obj = $this->getObj();
 
-        $pk = \Core\Object::normalizePkString($obj->getObject(), $pPk);
+        $pk2 = \Core\Object::normalizePkString($obj->getObject(), $pk);
 
-        return $obj->getBranchItems($pk, $_, $pFields, $pScope, $pDepth, $pLimit, $pOffset);
+        return $obj->getBranchItems($pk2, $_, $fields, $scope, $depth, $limit, $offset);
     }
 
-    public function getBranchChildrenCount($pPk = null, $pScope = null, $_ = null)
+    public function getBranchChildrenCount($pk = null, $scope = null, $_ = null)
     {
         $obj = $this->getObj();
 
-        if ($pPk) {
-            $pPk = \Core\Object::normalizePkString($obj->getObject(), $pPk);
+        if ($pk) {
+            $pk = \Core\Object::normalizePkString($obj->getObject(), $pk);
         }
 
-        return $obj->getBranchChildrenCount($pPk, $pScope, $_);
+        return $obj->getBranchChildrenCount($pk, $scope, $_);
 
     }
 
-    public function getItem($pPk, $pFields = null)
+    public function getItem($pk, $fields = null)
     {
         $obj = $this->getObj();
 
-        $primaryKeys = \Core\Object::parsePk($obj->getObject(), $pPk);
+        $primaryKeys = \Core\Object::parsePk($obj->getObject(), $pk);
 
         if (count($primaryKeys) == 1) {
-            return $obj->getItem($primaryKeys[0], $pFields);
+            return $obj->getItem($primaryKeys[0], $fields);
         } else {
             foreach ($primaryKeys as $primaryKey) {
-                if ($item = $obj->getItem($primaryKey, $pFields)) {
+                if ($item = $obj->getItem($primaryKey, $fields)) {
                     $items[] = $item;
                 }
             }
@@ -358,11 +358,11 @@ class ObjectCrudController extends Server
     }
 
     /**
-     * @param \Admin\ObjectCrud $pObj
+     * @param \Admin\ObjectCrud $obj
      */
-    public function setObj($pObj)
+    public function setObj($obj)
     {
-        $this->obj = $pObj;
+        $this->obj = $obj;
     }
 
 }

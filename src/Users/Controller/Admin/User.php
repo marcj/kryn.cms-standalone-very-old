@@ -220,9 +220,9 @@ class User extends \Admin\ObjectCrud
         )
     );
 
-    public function collectData($pFields = null, $pData = null)
+    public function collectData($fields = null, $data = null)
     {
-        $data = parent::collectData($pFields = null, $pData = null);
+        $data2 = parent::collectData($fields = null, $data = null);
 
         //save settings
         $settings = array();
@@ -236,9 +236,9 @@ class User extends \Admin\ObjectCrud
             $settings[$field] = $_POST[$field] ? : $_GET[$field];
         }
 
-        $data['settings'] = new \Core\Properties($settings);
+        $data2['settings'] = new \Core\Properties($settings);
 
-        return $data;
+        return $data2;
     }
 
     private function getSettings()
@@ -262,11 +262,11 @@ class User extends \Admin\ObjectCrud
         return $settings;
     }
 
-    private function getSetting($pKey)
+    private function getSetting($key)
     {
         $settings = $this->getSettings();
 
-        return $settings[$pKey];
+        return $settings[$key];
     }
 
     /*
@@ -274,7 +274,7 @@ class User extends \Admin\ObjectCrud
      *
      */
 
-    public function userBgValue($pPrimary, $pItem)
+    public function userBgValue($primary, $item)
     {
         return $this->getSetting('userBg');
     }
@@ -299,12 +299,12 @@ class User extends \Admin\ObjectCrud
         return $val;
     }
 
-    public function savePasswd(&$pRow)
+    public function savePasswd(&$row)
     {
         $salt = krynAuth::getSalt();
         $passwd = krynAuth::getHashedPassword(getArgv('passwd'), $salt);
-        $pRow['passwd'] = $passwd;
-        $pRow['passwd_salt'] = $salt;
+        $row['passwd'] = $passwd;
+        $row['passwd_salt'] = $salt;
 
     }
 

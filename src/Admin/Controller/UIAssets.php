@@ -37,49 +37,49 @@ class UIAssets
         exit;
     }
 
-    public function getLanguage($pLang)
+    public function getLanguage($lang)
     {
-        $lang = esc($pLang, 2);
+        $lang2 = esc($lang, 2);
 
-        if (!Kryn::isValidLanguage($lang)) {
-            $lang = 'en';
+        if (!Kryn::isValidLanguage($lang2)) {
+            $lang2 = 'en';
         }
 
-        Kryn::getAdminClient()->getSession()->setLanguage($lang);
+        Kryn::getAdminClient()->getSession()->setLanguage($lang2);
         Kryn::getAdminClient()->syncStore();
 
-        Kryn::loadLanguage($lang);
+        Kryn::loadLanguage($lang2);
 
         if (getArgv('javascript') == 1) {
             header('Content-Type: text/javascript');
-            print "if( typeof(ka)=='undefined') window.ka = {}; ka.lang = " . json_encode(Kryn::$lang);
+            print "if( typeof(ka)=='undefined') window.ka = {}; ka.lang = " . json_encode(Kryn::$lang2);
             print "\nLocale.define('en-US', 'Date', " . Kryn::getInstance()->renderView(
                 '@AdminBundle/mootools-locale.tpl'
             ) . ");";
             exit;
         } else {
-            Kryn::$lang['mootools'] = json_decode(
+            Kryn::$lang2['mootools'] = json_decode(
                 Kryn::getInstance()->renderView('@AdminBundle/mootools-locale.tpl'),
                 true
             );
 
-            return Kryn::$lang;
+            return Kryn::$lang2;
         }
     }
 
-    public static function collectFiles($pArray, &$pFiles)
+    public static function collectFiles($array, &$files)
     {
-        foreach ($pArray as $jsFile) {
+        foreach ($array as $jsFile) {
             if (strpos($jsFile, '*') !== -1) {
                 $folderFiles = find(PATH_WEB . $jsFile, false);
                 foreach ($folderFiles as $file) {
-                    if (!array_search($file, $pFiles)) {
-                        $pFiles[] = $file;
+                    if (!array_search($file, $files)) {
+                        $files[] = $file;
                     }
                 }
             } else {
                 if (file_exists($jsFile)) {
-                    $pFiles[] = $jsFile;
+                    $files[] = $jsFile;
                 }
             }
         }

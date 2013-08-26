@@ -7,13 +7,13 @@ use \Core\Controller;
 
 class Login extends Controller
 {
-    public function display($pPluginProperties)
+    public function display($pluginProperties)
     {
         if (getArgv('users-loggedOut') || getArgv('users-logout')) {
             Kryn::disableSearchEngine();
             Kryn::getClient()->logout();
-            if ($pPluginProperties['logoutTarget']) {
-                Kryn::redirectToPage($pPluginProperties['logoutTarget']);
+            if ($pluginProperties['logoutTarget']) {
+                Kryn::redirectToPage($pluginProperties['logoutTarget']);
             } else {
                 Kryn::redirectToPage(Kryn::getPage()->getId());
             }
@@ -26,8 +26,8 @@ class Login extends Controller
             Kryn::getClient()->login($login, getArgv('users-passwd'));
 
             if (Kryn::getClient()->getUserId() > 0) {
-                if ($pPluginProperties['logoutTarget']) {
-                    Kryn::redirectToPage($pPluginProperties['logoutTarget']);
+                if ($pluginProperties['logoutTarget']) {
+                    Kryn::redirectToPage($pluginProperties['logoutTarget']);
                 } else {
                     Kryn::redirectToPage(Kryn::getPage()->getId());
                 }
@@ -36,18 +36,18 @@ class Login extends Controller
             }
         }
 
-        if (!strpos($pPluginProperties['template'], '/') > 0) {
-            $pPluginProperties['template'] = 'users/login/' . $pPluginProperties['template'] . '.tpl';
+        if (!strpos($pluginProperties['template'], '/') > 0) {
+            $pluginProperties['template'] = 'users/login/' . $pluginProperties['template'] . '.tpl';
         }
 
-        if (!strpos($pPluginProperties['templateLoggedIn'], '/') > 0) {
-            $pPluginProperties['templateLoggedIn'] = 'users/loggedIn/' . $pPluginProperties['templateLoggedIn'] . '.tpl';
+        if (!strpos($pluginProperties['templateLoggedIn'], '/') > 0) {
+            $pluginProperties['templateLoggedIn'] = 'users/loggedIn/' . $pluginProperties['templateLoggedIn'] . '.tpl';
         }
 
         if (Kryn::getClient()->getUserId() > 0) {
-            return Kryn::unsearchable(tFetch($pPluginProperties['templateLoggedIn']));
+            return Kryn::unsearchable(tFetch($pluginProperties['templateLoggedIn']));
         } else {
-            return Kryn::unsearchable(tFetch($pPluginProperties['template']));
+            return Kryn::unsearchable(tFetch($pluginProperties['template']));
         }
     }
 }

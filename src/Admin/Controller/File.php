@@ -13,31 +13,31 @@ class File
     /**
      * Removes a file or folder (recursively).
      *
-     * @param string $pPath
+     * @param string $path
      *
      * @return bool
      */
-    public function deleteFile($pPath)
+    public function deleteFile($path)
     {
-        $this->checkAccess($pPath);
+        $this->checkAccess($path);
 
-        FileQuery::create()->filterByPath($pPath)->delete();
-        return WebFile::remove($pPath);
+        FileQuery::create()->filterByPath($path)->delete();
+        return WebFile::remove($path);
     }
 
 
     /**
      * Creates a file.
      *
-     * @param string $pPath
-     * @param string $pContent
+     * @param string $path
+     * @param string $content
      *
      * @return bool
      */
-    public function createFile($pPath, $pContent = '')
+    public function createFile($path, $content = '')
     {
-        $this->checkAccess($pPath);
-        return WebFile::createFile($pPath, $pContent);
+        $this->checkAccess($path);
+        return WebFile::createFile($path, $content);
     }
 
     /**
@@ -59,66 +59,66 @@ class File
     /**
      * Creates a folder
      *
-     * @param string $pPath
+     * @param string $path
      *
      * @return bool
      */
-    public function createFolder($pPath)
+    public function createFolder($path)
     {
-        $this->checkAccess(dirname($pPath));
-        return WebFile::createFolder($pPath);
+        $this->checkAccess(dirname($path));
+        return WebFile::createFolder($path);
     }
 
     /**
      * Checks the file access.
      *
-     * @param $pPath
+     * @param $path
      *
      * @throws \FileIOException
      * @throws \AccessDeniedException
      */
-    public function checkAccess($pPath)
+    public function checkAccess($path)
     {
         try {
-            $file = WebFile::getFile($pPath);
+            $file = WebFile::getFile($path);
         } catch (\FileNotExistException $e) {
-            $file = WebFile::getFile(dirname($pPath));
+            $file = WebFile::getFile(dirname($path));
         }
         if ($file && !Permission::checkUpdate('Core\\File', array('id' => $file->getId()))) {
-            throw new \AccessDeniedException(tf('No access to file `%s`', $pPath));
+            throw new \AccessDeniedException(tf('No access to file `%s`', $path));
         }
     }
 
     /**
      * Prepares a file upload process.
      *
-     * @param string $pPath
-     * @param string $pName
-     * @param bool   $pOverwrite
+     * @param string $path
+     * @param string $name
+     * @param bool   $overwrite
      *
      * @return array
      */
-    public function prepareUpload($pPath, $pName, $pOverwrite = false)
+    public function prepareUpload($path, $name, $overwrite = false)
     {
 
-        $oriName = $pName;
-        $name = $pName;
-        $newPath = ($pPath == '/') ? '/' . $name : $pPath . '/' . $name;
+        $oriName = $name;
+        $name2 = $name;
+        $newPath = ($path == '/') ? '/' . $name2 : $path . '/' . $name2;
 
-        $this->checkAccess($pPath);
+        $this->checkAccess($path);
 
         $res = array();
 
-        if ($name != $oriName) {
+        if ($name2 != $oriName) {
             $res['renamed'] = true;
-            $res['name'] = $name;
+            $res['name'] = $name2;
         }
 
         $exist = WebFile::exists($newPath);
-        if ($exist && !$pOverwrite) {
+        if ($exist && !$overwrite) {
             $res['exist'] = true;
         } else {
-            WebFile::createFile($pPath, "\0\0\0\0\0\0\0\nKrynBlockedFile\n" . Kryn::getAdminClient()->getTokenId());
+            WebFile::createFile($path, "\0\0\0\0\0\0\0\nKrynBlockedFile\n" . Kryn::getAdminClient()->getTokenId());
         }
 
         return $res;
@@ -127,20 +127,20 @@ class File
     /**
      * Receives the file through $_FILES and place it at the target path.
      *
-     * @param string $pPath
-     * @param string $pName
-     * @param bool   $pOverwrite
+     * @param string $path
+     * @param string $name
+     * @param bool   $overwrite
      *
      * @return string
      * @throws \FileUploadException
      * @throws \FileIOException
      * @throws \AccessDeniedException
      */
-    public static function doUpload($pPath, $pName = null, $pOverwrite = false)
+    public static function doUpload($path, $name = null, $overwrite = false)
     {
-        $name = $_FILES['file']['name'];
-        if ($pName) {
-            $name = $pName;
+        $name2 = $_FILES['file']['name'];
+        if ($name) {
+            $name2 = $name;
         }
 
         if ($_FILES["file"]['error']) {
@@ -170,17 +170,17 @@ class File
                     break;
             }
 
-            $error = sprintf(t('Failed to upload the file %s to %s. Error: %s'), $name, $pPath, $error);
+            $error = sprintf(t('Failed to upload the file %s to %s. Error: %s'), $name2, $path, $error);
             klog('file', $error);
 
             throw new \FileUploadException($error);
         }
 
-        $newPath = ($pPath == '/') ? '/' . $name : $pPath . '/' . $name;
+        $newPath = ($path == '/') ? '/' . $name2 : $path . '/' . $name2;
 
         if (WebFile::exists($newPath)) {
 
-            if (!$pOverwrite) {
+            if (!$overwrite) {
 
                 $content = WebFile::getContent($newPath);
 
@@ -191,9 +191,9 @@ class File
             }
         }
 
-        $file = WebFile::getFile(dirname($pPath));
+        $file = WebFile::getFile(dirname($path));
         if ($file && !Permission::checkUpdate('Core\\File', array('id' => $file->getId()))) {
-            throw new \AccessDeniedException(tf('No access to file `%s`', $pPath));
+            throw new \AccessDeniedException(tf('No access to file `%s`', $path));
         }
 
         $content = file_get_contents($_FILES['file']['tmp_name']);
@@ -221,19 +221,19 @@ class File
     /**
      * Returns a list of files for a folder.
      *
-     * @param string $pPath
+     * @param string $path
      *
      * @return array|null
      */
-    public function getFiles($pPath)
+    public function getFiles($path)
     {
-        if (!self::getFile($pPath)) {
+        if (!self::getFile($path)) {
             return null;
         }
 
         //todo, create new option 'show hidden files' in user settings and depend on that
 
-        $files = WebFile::getFiles($pPath);
+        $files = WebFile::getFiles($path);
         return static::prepareFiles($files);
     }
 
@@ -271,13 +271,13 @@ class File
     }
 
     /**
-     * @param string $pPath
+     * @param string $path
      *
      * @return array|bool|int
      */
-    public function getFile($pPath)
+    public function getFile($path)
     {
-        $file = WebFile::getFile($pPath);
+        $file = WebFile::getFile($path);
         if (!Permission::checkListExact('Core\\File', array('id' => $file->getId()))) {
             return;
         }
@@ -293,13 +293,13 @@ class File
      * Displays a thumbnail/resized version of a image.
      * This exists the process and sends a `content-type: image/png` http header.
      *
-     * @param string $pPath
-     * @param int    $pWidth
-     * @param int    $pHeight
+     * @param string $path
+     * @param int    $width
+     * @param int    $height
      */
-    public function showPreview($pPath, $pWidth = 50, $pHeight = 50)
+    public function showPreview($path, $width = 50, $height = 50)
     {
-        $image = WebFile::getResizeMax($pPath, $pWidth, $pHeight);
+        $image = WebFile::getResizeMax($path, $width, $height);
 
         $expires = 3600;
         header("Pragma: public");

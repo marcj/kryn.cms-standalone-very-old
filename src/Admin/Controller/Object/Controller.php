@@ -14,73 +14,73 @@ class Controller
     /**
      * General object items output. /admin/object?uri=...
      *
-     * @param  string                   $pUrl
-     * @param  string                   $pFields
+     * @param  string                   $url
+     * @param  string                   $fields
      *
      * @return array|bool
      * @throws \ObjectNotFoundException
      */
-    public function getItemPerUrl($pUrl, $pFields = null)
+    public function getItemPerUrl($url, $fields = null)
     {
-        list($objectKey, $object_id) = \Core\Object::parseUrl($pUrl);
+        list($objectKey, $object_id) = \Core\Object::parseUrl($url);
 
         $definition = \Core\Object::getDefinition($objectKey);
         if (!$definition) {
             throw new \ObjectNotFoundException(tf('Object %s does not exists.', $objectKey));
         }
-        return \Core\Object::get($objectKey, $object_id[0], array('fields' => $pFields, 'permissionCheck' => true));
+        return \Core\Object::get($objectKey, $object_id[0], array('fields' => $fields, 'permissionCheck' => true));
     }
 
     /**
      * Object items output for user interface field.  /admin/backend/field-object?uri=...
      *
      * @param  string                   $pUrl
-     * @param  string                   $pFields
+     * @param  string                   $fields
      *
      * @return array|bool
      * @throws \ObjectNotFoundException
      * @throws \ClassNotFoundException
      */
-    public function getFieldItem($pObjectKey, $pPk, $pFields = null)
+    public function getFieldItem($objectKey, $pk, $fields = null)
     {
-        $definition = \Core\Object::getDefinition($pObjectKey);
+        $definition = \Core\Object::getDefinition($objectKey);
         if (!$definition) {
-            throw new \ObjectNotFoundException(tf('Object %s does not exists.', $pObjectKey));
+            throw new \ObjectNotFoundException(tf('Object %s does not exists.', $objectKey));
         }
 
         if ($definition['chooserFieldDataModel'] != 'custom') {
-            return \Core\Object::get($pObjectKey, $pPk);
+            return \Core\Object::get($objectKey, $pk);
         } else {
 
             $class = $definition['chooserFieldDataModelClass'];
             if (!class_exists($class)) {
                 throw new \ClassNotFoundException(tf('Class %s can not be found.', $class));
             }
-            $dataModel = new $class($pObjectKey);
+            $dataModel = new $class($objectKey);
 
-            return $dataModel->getItem($pPk, array('fields' => $pFields, 'permissionCheck' => true));
+            return $dataModel->getItem($pk, array('fields' => $fields, 'permissionCheck' => true));
         }
     }
 
     /**
      * General object items output. /admin/objects?uri=...
      *
-     * @param  string                   $pUrl
-     * @param  string                   $pFields
-     * @param  bool                     $pReturnKey             Returns the list as a hash with the primary key as index. key=implode(',',rawurlencode($keys))
-     * @param  bool                     $pReturnKeyAsRequested  . Returns the list as a hash with the requested id as key.
+     * @param  string                   $url
+     * @param  string                   $fields
+     * @param  bool                     $returnKey             Returns the list as a hash with the primary key as index. key=implode(',',rawurlencode($keys))
+     * @param  bool                     $returnKeyAsRequested  . Returns the list as a hash with the requested id as key.
      *
      * @return array
      * @throws \Exception
      * @throws \ClassNotFoundException
      * @throws \ObjectNotFoundException
      */
-    public function getItemsByUrl($pUrl, $pFields = null, $pReturnKey = true, $pReturnKeyAsRequested = false)
+    public function getItemsByUrl($url, $fields = null, $returnKey = true, $returnKeyAsRequested = false)
     {
-        list($objectKey, $objectIds, $params) = \Core\Object::parseUrl($pUrl);
+        list($objectKey, $objectIds, $params) = \Core\Object::parseUrl($url);
         //check if we got an id
         if ($objectIds[0] === '') {
-            throw new \Exception(tf('No id given in uri %s.', $pUrl));
+            throw new \Exception(tf('No id given in uri %s.', $url));
         }
 
         $definition = \Core\Object::getDefinition($objectKey);
@@ -88,7 +88,7 @@ class Controller
             throw new \ObjectNotFoundException(tf('Object %s can not be found.', $objectKey));
         }
 
-        $options['fields'] = $pFields;
+        $options['fields'] = $fields;
         $options['permissionCheck'] = true;
 
         $items = array();
@@ -102,13 +102,13 @@ class Controller
             }
         }
 
-        if ($pReturnKey || $pReturnKeyAsRequested) {
+        if ($returnKey || $returnKeyAsRequested) {
 
             $res = array();
-            if ($pReturnKeyAsRequested) {
+            if ($returnKeyAsRequested) {
 
                 //map requetsed id to real ids
-                $requestedIds = explode('/', \Core\Object::getCroppedObjectId($pUrl));
+                $requestedIds = explode('/', \Core\Object::getCroppedObjectId($url));
                 $map = array();
                 foreach ($requestedIds as $id) {
                     $pk = \Core\Object::parsePk($objectKey, $id);
@@ -157,12 +157,12 @@ class Controller
      * This method does check against object property 'chooserFieldDataModelClass'. If set, we use
      * this class to get the items.
      *
-     * @param string $pObjectKey
-     * @param string $pFields
-     * @param bool   $pReturnHash Returns the list as a hash with the primary key as index.
-     * @param int    $pLimit
-     * @param int    $pOffset
-     * @param array  $pOrder
+     * @param string $objectKey
+     * @param string $fields
+     * @param bool   $returnHash Returns the list as a hash with the primary key as index.
+     * @param int    $limit
+     * @param int    $offset
+     * @param array  $order
      * @param mixed  $_
      *
      * @return array
@@ -171,26 +171,26 @@ class Controller
      * @throws \ObjectNotFoundException
      */
     public function getFieldItems(
-        $pObjectKey,
-        $pFields = null,
-        $pReturnHash = true,
-        $pLimit = null,
-        $pOffset = null,
-        $pOrder = null,
+        $objectKey,
+        $fields = null,
+        $returnHash = true,
+        $limit = null,
+        $offset = null,
+        $order = null,
         $_ = null
     ) {
 
-        $definition = \Core\Object::getDefinition($pObjectKey);
+        $definition = \Core\Object::getDefinition($objectKey);
         if (!$definition) {
-            throw new \ObjectNotFoundException(tf('Object %s can not be found.', $pObjectKey));
+            throw new \ObjectNotFoundException(tf('Object %s can not be found.', $objectKey));
         }
 
         $options = array(
             'permissionCheck' => true,
-            'fields' => $pFields,
-            'limit' => $pLimit,
-            'offset' => $pOffset,
-            'order' => $pOrder
+            'fields' => $fields,
+            'limit' => $limit,
+            'offset' => $offset,
+            'order' => $order
         );
 
         $condition = \Admin\ObjectCrud::buildFilter($_);
@@ -202,18 +202,18 @@ class Controller
                 throw new \ClassNotFoundException(tf('The class %s can not be found.', $class));
             }
 
-            $dataModel = new $class($pObjectKey);
+            $dataModel = new $class($objectKey);
 
             $items = $dataModel->getItems($condition, $options);
 
         } else {
 
-            $items = \Core\Object::getList($pObjectKey, $condition, $options);
+            $items = \Core\Object::getList($objectKey, $condition, $options);
 
         }
 
-        if ($pReturnHash) {
-            $primaryKeys = \Core\Object::getPrimaries($pObjectKey);
+        if ($returnHash) {
+            $primaryKeys = \Core\Object::getPrimaries($objectKey);
 
             $c = count($primaryKeys);
             $firstPK = key($primaryKeys);
@@ -246,13 +246,13 @@ class Controller
      * This method does check against object property 'browserDataModel'. If custom, we use
      * this class to get the items.
      *
-     * @param string $pObjectKey
-     * @param string $pFields
-     * @param bool   $pReturnHash Returns the list as a hash with the primary key as index.
+     * @param string $objectKey
+     * @param string $fields
+     * @param bool   $returnHash Returns the list as a hash with the primary key as index.
      *
-     * @param int    $pLimit
-     * @param int    $pOffset
-     * @param array  $pOrder
+     * @param int    $limit
+     * @param int    $offset
+     * @param array  $order
      * @param mixed  $_
      *
      * @return array
@@ -261,32 +261,32 @@ class Controller
      * @throws \ObjectMisconfiguration
      */
     public function getBrowserItems(
-        $pObjectKey,
-        $pFields = null,
-        $pReturnHash = true,
-        $pLimit = null,
-        $pOffset = null,
-        $pOrder = null,
+        $objectKey,
+        $fields = null,
+        $returnHash = true,
+        $limit = null,
+        $offset = null,
+        $order = null,
         $_ = null
     ) {
 
-        $definition = \Core\Object::getDefinition($pObjectKey);
+        $definition = \Core\Object::getDefinition($objectKey);
         if (!$definition) {
-            throw new \ObjectNotFoundException(tf('Object %s can not be found.', $pObjectKey));
+            throw new \ObjectNotFoundException(tf('Object %s can not be found.', $objectKey));
         }
 
         if (!$definition['browserColumns']) {
-            throw new \ObjectMisconfiguration(tf('Object %s does not have browser columns.', $pObjectKey));
+            throw new \ObjectMisconfiguration(tf('Object %s does not have browser columns.', $objectKey));
         }
 
-        $fields = array_keys($definition['browserColumns']);
+        $fields2 = array_keys($definition['browserColumns']);
 
         $options = array(
             'permissionCheck' => true,
-            'fields' => $fields,
-            'limit' => $pLimit,
-            'offset' => $pOffset,
-            'order' => $pOrder
+            'fields' => $fields2,
+            'limit' => $limit,
+            'offset' => $offset,
+            'order' => $order
         );
 
         $condition = \Admin\ObjectCrud::buildFilter($_);
@@ -298,18 +298,18 @@ class Controller
                 throw new \ClassNotFoundException(tf('The class %s can not be found.', $class));
             }
 
-            $dataModel = new $class($pObjectKey);
+            $dataModel = new $class($objectKey);
 
             $items = $dataModel->getItems($condition, $options);
 
         } else {
 
-            $items = \Core\Object::getList($pObjectKey, $condition, $options);
+            $items = \Core\Object::getList($objectKey, $condition, $options);
 
         }
 
-        if ($pReturnHash) {
-            $primaryKeys = \Core\Object::getPrimaries($pObjectKey);
+        if ($returnHash) {
+            $primaryKeys = \Core\Object::getPrimaries($objectKey);
 
             $c = count($primaryKeys);
             $firstPK = key($primaryKeys);
@@ -336,15 +336,15 @@ class Controller
         }
     }
 
-    public function getBrowserItemsCount($pObjectKey, $_ = null)
+    public function getBrowserItemsCount($objectKey, $_ = null)
     {
-        $definition = \Core\Object::getDefinition($pObjectKey);
+        $definition = \Core\Object::getDefinition($objectKey);
         if (!$definition) {
-            throw new \ObjectNotFoundException(tf('Object %s can not be found.', $pObjectKey));
+            throw new \ObjectNotFoundException(tf('Object %s can not be found.', $objectKey));
         }
 
         if (!$definition['browserColumns']) {
-            throw new \ObjectMisconfiguration(tf('Object %s does not have browser columns.', $pObjectKey));
+            throw new \ObjectMisconfiguration(tf('Object %s does not have browser columns.', $objectKey));
         }
 
         $fields = array_keys($definition['browserColumns']);
@@ -362,13 +362,13 @@ class Controller
                 throw new \ClassNotFoundException(tf('The class %s can not be found.', $class));
             }
 
-            $dataModel = new $class($pObjectKey);
+            $dataModel = new $class($objectKey);
 
             $count = $dataModel->getCount($condition, $options);
 
         } else {
 
-            $count = \Core\Object::getCount($pObjectKey, $condition, $options);
+            $count = \Core\Object::getCount($objectKey, $condition, $options);
 
         }
 

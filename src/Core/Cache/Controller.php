@@ -62,13 +62,13 @@ class Controller
      * Constructor.
      *
      * @param Cache $cacheConfig               The class of the cache service.
-     * @param bool   $pWithInvalidationChecks  Activates the invalidating mechanism
+     * @param bool   $withInvalidationChecks  Activates the invalidating mechanism
      *
      * @throws \Exception
      */
-    public function __construct(Cache $cacheConfig, $pWithInvalidationChecks = true)
+    public function __construct(Cache $cacheConfig, $withInvalidationChecks = true)
     {
-        $this->withInvalidationChecks = $pWithInvalidationChecks;
+        $this->withInvalidationChecks = $withInvalidationChecks;
         $this->class = $cacheConfig->getClass();
 
         if (class_exists($this->class)) {
@@ -115,48 +115,48 @@ class Controller
     /**
      * Returns data of the specified cache-key.
      *
-     * @param string $pKey
-     * @param bool   $pWithoutValidationCheck
+     * @param string $key
+     * @param bool   $withoutValidationCheck
      *
      * @return ref to data
      */
-    public function &get($pKey, $pWithoutValidationCheck = false)
+    public function &get($key, $withoutValidationCheck = false)
     {
 
-        if (!isset($this->cache[$pKey])) {
+        if (!isset($this->cache[$key])) {
             $time = microtime(true);
-            $this->cache[$pKey] = $this->instance->get($pKey);
+            $this->cache[$key] = $this->instance->get($key);
             \Core\Utils::$latency['cache'][] = microtime(true) - $time;
         }
 
-        if (!$this->cache[$pKey]) {
+        if (!$this->cache[$key]) {
             $rv = null;
             return $rv;
         }
 
-        if ($this->withInvalidationChecks && !$pWithoutValidationCheck) {
+        if ($this->withInvalidationChecks && !$withoutValidationCheck) {
 
-            if ($pWithoutValidationCheck == true) {
-                if (!$this->cache[$pKey]['value'] || !$this->cache[$pKey]['time']
-                    || $this->cache[$pKey]['timeout'] < microtime(true)
+            if ($withoutValidationCheck == true) {
+                if (!$this->cache[$key]['value'] || !$this->cache[$key]['time']
+                    || $this->cache[$key]['timeout'] < microtime(true)
                 ) {
                     return null;
                 }
 
-                return $this->cache[$pKey]['value'];
+                return $this->cache[$key]['value'];
             }
 
             //valid cache
             //search if a parent has been flagged as invalid
-            if (strpos($pKey, '/') !== false) {
+            if (strpos($key, '/') !== false) {
 
-                $parents = explode('/', $pKey);
+                $parents = explode('/', $key);
                 $code = '';
                 if (is_array($parents)) {
                     foreach ($parents as $parent) {
                         $code .= $parent;
                         $invalidateTime = $this->getInvalidate($code);
-                        if ($invalidateTime && $invalidateTime > $this->cache[$pKey]['time']) {
+                        if ($invalidateTime && $invalidateTime > $this->cache[$key]['time']) {
                             return null;
                         }
                         $code .= '/';
@@ -165,14 +165,14 @@ class Controller
             }
         }
 
-        if ($this->withInvalidationChecks && !$pWithoutValidationCheck) {
-            if (is_array($this->cache[$pKey])) {
-                return $this->cache[$pKey]['value'];
+        if ($this->withInvalidationChecks && !$withoutValidationCheck) {
+            if (is_array($this->cache[$key])) {
+                return $this->cache[$key]['value'];
             } else {
                 return null;
             }
         } else {
-            return $this->cache[$pKey];
+            return $this->cache[$key];
         }
 
     }
@@ -180,28 +180,28 @@ class Controller
     /**
      * Returns the invalidation time.
      *
-     * @param  string $pKey
+     * @param  string $key
      *
      * @return string
      */
-    public function getInvalidate($pKey)
+    public function getInvalidate($key)
     {
-        return $this->get('invalidate-' . $pKey, true);
+        return $this->get('invalidate-' . $key, true);
     }
 
     /**
-     * Marks a code as invalidate until $pTime.
+     * Marks a code as invalidate until $time.
      *
-     * @param string   $pKey
-     * @param bool|int $pTime
+     * @param string   $key
+     * @param bool|int $time
      */
-    public function invalidate($pKey, $pTime = null)
+    public function invalidate($key, $time = null)
     {
-        $this->cache['invalidate-' . $pKey] = $pTime;
+        $this->cache['invalidate-' . $key] = $time;
 
-        $time = microtime(true);
-        $result = $this->instance->set('invalidate-' . $pKey, $pTime, 99999999, true);
-        \Core\Utils::$latency['cache'][] = microtime(true) - $time;
+        $time2 = microtime(true);
+        $result = $this->instance->set('invalidate-' . $key, $time, 99999999, true);
+        \Core\Utils::$latency['cache'][] = microtime(true) - $time2;
         return $result;
     }
 
@@ -210,35 +210,35 @@ class Controller
      *
      * If you want to save php class objects, you should serialize it before.
      *
-     * @param string $pKey
-     * @param mixed  $pValue
-     * @param int    $pLifeTime               In seconds. Default is one hour
-     * @param bool   $pWithoutValidationData
+     * @param string $key
+     * @param mixed  $value
+     * @param int    $lifeTime               In seconds. Default is one hour
+     * @param bool   $withoutValidationData
      *
      * @return boolean
      */
-    public function set($pKey, $pValue, $pLifeTime = 3600, $pWithoutValidationData = false)
+    public function set($key, $value, $lifeTime = 3600, $withoutValidationData = false)
     {
-        if (!$pKey) {
+        if (!$key) {
             return false;
         }
 
-        if (!$pLifeTime) {
-            $pLifeTime = 3600;
+        if (!$lifeTime) {
+            $lifeTime = 3600;
         }
 
-        if ($this->withInvalidationChecks && !$pWithoutValidationData) {
-            $pValue = array(
-                'timeout' => microtime(true) + $pLifeTime,
+        if ($this->withInvalidationChecks && !$withoutValidationData) {
+            $value = array(
+                'timeout' => microtime(true) + $lifeTime,
                 'time' => microtime(true),
-                'value' => $pValue
+                'value' => $value
             );
         }
 
-        $this->cache[$pKey] = $pValue;
+        $this->cache[$key] = $value;
 
         $time = microtime(true);
-        $result = $this->instance->set($pKey, $pValue, $pLifeTime);
+        $result = $this->instance->set($key, $value, $lifeTime);
         \Core\Utils::$latency['cache'][] = microtime(true) - $time;
         return $result;
     }
@@ -246,14 +246,14 @@ class Controller
     /**
      * Deletes the cache for specified cache-key.
      *
-     * @param  string $pKey
+     * @param  string $key
      *
      * @return bool
      */
-    public function delete($pKey)
+    public function delete($key)
     {
-        unset($this->cache[$pKey]);
+        unset($this->cache[$key]);
 
-        return $this->instance->delete($pKey);
+        return $this->instance->delete($key);
     }
 }

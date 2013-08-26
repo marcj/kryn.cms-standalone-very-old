@@ -13,12 +13,12 @@ class ObjectFile extends \Core\ORM\Propel
      * Same as parent method, except:
      * If we get the PK as path we convert it to internal ID.
      */
-    public function primaryStringToArray($pPrimaryKey)
+    public function primaryStringToArray($primaryKey)
     {
-        if ($pPrimaryKey === '') {
+        if ($primaryKey === '') {
             return false;
         }
-        $groups = explode('/', $pPrimaryKey);
+        $groups = explode('/', $primaryKey);
 
         $result = array();
 
@@ -64,26 +64,26 @@ class ObjectFile extends \Core\ORM\Propel
     /**
      * We accept as primary key the path as well, so we have to convert it to internal ID.
      *
-     * @param $pPrimaryKey
+     * @param $primaryKey
      */
-    public function mapPrimaryKey(&$pPrimaryKey)
+    public function mapPrimaryKey(&$primaryKey)
     {
-        if (!is_numeric($pPrimaryKey['id'])) {
-            $file = WebFile::getFile(urldecode($pPrimaryKey['id']));
-            $pPrimaryKey['id'] = $file['id'];
+        if (!is_numeric($primaryKey['id'])) {
+            $file = WebFile::getFile(urldecode($primaryKey['id']));
+            $primaryKey['id'] = $file['id'];
         }
     }
 
     /**
      * {@inheritDoc}
      */
-    public function remove($pPrimaryKey)
+    public function remove($primaryKey)
     {
-        $this->mapPrimaryKey($pPrimaryKey);
+        $this->mapPrimaryKey($primaryKey);
 
-        parent::remove($pPrimaryKey);
+        parent::remove($primaryKey);
 
-        $path = WebFile::getPath($pPrimaryKey['id']);
+        $path = WebFile::getPath($primaryKey['id']);
 
         return WebFile::remove($path);
     }
@@ -91,41 +91,41 @@ class ObjectFile extends \Core\ORM\Propel
     /**
      * {@inheritDoc}
      */
-    public function add($pValues, $pBranchPk = false, $pMode = 'into', $pScope = 0)
+    public function add($values, $branchPk = false, $mode = 'into', $scope = 0)
     {
-        if ($pBranchPk) {
-            $parentPath = is_numeric($pBranchPk['id']) ? WebFile::getPath($pBranchPk['id']) : $pBranchPk['id'];
+        if ($branchPk) {
+            $parentPath = is_numeric($branchPk['id']) ? WebFile::getPath($branchPk['id']) : $branchPk['id'];
         }
 
-        $path = $parentPath ? $parentPath . $pValues['name'] : $pValues['name'];
+        $path = $parentPath ? $parentPath . $values['name'] : $values['name'];
 
-        WebFile::setContent($path, $pValues['content']);
+        WebFile::setContent($path, $values['content']);
 
-        return parent::add($pValues, $pBranchPk, $pMode, $pScope);
+        return parent::add($values, $branchPk, $mode, $scope);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function update($pPrimaryKey, $pValues)
+    public function update($primaryKey, $values)
     {
-        $this->mapPrimaryKey($pPrimaryKey);
+        $this->mapPrimaryKey($primaryKey);
 
-        $path = is_numeric($pPrimaryKey['id']) ? WebFile::getPath($pPrimaryKey['id']) : $pPrimaryKey['id'];
-        WebFile::setContent($path, $pValues['content']);
+        $path = is_numeric($primaryKey['id']) ? WebFile::getPath($primaryKey['id']) : $primaryKey['id'];
+        WebFile::setContent($path, $values['content']);
 
-        return parent::update($pPrimaryKey, $pValues);
+        return parent::update($primaryKey, $values);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getItem($pPrimaryKey, $pOptions = null)
+    public function getItem($primaryKey, $options = null)
     {
-        if (is_array($pPrimaryKey)) {
-            $path = is_numeric($pPrimaryKey['id']) ? WebFile::getPath($pPrimaryKey['id']) : $pPrimaryKey['id'];
+        if (is_array($primaryKey)) {
+            $path = is_numeric($primaryKey['id']) ? WebFile::getPath($primaryKey['id']) : $primaryKey['id'];
         } else {
-            $path = $pPrimaryKey ? : '/';
+            $path = $primaryKey ? : '/';
         }
 
         if (!$path) {
@@ -137,9 +137,9 @@ class ObjectFile extends \Core\ORM\Propel
         }
     }
 
-    public function getParents($pPk, $pOptions = null)
+    public function getParents($pk, $options = null)
     {
-        $path = is_numeric($pPk['id']) ? WebFile::getPath($pPk['id']) : $pPk['id'];
+        $path = is_numeric($pk['id']) ? WebFile::getPath($pk['id']) : $pk['id'];
 
         if ('/' === $path) {
             return array();
@@ -163,7 +163,7 @@ class ObjectFile extends \Core\ORM\Propel
     /**
      * {@inheritDoc}
      */
-    public function getItems($pCondition = null, $pOptions = null)
+    public function getItems($condition = null, $options = null)
     {
         throw new \Exception('getItems not available for this object.');
     }
@@ -171,28 +171,28 @@ class ObjectFile extends \Core\ORM\Propel
     /**
      * {@inheritDoc}
      */
-    public function getBranch($pPk = null, $pCondition = null, $pDepth = 1, $pScope = null, $pOptions = null)
+    public function getBranch($pk = null, $condition = null, $depth = 1, $scope = null, $options = null)
     {
-        if ($pPk) {
-            $path = is_numeric($pPk['id']) ? WebFile::getPath($pPk['id']) : $pPk['id'];
+        if ($pk) {
+            $path = is_numeric($pk['id']) ? WebFile::getPath($pk['id']) : $pk['id'];
         } else {
             $path = '/';
         }
 
-        if ($pDepth === null) {
-            $pDepth = 1;
+        if ($depth === null) {
+            $depth = 1;
         }
 
         $files = WebFile::getFiles($path);
 
         $c = 0;
-        $offset = $pOptions['offset'];
-        $limit = $pOptions['limit'];
+        $offset = $options['offset'];
+        $limit = $options['limit'];
         $result = array();
 
         foreach ($files as $file) {
             $file = $file->toArray();
-            if ($pCondition && !\Core\Object::satisfy($file, $pCondition)) {
+            if ($condition && !\Core\Object::satisfy($file, $condition)) {
                 continue;
             }
 
@@ -204,13 +204,13 @@ class ObjectFile extends \Core\ORM\Propel
                 continue;
             }
 
-            if ($pDepth > 0) {
+            if ($depth > 0) {
                 $children = array();
                 if ($file['type'] == 'dir') {
-                    $children = self::getBranch(array('id' => $file['path']), $pCondition, $pDepth - 1);
+                    $children = self::getBranch(array('id' => $file['path']), $condition, $depth - 1);
                 }
                 $file['_childrenCount'] = count($children);
-                if ($pDepth > 1 && $file['type'] == 'dir') {
+                if ($depth > 1 && $file['type'] == 'dir') {
                     $file['_children'] = $children;
                 }
             }

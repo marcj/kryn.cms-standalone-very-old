@@ -7,39 +7,39 @@ class Apc implements CacheInterface
     /**
      * {@inheritdoc}
      */
-    public function __construct($pConfig)
+    public function __construct($config)
     {
-        $this->testConfig($pConfig);
+        $this->testConfig($config);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function get($pKey)
+    public function get($key)
     {
-        return apc_fetch($pKey);
+        return apc_fetch($key);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function set($pKey, $pValue, $pTimeout = null)
+    public function set($key, $value, $timeout = null)
     {
-        return apc_store($pKey, $pValue, $pTimeout);
+        return apc_store($key, $value, $timeout);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function delete($pKey)
+    public function delete($key)
     {
-        return apc_delete($pKey);
+        return apc_delete($key);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function testConfig($pConfig)
+    public function testConfig($config)
     {
         if (!function_exists('apc_store')) {
             throw new \Exception('The module Apc is not activated in your PHP environment.');

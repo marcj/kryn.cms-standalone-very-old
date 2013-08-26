@@ -30,7 +30,7 @@ class SearchEngine
     public static $autoCrawlPermissionLifetime = 60; //sec
 
     //create a new search index for this page
-    public static function createPageIndex(&$pContent)
+    public static function createPageIndex(&$content)
     {
         //indexing forced no matter if already indexed
         if (isset($_REQUEST['forceSearchIndex']) && $_REQUEST['forceSearchIndex']) {
@@ -60,10 +60,10 @@ class SearchEngine
             return 6;
         }
 
-        $indexedContent = self::stripContent($pContent);
-        $contentMd5 = md5($indexedContent);
+        $indexedContent = self::stripContent($content);
+        $content2Md5 = md5($indexedContent);
 
-        $cashkey = 'krynSearch_' . Kryn::$page->getId() . '_' . $contentMd5;
+        $cashkey = 'krynSearch_' . Kryn::$page->getId() . '_' . $content2Md5;
 
         $cache = Kryn::getCache($cashkey);
 
@@ -106,7 +106,7 @@ class SearchEngine
         //we now ready to index this content
         $index->setUrl(self::$pageUrl)
             ->setTitle(Kryn::$domain->getTitle())
-            ->setMd5($contentMd5)
+            ->setMd5($content2Md5)
             ->setMdate(time())
             ->setNodeId(Kryn::$page->getId())
             ->setDomainId(Kryn::$domain->getId())
@@ -121,13 +121,13 @@ class SearchEngine
             )
         );
 
-        self::getLinksInContent($pContent);
+        self::getLinksInContent($content);
 
         return 1; //'Indexing successfully completed!', 1);
 
     }
 
-    public static function stripContent($pContent)
+    public static function stripContent($content)
     {
         $arSearch = array(
             '@<script[^>]*>.*</script>@Uis', // javascript
@@ -139,19 +139,19 @@ class SearchEngine
             '@id="(.*)"@Uis',
 
         );
-        $pContent = preg_replace($arSearch, '', $pContent);
+        $content = preg_replace($arSearch, '', $content);
 
-        return Kryn::compress(strip_tags($pContent, '<p><br><br /><h1><h2><h3><h4><h5><h6>'));
+        return Kryn::compress(strip_tags($content, '<p><br><br /><h1><h2><h3><h4><h5><h6>'));
     }
 
     //search for links in parsed html content
-    public static function getLinksInContent($pContent)
+    public static function getLinksInContent($content)
     {
         global $cfg;
 
-        Kryn::replacePageIds($pContent);
+        Kryn::replacePageIds($content);
         $searchPattern = '#<a[^>]+href[^>]*=[^>]*\"([^\"]+)\"[^>]*>(.*)<\/a>#Uis';
-        preg_match_all($searchPattern, $pContent, $matches, PREG_SET_ORDER);
+        preg_match_all($searchPattern, $content, $matches, PREG_SET_ORDER);
 
         $arInserted = array();
         foreach ($matches as $value) {
@@ -225,13 +225,13 @@ class SearchEngine
 
     }
 
-    public static function getSearchIndexOverview($pPageId)
+    public static function getSearchIndexOverview($pageId)
     {
         $indexes = dbExFetch(
             "
                         SELECT url, title , mdate, md5
                         FROM %pfx%system_search
-                        WHERE node_id =" . esc($pPageId) . " AND mdate > 0 ORDER BY url, mdate DESC",
+                        WHERE node_id =" . esc($pageId) . " AND mdate > 0 ORDER BY url, mdate DESC",
             -1
         );
 
@@ -244,20 +244,20 @@ class SearchEngine
     }
 
     //insert a page into the search table for further indexing
-    public static function disposePageForIndex($pUrl, $pTitle, $pDomainId, $pPageId = '0')
+    public static function disposePageForIndex($url, $title, $domainId, $pageId = '0')
     {
-        $index = SearchQuery::create()->findPk(array($pUrl, $pDomainId));
+        $index = SearchQuery::create()->findPk(array($url, $domainId));
 
         if (!$index) {
             $index = new Search();
         }
 
         //we now ready to index this content
-        $index->setUrl($pUrl)
-            ->setTitle($pTitle)
+        $index->setUrl($url)
+            ->setTitle($title)
             ->setMdate(0)
-            ->setNodeId($pPageId)
-            ->setDomainId($pDomainId);
+            ->setNodeId($pageId)
+            ->setDomainId($domainId);
 
         $index->save();
 

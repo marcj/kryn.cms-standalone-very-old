@@ -37,11 +37,11 @@ class SystemFile extends WebFile
      *
      * @static
      *
-     * @param  string $pPath
+     * @param  string $path
      *
      * @return object
      */
-    public static function getLayer($pPath = null)
+    public static function getLayer($path = null)
     {
         $class = '\Core\FAL\Local';
 
@@ -66,12 +66,12 @@ class SystemFile extends WebFile
         return $fileInfo;
     }
 
-    public static function getPath($pPath)
+    public static function getPath($path)
     {
         throw new \Exception(t('getPath on SystemFile is not possible. Use Core\File::getPath'));
     }
 
-    public static function getUrl($pPath)
+    public static function getUrl($path)
     {
         throw new \Exception(t('getUrl on SystemFile is not possible. Use Core\File::getUrl'));
     }

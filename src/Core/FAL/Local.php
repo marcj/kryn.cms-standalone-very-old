@@ -46,7 +46,7 @@ class Local extends AbstractFAL
      */
     public $groupName = '';
 
-    public function getFullPath($pPath)
+    public function getFullPath($path)
     {
         $root = $this->getRoot();
 
@@ -54,57 +54,57 @@ class Local extends AbstractFAL
             $root .= '/';
         }
 
-        if (substr($pPath, 0, 1) == '/') {
-            $pPath = substr($pPath, 1);
+        if (substr($path, 0, 1) == '/') {
+            $path = substr($path, 1);
         }
 
-        return $root . $pPath;
+        return $root . $path;
     }
 
     /**
      * Sets file permissions on file/folder recursively.
      *
-     * @param  string                           $pPath
+     * @param  string                           $path
      *
      * @throws \FileOperationPermittedException
      * @return bool
      */
-    public function setPermission($pPath)
+    public function setPermission($path)
     {
-        $path = $this->getFullPath($pPath);
+        $path2 = $this->getFullPath($path);
 
-        if (!file_exists($path)) {
+        if (!file_exists($path2)) {
             return false;
         }
 
         if ($this->groupName) {
-            if (!chgrp($path, $this->groupName)) {
+            if (!chgrp($path2, $this->groupName)) {
                 throw new \FileOperationPermittedException(tf(
                     'Operation to chgrp the file %s to %s is permitted.',
-                    $path,
+                    $path2,
                     $this->groupName
                 ));
             }
         }
 
-        if (is_dir($path)) {
+        if (is_dir($path2)) {
 
-            if (!chmod($path, $this->dirMode)) {
+            if (!chmod($path2, $this->dirMode)) {
                 throw new \FileOperationPermittedException(tf(
                     'Operation to chmod the folder %s to %o is permitted.',
-                    $path,
+                    $path2,
                     $this->dirMode
                 ));
             }
 
-            $sub = find($path . '/*', false);
+            $sub = find($path2 . '/*', false);
             if (is_array($sub)) {
-                foreach ($sub as $path) {
-                    $this->setPermission(substr($path, 0, strlen($this->getRoot())));
+                foreach ($sub as $path2) {
+                    $this->setPermission(substr($path2, 0, strlen($this->getRoot())));
                 }
             }
-        } elseif (is_file($path)) {
-            @chmod($path, $this->fileMode);
+        } elseif (is_file($path2)) {
+            @chmod($path2, $this->fileMode);
         }
 
         return true;
@@ -146,11 +146,11 @@ class Local extends AbstractFAL
     /**
      * {@inheritDoc}
      */
-    public function __construct($pMountPoint, $pParams = null)
+    public function __construct($mountPoint, $params = null)
     {
-        parent::__construct($pMountPoint, $pParams);
-        if ($pParams && $pParams['root']) {
-            $this->setRoot($pParams['root']);
+        parent::__construct($mountPoint, $params);
+        if ($params && $params['root']) {
+            $this->setRoot($params['root']);
         }
 
         $this->loadConfig();
@@ -159,11 +159,11 @@ class Local extends AbstractFAL
     /**
      * Gets current root folder for this local layer.
      *
-     * @param string $pRoot
+     * @param string $root
      */
-    public function setRoot($pRoot)
+    public function setRoot($root)
     {
-        $this->root = $pRoot;
+        $this->root = $root;
     }
 
     /**
@@ -179,80 +179,80 @@ class Local extends AbstractFAL
     /**
      * {@inheritDoc}
      */
-    public function createFile($pPath, $pContent = null)
+    public function createFile($path, $content = null)
     {
-        $path = $this->getFullPath($pPath);
+        $path2 = $this->getFullPath($path);
 
-        if (!file_exists(dirname($path))) {
-            $this->createFolder(dirname($pPath));
+        if (!file_exists(dirname($path2))) {
+            $this->createFolder(dirname($path));
         }
 
-        if (!file_exists($path)) {
-            if (!is_writable(dirname($path))) {
+        if (!file_exists($path2)) {
+            if (!is_writable(dirname($path2))) {
                 throw new \FileNotWritableException(tf(
                     'Can not create the file %s in %s, since the folder is not writable.',
-                    $path,
-                    dirname($path)
+                    $path2,
+                    dirname($path2)
                 ));
             }
-            if (null !== $pContent) {
-                file_put_contents($path, $pContent);
+            if (null !== $content) {
+                file_put_contents($path2, $content);
             } else {
-                touch($path);
+                touch($path2);
             }
             if ($this->changeMode) {
-                $this->setPermission($pPath);
+                $this->setPermission($path);
             }
         }
 
-        return file_exists($path);
+        return file_exists($path2);
     }
 
     /**
-     * @param  string                           $pPath The full absolute path
+     * @param  string                           $path The full absolute path
      *
      * @return bool
      * @throws \FileOperationPermittedException
      * @throws \FileIOException
      */
-    private function _createFolder($pPath)
+    private function _createFolder($path)
     {
-        is_dir(dirname($pPath)) or $this->_createFolder(dirname($pPath));
+        is_dir(dirname($path)) or $this->_createFolder(dirname($path));
 
-        if (!is_dir($pPath)) {
-            if (!@mkdir($pPath)) {
-                throw new \FileIOException(tf('Can not create folder %s.', $pPath));
+        if (!is_dir($path)) {
+            if (!@mkdir($path)) {
+                throw new \FileIOException(tf('Can not create folder %s.', $path));
             }
 
             if ($this->groupName) {
-                if (!@chgrp($pPath, $this->groupName)) {
+                if (!@chgrp($path, $this->groupName)) {
                     throw new \FileOperationPermittedException(tf(
                         'Operation to chgrp the folder %s to %s is permitted.',
-                        $pPath,
+                        $path,
                         $this->groupName
                     ));
                 }
             }
 
-            if (!chmod($pPath, $this->dirMode)) {
+            if (!chmod($path, $this->dirMode)) {
                 throw new \FileOperationPermittedException(tf(
                     'Operation to chmod the folder %s to %o is permitted.',
-                    $pPath,
+                    $path,
                     $this->dirMode
                 ));
             }
         }
 
-        return is_dir($pPath);
+        return is_dir($path);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function createFolder($pPath)
+    public function createFolder($path)
     {
-        if (!file_exists($path = $this->getFullPath($pPath))) {
-            return $this->_createFolder($path);
+        if (!file_exists($path2 = $this->getFullPath($path))) {
+            return $this->_createFolder($path2);
         }
 
         return true;
@@ -261,20 +261,20 @@ class Local extends AbstractFAL
     /**
      * {@inheritDoc}
      */
-    public function setContent($pPath, $pContent)
+    public function setContent($path, $content)
     {
-        $path = $this->getFullPath($pPath);
+        $path2 = $this->getFullPath($path);
 
-        if (!file_exists($path)) {
-            $fileCreated = $this->createFile($pPath);
-        } else if (!is_writable($path)) {
-            throw new \FileNotWritableException(tf('File %s is not writable.', $path));
+        if (!file_exists($path2)) {
+            $fileCreated = $this->createFile($path);
+        } else if (!is_writable($path2)) {
+            throw new \FileNotWritableException(tf('File %s is not writable.', $path2));
         }
 
-        $res = file_put_contents($path, $pContent);
+        $res = file_put_contents($path2, $content);
 
         if (!$fileCreated && $this->changeMode) {
-            $this->setPermission($pPath);
+            $this->setPermission($path);
         }
 
         return $res === false ? false : true;
@@ -355,17 +355,17 @@ class Local extends AbstractFAL
     /**
      * {@inheritDoc}
      */
-    public function getSize($pPath)
+    public function getSize($path)
     {
         $size = 0;
         $fileCount = 0;
         $folderCount = 0;
 
-        $path = $this->getRoot() . $pPath;
+        $path2 = $this->getRoot() . $path;
 
-        if ($h = opendir($path)) {
+        if ($h = opendir($path2)) {
             while (false !== ($file = readdir($h))) {
-                $nextPath = $path . '/' . $file;
+                $nextPath = $path2 . '/' . $file;
                 if ($file != '.' && $file != '..' && !is_link($nextPath)) {
                     if (is_dir($nextPath)) {
                         $folderCount++;
@@ -392,60 +392,60 @@ class Local extends AbstractFAL
     /**
      * {@inheritDoc}
      */
-    public function fileExists($pPath)
+    public function fileExists($path)
     {
-        return file_exists($this->getRoot() . $pPath);
+        return file_exists($this->getRoot() . $path);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getCount($pFolderPath)
+    public function getCount($folderPath)
     {
-        return count(glob($this->getRoot() . $pFolderPath . '/*'));
+        return count(glob($this->getRoot() . $folderPath . '/*'));
     }
 
     /**
      * {@inheritDoc}
      */
-    public function copy($pPathSource, $pPathTarget)
+    public function copy($pathSource, $pathTarget)
     {
-        if (!file_exists($this->getRoot() . $pPathSource)) {
+        if (!file_exists($this->getRoot() . $pathSource)) {
             return false;
         }
-        copyr($this->getRoot() . $pPathSource, $this->getRoot() . $pPathTarget);
-        return file_exists($this->getRoot() . $pPathTarget);
+        copyr($this->getRoot() . $pathSource, $this->getRoot() . $pathTarget);
+        return file_exists($this->getRoot() . $pathTarget);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function move($pPathSource, $pPathTarget)
+    public function move($pathSource, $pathTarget)
     {
-        return rename($this->getRoot() . $pPathSource, $this->getRoot() . $pPathTarget);
+        return rename($this->getRoot() . $pathSource, $this->getRoot() . $pathTarget);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getHash($pPath)
+    public function getHash($path)
     {
-        return md5_file($this->getRoot() . $pPath);
+        return md5_file($this->getRoot() . $path);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getContent($pPath)
+    public function getContent($path)
     {
-        $pPath = $this->getRoot() . $pPath;
+        $path = $this->getRoot() . $path;
 
-        if (!file_exists($pPath)) {
+        if (!file_exists($path)) {
             return false;
         }
 
-        $handle = @fopen($pPath, "r");
-        $fs = @filesize($pPath);
+        $handle = @fopen($path, "r");
+        $fs = @filesize($path);
 
         if ($fs > 0) {
             $content = @fread($handle, $fs);
@@ -460,20 +460,20 @@ class Local extends AbstractFAL
     /**
      * {@inheritDoc}
      */
-    public function search($pPath, $pPattern, $pDepth = 1, $pCurrentDepth = 1)
+    public function search($path, $pattern, $depth = 1, $currentDepth = 1)
     {
         $result = array();
-        $files = $this->getFiles($pPath);
+        $files = $this->getFiles($path);
 
-        $q = str_replace('/', '\/', $pPattern);
+        $q = str_replace('/', '\/', $pattern);
 
         foreach ($files as $file) {
             if (preg_match('/^' . $q . '/i', $file->getName(), $match) !== 0) {
                 $result[] = $file;
             }
-            if ($file->isDir() && ($pDepth == -1 || $pCurrentDepth < $pDepth)) {
-                $newPath = $pPath . ($pPath == '/' ? '' : '/') . $file->getName();
-                $more = $this->search($newPath, $pPattern, $pDepth, $pCurrentDepth + 1);
+            if ($file->isDir() && ($depth == -1 || $currentDepth < $depth)) {
+                $newPath = $path . ($path == '/' ? '' : '/') . $file->getName();
+                $more = $this->search($newPath, $pattern, $depth, $currentDepth + 1);
                 if (is_array($more)) {
                     $result = array_merge($result, $more);
                 }
@@ -486,42 +486,42 @@ class Local extends AbstractFAL
     /**
      * {@inheritDoc}
      */
-    public function getPublicUrl($pPath)
+    public function getPublicUrl($path)
     {
-        return '/' . $this->getRoot() . $pPath;
+        return '/' . $this->getRoot() . $path;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function remove($pPath)
+    public function remove($path)
     {
-        $path = $this->getRoot() . $pPath;
+        $path2 = $this->getRoot() . $path;
 
-        if (is_dir($path)) {
-            return delDir($path);
-        } elseif (is_file($path)) {
-            return unlink($path);
+        if (is_dir($path2)) {
+            return delDir($path2);
+        } elseif (is_file($path2)) {
+            return unlink($path2);
         }
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getPublicAccess($pPath)
+    public function getPublicAccess($path)
     {
-        $path = $this->getRoot() . $pPath;
+        $path2 = $this->getRoot() . $path;
 
-        if (!file_exists($path)) {
+        if (!file_exists($path2)) {
             return false;
         }
 
-        if (!is_dir($path)) {
-            $htaccess = dirname($path) . '/' . '.htaccess';
+        if (!is_dir($path2)) {
+            $htaccess = dirname($path2) . '/' . '.htaccess';
         } else {
-            $htaccess = $path . '/' . '.htaccess';
+            $htaccess = $path2 . '/' . '.htaccess';
         }
-        $name = basename($pPath);
+        $name = basename($path);
 
         if (@file_exists($htaccess)) {
 
@@ -547,14 +547,14 @@ class Local extends AbstractFAL
     /**
      * {@inheritDoc}
      */
-    public function setPublicAccess($pPath, $pAccess = false)
+    public function setPublicAccess($path, $access = false)
     {
-        $path = $this->getRoot() . $pPath;
+        $path2 = $this->getRoot() . $path;
 
-        if (!is_dir($path) == 'file') {
-            $htaccess = dirname($path) . '/' . '.htaccess';
+        if (!is_dir($path2) == 'file') {
+            $htaccess = dirname($path2) . '/' . '.htaccess';
         } else {
-            $htaccess = $path . '/' . '.htaccess';
+            $htaccess = $path2 . '/' . '.htaccess';
         }
 
         if (!file_exists($htaccess) && !touch($htaccess)) {
@@ -565,8 +565,8 @@ class Local extends AbstractFAL
 
         $content = kryn::fileRead($htaccess);
 
-        if (!is_dir($pPath)) {
-            $filename = '"' . basename($pPath) . '"';
+        if (!is_dir($path)) {
+            $filename = '"' . basename($path) . '"';
             $filenameesc = preg_quote($filename, '/');
         } else {
             $filename = "*";
@@ -575,9 +575,9 @@ class Local extends AbstractFAL
 
         $content = preg_replace('/<Files ' . $filenameesc . '>\W*(\w*) from all[^<]*<\/Files>/i', '', $content);
 
-        if ($pAccess !== -1) {
-            $access = $pAccess == true ? 'Allow' : 'Deny';
-            $content .= "\n<Files $filename>\n\t$access from all\n</Files>";
+        if ($access !== -1) {
+            $access2 = $access == true ? 'Allow' : 'Deny';
+            $content .= "\n<Files $filename>\n\t$access2 from all\n</Files>";
         }
 
         kryn::fileWrite($htaccess, $content);

@@ -580,13 +580,13 @@ class Kryn extends Controller
     /**
      * Adds a new crumb to the breadcrumb array.
      *
-     * @param Page $pPage
+     * @param Page $page
      *
      * @static
      */
-    public static function addBreadcrumb($pPage)
+    public static function addBreadcrumb($page)
     {
-        Kryn::$breadcrumbs[] = $pPage;
+        Kryn::$breadcrumbs[] = $page;
         tAssignRef("breadcrumbs", Kryn::$breadcrumbs);
     }
 
@@ -603,11 +603,11 @@ class Kryn extends Controller
      *
      * @static
      *
-     * @param string $pDocType
+     * @param string $docType
      */
-    public static function setDocType($pDocType)
+    public static function setDocType($docType)
     {
-        Render::$docType = $pDocType;
+        Render::$docType = $docType;
     }
 
     /**
@@ -687,11 +687,11 @@ class Kryn extends Controller
     /**
      * Loads all activated extension configs and tables
      *
-     * @param bool $pForceNoCache
+     * @param bool $forceNoCache
      *
      * @internal
      */
-    public static function loadModuleConfigs($pForceNoCache = false)
+    public static function loadModuleConfigs($forceNoCache = false)
     {
         $cached = self::getFastCache('core/configs');
         $bundles = Kryn::getBundleClasses();
@@ -733,7 +733,7 @@ class Kryn extends Controller
         //TODO, check what we need.
 
         $md5 = md5($md5);
-        if (!$pForceNoCache) {
+        if (!$forceNoCache) {
             Kryn::$themes =& Kryn::getFastCache('core/themes');
             Kryn::$configs =& Kryn::getFastCache('core/configs');
         }
@@ -849,14 +849,14 @@ class Kryn extends Controller
     /**
      * Convert a string to a mod-rewrite compatible string.
      *
-     * @param string $pString
+     * @param string $string
      *
      * @return string
      * @static
      */
-    public static function toModRewrite($pString)
+    public static function toModRewrite($string)
     {
-        $res = @str_replace('ä', "ae", strtolower($pString));
+        $res = @str_replace('ä', "ae", strtolower($string));
         $res = @str_replace('ö', "oe", $res);
         $res = @str_replace('ü', "ue", $res);
         $res = @str_replace('ß', "ss", $res);
@@ -869,49 +869,49 @@ class Kryn extends Controller
     /**
      * Replaces all page links within the builded HTML to their full URL.
      *
-     * @param string $pContent The content of this variable will be modified.
+     * @param string $content The content of this variable will be modified.
      *
      * @static
      * @internal
      */
-    public static function replacePageIds(&$pContent)
+    public static function replacePageIds(&$content)
     {
-        $pContent = preg_replace_callback(
+        $content = preg_replace_callback(
             '/href="(\d+)"/',
             create_function(
-                '$pP',
+                '$p2P',
                 '
 
-                return \'href="\'.Core\Kryn::pageUrl($pP[1]).\'"\';
+                return \'href="\'.Core\Kryn::pageUrl($p2P[1]).\'"\';
             '
             ),
-            $pContent
+            $content
         );
     }
 
     /**
      * Translates all string which are surrounded with [[ and ]].
      *
-     * @param string $pContent
+     * @param string $content
      *
      * @static
      * @internal
      * @return mixed The result of preg_replace_callback()
      */
-    public static function translate($pContent)
+    public static function translate($content)
     {
         Kryn::loadLanguage();
 
         return preg_replace_callback(
             '/([^\\\\]?)\[\[([^\]]*)\]\]/',
             create_function(
-                '$pP',
+                '$p2P',
                 '
 
-                return $pP[1].t( $pP[2] );
+                return $p2P[1].t( $p2P[2] );
                 '
             ),
-            $pContent
+            $content
         );
     }
 
@@ -919,16 +919,16 @@ class Kryn extends Controller
      * Redirect the user to specified URL within the system.
      * Relative to the baseUrl.
      *
-     * @param string $pUrl
+     * @param string $url
      *
      * @static
      */
-    public static function redirect($pUrl = '')
+    public static function redirect($url = '')
     {
-        if (strpos($pUrl, 'http') === false && Kryn::$domain) {
+        if (strpos($url, 'http') === false && Kryn::$domain) {
 
             if (Kryn::$domain->getMaster() != 1) {
-                $pUrl = Kryn::$domain->getLang() . '/' . $pUrl;
+                $url = Kryn::$domain->getLang() . '/' . $url;
             }
 
             $domain = Kryn::$domain->getDomain();
@@ -943,19 +943,19 @@ class Kryn extends Controller
             if ($path != '' && substr($path, 0, -1) == '/') {
                 $path .= '/';
             }
-            if ($pUrl != '' && substr($path, 0, 1) == '/') {
-                $pUrl = substr($pUrl, 1);
+            if ($url != '' && substr($path, 0, 1) == '/') {
+                $url = substr($url, 1);
             }
 
-            if ($pUrl == '/') {
-                $pUrl = '';
+            if ($url == '/') {
+                $url = '';
             }
 
-            $pUrl = 'http://' . $domain . $path . $pUrl;
+            $url = 'http://' . $domain . $path . $url;
         }
 
         header("HTTP/1.1 301 Moved Permanently");
-        header('Location: ' . $pUrl);
+        header('Location: ' . $url);
         exit;
     }
 
@@ -1056,14 +1056,14 @@ class Kryn extends Controller
     /**
      * Redirect the user to specified page
      *
-     * @param integer $pId
-     * @param string  $pParams
+     * @param integer $id
+     * @param string  $params
      *
      * @static
      */
-    public static function redirectToPage($pId, $pParams = '')
+    public static function redirectToPage($id, $params = '')
     {
-        self::redirect(self::pageUrl($pId) . ($pParams ? '?' . $pParams : ''));
+        self::redirect(self::pageUrl($id) . ($params ? '?' . $params : ''));
     }
 
     /**
@@ -1082,21 +1082,21 @@ class Kryn extends Controller
     /**
      * Check whether specified pLang is a valid language
      *
-     * @param string $pLang
+     * @param string $lang
      *
      * @return bool
      * @internal
      */
-    public static function isValidLanguage($pLang)
+    public static function isValidLanguage($lang)
     {
-        if (!isset(Kryn::$config['languages']) && $pLang == 'en') {
+        if (!isset(Kryn::$config['languages']) && $lang == 'en') {
             return true;
         } //default
 
         if (Kryn::$config['languages']) {
-            return array_search($pLang, Kryn::$config['languages']) !== true;
+            return array_search($lang, Kryn::$config['languages']) !== true;
         } else {
-            return $pLang == 'en';
+            return $lang == 'en';
         }
     }
 
@@ -1105,22 +1105,22 @@ class Kryn extends Controller
      *
      * @internal
      *
-     * @param  null $pLang
+     * @param  null $lang
      *
      * @return bool
      */
-    public static function clearLanguageCache($pLang = null)
+    public static function clearLanguageCache($lang = null)
     {
-        if ($pLang == false) {
+        if ($lang == false) {
 
-            $langs = dbTableFetch('system_langs', DB_FETCH_ALL, 'visible = 1');
-            foreach ($langs as $lang) {
-                Kryn::clearLanguageCache($lang['code']);
+            $lang2s = dbTableFetch('system_langs', DB_FETCH_ALL, 'visible = 1');
+            foreach ($lang2s as $lang2) {
+                Kryn::clearLanguageCache($lang2['code']);
             }
 
             return false;
         }
-        $code = 'cacheLang_' . $pLang;
+        $code = 'cacheLang_' . $lang;
         Kryn::setFastCache($code, false);
     }
 
@@ -1130,28 +1130,28 @@ class Kryn extends Controller
      * @static
      * @internal
      *
-     * @param string $pLang
-     * @param bool   $pForce
+     * @param string $lang
+     * @param bool   $force
      */
-    public static function loadLanguage($pLang = null, $pForce = false)
+    public static function loadLanguage($lang = null, $force = false)
     {
-        if (!$pLang) {
-            $pLang = Kryn::getLanguage();
+        if (!$lang) {
+            $lang = Kryn::getLanguage();
         }
 
-        if (!Kryn::isValidLanguage($pLang)) {
-            $pLang = 'en';
+        if (!Kryn::isValidLanguage($lang)) {
+            $lang = 'en';
         }
 
-        if (Kryn::$lang && Kryn::$lang['__lang'] && Kryn::$lang['__lang'] == $pLang && $pForce == false) {
+        if (Kryn::$lang && Kryn::$lang['__lang'] && Kryn::$lang['__lang'] == $lang && $force == false) {
             return;
         }
 
-        if (!$pLang) {
+        if (!$lang) {
             return;
         }
 
-        $code = 'cacheLang_' . $pLang;
+        $code = 'cacheLang_' . $lang;
         Kryn::$lang =& Kryn::getFastCache($code);
 
         $md5 = '';
@@ -1159,7 +1159,7 @@ class Kryn extends Controller
         foreach (Kryn::$bundles as $key) {
             $path = self::getBundleDir($key);
             if ($path) {
-                $path .= "Resources/translations/$pLang.po";
+                $path .= "Resources/translations/$lang.po";
                 $md5 .= @filemtime($path);
                 $bundles[] = $key;
             }
@@ -1169,16 +1169,16 @@ class Kryn extends Controller
 
         if (true || (!Kryn::$lang || count(Kryn::$lang) == 0) || Kryn::$lang['__md5'] != $md5) {
 
-            Kryn::$lang = array('__md5' => $md5, '__plural' => Lang::getPluralForm($pLang), '__lang' => $pLang);
+            Kryn::$lang = array('__md5' => $md5, '__plural' => Lang::getPluralForm($lang), '__lang' => $lang);
 
             foreach ($bundles as $key) {
-                $po = Lang::getLanguage($key, $pLang);
+                $po = Lang::getLanguage($key, $lang);
                 Kryn::$lang = array_merge(Kryn::$lang, $po['translations']);
             }
             Kryn::setFastCache($code, Kryn::$lang);
         }
 
-        include_once(Lang::getPluralPhpFunctionFile($pLang));
+        include_once(Lang::getPluralPhpFunctionFile($lang));
     }
 
     /**
@@ -1230,29 +1230,29 @@ class Kryn extends Controller
     /**
      * Returns Domain object
      *
-     * @param int $pDomainId If not defined, it returns the current domain.
+     * @param int $domainId If not defined, it returns the current domain.
      *
      * @return \Domain
      * @static
      */
-    public static function getDomain($pDomainId = null)
+    public static function getDomain($domainId = null)
     {
-        if (!$pDomainId) {
+        if (!$domainId) {
             return self::$domain;
         }
 
-        if ($domainSerialized = self::getCache('core/object-domain/' . $pDomainId)) {
+        if ($domainSerialized = self::getCache('core/object-domain/' . $domainId)) {
             return unserialize($domainSerialized);
         }
 
-        $domain = Models\DomainQuery::create()->findPk($pDomainId);
+        $domain = Models\DomainQuery::create()->findPk($domainId);
 
         if (!$domain) {
             return false;
         }
 
         //todo, do it via setFastCache
-        self::setCache('core/object-domain/' . $pDomainId, serialize($domain));
+        self::setCache('core/object-domain/' . $domainId, serialize($domain));
 
         return $domain;
     }
@@ -1260,45 +1260,45 @@ class Kryn extends Controller
     /**
      * Returns cached propel object.
      *
-     * @param  int   $pObjectClassName If not defined, it returns the current page.
-     * @param  mixed $pObjectPk        Propel PK for $pObjectClassName int, string or array
+     * @param  int   $objectClassName If not defined, it returns the current page.
+     * @param  mixed $objectPk        Propel PK for $objectClassName int, string or array
      *
      * @return \BaseObject Propel object
      * @static
      */
-    public static function getPropelCacheObject($pObjectClassName, $pObjectPk)
+    public static function getPropelCacheObject($objectClassName, $objectPk)
     {
-        if (is_array($pObjectPk)) {
+        if (is_array($objectPk)) {
             $npk = '';
-            foreach ($pObjectPk as $k) {
+            foreach ($objectPk as $k) {
                 $npk .= urlencode($k) . '_';
             }
         } else {
-            $pk = urlencode($pObjectPk);
+            $pk = urlencode($objectPk);
         }
 
-        $cacheKey = 'core/object-caching.' . strtolower(preg_replace('/[^\w]/', '.', $pObjectClassName)) . '/' . $pk;
+        $cacheKey = 'core/object-caching.' . strtolower(preg_replace('/[^\w]/', '.', $objectClassName)) . '/' . $pk;
         if ($serialized = self::getCache($cacheKey)) {
             return unserialize($serialized);
         }
 
-        return self::setPropelCacheObject($pObjectClassName, $pObjectPk);
+        return self::setPropelCacheObject($objectClassName, $objectPk);
     }
 
     /**
      * Returns propel object and cache it.
      *
-     * @param int   $pObjectClassName If not defined, it returns the current page.
-     * @param mixed $pObjectPk        Propel PK for $pObjectClassName int, string or array
-     * @param mixed $pObject          Pass the object, if you did already fetch it.
+     * @param int   $objectClassName If not defined, it returns the current page.
+     * @param mixed $objectPk        Propel PK for $objectClassName int, string or array
+     * @param mixed $object          Pass the object, if you did already fetch it.
      *
      * @return \BaseObject Propel object
      */
-    public static function setPropelCacheObject($pObjectClassName, $pObjectPk, $pObject = false)
+    public static function setPropelCacheObject($object2ClassName, $object2Pk, $object = false)
     {
-        $pk = $pObjectPk;
-        if ($pk === null && $pObject) {
-            $pk = $pObject->getPrimaryKey();
+        $pk = $object2Pk;
+        if ($pk === null && $object) {
+            $pk = $object->getPrimaryKey();
         }
 
         if (is_array($pk)) {
@@ -1310,33 +1310,33 @@ class Kryn extends Controller
             $pk = urlencode($pk);
         }
 
-        $cacheKey = 'core/object-caching.' . strtolower(preg_replace('/[^\w]/', '.', $pObjectClassName)) . '/' . $pk;
+        $cacheKey = 'core/object-caching.' . strtolower(preg_replace('/[^\w]/', '.', $object2ClassName)) . '/' . $pk;
 
-        $clazz = $pObjectClassName . 'Query';
-        $object = $pObject;
-        if (!$object) {
-            $object = $clazz::create()->findPk($pObjectPk);
+        $clazz = $object2ClassName . 'Query';
+        $object2 = $object;
+        if (!$object2) {
+            $object2 = $clazz::create()->findPk($object2Pk);
         }
 
-        if (!$object) {
+        if (!$object2) {
             return false;
         }
 
-        self::setCache($cacheKey, serialize($object));
+        self::setCache($cacheKey, serialize($object2));
 
-        return $object;
+        return $object2;
 
     }
 
     /**
      * Removes a object from the cache.
      *
-     * @param int   $pObjectClassName If not defined, it returns the current page.
-     * @param mixed $pObjectPk        Propel PK for $pObjectClassName int, string or array
+     * @param int   $objectClassName If not defined, it returns the current page.
+     * @param mixed $objectPk        Propel PK for $objectClassName int, string or array
      */
-    public static function removePropelCacheObject($pObjectClassName, $pObjectPk = null)
+    public static function removePropelCacheObject($objectClassName, $objectPk = null)
     {
-        $pk = $pObjectPk;
+        $pk = $objectPk;
         if ($pk !== null) {
             if (is_array($pk)) {
                 $npk = '';
@@ -1347,9 +1347,9 @@ class Kryn extends Controller
                 $pk = urlencode($pk);
             }
         }
-        $cacheKey = 'core/object-caching.' . strtolower(preg_replace('/[^\w]/', '.', $pObjectClassName));
+        $cacheKey = 'core/object-caching.' . strtolower(preg_replace('/[^\w]/', '.', $objectClassName));
 
-        if ($pObjectPk) {
+        if ($objectPk) {
             self::deleteCache($cacheKey . '/' . $pk);
         } else {
             self::invalidateCache($cacheKey);
@@ -1359,25 +1359,25 @@ class Kryn extends Controller
     /**
      * Returns a super fast cached Page object.
      *
-     * @param  int $pPageId If not defined, it returns the current page.
+     * @param  int $pageId If not defined, it returns the current page.
      *
      * @return \Page
      * @static
      */
-    public static function getPage($pPageId = null)
+    public static function getPage($pageId = null)
     {
-        if (!$pPageId) {
+        if (!$pageId) {
             return self::$page;
         }
 
-        $created = self::getCache('core/object.page.' . $pPageId . '.created');
-        $data = self::getFastCache('core/object.page.' . $pPageId);
+        $created = self::getCache('core/object.page.' . $pageId . '.created');
+        $data = self::getFastCache('core/object.page.' . $pageId);
 
         if ($data && $created == $data['!created']) {
             return unserialize($data['page']);
         }
 
-        $page = NodeQuery::create()->findPk($pPageId);
+        $page = NodeQuery::create()->findPk($pageId);
 
         if (!$page) {
             return false;
@@ -1385,8 +1385,8 @@ class Kryn extends Controller
 
         $data['page'] = serialize($page);
         $data['!created'] = microtime();
-        self::setFastCache('core/object.page.' . $pPageId, $data);
-        self::setCache('core/object.page.' . $pPageId . '.created', $data['!created']);
+        self::setFastCache('core/object.page.' . $pageId, $data);
+        self::setCache('core/object.page.' . $pageId . '.created', $data['!created']);
 
         return $page;
 
@@ -1420,14 +1420,14 @@ class Kryn extends Controller
      *
      * @static
      *
-     * @param  bool $pNoRefreshCache
+     * @param  bool $noRefreshCache
      *
      * @return Domain|null
      *
      * @event core/domain-redirect
      * @event core/domain-not-found
      */
-    public static function detectDomain($pNoRefreshCache = false)
+    public static function detectDomain($noRefreshCache = false)
     {
         $request = self::getRequest();
         $dispatcher = self::getEventDispatcher();
@@ -2040,16 +2040,16 @@ class Kryn extends Controller
      * @event core/response-send-pre
      * @event core/response-send
      *
-     * @param Response $pResponse
+     * @param Response $response
      */
-    public static function sendResponse(Response $pResponse)
+    public static function sendResponse(Response $response)
     {
         global $_start;
         $dispatcher = self::getEventDispatcher();
 
-        $dispatcher->dispatch('core.response-send-pre', new GenericEvent($pResponse));
-        $pResponse->send();
-        $dispatcher->dispatch('core.response-send', new GenericEvent($pResponse));
+        $dispatcher->dispatch('core.response-send-pre', new GenericEvent($response));
+        $response->send();
+        $dispatcher->dispatch('core.response-send', new GenericEvent($response));
 
         Kryn::getLogger()->addDebug('Done. Generation time: ' . (microtime(true) - $_start) . ' seconds.');
 
@@ -2081,9 +2081,9 @@ class Kryn extends Controller
     /**
      * @static
      */
-    public static function setBaseUrl($pBaseUrl)
+    public static function setBaseUrl($baseUrl)
     {
-        Kryn::$baseUrl = $pBaseUrl;
+        Kryn::$baseUrl = $baseUrl;
     }
 
     /**
@@ -2109,12 +2109,12 @@ class Kryn extends Controller
      * Internal function.
      *
      * @param Node $page
-     * @param bool $pWithRedirect
+     * @param bool $withRedirect
      *
      * @return array|bool False if no access
      * @internal
      */
-    public static function checkPageAccess(Node $page, $pWithRedirect = true)
+    public static function checkPageAccess(Node $page, $withRedirect = true)
     {
         $oriPage = $page;
 
@@ -2165,14 +2165,14 @@ class Kryn extends Controller
             }
         }
 
-        if (!$page && $pWithRedirect && $oriPage->getAccessNeedVia() == 0) {
+        if (!$page && $withRedirect && $oriPage->getAccessNeedVia() == 0) {
 
             if ($oriPage->getAccessRedirectto() + 0 > 0) {
                 Kryn::redirectToPage($oriPage->getAccessRedirectto());
             }
         }
 
-        if (!$page && $pWithRedirect && $oriPage->getAccessNeedVia() == 1) {
+        if (!$page && $withRedirect && $oriPage->getAccessNeedVia() == 1) {
             header(
                 'WWW-Authenticate: Basic realm="' .
                     t('Access denied. Maybe you are not logged in or have no access.') . '"'
@@ -2186,17 +2186,17 @@ class Kryn extends Controller
     }
 
     /**
-     * Returns the domain of the given $pId page.
+     * Returns the domain of the given $id page.
      *
      * @static
      *
-     * @param  integer $pId
+     * @param  integer $id
      *
      * @return integer|null
      */
-    public static function getDomainOfPage($pId)
+    public static function getDomainOfPage($id)
     {
-        $id = null;
+        $id2 = null;
 
         $page2Domain = Kryn::getDistributedCache('core/node/toDomains');
 
@@ -2204,35 +2204,35 @@ class Kryn extends Controller
             $page2Domain = Render::updatePage2DomainCache();
         }
 
-        $pId = ',' . $pId . ',';
+        $id = ',' . $id . ',';
         foreach ($page2Domain as $domain_id => &$pages) {
             $pages = ',' . $pages . ',';
-            if (strpos($pages, $pId) !== false) {
-                $id = $domain_id;
+            if (strpos($pages, $id) !== false) {
+                $id2 = $domain_id;
             }
         }
 
-        return $id;
+        return $id2;
     }
 
     /**
      * Returns a array with all urls to id pairs.
      *
-     * @param  integer $pDomainId
+     * @param  integer $domainId
      *
      * @return array
      */
-    public static function &getCachedUrlToPage($pDomainId)
+    public static function &getCachedUrlToPage($domainId)
     {
 
-        $cacheKey = 'core/urls/' . $pDomainId;
+        $cacheKey = 'core/urls/' . $domainId;
         $urls = self::getDistributedCache($cacheKey);
 
         if (!$urls) {
 
             $nodes = NodeQuery::create()
                 ->select(array('id', 'urn', 'lvl', 'type'))
-                ->filterByDomainId($pDomainId)
+                ->filterByDomainId($domainId)
                 ->orderByBranch()
                 ->find();
 
@@ -2270,16 +2270,16 @@ class Kryn extends Controller
     }
 
     /**
-     * @param  integer $pDomainId
+     * @param  integer $domainId
      *
      * @return array
      */
-    public static function &getCachedPageToUrl($pDomainId)
+    public static function &getCachedPageToUrl($domainId)
     {
         static $flipped;
 
         if (!$flipped) {
-            $flipped = array_flip(self::getCachedUrlToPage($pDomainId));
+            $flipped = array_flip(self::getCachedUrlToPage($domainId));
         }
 
         return $flipped;
@@ -2441,13 +2441,13 @@ class Kryn extends Controller
      *
      * @static
      *
-     * @param $pTitle
-     * @param $pMsg
+     * @param $title
+     * @param $msg
      */
-    public static function internalMessage($pTitle, $pMsg = '')
+    public static function internalMessage($title, $msg = '')
     {
-        tAssign('title', $pTitle);
-        tAssign('msg', $pMsg);
+        tAssign('title', $title);
+        tAssign('msg', $msg);
         print tFetch('kryn/internal-message.tpl');
         exit;
     }
@@ -2457,13 +2457,13 @@ class Kryn extends Controller
      *
      * @static
      *
-     * @param string $pContent
+     * @param string $content
      *
      * @return string Wrapped content
      */
-    public static function unsearchable($pContent)
+    public static function unsearchable($content)
     {
-        return '<!--unsearchable-begin-->' . $pContent . '<!--unsearchable-end-->';
+        return '<!--unsearchable-begin-->' . $content . '<!--unsearchable-end-->';
     }
 
     /**
@@ -2471,12 +2471,12 @@ class Kryn extends Controller
      *
      * @static
      *
-     * @param string $pHtml
+     * @param string $html
      */
-    public static function removeSearchBlocks(&$pHtml)
+    public static function removeSearchBlocks(&$html)
     {
-        $pHtml = str_replace('<!--unsearchable-begin-->', '', $pHtml);
-        $pHtml = str_replace('<!--unsearchable-end-->', '', $pHtml);
+        $html = str_replace('<!--unsearchable-begin-->', '', $html);
+        $html = str_replace('<!--unsearchable-end-->', '', $html);
     }
 
     /**
@@ -2491,15 +2491,15 @@ class Kryn extends Controller
     /**
      * Compress given string
      *
-     * @param string $pString
+     * @param string $string
      *
      * @return string
      * @static
      * @internal
      */
-    public static function compress($pString)
+    public static function compress($string)
     {
-        $res = $pString;
+        $res = $string;
         $res = preg_replace('/\s\s+/', ' ', $res);
         $res = preg_replace('/\t/', '', $res);
         $res = preg_replace('/\n\n+/', "\n", $res);
@@ -2510,14 +2510,14 @@ class Kryn extends Controller
     /**
      * Removes a value for the specified cache-key
      *
-     * @param string $pKey
+     * @param string $key
      */
-    public static function deleteCache($pKey)
+    public static function deleteCache($key)
     {
         if (!self::$cache) {
             self::initCache();
         }
-        Kryn::$cache->delete($pKey);
+        Kryn::$cache->delete($key);
     }
 
     /**
@@ -2530,24 +2530,24 @@ class Kryn extends Controller
      * you're probably better with this method, since the `setDistributedCache`
      * uses `APC` or another high-performance local caching and its very limited in RAM.
      *
-     * @param  string  $pKey
-     * @param  string  $pValue    Only simple data types. Serialize your value if you have objects/arrays.
-     * @param  integer $pLifeTime In seconds. Default is one hour
+     * @param  string  $key
+     * @param  string  $value    Only simple data types. Serialize your value if you have objects/arrays.
+     * @param  integer $lifeTime In seconds. Default is one hour
      *
      * @return boolean
      * @static
      */
-    public static function setCache($pKey, $pValue, $pLifeTime = null)
+    public static function setCache($key, $value, $lifeTime = null)
     {
         if (!self::$cache) {
             self::initCache();
         }
 
-        return Kryn::$cache->set($pKey, $pValue, $pLifeTime);
+        return Kryn::$cache->set($key, $value, $lifeTime);
     }
 
     /**
-     * Marks a code as invalidate beginning at $pTime.
+     * Marks a code as invalidate beginning at $time.
      * This is the distributed cache controller. Use it if you want
      * to invalidate caches on a distributed backend (use by `setCache()`
      * and `setDistributedCache()`.
@@ -2571,20 +2571,20 @@ class Kryn extends Controller
      * The invalidation mechanism explodes the key by / and checks all levels whether they're marked
      * as invalid (through a microsecond timestamp) or not.
      *
-     * Default is $pTime is `mark all caches as invalid which are older than CURRENT`.
+     * Default is $time is `mark all caches as invalid which are older than CURRENT`.
      *
-     * @param  string  $pKey
-     * @param  integer $pTime Unix timestamp. Default is microtime(true). Uses float for ms.
+     * @param  string  $key
+     * @param  integer $time Unix timestamp. Default is microtime(true). Uses float for ms.
      *
      * @return boolean
      */
-    public static function invalidateCache($pKey, $pTime = null)
+    public static function invalidateCache($key, $time = null)
     {
         if (!self::$cache) {
             self::initCache();
         }
 
-        return Kryn::$cache->invalidate($pKey, $pTime ? $pTime : microtime(true));
+        return Kryn::$cache->invalidate($key, $time ? $time : microtime(true));
     }
 
     /**
@@ -2592,18 +2592,18 @@ class Kryn extends Controller
      * This is the distributed cache controller. Use it if you want
      * to store/retrieve caches on a distributed backend.
      *
-     * @param string $pKey
+     * @param string $key
      *
      * @return string
      * @static
      */
-    public static function &getCache($pKey)
+    public static function &getCache($key)
     {
         if (!self::$cache) {
             self::initCache();
         }
 
-        return Kryn::$cache->get($pKey);
+        return Kryn::$cache->get($key);
     }
 
     /**
@@ -2611,19 +2611,19 @@ class Kryn extends Controller
      *
      * @see \Core\Kryn::setDistributedCache for more information
      *
-     * @param string $pKey
+     * @param string $key
      *
      * @return mixed Null if not found
      */
-    public static function getDistributedCache($pKey)
+    public static function getDistributedCache($key)
     {
         static::initFastCache();
-        $invalidationKey = $pKey . '/!invalidationCheck';
+        $invalidationKey = $key . '/!invalidationCheck';
         $timestamp = self::getCache($invalidationKey);
         $cache = null;
 
         if ($timestamp !== null) {
-            $cache = self::getFastCache($pKey);
+            $cache = self::getFastCache($key);
             if ($cache['timestamp'] == $timestamp) {
                 return $cache['data'];
             }
@@ -2642,7 +2642,7 @@ class Kryn extends Controller
      * to store a ms timestamp where we can check (over several kryn.cms installations)
      * whether the cache is still valid or not.
      *
-     * Use Kryn::invalidateCache($pKey) to invalidate this cache.
+     * Use Kryn::invalidateCache($key) to invalidate this cache.
      * You don't have to define the full key, instead you can pass only a part of the key.
      *
      * @see \Core\Kryn::invalidateCache for more information.
@@ -2650,26 +2650,26 @@ class Kryn extends Controller
      * Don't mix the usage of getDistributedCache() and getCache() since this method
      * stores extra values at the value, which makes getCache() returning something invalid.
      *
-     * @param string $pKey
-     * @param mixed  $pValue    Only simple data types. Serialize your value if you have objects/arrays.
-     * @param int    $pLifeTime
+     * @param string $key
+     * @param mixed  $value    Only simple data types. Serialize your value if you have objects/arrays.
+     * @param int    $lifeTime
      *
      * @return boolean
      * @static
      */
-    public static function setDistributedCache($pKey, $pValue, $pLifeTime = null)
+    public static function setDistributedCache($key, $value, $lifeTime = null)
     {
         static::initFastCache();
-        $invalidationKey = $pKey . '/!invalidationCheck';
+        $invalidationKey = $key . '/!invalidationCheck';
         $timestamp = microtime();
 
-        $cache['data'] = $pValue;
+        $cache['data'] = $value;
         $cache['timestamp'] = $timestamp;
 
-        return Kryn::setFastCache($pKey, $cache, $pLifeTime) && Kryn::setCache(
+        return Kryn::setFastCache($key, $cache, $lifeTime) && Kryn::setCache(
             $invalidationKey,
             $timestamp,
-            $pLifeTime
+            $lifeTime
         );
     }
 
@@ -2689,34 +2689,34 @@ class Kryn extends Controller
      *
      * If you want a distributed cache, use `setDistributedCache()`.
      *
-     * @param string $pKey
-     * @param string $pValue    Only simple data types. Serialize your value if you have objects/arrays.
-     * @param int    $pLifeTime
+     * @param string $key
+     * @param string $value    Only simple data types. Serialize your value if you have objects/arrays.
+     * @param int    $lifeTime
      *
      * @return boolean
      * @static
      */
-    public static function setFastCache($pKey, $pValue, $pLifeTime = null)
+    public static function setFastCache($key, $value, $lifeTime = null)
     {
         static::initFastCache();
 
-        return Kryn::$cacheFast->set($pKey, $pValue, $pLifeTime);
+        return Kryn::$cacheFast->set($key, $value, $lifeTime);
     }
 
     /**
      * Returns the content of the specified cache-key.
      * See Kryn::setFastCache for more information.
      *
-     * @param  string $pKey
+     * @param  string $key
      *
      * @return boolean
      * @static
      */
-    public static function &getFastCache($pKey)
+    public static function &getFastCache($key)
     {
         static::initFastCache();
 
-        return Kryn::$cacheFast->get($pKey);
+        return Kryn::$cacheFast->get($key);
     }
 
     /**
@@ -2728,13 +2728,13 @@ class Kryn extends Controller
      * @static
      * @internal
      *
-     * @param bool $pWithKrynContext  Adds the 'id' value of the config as sub folder. This makes sure, multiple kryn installations
+     * @param bool $withKrynContext  Adds the 'id' value of the config as sub folder. This makes sure, multiple kryn installations
      *                                does not overwrite each other files.
      *
      * @return string           Path with trailing slash
      * @throws \FileIOException
      */
-    public static function getTempFolder($pWithKrynContext = true)
+    public static function getTempFolder($withKrynContext = true)
     {
         if (!self::$cachedTempFolder) {
 
@@ -2763,7 +2763,7 @@ class Kryn extends Controller
             }
         }
 
-        if ($pWithKrynContext) {
+        if ($withKrynContext) {
 
             //add our id to folder, so this installation works inside of a own directory.
             $folder = self::$cachedTempFolder . self::getId() . DIRECTORY_SEPARATOR;
@@ -2923,38 +2923,38 @@ class Kryn extends Controller
     /**
      * Replaces all object://<objectKey>/<pk> strings by its real url.
      *
-     * @param  string $pHtml
+     * @param  string $html
      *
      * @return string
      */
-    public static function parseObjectUrls($pHtml)
+    public static function parseObjectUrls($html)
     {
         return preg_replace_callback(
             '|object://([a-zA-Z0-9\.\\\\]+)/([^"/,]+)|',
             '\\Core\\Kryn::replaceObjectUrl',
-            $pHtml
+            $html
         );
 
     }
 
-    public static function replaceObjectUrl($pMatch)
+    public static function replaceObjectUrl($match)
     {
-        return Object::getPublicUrl($pMatch[1], $pMatch[2]);
+        return Object::getPublicUrl($match[1], $match[2]);
     }
 
     /**
      * Returns the URL of the specified page
      *
-     * @param integer  $pId
-     * @param boolean  $pAbsolute
-     * @param bool|int $pDomainId
+     * @param integer  $id
+     * @param boolean  $absolute
+     * @param bool|int $domainId
      *
      * @return string
      * @static
      */
-    public static function pageUrl($pId = 0, $pAbsolute = false, $pDomainId = false)
+    public static function pageUrl($id = 0, $absolute = false, $domainId = false)
     {
-        return 'object://node/' . $pId;
+        return 'object://node/' . $id;
     }
 
     public static function urlDecode($string)

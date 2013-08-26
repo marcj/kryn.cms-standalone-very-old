@@ -141,11 +141,11 @@ class PageResponse extends Response
     }
 
     /**
-     * @param boolean $pDomainHandling
+     * @param boolean $domainHandling
      */
-    public function setDomainHandling($pDomainHandling)
+    public function setDomainHandling($domainHandling)
     {
-        $this->domainHandling = $pDomainHandling;
+        $this->domainHandling = $domainHandling;
     }
 
     /**
@@ -175,12 +175,12 @@ class PageResponse extends Response
     /**
      * Adds a css file to the page.
      *
-     * @param string $pPath
-     * @param string $pType
+     * @param string $path
+     * @param string $type
      */
-    public function addCssFile($pPath, $pType = 'text/css')
+    public function addCssFile($path, $type = 'text/css')
     {
-        $insert = array('path' => $pPath, 'type' => $pType);
+        $insert = array('path' => $path, 'type' => $type);
         if (array_search($insert, $this->css) === false) {
             $this->css[] = $insert;
         }
@@ -189,12 +189,12 @@ class PageResponse extends Response
     /**
      * Adds css source to the page.
      *
-     * @param string $pContent
-     * @param string $pType
+     * @param string $content
+     * @param string $type
      */
-    public function addCss($pContent, $pType = 'text/css')
+    public function addCss($content, $type = 'text/css')
     {
-        $insert = array('content' => $pContent, 'type' => $pType);
+        $insert = array('content' => $content, 'type' => $type);
         if (array_search($insert, $this->css) === false) {
             $this->css[] = $insert;
         }
@@ -203,13 +203,13 @@ class PageResponse extends Response
     /**
      * Adds a javascript file to the page.
      *
-     * @param string $pPath
-     * @param string $pPosition
-     * @param string $pType
+     * @param string $path
+     * @param string $position
+     * @param string $type
      */
-    public function addJsFile($pPath, $pPosition = 'top', $pType = 'text/javascript')
+    public function addJsFile($path, $position = 'top', $type = 'text/javascript')
     {
-        $insert = array('path' => $pPath, 'position' => $pPosition, 'type' => $pType);
+        $insert = array('path' => $path, 'position' => $position, 'type' => $type);
         if (array_search($insert, $this->js) === false) {
             $this->js[] = $insert;
         }
@@ -218,13 +218,13 @@ class PageResponse extends Response
     /**
      * Adds javascript source to the page.
      *
-     * @param string $pContent
-     * @param string $pPosition
-     * @param string $pType
+     * @param string $content
+     * @param string $position
+     * @param string $type
      */
-    public function addJs($pContent, $pPosition = 'top', $pType = 'text/javascript')
+    public function addJs($content, $position = 'top', $type = 'text/javascript')
     {
-        $insert = array('content' => $pContent, 'position' => $pPosition, 'type' => $pType);
+        $insert = array('content' => $content, 'position' => $position, 'type' => $type);
         if (array_search($insert, $this->js) === false) {
             $this->js[] = $insert;
         }
@@ -233,11 +233,11 @@ class PageResponse extends Response
     /**
      * Adds a additionally HTML header element.
      *
-     * @param string $pContent
+     * @param string $content
      */
-    public function addHeader($pContent)
+    public function addHeader($content)
     {
-        $this->header[] = $pContent;
+        $this->header[] = $content;
     }
 
     /**
@@ -417,11 +417,11 @@ class PageResponse extends Response
      *    PageResponse::$docTypeDeclarations['doctypXy'] = '<!DOCTYPE HTML PUBLIC "-/ ...';
      *    Kryn::getResponse()->setDocType('doctypXy');
      *
-     * @param $pDocType The key of PageResponse::$docTypeDeclarations
+     * @param $docType The key of PageResponse::$docTypeDeclarations
      */
-    public function setDocType($pDocType)
+    public function setDocType($docType)
     {
-        $this->docType = $pDocType;
+        $this->docType = $docType;
         $this->setEndTag(((strpos(strtolower($this->docType), 'xhtml') !== false) ? '/>' : '>') . "\n");
     }
 
@@ -448,11 +448,11 @@ class PageResponse extends Response
     /**
      * Sets the current html starting tag.
      *
-     * @param string $pHtmlTag
+     * @param string $htmlTag
      */
-    public function setHtmlTag($pHtmlTag)
+    public function setHtmlTag($htmlTag)
     {
-        $this->htmlTag = $pHtmlTag;
+        $this->htmlTag = $htmlTag;
     }
 
     /**
@@ -513,11 +513,11 @@ class PageResponse extends Response
     /**
      * Sets the html title.
      *
-     * @param string $pTitle
+     * @param string $title
      */
-    public function setTitle($pTitle)
+    public function setTitle($title)
     {
-        $this->title = $pTitle;
+        $this->title = $title;
     }
 
     /**
@@ -533,11 +533,11 @@ class PageResponse extends Response
     /**
      * Compares two PageResponses and returns the difference as array/
      *
-     * @param  PageResponse $pResponse
+     * @param  PageResponse $response
      *
      * @return array
      */
-    public function diff(PageResponse $pResponse)
+    public function diff(PageResponse $response)
     {
         $diff = array();
 
@@ -554,7 +554,7 @@ class PageResponse extends Response
             }
 
             $particular = null;
-            $other = $pResponse->$getter();
+            $other = $response->$getter();
 
             if (is_array($value)) {
                 $particular = $this->arrayDiff($value, $other);
@@ -655,29 +655,29 @@ class PageResponse extends Response
     /**
      *
      *
-     * @param  PluginResponse $pResponse
+     * @param  PluginResponse $response
      *
      * @return PageResponse
      */
-    public function setPluginResponse(PluginResponse $pResponse)
+    public function setPluginResponse(PluginResponse $response)
     {
-        $param = $pResponse->getControllerRequest()->attributes->get('_route_params');
-        $this->pluginResponse[$param['_content']->getId()] = $pResponse;
+        $param = $response->getControllerRequest()->attributes->get('_route_params');
+        $this->pluginResponse[$param['_content']->getId()] = $response;
 
         return $this;
     }
 
     /**
      *
-     * @param Content $pContent
+     * @param Content $content
      *
      * @return string
      */
-    public function getPluginResponse($pContent)
+    public function getPluginResponse($content)
     {
-        $id = $pContent;
-        if ($pContent instanceof Content) {
-            $id = $pContent->getId();
+        $id = $content;
+        if ($content instanceof Content) {
+            $id = $content->getId();
         }
 
         return isset($this->pluginResponse[$id]) ? $this->pluginResponse[$id] : '';
@@ -790,19 +790,19 @@ class PageResponse extends Response
     /**
      * Generates the <script> tags based on all attached js files/scripts.
      *
-     * @param string $pPosition
+     * @param string $position
      *
      * @return string
      * @throws \FileNotFoundException
      */
-    public function getScriptTags($pPosition = 'top')
+    public function getScriptTags($position = 'top')
     {
         $result = '';
 
         if ($this->getResourceCompression()) {
             $jsCode = '';
             foreach ($this->js as $js) {
-                if ($js['position'] != $pPosition) {
+                if ($js['position'] != $position) {
                     continue;
                 }
 
@@ -829,7 +829,7 @@ class PageResponse extends Response
 
             if (!file_exists(PATH_WEB_CACHE . $jsCachedFile)) {
                 foreach ($this->js as $js) {
-                    if ($js['position'] != $pPosition) {
+                    if ($js['position'] != $position) {
                         continue;
                     }
 
@@ -860,7 +860,7 @@ class PageResponse extends Response
             $result .= '<script type="text/javascript" src="cache/' . $jsCachedFile . '" ></script>' . "\n";
         } else {
             foreach ($this->js as $js) {
-                if ($js['position'] != $pPosition) {
+                if ($js['position'] != $position) {
                     continue;
                 }
 

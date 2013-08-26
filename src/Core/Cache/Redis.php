@@ -11,15 +11,15 @@ class Redis implements CacheInterface
     /**
      * {@inheritdoc}
      */
-    public function __construct($pConfig)
+    public function __construct($config)
     {
         $this->noServerTest = true;
-        $this->testConfig($pConfig);
+        $this->testConfig($config);
         $this->noServerTest = false;
 
         $this->connection = new Redis();
 
-        foreach ($pConfig['servers'] as $server) {
+        foreach ($config['servers'] as $server) {
             $this->connection->connect($server['ip'], $server['port'] + 0);
         }
 
@@ -30,9 +30,9 @@ class Redis implements CacheInterface
     /**
      * {@inheritdoc}
      */
-    public function testConfig($pConfig)
+    public function testConfig($config)
     {
-        if (!$pConfig['servers']) {
+        if (!$config['servers']) {
             throw new \Exception('No redis servers set.');
         }
 
@@ -51,24 +51,24 @@ class Redis implements CacheInterface
     /**
      * {@inheritdoc}
      */
-    public function get($pKey)
+    public function get($key)
     {
-        return $this->connection->get($pKey);
+        return $this->connection->get($key);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function set($pKey, $pValue, $pTimeout = null)
+    public function set($key, $value, $timeout = null)
     {
-        return $this->connection->setex($pKey, $pTimeout, $pValue);
+        return $this->connection->setex($key, $timeout, $value);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function delete($pKey)
+    public function delete($key)
     {
-        $this->connection->delete($pKey);
+        $this->connection->delete($key);
     }
 }

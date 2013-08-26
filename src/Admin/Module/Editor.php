@@ -99,27 +99,27 @@ class Editor
                 && $config->saveFileBased('assets');
     }
 
-    public function getLanguage($pName, $pLang = null)
+    public function getLanguage($name, $lang = null)
     {
-        Manager::prepareName($pName);
+        Manager::prepareName($name);
 
-        return \Core\Lang::getLanguage($pName, $pLang);
+        return \Core\Lang::getLanguage($name, $lang);
 
     }
 
-    public function saveLanguage($pName, $pLangs, $pLang = null)
+    public function saveLanguage($name, $langs, $lang = null)
     {
-        Manager::prepareName($pName);
+        Manager::prepareName($name);
 
-        return \Core\Lang::saveLanguage($pName, $pLang, $pLangs);
+        return \Core\Lang::saveLanguage($name, $lang, $langs);
 
     }
 
-    public function getExtractedLanguage($pName)
+    public function getExtractedLanguage($name)
     {
-        Manager::prepareName($pName);
+        Manager::prepareName($name);
 
-        return \Core\Lang::extractLanguage($pName);
+        return \Core\Lang::extractLanguage($name);
 
     }
 
@@ -398,36 +398,36 @@ class Editor
     /**
      * Saves the php class definition into a php class.
      *
-     * @param string $pClass
+     * @param string $class
      * @param array $listing
      * @param array $add
      * @param array $general
      * @param array $methods
      * @return bool
      */
-    public function saveWindowDefinition($pClass, $list = null, $add = null, $general = null, $methods = null)
+    public function saveWindowDefinition($class, $list = null, $add = null, $general = null, $methods = null)
     {
-        if (substr($pClass, 0, 1) != '\\') {
-            $pClass = '\\' . $pClass;
+        if (substr($class, 0, 1) != '\\') {
+            $class = '\\' . $class;
         }
 
         $path = $general['file'];
 
         $sourcecode = "<?php\n\n";
 
-        $lSlash = strrpos($pClass, '\\');
-        $className = $lSlash !== -1 ? substr($pClass, $lSlash + 1) : $pClass;
+        $lSlash = strrpos($class, '\\');
+        $class2Name = $lSlash !== -1 ? substr($class, $lSlash + 1) : $class;
 
         $parentClass = '\Admin\ObjectCrud';
 
-        $namespace = substr(substr($pClass, 1), 0, $lSlash);
+        $namespace = substr(substr($class, 1), 0, $lSlash);
         if (substr($namespace, -1) == '\\') {
             $namespace = substr($namespace, 0, -1);
         }
 
         $sourcecode .= "namespace $namespace;\n \n";
 
-        $sourcecode .= 'class ' . $className . ' extends ' . $parentClass . " {\n\n";
+        $sourcecode .= 'class ' . $class2Name . ' extends ' . $parentClass . " {\n\n";
 
         if (count($fields = getArgv('fields')) > 0) {
             $this->addVar($sourcecode, 'fields', $fields);
@@ -468,60 +468,60 @@ class Editor
         return SystemFile::setContent($path, $sourcecode);
     }
 
-    public function addMethod(&$pSourceCode, $pSource)
+    public function addMethod(&$sourceCode, $source)
     {
-        $pSourceCode .= substr($pSource, 6, -4) . "\n";
+        $sourceCode .= substr($source, 6, -4) . "\n";
     }
 
-    public function addVar(&$pSourceCode, $pName, $pVar, $pVisibility = 'public', $pStatic = false)
+    public function addVar(&$sourceCode, $name, $var, $visibility = 'public', $static = false)
     {
-        $val = var_export(self::toVar($pVar), true);
+        $val = var_export(self::toVar($var), true);
 
-        if (is_array($pVar)) {
+        if (is_array($var)) {
             $val = preg_replace("/' => \n\s+array \(/", "' => array (", $val);
         }
 
-        $pSourceCode .=
+        $sourceCode .=
             "    "
-            . $pVisibility . ($pStatic ? ' static' : '') . ' $' . $pName . ' = ' . $val
+            . $visibility . ($static ? ' static' : '') . ' $' . $name . ' = ' . $val
             . ";\n\n";
 
     }
 
-    public function toVar($pValue)
+    public function toVar($value)
     {
-        if ($pValue == 'true') {
+        if ($value == 'true') {
             return true;
         }
-        if ($pValue == 'false') {
+        if ($value == 'false') {
             return false;
         }
-        if (is_numeric($pValue)) {
-            return $pValue + 0;
+        if (is_numeric($value)) {
+            return $value + 0;
         }
-        return $pValue;
+        return $value;
     }
 
-    public function getWindowDefinition($pClass)
+    public function getWindowDefinition($class)
     {
-        if (substr($pClass, 0, 1) != '\\') {
-            $pClass = '\\' . $pClass;
+        if (substr($class, 0, 1) != '\\') {
+            $class = '\\' . $class;
         }
 
-        if (!class_exists($pClass)) {
-            throw new \ClassNotFoundException(tf('Class %s not found.', $pClass));
+        if (!class_exists($class)) {
+            throw new \ClassNotFoundException(tf('Class %s not found.', $class));
         }
 
-        $reflection = new \ReflectionClass($pClass);
+        $reflection = new \ReflectionClass($class);
         $path = substr($reflection->getFileName(), strlen(PATH));
 
         $content = explode("\n", SystemFile::getContent($path));
 
-        $classReflection = new \ReflectionClass($pClass);
-        $actualPath = $classReflection->getFileName();
+        $class2Reflection = new \ReflectionClass($class);
+        $actualPath = $class2Reflection->getFileName();
 
         $res = array(
-            'class' => $pClass,
+            'class' => $class,
             'file' => $path,
             'actualFile' => $actualPath,
             'properties' => array(
@@ -529,7 +529,7 @@ class Editor
             )
         );
 
-        $obj = new $pClass(null, true);
+        $obj = new $class(null, true);
         foreach ($obj as $k => $v) {
             $res['properties'][$k] = $v;
         }
@@ -540,7 +540,7 @@ class Editor
         $methods = $reflection->getMethods();
 
         foreach ($methods as $method) {
-            if ($method->class == $pClass) {
+            if ($method->class == $class) {
 
                 $code = '';
                 if ($code) {
@@ -583,30 +583,30 @@ class Editor
      *
      * @internal
      *
-     * @param $pParentClass
-     * @param $pMethods
+     * @param $parentClass
+     * @param $methods
      *
      * @throws \ClassNotFoundException
      */
-    public static function extractParentClassInformation($pParentClass, &$pMethods)
+    public static function extractParentClassInformation($parentClass, &$methods)
     {
-        if (!class_exists($pParentClass)) {
+        if (!class_exists($parentClass)) {
             throw new \ClassNotFoundException();
         }
 
-        $reflection = new \ReflectionClass($pParentClass);
+        $reflection = new \ReflectionClass($parentClass);
         $parentPath = substr($reflection->getFileName(), strlen(PATH));
 
         $parentContent = explode("\n", SystemFile::getContent($parentPath));
-        $parentReflection = new \ReflectionClass($pParentClass);
+        $parentReflection = new \ReflectionClass($parentClass);
 
-        $methods = $parentReflection->getMethods();
-        foreach ($methods as $method) {
-            if ($pMethods[$method->name]) {
+        $methods2 = $parentReflection->getMethods();
+        foreach ($methods2 as $method) {
+            if ($methods[$method->name]) {
                 continue;
             }
 
-            if ($method->class == $pParentClass) {
+            if ($method->class == $parentClass) {
 
                 $code = '';
                 for ($i = $method->getStartLine() - 1; $i < $method->getEndLine(); $i++) {
@@ -622,14 +622,14 @@ class Editor
                     $code = "    $doc\n$code";
                 }
 
-                $pMethods[$method->name] = str_replace("\r", '', $code);
+                $methods[$method->name] = str_replace("\r", '', $code);
             }
         }
 
         $parent = $parentReflection->getParentClass();
 
         if ($parent) {
-            self::extractParentClassInformation($parent->name, $pMethods);
+            self::extractParentClassInformation($parent->name, $methods);
         }
 
     }
@@ -638,46 +638,46 @@ class Editor
     /**
      * Creates a new CRUD object window.
      *
-     * @param string $pClass
-     * @param string $pModule Name of the module
-     * @param bool $pForce
+     * @param string $class
+     * @param string $module Name of the module
+     * @param bool $force
      *
      * @return bool
      * @throws \FileAlreadyExistException
      */
-    public function newWindow($pClass, $pModule, $pForce = false)
+    public function newWindow($class, $module, $force = false)
     {
-        if (substr($pClass, 0, 1) != '\\') {
-            $pClass = '\\' . $pClass;
+        if (substr($class, 0, 1) != '\\') {
+            $class = '\\' . $class;
         }
 
-        if (class_exists($pClass) && !$pForce) {
-            $reflection = new \ReflectionClass($pClass);
+        if (class_exists($class) && !$force) {
+            $reflection = new \ReflectionClass($class);
             throw new \FileAlreadyExistException(tf('Class already exist in %s', $reflection->getFileName()));
         }
 
-        $actualPath = str_replace('\\', '/', substr($pClass, 1)) . '.class.php';
-        $actualPath = \Core\Kryn::getBundleDir($pModule) . 'controller/' . $actualPath;
+        $actualPath = str_replace('\\', '/', substr($class, 1)) . '.class.php';
+        $actualPath = \Core\Kryn::getBundleDir($module) . 'controller/' . $actualPath;
 
-        if (file_exists($actualPath) && !$pForce) {
+        if (file_exists($actualPath) && !$force) {
             throw new \FileAlreadyExistException(tf('File already exist, %s', $actualPath));
         }
 
         $sourcecode = "<?php\n\n";
 
-        $lSlash = strrpos($pClass, '\\');
-        $className = $lSlash !== -1 ? substr($pClass, $lSlash + 1) : $pClass;
+        $lSlash = strrpos($class, '\\');
+        $class2Name = $lSlash !== -1 ? substr($class, $lSlash + 1) : $class;
 
         $parentClass = '\Admin\ObjectCrud';
 
-        $namespace = ucfirst($pModule) . substr($pClass, 0, $lSlash);
+        $namespace = ucfirst($module) . substr($class, 0, $lSlash);
         if (substr($namespace, -1) == '\\') {
             $namespace = substr($namespace, 0, -1);
         }
 
         $sourcecode .= "namespace $namespace;\n \n";
 
-        $sourcecode .= 'class ' . $className . ' extends ' . $parentClass . " {\n\n";
+        $sourcecode .= 'class ' . $class2Name . ' extends ' . $parentClass . " {\n\n";
 
         $sourcecode .= "}\n";
 

@@ -4,22 +4,22 @@ namespace Admin\Controller;
 
 class Languages
 {
-    public function __construct($pRestServer)
+    public function __construct($restServer)
     {
-        $pRestServer
+        $restServer
             //->addGetRoute('all-languages', 'getLanguageOverview')
             ->addGetRoute('overview', 'getOverviewExtract');
 
     }
 
-    public function getOverviewExtract($pModule, $pLang)
+    public function getOverviewExtract($module, $lang)
     {
-        if (!$pModule || !$pLang) {
+        if (!$module || !$lang) {
             return array();
         }
 
-        $extract = \Core\Lang::extractLanguage($pModule);
-        $translated = \Core\Lang::getLanguage($pModule, $pLang);
+        $extract = \Core\Lang::extractLanguage($module);
+        $translated = \Core\Lang::getLanguage($module, $lang);
 
         $p100 = count($extract);
         $cTranslated = 0;
@@ -37,10 +37,10 @@ class Languages
 
     }
 
-    public function getAllLanguages($pLang = 'en')
+    public function getAllLanguages($lang = 'en')
     {
-        if ($pLang == '') {
-            $pLang = 'en';
+        if ($lang == '') {
+            $lang = 'en';
         }
 
         $res = array();
@@ -50,12 +50,12 @@ class Languages
             $res[$key]['lang'] = \Core\Lang::extractLanguage($key);
 
             if (count($res[$key]['lang']) > 0) {
-                $translate = \Core\Lang::getLanguage($key, $pLang);
-                foreach ($res[$key]['lang'] as $key => &$lang) {
+                $translate = \Core\Lang::getLanguage($key, $lang);
+                foreach ($res[$key]['lang'] as $key => &$lang2) {
                     if ($translate[$key] != '') {
-                        $lang = $translate[$key];
+                        $lang2 = $translate[$key];
                     } else {
-                        $lang = '';
+                        $lang2 = '';
                     }
                 }
             }

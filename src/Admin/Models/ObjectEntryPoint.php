@@ -7,15 +7,15 @@ class ObjectEntryPoint extends \Core\ORM\ORMAbstract
     /**
      * {@inheritDoc}
      */
-    public function getItem($pPk, $pOptions = null)
+    public function getItem($pk, $options = null)
     {
 
-        $entryPoint = Utils::getEntryPoint($pPk['path']);
+        $entryPoint = Utils::getEntryPoint($pk['path']);
         if ($entryPoint) {
             return array(
-                'path' => $pPk['path'],
+                'path' => $pk['path'],
                 'type' => $entryPoint['type'],
-                'title' => $entryPoint['title'] ? $entryPoint['title'] . ' (' . $pPk['path'] . ')' : $pPk['path']
+                'title' => $entryPoint['title'] ? $entryPoint['title'] . ' (' . $pk['path'] . ')' : $pk['path']
             );
         }
 
@@ -24,42 +24,42 @@ class ObjectEntryPoint extends \Core\ORM\ORMAbstract
     /**
      * {@inheritDoc}
      */
-    public function getItems($pCondition = null, $pOptions = null)
+    public function getItems($condition = null, $options = null)
     {
     }
 
     /**
      * {@inheritDoc}
      */
-    public function remove($pPrimaryKey)
+    public function remove($primaryKey)
     {
     }
 
     /**
      * {@inheritDoc}
      */
-    public function add($pValues, $pBranchPk = null, $pMode = 'into', $pScope = null)
+    public function add($values, $branchPk = null, $mode = 'into', $scope = null)
     {
     }
 
     /**
      * {@inheritDoc}
      */
-    public function update($pPrimaryKey, $pValues)
+    public function update($primaryKey, $values)
     {
     }
 
     /**
      * {@inheritDoc}
      */
-    public function patch($pPrimaryKey, $pValues)
+    public function patch($primaryKey, $values)
     {
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getCount($pCondition = null)
+    public function getCount($condition = null)
     {
     }
 
@@ -81,42 +81,42 @@ class ObjectEntryPoint extends \Core\ORM\ORMAbstract
     /**
      * {@inheritDoc}
      */
-    public static function normalizePath(&$pPath)
+    public static function normalizePath(&$path)
     {
-        $pPath = str_replace('.', '/', $pPath); //debug
+        $path = str_replace('.', '/', $path); //debug
 
-        if (substr($pPath, -1) == '/') {
-            $pPath = substr($pPath, 0, -1);
+        if (substr($path, -1) == '/') {
+            $path = substr($path, 0, -1);
         }
 
     }
 
     /**
-     * Sets the children information at $pItem directly.
+     * Sets the children information at $item directly.
      */
-    public function setChildren($pPath, &$pItem, $pDepth)
+    public function setChildren($path, &$item, $depth)
     {
-        $children = $this->getBranch(array('path' => $pPath), null, $pDepth - 1);
+        $children = $this->getBranch(array('path' => $path), null, $depth - 1);
 
         if ($children && count($children) > 0) {
-            if ($pDepth > 1) {
-                $pItem['_children'] = $children;
+            if ($depth > 1) {
+                $item['_children'] = $children;
             }
-            $pItem['_childrenCount'] = count($children);
+            $item['_childrenCount'] = count($children);
         } else {
-            $pItem['_childrenCount'] = 0;
+            $item['_childrenCount'] = 0;
         }
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getBranch($pPk = null, $pCondition = null, $pDepth = 1, $pScope = null, $pOptions = null)
+    public function getBranch($pk = null, $condition = null, $depth = 1, $scope = null, $options = null)
     {
 
         $result = null;
 
-        if (!$pPk || !$pPk['path']) {
+        if (!$pk || !$pk['path']) {
 
             $config = \Core\Kryn::getModuleConfig('admin');
             foreach ($config['entryPoints'] as $key => $entryPoint) {
@@ -126,7 +126,7 @@ class ObjectEntryPoint extends \Core\ORM\ORMAbstract
                     'title' => $entryPoint['title'] ? $entryPoint['title'] . ' (' . $key . ')' : $key,
                 );
 
-                $this->setChildren($key, $item, $pDepth);
+                $this->setChildren($key, $item, $depth);
                 $result[] = $item;
             }
 
@@ -143,7 +143,7 @@ class ObjectEntryPoint extends \Core\ORM\ORMAbstract
                         'title' => $entryPoint['title'] ? $entryPoint['title'] . ' (' . $key . ')' : $key
                     );
 
-                    $this->setChildren($extension . '/' . $key, $item, $pDepth);
+                    $this->setChildren($extension . '/' . $key, $item, $depth);
 
                     $result[] = $item;
                 }
@@ -151,19 +151,19 @@ class ObjectEntryPoint extends \Core\ORM\ORMAbstract
 
         } else {
 
-            self::normalizePath($pPk['path']);
+            self::normalizePath($pk['path']);
 
-            $entryPoint = Utils::getEntryPoint($pPk['path'], true);
+            $entryPoint = Utils::getEntryPoint($pk['path'], true);
             if ($entryPoint && $entryPoint['children'] && count($entryPoint['children']) > 0) {
 
                 foreach ($entryPoint['children'] as $key => $entryPoint) {
                     $item = array(
-                        'path' => $pPk['path'] . '/' . $key,
+                        'path' => $pk['path'] . '/' . $key,
                         'type' => $entryPoint['type'],
                         'title' => $entryPoint['title'] ? $entryPoint['title'] . ' (' . $key . ')' : $key
                     );
 
-                    $this->setChildren($pPk['path'] . '/' . $key, $item, $pDepth);
+                    $this->setChildren($pk['path'] . '/' . $key, $item, $depth);
 
                     $result[] = $item;
                 }
@@ -178,25 +178,25 @@ class ObjectEntryPoint extends \Core\ORM\ORMAbstract
     /**
      * {@inheritDoc}
      */
-    public function getParent($pPk)
+    public function getParent($pk)
     {
-        parent::getParent($pPk);
+        parent::getParent($pk);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getParents($pPk)
+    public function getParents($pk)
     {
-        parent::getParents($pPk);
+        parent::getParents($pk);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getParentId($pPrimaryKey)
+    public function getParentId($primaryKey)
     {
-        return parent::getParentId($pPrimaryKey);
+        return parent::getParentId($primaryKey);
     }
 
 }

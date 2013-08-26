@@ -30,7 +30,7 @@ class AdminController
      * @internal
      * @static
      */
-    public static function checkAccess($url)
+    public static function checkAccess($url2)
     {
         $whitelist = [
             '',
@@ -43,7 +43,7 @@ class AdminController
             'admin/logged-in'
         ];
 
-        if (in_array($url, $whitelist)) {
+        if (in_array($url2, $whitelist)) {
             return;
         }
 
@@ -53,24 +53,24 @@ class AdminController
 
         return true;
 //
-//        if (substr($pUrl, 0, 9) == 'admin/ui/') {
+//        if (substr($url, 0, 9) == 'admin/ui/') {
 //            return true;
 //        }
 //
-//        if ($pUrl == 'admin/login') {
+//        if ($url == 'admin/login') {
 //            return true;
 //        }
 
         //todo, use Permission class
 
-        //if (Kryn::checkUrlAccess($pUrl))
+        //if (Kryn::checkUrlAccess($url))
         //    throw new \AccessDeniedException(tf('Access denied.'));
     }
 
-    public function exceptionHandler($pException)
+    public function exceptionHandler($exception)
     {
-        if (get_class($pException) != 'AccessDeniedException') {
-            \Core\Utils::exceptionHandler($pException);
+        if (get_class($exception) != 'AccessDeniedException') {
+            \Core\Utils::exceptionHandler($exception);
         }
     }
 
@@ -526,9 +526,9 @@ class AdminController
         $response->addJsFile(Kryn::getAdminPrefix() . '/admin/ui/languagePluralForm?lang=en');
     }
 
-    public function loginUser($pUsername, $pPassword)
+    public function loginUser($username, $password)
     {
-        $status = Kryn::getAdminClient()->login($pUsername, $pPassword);
+        $status = Kryn::getAdminClient()->login($username, $password);
 
         $lastLogin = Kryn::getAdminClient()->getUser()->getLastLogin();
         if ($status) {
@@ -558,14 +558,14 @@ class AdminController
         return true;
     }
 
-    public function searchAdmin($pQuery)
+    public function searchAdmin($query)
     {
         $res = array();
 
         $lang = getArgv('lang');
 
         //pages
-        $nodes = \Core\NodeQuery::create()->filterByTitle('%' . $pQuery . '%', \Criteria::LIKE)->find();
+        $nodes = \Core\NodeQuery::create()->filterByTitle('%' . $query . '%', \Criteria::LIKE)->find();
 
         if (count($nodes) > 0) {
             foreach ($nodes as $node) {
@@ -599,15 +599,15 @@ class AdminController
                     }
                     $found = false;
 
-                    if (preg_match("/$pQuery/i", $help['title'])) {
+                    if (preg_match("/$query/i", $help['title'])) {
                         $found = true;
                     }
 
-                    if (preg_match("/$pQuery/i", $help['tags'])) {
+                    if (preg_match("/$query/i", $help['tags'])) {
                         $found = true;
                     }
 
-                    if (preg_match("/$pQuery/i", $help['help'])) {
+                    if (preg_match("/$query/i", $help['help'])) {
                         $found = true;
                     }
 

@@ -53,17 +53,17 @@ class PageController extends Controller
         return Kryn::getResponse();
     }
 
-    public static function getSlotContents($pPageId, $pSlotId)
+    public static function getSlotContents($pageId, $slotId)
     {
-        $cacheKey = 'core/contents/' . $pPageId . '.' . $pSlotId;
+        $cacheKey = 'core/contents/' . $pageId . '.' . $slotId;
         $cache = Kryn::getFastCache($cacheKey);
         $cacheCreated = Kryn::getCache($cacheKey . '.created');
 
         if (!$cache || $cache['created'] != $cacheCreated) {
 
             $contents = ContentQuery::create()
-                ->filterByNodeId($pPageId)
-                ->filterByBoxId($pSlotId)
+                ->filterByNodeId($pageId)
+                ->filterByBoxId($slotId)
                 ->orderByRank()
                 ->find();
 
@@ -77,28 +77,28 @@ class PageController extends Controller
 
     }
 
-    public static function getSlotHtml($pSlotId, $pSlotProperties)
+    public static function getSlotHtml($slotId, $slotProperties)
     {
-        if (!self::$slotContents[$pSlotId]) {
-            self::$slotContents[$pSlotId] = self::getSlotContents(Kryn::$page->getId(), $pSlotId);
+        if (!self::$slotContents[$slotId]) {
+            self::$slotContents[$slotId] = self::getSlotContents(Kryn::$page->getId(), $slotId);
         }
 
-        return Render::renderContents(self::$slotContents[$pSlotId], $pSlotProperties);
+        return Render::renderContents(self::$slotContents[$slotId], $slotProperties);
 
     }
 
     /**
      * Returns the public url for the Core\Node object.
      *
-     * @param  string $pObjectKey
-     * @param  string $pObjectPk
-     * @param  array  $pPlugin
+     * @param  string $objectKey
+     * @param  string $objectPk
+     * @param  array  $plugin
      *
      * @return string
      */
-    public static function getPublicUrl($pObjectKey, $pObjectPk, $pPlugin = null)
+    public static function getPublicUrl($objectKey, $objectPk, $plugin = null)
     {
-        return Node::getUrl($pObjectPk['id'] + 0);
+        return Node::getUrl($objectPk['id'] + 0);
     }
 
     /**

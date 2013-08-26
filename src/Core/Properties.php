@@ -16,12 +16,12 @@ class Properties
 
     public $data = array();
 
-    public function __construct($pData)
+    public function __construct($data)
     {
-        if (is_string($pData)) {
-            $this->data = json_decode($pData, true);
+        if (is_string($data)) {
+            $this->data = json_decode($data, true);
         } else {
-            $this->data = $pData;
+            $this->data = $data;
         }
 
     }
@@ -37,19 +37,19 @@ class Properties
     }
 
     /**
-     * Gets the value of $pPath
+     * Gets the value of $path
      *
-     * @param  string $pPath slash delimited string
+     * @param  string $path slash delimited string
      *
      * @return mixed
      */
-    public function getByPath($pPath)
+    public function getByPath($path)
     {
-        $path = explode('/', $pPath);
+        $path2 = explode('/', $path);
 
         $data = $this->data;
 
-        foreach ($path as $node) {
+        foreach ($path2 as $node) {
             if (!$data[$node]) {
                 return false;
             }
@@ -61,26 +61,26 @@ class Properties
     }
 
     /**
-     * Sets the value of $pPath
+     * Sets the value of $path
      *
-     * @param string $pPath slash delimited string
-     * @param mixed  $pData
+     * @param string $path slash delimited string
+     * @param mixed  $data
      */
-    public function setByPath($pPath, $pData)
+    public function setByPath($path, $data)
     {
-        $path = explode('/', $pPath);
+        $path2 = explode('/', $path);
 
-        $data =& $this->data;
+        $data2 =& $this->data;
 
-        foreach ($path as $node) {
-            if (!$data[$node]) {
-                $data[$node] = array();
+        foreach ($path2 as $node) {
+            if (!$data2[$node]) {
+                $data2[$node] = array();
             }
-            $data =& $data[$node];
+            $data2 =& $data2[$node];
         }
 
-        if ($data) {
-            $data = $pData;
+        if ($data2) {
+            $data2 = $data;
         }
 
     }

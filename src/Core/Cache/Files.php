@@ -23,14 +23,14 @@ class Files implements CacheInterface
     /**
      * {@inheritdoc}
      */
-    public function __construct($pConfig)
+    public function __construct($config)
     {
-        $this->testConfig($pConfig);
+        $this->testConfig($config);
 
-        if (!$pConfig['path']) {
-            $pConfig['path'] = \Core\Kryn::getTempFolder() . 'object-cache/';
+        if (!$config['path']) {
+            $config['path'] = \Core\Kryn::getTempFolder() . 'object-cache/';
         }
-        $this->path = $pConfig['path'];
+        $this->path = $config['path'];
 
         if (Controller::getFastestCacheClass() == '\Core\Cache\Files') {
             $this->useJson = true;
@@ -40,48 +40,48 @@ class Files implements CacheInterface
             $this->path .= '/';
         }
 
-        if (isset($pConfig['prefix'])) {
-            $this->prefix = $pConfig['prefix'];
+        if (isset($config['prefix'])) {
+            $this->prefix = $config['prefix'];
         }
 
-        $this->falLayer = new Local('', ['root' => $pConfig['path']]);
+        $this->falLayer = new Local('', ['root' => $config['path']]);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function testConfig($pConfig)
+    public function testConfig($config)
     {
-        $this->falLayer = new Local('', ['root' => $pConfig['path']]);
+        $this->falLayer = new Local('', ['root' => $config['path']]);
 
         if (!$this->falLayer->createFolder('.')) {
-            throw new \Exception('Can not create cache folder: ' . $pConfig['path']);
+            throw new \Exception('Can not create cache folder: ' . $config['path']);
         }
 
         return true;
     }
 
-    public function setPrefix($pPrefix)
+    public function setPrefix($prefix)
     {
-        $this->prefix = $pPrefix;
+        $this->prefix = $prefix;
     }
 
-    public function getPath($pKey)
+    public function getPath($key)
     {
-        return $this->path . $this->prefix . urlencode($pKey) . ($this->useJson ? '.json' : '.php');
+        return $this->path . $this->prefix . urlencode($key) . ($this->useJson ? '.json' : '.php');
     }
 
-    public function getInternalPath($pKey)
+    public function getInternalPath($key)
     {
-        return $this->prefix . urlencode($pKey) . ($this->useJson ? '.json' : '.php');
+        return $this->prefix . urlencode($key) . ($this->useJson ? '.json' : '.php');
     }
 
     /**
      * {@inheritdoc}
      */
-    public function get($pKey)
+    public function get($key)
     {
-        $path = $this->getPath($pKey);
+        $path = $this->getPath($key);
 
         if (!file_exists($path)) {
             return false;
@@ -113,15 +113,15 @@ class Files implements CacheInterface
     /**
      * {@inheritdoc}
      */
-    public function set($pKey, $pValue, $pTimeout = 0)
+    public function set($key, $value, $timeout = 0)
     {
-        $path = $this->getPath($pKey);
-        $this->falLayer->createFile($this->getInternalPath($pKey));
+        $path = $this->getPath($key);
+        $this->falLayer->createFile($this->getInternalPath($key));
 
         if (!$this->useJson) {
-            $pValue = '<' . "?php \nreturn " . var_export($pValue, true) . ";\n";
+            $value = '<' . "?php \nreturn " . var_export($value, true) . ";\n";
         } else {
-            $pValue = json_encode($pValue);
+            $value = json_encode($value);
         }
 
         $h = fopen($path, 'w');
@@ -137,7 +137,7 @@ class Files implements CacheInterface
             $tries++;
         }
 
-        fwrite($h, $pValue);
+        fwrite($h, $value);
         flock($h, LOCK_UN);
         fclose($h);
 
@@ -147,9 +147,9 @@ class Files implements CacheInterface
     /**
      * {@inheritdoc}
      */
-    public function delete($pKey)
+    public function delete($key)
     {
-        $path = $this->getPath($pKey);
+        $path = $this->getPath($key);
 
         return @unlink($path);
     }

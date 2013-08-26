@@ -11,10 +11,10 @@ class Memcached implements CacheInterface
     /**
      * {@inheritdoc}
      */
-    public function __construct($pConfig)
+    public function __construct($config)
     {
         $this->noServerTest = true;
-        $this->testConfig($pConfig);
+        $this->testConfig($config);
         $this->noServerTest = false;
 
         if (class_exists('Memcache')) {
@@ -33,13 +33,13 @@ class Memcached implements CacheInterface
     /**
      * {@inheritdoc}
      */
-    public function testConfig($pConfig)
+    public function testConfig($config)
     {
         if (!(class_exists('Memcache') || class_exists('Memcached'))) {
             throw new \Exception('The php module memcache or memcached is not activated in your PHP environment.');
         }
 
-        if (!$pConfig['servers']) {
+        if (!$config['servers']) {
             throw new \Exception('No servers set.');
         }
 
@@ -54,20 +54,20 @@ class Memcached implements CacheInterface
     /**
      * {@inheritdoc}
      */
-    public function get($pKey)
+    public function get($key)
     {
-        return $this->connection->get($pKey);
+        return $this->connection->get($key);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function set($pKey, $pValue, $pTimeout = null)
+    public function set($key, $value, $timeout = null)
     {
         if ($this->connection instanceof Memcache) {
-            return $this->connection->set($pKey, $pValue, 0, $pTimeout);
+            return $this->connection->set($key, $value, 0, $timeout);
         } else {
-            return $this->connection->set($pKey, $pValue, $pTimeout);
+            return $this->connection->set($key, $value, $timeout);
         }
 
     }
@@ -75,8 +75,8 @@ class Memcached implements CacheInterface
     /**
      * {@inheritdoc}
      */
-    public function delete($pKey)
+    public function delete($key)
     {
-        $this->connection->delete($pKey);
+        $this->connection->delete($key);
     }
 }

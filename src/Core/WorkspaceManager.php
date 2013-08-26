@@ -13,9 +13,9 @@ class WorkspaceManager
         return static::$current;
     }
 
-    public static function setCurrent($pId)
+    public static function setCurrent($id)
     {
-        static::$current = $pId;
+        static::$current = $id;
     }
 
 }

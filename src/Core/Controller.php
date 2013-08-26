@@ -31,37 +31,37 @@ class Controller
      * Assign data to a variable inside this controller.
      * This data is used in $this->render() if you don't pass a data array.
      *
-     * @param string $pKey
-     * @param mixed  $pValue
+     * @param string $key
+     * @param mixed  $value
      */
-    public function assign($pKey, $pValue)
+    public function assign($key, $value)
     {
-        $this->viewData[$pKey] = $pValue;
+        $this->viewData[$key] = $value;
     }
 
     /**
      * Assign data by reference to a variable inside this controller.
      * This data is used in $this->render() if you don't pass a data array.
      *
-     * @param string $pKey
-     * @param mixed  &$pValue
+     * @param string $key
+     * @param mixed  &$value
      */
-    public function assignByRef($pKey, &$pValue)
+    public function assignByRef($key, &$value)
     {
-        $this->viewData[$pKey] = $pValue;
+        $this->viewData[$key] = $value;
     }
 
 
     /**
      * Returns true if the specified name has a value assigned.
      *
-     * @param  string $pKey
+     * @param  string $key
      *
      * @return bool
      */
-    public function assigned($pKey)
+    public function assigned($key)
     {
-        return null !== $this->viewData[$pKey];
+        return null !== $this->viewData[$key];
     }
 
 
@@ -130,18 +130,18 @@ class Controller
     /**
      * Returns whether this cache is valid(exists) or not.
      *
-     * @param  string  $pCacheKey
+     * @param  string  $cacheKey
      *
      * @return boolean
      */
-    public function isValidCache($pCacheKey)
+    public function isValidCache($cacheKey)
     {
-        return Kryn::getDistributedCache($pCacheKey) !== null;
+        return Kryn::getDistributedCache($cacheKey) !== null;
     }
 
     /**
      * Returns a rendered view. If we find data behind the given cache
-     * it uses this data instead of calling $pData. So this function
+     * it uses this data instead of calling $data. So this function
      * does not cache the whole rendered html. Tho do so use renderFullCache().
      *
      * Example:
@@ -150,41 +150,41 @@ class Controller
      *     return array('items' => heavyDbQuery());
      * });
      *
-     * Note: The $pData callable is only called if the cache needs to regenerate.
-     * If the callable $pData returns NULL, then this will return NULL, too.
+     * Note: The $data callable is only called if the cache needs to regenerate.
+     * If the callable $data returns NULL, then this will return NULL, too.
      *
-     * @param string         $pCacheKey
-     * @param string         $pView
-     * @param array|callable $pData     Pass the data as array or a data provider function.
+     * @param string         $cacheKey
+     * @param string         $view
+     * @param array|callable $data     Pass the data as array or a data provider function.
      *
      * @see method `render` to get more information.
      *
      * @return string
      */
-    public function renderCached($pCacheKey, $pView, $pData = null)
+    public function renderCached($cacheKey, $view, $data = null)
     {
-        $cache = Kryn::getDistributedCache($pCacheKey);
-        $mTime = $this->getViewMTime($pView);
+        $cache = Kryn::getDistributedCache($cacheKey);
+        $mTime = $this->getViewMTime($view);
 
         if (!$cache || !$cache['data'] || !is_array($cache) || $mTime != $cache['fileMTime']) {
 
-            $data = $pData;
-            if (is_callable($pData)) {
-                $data = call_user_func($pData, $pView);
-                if ($data === null) {
+            $data2 = $data;
+            if (is_callable($data)) {
+                $data2 = call_user_func($data, $view);
+                if ($data2 === null) {
                     return null;
                 }
             }
 
             $cache = array(
-                'data' => $data,
+                'data' => $data2,
                 'fileMTime' => $mTime
             );
 
-            Kryn::setDistributedCache($pCacheKey, $cache);
+            Kryn::setDistributedCache($cacheKey, $cache);
         }
 
-        return $this->renderView($pView, $cache['data']);
+        return $this->renderView($view, $cache['data']);
 
     }
 
@@ -199,33 +199,33 @@ class Controller
      *     return array('items' => heavyDbQuery());
      * });
      *
-     * Note: The $pData callable is only called if the cache needs to regenerate.
+     * Note: The $data callable is only called if the cache needs to regenerate.
      *
-     * If the callable $pData returns NULL, then this will return NULL, too, without entering
+     * If the callable $data returns NULL, then this will return NULL, too, without entering
      * the actual rendering process.
      *
-     * @param string         $pCacheKey
-     * @param string         $pView
-     * @param array|callable $pData     Pass the data as array or a data provider function.
-     * @param bool           $pForce    Force to bypass the cache and always call $pData. For debuggin purposes.
+     * @param string         $cacheKey
+     * @param string         $view
+     * @param array|callable $data     Pass the data as array or a data provider function.
+     * @param bool           $force    Force to bypass the cache and always call $data. For debuggin purposes.
      *
      * @see method `render` to get more information.
      *
      * @return string
      */
-    public function renderFullCached($pCacheKey, $pView, $pData = null, $pForce = false)
+    public function renderFullCached($cacheKey, $view, $data = null, $force = false)
     {
-        $cache = Kryn::getDistributedCache($pCacheKey);
-        $mTime = $this->getViewMTime($pView);
+        $cache = Kryn::getDistributedCache($cacheKey);
+        $mTime = $this->getViewMTime($view);
 
-        if ($pForce || !$cache || !$cache['content'] || !is_array($cache) || $mTime != $cache['fileMTime']) {
+        if ($force || !$cache || !$cache['content'] || !is_array($cache) || $mTime != $cache['fileMTime']) {
 
             $oldResponse = clone Kryn::getResponse();
 
-            $data = $pData;
-            if (is_callable($pData)) {
-                $data = call_user_func($pData, $pView);
-                if (null === $data) {
+            $data2 = $data;
+            if (is_callable($data)) {
+                $data2 = call_user_func($data, $view);
+                if (null === $data2) {
                     //the data callback returned NULL so this means
                     //we aren't the correct controller for the request
                     //or the request contains invalid input
@@ -233,7 +233,7 @@ class Controller
                 }
             }
 
-            $content = $this->renderView($pView, $data);
+            $content = $this->renderView($view, $data2);
             $response = Kryn::getResponse();
             $diff = $oldResponse->diff($response);
 
@@ -243,7 +243,7 @@ class Controller
                 'responseDiff' => $diff
             );
 
-            Kryn::setDistributedCache($pCacheKey, $cache);
+            Kryn::setDistributedCache($cacheKey, $cache);
 
         }
 

@@ -8,10 +8,10 @@ class AWSS3 extends AbstractFAL
 
     private $aws;
 
-    public function __construct($pMountPoint, $pParams = null)
+    public function __construct($mountPoint, $params = null)
     {
         require_once 'inc/lib/amazonSdk/sdk.class.php';
-        $this->config = $pParams;
+        $this->config = $params;
 
         $credentials = array();
         $credentials[$this->config['bucket']] = array(
@@ -28,17 +28,17 @@ class AWSS3 extends AbstractFAL
         ));
     }
 
-    public function fileExists($pPath)
+    public function fileExists($path)
     {
-        return $this->aws->if_object_exists($this->config['bucket'], substr($pPath, 1)) ||
-            $this->aws->if_object_exists($this->config['bucket'], substr($pPath, 1) . '/');
+        return $this->aws->if_object_exists($this->config['bucket'], substr($path, 1)) ||
+            $this->aws->if_object_exists($this->config['bucket'], substr($path, 1) . '/');
     }
 
-    public function createFolder($pPath)
+    public function createFolder($path)
     {
         $response = $this->aws->create_object(
             $this->config['bucket'],
-            substr($pPath, 1) . '/',
+            substr($path, 1) . '/',
             array(
                  'acl' => AmazonS3::ACL_PUBLIC
             )
@@ -47,67 +47,67 @@ class AWSS3 extends AbstractFAL
         return $response->isOk();
     }
 
-    public function createFile($pPath, $pContent = null)
+    public function createFile($path, $content = null)
     {
         $response = $this->aws->create_object(
             $this->config['bucket'],
-            substr($pPath, 1),
+            substr($path, 1),
             array(
                  'acl' => AmazonS3::ACL_PUBLIC,
-                 'body' => $pContent,
-                 'contentType' => mime_content_type_for_name($pPath)
+                 'body' => $content,
+                 'contentType' => mime_content_type_for_name($path)
             )
         );
 
         return $response->isOk();
     }
 
-    public function setContent($pPath, $pContent)
+    public function setContent($path, $content)
     {
         $response = $this->aws->create_object(
             $this->config['bucket'],
-            substr($pPath, 1),
+            substr($path, 1),
             array(
                  'acl' => AmazonS3::ACL_PUBLIC,
-                 'body' => $pContent,
-                 'contentType' => mime_content_type_for_name($pPath)
+                 'body' => $content,
+                 'contentType' => mime_content_type_for_name($path)
             )
         );
 
         return $response->isOk();
     }
 
-    public function deleteFile($pPath)
+    public function deleteFile($path)
     {
         //delete subfiles
         $response2 = $this->aws->delete_all_objects(
             $this->config['bucket'],
-            '/^' . preg_quote(substr($pPath, 1), '/') . '\/.*/'
+            '/^' . preg_quote(substr($path, 1), '/') . '\/.*/'
         );
 
         //delete file
         $response = $this->aws->delete_all_objects(
             $this->config['bucket'],
-            '/^' . preg_quote(substr($pPath, 1), '/') . '/'
+            '/^' . preg_quote(substr($path, 1), '/') . '/'
         );
 
         return $response || $response2;
     }
 
-    public function move($pPathSource, $pPathTarget)
+    public function move($pathSource, $pathTarget)
     {
         //do we have subfiles ?
         $response = $this->aws->get_object_list(
             $this->config['bucket'],
             array(
-                 'pcre' => '/^' . preg_quote(substr($pPathSource, 1), '/') . '\/.*/'
+                 'pcre' => '/^' . preg_quote(substr($pathSource, 1), '/') . '\/.*/'
             )
         );
 
         if (is_array($response) && count($response) > 0) {
             foreach ($response as $file) {
 
-                $newFile = substr($pPathTarget . '/' . substr($file, strlen($pPathSource)), 1);
+                $newFile = substr($pathTarget . '/' . substr($file, strlen($pathSource)), 1);
                 $this->aws->copy_object(
                     array(
                          'bucket' => $this->config['bucket'],
@@ -131,33 +131,33 @@ class AWSS3 extends AbstractFAL
             $this->aws->copy_object(
                 array(
                      'bucket' => $this->config['bucket'],
-                     'filename' => substr($pPathSource, 1)
+                     'filename' => substr($pathSource, 1)
                 ),
                 array(
                      'bucket' => $this->config['bucket'],
-                     'filename' => substr($pPathTarget, 1)
+                     'filename' => substr($pathTarget, 1)
                 )
             );
-            $this->aws->delete_object($this->config['bucket'], substr($pPathSource, 1));
+            $this->aws->delete_object($this->config['bucket'], substr($pathSource, 1));
         }
 
         return true;
     }
 
-    public function copy($pPathSource, $pPathTarget)
+    public function copy($pathSource, $pathTarget)
     {
         //do we have subfiles ?
         $response = $this->aws->get_object_list(
             $this->config['bucket'],
             array(
-                 'pcre' => '/^' . preg_quote(substr($pPathSource, 1), '/') . '\/.*/'
+                 'pcre' => '/^' . preg_quote(substr($pathSource, 1), '/') . '\/.*/'
             )
         );
 
         if (is_array($response) && count($response) > 0) {
             foreach ($response as $file) {
 
-                $newFile = substr($pPathTarget . '/' . substr($file, strlen($pPathSource)), 1);
+                $newFile = substr($pathTarget . '/' . substr($file, strlen($pathSource)), 1);
                 $this->aws->copy_object(
                     array(
                          'bucket' => $this->config['bucket'],
@@ -174,11 +174,11 @@ class AWSS3 extends AbstractFAL
             $this->aws->copy_object(
                 array(
                      'bucket' => $this->config['bucket'],
-                     'filename' => substr($pPathSource, 1)
+                     'filename' => substr($pathSource, 1)
                 ),
                 array(
                      'bucket' => $this->config['bucket'],
-                     'filename' => substr($pPathTarget, 1)
+                     'filename' => substr($pathTarget, 1)
                 )
             );
         }
@@ -186,28 +186,28 @@ class AWSS3 extends AbstractFAL
         return true;
     }
 
-    public function getPublicUrl($pPath)
+    public function getPublicUrl($path)
     {
         //todo, handle amazon's cloudfront
         //todo, handle https (need an option)
 
         //http://<bucket>.s3.amazonaws.com/<path>
-        return 'http://' . $this->config['bucket'] . '.s3.amazonaws.com/' . substr($pPath, 1);
+        return 'http://' . $this->config['bucket'] . '.s3.amazonaws.com/' . substr($path, 1);
 
         //this takes a bit long.
-        return $this->aws->get_object_url($this->config['bucket'], substr($pPath, 1));
+        return $this->aws->get_object_url($this->config['bucket'], substr($path, 1));
     }
 
-    public function getContent($pPath)
+    public function getContent($path)
     {
-        $response = $this->aws->get_object($this->config['bucket'], substr($pPath, 1));
+        $response = $this->aws->get_object($this->config['bucket'], substr($path, 1));
 
         return $response->body;
     }
 
-    public function getFile($pPath)
+    public function getFile($path)
     {
-        $response = $this->aws->get_object_metadata($this->config['bucket'], substr($pPath, 1));
+        $response = $this->aws->get_object_metadata($this->config['bucket'], substr($path, 1));
 
         if ($response) {
             return array(
@@ -219,7 +219,7 @@ class AWSS3 extends AbstractFAL
             );
         }
 
-        $response = $this->aws->get_object_metadata($this->config['bucket'], substr($pPath, 1) . '/');
+        $response = $this->aws->get_object_metadata($this->config['bucket'], substr($path, 1) . '/');
         if ($response) {
             return array(
                 'name' => basename($response['Key']),
@@ -233,15 +233,15 @@ class AWSS3 extends AbstractFAL
         return false;
     }
 
-    public function getFiles($pPath)
+    public function getFiles($path)
     {
         $items = array();
         $opts = array(
             'delimiter' => '/'
         );
 
-        if ($pPath != '/') {
-            $opts['prefix'] = substr($pPath, 1) . '/';
+        if ($path != '/') {
+            $opts['prefix'] = substr($path, 1) . '/';
         }
 
         $response = $this->aws->list_objects($this->config['bucket'], $opts);
@@ -260,7 +260,7 @@ class AWSS3 extends AbstractFAL
             $items[] = array(
                 'name' => $name,
                 'type' => 'file',
-                'path' => $pPath . ($pPath == '/' ? '' : '/') . $name,
+                'path' => $path . ($path == '/' ? '' : '/') . $name,
                 'size' => (string)$file->Size,
                 'mtime' => strtotime((string)$file->LastModified)
             );
@@ -274,7 +274,7 @@ class AWSS3 extends AbstractFAL
                 $items[] = array(
                     'name' => $name,
                     'type' => 'dir',
-                    'path' => $pPath . ($pPath == '/' ? '' : '/') . $name,
+                    'path' => $path . ($path == '/' ? '' : '/') . $name,
                     'size' => 0,
                     'mtime' => 0
                 );
@@ -284,9 +284,9 @@ class AWSS3 extends AbstractFAL
         return $items;
     }
 
-    public function getPublicAccess($pPath)
+    public function getPublicAccess($path)
     {
-        $response = $this->aws->get_object_metadata($this->config['bucket'], substr($pPath, 1));
+        $response = $this->aws->get_object_metadata($this->config['bucket'], substr($path, 1));
         if (!is_array($response['ACL'])) {
             return -1;
         }
@@ -302,27 +302,27 @@ class AWSS3 extends AbstractFAL
         return false;
     }
 
-    public function setPublicAccess($pPath, $pAccess = false)
+    public function setPublicAccess($path, $access = false)
     {
         $response = $this->aws->set_object_acl(
             $this->config['bucket'],
-            substr($pPath, 1),
-            $pAccess ? AmazonS3::ACL_PUBLIC : AmazonS3::ACL_PRIVATE
+            substr($path, 1),
+            $access ? AmazonS3::ACL_PUBLIC : AmazonS3::ACL_PRIVATE
         );
 
         return $response->isOK();
     }
 
     /**
-     * Returns the file count inside $pFolderPath
+     * Returns the file count inside $folderPath
      *
      * @static
      *
-     * @param  string $pFolderPath
+     * @param  string $folderPath
      *
      * @return mixed
      */
-    public function getCount($pFolderPath)
+    public function getCount($folderPath)
     {
         // TODO: Implement getCount() method.
     }
@@ -330,11 +330,11 @@ class AWSS3 extends AbstractFAL
     /**
      * Disk usage
      *
-     * @param  string $pPath
+     * @param  string $path
      *
      * @return array|bool [size(bytes), fileCount, folderCount]
      */
-    public function getSize($pPath)
+    public function getSize($path)
     {
         // TODO: Implement getSize() method.
     }
@@ -342,14 +342,14 @@ class AWSS3 extends AbstractFAL
     /**
      * Searchs files in a path by a regex pattern.
      *
-     * @param  string $pPath
-     * @param  string $pPattern      Preg regex
-     * @param  integer $pDepth        Maximum depth. -1 for unlimited.
-     * @param  integer $pCurrentDepth Internal
+     * @param  string $path
+     * @param  string $pattern      Preg regex
+     * @param  integer $depth        Maximum depth. -1 for unlimited.
+     * @param  integer $currentDepth Internal
      *
      * @return array   Files array
      */
-    public function search($pPath, $pPattern, $pDepth = -1, $pCurrentDepth = 1)
+    public function search($path, $pattern, $depth = -1, $currentDepth = 1)
     {
         // TODO: Implement search() method.
     }
@@ -357,11 +357,11 @@ class AWSS3 extends AbstractFAL
     /**
      * Removes a file or folder (recursive).
      *
-     * @param  string $pPath
+     * @param  string $path
      *
      * @return bool|int
      */
-    public function remove($pPath)
+    public function remove($path)
     {
         // TODO: Implement remove() method.
     }

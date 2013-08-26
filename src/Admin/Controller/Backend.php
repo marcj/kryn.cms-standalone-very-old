@@ -24,21 +24,21 @@ class Backend
         }
     }
 
-    public function saveDesktop($pIcons)
+    public function saveDesktop($icons)
     {
-        $properties = new \Core\Properties($pIcons);
+        $properties = new \Core\Properties($icons);
 
         Kryn::getAdminClient()->getUser()->setDesktop($properties);
 
         return Kryn::getAdminClient()->getUser()->save() > 0;
     }
 
-    public function getSearch($pQ, $pLang = null)
+    public function getSearch($q, $lang = null)
     {
         $res = array();
         foreach (Kryn::$modules as &$mod) {
             if (method_exists($mod, 'searchAdmin')) {
-                $res = array_merge($res, $mod->searchAdmin($pQ));
+                $res = array_merge($res, $mod->searchAdmin($q));
             }
         }
 
@@ -55,18 +55,18 @@ class Backend
 
     }
 
-    public function saveWidgets($pWidgets)
+    public function saveWidgets($widgets)
     {
-        $properties = new \Core\Properties($pWidgets);
+        $properties = new \Core\Properties($widgets);
         Kryn::getAdminClient()->getUser()->setWidgets($properties);
         Kryn::getAdminClient()->getUser()->save();
 
         return true;
     }
 
-    public function saveUserSettings($pSettings)
+    public function saveUserSettings($settings)
     {
-        $properties = new \Core\Properties($pSettings);
+        $properties = new \Core\Properties($settings);
 
         if (Kryn::getAdminClient()->getUser()->getId() > 0) {
             Kryn::getAdminClient()->getUser()->setSettings($properties);
@@ -408,27 +408,27 @@ class Backend
         return $entryPoints;
     }
 
-    public function getChildMenus($pCode, $pValue)
+    public function getChildMenus($code, $value)
     {
         $links = array();
-        foreach ($pValue['children'] as $key => $value) {
+        foreach ($value['children'] as $key => $value2) {
 
-            if ($value['children']) {
+            if ($value2['children']) {
 
-                $childs = $this->getChildMenus($pCode . "/$key", $value);
+                $childs = $this->getChildMenus($code . "/$key", $value2);
                 if (count($childs) == 0) {
-                    //if (Kryn::checkUrlAccess($pCode . "/$key")) {
-                    unset($value['children']);
-                    $links[$key] = $value;
+                    //if (Kryn::checkUrlAccess($code . "/$key")) {
+                    unset($value2['children']);
+                    $links[$key] = $value2;
                     //}
                 } else {
-                    $value['children'] = $childs;
-                    $links[$key] = $value;
+                    $value2['children'] = $childs;
+                    $links[$key] = $value2;
                 }
 
             } else {
-                //if (Kryn::checkUrlAccess($pCode . "/$key")) {
-                $links[$key] = $value;
+                //if (Kryn::checkUrlAccess($code . "/$key")) {
+                $links[$key] = $value2;
                 //}
             }
             if ((!$links[$key]['type'] && !$links[$key]['children']) || $links[$key]['isLink'] === false) {

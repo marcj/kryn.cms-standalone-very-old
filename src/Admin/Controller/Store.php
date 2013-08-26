@@ -58,16 +58,16 @@ class Store extends Server
      */
     public $orderDirection;
 
-    public function exceptionHandler($pException)
+    public function exceptionHandler($exception)
     {
-        if (get_class($pException) != 'AccessDeniedException') {
-            \Core\Utils::exceptionHandler($pException);
+        if (get_class($exception) != 'AccessDeniedException') {
+            \Core\Utils::exceptionHandler($exception);
         }
     }
 
-    public function setEntryPoint($pEntryPoint)
+    public function setEntryPoint($entryPoint)
     {
-        $this->entryPoint = $pEntryPoint;
+        $this->entryPoint = $entryPoint;
     }
 
     public function run()
@@ -80,7 +80,7 @@ class Store extends Server
         parent::run();
     }
 
-    public function getItem($pId)
+    public function getItem($id)
     {
         $res = array();
         if (!$this->table) {
@@ -88,16 +88,16 @@ class Store extends Server
         }
         $table = database::getTable($this->table);
 
-        $id = $pId;
-        if ($id + 0 > 0) {
-            $id += 0;
+        $id2 = $id;
+        if ($id2 + 0 > 0) {
+            $id2 += 0;
         } else {
-            $id = "'" . esc($id) . "'";
+            $id2 = "'" . esc($id2) . "'";
         }
 
         $sql = ' SELECT ' . $this->tableKey . ' as id, ' . $this->tableLabel . ' as label
             FROM ' . $table . '
-            WHERE ' . $this->tableKey . ' = ' . $id;
+            WHERE ' . $this->tableKey . ' = ' . $id2;
 
         $res = dbExfetch($sql, 1);
 
@@ -126,40 +126,40 @@ class Store extends Server
         return '';
     }
 
-    public function getLimit($pFrom, $pCount)
+    public function getLimit($from, $count)
     {
         $limit = '';
-        if ($pFrom > 0) {
-            $limit = 'OFFSET ' . $pFrom;
+        if ($from > 0) {
+            $limit = 'OFFSET ' . $from;
         }
 
-        if ($pCount > 0) {
-            $limit .= ' LIMIT ' . $pCount;
+        if ($count > 0) {
+            $limit .= ' LIMIT ' . $count;
         }
 
         return $limit;
     }
 
     /**
-     * @param  int   $pOffset
-     * @param  int   $pLimit
+     * @param  int   $offset
+     * @param  int   $limit
      *
      * @return array
      */
-    public function getItems($pOffset = 0, $pLimit = 0)
+    public function getItems($offset = 0, $limit = 0)
     {
         $res = array();
-        $pOffset += 0;
-        $pLimit += 0;
+        $offset += 0;
+        $limit += 0;
 
         if (!$this->table && !$this->sql) {
             throw new \MisconfigurationException('`table` or `sql` shall be defined.');
         }
 
-        $limit = $this->getLimit($pOffset, $pLimit);
+        $limit2 = $this->getLimit($offset, $limit);
 
         if ($this->sql) {
-            $sql = $this->sql . $limit;
+            $sql = $this->sql . $limit2;
         } else {
             $table = pfx . $this->table;
 
@@ -172,7 +172,7 @@ class Store extends Server
             $sql = ' SELECT ' . $this->tableKey . ', ' . $this->tableLabel . '
             FROM ' . $table .
                 ' WHERE 1=1 ' . $where
-                . $limit;
+                . $limit2;
         }
 
         $dbRes = dbQuery($sql);

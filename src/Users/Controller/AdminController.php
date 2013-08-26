@@ -9,7 +9,7 @@ use RestService\Server;
 
 class AdminController extends Server
 {
-    public function run($pEntryPoint = null)
+    public function run($entryPoint = null)
     {
         $this->addGetRoute('acl/search', 'getSearch');
         $this->addGetRoute('acl', 'loadAcl');
@@ -22,18 +22,18 @@ class AdminController extends Server
 	/**
      * Gets all rules from given type and id;
      *
-     * @param  int       $pType
-     * @param  int       $pId
+     * @param  int       $type
+     * @param  int       $id
      *
      * @return array|int
      */
-    public function loadAcl($pType, $pId)
+    public function loadAcl($type, $id)
     {
-        $pType = ($pType == 'user') ? 0 : 1;
+        $type = ($type == 'user') ? 0 : 1;
 
         return AclQuery::create()
-            ->filterByTargetType($pType+0)
-            ->filterByTargetId($pId+0)
+            ->filterByTargetType($type+0)
+            ->filterByTargetId($id+0)
             ->orderByPrio(Criteria::DESC)
             ->find()
             ->toArray(null, null, TableMap::TYPE_STUDLYPHPNAME);
@@ -43,36 +43,36 @@ class AdminController extends Server
     /**
      * Saves the given rules.
      *
-     * @param  int   $pTargetId
-     * @param  int   $pTargetType
-     * @param  array $pRules
+     * @param  int   $targetId
+     * @param  int   $targetType
+     * @param  array $rules
      *
      * @return bool
      */
-    public function saveAcl($pTargetId, $pTargetType, $pRules)
+    public function saveAcl($targetId, $targetType, $rules)
     {
-        $pTargetId += 0;
-        $pTargetType += 0;
+        $targetId += 0;
+        $targetType += 0;
 
         dbDelete(
             'system_acl',
             array(
-                 'target_type' => $pTargetType,
-                 'target_id' => $pTargetId
+                 'target_type' => $targetType,
+                 'target_id' => $targetId
             )
         );
 
-        if (count($pRules) == 0) {
+        if (count($rules) == 0) {
             return true;
         }
 
         $i = 1;
-        foreach ($pRules as $rule) {
+        foreach ($rules as $rule) {
 
             unset($rule['id']);
             $rule['prio'] = $i;
-            $rule['target_type'] = $pTargetType;
-            $rule['target_id'] = $pTargetId;
+            $rule['target_type'] = $targetType;
+            $rule['target_id'] = $targetId;
             dbInsert('system_acl', $rule);
             $i++;
         }
@@ -84,26 +84,26 @@ class AdminController extends Server
      *
      * @internal
      *
-     * @param $pItems
-     * @param $pType
+     * @param $items
+     * @param $type
      */
-    public static function setAclCount(&$pItems, $pType)
+    public static function setAclCount(&$items, $type)
     {
-        if (is_array($pItems)) {
-            foreach ($pItems as &$item) {
-                $item['ruleCount'] = self::load($pType, $item['id'], true);
+        if (is_array($items)) {
+            foreach ($items as &$item) {
+                $item['ruleCount'] = self::load($type, $item['id'], true);
             }
         }
     }
 
-    public static function load($pType, $pId, $pAsCount = false)
+    public static function load($type, $id, $asCount = false)
     {
-        $where = 'target_type = ' . ($pType + 0);
-        $where .= ' AND target_id = ' . ($pId + 0);
+        $where = 'target_type = ' . ($type + 0);
+        $where .= ' AND target_id = ' . ($id + 0);
 
         $where .= " ORDER BY prio DESC";
 
-        if (!$pAsCount) {
+        if (!$asCount) {
             return dbTableFetch('system_acl', DB_FETCH_ALL, $where);
         } else {
             return dbCount('system_acl', $where);

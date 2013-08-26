@@ -240,12 +240,12 @@ abstract class ClientAbstract
     /**
      * Auth against the internal user table.
      *
-     * @param $pLogin
-     * @param $pPassword
+     * @param $login
+     * @param $password
      *
      * @return bool
      */
-    protected function internalLogin($pLogin, $pPassword)
+    protected function internalLogin($login, $password)
     {
         $clientConfig = new Client();
         $storage = new SessionStorage();
@@ -254,7 +254,7 @@ abstract class ClientAbstract
 
         $krynUsers = new \Core\Client\KrynUsers($clientConfig);
 
-        $state = $krynUsers->checkCredentials($pLogin, $pPassword);
+        $state = $krynUsers->checkCredentials($login, $password);
 
         return $state;
     }
@@ -262,12 +262,12 @@ abstract class ClientAbstract
     /**
      * Check credentials and set user_id to the session.
      *
-     * @param  string $pLogin
-     * @param  string $pPassword
+     * @param  string $login
+     * @param  string $password
      *
      * @return bool
      */
-    public function login($pLogin, $pPassword)
+    public function login($login, $password)
     {
         if (!$this->getStarted()) {
             $this->start();
@@ -277,10 +277,10 @@ abstract class ClientAbstract
             // sleep(1);
         }
 
-        if ($pLogin == 'admin') {
-            $state = $this->internalLogin($pLogin, $pPassword);
+        if ($login == 'admin') {
+            $state = $this->internalLogin($login, $password);
         } else {
-            $state = $this->checkCredentials($pLogin, $pPassword);
+            $state = $this->checkCredentials($login, $password);
         }
 
         if ($state == false) {
@@ -329,19 +329,19 @@ abstract class ClientAbstract
      *    }
      *
      *
-     * @param User $pUser The newly created user.
+     * @param User $user The newly created user.
      */
-    public function firstLogin($pUser)
+    public function firstLogin($user)
     {
         if (is_array($this->config['defaultGroup'])) {
             foreach ($this->config['defaultGroup'] as $item) {
 
-                if (preg_match('/' . $item['login'] . '/', $pUser['username']) == 1) {
+                if (preg_match('/' . $item['login'] . '/', $user['username']) == 1) {
                     dbInsert(
                         'system_user_group',
                         array(
                              'group_id' => $item['group'],
-                             'user_id' => $pUser['id']
+                             'user_id' => $user['id']
                         )
                     );
                 }
@@ -353,22 +353,22 @@ abstract class ClientAbstract
     /**
      * Setter for current user
      *
-     * @param int $pUserId
+     * @param int $userId
      *
      * @return \Core\Client\ClientAbstract $this
      * @throws \Exception
      */
-    public function setUser($pUserId = null)
+    public function setUser($userId = null)
     {
         if (!$this->getStarted()) {
             $this->start();
         }
 
-        if ($pUserId !== null) {
-            $user = \Users\Models\UserQuery::create()->findPk($pUserId);
+        if ($userId !== null) {
+            $user = \Users\Models\UserQuery::create()->findPk($userId);
 
             if (!$user) {
-                throw new \Exception('User not found ' . $pUserId);
+                throw new \Exception('User not found ' . $userId);
             }
 
             $this->getSession()->setUser($user);
@@ -472,14 +472,14 @@ abstract class ClientAbstract
     /**
      * Creates a Session object and store it in the current backend.
      *
-     * @param $pId
+     * @param $id
      *
      * @return bool|\Users\Models\Session Returns false, if something went wrong otherwise a Session object.
      * @throws \Exception
      */
-    public function createSessionById($pId)
+    public function createSessionById($id)
     {
-        $cacheKey = $this->tokenId . '_' . $pId;
+        $cacheKey = $this->tokenId . '_' . $id;
 
         //this is a critical section, since between checking whether a session exists
         //and setting the session object, another thread or another server (in the cluster)
@@ -489,13 +489,13 @@ abstract class ClientAbstract
         Utils::appLock('ClientCreateSession');
 
         //session id already used?
-        $session = $this->fetchSession($pId);
+        $session = $this->fetchSession($id);
         if ($session) {
             return false;
         }
 
         $session = new \Users\Models\Session();
-        $session->setId($pId)
+        $session->setId($id)
             ->setTime(time())
             ->setPage(Kryn::getRequestedPath(true))
             ->setRefreshed(0)
@@ -531,13 +531,13 @@ abstract class ClientAbstract
     /**
      * Defined whether or not the class should process the client login/logout.
      *
-     * @param  boolean        $pEnabled
+     * @param  boolean        $enabled
      *
      * @return ClientAbstract $this
      */
-    public function setAutoLoginLogout($pEnabled)
+    public function setAutoLoginLogout($enabled)
     {
-        $this->config['autoLoginLogout'] = $pEnabled;
+        $this->config['autoLoginLogout'] = $enabled;
 
         return $this;
     }
@@ -567,19 +567,19 @@ abstract class ClientAbstract
     }
 
     /**
-     * @param $pToken
+     * @param $token
      *
      * @events Fires core/client/token-changed($newToken)
      *
      * @return ClientAbstract
      */
-    public function setToken($pToken)
+    public function setToken($token)
     {
-        if ($this->token != $pToken) {
+        if ($this->token != $token) {
             $changed = true;
         }
 
-        $this->token = $pToken;
+        $this->token = $token;
 
         if ($changed) {
             Event::fire('core/client/token-changed', $this->token);
@@ -589,13 +589,13 @@ abstract class ClientAbstract
     }
 
     /**
-     * @param $pTokenId
+     * @param $tokenId
      *
      * @return ClientAbstract
      */
-    public function setTokenId($pTokenId)
+    public function setTokenId($tokenId)
     {
-        $this->tokenId = $pTokenId;
+        $this->tokenId = $tokenId;
 
         return $this;
     }
@@ -613,27 +613,27 @@ abstract class ClientAbstract
     /**
      * Tries to load a session based on current token or pToken from the cache or database backend.
      *
-     * @param  string       $pToken
+     * @param  string       $token
      *
      * @return bool|Session false if the session does not exist, and Session object, if found.
      */
-    protected function fetchSession($pToken = null)
+    protected function fetchSession($token = null)
     {
-        $token = $this->token;
-        if ($pToken) {
-            $token = $pToken;
+        $token2 = $this->token;
+        if ($token) {
+            $token2 = $token;
         }
 
-        if (!$token) {
+        if (!$token2) {
             return false;
         }
 
         $time = microtime(true);
 
         if ('database' === $this->clientConfig->getSessionStorage()->getClass()) {
-            $session = $this->loadSessionDatabase($token);
+            $session = $this->loadSessionDatabase($token2);
         } else {
-            $session = $this->loadSessionCache($token);
+            $session = $this->loadSessionCache($token2);
         }
 
         \Core\Utils::$latency['session'][] = microtime(true) - $time;
@@ -644,20 +644,20 @@ abstract class ClientAbstract
     /**
      * Tries to load a session based on pToken from the database backend.
      *
-     * @param $pToken
+     * @param $token
      *
      * @return \BaseObject|bool false if the session does not exist, and Session object, if found.
      */
-    protected function loadSessionDatabase($pToken)
+    protected function loadSessionDatabase($token)
     {
-        $session = \Users\Models\SessionQuery::create()->findOneById($pToken);
+        $session = \Users\Models\SessionQuery::create()->findOneById($token);
 
         if (!$session) {
             return false;
         }
 
         if ($session->getTime() + $this->config['timeout'] < time()) {
-            Kryn::removePropelCacheObject('\Users\Models\Session', $pToken);
+            Kryn::removePropelCacheObject('\Users\Models\Session', $token);
             $session->delete();
 
             return false;
@@ -669,13 +669,13 @@ abstract class ClientAbstract
     /**
      * Tries to load a session based on current pToken from the cache backend.
      *
-     * @param $pToken
+     * @param $token
      *
      * @return \Users\Models\Session false if the session does not exist, and Session object, if found.
      */
-    public function loadSessionCache($pToken)
+    public function loadSessionCache($token)
     {
-        $cacheKey = $this->tokenId . '_' . $pToken;
+        $cacheKey = $this->tokenId . '_' . $token;
         $sessionData = $this->store->get($cacheKey);
         if (!$sessionData) {
             return;
@@ -735,11 +735,11 @@ abstract class ClientAbstract
      *
      * @return tring ascii
      */
-    public static function getSalt($pLength = 64)
+    public static function getSalt($length = 64)
     {
-        $salt = str_repeat('0', $pLength);
+        $salt = str_repeat('0', $length);
 
-        for ($i = 0; $i < $pLength; $i++) {
+        for ($i = 0; $i < $length; $i++) {
             $salt[$i] = chr(mt_rand(32, 127));
         }
 
@@ -747,20 +747,20 @@ abstract class ClientAbstract
     }
 
     /**
-     * Injects the passwd hash from config.php into $pString
+     * Injects the passwd hash from config.php into $string
      *
-     * @param  string $pString
+     * @param  string $string
      *
      * @return binary
      */
-    public static function injectConfigPasswdHash($pString)
+    public static function injectConfigPasswdHash($string)
     {
         $result = '';
-        $len = mb_strlen($pString);
+        $len = mb_strlen($string);
         $clen = mb_strlen(Kryn::$config['passwdHashKey']);
 
         for ($i = 0; $i < $len; $i++) {
-            $s = hexdec(bin2hex(mb_substr($pString, $i, 1)));
+            $s = hexdec(bin2hex(mb_substr($string, $i, 1)));
             $j = $i;
             while ($j > $clen) {
                 $j -= $clen + 1;
@@ -776,11 +776,11 @@ abstract class ClientAbstract
      * Returns a hashed password with salt.
      *
      */
-    public static function getHashedPassword($pPassword, $pSalt)
+    public static function getHashedPassword($password, $salt)
     {
-        $hash = hash('sha512', ($pPassword . $pSalt) . $pSalt) . hash(
+        $hash = hash('sha512', ($password . $salt) . $salt) . hash(
             'sha512',
-            $pSalt . ($pPassword . $pSalt . $pPassword)
+            $salt . ($password . $salt . $password)
         );
 
         for ($i = 0; $i < 201; $i++) {
@@ -788,9 +788,9 @@ abstract class ClientAbstract
             $hash = hash(
                 'sha512',
                 $i % 2 ?
-                    $hash . $pSalt . $pPassword . $hash . $pSalt :
-                    $pSalt . $pPassword . $hash . $pPassword . $hash . $pPassword . $hash
-            ) . hash('sha512', $pPassword . $hash . $pSalt . $pPassword);
+                    $hash . $salt . $password . $hash . $salt :
+                    $salt . $password . $hash . $password . $hash . $password . $hash
+            ) . hash('sha512', $password . $hash . $salt . $password);
         }
 
         return $hash;

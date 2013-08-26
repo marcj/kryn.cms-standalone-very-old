@@ -44,34 +44,34 @@ class Render
      *
      * @static
      *
-     * @param  bool         $pPageId
-     * @param  bool         $pSlotId
-     * @param  bool         $pProperties
+     * @param  bool         $pageId
+     * @param  bool         $slotId
+     * @param  bool         $properties
      *
      * @return mixed|string
      */
-    public static function renderPage($pPageId = false, $pSlotId = false, $pProperties = false)
+    public static function renderPage($pageId = false, $slotId = false, $properties = false)
     {
         if (self::$contents) {
             $oldContents = self::$contents;
         }
 
         Kryn::$forceKrynContent = true;
-        Kryn::getLogger()->addDebug('renderPage(' . $pPageId . ', ' . $pSlotId . ')');
+        Kryn::getLogger()->addDebug('renderPage(' . $pageId . ', ' . $slotId . ')');
 
-        if ($pPageId == Kryn::$page->getId()) {
+        if ($pageId == Kryn::$page->getId()) {
             //endless loop
             return 'You produced a endless loop. Please check your latest changed pages.';
         }
 
-        if (!$pPageId) {
+        if (!$pageId) {
 
-            $pPageId = Kryn::$page->getId();
+            $pageId = Kryn::$page->getId();
 
-        } elseif ($pPageId != Kryn::$page->getId()) {
+        } elseif ($pageId != Kryn::$page->getId()) {
 
             $oldPage = Kryn::$page;
-            Kryn::$page = Kryn::getPage($pPageId, true);
+            Kryn::$page = Kryn::getPage($pageId, true);
 
             if (!Kryn::$page) {
                 Kryn::$page = $oldPage;
@@ -84,25 +84,25 @@ class Render
 
         Kryn::getEventDispatcher()->dispatch('core/render/contents/pre');
 
-        if (file_exists($file = 'css/_pages/' . $pPageId . '.css')) {
+        if (file_exists($file = 'css/_pages/' . $pageId . '.css')) {
             Kryn::getResponse()->addCssFile($file);
         }
 
-        if (file_exists($file = 'js/_pages/' . $pPageId . '.js')) {
+        if (file_exists($file = 'js/_pages/' . $pageId . '.js')) {
             Kryn::getResponse()->addJsFile($file);
         }
 
-        self::$contents[$pSlotId] =& PageController::getSlotContents($pSlotId, $pSlotId);
+        self::$contents[$slotId] =& PageController::getSlotContents($slotId, $slotId);
 
         if (Kryn::$page->getType() == 3) { //deposit
             Kryn::$page->setLayout('core/blankLayout.tpl');
         }
 
-        $arguments = array($pPageId, $pSlotId, &self::$contents[$pSlotId]);
+        $arguments = array($pageId, $slotId, &self::$contents[$slotId]);
         Kryn::getEventDispatcher()->dispatch('core/render/contents', new GenericEvent($arguments));
 
-        if ($pSlotId) {
-            $html = self::renderContents(self::$contents[$pSlotId], $pProperties);
+        if ($slotId) {
+            $html = self::renderContents(self::$contents[$slotId], $properties);
         } else {
             $html = tFetch(Kryn::$page->getLayout());
         }
@@ -116,7 +116,7 @@ class Render
         }
         Kryn::$forceKrynContent = false;
 
-        $arguments = array($pPageId, $pSlotId, &$html);
+        $arguments = array($pageId, $slotId, &$html);
         Kryn::getEventDispatcher()->dispatch('core/render/contents/post', new GenericEvent($arguments));
 
         return $html;
@@ -125,21 +125,21 @@ class Render
     /**
      * Build HTML for given contents.
      *
-     * @param array $pContents
-     * @param array $pSlotProperties
+     * @param array $contents
+     * @param array $slotProperties
      *
      * @return string
      * @internal
      */
-    public static function renderContents(&$pContents, $pSlotProperties)
+    public static function renderContents(&$contents, $slotProperties)
     {
-        $contents = array();
+        $contents2 = array();
 
-        if (!($pContents instanceof \Traversable)) {
+        if (!($contents instanceof \Traversable)) {
             return;
         }
 
-        foreach ($pContents as $content) {
+        foreach ($contents as $content) {
 
             $access = true;
 
@@ -180,30 +180,29 @@ class Render
             }
 
             if ($access) {
-                $contents[] = $content;
+                $contents2[] = $content;
             }
         }
 
-        $count = count($contents);
+        $count = count($contents2);
         /*
          * Compatibility
          */
         $data['layoutContentsMax'] = $count;
         $data['layoutContentsIsFirst'] = true;
         $data['layoutContentsIsLast'] = false;
-        $data['layoutContentsId'] = $pSlotProperties['id'];
-        $data['layoutContentsName'] = $pSlotProperties['name'];
+        $data['layoutContentsId'] = $slotProperties['id'];
+        $data['layoutContentsName'] = $slotProperties['name'];
 
         $i = 0;
 
         //$oldContent = $tpl->getTemplateVars('content');
-        $argument = array($slot);
-        Event::fire('onBeforeRenderSlot', $argument);
+        Kryn::getEventDispatcher()->dispatch('core/render/slot/pre', new GenericEvent($data));
 
         $html = '';
 
         if ($count > 0) {
-            foreach ($contents as &$content) {
+            foreach ($contents2 as &$content) {
                 if ($i == $count) {
                     $data['layoutContentsIsLast'] = true;
                 }
@@ -221,10 +220,11 @@ class Render
         }
 
         $argument = array($data, &$html);
+        Kryn::getEventDispatcher()->dispatch('core/render/slot', new GenericEvent($argument));
         Event::fire('onRenderSlot', $argument);
 
-        if ($pSlotProperties['assign'] != "") {
-            Kryn::getInstance()->assign($pSlotProperties['assign'], $html);
+        if ($slotProperties['assign'] != "") {
+            Kryn::getInstance()->assign($slotProperties['assign'], $html);
             return '';
         }
 
@@ -338,11 +338,11 @@ class Render
         return $domains;
     }
 
-    public static function updateMenuCache($pDomainRsn)
+    public static function updateMenuCache($domainRsn)
     {
         $resu = dbQuery(
             "SELECT id, title, url, pid FROM " . pfx . "system_node WHERE
-                         domain_id = $pDomainRsn AND (type = 0 OR type = 1 OR type = 4)"
+                         domain_id = $domainRsn AND (type = 0 OR type = 1 OR type = 4)"
         );
         $res = array();
         while ($page = dbFetch($resu, 1)) {
@@ -355,17 +355,17 @@ class Render
 
         }
 
-        Kryn::setCache("menus-$pDomainRsn", $res);
-        Kryn::invalidateCache('navigation_' . $pDomainRsn);
+        Kryn::setCache("menus-$domainRsn", $res);
+        Kryn::invalidateCache('navigation_' . $domainRsn);
 
         dbFree($resu);
 
         return $res;
     }
 
-    public static function getParentMenus($pPage, $pAllParents = false)
+    public static function getParentMenus($page, $allParents = false)
     {
-        $pid = $pPage['parent_id'];
+        $pid = $page['parent_id'];
         $res = array();
         while ($pid != 0) {
             $parent_page =
@@ -373,7 +373,7 @@ class Render
             if ($parent_page['type'] == 0 || $parent_page['type'] == 1 || $parent_page['type'] == 4) {
                 //page or link or page-mount
                 array_unshift($res, $parent_page);
-            } elseif ($pAllParents) {
+            } elseif ($allParents) {
                 array_unshift($res, $parent_page);
             }
             $pid = $parent_page['parent_id'];
@@ -382,16 +382,16 @@ class Render
         return $res;
     }
 
-    public static function updateUrlCache($pDomainRsn)
+    public static function updateUrlCache($domainRsn)
     {
-        $pDomainRsn = $pDomainRsn + 0;
+        $domainRsn = $domainRsn + 0;
 
         $resu = dbQuery(
-            "SELECT id, title, url, type, link FROM " . pfx . "system_node WHERE domain_id = $pDomainRsn AND parent_id IS NULL"
+            "SELECT id, title, url, type, link FROM " . pfx . "system_node WHERE domain_id = $domainRsn AND parent_id IS NULL"
         );
         $res = array('url' => array(), 'id' => array());
 
-        $domain = Kryn::getDomain($pDomainRsn);
+        $domain = Kryn::getDomain($domainRsn);
 
         while ($page = dbFetch($resu)) {
 
@@ -401,13 +401,13 @@ class Render
             $res['id'] = array_merge($res['id'], $newRes['id']);
         }
 
-        $aliasRes = dbQuery('SELECT node_id, url FROM ' . pfx . 'system_node_alias WHERE domain_id = ' . $pDomainRsn);
+        $aliasRes = dbQuery('SELECT node_id, url FROM ' . pfx . 'system_node_alias WHERE domain_id = ' . $domainRsn);
         while ($row = dbFetch($aliasRes)) {
             $res['alias'][$row['url']] = $row['node_id'];
         }
 
         self::updatePage2DomainCache();
-        Kryn::setCache("core/node-ids-to-url-$pDomainRsn", $res);
+        Kryn::setCache("core/node-ids-to-url-$domainRsn", $res);
         dbFree($aliasRes);
         dbFree($resu);
 
@@ -429,32 +429,32 @@ class Render
         return $r2d;
     }
 
-    public static function updateUrlCacheChildren($pPage, $pDomain = false)
+    public static function updateUrlCacheChildren($page, $domain = false)
     {
         $res = array('url' => array(), 'id' => array(), 'r2d' => array());
 
-        if ($pPage['type'] < 2) { //page or link or folder
-            if ($pPage['realurl'] != '') {
-                $res['url']['url=' . $pPage['realurl']] = $pPage['id'];
-                $res['id'] = array('id=' . $pPage['id'] => $pPage['realurl']);
+        if ($page['type'] < 2) { //page or link or folder
+            if ($page['realurl'] != '') {
+                $res['url']['url=' . $page['realurl']] = $page['id'];
+                $res['id'] = array('id=' . $page['id'] => $page['realurl']);
             } else {
-                $res['id'] = array('id=' . $pPage['id'] => $pPage['url']);
+                $res['id'] = array('id=' . $page['id'] => $page['url']);
             }
         }
 
-        $pages = dbExfetchAll(
+        $page2s = dbExfetchAll(
             "SELECT id, title, url, type, link
                                          FROM " . pfx . "system_node
-                             WHERE parent_id = " . $pPage['id']
+                             WHERE parent_id = " . $page['id']
         );
 
-        if (is_array($pages)) {
-            foreach ($pages as $page) {
+        if (is_array($page2s)) {
+            foreach ($page2s as $page2) {
 
-                Kryn::deleteCache('page_' . $page['id']);
+                Kryn::deleteCache('page_' . $page2['id']);
 
-                $page = self::__pageModify($page, $pPage);
-                $newRes = self::updateUrlCacheChildren($page);
+                $page2 = self::__pageModify($page2, $page);
+                $newRes = self::updateUrlCacheChildren($page2);
 
                 $res['url'] = array_merge($res['url'], $newRes['url']);
                 $res['id'] = array_merge($res['id'], $newRes['id']);
@@ -466,33 +466,33 @@ class Render
         return $res;
     }
 
-    public static function __pageModify($page, $pPage)
+    public static function __pageModify($page2, $page)
     {
-        if ($page['type'] == 0) {
+        if ($page2['type'] == 0) {
             $del = '';
-            if ($pPage['realurl'] != '') {
-                $del = $pPage['realurl'] . '/';
+            if ($page['realurl'] != '') {
+                $del = $page['realurl'] . '/';
             }
-            $page['realurl'] = $del . $page['url'];
+            $page2['realurl'] = $del . $page2['url'];
 
-        } elseif ($page['type'] == 1) { //link
-            if ($page['url'] == '') { //if empty, use parent-url else use url-hiarchy
-                $page['realurl'] = $pPage['realurl'];
+        } elseif ($page2['type'] == 1) { //link
+            if ($page2['url'] == '') { //if empty, use parent-url else use url-hiarchy
+                $page2['realurl'] = $page['realurl'];
             } else {
                 $del = '';
-                if ($pPage['realurl'] != '') {
-                    $del = $pPage['realurl'] . '/';
+                if ($page['realurl'] != '') {
+                    $del = $page['realurl'] . '/';
                 }
-                $page['realurl'] = $del . $page['url'];
+                $page2['realurl'] = $del . $page2['url'];
             }
 
-            $page['prealurl'] = $page['link'];
-        } elseif ($page['type'] != 3) { //no deposit
+            $page2['prealurl'] = $page2['link'];
+        } elseif ($page2['type'] != 3) { //no deposit
             //ignore the hiarchie-item
-            $page['realurl'] = $pPage['realurl'];
+            $page2['realurl'] = $page['realurl'];
         }
 
-        return $page;
+        return $page2;
     }
 
 }

@@ -29,39 +29,39 @@ abstract class AbstractFAL implements FALInterface
     /**
      * Constructor
      *
-     * @param string $pMountPoint The mount name for this layer. (in fact, the folder name in media/<folder>)
-     * @param array  $pParams
+     * @param string $mountPoint The mount name for this layer. (in fact, the folder name in media/<folder>)
+     * @param array  $params
      */
-    public function __construct($pMountPoint, $pParams = null)
+    public function __construct($mountPoint, $params = null)
     {
-        $this->setMountPoint($pMountPoint);
+        $this->setMountPoint($mountPoint);
 
-        if ($pParams) {
-            $this->params = $pParams;
+        if ($params) {
+            $this->params = $params;
         }
     }
 
     /**
      * Gets a value of the params.
      *
-     * @param  string $pKey
+     * @param  string $key
      *
      * @return mixed
      */
-    public function getParam($pKey)
+    public function getParam($key)
     {
-        return $this->params[$pKey];
+        return $this->params[$key];
     }
 
     /**
      * Sets a value for a param.
      *
-     * @param string $pKey
-     * @param mixed  $pValue
+     * @param string $key
+     * @param mixed  $value
      */
-    public function setParam($pKey, $pValue)
+    public function setParam($key, $value)
     {
-        $this->params[$pKey] = $pValue;
+        $this->params[$key] = $value;
     }
 
     /**
@@ -69,9 +69,9 @@ abstract class AbstractFAL implements FALInterface
      *
      * @param [type] $pEntryPoint [description]
      */
-    public function setMountPoint($pMountPoint)
+    public function setMountPoint($mountPoint)
     {
-        $this->mountPoint = $pMountPoint;
+        $this->mountPoint = $mountPoint;
     }
 
     /**
@@ -87,12 +87,12 @@ abstract class AbstractFAL implements FALInterface
     /**
      * Returns the content hash (max 64 byte).
      *
-     * @param $pPath
+     * @param $path
      *
      * @return string
      */
-    public function getHash($pPath)
+    public function getHash($path)
     {
-        return md5($this->getContent($pPath));
+        return md5($this->getContent($path));
     }
 }
