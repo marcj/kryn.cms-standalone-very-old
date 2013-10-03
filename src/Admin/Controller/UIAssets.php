@@ -52,18 +52,18 @@ class UIAssets
 
         if (getArgv('javascript') == 1) {
             header('Content-Type: text/javascript');
-            print "if( typeof(ka)=='undefined') window.ka = {}; ka.lang = " . json_encode(Kryn::$lang2);
+            print "if( typeof(ka)=='undefined') window.ka = {}; ka.lang = " . json_encode(Kryn::$lang);
             print "\nLocale.define('en-US', 'Date', " . Kryn::getInstance()->renderView(
                 '@AdminBundle/mootools-locale.tpl'
             ) . ");";
             exit;
         } else {
-            Kryn::$lang2['mootools'] = json_decode(
+            Kryn::$lang['mootools'] = json_decode(
                 Kryn::getInstance()->renderView('@AdminBundle/mootools-locale.tpl'),
                 true
             );
 
-            return Kryn::$lang2;
+            return Kryn::$lang;
         }
     }
 

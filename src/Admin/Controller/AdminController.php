@@ -30,7 +30,7 @@ class AdminController
      * @internal
      * @static
      */
-    public static function checkAccess($url2)
+    public static function checkAccess($url)
     {
         $whitelist = [
             '',
@@ -43,7 +43,7 @@ class AdminController
             'admin/logged-in'
         ];
 
-        if (in_array($url2, $whitelist)) {
+        if (in_array($url, $whitelist)) {
             return;
         }
 
@@ -530,17 +530,19 @@ class AdminController
     {
         $status = Kryn::getAdminClient()->login($username, $password);
 
-        $lastLogin = Kryn::getAdminClient()->getUser()->getLastLogin();
-        if ($status) {
-            Kryn::getAdminClient()->getUser()->setLastLogin(time());
-            return array(
-                'token' => Kryn::getAdminClient()->getToken(),
-                'userId' => Kryn::getAdminClient()->getUserId(),
-                'username' => Kryn::getAdminClient()->getUser()->getUsername(),
-                'lastLogin' => $lastLogin,
-                'firstName' => Kryn::getAdminClient()->getUser()->getFirstName(),
-                'lastName' => Kryn::getAdminClient()->getUser()->getLastName()
-            );
+        if (Kryn::getAdminClient()->getUser()) {
+            $lastLogin = Kryn::getAdminClient()->getUser()->getLastLogin();
+            if ($status) {
+                Kryn::getAdminClient()->getUser()->setLastLogin(time());
+                return array(
+                    'token' => Kryn::getAdminClient()->getToken(),
+                    'userId' => Kryn::getAdminClient()->getUserId(),
+                    'username' => Kryn::getAdminClient()->getUser()->getUsername(),
+                    'lastLogin' => $lastLogin,
+                    'firstName' => Kryn::getAdminClient()->getUser()->getFirstName(),
+                    'lastName' => Kryn::getAdminClient()->getUser()->getLastName()
+                );
+            }
         }
 
         return false;

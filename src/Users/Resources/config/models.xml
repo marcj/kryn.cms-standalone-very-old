@@ -13,7 +13,7 @@
         <column name="widgets" type="OBJECT"/>
         <column name="activate" type="BOOLEAN"/>
         <column name="logins" type="INTEGER"/>
-        <column name="lastlogin" type="INTEGER"/>
+        <column name="last_login" type="INTEGER"/>
         <column name="created" type="BIGINT"/>
         <column name="modified" type="BIGINT"/>
         <column name="first_name" type="VARCHAR"/>
