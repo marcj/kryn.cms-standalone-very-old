@@ -60,8 +60,8 @@ class ConfigTest extends TestCaseWithCore
         $this->assertEquals('PublicationBundle', $bundleConfig->getName());
         $this->assertEquals('Publication', $bundleConfig->getName(true));
         $this->assertEquals('Publication\PublicationBundle', $bundleConfig->getClassName());
-        $this->assertEquals('vendor/krynlabs/kryn-publication-bundle/Publication/', $bundleConfig->getPath());
-        $this->assertEquals('vendor/krynlabs/kryn-publication-bundle/Publication/composer.json', $bundleConfig->getComposerPath());
+        $this->assertEquals('vendor/kryncms/publication-bundle/Publication/', $bundleConfig->getPath());
+        $this->assertEquals('vendor/kryncms/publication-bundle/Publication/composer.json', $bundleConfig->getComposerPath());
         $this->assertEquals('Publication', $bundleConfig->getNamespace());
         $this->assertEquals('Publication', $bundleConfig->getRootNamespace());
         $this->assertInstanceOf('Core\Config\Bundle', $bundleConfig->getConfig());

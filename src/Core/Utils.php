@@ -196,12 +196,12 @@ class Utils
 
         $content = '';
         foreach ($files as $assetPath) {
-            $content .= "\n\n/* file: $assetPath */\n\n";
 
             $cssFile = Kryn::resolvePublicPath($assetPath); //admin/css/style.css
             $cssDir = dirname($cssFile) . '/'; //admin/css/...
             $cssDir = str_repeat('../', substr_count($includePath, '/')) . $cssDir;
 
+            $content .= "\n\n/* file: $assetPath */\n\n";
             if (file_exists($file = 'web/bundles/' . $cssFile) || file_exists($file = 'web/' . $cssFile)) {
                 $h = fopen($file, "r");
                 if ($h) {
@@ -228,6 +228,7 @@ class Utils
                     fclose($h);
                 }
             } else {
+                $content .= '/* File `' . $cssFile . '` not exist. */';
                 Kryn::getLogger()->addError(tf('Can not find css file `%s` [%s]', $file, $assetPath));
             }
         }

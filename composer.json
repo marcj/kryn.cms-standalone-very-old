@@ -39,8 +39,8 @@
         "tinymce/tinymce": "*",
         "propel/propel": "dev-master",
         "composer/composer": "*",
-        "krynlabs/kryn-publication-bundle": "*",
-        "krynlabs/kryn-demotheme-bundle": "*",
+        "kryncms/publication-bundle": "*",
+        "kryncms/demotheme-bundle": "*",
         "google/closure-compiler": "*",
         "symfony/filesystem": "2.2.*",
         "phpunit/phpunit": "3.7.*"
