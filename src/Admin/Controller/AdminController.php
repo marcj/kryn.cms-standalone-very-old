@@ -274,8 +274,13 @@ class AdminController
                         ->addGetRoute('check-updates', 'check4updates')
                         ->addGetRoute('local', 'getLocal')
                         ->addGetRoute('installed', 'getInstalled')
-                        ->addGetRoute('activate', 'activate')
-                        ->addGetRoute('deactivate', 'deactivate')
+
+                        ->addPostRoute('install', 'install')
+                        ->addPostRoute('uninstall', 'uninstall')
+
+                        ->addPostRoute('activate', 'activate')
+                        ->addPostRoute('deactivate', 'deactivate')
+
                         ->addGetRoute('info', 'getInfo')
                     ->done()
 

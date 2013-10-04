@@ -8,11 +8,11 @@ var admin_system_module = new Class({
         this.tabButtons = {};
 
         this.tabButtons['install'] =
-            this.tabGroup.addButton(_('New extension'), '#icon-download-7', this.changeType.bind(this, 'install'));
+            this.tabGroup.addButton(_('Repository'), '#icon-box-add', this.changeType.bind(this, 'install'));
         this.tabButtons['installed'] =
-            this.tabGroup.addButton(_('Installed'), '#icon-checkmark-2', this.changeType.bind(this, 'installed'));
+            this.tabGroup.addButton(_('Packages'), '#icon-box', this.changeType.bind(this, 'installed'));
         this.tabButtons['local'] =
-            this.tabGroup.addButton(_('Development'), '#icon-console', this.changeType.bind(this, 'local'));
+            this.tabGroup.addButton(_('Development'), '#icon-console-2', this.changeType.bind(this, 'local'));
 
         this.win.setContentStick(true);
 
@@ -29,15 +29,50 @@ var admin_system_module = new Class({
         }).inject(this.win.content);
 
         /* installed */
-        this.tableInstalled = new ka.Table().inject(this.panes['installed']);
-        this.tableInstalled.setColumns([
+        this.installedPane = new Element('div', {
+            'class': 'ka-kwindow-content-withBottomBar'
+        }).inject(this.panes['installed']);
+        this.installedActionBar = new Element('div', {
+            'class': 'kwindow-win-buttonBar ka-ActionBar'
+        }).inject(this.panes['installed']);
+
+        new Element('h2', {
+            html: _('Bundles'),
+            'class': 'light',
+            style: 'margin-left: 5px;'
+        }).inject(this.installedPane);
+
+        this.tableInstalledBundles = new ka.Table([
             [_('Name'), null, 'html'],
-            [_('Activated'), 70, 'html'],
-            [_('Version'), 70],
-            [_('Server'), 70],
             [_('Status'), 100],
-            [_('Action'), 170]
-        ]);
+            [_('Action'), 150]
+        ], {
+            absolute: false,
+            valign: 'middle'
+        }).inject(this.installedPane);
+        document.id(this.tableInstalledBundles).setStyle('margin', 10);
+
+        new Element('h2', {
+            html: _('Composer Packages'),
+            'class': 'light',
+            style: 'margin-left: 5px;'
+        }).inject(this.installedPane);
+        this.tableInstalledPackages = new ka.Table([
+            [_('Name'), null, 'html'],
+            [_('Version'), 100],
+            [_('Action'), 150]
+        ], {
+            absolute: false,
+            valign: 'middle'
+        }).inject(this.installedPane);
+        document.id(this.tableInstalledPackages).setStyle('margin', 10);
+
+        new ka.Button(t('Update Packages'))
+            .inject(this.installedActionBar);
+
+        new ka.Button(t('Install Package'))
+            .setButtonStyle('blue')
+            .inject(this.installedActionBar);
 
         this.categories = {};
         [
@@ -99,75 +134,99 @@ var admin_system_module = new Class({
             this.llir.cancel();
         }
 
-        var p = this.panes['installed'];
-
         var lang = ka.settings['user']['adminLanguage'];
 
         this.llir = new Request.JSON({url: _pathAdmin + 'admin/system/module/manager/installed', noCache: 1,
             onComplete: function (pResult) {
-                var res = pResult.data;
+                var bundles = pResult.data.bundles;
+                var packages = pResult.data.packages;
 
-                var values = [];
-                Object.each(res, function (item, key) {
+                this.tableInstalledBundles.empty();
+                this.tableInstalledPackages.empty();
 
-                    var title = item.name;
-
-                    if (!item) {
-                        title = "config parse error: " + key;
-                    }
-                    if (item.noConfig) {
-                        title = "config not found: " + key;
-                    }
-
-                    var icon = (item.activated == 1) ? 'accept' : 'delete';
-
-                    var _title = '';
+                Array.each(packages, function(packageDef){
                     var actions = new Element('div');
-                    var actionsStatus = new Element('div');
+                    new ka.Button(t('Remove')).inject(actions);
 
-                    new ka.Button(_('Info')).addEvent('click', function () {
-                        ka.wm.open('admin/system/module/view', {name: key, type: 0}, -1, true);
-                    }.bind(this)).inject(actions);
-
-                    if (!['core', 'admin', 'users'].contains(key)) {
-                        if (item.activated) {
-                            _title = _('Activated');
-                            new ka.Button(_('Deactivate')).addEvent('click', function () {
-                                new Request.JSON({url: _pathAdmin +
-                                    'admin/system/module/manager/deactivate/', noCache: 1, onComplete: function () {
-                                    this.loadInstalled();
-                                    ka.loadSettings();
-                                    ka.loadMenu();
-                                }.bind(this)}).get({name: key});
-                            }.bind(this)).inject(actionsStatus)
-                        } else {
-                            _title = _('Deactivated');
-                            new ka.Button(_('Activate')).addEvent('click', function () {
-                                new Request.JSON({url: _pathAdmin +
-                                    'admin/system/module/manager/activate/', noCache: 1, onComplete: function () {
-                                    this.loadInstalled();
-                                    ka.loadSettings();
-                                    ka.loadMenu();
-                                }.bind(this)}).get({name: key});
-                            }.bind(this)).inject(actionsStatus);
-                        }
-                        new ka.Button(_('Deinstall')).addEvent('click', function () {
-                            ka.wm.open('admin/system/module/view', {name: key, type: 0, removeNow: 1});
-                        }.bind(this)).inject(actions);
-                    }
-
-                    var value = [title,
-                        '<img title="' + _title + '" src="' + _path + 'bundles/admin/images/icons/' + icon + '.png" />',
-                        item.version ? item.version : (item.version ? item.version : t('VCS')),
-                        'Pending ...',
-                        actionsStatus,
-                        actions];
-                    values.include(value);
+                    this.tableInstalledPackages.addRow([packageDef.name, packageDef.version, actions]);
                 }.bind(this));
 
-                this.tableInstalled.setValues(values);
+
+                var systemModules = ['Core\\CoreBundle', 'Admin\\AdminBundle', 'Users\\UsersBundle'];
+                Array.each(bundles, function(bundle) {
+                    if (-1 !== systemModules.indexOf(bundle['class'])) {
+                        return;
+                    }
+                    var actions = new Element('div');
+
+                    if (bundle.active) {
+                        new ka.Button(t('Uninstall'))
+                            .addEvent('click', function(){
+                                this.setBundle(bundle['class'], false);
+                            }.bind(this))
+                            .inject(actions);
+                    } else {
+                        new ka.Button(t('Install'))
+                            .addEvent('click', function(){
+                                this.setBundle(bundle['class'], true);
+                            }.bind(this))
+                            .inject(actions);
+                    }
+
+                    var activeIcon = new Element('span', {
+                        'class': bundle.active ? 'icon-checkmark-6' : 'icon-cancel-6',
+                        'styles': {color: bundle.active ? 'green' : 'red'}
+                    });
+                    var title = new Element('span', {text: bundle['class']});
+                    var packageName = new Element('span', {
+                        text: ' ('+bundle.package+')',
+                        style: 'color: gray'
+                    }).inject(title);
+
+                    this.tableInstalledBundles.addRow([
+                        title,
+                        activeIcon,
+                        actions
+                    ]);
+
+                }.bind(this));
+
                 this.win.setLoading(false);
             }.bind(this)}).get();
+    },
+
+    setBundle: function(className, activate, removeFiles) {
+        if (this.setBundleRequest) {
+            this.setBundleRequest.cancel();
+        }
+
+        var uri = activate ? 'install' : 'uninstall';
+
+        if (!activate) {
+            if ('null' === typeOf(removeFiles)) {
+                var dialog;
+
+                dialog = this.win.confirm(t('Really uninstall?'), function(a){
+                    this.setBundle(className, activate, dialog.withFiles.getValue());
+                }.bind(this));
+
+                new Element('div', {
+                    text: t('This uninstalls the bundle and all of its data.'),
+                    style: 'color: gray; padding: 5px; padding-top: 15px;'
+                }).inject(dialog.getContentContainer());
+                dialog.withFiles = new ka.Field({
+                    label: t('Remove also all files'),
+                    type: 'checkbox'
+                }, dialog.getContentContainer());
+                return;
+            }
+        }
+
+        this.win.setLoading(true, activate ? t('Install bundle ...') : t('Uninstall bundle ...'));
+        this.setBundleRequest = new Request.JSON({url: _pathAdmin + 'admin/system/module/manager/'+uri, noCache: 1,
+            onComplete: function () {
+                this.loadInstalled();
+            }.bind(this)}).post({'bundle': className, ormUpdate: 1, removeFiles: removeFiles});
     },
 
     loadLocal: function () {
@@ -220,43 +279,45 @@ var admin_system_module = new Class({
 
         if (ka.settings.system.communityId + 0 > 0) {
             //if connected
-            tableMyDiv = new Element('div', {style: 'position: relative'}).inject(p);
+            tableMyDiv = new Element('div', {style: 'position: relative; margin: 10px;'}).inject(p);
             tables['my'] = new ka.Table([
                 [_('Title'), null, 'html'],
                 [_('Activated'), 50, 'html'],
                 [_('Version'), 50],
                 [_('Status'), 130],
                 [_('Action'), 350]
-            ], {absolute: false}).inject(tableMyDiv);
+            ], {absolute: false, valign: 'middle'}).inject(tableMyDiv);
         }
 
         new Element('h2', {
             html: _('Local bundles'),
-            'class': 'light'
+            'class': 'light',
+            style: 'margin-left: 5px;'
         }).inject(p);
 
-        tableLocalDiv = new Element('div', {style: 'position: relative'}).inject(p);
+        tableLocalDiv = new Element('div', {style: 'position: relative; margin: 10px;'}).inject(p);
         tables['local'] = new ka.Table([
             [_('Title'), null, 'html'],
             [_('Activated'), 50, 'html'],
             [_('Version'), 50],
             [_('Status'), 130],
             [_('Action'), 350]
-        ], {absolute: false}).inject(tableLocalDiv);
+        ], {absolute: false, valign: 'middle'}).inject(tableLocalDiv);
 
         new Element('h2', {
             html: _('External bundles'),
-            'class': 'light'
+            'class': 'light',
+            style: 'margin-left: 5px;'
         }).inject(p);
 
-        tableLocalDiv = new Element('div', {style: 'position: relative'}).inject(p);
+        tableLocalDiv = new Element('div', {style: 'position: relative; margin: 10px;'}).inject(p);
         tables['external'] = new ka.Table([
             [_('Title'), null, 'html'],
             [_('Activated'), 50, 'html'],
             [_('Version'), 50],
             [_('Status'), 130],
             [_('Action'), 350]
-        ], {absolute: false}).inject(tableLocalDiv);
+        ], {absolute: false, valign: 'middle'}).inject(tableLocalDiv);
 
         var lang = ka.settings['user']['adminLanguage'];
         Object.each(pMods, function (mod, key) {
@@ -279,7 +340,6 @@ var admin_system_module = new Class({
                 title = "config not found: " + key;
             }
 
-            var icon = (item.activated == 1) ? 'accept' : 'delete';
             var _title = '';
 
             var actions = new Element('div');
@@ -318,8 +378,12 @@ var admin_system_module = new Class({
                 ka.wm.open('admin/system/module/publish', {name: key});
             }).inject(actions)
 
+            var activeIcon = new Element('span', {
+                'class': item.activated ? 'icon-checkmark-6' : 'icon-cancel-6',
+                'styles': {color: item.activated ? 'green' : 'red'}
+            });
             var value = [title + ' <span style="color: gray;">(' + key + ')</span>',
-                '<img title="' + _title + '" src="' + _path + 'bundles/admin/images/icons/' + icon + '.png" />',
+                activeIcon,
                 item._installed.version ? item._installed.version : (item.version ? item.version : t('VCS')),
                 bActions,
                 actions];

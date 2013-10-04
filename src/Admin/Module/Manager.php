@@ -31,39 +31,43 @@ class Manager
     }
 
     /**
-     * @param string $bundleName
+     * Deactivates a bundle in the system config.
+     *
+     * @param string $bundle
      * @param bool   $reloadConfig
      * @return int
      */
-    public function deactivate($bundleName, $reloadConfig = false)
+    public function deactivate($bundle, $reloadConfig = false)
     {
-        Manager::prepareName($bundleName);
+        Manager::prepareName($bundle);
 
-        Kryn::getSystemConfig()->removeBundle($bundleName);
+        Kryn::getSystemConfig()->removeBundle($bundle);
 
         if ($reloadConfig) {
             Kryn::loadModuleConfigs();
         }
-        \Admin\Utils::clearModuleCache($bundleName);
+        \Admin\Utils::clearModuleCache($bundle);
 
         return Kryn::getSystemConfig()->save();
     }
 
     /**
-     * @param $bundleName
+     * Activates a bundle in the system config.
+     *
+     * @param $bundle
      * @param bool $reloadConfig
      * @return bool|int
      */
-    public function activate($bundleName, $reloadConfig = false)
+    public function activate($bundle, $reloadConfig = false)
     {
-        Manager::prepareName($bundleName);
+        Manager::prepareName($bundle);
 
-        Kryn::getSystemConfig()->addBundle($bundleName);
+        Kryn::getSystemConfig()->addBundle($bundle);
 
         if ($reloadConfig) {
             Kryn::loadModuleConfigs();
         }
-        \Admin\Utils::clearModuleCache($bundleName);
+        \Admin\Utils::clearModuleCache($bundle);
 
         return Kryn::getSystemConfig()->save();
     }
@@ -97,23 +101,93 @@ class Manager
 
     public function getInstalled()
     {
+        $packages = [];
+        $bundles = [];
         if (SystemFile::exists('composer.json')) {
             $composer = SystemFile::getContent('composer.json');
             if ($composer) {
                 $composer = json_decode($composer, true);
 
                 $packages = [];
-                $packages[] = $composer;
 
                 foreach ((array)$composer['require'] as $name => $version) {
-                    if ($package = static::getInstalledInfo($name)) {
-                        $packages[] = $package;
-                    }
+                    $package = [
+                        'name' => $name,
+                        'version' => $version
+                    ];
+                    $packages[] = $package;
                 }
             }
         }
 
-        return $packages ?: [];
+        $bundleClasses = array_merge(
+            static::getBundlesFromPath('vendor'),
+            static::getBundlesFromPath('src')
+        );
+
+        if ($bundleClasses) {
+            foreach ($bundleClasses as $bundle) {
+                $bundleObj = new $bundle;
+                $path = $bundleObj->getPath();
+                if (0 === strpos($path, 'vendor/')) {
+                    $expl = explode('/', $path);
+                    $package = $expl[1] . '/' . $expl[2];
+                } else {
+                    $package = 'local ./src/';
+                }
+                $bundleInfo = [
+                    'class' => $bundle,
+                    'package' => $package,
+                    'active' => Kryn::isActiveBundle($bundle)
+                ];
+                $bundles[] = $bundleInfo;
+            }
+        }
+
+        return [
+            'packages' => $packages,
+            'bundles' => $bundles
+        ];
+    }
+
+    /**
+     * @param string $path
+     * @return array
+     */
+    public function getBundlesFromPath($path)
+    {
+        if (SystemFile::exists($path)) {
+            $bundles = [];
+
+            $finder = new \Symfony\Component\Finder\Finder();
+            $finder
+                ->files()
+                ->name('*Bundle.php')
+                ->notPath('/Tests/')
+                ->notPath('/Test/')
+                ->in($path);
+
+            $bundles = array();
+            /** @var \Symfony\Component\Finder\SplFileInfo $file */
+            foreach ($finder as $file) {
+
+                $file = $file->getRealPath();
+                $content = file_get_contents($file);
+                preg_match('/^\s*\t*class ([a-z0-9_]+)/mi', $content, $className);
+                if (isset($className[1]) && $className[1]){
+                    preg_match('/\s*\t*namespace ([a-zA-Z0-9_\\\\]+)/', $content, $namespace);
+                    $class = (count($namespace) > 1 ? $namespace[1] . '\\' : '' ) . $className[1];
+
+                    if ('Bundle' === $className[1]) {
+                        continue;
+                    }
+
+                    $bundles[] = $class;
+                }
+            }
+
+            return $bundles;
+        }
     }
 
     private static function versionCompareToServer($local, $server)
@@ -192,128 +266,6 @@ class Manager
         return $res;
     }
 
-    public static function getConfig($name)
-    {
-        return self::loadInfo($name);
-    }
-
-    public static function loadInfo($moduleName, $type = false, $extract = false)
-    {
-        /*
-        * pType: false => load from local (dev) PATH_MODULE/$moduleName
-        * pType: path  => load from zip (module upload)
-        * pType: true =>  load from inet
-        */
-
-        $moduleName = str_replace(".", "", $moduleName);
-        $configFile = \Core\Kryn::getBundleDir($moduleName) . "config.json";
-
-        $extract2 = false;
-
-        // inet
-        if ($type === true || $type == 1) {
-
-            //$res = wget(Kryn::$config['repoServer'] . "/?install=$moduleName");
-            if ($res === false) {
-                return array('cannotConnect' => 1);
-            }
-
-            $info = json_decode($res, 1);
-
-            if (!$info['id'] > 0) {
-                return array('notExist' => 1);
-            }
-
-            if (!@file_exists('data/upload')) {
-                if (!@mkdir('data/upload')) {
-                    klog('core', t('FATAL ERROR: Can not create folder data/upload.'));
-                }
-            }
-
-            if (!@file_exists('data/packages/modules')) {
-                if (!@mkdir('data/packages/modules')) {
-                    klog('core', _l('FATAL ERROR: Can not create folder data/packages/modules.'));
-                }
-            }
-
-            $configFile = "data/packages/modules/$moduleName.config.json";
-            @unlink($configFile);
-            //wget(Kryn::$config['repoServer'] . "/modules/$moduleName/config.json", $configFile);
-            if ($extract) {
-                $extract2 = true;
-                $zipFile = 'data/packages/modules/' . $info['filename'];
-                //wget(Kryn::$config['repoServer'] . "/modules/$moduleName/" . $info['filename'], $zipFile);
-            }
-        }
-
-        //local zip
-        if (($type !== false && $type != "0") && ($type !== true && $type != "1")) {
-            if (file_exists(PATH_WEB . $type)) {
-                $type = PATH_WEB . $type;
-            }
-            $zipFile = $type;
-            $bname = basename($type);
-            $t = explode("-", $bname);
-            $moduleName = $t[0];
-            $extract2 = true;
-        }
-
-        if ($extract2) {
-            @mkdir("data/packages/modules/$moduleName");
-            include_once 'File/Archive.php';
-            $toDir = "data/packages/modules/$moduleName/";
-            $zipFile .= "/";
-            $res = File_Archive::extract($zipFile, $toDir);
-            $configFile = "data/packages/modules/$moduleName/module/$moduleName/config.json";
-            if ($moduleName == 'core') {
-                $configFile = "data/packages/modules/kryn/core/config.json";
-            }
-        }
-
-        if ($configFile) {
-            if (!file_exists($configFile)) {
-                return false;
-            }
-            $json = file_get_contents($configFile);
-            $config = json_decode($json, true);
-            unset($config['noConfig']);
-
-            if (!$extract) {
-                @rmDir("data/packages/modules/$moduleName");
-                @unlink($zipFile);
-            }
-
-            //if locale
-            if ($type == false) {
-                if (is_dir(PATH_WEB . "$moduleName/_screenshots")) {
-                    $config['screenshots'] = Kryn::readFolder(PATH_WEB . "$moduleName/_screenshots");
-                }
-            }
-
-            $config['__path'] = dirname($configFile);
-            if (is_array(Kryn::$configs) && array_key_exists($moduleName, Kryn::$configs)) {
-                $config['installed'] = true;
-            }
-
-            $config['extensionCode'] = $moduleName;
-
-            if (Kryn::$configs) {
-                foreach (Kryn::$configs as $extender => &$modConfig) {
-                    if (is_array($modConfig['extendConfig'])) {
-                        foreach ($modConfig['extendConfig'] as $extendModule => $extendConfig) {
-                            if ($extendModule == $moduleName) {
-                                $config['extendedFrom'][$extender] = $extendConfig;
-                            }
-                        }
-                    }
-                }
-            }
-
-            return $config;
-        }
-
-    }
-
     public function check4Updates()
     {
         $res['found'] = false;
@@ -362,31 +314,31 @@ class Manager
     }
 
     /**
-     * Activates a module, fires his install/installDatabase package scripts
-     * and updates the propel ORM, if the modules has a model.xml.
      *
-     * If $name points to a zip-file, we extract it in temp, fires the extract script and move it to our install root.
+     * Installs a bundle.
+     * Activates a bundle, fires his package scripts
+     * and updates the propel ORM, if the bundle has a model.xml.
      *
-     * @param  string $name
-     * @param  bool   $oOrmUpdate
+     * @param  string $bundle
+     * @param  bool   $ormUpdate
      *
      * @return bool
      */
-    public function install($name, $oOrmUpdate = false)
+    public function install($bundle, $ormUpdate = false)
     {
-        Manager::prepareName($name);
+        Manager::prepareName($bundle);
 
-        $hasPropelModels = SystemFile::exists(Kryn::getBundleDir($name) . 'Resources/config/models.xml');
-        $this->fireScript($name, 'install');
+        $hasPropelModels = SystemFile::exists(Kryn::getBundleDir($bundle) . 'Resources/config/models.xml');
+        $this->fireScript($bundle, 'install');
 
         //fire update propel orm
-        if ($oOrmUpdate && $hasPropelModels) {
+        if ($ormUpdate && $hasPropelModels) {
             //update propel
             \Core\PropelHelper::updateSchema();
             \Core\PropelHelper::cleanup();
         }
 
-        $this->activate($name, true);
+        $this->activate($bundle, true);
 
         return true;
     }
@@ -409,62 +361,48 @@ class Manager
      * Removes relevant data and object's data. Executes also the uninstall script.
      * Removes database values, some files etc.
      *
-     * @param  string $name
-     * @param  bool   $removeFiles
-     * @param  bool   $oOrmUpdate
+     * @param $bundle
+     * @param bool $removeFiles
+     * @param bool $ormUpdate
      *
      * @return bool
+     *
+     * @throws \Core\Exceptions\BundleNotFoundException
      */
-    public function uninstall($name, $removeFiles = true, $ormUpdate = false)
+    public function uninstall($bundle, $removeFiles = true, $ormUpdate = false)
     {
-        Manager::prepareName($name);
-        $config = self::getConfig($name);
-        $hasPropelModels = SystemFile::exists(\Core\Kryn::resolvePath($name, 'Resources/config') . 'model.xml');
+        Manager::prepareName($bundle);
 
-        \Core\Event::fire('admin/module/manager/uninstall/pre', $name);
-
-        //remove object data
-        if ($config['objects']) {
-            foreach ($config['objects'] as $key => $object) {
-                \Core\Object::clear(ucfirst($name) . '\\' . $key);
-            }
+        $bundleObject = \Core\Kryn::getBundle($bundle);
+        if (!$bundleObject) {
+            throw new BundleNotFoundException(tf('Bundle `%s` not found.', $bundle));
         }
 
-        $this->fireScript($name, 'uninstall');
+        $hasPropelModels = SystemFile::exists(\Core\Kryn::resolvePath($bundle, 'Resources/config') . 'model.xml');
 
-        $bundle = \Core\Kryn::getBundle($name);
+        \Core\Event::fire('admin/module/manager/uninstall/pre', $bundle);
 
-        if (!$bundle) {
-            throw new BundleNotFoundException(tf('Bundle `%s` not found.', $name));
-        }
+        $this->fireScript($bundle, 'uninstall');
 
-        $webName = strtolower($bundle->getName(true));
+        \Core\Event::fire('admin/module/manager/uninstall/post', $bundle);
 
-        //remove files
-        if ($removeFiles) {
-            if ($config['extraFiles']) {
-                foreach ($config['extraFiles'] as $file) {
-                    delDir($file);
-                }
-            }
-
-            @unlink($webName);
-        }
-
-        \Core\Event::fire('admin/module/manager/uninstall/post', $name);
-
-        $this->deactivate($name, true);
+        $this->deactivate($bundle, true);
 
         //fire update propel orm
         if ($ormUpdate && $hasPropelModels) {
             //remove propel classes in temp
-            \Core\TempFile::remove('propel-classes/' . $bundle->getRootNamespace());
+            \Core\TempFile::remove('propel-classes/' . $bundleObject->getRootNamespace());
 
             //update propel
             if ($ormUpdate) {
                 \Core\PropelHelper::updateSchema();
                 \Core\PropelHelper::cleanup();
             }
+        }
+
+        //remove files
+        if (filter_var($removeFiles, FILTER_VALIDATE_BOOLEAN)) {
+            delDir($bundleObject->getPath());
         }
 
         return true;
