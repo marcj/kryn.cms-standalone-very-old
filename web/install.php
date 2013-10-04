@@ -802,6 +802,8 @@ function buildModInfo()
     $finder
         ->files()
         ->name('*Bundle.php')
+        ->notPath('/Tests/')
+        ->notPath('/Test/')
         ->in(__DIR__ . '/../vendor')
         ->in(__DIR__ . '/../tests/bundles')
         ->in(__DIR__ . '/../src');
