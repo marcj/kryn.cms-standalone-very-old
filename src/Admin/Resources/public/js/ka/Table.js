@@ -12,6 +12,7 @@ ka.Table = new Class({
         multi: false,
         alignTop: true,
         hover: true, //hover effect
+        valign: 'top',
         safe: true //htmlentities
     },
 
@@ -28,6 +29,10 @@ ka.Table = new Class({
 
         if (this.options.absolute) {
             this.main.addClass('ka-Table-absolute');
+        }
+
+        if ('top' !== this.options.valign) {
+            this.main.addClass('ka-Table-valign-' + this.options.valign);
         }
 
         if (this.options.hover) {
