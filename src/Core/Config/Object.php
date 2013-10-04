@@ -309,18 +309,6 @@ class Object extends Model
      */
     private $primaryKeys;
 
-//    public function fromArray($values, $key = null)
-//    {
-//        parent::fromArray($values, $key);
-//        $this->syncRelations();
-//    }
-//
-//    public function setupObject()
-//    {
-//        parent::setupObject();
-//        $this->syncRelations();
-//    }
-
     public function syncRelations()
     {
         ///resolve relations
