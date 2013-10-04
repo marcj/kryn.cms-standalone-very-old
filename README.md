@@ -8,13 +8,12 @@ We're in development. This means, there are still a _lot_ of issues in this prod
 __So, please do not install or use it, yet. Most things don't work.__
 
 [![Build Status Drone.io](https://drone.io/marcj/Kryn.cms/status.png)](https://drone.io/marcj/Kryn.cms/latest)
-[![Build Status Travis](https://travis-ci.org/Kryncms/Kryn.cms.png?branch=refactoring)](https://travis-ci.org/Kryncms/Kryn.cms)
-
+[![Build Status Travis](https://travis-ci.org/kryncms/Kryn.cms.png?branch=refactoring)](https://travis-ci.org/kryncms/Kryn.cms)
 
 Installation
 ------------
 
-1. Extract the tar/zip-ball or `git clone https://github.com/Kryncms/Kryn.cms.git`.
+1. Extract the tar/zip-ball or `git clone https://github.com/kryncms/Kryn.cms.git`.
 2. Download `composer` through `wget http://getcomposer.org/composer.phar`.
 3. Install vendor libraries with `php composer.phar install`.
 4. Setup a `VirtualHost` pointing to the `./web/` directory.
@@ -58,14 +57,14 @@ Features
 Screenshot
 ----------
 
-![Kryn.cms](https://raw.github.com/Kryncms/Kryn.cms/refactoring/documentation/images/kryn-photo.jpg)
-![Administration Dashboard](https://raw.github.com/Kryncms/Kryn.cms/refactoring/documentation/images/admin-dashboard.png)
-![Administration Frontend Edit](https://raw.github.com/Kryncms/Kryn.cms/refactoring/documentation/images/admin-frontend-edit.png)
-![Administration File manager](https://raw.github.com/Kryncms/Kryn.cms/refactoring/documentation/images/admin-files-context-image.png)
-![Administration CRUD Framework Window List](https://raw.github.com/Kryncms/Kryn.cms/refactoring/documentation/images/admin-users-list.png)
-![Administration CRUD Framework Window](https://raw.github.com/Kryncms/Kryn.cms/refactoring/documentation/images/admin-users.png)
+![Kryn.cms](https://raw.github.com/kryncms/Kryn.cms/refactoring/documentation/images/kryn-photo.jpg)
+![Administration Dashboard](https://raw.github.com/kryncms/Kryn.cms/refactoring/documentation/images/admin-dashboard.png)
+![Administration Frontend Edit](https://raw.github.com/kryncms/Kryn.cms/refactoring/documentation/images/admin-frontend-edit.png)
+![Administration File manager](https://raw.github.com/kryncms/Kryn.cms/refactoring/documentation/images/admin-files-context-image.png)
+![Administration CRUD Framework Window List](https://raw.github.com/kryncms/Kryn.cms/refactoring/documentation/images/admin-users-list.png)
+![Administration CRUD Framework Window](https://raw.github.com/kryncms/Kryn.cms/refactoring/documentation/images/admin-users.png)
 
-[More Screenshots](https://github.com/Kryncms/Kryn.cms/blob/refactoring/documentation/screenshots.markdown)
+[More Screenshots](https://github.com/kryncms/Kryn.cms/blob/refactoring/documentation/screenshots.markdown)
 
 More information:
 https://www.facebook.com/kryncms
