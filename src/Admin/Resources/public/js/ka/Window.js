@@ -264,6 +264,12 @@ ka.Window = new Class({
         }).inject(this.blockModeContainer);
     },
 
+    /**
+     *
+     * @param pText
+     * @param pCallback
+     * @returns {*}
+     */
     alert: function (pText, pCallback) {
         return this._alert(pText, pCallback);
     },
@@ -274,10 +280,23 @@ ka.Window = new Class({
         });
     },
 
+    /**
+     *
+     * @param pText
+     * @param pCallback
+     * @returns {ka.Dialog}
+     * @private
+     */
     _confirm: function (pText, pCallback) {
         return this.confirm(pText, pCallback);
     },
 
+    /**
+     *
+     * @param pText
+     * @param pCallback
+     * @returns {ka.Dialog}
+     */
     confirm: function (pText, pCallback) {
         return this._prompt(pText, null, pCallback, {
             'confirm': 1
@@ -292,6 +311,15 @@ ka.Window = new Class({
         return this._prompt(pDesc, pDefaultValue, pCallback, pOpts);
     },
 
+    /**
+     *
+     * @param pDesc
+     * @param pDefaultValue
+     * @param pCallback
+     * @param pOpts
+     * @returns {ka.Dialog}
+     * @private
+     */
     _prompt: function (pDesc, pDefaultValue, pCallback, pOpts) {
         var res = false;
         if (!pOpts) {
