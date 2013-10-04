@@ -2,7 +2,19 @@
 .ka-Table-head,
 .ka-Table-body {
     width: 100%;
+    background-color: #f7f7f7;
 }
+
+.ka-Table-valign-center td,
+.ka-Table-valign-middle td {
+    vertical-align: middle;
+}
+
+
+.ka-Table-valign-bottom td {
+    vertical-align: bottom;
+}
+
 
 .ka-Table-absolute .ka-Table-body,
 .ka-Table-absolute .ka-Table-head {
@@ -79,7 +91,6 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     line-height: 18px;
-    vertical-align: top;
 }
 
 .ka-Table tr.active > td,
@@ -91,4 +102,8 @@
 .ka-Table tr.active > td a,
 .ka-Table-body tr.active a:link {
     color: white;
+}
+
+.ka-Table-hover tr:hover > td {
+    background-color: rgba(243, 243, 243, 0.48);
 }

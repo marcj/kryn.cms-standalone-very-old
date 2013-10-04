@@ -148,7 +148,5 @@ a.ka-Button-deactivate:active,
 a.ka-Button-deactivate:hover {
     cursor: default;
     color: gray;
-    background: #f8f8f8;
-    border: 1px solid #ddd;
-    border-bottom: 0;
+    background-color: transparent;
 }

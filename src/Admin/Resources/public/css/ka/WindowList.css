@@ -278,6 +278,10 @@
     bottom: 46px;
 }
 
+.ka-Table-windowList .ka-Table-body {
+    background-color: transparent;
+}
+
 .ka-WindowList-actionBar-page {
     border-top: 0;
     border-bottom: 0;
