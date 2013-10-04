@@ -26,6 +26,7 @@ Requirements
 1. PHP 5.4+
 2. *nix OS (Linux, BSD, OSX)
 3. PHP extensions: PDO, mbstring, gd, zip
+4. MySQL, PostgreSQL or SQLite (completely tested through unit tests)
 
 
 Features
@@ -79,7 +80,7 @@ PHPUnit
     DB_USER    The database username. Default is `root`
     DB_PW      The database password. Default is empty.
     DB_TYPE    The database type. `mysql`, `pgsql`, `sqlite`, `sqlsrv`. Default is `mysql`.
-    DB_SERVER  The database server address. Default is `127.0.0.1`
+    DB_SERVER  The database server address. Default is `127.0.0.1`. For sqlite the file path.
     NOINSTALL  Defines whether the bootstrap removes the config file or not. `1` or `0`. Default is `0`
     TEMP       Defines a other temp folder. E.g. `app/cache` or `/tmp/`. Default is 'app/cache'.
 
@@ -89,6 +90,9 @@ Examples:
     HOST=dev.local ./phpunit.phar
     DB_USER=kryn DB_PW='@#$TKKAFS' ./phpunit.phar test/Tests/Object/ApiTest.php
     NOINSTALL=1 TEMP=/tmp/ php54 vendor/phpunit/phpunit/phpunit.php --stop-on-failure tests/Tests/Core/ConfigTest.php
+    DB_TYPE=sqlite DB_SERVER=test.sq3 php54 vendor/phpunit/phpunit/phpunit.php
 
 The test suite installs automatically Kryn.cms with the configuration above if `./app/config/config.xml` does not exist
 and if NOINSTALL=0. Don't forget to run `composer install` first.
+
+For SQLite tests you should run `touch test.sq3; chmod 777 test.sq3` first.
