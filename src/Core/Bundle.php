@@ -148,6 +148,9 @@ class Bundle
         return $this->composer;
     }
 
+    /**
+     * @return Config\Bundle
+     */
     public function getConfig()
     {
         return Kryn::getConfig($this->getClassName());
