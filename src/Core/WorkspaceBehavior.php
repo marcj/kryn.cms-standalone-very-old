@@ -167,25 +167,6 @@ class WorkspaceBehavior extends Behavior
         }
 
         $this->addVersionTable();
-
-        //$table->setBas('\WorkspaceBehaviorPeer');
-        //$table->set
-        //$table->setBaseClass('\WorkspaceBehaviorClass');
-
-        /*
-        //pk index
-        $index = new Index();
-        foreach ($table->getColumns() as $column) {
-            if ($column->isPrimaryKey()) {
-                $this->pks[] = clone $column;
-                if ($column->getName() != $this->prefix.'rev')
-                    $index->addColumn(array('name' => $column->getName()));
-            }
-        }
-        $index->addColumn(array('name' => $this->prefix.'id'));
-        $table->addIndex($index);
-        */
-
     }
 
     /**
