@@ -28,8 +28,6 @@
 
     background-color: #fefefe;
     border: 1px solid #ddd;
-    border-bottom: 0;
-    box-shadow: 0 3px 0 #d6d6d6;
 
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
@@ -84,8 +82,7 @@
 .ka-Select-box-open,
 .ka-Select-box-open:link,
 .ka-Select-box:active  {
-    box-shadow: 0 1px 0 #d6d6d6;
-    top: 2px;
+
 }
 
 .ka-Select-box:hover,

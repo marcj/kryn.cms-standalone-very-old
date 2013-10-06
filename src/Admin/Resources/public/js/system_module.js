@@ -72,6 +72,9 @@ var admin_system_module = new Class({
 
         new ka.Button(t('Install Package'))
             .setButtonStyle('blue')
+            .addEvent('click', function(){
+                this.installComposerPackage();
+            }.bind(this))
             .inject(this.installedActionBar);
 
         this.categories = {};
@@ -146,7 +149,11 @@ var admin_system_module = new Class({
 
                 Array.each(packages, function(packageDef){
                     var actions = new Element('div');
-                    new ka.Button(t('Remove')).inject(actions);
+                    new ka.Button(t('Remove'))
+                        .addEvent('click', function(){
+                            this.removeComposerPackage(packageDef.name);
+                        }.bind(this))
+                        .inject(actions);
 
                     this.tableInstalledPackages.addRow([packageDef.name, packageDef.version, actions]);
                 }.bind(this));
@@ -195,6 +202,65 @@ var admin_system_module = new Class({
             }.bind(this)}).get();
     },
 
+    installComposerPackage: function(name, version, withBundles)
+    {
+
+        if ('string' !== typeOf(name) || name.length <= 1) {
+            var dialog;
+
+            dialog = this.win.prompt(t('Package name:'), '', function(name){
+                if (typeOf(name) == 'string' && name.length > 1) {
+                    this.installComposerPackage(name, dialog.version.getValue(), dialog.withBundles.getValue());
+                }
+            }.bind(this));
+
+            dialog.version = new ka.Field({
+                label: t('Version constraint'),
+                desc: t('Example: >=1.0.0, dev-master, *, 3.6.*'),
+                type: 'text',
+                'default': '*',
+                inputWidth: 100
+            }, dialog.getContentContainer());
+
+            dialog.withBundles = new ka.Field({
+                label: t('Install all containing bundles'),
+                desc: t('If the package is a kryn package, we install also all containing bundles.'),
+                type: 'checkbox',
+                'default': true
+            }, dialog.getContentContainer());
+            return;
+        }
+
+        this.win.setLoading(true, t('Install composer package ...'));
+        this.setBundleRequest = new Request.JSON({url: _pathAdmin + 'admin/system/module/manager/composer/install', noCache: 1,
+            onComplete: function () {
+                this.loadInstalled();
+            }.bind(this)}).post({name: name, version: version, withBundles: withBundles});
+    },
+
+    removeComposerPackage: function(name, confirmed) {
+
+        if (true !== confirmed) {
+            var dialog;
+
+            dialog = this.win.confirm(t('Really uninstall?'), function(a){
+                this.removeComposerPackage(name, true);
+            }.bind(this));
+
+            new Element('div', {
+                text: t('This uninstalls possible containing bundles and all of its data.'),
+                style: 'color: gray; padding: 5px; padding-top: 15px;'
+            }).inject(dialog.getContentContainer());
+            return;
+        }
+
+        this.win.setLoading(true, t('Remove composer package ...'));
+        this.setBundleRequest = new Request.JSON({url: _pathAdmin + 'admin/system/module/manager/composer/uninstall', noCache: 1,
+            onComplete: function () {
+                this.loadInstalled();
+            }.bind(this)}).post({name: name});
+    },
+
     setBundle: function(className, activate, removeFiles) {
         if (this.setBundleRequest) {
             this.setBundleRequest.cancel();
@@ -216,6 +282,7 @@ var admin_system_module = new Class({
                 }).inject(dialog.getContentContainer());
                 dialog.withFiles = new ka.Field({
                     label: t('Remove also all files'),
+                    desc: t('This tries also to uninstall the composer package.'),
                     type: 'checkbox'
                 }, dialog.getContentContainer());
                 return;

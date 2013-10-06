@@ -5,8 +5,8 @@
 
     cursor: default;
     color: #444;
-    line-height: 28px;
-    height: 28px;
+    line-height: 29px;
+    height: 30px;
     font-weight: normal;
     text-align: center;
 
@@ -24,8 +24,6 @@
 
     display: inline-block;
     border: 1px solid #ddd;
-    border-bottom: 0;
-    box-shadow: 0 3px 0 #d6d6d6;
 }
 
 .ka-ActionBar .ka-Button,
@@ -80,13 +78,12 @@
     color: black;
 }
 
-a.ka-Button:active,
-a.ka-Button-pressed,
-a.ka-Button-pressed:link,
-a.ka-Button-pressed:hover,
-a.ka-Button-pressed:active {
-    box-shadow: 0 1px 0 #d6d6d6;
-    top: 2px;
+.ka-Button:active,
+.ka-Button-pressed,
+.ka-Button-pressed:link,
+.ka-Button-pressed:hover,
+.ka-Button-pressed:active {
+    background-color: #e8e8e8;
 }
 
 .ka-Button span {
@@ -130,7 +127,6 @@ div.button-list {
     color: white;
     background: #22638E;
     border: 1px solid #265F85;
-    border-bottom: 0;
 }
 
 .ka-Button-blue:hover {

@@ -2,7 +2,21 @@
 
 namespace Admin\Module;
 
+use Composer\Autoload\AutoloadGenerator;
+use Composer\Composer;
+use Composer\DependencyResolver\DefaultPolicy;
+use Composer\DependencyResolver\Pool;
+use Composer\EventDispatcher\EventDispatcher;
+use Composer\Factory;
+use Composer\Installer;
+use Composer\IO\BufferIO;
+use Composer\Package\Version\VersionParser;
+use Composer\Repository\CompositeRepository;
+use Composer\Repository\PlatformRepository;
+use Composer\Repository\RepositoryInterface;
 use Core\Exceptions\BundleNotFoundException;
+use Core\Exceptions\FileNotWritableException;
+use Core\Exceptions\PackageNotFoundException;
 use Core\Kryn;
 use Core\SystemFile;
 
@@ -156,8 +170,8 @@ class Manager
      */
     public function getBundlesFromPath($path)
     {
+        $bundles = [];
         if (SystemFile::exists($path)) {
-            $bundles = [];
 
             $finder = new \Symfony\Component\Finder\Finder();
             $finder
@@ -167,7 +181,6 @@ class Manager
                 ->notPath('/Test/')
                 ->in($path);
 
-            $bundles = array();
             /** @var \Symfony\Component\Finder\SplFileInfo $file */
             foreach ($finder as $file) {
 
@@ -185,9 +198,9 @@ class Manager
                     $bundles[] = $class;
                 }
             }
-
-            return $bundles;
         }
+
+        return $bundles;
     }
 
     private static function versionCompareToServer($local, $server)
@@ -373,7 +386,7 @@ class Manager
     {
         Manager::prepareName($bundle);
 
-        $bundleObject = \Core\Kryn::getBundle($bundle);
+        $bundleObject = \Core\Kryn::getBundle($bundle, false);
         if (!$bundleObject) {
             throw new BundleNotFoundException(tf('Bundle `%s` not found.', $bundle));
         }
@@ -403,10 +416,214 @@ class Manager
         //remove files
         if (filter_var($removeFiles, FILTER_VALIDATE_BOOLEAN)) {
             delDir($bundleObject->getPath());
+            if (0 === strpos($bundleObject->getPath(), $this->getComposerVendorDir())) {
+                $path = explode('/', $bundleObject->getPath());
+                $composerName = $path[1].'/'.$path[2];
+                $this->uninstallComposer($composerName);
+            }
         }
 
         return true;
+    }
 
+    public function getComposerVendorDir()
+    {
+        return './vendor/';
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public function uninstallComposer($name)
+    {
+        if (SystemFile::exists('composer.json') && is_string($name)) {
+            $composer = SystemFile::getContent('composer.json');
+            if ($composer) {
+                $composer = json_decode($composer, true);
+                if (is_array($composer)) {
+                    $pathToDelete = false;
+                    foreach ($composer['require'] as $key => $value) {
+                        if (strtolower($key) == strtolower($name)) {
+                            unset($composer['require'][$key]);
+                            $pathToDelete = $key;
+                        }
+                    }
+                    SystemFile::setContent('composer.json', json_format($composer));
+
+                    if ($pathToDelete) {
+                        $this->searchAndUninstallBundles($this->getComposerVendorDir() . $pathToDelete);
+                        delDir($this->getComposerVendorDir() . $pathToDelete);
+                        if (file_exists($pathToDelete)) {
+                            Kryn::getLogger()->addWarning(sprintf('[UninstallComposer] Can not delete folder `%s`.', $pathToDelete));
+                        }
+                    }
+                    $this->updateAutoloader();
+
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    protected function getPackage(RepositoryInterface $installedRepo, RepositoryInterface $repos, $name, $version = null)
+    {
+        $name = strtolower($name);
+        $constraint = null;
+        if ($version) {
+            $constraint = $this->versionParser->parseConstraints($version);
+        }
+
+        $policy = new DefaultPolicy();
+        $pool = new Pool('dev');
+        $pool->addRepository($repos);
+
+        $matchedPackage = null;
+        $versions = array();
+        $matches = $pool->whatProvides($name, $constraint);
+        foreach ($matches as $index => $package) {
+            // skip providers/replacers
+            if ($package->getName() !== $name) {
+                unset($matches[$index]);
+                continue;
+            }
+
+            // select an exact match if it is in the installed repo and no specific version was required
+            if (null === $version && $installedRepo->hasPackage($package)) {
+                $matchedPackage = $package;
+            }
+
+            $versions[$package->getPrettyVersion()] = $package->getVersion();
+            $matches[$index] = $package->getId();
+        }
+
+        // select prefered package according to policy rules
+        if (!$matchedPackage && $matches && $prefered = $policy->selectPreferedPackages($pool, array(), $matches)) {
+            $matchedPackage = $pool->literalToPackage($prefered[0]);
+        }
+
+        return array($matchedPackage, $versions);
+    }
+
+    public function installComposer($name, $version, $withBundles = false)
+    {
+        if (!is_writeable($vendorDir = $this->getComposerVendorDir())) {
+            throw new FileNotWritableException(sprintf('Directory `%s` is not writable.', $vendorDir));
+        }
+
+        putenv('COMPOSER_HOME=./');
+        putenv('COMPOSER_CACHE_DIR=' . Kryn::getSystemConfig()->getTempDir());
+        $io = new BufferIO();
+        $composer = Factory::create($io);
+
+        //check if bundle exist
+        $this->versionParser = new VersionParser();
+        $platformRepo = new PlatformRepository();
+        $localRepo = $composer->getRepositoryManager()->getLocalRepository();
+        $installedRepo = new CompositeRepository(array($localRepo, $platformRepo));
+        $repos = new CompositeRepository(array_merge(array($installedRepo), $composer->getRepositoryManager()->getRepositories()));
+        list($package, $versions) = $this->getPackage($installedRepo, $repos, $name, $version);
+
+        if (!$package) {
+            throw new PackageNotFoundException(sprintf('Can not find package `%s` with version `%s`.', $name, $version));
+        }
+
+        if (SystemFile::exists('composer.json') && is_string($name)) {
+            $composerJson = SystemFile::getContent('composer.json');
+            if ($composerJson) {
+                $composerJson = json_decode($composerJson, true);
+                if (is_array($composerJson)) {
+                    $found = false;
+                    foreach ($composerJson['require'] as $key => $value) {
+                        if (strtolower($key) == strtolower($name)) {
+                            unset($composerJson['require'][$key]);
+                            $found = $key;
+                        }
+                    }
+                    if (!$found) {
+                        $composerJson['require'][$name] = $version;
+                        SystemFile::setContent('composer.json', json_format($composerJson));
+                    } else {
+                        $name = $found;
+                    }
+                }
+            }
+        }
+
+        $install = Installer::create($io, $composer);
+        $install
+            ->setVerbose(true)
+            ->setPreferDist(true)
+            ->setDevMode(true)
+            ->setUpdate(true)
+            ->setUpdateWhitelist([$name]);
+        ;
+
+        if (filter_var($withBundles, FILTER_VALIDATE_BOOLEAN)) {
+            $this->searchAndInstallBundles($this->getComposerVendorDir() . $name);
+        }
+
+        $this->updateAutoloader();
+
+        return $io->getOutput();
+    }
+
+    /**
+     * @param string $path
+     * @param bool $removeFiles
+     */
+    public function searchAndUninstallBundles($path, $removeFiles = false)
+    {
+        $bundles = $this->getBundlesFromPath($path);
+        foreach ($bundles as $bundle) {
+            if (Kryn::isActiveBundle($bundle)) {
+                $this->uninstall($bundle, $removeFiles, true);
+            }
+        }
+    }
+
+    /**
+     * @param string $path
+     */
+    public function searchAndInstallBundles($path)
+    {
+        $bundles = $this->getBundlesFromPath($path);
+        foreach ($bundles as $bundle) {
+            $this->install($bundle, true);
+        }
+    }
+
+    /**
+     * @throws \Core\Exceptions\FileNotWritableException
+     */
+    public function updateAutoloader()
+    {
+        putenv('COMPOSER_HOME=./');
+        putenv('COMPOSER_CACHE_DIR=' . Kryn::getSystemConfig()->getTempDir());
+
+        if (!is_writeable($composerDir = $this->getComposerVendorDir() . 'composer/')) {
+            throw new FileNotWritableException(sprintf('Directory `%s` is not writable.', $composerDir));
+        }
+
+        if (!is_writeable($autoload = $this->getComposerVendorDir() . 'autoload.php')) {
+            throw new FileNotWritableException(sprintf('File `%s` is not writable.', $autoload));
+        }
+
+        $io = new BufferIO();
+        $composer = Factory::create($io);
+        $eventDispatcher = new EventDispatcher($composer, $io);
+        $autoloadGenerator = new AutoloadGenerator($eventDispatcher);
+        $localRepo = $composer->getRepositoryManager()->getLocalRepository();
+
+        $autoloadGenerator->dump(
+            $composer->getConfig(),
+            $localRepo,
+            $composer->getPackage(),
+            $composer->getInstallationManager(),
+            'composer',
+            true
+        );
     }
 
     /**

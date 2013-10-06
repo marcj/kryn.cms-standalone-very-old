@@ -2838,10 +2838,11 @@ class Kryn extends Controller
 
     /**
      * @param string $bundleName
+     * @param bool   $activeCheck
      *
      * @return Bundle
      */
-    public static function getBundle($bundleName)
+    public static function getBundle($bundleName, $activeCheck = true)
     {
         preg_match('/\@+([a-zA-Z0-9\-_\\\\]+)/', $bundleName, $matches);
         if (0 !== count($matches)) {
@@ -2856,6 +2857,12 @@ class Kryn extends Controller
         $clazzIdx = strtolower($clazz);
         if (self::$bundleInstances[$clazzIdx]) {
             return self::$bundleInstances[$clazzIdx];
+        }
+
+        if ($activeCheck) {
+            if (!in_array($clazz, static::$bundles)) {
+                return null;
+            }
         }
 
         if (!class_exists($clazz)) {

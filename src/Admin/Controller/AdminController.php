@@ -281,6 +281,9 @@ class AdminController
                         ->addPostRoute('activate', 'activate')
                         ->addPostRoute('deactivate', 'deactivate')
 
+                        ->addPostRoute('composer/install', 'installComposer')
+                        ->addPostRoute('composer/uninstall', 'uninstallComposer')
+
                         ->addGetRoute('info', 'getInfo')
                     ->done()
 

@@ -311,6 +311,10 @@ ka.Window = new Class({
         return this._prompt(pDesc, pDefaultValue, pCallback, pOpts);
     },
 
+    prompt: function(pText, pDefaultValue, pCallback) {
+        return this._prompt(pText, pDefaultValue, pCallback);
+    },
+
     /**
      *
      * @param pDesc
