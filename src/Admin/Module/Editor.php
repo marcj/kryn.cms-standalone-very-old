@@ -99,30 +99,6 @@ class Editor
                 && $config->saveFileBased('assets');
     }
 
-    public function getLanguage($name, $lang = null)
-    {
-        Manager::prepareName($name);
-
-        return \Core\Lang::getLanguage($name, $lang);
-
-    }
-
-    public function saveLanguage($name, $langs, $lang = null)
-    {
-        Manager::prepareName($name);
-
-        return \Core\Lang::saveLanguage($name, $lang, $langs);
-
-    }
-
-    public function getExtractedLanguage($name)
-    {
-        Manager::prepareName($name);
-
-        return \Core\Lang::extractLanguage($name);
-
-    }
-
     /**
      * Returns all php classes that uses the window framework classes as parents.
      *

@@ -115,6 +115,7 @@ class Bundle extends Model
     public function toArray($element = null)
     {
         $value['name'] = $this->getBundleName();
+        $value['class'] = get_class($this->getBundleClass());
         $value = array_merge($value, parent::toArray($element));
 
         return $value;

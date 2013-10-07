@@ -10,7 +10,7 @@ var admin_system_languages = new Class({
         this.win.content.empty();
 
         this.info = new Element('div', {
-            style: 'position: absolute; left: 0px; right: 0px; top: 0px; height: 23px; border-bottom: 2px solid gray; padding: 4px; font-weight: bold; color: gray; text-align: center;',
+            style: 'position: absolute; left: 0px; right: 0px; top: 0px; height: 23px; padding: 4px; font-weight: bold; color: gray; text-align: center;',
             html: _('The native language is english. Do not translate the english language, unless you want to adjust some phrases.')
         }).inject(this.win.content);
 
@@ -18,15 +18,13 @@ var admin_system_languages = new Class({
             'class': 'admin-system-languages-main'
         }).inject(this.win.content);
 
-        this.topNavi = this.win.addSmallTabGroup();
-        this.buttons = {};
-        this.buttons['extensions'] = this.topNavi.addButton(_('Extensions'));
-        this.buttons['extensions'].setPressed(true);
+        var actionBar = new Element('div', {
+            'class': 'ka-ActionBar'
+        }).inject(this.win.getTitleGroupContainer());
 
         this.languageSelect = new ka.Select();
         this.languageSelect.addEvent('change', this.loadOverview.bind(this));
-        this.languageSelect.inject(this.win.titleGroups);
-        this.languageSelect.setStyle('top', 2);
+        this.languageSelect.inject(actionBar);
 
         Object.each(ka.settings.langs, function (lang, id) {
             this.languageSelect.add(id, lang.langtitle + ' (' + lang.title + ', ' + id + ')');
@@ -34,14 +32,13 @@ var admin_system_languages = new Class({
 
         this.languageSelect.setValue(window._session.lang);
 
-        this.loader = new ka.Loader(this.win.content);
+        this.win.setLoading(true);
 
         this.loadOverview();
 
     },
 
     loadOverview: function () {
-
         this.main.empty();
 
         this.extensionsDivs = {};
@@ -49,34 +46,39 @@ var admin_system_languages = new Class({
         this.translateBtn = {};
 
         Object.each(ka.settings.configs, function (config, id) {
-
             var title = config.title;
 
-            new Element('h3', {
-                text: title,
-                style: 'font-weight:bold'
+            var div = new Element('div', {
+                'class': 'ka-system-cat'
             }).inject(this.main);
 
-            this.extensionsDivs[ id ] = new Element('div', {
+            new Element('div', {
+                text: config['class'],
+                style: 'font-weight: bold;'
+            }).inject(div);
+
+            this.extensionsDivs[config.name] = new Element('div', {
                 style: 'height: 38px; position: relative;'
-            }).inject(this.main);
-            this.renderExtensionOverview(id);
+            }).inject(div);
+            this.renderExtensionOverview(config.name);
 
         }.bind(this));
+
+        this.win.setLoading(false);
     },
 
     renderExtensionOverview: function (pExtensionId) {
         var div = this.extensionsDivs[ pExtensionId ];
         div.empty();
 
-        var left = new Element('div', {style: 'position: absolute; left: 5px; top: 10px; right: 90px;'}).inject(div);
+        var left = new Element('div', {style: 'position: absolute; left: 50px; top: 10px; right: 90px; max-width: 350px'}).inject(div);
         this.progressBars[pExtensionId] = new ka.Progress(t('Extracting ...'), true);
         this.progressBars[pExtensionId].inject(left);
 
-        var right = new Element('div', {style: 'position: absolute; right: 10px; top: 12px;'}).inject(div)
+        var right = new Element('div', {style: 'position: absolute; right: 10px; top: 7px;'}).inject(div);
         this.translateBtn[pExtensionId] = new ka.Button(t('Translate')).inject(right);
         this.translateBtn[pExtensionId].addEvent('click', function () {
-            ka.wm.open('admin/system/languages/edit', {lang: this.languageSelect.getValue(), module: pExtensionId});
+            ka.wm.open('admin/system/languages/edit', {lang: this.languageSelect.getValue(), bundle: pExtensionId});
         }.bind(this));
         this.translateBtn[pExtensionId].deactivate();
 
@@ -86,7 +88,7 @@ var admin_system_languages = new Class({
 
     loadExtensionOverview: function (pExtensionId) {
 
-        this.lastRequests = new Request.JSON({url: _path + 'admin/system/languages/overview', noCache: 1,
+        this.lastRequests = new Request.JSON({url: _pathAdmin + 'admin/system/module/editor/language/overview', noCache: 1,
             onComplete: function (pResponse) {
 
                 if (!pResponse.data) {
@@ -107,7 +109,7 @@ var admin_system_languages = new Class({
                 }
 
                 this.translateBtn[pExtensionId].activate();
-            }.bind(this)}).get({module: pExtensionId, lang: this.languageSelect.getValue()});
+            }.bind(this)}).get({bundle: pExtensionId, lang: this.languageSelect.getValue()});
 
     }
 });

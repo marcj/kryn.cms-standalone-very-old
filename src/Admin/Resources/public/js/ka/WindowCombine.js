@@ -264,6 +264,7 @@ ka.WindowCombine = new Class({
         this.parent();
 
         this.viewActionBar = new ka.ButtonGroup(this.topActionBar);
+        this.viewActionBar.inject(this.topActionBar, 'top');
         this.viewListBtn = this.viewActionBar.addIconButton(t('Grid'), '#icon-list-9', this.setView.bind(this, 'list'));
 
         this.viewCompactBtn = this.viewActionBar

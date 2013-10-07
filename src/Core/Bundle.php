@@ -170,7 +170,7 @@ class Bundle
     }
 
     /**
-     * @return array
+     * @return string[]
      */
     public function getConfigFiles()
     {

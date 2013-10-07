@@ -2,24 +2,38 @@
 
 namespace Admin\Controller;
 
+use Admin\Module\Manager;
+
 class Languages
 {
-    public function __construct($restServer)
-    {
-        $restServer
-            //->addGetRoute('all-languages', 'getLanguageOverview')
-            ->addGetRoute('overview', 'getOverviewExtract');
 
+    public function getLanguage($bundle, $lang = null)
+    {
+        Manager::prepareName($bundle);
+        return \Core\Lang::getLanguage($bundle, $lang);
     }
 
-    public function getOverviewExtract($module, $lang)
+    public function saveLanguage($bundle, $langs, $lang = null)
     {
-        if (!$module || !$lang) {
+        Manager::prepareName($bundle);
+        return \Core\Lang::saveLanguage($bundle, $lang, $langs);
+    }
+
+    public function getExtractedLanguage($bundle)
+    {
+        Manager::prepareName($bundle);
+
+        return \Core\Lang::extractLanguage($bundle);
+    }
+
+    public function getOverviewExtract($bundle, $lang)
+    {
+        if (!$bundle || !$lang) {
             return array();
         }
 
-        $extract = \Core\Lang::extractLanguage($module);
-        $translated = \Core\Lang::getLanguage($module, $lang);
+        $extract = \Core\Lang::extractLanguage($bundle);
+        $translated = \Core\Lang::getLanguage($bundle, $lang);
 
         $p100 = count($extract);
         $cTranslated = 0;

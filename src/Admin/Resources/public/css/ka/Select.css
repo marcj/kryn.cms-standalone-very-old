@@ -38,6 +38,14 @@
     max-width: 100%;
 }
 
+.ka-Select-box:first-child {
+    margin-left: 0;
+}
+
+.ka-Select-box:last-child {
+    margin-right: 0;
+}
+
 
 .ka-ActionBar .ka-Select-box,
 .ka-ActionBar .ka-Select-box:link,

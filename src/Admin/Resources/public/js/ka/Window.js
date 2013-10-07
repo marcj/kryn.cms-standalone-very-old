@@ -1117,6 +1117,10 @@ ka.Window = new Class({
         return this.titleGroups;
     },
 
+    enableTitleActionBar: function() {
+        this.getTitleGroupContainer().addClass('ka-ActionBar');
+    },
+
     getContentContainer: function () {
         return this.content;
     },

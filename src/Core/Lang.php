@@ -11,6 +11,8 @@
  */
 
 namespace Core;
+use Core\Exceptions\FileNotWritableException;
+use Symfony\Component\Finder\Finder;
 
 /**
  * krynLanguage - a class that handles .po files
@@ -18,9 +20,9 @@ namespace Core;
 
 class Lang
 {
-    public static function getLanguage($moduleName, $lang)
+    public static function getLanguage($bundle, $lang)
     {
-        $res = self::parsePo($moduleName, $lang);
+        $res = self::parsePo($bundle, $lang);
 
         $pluralForm = self::getPluralForm($lang);
         preg_match('/^nplurals=([0-9]+);/', $pluralForm, $match);
@@ -62,11 +64,11 @@ class Lang
 
     public static function toPoString($string)
     {
-        $res = '"';
-        $res .= preg_replace('/([^\\\\])"/', '$1\"', str_replace("\n", '\n"' . "\n" . '"', $string));
-        $res .= '"';
+        $string = addcslashes($string, '"');
+        $string = str_replace("\n", '\n"' . "\n" . '"', $string);
+        $res = preg_replace('/([^\\\\])"/', '$1\"', $string);
 
-        return $res;
+        return '"' . $res . '"';
     }
 
     /**
@@ -104,11 +106,11 @@ class Lang
         return Kryn::getTempFolder() . $file;
     }
 
-    public static function parsePo($moduleName, $lang)
+    public static function parsePo($bundle, $lang)
     {
-        $file = Kryn::resolvePath("@$moduleName/$lang.po", 'Resources/translations');
+        $file = Kryn::resolvePath("@$bundle/$lang.po", 'Resources/translations');
 
-        $res = array('header' => array(), 'translations' => array());
+        $res = array('header' => array(), 'translations' => array(), 'file' => $file);
         if (!file_exists($file)) {
             return $res;
         }
@@ -181,19 +183,25 @@ class Lang
 
     }
 
-    public static function saveLanguage($moduleName, $lang, $langs)
+    /**
+     * @param string $bundle
+     * @param string $lang
+     * @param array  $translation
+     * @return bool
+     * @throws Exceptions\FileNotWritableException
+     */
+    public static function saveLanguage($bundle, $lang, $translation)
     {
-        Kryn::clearLanguageCache($lang);
-        $file = PATH_MODULE . $moduleName . '/lang/' . $lang . '.po';
-        if ($moduleName == 'Kryn') {
-            $file = PATH_CORE . 'lang/' . $lang . '.po';
+        $file = Kryn::resolvePath("@$bundle/$lang.po", 'Resources/translations');
+
+        @mkdir(dirname($file));
+
+        if (!is_writable($file)) {
+            throw new FileNotWritableException(t('File `%s` is not writable.', $file));
         }
 
-        mkdir(dirname($file));
-
-        $translations = json_decode($langs, true);
-
-        $current = self::parsePo($moduleName, $lang);
+        $translations = json_decode($translation, true);
+        $current = self::parsePo($bundle, $lang);
 
         $fh = fopen($file, 'w');
 
@@ -201,13 +209,9 @@ class Lang
             return false;
         }
 
-        $pluralForms = 'nplurals=2; plural=(n!=1);';
-        if (self::getPluralForm($lang)) {
-            $pluralForms = self::getPluralForm($lang);
-        }
+        $pluralForms = self::getPluralForm($lang) ?: 'nplurals=2; plural=(n!=1);';
 
         if ($current) {
-
             $current['header']['Plural-Forms'] = $pluralForms;
             $current['header']['PO-Revision-Date'] = date('Y-m-d H:iO');
 
@@ -226,7 +230,7 @@ class Lang
                 '
                msgid ""
                msgstr ""
-               "Project-Id-Version: Kryn.cms - ' . $moduleName . '\n"
+               "Project-Id-Version: Kryn.cms - ' . $bundle . '\n"
 "PO-Revision-Date: ' . date('Y-m-d H:iO') . '\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -275,40 +279,35 @@ class Lang
 
     }
 
-    public static function extractLanguage($moduleName)
+    public static function extractLanguage($bundle)
     {
         $GLOBALS['moduleTempLangs'] = array();
 
-        $mod = $moduleName;
+        $bundleObject = Kryn::getBundle($bundle);
+        $path = $bundleObject->getPath();
 
-        if ($moduleName == 'Kryn') {
+        self::readDirectory($path. 'Views');
+        self::readDirectory($path. 'Resources/public');
+        self::readConfig($bundleObject);
 
-            $config = 'inc/Kryn/config.json';
-            self::readDirectory(PHP_CORE);
-            self::readDirectory(PATH_WEB . 'Kryn');
-        } else {
-            self::readDirectory(PATH_MODULE . $mod);
-            self::readDirectory(PATH_WEB . $mod);
-            $config = PATH_MODULE . '' . $mod . '/config.json';
-        }
+        $files = Finder::create()
+            ->files()
+            ->in($path)
+            ->name('*.php');
 
-        self::extractFile($config);
-
-        $classes = glob(PATH_MODULE . $mod . '/*.class.php');
-        if (count($classes) > 0) {
-            foreach ($classes as $class) {
-
-                $classPlain = file_get_contents($class);
-                if (preg_match('/ extends ObjectCrud/', $classPlain)) {
-                    require_once($class);
-                    $className = str_replace(PATH_MODULE . '' . $mod . '/', '', $class);
-                    $className = str_replace('.class.php', '', $className);
+        foreach ($files as $file) {
+            $classPlain = file_get_contents($file);
+            if (preg_match('/ extends ObjectCrud/', $classPlain)) {
+                preg_match('/^\s*\t*class ([a-z0-9_]+)/mi', $classPlain, $className);
+                if (isset($className[1]) && $className[1]){
+                    preg_match('/\s*\t*namespace ([a-zA-Z0-9_\\\\]+)/', $classPlain, $namespace);
+                    $className = (count($namespace) > 1 ? $namespace[1] . '\\' : '' ) . $className[1];
                     $tempObj = new $className();
                     if ($tempObj->columns) {
-                        self::extractFrameworkFields($tempObj->columns);
+                        self::extractFrameworkFields($tempObj->getColumns());
                     }
                     if ($tempObj->fields) {
-                        self::extractFrameworkFields($tempObj->fields);
+                        self::extractFrameworkFields($tempObj->getFields());
                     }
                     if ($tempObj->tabFields) {
                         foreach ($tempObj->tabFields as $key => $fields) {
@@ -323,6 +322,19 @@ class Lang
         unset($GLOBALS['moduleTempLangs']['']);
 
         return $GLOBALS['moduleTempLangs'];
+    }
+
+    public static function readConfig(Bundle $bundle)
+    {
+        $files = $bundle->getConfigFiles();
+        foreach ($files as $file) {
+            $xml = simplexml_load_file($file);
+            $labels = $xml->xpath("//label");
+            foreach ($labels as $label) {
+                /** @var \SimpleXMLElement $label */
+                $GLOBALS['moduleTempLangs'][(string)$label] = (string)$label;
+            }
+        }
     }
 
     public static function extractFrameworkFields($fields)
@@ -352,11 +364,7 @@ class Lang
 
     public static function evalString($p)
     {
-        $p = str_replace('\n', "\n", $p);
-        $p = str_replace('\\\\', "\\", $p);
-        $p = str_replace('\"', "\"", $p);
-
-        return $p;
+        return stripcslashes($p);
     }
 
     /*
@@ -423,6 +431,7 @@ class Lang
 
     public static function readDirectory($path)
     {
+        if (!file_exists($path)) return;
         $h = opendir($path);
         while ($file = readdir($h)) {
             if ($file == '.' || $file == '..' || $file == '.svn') {

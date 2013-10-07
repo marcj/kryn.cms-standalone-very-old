@@ -308,7 +308,7 @@ ka.Table = new Class({
             if (firstTr) {
                 var columns = this.tableHead.getElement('tr').getChildren('th');
                 firstTr.getChildren('td').each(function(td, index) {
-                    columns[index].setStyle('width', td.getSize().x - 10); //10 padding
+                    columns[index].setStyle('width', td.getScrollSize().x - 10); //10 padding
                 }.bind(this));
             }
 
@@ -326,7 +326,6 @@ ka.Table = new Class({
     },
 
     setValues: function (pValues) {
-
         this.tableBody.empty();
 
         if (typeOf(pValues) == 'array') {

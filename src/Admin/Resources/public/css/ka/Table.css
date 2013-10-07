@@ -88,8 +88,6 @@
 .ka-Table-body > tr > td {
     padding: 5px;
     cursor: default;
-    text-overflow: ellipsis;
-    white-space: nowrap;
     line-height: 18px;
 }
 

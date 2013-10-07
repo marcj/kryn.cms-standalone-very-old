@@ -284,10 +284,9 @@ class AdminController
                         ->addPostRoute('composer/install', 'installComposer')
                         ->addPostRoute('composer/uninstall', 'uninstallComposer')
 
-                        ->addGetRoute('info', 'getInfo')
-                    ->done()
+//                        ->addGetRoute('composer/packages', 'getComposerPackages')
 
-                    ->addSubController('languages', '\Admin\Controller\Languages')
+                        ->addGetRoute('info', 'getInfo')
                     ->done()
 
                     //admin/system/orm
@@ -327,9 +326,13 @@ class AdminController
                         ->addPostRoute('themes', 'saveThemes')
                         ->addGetRoute('themes', 'getThemes')
 
-                        ->addPostRoute('language', 'saveLanguage')
-                        ->addGetRoute('language', 'getLanguage')
-                        ->addGetRoute('language/extract', 'getExtractedLanguage')
+                        ->addSubController('language', '\Admin\Controller\Languages')
+                            ->addGetRoute('overview', 'getOverviewExtract')
+                            ->addPostRoute('', 'saveLanguage')
+                            ->addGetRoute('', 'getLanguage')
+                            ->addGetRoute('extract', 'getExtractedLanguage')
+
+                        ->done()
 
                         ->addPostRoute('general', 'saveGeneral')
                         ->addPostRoute('entryPoints', 'saveEntryPoints')

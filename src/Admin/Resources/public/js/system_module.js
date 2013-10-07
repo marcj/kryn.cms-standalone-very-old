@@ -205,10 +205,10 @@ var admin_system_module = new Class({
     installComposerPackage: function(name, version, withBundles)
     {
 
-        if ('string' !== typeOf(name) || name.length <= 1) {
+        if ('string' !== typeOf(name) || name.length <= 1 || !version) {
             var dialog;
 
-            dialog = this.win.prompt(t('Package name:'), '', function(name){
+            dialog = this.win.prompt(t('Package name:'), name || '', function(name){
                 if (typeOf(name) == 'string' && name.length > 1) {
                     this.installComposerPackage(name, dialog.version.getValue(), dialog.withBundles.getValue());
                 }
@@ -293,6 +293,8 @@ var admin_system_module = new Class({
         this.setBundleRequest = new Request.JSON({url: _pathAdmin + 'admin/system/module/manager/'+uri, noCache: 1,
             onComplete: function () {
                 this.loadInstalled();
+                ka.loadSettings();
+                ka.loadMenu();
             }.bind(this)}).post({'bundle': className, ormUpdate: 1, removeFiles: removeFiles});
     },
 
@@ -411,24 +413,24 @@ var admin_system_module = new Class({
 
             var actions = new Element('div');
             var bActions = new Element('div');
-            if (!['Core\\CoreBundle'].contains(key)) {
+            if (!['Core\\CoreBundle', 'Admin\\AdminBundle', 'Users\\UsersBundle'].contains(key)) {
                 if (item.activated) {
                     new ka.Button(_('Deactivate')).addEvent('click', function () {
                         new Request.JSON({url: _pathAdmin +
-                            'admin/system/module/manager/deactivate/', noCache: 1, onComplete: function () {
+                            'admin/system/module/manager/deactivate', noCache: 1, onComplete: function () {
                             this.loadLocal();
                             ka.loadSettings();
                             ka.loadMenu();
-                        }.bind(this)}).get({name: key});
+                        }.bind(this)}).post({bundle: key});
                     }.bind(this)).inject(bActions)
                 } else {
                     new ka.Button(_('Activate')).addEvent('click', function () {
                         new Request.JSON({url: _pathAdmin +
-                            'admin/system/module/manager/activate/', noCache: 1, onComplete: function () {
+                            'admin/system/module/manager/activate', noCache: 1, onComplete: function () {
                             this.loadLocal();
                             ka.loadSettings();
                             ka.loadMenu();
-                        }.bind(this)}).get({name: key});
+                        }.bind(this)}).post({bundle: key});
                     }.bind(this)).inject(bActions);
                 }
             }
@@ -510,7 +512,7 @@ var admin_system_module = new Class({
         }.bind(this)).inject(this.searchLeftPane);
 
         new Element('span', {
-            html: _('Extension code or file:') + ' #'
+            html: _('Package name:') + ' #'
         }).inject(this.searchPane);
 
         this.directInput = new Element('input', {
@@ -521,37 +523,19 @@ var admin_system_module = new Class({
         var _this = this;
         var chooserWin;
 
-        new ka.Button(_('Choose')).addEvent('click',
-            function () {
-                chooserWin = ka.wm.openWindow('admin/backend/chooser', null, -1, {onChoose: function (pValue) {
-                    _this.directInput.value = pValue;
-                    chooserWin.close();
-                }.bind(this),
-                    opts: {files: 1, upload: 1}
-                });
-            }).inject(this.searchPane);
-
         this.directBtn = new ka.Button(_('Install')).addEvent('click', function () {
             if (this.directInput.value == '') {
                 return this.directInput.highlight();
             }
-            var type = 1; //internet
-            if (this.directInput.value.test('zip')) {
-                type = this.directInput.value;
-            }
-
-            ka.wm.open('admin/system/module/view', {name: this.directInput.value, type: type});
+            return this.installComposerPackage(this.directInput.value);
         }.bind(this)).inject(this.searchPane);
 
         this.mainPane = new Element('div', {
-            'style': 'position: absolute; top: 46px; left: 0px; right: 221px; bottom: 0px; background-color: #f4f4f4; padding: 5px; overflow: auto;'
+            'style': 'position: absolute; top: 46px; left: 0px; right: 0px; bottom: 0px; background-color: #f4f4f4; padding: 5px; overflow: auto;',
+            text: 'TODO'
         }).inject(this.panes['install']);
 
-        this.boxPane = new Element('div', {
-            'style': 'position: absolute; top: 46px; width: 220px; right: 0px; bottom: 0px; background-color: #f4f4f4; border-left: 1px solid #ddd; overflow: auto'
-        }).inject(this.panes['install']);
-
-        this.viewPath();
+        //this.viewPath();
 
     },
 
@@ -612,119 +596,118 @@ var admin_system_module = new Class({
 
     },
 
-    openCategoryList: function (pId) {
+//    openCategoryList: function (pId) {
+//
+//        new Element('h2', {
+//            html: _('Extensions in %s').replace('%s', this.categories[ pId ]),
+//            style: 'margin: 2px;'
+//        }).inject(this.mainPane);
+//
+//        new ka.Button('< ' + _('Go to overview')).addEvent('click', function () {
+//            this.viewPath();
+//        }.bind(this)).inject(this.mainPane);
+//
+//        var content = new Element('div', {
+//            html: '<center><img src="' + _path + 'bundles/admin/images/loading.gif" /></center>'
+//        }).inject(this.mainPane);
+//
+//        new Request.JSON({url: _pathAdmin +
+//            'admin/system/module/managerGetCategoryItems', noCache: 1, onComplete: function (res) {
+//            content.set('html', '');
+//
+//            if (res) {
+//                res.each(function (item) {
+//                    this._createListItem(item).inject(content);
+//                }.bind(this));
+//            }
+//
+//        }.bind(this)}).get({category: pId, lang: window._session.lang});
+//
+//    },
 
-        new Element('h2', {
-            html: _('Extensions in %s').replace('%s', this.categories[ pId ]),
-            style: 'margin: 2px;'
-        }).inject(this.mainPane);
+//    _createListItem: function (pItem) {
+//        var box = new Element('div', {
+//            style: 'border-bottom: 1px solid #ddd; padding: 8px 4px; margin: 4px 0px'
+//        });
+//        var h3 = new Element('h3', {
+//            html: pItem.title,
+//            style: 'font-weight: bold;'
+//        }).inject(box);
+//
+//        new Element('span', {
+//            style: 'font-size: 10px; color: gray; font-weight: normal; padding-left: 5px;',
+//            html: _('by %s').replace('%s', pItem.owner)
+//        }).inject(h3);
+//
+//        var desc = new Element('div', {
+//            style: 'color: gray; padding: 4px 0px; '
+//        }).inject(box);
+//
+//        if (pItem.preview) {
+//            new Element('img', {
+//                style: 'float: right; border: 1px solid silver',
+//                width: 150,
+//                src: pItem.preview
+//            }).inject(desc);
+//        }
+//
+//        new Element('div', {
+//            html: pItem.desc + '<br /><br/>Extensioncode: #' + pItem.name + '<br />' + 'Version: ' + pItem.version +
+//                '<br />' + 'Downloads: ' + pItem.downloads
+//        }).inject(desc);
+//
+//        new Element('div', {
+//            style: 'clear: both;'
+//        }).inject(box);
+//
+//        var line = new Element('div', {
+//        }).inject(box);
+//
+//        new ka.Button(_('Details')).addEvent('click',
+//            function () {
+//                ka.wm.open('admin/system/module/view', {name: pItem.code, type: 1});
+//            }).inject(line);
+//
+//        new ka.Button(_('To website')).set('href', 'http://www.kryn.org/extensions/' + pItem.name).set('target',
+//            '_blank').inject(line);
+//
+//        return box;
+//    },
 
-        new ka.Button('< ' + _('Go to overview')).addEvent('click', function () {
-            this.viewPath();
-        }.bind(this)).inject(this.mainPane);
-
-        var content = new Element('div', {
-            html: '<center><img src="' + _path + 'bundles/admin/images/loading.gif" /></center>'
-        }).inject(this.mainPane);
-
-        new Request.JSON({url: _pathAdmin +
-            'admin/system/module/managerGetCategoryItems', noCache: 1, onComplete: function (res) {
-            content.set('html', '');
-
-            if (res) {
-                res.each(function (item) {
-                    this._createListItem(item).inject(content);
-                }.bind(this));
-            }
-
-        }.bind(this)}).get({category: pId, lang: window._session.lang});
-
-    },
-
-    _createListItem: function (pItem) {
-        var box = new Element('div', {
-            style: 'border-bottom: 1px solid #ddd; padding: 8px 4px; margin: 4px 0px'
-        });
-        var h3 = new Element('h3', {
-            html: pItem.title,
-            style: 'font-weight: bold;'
-        }).inject(box);
-
-        new Element('span', {
-            style: 'font-size: 10px; color: gray; font-weight: normal; padding-left: 5px;',
-            html: _('by %s').replace('%s', pItem.owner)
-        }).inject(h3);
-
-        var desc = new Element('div', {
-            style: 'color: gray; padding: 4px 0px; '
-        }).inject(box);
-
-        if (pItem.preview) {
-            new Element('img', {
-                style: 'float: right; border: 1px solid silver',
-                width: 150,
-                src: pItem.preview
-            }).inject(desc);
-        }
-
-        new Element('div', {
-            html: pItem.desc + '<br /><br/>Extensioncode: #' + pItem.name + '<br />' + 'Version: ' + pItem.version +
-                '<br />' + 'Downloads: ' + pItem.downloads
-        }).inject(desc);
-
-        new Element('div', {
-            style: 'clear: both;'
-        }).inject(box);
-
-        var line = new Element('div', {
-        }).inject(box);
-
-        new ka.Button(_('Details')).addEvent('click',
-            function () {
-                ka.wm.open('admin/system/module/view', {name: pItem.code, type: 1});
-            }).inject(line);
-
-        new ka.Button(_('To website')).set('href', 'http://www.kryn.org/extensions/' + pItem.name).set('target',
-            '_blank').inject(line);
-
-        return box;
-    },
-
-    openSidebar: function (pBoxes) {
-        this.boxPane.empty();
-
-        pBoxes.each(function (opts) {
-            var box = new Element('div', {
-                'style': 'background-color: #eee;'
-            }).inject(this.boxPane);
-
-            var title = new Element('h3', {
-                html: opts.title
-            }).inject(box);
-
-            var content = new Element('div', {
-                style: 'padding: 4px;',
-                html: '<center><img src="' + _path + 'bundles/admin/images/loading.gif" /></center>'
-            }).inject(box);
-
-            if (this.oldGetbox) {
-                this.oldGetbox.cancel();
-            }
-
-            this.oldGetbox = new Request.JSON({url: _pathAdmin +
-                'admin/system/module/managerGetBox/', noCache: 1, onComplete: function (res) {
-                if (res) {
-                    if (opts.render) {
-                        opts.render(res, content, title);
-                    } else {
-                        content.set('html', res.html);
-                    }
-                }
-            }.bind(this)}).get({code: opts.code});
-
-        }.bind(this));
-
-    },
+//    openSidebar: function (pBoxes) {
+//        this.boxPane.empty();
+//
+//        pBoxes.each(function (opts) {
+//            var box = new Element('div', {
+//                'style': 'background-color: #eee;'
+//            }).inject(this.boxPane);
+//
+//            var title = new Element('h3', {
+//                html: opts.title
+//            }).inject(box);
+//
+//            var content = new Element('div', {
+//                style: 'padding: 4px;',
+//                html: '<center><img src="' + _path + 'bundles/admin/images/loading.gif" /></center>'
+//            }).inject(box);
+//
+//            if (this.oldGetbox) {
+//                this.oldGetbox.cancel();
+//            }
+//
+//            this.oldGetbox = new Request.JSON({url: _pathAdmin +
+//                'admin/system/module/managerGetBox/', noCache: 1, onComplete: function (res) {
+//                if (res) {
+//                    if (opts.render) {
+//                        opts.render(res, content, title);
+//                    } else {
+//                        content.set('html', res.html);
+//                    }
+//                }
+//            }.bind(this)}).get({code: opts.code});
+//
+//        }.bind(this));
+//    },
 
     openCategories: function () {
 
@@ -748,50 +731,50 @@ var admin_system_module = new Class({
                 this.addCategoryLine(cat, id);
             }
         }.bind(this));
-
-        this.openSidebar([
-            {title: _('Best themes'), code: 'best-themes', more: this.viewPath.bind(this,
-                'best-themes'), render: this.renderBestThemes.bind(this)}
-        ]);
+//
+//        this.openSidebar([
+//            {title: _('Best themes'), code: 'best-themes', more: this.viewPath.bind(this,
+//                'best-themes'), render: this.renderBestThemes.bind(this)}
+//        ]);
 
     },
 
-    renderBestThemes: function (pRes, pContent, pTitle) {
-        pContent.set('text', '');
-        pRes.each(function (item) {
-
-            var div = new Element('div', {
-                style: "border-bottom: 1px solid #ddd; margin-bottom: 4px; padding-bottom: 6px;",
-                'class': 'extensionmanager-box-item'
-            }).inject(pContent);
-
-            new Element('div', {
-                html: item.title,
-                style: 'font-weight: bold;'
-            }).inject(div);
-
-            new Element('div', {
-                text: '#' + item.code,
-                style: 'color :gray; font-size: 10px;'
-            }).inject(div);
-
-            var imgDiv = new Element('div', {
-                style: 'text-align: center; padding: 2px;'
-            }).inject(div);
-
-            new Element('img', {
-                width: 150,
-                style: 'border: 1px solid silver',
-                src: item.preview
-            }).inject(imgDiv);
-
-            new ka.Button(_('Install')).addEvent('click',
-                function () {
-                    ka.wm.open('admin/system/module/view', {name: item.code, type: 1});
-                }).inject(div);
-
-        }.bind(this));
-    },
+//    renderBestThemes: function (pRes, pContent, pTitle) {
+//        pContent.set('text', '');
+//        pRes.each(function (item) {
+//
+//            var div = new Element('div', {
+//                style: "border-bottom: 1px solid #ddd; margin-bottom: 4px; padding-bottom: 6px;",
+//                'class': 'extensionmanager-box-item'
+//            }).inject(pContent);
+//
+//            new Element('div', {
+//                html: item.title,
+//                style: 'font-weight: bold;'
+//            }).inject(div);
+//
+//            new Element('div', {
+//                text: '#' + item.code,
+//                style: 'color :gray; font-size: 10px;'
+//            }).inject(div);
+//
+//            var imgDiv = new Element('div', {
+//                style: 'text-align: center; padding: 2px;'
+//            }).inject(div);
+//
+//            new Element('img', {
+//                width: 150,
+//                style: 'border: 1px solid silver',
+//                src: item.preview
+//            }).inject(imgDiv);
+//
+//            new ka.Button(_('Install')).addEvent('click',
+//                function () {
+//                    ka.wm.open('admin/system/module/view', {name: item.code, type: 1});
+//                }).inject(div);
+//
+//        }.bind(this));
+//    },
 
     addCategoryLine: function (pTitle, pId) {
         this.categoryLines++;

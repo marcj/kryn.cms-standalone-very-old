@@ -22,6 +22,16 @@ use Core\SystemFile;
 
 class Manager
 {
+    /**
+     * @var BufferIO
+     */
+    private $composerIO;
+
+    /**
+     * @var Composer
+     */
+    private $composer;
+
     public function __construct()
     {
         define('KRYN_MANAGER', true);
@@ -506,16 +516,33 @@ class Manager
         return array($matchedPackage, $versions);
     }
 
+//    public function getComposerPackages()
+//    {
+//        $composer = $this->getComposer();
+//
+//        $platformRepo = new PlatformRepository();
+//        $localRepo = $composer->getRepositoryManager()->getLocalRepository();
+//        $installedRepo = new CompositeRepository(array($localRepo, $platformRepo));
+//        $repos = new CompositeRepository(array_merge(array($installedRepo), $composer->getRepositoryManager()->getRepositories()));
+//
+//        /** @var \Composer\Repository\ComposerRepository $repo */
+//        $repo = $composer->getRepositoryManager()->getRepositories()[1];
+//        //return $repo->findPackage();
+//        var_dump($repo->getMinimalPackages());
+//        die();
+//        foreach ($repo->getPackages() as $package) {
+//            echo $package->getName();
+//        }
+//
+//    }
+
     public function installComposer($name, $version, $withBundles = false)
     {
         if (!is_writeable($vendorDir = $this->getComposerVendorDir())) {
             throw new FileNotWritableException(sprintf('Directory `%s` is not writable.', $vendorDir));
         }
 
-        putenv('COMPOSER_HOME=./');
-        putenv('COMPOSER_CACHE_DIR=' . Kryn::getSystemConfig()->getTempDir());
-        $io = new BufferIO();
-        $composer = Factory::create($io);
+        $composer = $this->getComposer();
 
         //check if bundle exist
         $this->versionParser = new VersionParser();
@@ -551,7 +578,7 @@ class Manager
             }
         }
 
-        $install = Installer::create($io, $composer);
+        $install = Installer::create($this->composerIO, $composer);
         $install
             ->setVerbose(true)
             ->setPreferDist(true)
@@ -566,7 +593,7 @@ class Manager
 
         $this->updateAutoloader();
 
-        return $io->getOutput();
+        return $this->composerIO->getOutput();
     }
 
     /**
@@ -595,13 +622,24 @@ class Manager
     }
 
     /**
+     * @return Composer
+     */
+    private function getComposer()
+    {
+        putenv('COMPOSER_HOME=./');
+        putenv('COMPOSER_CACHE_DIR=' . Kryn::getTempFolder());
+
+        $this->composerIO = new BufferIO();
+        $this->composer = Factory::create($this->composerIO);
+
+        return $this->composer;
+    }
+
+    /**
      * @throws \Core\Exceptions\FileNotWritableException
      */
     public function updateAutoloader()
     {
-        putenv('COMPOSER_HOME=./');
-        putenv('COMPOSER_CACHE_DIR=' . Kryn::getSystemConfig()->getTempDir());
-
         if (!is_writeable($composerDir = $this->getComposerVendorDir() . 'composer/')) {
             throw new FileNotWritableException(sprintf('Directory `%s` is not writable.', $composerDir));
         }
@@ -610,9 +648,8 @@ class Manager
             throw new FileNotWritableException(sprintf('File `%s` is not writable.', $autoload));
         }
 
-        $io = new BufferIO();
-        $composer = Factory::create($io);
-        $eventDispatcher = new EventDispatcher($composer, $io);
+        $composer = $this->getComposer();
+        $eventDispatcher = new EventDispatcher($composer, $this->composerIO);
         $autoloadGenerator = new AutoloadGenerator($eventDispatcher);
         $localRepo = $composer->getRepositoryManager()->getLocalRepository();
 

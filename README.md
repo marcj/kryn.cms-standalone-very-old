@@ -52,7 +52,7 @@ Features
  - Symfony2 bundles compatible
  - Symfony2 Components: Routing Component, HttpKernel Component, Observer, Dependency Injection
  - Monolog
- - CKEditor, inline editing and fancy WYSIWYG
+ - TinyMCE, inline editing and fancy WYSIWYG.
 
 Screenshot
 ----------

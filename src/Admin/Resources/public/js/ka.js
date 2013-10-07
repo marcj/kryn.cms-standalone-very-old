@@ -850,12 +850,24 @@ ka.getObjectFieldLabel = function (pValue, pField, pFieldId, pObjectKey, pRelati
  * @return {String} Or false, if the module does not exist/its not activated.
  */
 ka.getExtensionTitle = function (pKey) {
-    var config = ka.settings.configs[pKey];
+    var config = ka.getBundleConfig(pKey);
     if (!config) {
         return null;
     }
 
     return config.label || config.name;
+}
+
+ka.getBundleConfig = function(bundle) {
+    var result;
+    bundle = bundle.toLowerCase();
+    Object.each(ka.settings.configs, function(config, key) {
+        if (result) return;
+        if (key.toLowerCase() == bundle || config.name.toLowerCase() == bundle || config['class'].toLowerCase() == bundle) {
+            result = config;
+        }
+    });
+    return result;
 }
 
 ka.tryLock = function (pWin, pKey, pForce) {
@@ -904,6 +916,10 @@ ka.getDomain = function (pRsn) {
 
 ka.loadSettings = function (keyLimitation, cb) {
     ka.adminInterface.loadSettings(keyLimitation, cb);
+}
+
+ka.loadMenu = function () {
+    ka.adminInterface.loadMenu();
 }
 
 ka.loadLanguage = function (pLang) {

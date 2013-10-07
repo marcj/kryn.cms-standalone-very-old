@@ -3,21 +3,22 @@ var admin_system_languages_edit = new Class({
     initialize: function (pWin) {
         this.win = pWin;
 
-        this.mod = this.win.params.module;
+        this.mod = this.win.params.bundle;
         this.createLayout();
     },
 
     createLayout: function () {
-
-        this.bar = this.win.addButtonGroup();
-        this.saveBtn =
-            this.bar.addButton(_('Save'), _path + 'bundles/admin/images/button-save.png', this.save.bind(this));
+        this.win.enableTitleActionBar();
 
         this.languageSelect = new ka.Select();
         this.languageSelect.addEvent('change', this.extractLanguage.bind(this));
         this.languageSelect.inject(this.win.titleGroups);
         this.languageSelect.setStyle('top', 0);
         this.languageSelect.setStyle('margin-left', 8);
+
+        this.bar = this.win.addButtonGroup();
+        this.saveBtn = this.bar.addButton(_('Save'), null, this.save.bind(this));
+        this.saveBtn.setButtonStyle('blue');
 
         Object.each(ka.settings.langs, function (lang, id) {
             this.languageSelect.add(id, lang.langtitle + ' (' + lang.title + ', ' + id + ')');
@@ -27,18 +28,16 @@ var admin_system_languages_edit = new Class({
             this.languageSelect.setValue(this.win.params.lang);
         }
 
-        if (this.win.params && this.win.params.module) {
-            if (!ka.settings.configs[this.win.params.module]) {
-                this.win._alert(_('Extension %s not found').replace(this.win.params.module));
+        if (this.win.params && this.win.params.bundle) {
+            var bundleConfig = ka.getBundleConfig(this.win.params.bundle);
+
+            if (!bundleConfig) {
+                this.win._alert(tf('Bundle %s not found.', this.win.params.bundle));
                 return;
-            }
-            var title = ka.settings.configs[this.win.params.module]['title']['en'];
-            if (ka.settings.configs[this.win.params.module][_session.lang]) {
-                title = ka.settings.configs[this.win.params.module]['title'][_session.lang];
             }
 
             this.win.clearTitle();
-            this.win.setTitle(title);
+            this.win.setTitle(bundleConfig['class']);
         }
 
         this._extractLanguage();
@@ -53,7 +52,6 @@ var admin_system_languages_edit = new Class({
     },
 
     save: function () {
-
         var translations = {};
 
         Object.each(this.langInputs, function (translation, key) {
@@ -74,32 +72,40 @@ var admin_system_languages_edit = new Class({
         this.saveBtn.startTip(_('Saving ...'));
         translations = JSON.encode(translations);
         this.lr = new Request.JSON({url: _pathAdmin +
-            'admin/system/module/editor/language', noCache: 1, onComplete: function (res) {
-            if (!res.data) {
+            'admin/system/module/editor/language', noCache: 1,
+            noErrorReporting: ['Exceptions\FileNotWritableException'],
+            onComplete: function (res) {
+            if ('Exceptions\FileNotWritableException' === res.error) {
                 this.win._alert(t('Permission denied to the language file. Please check your permissions.'));
+                this.saveBtn.stopTip(t('Failed'));
+            } else {
+                this.saveBtn.stopTip(t('Saved'));
             }
-            this.saveBtn.stopTip(t('Saved'));
-        }.bind(this)}).post({name: this.mod, lang: this.languageSelect.getValue(), langs: translations});
+        }.bind(this)}).post({bundle: this.mod, lang: this.languageSelect.getValue(), langs: translations});
     },
 
     _extractLanguage: function () {
+        this.win.setLoading(true);
         this.lr = new Request.JSON({url: _pathAdmin +
             'admin/system/module/editor/language/extract', noCache: 1, onComplete: function (pResponse) {
+            this.win.setLoading(false);
             if (pResponse.data) {
                 this.extractedLanguages = pResponse.data;
                 this.loadLanguage(true);
             }
-        }.bind(this)}).get({name: this.mod});
+        }.bind(this)}).get({bundle: this.mod});
     },
 
     loadLanguage: function (pRenderExtractedLangs) {
+        this.win.setLoading(true);
         this.lr = new Request.JSON({url: _pathAdmin +
             'admin/system/module/editor/language', noCache: 1, onComplete: function (pResponse) {
             this._renderLangs(pResponse.data, pRenderExtractedLangs);
-        }.bind(this)}).get({name: this.mod, lang: this.languageSelect.getValue()});
+        }.bind(this)}).get({bundle: this.mod, lang: this.languageSelect.getValue()});
     },
 
     _renderLangs: function (pLangs, pRenderExtractedLangs) {
+        this.win.setLoading(false);
         var input, context, value, lkey, inputLi, inputOl, keyOl, keyLi, i;
 
         var p = this.win.content;
@@ -210,7 +216,9 @@ var admin_system_languages_edit = new Class({
                 ]);
             }
         }.bind(this));
+
         this.langTable.setValues(rows);
+        this.langTable.updateTableHeader();
     }
 
 });
