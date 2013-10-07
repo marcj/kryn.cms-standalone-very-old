@@ -60,6 +60,7 @@ var admin_system_module = new Class({
         this.tableInstalledPackages = new ka.Table([
             [_('Name'), null, 'html'],
             [_('Version'), 100],
+            [_('Installed'), 150],
             [_('Action'), 150]
         ], {
             absolute: false,
@@ -155,7 +156,19 @@ var admin_system_module = new Class({
                         }.bind(this))
                         .inject(actions);
 
-                    this.tableInstalledPackages.addRow([packageDef.name, packageDef.version, actions]);
+                    var installed = packageDef.installed;
+
+                    if ('object' === typeOf(installed)) {
+                        installed = new Element('span', {
+                            text: packageDef.installed.version
+                        });
+                        new Element('span', {
+                            text: ' ('+packageDef.installed.reference+')',
+                            style: 'color: gray'
+                        }).inject(installed);
+                    }
+
+                    this.tableInstalledPackages.addRow([packageDef.name, packageDef.version, installed, actions]);
                 }.bind(this));
 
 

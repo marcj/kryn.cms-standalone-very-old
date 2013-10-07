@@ -132,12 +132,40 @@ class Manager
             if ($composer) {
                 $composer = json_decode($composer, true);
 
+                $installedVersions = [];
+                if (SystemFile::exists('composer.lock')) {
+                    $locker = SystemFile::getContent('composer.lock');
+                    $locker = json_decode($locker, true);
+                    if ($locker) {
+                        foreach ($locker['packages'] as $package) {
+                            $version = $package['version'];
+                            $ref = false;
+                            if ('dev-master' === $version) {
+                                if ($package['source']) {
+                                    $ref = substr($package['source']['reference'], 0, 7);
+                                } else if ($package['dist']) {
+                                    $ref = substr($package['source']['reference'], 0, 7);
+                                }
+                            }
+                            if ($ref) {
+                                $version = [
+                                    'version' => $version,
+                                    'reference' => $ref
+                                ];
+                            }
+
+                            $installedVersions[strtolower($package['name'])] = $version;
+                        }
+                    }
+                }
+
                 $packages = [];
 
                 foreach ((array)$composer['require'] as $name => $version) {
                     $package = [
                         'name' => $name,
-                        'version' => $version
+                        'version' => $version,
+                        'installed' => $installedVersions[strtolower($name)]
                     ];
                     $packages[] = $package;
                 }

@@ -286,6 +286,7 @@ class BundleConfigTest extends TestCaseWithCore
 
         $array = array (
             'name' => 'FooBar',
+            'class' => 'Core\Config\Bundle',
             'caches' => array (
                 array (
                     'key' => 'foo',
