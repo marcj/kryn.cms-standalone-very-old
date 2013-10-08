@@ -834,8 +834,7 @@ ka.Files = new Class({
 
         this.address = new ka.Field({
             type: 'text',
-            noWrapper: true,
-            inputHeight: 36
+            noWrapper: true
         }, boxNavi);
 
         this.address.hide();
@@ -874,8 +873,7 @@ ka.Files = new Class({
 
         this.search = new ka.Field({
             type: 'text',
-            noWrapper: true,
-            inputHeight: 36
+            noWrapper: true
         }, searchContainer);
 
         this.search.getFieldObject().input.addEvent('keyup', function (e) {

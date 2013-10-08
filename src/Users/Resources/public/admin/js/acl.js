@@ -819,7 +819,7 @@ var users_acl = new Class({
         }).inject(this.objectRulesFilter);
 
         var div = new Element('div', {
-            style: 'padding-top: 12px;'
+            style: 'padding: 2px 0;'
         }).inject(this.objectRulesFilter);
 
         new ka.Button(t('Deselect'))
@@ -925,13 +925,13 @@ var users_acl = new Class({
             'class': 'users-acl-object-rules-info'
         }).inject(this.objectRulesFilter);
 
-        new Element('div', {
-            text: t('Most important rule shall be on the top.')
-        }).inject(this.objectRulesInfo);
+//        new Element('div', {
+//            text: t('Most important rule shall be on the top.')
+//        }).inject(this.objectRulesInfo);
 
         var div = new Element('div', {
             text: t('Filter modes') + ': ',
-            style: 'line-height: 24px;'
+            style: 'line-height: 26px;'
         }).inject(this.objectRulesInfo);
 
         this.selectModes = new ka.Select(div);
@@ -1323,7 +1323,6 @@ var users_acl = new Class({
     addEntryPointTree: function (pExtensionConfig, pExtensionKey) {
         var title = ka.getExtensionTitle(pExtensionKey);
 
-        console.log('label', title, pExtensionKey);
         var target = new Element('div', {
             style: 'padding-top: 5px; margin-top: 5px; border-top: 1px dashed silver;'
         }).inject(pExtensionKey == 'admin' ? this.entryPointListContainer : this.adminEntryPointDom.childContainer);

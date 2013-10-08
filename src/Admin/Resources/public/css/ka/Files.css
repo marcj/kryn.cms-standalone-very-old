@@ -44,8 +44,8 @@
 }
 
 div.ka-Files-addressFaker {
-    line-height: 32px;
-    height: 34px;
+    line-height: 30px;
+    height: 30px;
     cursor: text;
     border-right: 1px solid #e9e6e6;
 }
@@ -58,8 +58,7 @@ div.ka-Files-addressFaker + .ka-buttonGroup-item:link {
     box-shadow: none;
     position: relative;
     left: -33px;
-    line-height: 33px;
-    height: 33px;
+    line-height: 29px;
 }
 
 .ka-Files-addressFaker > a,

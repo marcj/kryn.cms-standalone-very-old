@@ -120,7 +120,7 @@ input.users-acl-query {
 }
 
 .users-acl-object-constraints-title {
-    height: 60px;
+    height: 65px;
     background-color: #ddd;
     position: relative;
 }
@@ -176,9 +176,15 @@ input.users-acl-query {
 }
 
 .users-acl-object-rules-filter {
-    height: 60px;
+    height: 65px;
     background-color: #ddd;
     position: relative;
+}
+
+.users-acl-object-list,
+.users-acl-object-constraints,
+.users-acl-object-rules {
+    border-top: 1px solid #E0E0E0;
 }
 
 .ka-with-desktop .users-acl-object-rules-filter {

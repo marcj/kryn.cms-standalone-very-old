@@ -85,7 +85,7 @@ class Editor
         if ($adminAssets) {
             $items = [];
             foreach ($adminAssets as $item) {
-                if ('asset' === $item['type']) {
+                if ('asset' === strtolower($item['type'])) {
                     $items[] = new Asset($item);
                 } else {
                     $items[] = new Assets($item);
@@ -96,7 +96,7 @@ class Editor
 
         return $config->saveFileBased('events')
                 && $config->saveFileBased('listeners')
-                && $config->saveFileBased('assets');
+                && $config->saveFileBased('adminAssets');
     }
 
     /**

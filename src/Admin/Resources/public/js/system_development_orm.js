@@ -131,7 +131,7 @@ var admin_system_development_orm = new Class({
         this.lastCmd = pCmd;
         this.lastCb = pCb;
 
-        this.lr = new Request.JSON({url: _path + 'admin/system/orm/' + pCmd, noCache: 1,
+        this.lr = new Request.JSON({url: _pathAdmin + 'admin/system/orm/' + pCmd, noCache: 1,
             onComplete: this.requestCompleted.bind(this)}).get();
 
     }

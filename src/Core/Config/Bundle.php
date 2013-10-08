@@ -223,7 +223,11 @@ class Bundle extends Model
 </config>';
 
         if ($xml == $emptyXml) {
-            SystemFile::remove($xmlFile);
+            if (SystemFile::exists($xmlFile)) {
+                return SystemFile::remove($xmlFile);
+            } else {
+                return true;
+            }
         } else {
             return SystemFile::setContent($xmlFile, $xml);
         }
