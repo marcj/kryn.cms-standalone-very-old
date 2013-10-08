@@ -85,7 +85,7 @@ class Manager
         }
 
         if (!extension_loaded('curl')) {
-            return null;
+            die('Curl extension not loaded.');
         }
 
         $host = self::$config['host'];
