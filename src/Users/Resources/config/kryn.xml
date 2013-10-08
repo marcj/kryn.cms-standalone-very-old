@@ -1,0 +1,7 @@
+<config>
+  <bundle>
+    <adminAssets>
+      <asset>@UsersBundle/admin/js/ka.Field.UsersAclRuleFields.js</asset>
+    </adminAssets>
+  </bundle>
+</config>
