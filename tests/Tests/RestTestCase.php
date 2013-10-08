@@ -31,7 +31,7 @@ class RestTestCase extends TestCaseWithCore
         if ($failOnError && (!is_array($data) || $data['error'])) {
             $this->fail(
                 "path $path, method: $method: (status code: {$info['http_code']}):\n".
-                var_export($info['content'], true)
+                var_export($info, true)
             );
         }
 
