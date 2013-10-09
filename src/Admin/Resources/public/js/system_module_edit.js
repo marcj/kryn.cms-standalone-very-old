@@ -454,7 +454,7 @@ var admin_system_module_edit = new Class({
     createWindow: function(pName) {
 
         var dialog = this.win.newDialog(new Element('h2', {text: t('New Window')}));
-        dialog.setStyle('width', 400);
+        dialog.setStyle('width', '80%');
 
         var d = new Element('div', {
             style: 'padding: 5px 0px;'
@@ -464,13 +464,14 @@ var admin_system_module_edit = new Class({
         var tbody = table;
 
         var tr = new Element('tr').inject(tbody);
+        var classPrefix = '\\' + this.mod.substr(0, this.mod.lastIndexOf('\\')).ucfirst() + '\\';
 
-        new Element('td', {width: '40%', text: t('PHP class:')}).inject(tr);
+        new Element('td', {width: 250, text: t('PHP class:')}).inject(tr);
         var td = new Element('td', {
             width: '10%',
             style: 'color: gray',
             align: 'right',
-            text: '\\' + this.mod.charAt(0).toUpperCase() + this.mod.slice(1) + '\\'
+            text: classPrefix
         }).inject(tr);
         var td = new Element('td').inject(tr);
 
@@ -479,6 +480,8 @@ var admin_system_module_edit = new Class({
             noWrapper: true,
             modifier: 'phpclass'
         }, td);
+
+        name.setValue('Controller\\Admin\\');
 
         this.newWindowDialogCancelBtn = new ka.Button(t('Cancel'))
             .addEvent('click', function() {
@@ -499,7 +502,7 @@ var admin_system_module_edit = new Class({
                 this.newWindowDialogApplyBtn.deactivate();
                 this.newWindowDialogApplyBtn.startTip(t('Please wait ...'));
 
-                new Request.JSON({url: _path + 'admin/system/module/editor/window', noCache: 1,
+                new Request.JSON({url: _pathAdmin + 'admin/system/module/editor/window', noCache: 1,
                     noErrorReporting: ['FileAlreadyExistException'],
                     onComplete: function(pResponse) {
 
@@ -890,7 +893,7 @@ var admin_system_module_edit = new Class({
                     }
                 }
             },
-            isLink: {
+            link: {
                 label: t('Is link in administration menu bar?'),
                 desc: t('Only in the first and second level.'),
                 type: 'checkbox',
@@ -973,7 +976,7 @@ var admin_system_module_edit = new Class({
 
             tr.definition.type = tr.typeField.getValue();
             tr.definition.title = tr.titleField.getValue();
-            tr.definition.id = tr.key.getValue();
+            tr.definition.path = tr.key.getValue();
             var data = tr.definition;
 
             if (tr.childContainer) {

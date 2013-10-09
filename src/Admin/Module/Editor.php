@@ -632,21 +632,22 @@ class Editor
             throw new \FileAlreadyExistException(tf('Class already exist in %s', $reflection->getFileName()));
         }
 
-        $actualPath = str_replace('\\', '/', substr($class, 1)) . '.class.php';
-        $actualPath = \Core\Kryn::getBundleDir($module) . 'controller/' . $actualPath;
+        $actualPath = str_replace('\\', '/', substr($class, 1)) . '.php';
+        $actualPath = \Core\Kryn::getBundleDir($module) . $actualPath;
 
         if (file_exists($actualPath) && !$force) {
             throw new \FileAlreadyExistException(tf('File already exist, %s', $actualPath));
         }
 
         $sourcecode = "<?php\n\n";
+        $bundle = Kryn::getBundle($module);
 
         $lSlash = strrpos($class, '\\');
         $class2Name = $lSlash !== -1 ? substr($class, $lSlash + 1) : $class;
 
         $parentClass = '\Admin\ObjectCrud';
 
-        $namespace = ucfirst($module) . substr($class, 0, $lSlash);
+        $namespace = ucfirst($bundle->getRootNamespace()) . substr($class, 0, $lSlash);
         if (substr($namespace, -1) == '\\') {
             $namespace = substr($namespace, 0, -1);
         }

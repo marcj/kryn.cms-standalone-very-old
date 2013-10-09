@@ -301,7 +301,9 @@ ka.WindowCombine = new Class({
 
             if ('list' === viewType) {
 
-                this.addBtn.setPressed(false);
+                if (this.addBtn) {
+                    this.addBtn.setPressed(false);
+                }
 
                 this.listContainer.setStyle('display', 'block');
                 this.actionBarNavigation.setStyle('display', 'block');

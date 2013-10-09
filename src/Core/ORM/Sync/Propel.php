@@ -218,6 +218,7 @@ class Propel implements SyncInterface {
             return;
         }
 
+
         switch (strtolower($field['type'])) {
             case 'object':
 
@@ -450,9 +451,6 @@ class Propel implements SyncInterface {
                 }
 
                 break;
-
-            default:
-                return false;
 
         }
 
