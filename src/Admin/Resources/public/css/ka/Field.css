@@ -346,3 +346,26 @@ tr.ka-field-main > td div.desc {
     min-height: 20px;
     background-color: white;
 }
+
+.ka-field-condition-container {
+    padding-top: 25px;
+    padding-bottom: 10px;
+}
+
+.ka-field-type-condition {
+    padding-bottom: 5px;
+}
+
+.ka-field-condition-container-field-rule-actionBar {
+    display: inline-block;
+    background-color: #FEFEFE;
+    border: 1px solid #DDD;
+    line-height: 28px;
+    width: 64px;
+    height: 28px;
+}
+
+.ka-field-condition-container-field-rule-actionBar img {
+    margin: 0 2px;
+    cursor: pointer;
+}

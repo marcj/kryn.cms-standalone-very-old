@@ -63,17 +63,17 @@ class TempFile extends WebFile
 
     public static function getPath($path)
     {
-        throw new \Exception(t('getPath on TempFile is not possible. Use Core\File::getPath'));
+        throw new \Exception(t('getPath on TempFile is not possible. Use Core\WebFile::getPath'));
     }
 
     public static function getUrl($path)
     {
-        throw new \Exception(t('getUrl on TempFile is not possible. Use Core\File::getUrl'));
+        throw new \Exception(t('getUrl on TempFile is not possible. Use Core\WebFile::getUrl'));
     }
 
     public static function getTrashFiles()
     {
-        throw new \Exception(t('getTrashFiles on TempFile is not possible. Use Core\File::getTrashFiles'));
+        throw new \Exception(t('getTrashFiles on TempFile is not possible. Use Core\WebFile::getTrashFiles'));
     }
 
 }

@@ -53,8 +53,8 @@ input.users-acl-query {
 
 .users-acl-entrypoint-list a img {
     position: relative;
-    top: 4px;
-    margin-right: 1px;
+    top: 3px;
+    margin-right: 3px;
 }
 
 .users-acl-entrypoint-list a {
@@ -63,6 +63,7 @@ input.users-acl-query {
     position: relative;
     margin-left: 5px;
     outline: 0;
+    color: #222;
     line-height: 14px;
 }
 
@@ -143,7 +144,7 @@ input.users-acl-query {
 .users-acl-object-constraints-container {
     position: absolute;
     left: 0px;
-    top: 61px;
+    top: 65px;
     right: 0px;
     bottom: 0px;
     overflow: auto;
@@ -160,7 +161,7 @@ input.users-acl-query {
 
 .users-acl-object-rules-container {
     position: absolute;
-    top: 61px;
+    top: 65px;
     left: 0px;
     right: 0px;
     bottom: 0px;

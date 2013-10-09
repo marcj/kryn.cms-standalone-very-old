@@ -47,6 +47,9 @@ ka.FieldAbstract = new Class({
         this.createLayout(this.fieldInstance.fieldPanel);
     },
 
+    /**
+     * @returns {ka.Window}
+     */
     getWin: function() {
         return this.win || this.fieldInstance.findWin();
     },

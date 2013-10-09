@@ -194,14 +194,11 @@ a.ka-select-chooser-item {
     white-space: nowrap;
 }
 
-.ka-Select-box-title img,
-.ka-select-chooser-item img {
-    margin-right: 3px;
-    float: left;
-}
-
-.ka-Select-box-title img {
-    margin-top: 2px;
+.ka-Select-box-title img, .ka-select-chooser-item img {
+    margin-right: 2px;
+    position: relative;
+    top: 3px;
+    left: -2px;
 }
 
 .ka-select-chooser-item-active {
@@ -229,4 +226,14 @@ a.ka-select-chooser-item-selected:before {
 
 .ka-Select-chooser a.ka-Select-separator:hover {
     background-color: transparent;
+}
+
+.ka-Select-disabled,
+.ka-Select-disabled:link,
+.ka-Select-disabled:hover,
+.ka-Select-disabled:active {
+    color: #808080;
+    border: 1px solid #E7E7E7;
+    opacity: 0.8;
+    background-color: #FEFEFE;
 }

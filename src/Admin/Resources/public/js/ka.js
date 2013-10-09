@@ -1232,7 +1232,7 @@ ka.getObjectDefinition = function (pObjectKey) {
         throw 'pObjectKey is not a string: ' + pObjectKey;
     }
 
-    pObjectKey = ka.normalizeObjectKey(pObjectKey).toLowerCase();
+    pObjectKey = ka.normalizeObjectKey(pObjectKey);
 
     var module = ("" + pObjectKey.split(':')[0]).toLowerCase();
     var name = pObjectKey.split(':')[1];

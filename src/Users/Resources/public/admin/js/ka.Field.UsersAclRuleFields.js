@@ -53,9 +53,9 @@ ka.FieldTypes.UsersAclRuleFields = new Class({
 
             var select = new ka.Select();
             document.id(select).setStyle('width', 140);
-            select.add('2', [t('Inherited'), 'admin/images/icons/arrow_turn_right_up.png']);
-            select.add('0', [t('Deny'), 'admin/images/icons/exclamation.png']);
-            select.add('1', [t('Allow'), 'admin/images/icons/accept.png']);
+            select.add('2', [t('Inherited'), 'bundles/admin/images/icons/arrow_turn_right_up.png']);
+            select.add('0', [t('Deny'), 'bundles/admin/images/icons/exclamation.png']);
+            select.add('1', [t('Allow'), 'bundles/admin/images/icons/accept.png']);
 
             var more = '';
 
@@ -82,7 +82,7 @@ ka.FieldTypes.UsersAclRuleFields = new Class({
             style: 'padding-left: 15px;'
         }).inject(div);
 
-        new ka.Button([t('Add field rule'), 'admin/images/icons/add.png'])
+        new ka.Button([t('Add field rule'), 'bundles/admin/images/icons/add.png'])
             .addEvent('click', this.addFieldRule.bind(this, conditions, pKey, null))
             .inject(div);
 
@@ -127,16 +127,13 @@ ka.FieldTypes.UsersAclRuleFields = new Class({
         });
 
         var images = new Element('div', {
-            'class': 'ka-Select-box',
-            style: 'width: 69px'
+            'class': 'ka-field-condition-container-field-rule-actionBar'
         }).inject(actions);
 
         var imagesContainer = new Element('div', {
-            'class': 'ka-Select-box-title',
-            style: 'right: 6px;'
         }).inject(images);
 
-        new Element('img', {src: _path + PATH_WEB + '/admin/images/icons/arrow_up.png'})
+        new Element('img', {src: _path  + 'bundles/admin/images/icons/arrow_up.png'})
             .addEvent('click', function () {
                 if (div.getPrevious()) {
                     div.inject(div.getPrevious(), 'before');
@@ -144,14 +141,14 @@ ka.FieldTypes.UsersAclRuleFields = new Class({
             })
             .inject(imagesContainer);
 
-        new Element('img', {src: _path + PATH_WEB + '/admin/images/icons/arrow_down.png'})
+        new Element('img', {src: _path + 'bundles/admin/images/icons/arrow_down.png'})
             .addEvent('click',function () {
                 if (div.getNext()) {
                     div.inject(div.getNext(), 'after');
                 }
             }).inject(imagesContainer);
 
-        new Element('img', {src: _path + PATH_WEB + '/admin/images/icons/delete.png'})
+        new Element('img', {src: _path + 'bundles/admin/images/icons/delete.png'})
             .addEvent('click', function () {
                 this.win._confirm(t('Really delete?'), function (a) {
                     if (!a) {
@@ -163,8 +160,8 @@ ka.FieldTypes.UsersAclRuleFields = new Class({
             }.bind(this))
             .inject(imagesContainer);
 
-        select.add('0', [t('Deny'), 'admin/images/icons/exclamation.png']);
-        select.add('1', [t('Allow'), 'admin/images/icons/accept.png']);
+        select.add('0', [t('Deny'), 'bundles/admin/images/icons/exclamation.png']);
+        select.add('1', [t('Allow'), 'bundles/admin/images/icons/accept.png']);
 
         if (pValues) {
             select.setValue(pValues.access, true);
@@ -203,7 +200,6 @@ ka.FieldTypes.UsersAclRuleFields = new Class({
         div.inject(pContainer);
 
         this.checkHasFieldRules(pFieldKey);
-
     },
 
     getValue: function () {

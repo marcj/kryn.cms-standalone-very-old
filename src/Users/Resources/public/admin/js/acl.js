@@ -49,7 +49,8 @@ var users_acl = new Class({
         this.objectTab = this.tabs.addPane(t('Objects'), '');
 
         this.actions = new ka.ButtonGroup(this.win.titleGroups);
-        this.btnSave = this.actions.addButton(t('Save'), 'bundles/admin/images/button-save.png', this.save.bind(this));
+        this.btnSave = this.actions.addButton(t('Save'), null, this.save.bind(this));
+        this.btnSave.setButtonStyle('blue');
 
         this.tabs.hide();
         this.actions.hide();
@@ -64,6 +65,7 @@ var users_acl = new Class({
 
     loadObjectRules: function (pObjectKey) {
 
+        pObjectKey = ka.normalizeObjectKey(pObjectKey);
         //ka.getObjectDefinition(pObjectKey);
         this.currentObject = pObjectKey;
         logger('loadObjectRules: ', this.currentObject);
@@ -168,7 +170,7 @@ var users_acl = new Class({
 
             target.lastPlusSign.addEvent('click', function (e) {
                 e.stopPropagation();
-                this.openEditRuleDialog(this.currentObject, {constraint_type: 1, constraint_code: target.id});
+                this.openEditRuleDialog(this.currentObject, {constraintType: 1, constraintCode: target.id});
             }.bind(this));
 
         }.bind(this));
@@ -210,13 +212,13 @@ var users_acl = new Class({
     renderTreeRules: function () {
 
         Array.each(this.currentAcls, function (rule) {
-            if (rule.object.toLowerCase() != this.currentObject.toLowerCase()) {
+            if (ka.normalizeObjectKey(rule.object) != this.currentObject) {
                 return;
             }
 
-            if (rule.constraint_type == 1) {
+            if (rule.constraintType == 1) {
 
-                var item = this.lastObjectTree.getFieldObject().getTree().getItem(rule.constraint_code);
+                var item = this.lastObjectTree.getFieldObject().getTree().getItem(rule.constraintCode);
 
                 if (!item) {
                     return false;
@@ -284,28 +286,28 @@ var users_acl = new Class({
         var all = 0;
 
         Array.each(this.currentAcls, function (rule) {
-            if (rule.object.toLowerCase() != this.currentObject.toLowerCase()) {
+            if (ka.normalizeObjectKey(rule.object) != this.currentObject) {
                 return;
             }
 
             all++;
             modeCounter[parseInt(rule.mode)]++;
 
-            if (rule.constraint_type == 2) {
+            if (rule.constraintType == 2) {
                 ruleCounter.custom++;
-            } else if (rule.constraint_type == 1) {
+            } else if (rule.constraintType == 1) {
                 ruleCounter.exact++;
             } else {
                 ruleCounter.all++;
             }
 
-            if (rule.constraint_type >= 1) {
+            if (rule.constraintType >= 1) {
 
-                if (!ruleGrouped[rule.constraint_type][rule.constraint_code]) {
-                    ruleGrouped[rule.constraint_type][rule.constraint_code] = [];
+                if (!ruleGrouped[rule.constraintType][rule.constraintCode]) {
+                    ruleGrouped[rule.constraintType][rule.constraintCode] = [];
                 }
 
-                ruleGrouped[rule.constraint_type][rule.constraint_code].push(rule);
+                ruleGrouped[rule.constraintType][rule.constraintCode].push(rule);
             }
 
         }.bind(this));
@@ -364,7 +366,7 @@ var users_acl = new Class({
         this.objectsExactSplitCount.set('text', '(' + ruleCounter.exact + ')');
 
         Array.each(this.currentAcls, function (rule) {
-            if (rule.object.toLowerCase() != this.currentObject.toLowerCase()) {
+            if (ka.normalizeObjectKey(rule.object) != this.currentObject) {
                 return;
             }
 
@@ -428,10 +430,10 @@ var users_acl = new Class({
             var completelyHide = false;
 
             if (typeOf(pConstraintType) != 'null') {
-                if (pConstraintType === false || child.rule.constraint_type == pConstraintType) {
+                if (pConstraintType === false || child.rule.constraintType == pConstraintType) {
 
                     if (pConstraintType === false || pConstraintType == 0 ||
-                        (pConstraintType >= 1 && pConstraintCode == child.rule.constraint_code)) {
+                        (pConstraintType >= 1 && pConstraintCode == child.rule.constraintCode)) {
                         show = true;
                     }
                 }
@@ -532,10 +534,10 @@ var users_acl = new Class({
 
         var title = t('All objects');
 
-        if (pRule.constraint_type == 1) {
-            title = 'object://' + this.currentObject + '/' + pRule.constraint_code;
+        if (pRule.constraintType == 1) {
+            title = 'object://' + this.currentObject + '/' + pRule.constraintCode;
         }
-        if (pRule.constraint_type == 2) {
+        if (pRule.constraintType == 2) {
             title = '';
         }
 
@@ -543,10 +545,10 @@ var users_acl = new Class({
             text: title
         }).inject(div);
 
-        if (pRule.constraint_type == 2) {
+        if (pRule.constraintType == 2) {
             var span = new Element('span').inject(title);
-            this.humanReadableCondition(pRule.constraint_code, span);
-        } else if (pRule.constraint_type == 1) {
+            this.humanReadableCondition(pRule.constraintCode, span);
+        } else if (pRule.constraintType == 1) {
             this.loadObjectLabel(title);
         }
 
@@ -819,7 +821,7 @@ var users_acl = new Class({
         }).inject(this.objectRulesFilter);
 
         var div = new Element('div', {
-            style: 'padding: 2px 0;'
+            style: 'padding: 2px;'
         }).inject(this.objectRulesFilter);
 
         new ka.Button(t('Deselect'))
@@ -856,7 +858,7 @@ var users_acl = new Class({
             title: t('Add')
         })
             .addEvent('click', function (e) {
-                this.openEditRuleDialog(this.currentObject, {constraint_type: 0});
+                this.openEditRuleDialog(this.currentObject, {constraintType: 0});
                 e.stop();
             }.bind(this))
             .inject(h2);
@@ -880,7 +882,7 @@ var users_acl = new Class({
             title: t('Add')
         })
             .addEvent('click', function () {
-                this.openEditRuleDialog(this.currentObject, {constraint_type: 2});
+                this.openEditRuleDialog(this.currentObject, {constraintType: 2});
             }.bind(this))
             .inject(this.objectsCustomSplit);
 
@@ -903,7 +905,7 @@ var users_acl = new Class({
             title: t('Add')
         })
             .addEvent('click', function () {
-                this.openEditRuleDialog(this.currentObject, {constraint_type: 1})
+                this.openEditRuleDialog(this.currentObject, {constraintType: 1})
             }.bind(this))
             .inject(this.objectsExactSplit);
 
@@ -986,13 +988,13 @@ var users_acl = new Class({
 
         var oldScrollTop = this.objectRulesContainer.getScroll().y;
 
-        if (value.constraint_type == 2) {
-            value.constraint_code = JSON.encode(value.constraint_code_condition);
-            delete value.constraint_code_condition;
+        if (value.constraintType == 2) {
+            value.constraintCode = JSON.encode(value.constraintCodeCondition);
+            delete value.constraintCodeCondition;
         }
-        if (value.constraint_type == 1) {
-            value.constraint_code = value.constraint_code_exact;
-            delete value.constraint_code_exact;
+        if (value.constraintType == 1) {
+            value.constraintCode = value.constraintCodeExact;
+            delete value.constraintCodeExact;
         }
 
         if (!Object.getLength(value.fields)) {
@@ -1002,8 +1004,8 @@ var users_acl = new Class({
         }
 
         value.object = this.currentObject;
-        value.target_type = this.currentTargetType;
-        value.target_id = this.currentTargetRsn;
+        value.targetType = this.currentTargetType;
+        value.targetId = this.currentTargetRsn;
 
         if (this.currentRuleDiv) {
             var pos = this.currentAcls.indexOf(this.currentRuleDiv.rule);
@@ -1091,31 +1093,31 @@ var users_acl = new Class({
 
         var fields = {
 
-            constraint_type: {
+            constraintType: {
                 label: t('Constraint type'),
                 type: 'select',
                 inputWidth: 140,
                 items: {
-                    '0': t('All objects'),
-                    '1': t('Exact object'),
-                    '2': t('Custom condition')
+                    0: t('All objects'),
+                    1: t('Exact object'),
+                    2: t('Custom condition')
                 }
             },
 
-            constraint_code_condition: {
+            constraintCodeCondition: {
                 label: t('Constraint'),
                 needValue: '2',
-                againstField: 'constraint_type',
+                againstField: 'constraintType',
                 type: 'condition',
                 object: pObject,
                 startWith: 1
             },
 
-            constraint_code_exact: {
+            constraintCodeExact: {
                 label: t('Object'),
                 needValue: '1',
                 fieldWidth: 250,
-                againstField: 'constraint_type',
+                againstField: 'constraintType',
                 type: 'object',
                 withoutObjectWrapper: true,
                 object: pObject
@@ -1127,9 +1129,9 @@ var users_acl = new Class({
                 inputWidth: 140,
                 'default': '2',
                 items: {
-                    '2': [t('Inherited'), 'bundles/admin/images/icons/arrow_turn_bottom_left.png'],
-                    '0': [t('Deny'), 'bundles/admin/images/icons/exclamation.png'],
-                    '1': [t('Allow'), 'bundles/admin/images/icons/accept.png']
+                    '2': t('Inherited'),
+                    '0': t('Deny'),
+                    '1': t('Allow')
                 }
 
             },
@@ -1185,11 +1187,11 @@ var users_acl = new Class({
         var rule = Object.clone(
             typeOf(pRuleDiv) == 'element' ? pRuleDiv.rule : typeOf(pRuleDiv) == 'object' ? pRuleDiv : {});
 
-        if (rule.constraint_type == 2) {
-            rule.constraint_code_condition = rule.constraint_code;
+        if (rule.constraintType == 2) {
+            rule.constraintCodeCondition = rule.constraintCode;
         }
-        if (rule.constraint_type == 1) {
-            rule.constraint_code_exact = rule.constraint_code;
+        if (rule.constraintType == 1) {
+            rule.constraintCodeExact = rule.constraintCode;
         }
 
         this.editRuleKaObj.setValue(rule);
@@ -1553,7 +1555,6 @@ var users_acl = new Class({
         this.hideRules();
 
         if (pId == 1) {
-
             this.tabs.hide();
             this.actions.hide();
 
@@ -1617,12 +1618,13 @@ var users_acl = new Class({
         });
 
         Array.each(this.currentAcls, function (rule) {
+            var objectName = ka.normalizeObjectKey(rule.object);
 
-            if (rule.object != 'system_entrypoint') {
+            if (objectName != 'system_entrypoint') {
                 return;
             }
 
-            if (this.currentEntrypointDoms[rule.constraint_code]) {
+            if (this.currentEntrypointDoms[rule.constraintCode]) {
                 this.addEntryPointRuleToTree(rule);
             }
 
@@ -1640,12 +1642,12 @@ var users_acl = new Class({
 
             var rule = {
                 object: 'system_entrypoint',
-                constraint_type: 2,
+                constraintType: 2,
                 sub: 1,
-                constraint_code: pDom.entryPath,
+                constraintCode: pDom.entryPath,
                 access: 1,
-                target_type: this.currentTargetType,
-                target_id: this.currentTargetRsn
+                targetType: this.currentTargetType,
+                targetId: this.currentTargetRsn
             };
             this.currentEntrypointDoms[pDom.entryPath] = pDom;
             this.currentAcls.push(rule);
@@ -1669,12 +1671,6 @@ var users_acl = new Class({
             text: pDom.get('text'),
             style: 'line-height: 14px; font-weight: bold; padding: 2px;'
         }).inject(div);
-
-        pDom.getElement('img').clone().setStyles({
-            position: 'relative',
-            top: 4,
-            marginRight: 1
-        }).inject(title, 'top');
 
         var fieldContainer = new Element('div').inject(div);
 
@@ -1707,7 +1703,7 @@ var users_acl = new Class({
                     return;
                 }
 
-                if (acl.constraint_code != pDom.entryPath) {
+                if (acl.constraintCode != pDom.entryPath) {
                     return;
                 }
 
@@ -1737,7 +1733,7 @@ var users_acl = new Class({
 
     addEntryPointRuleToTree: function (pRule) {
 
-        var dom = this.currentEntrypointDoms[pRule.constraint_code];
+        var dom = this.currentEntrypointDoms[pRule.constraintCode];
 
         if (dom.ruleIcon) {
             dom.ruleIcon.destroy();
@@ -1780,18 +1776,16 @@ var users_acl = new Class({
     },
 
     updateObjectRulesCounter: function () {
-
         var counter = {};
 
         Array.each(this.currentAcls, function (acl) {
-
-            if (counter[acl.object.toLowerCase()]) {
-                counter[acl.object.toLowerCase()]++;
+            var objectName = ka.normalizeObjectKey(acl.object);
+            if (counter[objectName]) {
+                counter[objectName]++;
             }
             else {
-                counter[acl.object.toLowerCase()] = 1;
+                counter[objectName] = 1;
             }
-
         }.bind(this));
 
         Object.each(this.objectDivs, function (dom, key) {
@@ -1804,17 +1798,11 @@ var users_acl = new Class({
     },
 
     setAcls: function (pResponse) {
-
-        if (pResponse.error) {
-            throw pResponse.error;
-        }
-
         if (!pResponse.data) {
             pResponse.data = [];
         }
 
-        this.currentAcls = pResponse.data;
-        this.loadedAcls = pResponse.data.clone(this.currentAcls);
+        this.loadedAcls = this.currentAcls = Array.clone(pResponse.data);
 
         this.updateObjectRulesCounter();
         this.updateEntryPointRules();

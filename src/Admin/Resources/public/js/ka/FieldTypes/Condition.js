@@ -15,17 +15,20 @@ ka.FieldTypes.Condition = new Class({
     dateConditions: ['= NOW()', '!=  NOW()', '<  NOW()', '>  NOW()', '<=  NOW()', '>=  NOW()'],
 
     createLayout: function () {
-
         this.main = new Element('div', {
             'class': 'ka-field-condition-container'
         }).inject(this.fieldInstance.fieldPanel);
 
         new ka.Button(t('Add condition'))
-            .addEvent('click', this.addCondition.bind(this, this.main))
+            .addEvent('click', function(){
+                this.addCondition(this.main);
+            }.bind(this))
             .inject(this.fieldInstance.fieldPanel);
 
         new ka.Button(t('Add group'))
-            .addEvent('click', this.addGroup.bind(this, this.main))
+            .addEvent('click', function(){
+                this.addGroup(this.main);
+            }.bind(this))
             .inject(this.fieldInstance.fieldPanel);
 
         if (this.options.startWith) {
@@ -33,7 +36,6 @@ ka.FieldTypes.Condition = new Class({
                 this.addCondition(this.main);
             }
         }
-
     },
 
     reRender: function (pTarget) {
@@ -48,7 +50,6 @@ ka.FieldTypes.Condition = new Class({
     },
 
     addCondition: function (pTarget, pValues, pCondition) {
-
         var div = new Element('div', {
             'class': 'ka-field-condition-item'
         }).inject(pTarget);
@@ -60,11 +61,6 @@ ka.FieldTypes.Condition = new Class({
 
         var tbody = new Element('tbody').inject(table);
         var tr = new Element('tr').inject(tbody);
-
-        new Element('td', {
-            'class': 'ka-field-condition-leftBracket',
-            text: '('
-        }).inject(tr);
 
         var td = new Element('td', {style: 'width: 40px', 'class': 'ka-field-condition-relContainer'}).inject(tr);
 
@@ -79,23 +75,21 @@ ka.FieldTypes.Condition = new Class({
             relSelect.setValue(pCondition.toUpperCase());
         }
 
-        var td = new Element('td', {style: 'width: 25%'}).inject(tr);
+        var td = new Element('td').inject(tr);
 
-        if (this.options.fields || this.options.field) {
+        if (this.options.object || this.options.field) {
             div.iLeft = new ka.Select(td, {
                 customValue: true
             });
 
             document.id(div.iLeft).setStyle('width', '100%');
 
-            objectDefinition = ka.getObjectDefinition(this.options.object);
+            var objectDefinition = ka.getObjectDefinition(this.options.object);
 
             if (this.options.field) {
-
                 div.iLeft.add(this.options.field,
                     objectDefinition.fields[this.options.field].label || this.options.field);
                 div.iLeft.setEnabled(false);
-
             } else {
                 Object.each(objectDefinition.fields, function (def, key) {
                     div.iLeft.add(key, def.label || key);
@@ -110,7 +104,7 @@ ka.FieldTypes.Condition = new Class({
             div.iLeft.setValue(pValues[0]);
         }
 
-        var td = new Element('td', {style: 'width: 41px; text-align: center'}).inject(tr);
+        var td = new Element('td').inject(tr);
 
         div.iMiddle = new ka.Field({
             type: 'select',
@@ -119,11 +113,16 @@ ka.FieldTypes.Condition = new Class({
                 '= CURRENT_USER', '!= CURRENT_USER']
         }, td);
 
+        td.setStyles({
+            width: 55,
+            textAlign: 'center'
+        });
+
         if (pValues) {
             div.iMiddle.setValue(pValues[1]);
         }
 
-        div.rightTd = new Element('td', {style: 'width: 25%'}).inject(tr);
+        div.rightTd = new Element('td').inject(tr);
 
         div.iRight = new ka.Field({type: 'text', noWrapper: 1}, div.rightTd);
         if (pValues) {
@@ -140,9 +139,8 @@ ka.FieldTypes.Condition = new Class({
         var actions = new Element('td', {style: 'width: ' + parseInt((16 * 4) + 3) + 'px'}).inject(tr);
 
         new Element('a', {
-            'class': 'text-button-icon',
+            'class': 'text-button-icon icon-arrow-up-14',
             title: t('Move up'),
-            html: '&#xe2ca;',
             href: 'javascript: ;'
         }).addEvent('click', function () {
                 if (div.getPrevious()) {
@@ -152,9 +150,8 @@ ka.FieldTypes.Condition = new Class({
             }.bind(this)).inject(actions);
 
         new Element('a', {
-            'class': 'text-button-icon',
+            'class': 'text-button-icon icon-arrow-down-14',
             title: t('Move down'),
-            html: '&#xe2cc;',
             href: 'javascript: ;'
         }).addEvent('click', function () {
                 if (div.getNext()) {
@@ -164,19 +161,13 @@ ka.FieldTypes.Condition = new Class({
             }.bind(this)).inject(actions);
 
         new Element('a', {
-            'class': 'text-button-icon',
+            'class': 'text-button-icon icon-minus-5',
             title: t('Remove'),
-            html: '&#xe26b;',
             href: 'javascript: ;'
         }).addEvent('click', function () {
                 div.destroy();
                 this.reRender(pTarget);
             }.bind(this)).inject(actions);
-
-        new Element('td', {
-            'class': 'ka-field-condition-leftBracket',
-            text: ')'
-        }).inject(tr);
 
         this.reRender(pTarget);
 
@@ -186,6 +177,7 @@ ka.FieldTypes.Condition = new Class({
 
         var chosenField = div.iLeft.getValue();
 
+        var objectDefinition = ka.getObjectDefinition(this.options.object);
         var fieldDefinition = Object.clone(objectDefinition.fields[chosenField]);
 
         if (div.iRight) {
@@ -300,7 +292,7 @@ ka.FieldTypes.Condition = new Class({
         var actions = new Element('span',
             {style: 'position: relative; top: 3px; width: ' + parseInt((16 * 4) + 3) + 'px'}).inject(con, 'before');
 
-        new Element('img', {src: _path + PATH_WEB + '/admin/images/icons/arrow_up.png'})
+        new Element('img', {src: _path + 'bundles/admin/images/icons/arrow_up.png'})
             .addEvent('click', function () {
                 if (div.getPrevious()) {
                     div.inject(div.getPrevious(), 'before');
@@ -309,7 +301,7 @@ ka.FieldTypes.Condition = new Class({
             }.bind(this))
             .inject(actions);
 
-        new Element('img', {src: _path + PATH_WEB + '/admin/images/icons/arrow_down.png'})
+        new Element('img', {src: _path + 'bundles/admin/images/icons/arrow_down.png'})
             .addEvent('click', function () {
                 if (div.getNext()) {
                     div.inject(div.getNext(), 'after');
@@ -318,9 +310,9 @@ ka.FieldTypes.Condition = new Class({
             }.bind(this))
             .inject(actions);
 
-        new Element('img', {src: _path + PATH_WEB + '/admin/images/icons/delete.png'})
+        new Element('img', {src: _path + 'bundles/admin/images/icons/delete.png'})
             .addEvent('click', function () {
-                this.win._confirm(t('Really delete?'), function (a) {
+                this.getWin().confirm(t('Really delete?'), function (a) {
                     if (!a) {
                         return;
                     }
