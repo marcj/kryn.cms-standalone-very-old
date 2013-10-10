@@ -387,6 +387,7 @@ class AdminController
         $session['sessionid'] = $client->getToken();
         $session['tokenid'] = $client->getTokenId();
         $session['lang'] = $client->getSession()->getLanguage();
+        $session['access'] = Permission::check('core:EntryPoint', '/admin');
         if ($client->getUserId()) {
             $session['username'] = $client->getUser()->getUsername();
             $session['lastLogin'] = $client->getUser()->getLastlogin();
@@ -541,6 +542,7 @@ class AdminController
                     'userId' => Kryn::getAdminClient()->getUserId(),
                     'username' => Kryn::getAdminClient()->getUser()->getUsername(),
                     'lastLogin' => $lastLogin,
+                    'access' => Permission::check('core:EntryPoint', '/admin'),
                     'firstName' => Kryn::getAdminClient()->getUser()->getFirstName(),
                     'lastName' => Kryn::getAdminClient()->getUser()->getLastName()
                 );

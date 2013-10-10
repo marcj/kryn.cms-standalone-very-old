@@ -907,7 +907,12 @@ ka.AdminInterface = new Class({
         this.loginName.value = window._session.username;
 
         this.loginMessage.set('html', t('Please wait'));
-        this.loadBackend(pAlready);
+        if (!window._session.access){
+            this.loginMessage.set('html', t('Access denied.'));
+            this.unblockLoginForm();
+        } else {
+            this.loadBackend(pAlready);
+        }
     },
 
     loginFailed: function() {
@@ -931,6 +936,9 @@ ka.AdminInterface = new Class({
     unblockLoginForm: function() {
         this.loaderTop.morph({'height': 0, 'border-bottom': '0px solid #ffffff'});
         this.loaderBottom.morph({'height': 0, 'border-top': '0px solid #ffffff'});
+        (function(){
+            this.loginPw.focus();
+        }.bind(this)).delay(200);
     },
 
     loadSettings: function(keyLimitation, cb) {
