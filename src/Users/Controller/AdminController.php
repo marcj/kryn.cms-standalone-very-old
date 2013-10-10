@@ -2,7 +2,9 @@
 
 namespace Users\Controller;
 
-use Core\Models\Base\AclQuery;
+use Core\Kryn;
+use Core\Models\Acl;
+use Core\Models\AclQuery;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\Map\TableMap;
 use RestService\Server;
@@ -49,34 +51,38 @@ class AdminController extends Server
      *
      * @return bool
      */
-    public function saveAcl($targetId, $targetType, $rules)
+    public function saveAcl($targetId, $targetType, $rules = null)
     {
         $targetId += 0;
         $targetType += 0;
 
-        dbDelete(
-            'system_acl',
-            array(
-                 'target_type' => $targetType,
-                 'target_id' => $targetId
-            )
-        );
+        AclQuery::create()->filterByTargetId($targetId)->filterByTargetType($targetType)->delete();
 
-        if (count($rules) == 0) {
-            return true;
+        if (0 < count($rules)) {
+            $i = 1;
+            if (is_array($rules)) {
+                foreach ($rules as $rule) {
+
+                    $ruleObject = new Acl();
+                    $ruleObject->setPrio($i);
+                    $ruleObject->setTargetType($targetType);
+                    $ruleObject->setTargetId($targetId);
+                    $ruleObject->setTargetId($targetId);
+                    $ruleObject->setObject(\Core\Object::normalizeObjectKey($rule['object']));
+                    $ruleObject->setSub($rule['sub']);
+                    $ruleObject->setAccess($rule['access']);
+                    $ruleObject->setFields($rule['fields']);
+                    $ruleObject->setConstraintType($rule['constraintType']);
+                    $ruleObject->setConstraintCode($rule['constraintCode']);
+                    $ruleObject->setMode($rule['mode']+0);
+                    $ruleObject->save();
+                    $i++;
+                }
+            }
         }
 
-        $i = 1;
-        foreach ($rules as $rule) {
-
-            unset($rule['id']);
-            $rule['prio'] = $i;
-            $rule['target_type'] = $targetType;
-            $rule['target_id'] = $targetId;
-            dbInsert('system_acl', $rule);
-            $i++;
-        }
-
+        Kryn::invalidateCache('core/acl');
+        Kryn::invalidateCache('core/acl-rules');
         return true;
     }
 

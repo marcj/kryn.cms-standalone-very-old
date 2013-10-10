@@ -45,13 +45,13 @@ class ApiTest extends TestCaseWithCore
         $this->assertEquals(array('id' => 24, 'id2' => 2), $pk);
 
         $pk = Object::getObjectUrlId('Test\Item', '25,asd24/');
-        $this->assertEquals('25%2Casd24%2F', $pk);
+        $this->assertEquals('25%2Casd24%25252F', $pk);
 
         $pk = Object::getObjectUrlId('Test\Item2', array('21,5', 'asd24/'));
-        $this->assertEquals('21%2C5,asd24%2F', $pk);
+        $this->assertEquals('21%2C5,asd24%25252F', $pk);
 
         $pk = Object::getObjectUrlId('Test\Item2', '215,asd24/');
-        $this->assertEquals('215%2Casd24%2F,', $pk);
+        $this->assertEquals('215%2Casd24%25252F,', $pk);
 
         $pk = Object::normalizePkString('Test\Item2', '215,asd24');
         $this->assertEquals(array('id' => '215', 'id2' => 'asd24'), $pk);

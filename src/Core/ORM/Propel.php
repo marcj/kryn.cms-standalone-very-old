@@ -525,7 +525,6 @@ class Propel extends ORMAbstract
                 $options['permissionCheck']
             );
         }
-
         dbFree($stmt);
 
         return $result;
@@ -817,10 +816,12 @@ class Propel extends ORMAbstract
     public function mapValues(&$item, &$values, $setUndefinedAsNull = true)
     {
         $pluralizer = new \Propel\Common\Pluralizer\StandardEnglishPluralizer;
+        $setted = [];
 
         foreach ($this->definition->getFields(true) as $field) {
             $fieldName = $field->getId();
             $fieldName = lcfirst($fieldName);
+            $setted[] = $fieldName;
 
             $fieldValue = $values[$fieldName];
 
@@ -902,7 +903,28 @@ class Propel extends ORMAbstract
 
                 $item->$set($fieldValue);
             }
+        }
 
+        /*
+         * all virtual fields which are not present in the object.
+         * Virtual fields are all methods in the model which have a setter.
+         * Examples:
+         *
+         *   setPassword => 'password'
+         */
+        foreach ($values as $fieldName => $fieldValue) {
+            $fieldName = lcfirst($fieldName);
+            if (in_array($fieldName, $setted)) {
+                continue;
+            }
+
+            $fieldName = ucfirst($fieldName);
+            $set = 'set' . $fieldName;
+            $methodExist = method_exists($item, $set);
+
+            if ($methodExist) {
+                $item->$set($fieldValue);
+            }
         }
 
     }
@@ -1146,6 +1168,9 @@ class Propel extends ORMAbstract
     {
         $query = $this->getQueryClass();
         $item = $query->findPK($this->getPropelPk($pk));
+        if (!$item) {
+            return null;
+        }
 
         list($fields, $relations, $relationFields) = $this->getFields($options['fields']);
         $selects = array_keys($fields);

@@ -143,7 +143,7 @@ class Object
         }
 
         if (strpos($objectKey, '%')) {
-            $objectKey = rawurldecode($objectKey);
+            $objectKey = Kryn::urlDecode($objectKey);
         }
 
         if (!$objectKey) {
@@ -378,7 +378,7 @@ class Object
     }
 
     /**
-     * Returns the id of an object item for the usage in urls (internal url's) - rawurlencoded.
+     * Returns the id of an object item for the usage in urls (internal url's) - urlencoded.
      *
      * @param  string $objectKey
      * @param  array  $pk
@@ -398,12 +398,12 @@ class Object
         $withFieldNames = !is_numeric(key($pk));
 
         if (count($pk2s) == 1 && is_array($pk)) {
-            return rawurlencode($pk[$withFieldNames ? $pk2s[0] : 0]);
+            return Kryn::urlEncode($pk[$withFieldNames ? $pk2s[0] : 0]);
         } else {
             $c = 0;
             $urlId = array();
             foreach ($pk2s as $pk2) {
-                $urlId[] = rawurlencode($pk[$withFieldNames ? $pk2 : $c]);
+                $urlId[] = Kryn::urlEncode($pk[$withFieldNames ? $pk2 : $c]);
                 $c++;
             }
 
@@ -444,10 +444,10 @@ class Object
         $url = 'object://' . $objectKey . '/';
         if (is_array($primaryValues)) {
             foreach ($primaryValues as $key => $val) {
-                $url .= rawurlencode($val) . ',';
+                $url .= Kryn::urlEncode($val) . ',';
             }
         } else {
-            return $url . rawurlencode($primaryValues);
+            return $url . Kryn::urlEncode($primaryValues);
         }
 
         return substr($url, 0, -1);
@@ -629,13 +629,12 @@ class Object
      *
      * @param $objectKey
      *
-     * @return bool
+     * @return \Core\ORM\ORMAbstract
      * @throws \ObjectNotFoundException
      * @throws \Exception
      */
     public static function &getClass($objectKey)
     {
-        $objectKey = str_replace('.', '\\', $objectKey);
         $definition = self::getDefinition($objectKey);
 
         if (!$definition) {
@@ -1213,8 +1212,8 @@ class Object
         $objectDefinition = self::getDefinition($objectId);
 
         $primaryFields = array();
-        foreach ($objectDefinition['fields'] as $fieldKey => $field) {
-            if ($field['primaryKey']) {
+        foreach ($objectDefinition->getFields() as $fieldKey => $field) {
+            if ($field->getPrimaryKey()) {
                 $primaryFields[] = $fieldKey;
             }
         }
@@ -1470,12 +1469,13 @@ class Object
      *
      * @static
      *
-     * @param $objectItem
-     * @param $condition
+     * @param array $objectItem
+     * @param \Core\Config\Condition|array $condition
+     * @param string $objectKey
      *
      * @return bool
      */
-    public static function satisfy(&$objectItem, $condition)
+    public static function satisfy(&$objectItem, $condition, $objectKey = null)
     {
         $complied = null;
         $lastOperator = 'and';
@@ -1485,9 +1485,12 @@ class Object
         }
 
         if (is_array($condition) && is_string($condition[0])) {
-            return self::checkRule($objectItem, $condition);
+            return self::checkRule($objectItem, $condition, $objectKey);
         }
 
+        if (!is_array($condition)) {
+            throw new \InvalidArgumentException(sprintf('Invalid argument for `$condition`. Needs to be a Array or \Core\Config\Condition.'));
+        }
         foreach ($condition as $condition2) {
 
             if (is_string($condition2)) {
@@ -1497,9 +1500,9 @@ class Object
 
             if (is_array($condition2) && is_array($condition2[0])) {
                 //group
-                $res = self::satisfy($objectItem, $condition2);
+                $res = self::satisfy($objectItem, $condition2, $objectKey);
             } else {
-                $res = self::checkRule($objectItem, $condition2);
+                $res = self::checkRule($objectItem, $condition2, $objectKey);
             }
 
             if (is_null($complied)) {
@@ -1520,6 +1523,7 @@ class Object
 
         }
 
+
         return $complied === null ? true : ($complied ? true : false);
     }
 
@@ -1528,10 +1532,11 @@ class Object
      *
      * @param  array $objectItem
      * @param  array $condition
+     * @param  string $objectKey
      *
      * @return bool|int
      */
-    public static function checkRule(&$objectItem, $condition)
+    public static function checkRule(&$objectItem, $condition, $objectKey = null)
     {
         $field = $condition[0];
         $operator = $condition[1];
@@ -1541,6 +1546,13 @@ class Object
             $ovalue = $field;
         } else {
             $ovalue = $objectItem[$field];
+            if (null === $ovalue && $objectKey && $definition = static::getDefinition($objectKey)) {
+                $tableName = substr($field, 0, strpos($field, '.'));
+                $fieldName = substr($field, strpos($field, '.') + 1);
+                if ($tableName === Kryn::getSystemConfig()->getDatabase()->getPrefix().$definition->getTable()) {
+                    $ovalue = $objectItem[$fieldName];
+                }
+            }
         }
 
         //'<', '>', '<=', '>=', '=', 'LIKE', 'IN', 'REGEXP'

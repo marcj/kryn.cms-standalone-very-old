@@ -28,7 +28,7 @@ ka.LabelTypes['Object'] = new Class({
             label = this.fieldId.split('.')[1];
         } else {
             //find label
-            var def = ka.getObjectDefinition(this.options.objectKey);
+            var def = ka.getObjectDefinition(this.getObjectKey());
             label = def.labelField;
         }
 

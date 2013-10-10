@@ -579,15 +579,14 @@ ka.WindowEdit = new Class({
         this.win.confirm(tf('Really delete %s?', this.getTitleValue()), function (answer) {
 
             this.win.setLoading(true, null, this.container.getCoordinates(this.win));
+            var itemPk = ka.getObjectUrlId(this.classProperties['object'], this.winParams.item);
 
-            var object = ka.getObjectUrlId(this.classProperties['object'], this.winParams.item);
-
-            this.lastDeleteRq = new Request.JSON({url: _pathAdmin + this.getEntryPoint() + '/' + object,
+            this.lastDeleteRq = new Request.JSON({url: _pathAdmin + this.getEntryPoint(),
                 onComplete: function (pResponse) {
                     this.win.setLoading(false);
                     this.fireEvent('remove', this.winParams.item);
                     this.destroy();
-                }.bind(this)}).get({_method: 'delete'});
+                }.bind(this)}).get({_method: 'delete', pk: itemPk});
 
         }.bind(this));
     },

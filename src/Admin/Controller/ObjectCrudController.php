@@ -74,6 +74,7 @@ class ObjectCrudController extends Server
                 ->addPutRoute('([^/]+)', 'updateItem')
                 ->addPatchRoute('([^/]+)', 'patchItem')
                 ->addDeleteRoute('([^/]+)', 'removeItem')
+                ->addDeleteRoute('', 'removeItem')
                 ->addOptionsRoute('', 'getInfo');
 
             //run parent
@@ -159,16 +160,23 @@ class ObjectCrudController extends Server
     /**
      * Proxy method for REST DELETE to remove().
      *
-     * @param  string $object
+     * @param  string|array $pk
      *
      * @return mixed
      */
-    public function removeItem($object = null)
+    public function removeItem($pk)
     {
-        $obj = $this->getObj();
-        $pk = \Core\Object::parsePk($obj->getObject(), $object);
+        if (is_array($pk)) {
+            $result = false;
+            foreach ($pk as $item) {
+                $result |= $this->removeItem($item);
+            }
+            return (boolean)$result;
+        }
 
-        return $obj->remove($pk[0]);
+        $obj = $this->getObj();
+
+        return $obj->remove($pk);
     }
 
     /**

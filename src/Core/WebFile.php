@@ -103,7 +103,7 @@ class WebFile
      *
      * @param FileInfoInterface|FileInfoInterface[] $fileInfo
      *
-     * @return FileInfoInterface|FileInfoInterface[]
+     * @return File|File[]
      */
     public static function wrap($fileInfo)
     {
@@ -297,7 +297,7 @@ class WebFile
      *
      * @param string $path
      *
-     * @return \Core\File\FileInfoInterface
+     * @return File
      */
     public static function getFile($path)
     {
@@ -329,7 +329,7 @@ class WebFile
      *
      * @param string $path
      *
-     * @return \Core\File\FileInfoInterface[]
+     * @return File[]
      */
     public static function getFiles($path)
     {

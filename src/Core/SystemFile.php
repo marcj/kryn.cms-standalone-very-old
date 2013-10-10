@@ -12,6 +12,8 @@
 
 namespace Core;
 
+use Core\File\FileInfoInterface;
+
 /**
  * SystemFile
  *
@@ -61,6 +63,31 @@ class SystemFile extends WebFile
         self::getLayer()->setPermission($path);
     }
 
+    /**
+     * @param string $path
+     * @return FileInfoInterface
+     */
+    public static function getFile($path)
+    {
+        return parent::getFile($path);
+    }
+
+    /**
+     * @param string $path
+     * @return FileInfoInterface[]
+     */
+    public static function getFiles($path)
+    {
+        return parent::getFiles($path);
+    }
+
+    /**
+     * Sets internal `id` of the `File` model.
+     *
+     * @param FileInfoInterface|FileInfoInterface[] $fileInfo
+     *
+     * @return FileInfoInterface|FileInfoInterface[]
+     */
     public static function wrap($fileInfo)
     {
         return $fileInfo;

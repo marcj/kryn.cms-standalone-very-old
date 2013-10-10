@@ -64,11 +64,9 @@ var users_acl = new Class({
     },
 
     loadObjectRules: function (pObjectKey) {
-
         pObjectKey = ka.normalizeObjectKey(pObjectKey);
         //ka.getObjectDefinition(pObjectKey);
         this.currentObject = pObjectKey;
-        logger('loadObjectRules: ', this.currentObject);
 
         this.btnAddExact.setStyle('display', 'none');
 
@@ -85,11 +83,12 @@ var users_acl = new Class({
                 type: 'tree',
                 objectKey: pObjectKey,
                 openFirstLevel: true,
-                move: false,
+                moveable: false,
                 withContext: false,
                 noWrapper: true,
                 onReady: function () {
                     this.renderTreeRules();
+                    this.mapObjectTreeEvent();
                 }.bind(this),
                 onChildrenLoaded: function () {
                     this.renderTreeRules();
@@ -110,19 +109,13 @@ var users_acl = new Class({
 
                     options.scope = field.getValue();
                     this.lastObjectTree = new ka.Field(options, objectTreeContainer);
-
-                    this.mapObjectTreeEvent();
                 }.bind(this));
 
                 field.addEvent('ready', function () {
                     field.fireEvent('change', field.getValue());
                 });
             } else {
-
                 this.lastObjectTree = new ka.Field(options, this.objectsExactContainer);
-
-                this.mapObjectTreeEvent();
-
             }
 
         } else {
@@ -130,7 +123,6 @@ var users_acl = new Class({
         }
 
         //todo, if nested, we'd also display rules of parent object which have sub=1
-
         this.currentConstraint = -1;
 
         this.renderObjectRules();
@@ -141,18 +133,13 @@ var users_acl = new Class({
     mapObjectTreeEvent: function () {
         var tree = this.lastObjectTree.getFieldObject().getTree();
         if (!tree) return;
+        if (document.id(tree).alreadyMapped) return;
 
-        document.id(tree).addEvent('mouseover', function (pEvent) {
-
-            var target = pEvent.target;
-            if (!target) {
-                return false;
-            }
-
-            if (!target.hasClass('ka-objectTree-item') && !(target = target.getParent('.ka-objectTree-item'))) {
-                return false;
-            }
-
+        document.id(tree).alreadyMapped = true;
+        document.id(tree).addEvent('mousedown:relay(.ka-objectTree-item)', function(pEvent, target) {
+             pEvent.stop();
+        });
+        document.id(tree).addEvent('mouseover:relay(.ka-objectTree-item)', function(pEvent, target) {
             delete target.isMouseOut;
 
             if (target.lastPlusSign) {
@@ -172,20 +159,9 @@ var users_acl = new Class({
                 e.stopPropagation();
                 this.openEditRuleDialog(this.currentObject, {constraintType: 1, constraintCode: target.id});
             }.bind(this));
-
         }.bind(this));
 
-        document.id(this.lastObjectTree.getFieldObject().getTree()).addEvent('mouseout', function (pEvent) {
-
-            var target = pEvent.target;
-            if (!target) {
-                return false;
-            }
-
-            if (!target.hasClass('ka-objectTree-item') && !(target = target.getParent('.ka-objectTree-item'))) {
-                return false;
-            }
-
+        document.id(tree).addEvent('mouseout:relay(.ka-objectTree-item)', function (pEvent, target) {
             target.isMouseOut = true;
 
             target.lastTimer = (function () {
@@ -197,7 +173,6 @@ var users_acl = new Class({
         });
 
         this.lastObjectTree.addEvent('select', function (item, dom) {
-
             if (!dom.rules) {
                 this.lastObjectTree.getFieldObject().getTree().deselect();
                 this.filterRules();
@@ -206,7 +181,6 @@ var users_acl = new Class({
             }
 
         }.bind(this));
-
     },
 
     renderTreeRules: function () {
@@ -265,9 +239,7 @@ var users_acl = new Class({
     },
 
     renderObjectRules: function () {
-
-        logger(this.currentAcls);
-        this.currentAcls.sortOn('prio', Array.DESCENDING);
+        this.currentAcls.sortOn('prio');
 
         this.objectRulesContainer.empty();
 
@@ -385,10 +357,26 @@ var users_acl = new Class({
                 clone: true,
                 constrain: true,
                 revert: true,
-                opacity: 1
+                opacity: 1,
+                onSort: this.updateObjectRulesPosition.bind(this)
             }
         );
 
+    },
+
+    updateObjectRulesPosition: function(element) {
+        this.currentAcls = this.currentAcls.filter(function(rule){
+            return ka.normalizeObjectKey(rule['object']) != this.currentObject;
+        }.bind(this));
+
+        var children = this.objectRulesContainer.getChildren()
+
+        children.each(function(ruleDom, idx) {
+            if (ruleDom.rule) {
+                ruleDom.rule.prio = children.length - idx;
+                this.currentAcls.push(ruleDom.rule);
+            }
+        }.bind(this));
     },
 
     filterRules: function (pConstraintType, pConstraintCode, pDomObject) {
@@ -425,7 +413,6 @@ var users_acl = new Class({
         }
 
         this.objectRulesContainer.getChildren().each(function (child) {
-
             var show = false;
             var completelyHide = false;
 
@@ -442,7 +429,7 @@ var users_acl = new Class({
             }
 
             if (this.lastRulesModeFilter !== false) {
-                if (this.lastRulesModeFilter != child.rule.mode) {
+                if (parseInt(this.lastRulesModeFilter) != parseInt(child.rule.mode)) {
                     show = false;
                     completelyHide = true;
                 }
@@ -477,12 +464,12 @@ var users_acl = new Class({
                     paddingBottom: 0
                 });
             }
-
         }.bind(this));
 
     },
 
     renderObjectRulesAdd: function (pRule) {
+        var count = this.objectRulesContainer.getChildren().length;
 
         var div = new Element('div', {
             'class': 'ka-List-item users-acl-object-rule'
@@ -509,20 +496,20 @@ var users_acl = new Class({
 
         var mode = 'arrow_in'; //0, combined
 
-        switch (pRule.mode) {
-            case '1':
+        switch (parseInt(pRule.mode)) {
+            case 1:
                 mode = 'application_view_list';
                 break; //list
-            case '2':
+            case 2:
                 mode = 'application_form';
                 break; //view detail
-            case '3':
+            case 3:
                 mode = 'application_form_add';
                 break; //add
-            case '4':
+            case 4:
                 mode = 'application_form_edit';
                 break; //edit
-            case '5':
+            case 5:
                 mode = 'application_form_delete';
                 break; //delete
         }
@@ -686,7 +673,7 @@ var users_acl = new Class({
         var definition = ka.getObjectDefinition(objectKey);
         var fields = definition.labelField;
 
-        new Request.JSON({url: _pathAdmin + 'object/' + ka.urlEncode(objectKey) + '/' +
+        new Request.JSON({url: _pathAdmin + 'admin/object/' + ka.urlEncode(objectKey) + '/' +
             objectId, onComplete: function (pResult) {
 
             if (!pResult || pResult.error || !pResult.data) {
@@ -920,7 +907,7 @@ var users_acl = new Class({
 
         new Element('div', {
             'class': 'ka-List-split',
-            text: t('Rules')
+            text: t('Rules (priority order: bottom up)')
         }).inject(this.objectRulesFilter);
 
         this.objectRulesInfo = new Element('div', {
@@ -951,16 +938,13 @@ var users_acl = new Class({
         this.lastRulesModeFilter = false;
 
         this.selectModes.addEvent('change', function (value) {
-
             if (value == -1) {
                 this.lastRulesModeFilter = false;
-            }
-            else {
+            } else {
                 this.lastRulesModeFilter = value;
             }
 
             this.filterRules();
-
         }.bind(this));
 
         this.objectRulesContainer = new Element('div', {
@@ -1022,7 +1006,6 @@ var users_acl = new Class({
             value.prio = newPrio;
 
             this.currentAcls.push(value);
-
         }
 
         this.renderObjectRules();
@@ -1329,8 +1312,10 @@ var users_acl = new Class({
             style: 'padding-top: 5px; margin-top: 5px; border-top: 1px dashed silver;'
         }).inject(pExtensionKey == 'admin' ? this.entryPointListContainer : this.adminEntryPointDom.childContainer);
 
+        var path = '/' + (pExtensionKey === 'admin' ? '' : pExtensionKey);
+
         var a = new Element('a', { href: 'javascript:;', text: title, title: '#' +
-            pExtensionKey, style: 'font-weight: bold;'}).inject(target);
+            path, style: 'font-weight: bold;'}).inject(target);
 
         var childContainer = new Element('div',
             {'class': 'users-acl-tree-childcontainer', style: 'padding-left: 25px;'}).inject(a, 'after');
@@ -1339,11 +1324,9 @@ var users_acl = new Class({
             this.extContainer = childContainer;
         }
 
-        var path = pExtensionKey;
-
-        a.entryPath = path;
+        a.entryPath = ka.urlEncode(path);
         a.childContainer = childContainer;
-        this.currentEntrypointDoms[path] = a;
+        this.currentEntrypointDoms[a.entryPath] = a;
         this.loadEntryPointChildren(pExtensionConfig.entryPoints, path, childContainer);
 
         return a;
@@ -1367,8 +1350,8 @@ var users_acl = new Class({
             }).inject(element, 'top');
 
             var code = pCode + '/' + index;
-            element.entryPath = code;
-            this.currentEntrypointDoms[code] = element;
+            element.entryPath = ka.urlEncode(code);
+            this.currentEntrypointDoms[element.entryPath] = element;
             var childContainer = new Element('div',
                 {'class': 'users-acl-tree-childcontainer', style: 'padding-left: 25px;'}).inject(pChildContainer);
 
@@ -1479,7 +1462,6 @@ var users_acl = new Class({
             }
 
             if (typeOf(pItems.groups) == 'array' && pItems.groups.length > 0) {
-
                 new Element('div', {
                     'class': 'ka-List-split',
                     text: t('Groups')
@@ -1507,15 +1489,11 @@ var users_acl = new Class({
                     }).inject(h2);
 
                 }.bind(this));
-
             }
-
         }
-
     },
 
     loadRules: function (pType, pItem, pForce) {
-        console.log('loadRules', pType, pItem, pForce);
         if (!pForce && typeOf(this.currentTargetType) != 'null' && this.unsavedContent) {
             this.win.confirm(t('There is unsaved content. Continue?'), function (a) {
                 if (a) {
@@ -1551,7 +1529,6 @@ var users_acl = new Class({
             this.lastOverlay.destroy();
         }
 
-        console.log('loadAcls', pType, pId);
         this.hideRules();
 
         if (pId == 1) {
@@ -1620,7 +1597,7 @@ var users_acl = new Class({
         Array.each(this.currentAcls, function (rule) {
             var objectName = ka.normalizeObjectKey(rule.object);
 
-            if (objectName != 'system_entrypoint') {
+            if (objectName != 'core:entrypoint') {
                 return;
             }
 
@@ -1635,13 +1612,11 @@ var users_acl = new Class({
     clickEntryPointRule: function (pDom) {
 
         if (pDom.rule) {
-
             this.showEntrypointRule(pDom);
-
         } else {
 
             var rule = {
-                object: 'system_entrypoint',
+                object: 'core:entrypoint',
                 constraintType: 2,
                 sub: 1,
                 constraintCode: pDom.entryPath,
@@ -1699,7 +1674,8 @@ var users_acl = new Class({
         kaFields.addEvent('change', function () {
 
             Array.each(this.currentAcls, function (acl, index) {
-                if (acl.object != 'system_entrypoint') {
+                var objectKey = ka.normalizeObjectKey(acl.object);
+                if (objectKey != 'core:entrypoint') {
                     return;
                 }
 

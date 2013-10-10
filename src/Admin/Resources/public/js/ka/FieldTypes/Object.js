@@ -256,6 +256,7 @@ ka.FieldTypes.Object = new Class({
 
         var chooserParams = {
             onSelect: function (pUrl) {
+                console.log('onSelect', pUrl);
                 this.setValue(pUrl, true);
             }.bind(this),
             value: this.objectId,
@@ -282,12 +283,10 @@ ka.FieldTypes.Object = new Class({
                 return;
             }
             ka.wm.openWindow('admin/backend/chooser', null, -1, chooserParams, true);
-
         }.bind(this))
         .inject(rightTd);
 
         this.setValue = function (pVal, pIntern) {
-
             if (typeOf(pVal) == 'null' || pVal === false || pVal === '' || !ka.getCroppedObjectId(pVal)) {
                 this.objectId = '';
                 this.input.value = '';
@@ -297,6 +296,7 @@ ka.FieldTypes.Object = new Class({
 
             pVal = String.from(pVal);
 
+            this.objectId = pVal;
             if ((typeOf(pVal) == 'string' && pVal.substr(0, 'object://'.length) != 'object://')) {
                 this.objectId = 'object://' + ka.normalizeObjectKey(this.options.objects[0]) + '/' + ka.urlEncode(pVal);
             }
@@ -317,7 +317,6 @@ ka.FieldTypes.Object = new Class({
             }.bind(this));
 
             this.input.title = ka.urlDecode(ka.getCroppedObjectId(pVal));
-
         };
 
         this.getValue = function () {

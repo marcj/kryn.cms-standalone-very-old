@@ -1,8 +1,11 @@
 ka.System = new Class({
     Implements: [Events],
 
-    initialize: function(pContainer) {
+    items: {},
+
+    initialize: function(pContainer, pMenuItems) {
         this.container = pContainer;
+        this.menuItems = pMenuItems;
         this.createLayout();
     },
 
@@ -62,6 +65,15 @@ ka.System = new Class({
     },
 
     addLink: function(bundleName, entryPoint, container) {
+        var fullPath = bundleName + '/' + entryPoint.fullPath;
+        if (this.items[fullPath]) {
+            this.items[fullPath].destroy();
+            delete this.items[fullPath];
+        }
+        if (!this.menuItems[fullPath]) {
+            return;
+        }
+
         var item = new Element('a', {
             'class': 'ka-system-settings-link',
             text: entryPoint.label
@@ -83,6 +95,8 @@ ka.System = new Class({
                 }).inject(span);
             }
         }
+
+        this.items[fullPath] = item;
     },
 
     collectSystemEntryPoints: function(entryPoints) {

@@ -230,7 +230,7 @@
       </object>
       <object id="EntryPoint">
         <label>EntryPoint</label>
-        <class>\Admin\ObjectEntryPoint</class>
+        <class>\Admin\Models\ObjectEntryPoint</class>
         <labelField>title</labelField>
         <dataModel>custom</dataModel>
         <nested>true</nested>

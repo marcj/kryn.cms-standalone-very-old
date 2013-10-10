@@ -19,6 +19,7 @@ use Core\Exceptions\InvalidArgumentException;
 use Core\Kryn;
 use Core\Models\Content;
 use Core\Object;
+use Core\Permission;
 use Core\Render;
 use Propel\Runtime\Map\TableMap;
 
@@ -32,15 +33,17 @@ class AdminController
      */
     public static function checkAccess($url)
     {
+        $url = '/' . $url;
+
         $whitelist = [
-            '',
-            'admin/backend/style',
-            'admin/backend/script',
-            'admin/ui/possibleLangs',
-            'admin/ui/language',
-            'admin/ui/languagePluralForm',
-            'admin/login',
-            'admin/logged-in'
+            '/',
+            '/admin/backend/style',
+            '/admin/backend/script',
+            '/admin/ui/possibleLangs',
+            '/admin/ui/language',
+            '/admin/ui/languagePluralForm',
+            '/admin/login',
+            '/admin/logged-in'
         ];
 
         if (in_array($url, $whitelist)) {
@@ -51,20 +54,10 @@ class AdminController
             throw new \AccessDeniedException(tf('Access denied.'));
         }
 
-        return true;
-//
-//        if (substr($url, 0, 9) == 'admin/ui/') {
-//            return true;
-//        }
-//
-//        if ($url == 'admin/login') {
-//            return true;
-//        }
-
-        //todo, use Permission class
-
-        //if (Kryn::checkUrlAccess($url))
-        //    throw new \AccessDeniedException(tf('Access denied.'));
+        $access = Permission::check('core:EntryPoint', $url);
+        if (!$access) {
+            throw new \AccessDeniedException(tf('Access denied.'));
+        }
     }
 
     public function exceptionHandler($exception)
@@ -96,7 +89,6 @@ class AdminController
 
         //checkAccess
         $this->checkAccess($url);
-
         $entryPoint = Utils::getEntryPoint($url);
 
         if ($entryPoint) {
@@ -192,7 +184,6 @@ class AdminController
             \RestService\Server::create('/admin', $this)
 
                 ->getClient()->setUrl($url)->getController()
-                ->setCheckAccess(array($this, 'checkAccess'))
                 ->setExceptionHandler($exceptionHandler)
                 ->setDebugMode($debugMode)
 

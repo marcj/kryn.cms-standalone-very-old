@@ -130,8 +130,11 @@ ka.AdminInterface = new Class({
             addLink(item, dialog.getContentContainer());
         }.bind(this));
 
-
         dialog.center(true);
+    },
+
+    getMenuItems: function() {
+        return this.menuItems;
     },
 
     openSettings: function() {
@@ -141,7 +144,7 @@ ka.AdminInterface = new Class({
             autoClose: true
         });
 
-        var system = new ka.System(dialog.getContentContainer());
+        var system = new ka.System(dialog.getContentContainer(), this.getMenuItems());
         system.addEvent('click', function(){
             dialog.closeAnimated();
         });

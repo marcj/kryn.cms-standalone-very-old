@@ -1062,7 +1062,7 @@ ka.Select = new Class({
     },
 
     fireChange: function () {
-        this.fireEvent('change');
+        this.fireEvent('change', this.getValue());
     },
 
     getValue: function () {

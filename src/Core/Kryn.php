@@ -2552,7 +2552,7 @@ class Kryn extends Controller
      * to invalidate caches on a distributed backend (use by `setCache()`
      * and `setDistributedCache()`.
      *
-     * You don't have to define the full key, instead you can pass only a part of the key.
+     * You don't have to define the full key, instead you can pass only the starting part of the key.
      * This means, if you have following caches defined:
      *
      *   - news/list/2
@@ -2584,7 +2584,7 @@ class Kryn extends Controller
             self::initCache();
         }
 
-        return Kryn::$cache->invalidate($key, $time ? $time : microtime(true));
+        return Kryn::$cache->invalidate($key, $time ?: microtime(true));
     }
 
     /**
@@ -2962,6 +2962,13 @@ class Kryn extends Controller
     public static function pageUrl($id = 0, $absolute = false, $domainId = false)
     {
         return 'object://node/' . $id;
+    }
+
+    public static function urlEncode($string)
+    {
+	    $string = rawurlencode($string);
+        $string = str_replace('%2F', '%25252F', $string);
+        return $string;
     }
 
     public static function urlDecode($string)

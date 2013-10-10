@@ -8,6 +8,7 @@ use Core\Config\Field;
 use Core\Config\Model;
 use Core\Kryn;
 use Core\Object;
+use Core\Permission;
 
 class ObjectCrud
 {
@@ -156,7 +157,7 @@ class ObjectCrud
      *
      * @var string name of image
      */
-    protected $editIcon = '#icon-pencil-8';
+    protected $editIcon = '#icon-pencil-2';
 
     /**
      * Defines the icon for the remove/delete button. Relative to media/ or #className for vector images
@@ -170,7 +171,7 @@ class ObjectCrud
      *
      * @var string name of image
      */
-    protected $removeIconItem = '#icon-remove-3';
+    protected $removeIconItem = '#icon-minus-5';
 
     /**
      * The system opens this entrypoint when clicking on the add newt_button(left, top, text)n.
@@ -659,6 +660,7 @@ class ObjectCrud
                         if (!$def) {
                             $objectArray = $object->toArray();
                             $fields2 = $objectArray['fields'];
+                            var_dump(array_keys($object->getFields())); exit;
                             throw new \Exception(tf(
                                 "Object `%s` does not have field `%s`. \n[%s]\n[%s]",
                                 $fields->getObject(),
@@ -834,6 +836,8 @@ class ObjectCrud
      * @param  array $filter
      * @param  int   $limit
      * @param  int   $offset
+     * @param  string $query
+     * @param  string $fields
      *
      * @return array
      */
@@ -886,6 +890,14 @@ class ObjectCrud
         }
 
         $items = \Core\Object::getList($this->object, $condition, $options);
+
+        if (is_array($items)) {
+            foreach ($items as &$item) {
+                if ($item) {
+                    $this->prepareRow($item);
+                }
+            }
+        }
 
         return $items;
     }
@@ -1082,6 +1094,12 @@ class ObjectCrud
         }
 
         $items = \Core\Object::getBranch($this->object, $pk, $condition, $depth, $scope, $options);
+
+        if (is_array($items)) {
+            foreach ($items as &$item) {
+                $this->prepareRow($item);
+            }
+        }
 
         return $items;
     }
@@ -1423,7 +1441,7 @@ class ObjectCrud
      * Iterates only through all defined fields in $fields.
      *
      * @param  \Core\Config\Field[] $fields The fields definition. If empty we use $this->fields.
-     * @param  mixed $data   Is used if a field is not defined through _POST or _GET
+     * @param  mixed $data  Default data. Is used if a field is not defined through _POST or _GET
      * @param  mixed $fallbackValues
      *
      * @return array
@@ -1493,11 +1511,9 @@ class ObjectCrud
      *
      * Result should be:
      *
-     * array(
-     *     'values' => $item,
-     *     'edit' => bool (can be edited),
-     *     'remove' => bool (can be removed),
-     *     'actions' => array(
+     * $item['_editable'] = true|false
+     * $item['_deleteable'] = true|false
+     * $item['_actions'] = array(
      *         array('/* action * /') //todo
      *     )
      * )
@@ -1508,12 +1524,8 @@ class ObjectCrud
      */
     public function prepareRow(&$item)
     {
-        $visible = true;
-        $editable = $this->edit;
-        $deleteable = $this->remove;
-
-        $item['_editable'] = $editable;
-        $item['_deleteable'] = $deleteable;
+        $item['_editable'] = Permission::isUpdatable($this->getObject(), $item);
+        $item['_deletable'] = Permission::isDeletable($this->getObject(), $item);
     }
 
     /**

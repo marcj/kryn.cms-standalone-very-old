@@ -4,6 +4,8 @@
       <cache>core/contents</cache>
       <cache>core/domains</cache>
       <cache>core/domains.created</cache>
+      <cache>core/acl</cache>
+      <cache>core/acl-rules</cache>
     </caches>
     <events>
       <event key="core/object/modify">

@@ -388,18 +388,20 @@ class Backend
             foreach ($bundleConfig->getAllEntryPoints() as $subEntryPoint) {
                 $path = strtolower($bundleConfig->getName()) . '/' . $subEntryPoint->getFullPath(true);
 
-                if (substr_count($path, '/') <= 2) {
+                if (substr_count($path, '/') <= 3) {
                     if ($subEntryPoint->isLink()) {
                         //todo, check permissions
-                        $entryPoints[$path] = array(
-                            'label' => $subEntryPoint->getLabel(),
-                            'icon' => $subEntryPoint->getIcon(),
-                            'fullPath' => $path,
-                            'path' => $subEntryPoint->getPath(),
-                            'type' => $subEntryPoint->getType(),
-                            'system' => $subEntryPoint->getSystem(),
-                            'level' => substr_count($path, '/')
-                        );
+                        if (Permission::check('core:EntryPoint', '/' . $path)) {
+                            $entryPoints[$path] = array(
+                                'label' => $subEntryPoint->getLabel(),
+                                'icon' => $subEntryPoint->getIcon(),
+                                'fullPath' => $path,
+                                'path' => $subEntryPoint->getPath(),
+                                'type' => $subEntryPoint->getType(),
+                                'system' => $subEntryPoint->getSystem(),
+                                'level' => substr_count($path, '/')
+                            );
+                        }
                     }
                 }
             }

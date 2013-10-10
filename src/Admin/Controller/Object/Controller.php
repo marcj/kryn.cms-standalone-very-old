@@ -2,6 +2,7 @@
 
 namespace Admin\Controller\Object;
 
+use Core\Kryn;
 use Core\Object;
 
 /**
@@ -67,7 +68,7 @@ class Controller
      *
      * @param  string                   $url
      * @param  string                   $fields
-     * @param  bool                     $returnKey             Returns the list as a hash with the primary key as index. key=implode(',',rawurlencode($keys))
+     * @param  bool                     $returnKey             Returns the list as a hash with the primary key as index. key=implode(',',urlencode($keys))
      * @param  bool                     $returnKeyAsRequested  . Returns the list as a hash with the requested id as key.
      *
      * @return array
@@ -134,7 +135,7 @@ class Controller
                         if ($c > 1) {
                             $keys = array();
                             foreach ($primaryKeys as $key => &$field) {
-                                $keys[] = rawurlencode($item[$key]);
+                                $keys[] = Kryn::urlEncode($item[$key]);
                             }
                             $res[implode(',', $keys)] = $item;
                         } else {
@@ -225,7 +226,7 @@ class Controller
                     if ($c > 1) {
                         $keys = array();
                         foreach ($primaryKeys as $key => &$field) {
-                            $keys[] = rawurlencode($item[$key]);
+                            $keys[] = Kryn::urlEncode($item[$key]);
                         }
                         $res[implode(',', $keys)] = $item;
                     } else {
@@ -321,7 +322,7 @@ class Controller
                     if ($c > 1) {
                         $keys = array();
                         foreach ($primaryKeys as $key => &$field) {
-                            $keys[] = rawurlencode($item[$key]);
+                            $keys[] = Kryn::urlEncode($item[$key]);
                         }
                         $res[implode(',', $keys)] = $item;
                     } else {

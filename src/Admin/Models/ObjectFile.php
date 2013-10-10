@@ -168,6 +168,26 @@ class ObjectFile extends \Core\ORM\Propel
         throw new \Exception('getItems not available for this object.');
     }
 
+    public function getParentId($pk)
+    {
+        if ($pk) {
+            $path = is_numeric($pk['id']) ? WebFile::getPath($pk['id']) : $pk['id'];
+        } else {
+            $path = '/';
+        }
+
+        if ('/' === $path) return null;
+
+        $lastSlash = strrpos($path, '/');
+        $parentPath = substr($path, 0, $lastSlash) ?: '/';
+        $file = WebFile::getFile($parentPath);
+
+        return [
+            'id' => $file->getId()
+        ];
+    }
+
+
     /**
      * {@inheritDoc}
      */
@@ -192,7 +212,7 @@ class ObjectFile extends \Core\ORM\Propel
 
         foreach ($files as $file) {
             $file = $file->toArray();
-            if ($condition && !\Core\Object::satisfy($file, $condition)) {
+            if ($condition && !\Core\Object::satisfy($file, $condition, 'core:file')) {
                 continue;
             }
 

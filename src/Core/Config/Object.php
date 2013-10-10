@@ -544,7 +544,10 @@ class Object extends Model
      */
     public function setFields(array $fields = null)
     {
-        $this->fields = $fields;
+        $this->fields = [];
+        foreach ($fields as $field) {
+            $this->fields[$field->getColumnName()] = $field;
+        }
     }
 
     /**
@@ -565,6 +568,18 @@ class Object extends Model
             }
         }
         return $fields;
+    }
+
+    /**
+     * @param $fieldId
+     *
+     * @return Field
+     */
+    public function getField($fieldId)
+    {
+        if (null !== $this->fields) {
+            return $this->fields[camelcase2Underscore($fieldId)];
+        }
     }
 
     /**
@@ -606,22 +621,6 @@ class Object extends Model
         }
 
         return $this->primaryKeys;
-    }
-
-    /**
-     * @param $fieldId
-     *
-     * @return Field
-     */
-    public function getField($fieldId)
-    {
-        if (null !== $this->fields) {
-            foreach ($this->fields as $field) {
-                if (strtolower($field->getId()) === strtolower($fieldId) || strtolower($field->getColumnName()) === strtolower($fieldId)) {
-                    return $field;
-                }
-            }
-        }
     }
 
     /**

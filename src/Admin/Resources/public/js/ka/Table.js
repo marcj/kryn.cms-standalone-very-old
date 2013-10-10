@@ -51,7 +51,6 @@ ka.Table = new Class({
                     item.getParent().getParent().getChildren('tr').removeClass('active');
                 }
                 item.getParent().addClass('active');
-                e.stop();
                 this.fireEvent('select', item);
             }.bind(this));
 

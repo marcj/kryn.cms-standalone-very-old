@@ -11,6 +11,9 @@
  */
 
 namespace Core;
+use Core\File\FileInfoInterface;
+use Core\Models\File;
+use Core\File\FileInfo;
 
 /**
  * SystemFile
@@ -56,10 +59,36 @@ class TempFile extends WebFile
         return static::$fsObjects[$class];
     }
 
+    /**
+     * Sets internal `id` of the `File` model.
+     *
+     * @param FileInfoInterface|FileInfoInterface[] $fileInfo
+     *
+     * @return FileInfoInterface|FileInfoInterface[]
+     */
     public static function wrap($fileInfo)
     {
         return $fileInfo;
     }
+
+    /**
+     * @param string $path
+     * @return FileInfoInterface
+     */
+    public static function getFile($path)
+    {
+        return parent::getFile($path);
+    }
+
+    /**
+     * @param string $path
+     * @return FileInfoInterface[]
+     */
+    public static function getFiles($path)
+    {
+        return parent::getFiles($path);
+    }
+
 
     public static function getPath($path)
     {

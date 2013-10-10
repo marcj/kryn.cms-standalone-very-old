@@ -28,6 +28,10 @@ ka.LabelAbstract = new Class({
         return ka.htmlEntities(values[this.fieldId]);
     },
 
+    getObjectKey: function(){
+        return this.objectKey;
+    },
+
     getDefinition: function(){
         return this.definition;
     },

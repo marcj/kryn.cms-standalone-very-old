@@ -158,13 +158,12 @@ ka.FieldTypes.Tree = new Class({
             this.options.scopeChooser = this.definition.nestedRootObject ? true : false;
         }
 
-        if (!this.options.moveable) {
+        if (null === this.options.moveable) {
             this.options.moveable =
                 typeOf(this.definition.treeMoveable) !== 'null' ? this.definition.treeMoveable : true;
         }
 
         if (!this.options.scope) {
-
             if (this.options.scopeChooser) {
                 var options = {
                     object: this.options.rootObject,
@@ -177,11 +176,9 @@ ka.FieldTypes.Tree = new Class({
                     this.loadTree(this.scopeField.getValue());
                 }.bind(this));
             } else {
-
                 //load all scope entries
                 new Request.JSON({url: this.getUrl() + ':roots',
                     onComplete: function (pResponse) {
-
                         this.treesContainer.empty();
                         this.trees = [];
 
@@ -194,7 +191,6 @@ ka.FieldTypes.Tree = new Class({
                         }
 
                     }.bind(this)}).get();
-
             }
 
             this.treesContainer = new Element('div').inject(this.fieldInstance.fieldPanel);
@@ -210,7 +206,6 @@ ka.FieldTypes.Tree = new Class({
     },
 
     loadTree: function (pScope) {
-
         this.treesContainer.empty();
 
         this.trees = [];
@@ -219,7 +214,6 @@ ka.FieldTypes.Tree = new Class({
     },
 
     addTree: function (pScope) {
-
         var clazz = ka.ObjectTree;
 
         if (this.options.treeInterface && this.options.treeInterface != 'default') {

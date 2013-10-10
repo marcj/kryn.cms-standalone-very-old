@@ -222,7 +222,7 @@ class User extends \Admin\ObjectCrud
 
     public function collectData($fields = null, $data = null)
     {
-        $data2 = parent::collectData($fields = null, $data = null);
+        $data2 = parent::collectData($fields, $data);
 
         //save settings
         $settings = array();

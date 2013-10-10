@@ -134,13 +134,13 @@
                     <entryPoint path="development" link="true" system="true">
                         <label>Development</label>
                         <children>
-                            <entryPoint path="database" type="custom" link="true" multi="true" icon="#icon-database">
+                            <entryPoint path="database" type="custom" link="true" system="true" multi="true" icon="#icon-database">
                                 <label>Database</label>
                             </entryPoint>
-                            <entryPoint path="logs" type="custom" link="true" multi="true" icon="#icon-list-9">
+                            <entryPoint path="logs" type="custom" link="true" system="true" multi="true" icon="#icon-list-9">
                                 <label>Logs</label>
                             </entryPoint>
-                            <entryPoint path="orm" type="custom" link="true" icon="#icon-mug">
+                            <entryPoint path="orm" type="custom" link="true" system="true" icon="#icon-mug">
                                 <label>ORM</label>
                             </entryPoint>
                         </children>

@@ -77,19 +77,6 @@ ka.WindowList = new Class({
         }.bind(this)}).get({_method: 'options'});
     },
 
-    deleteItem: function (pItem) {
-        var _this = this;
-
-        var objectId = ka.getObjectUrlId(this.classProperties['object'], this.winParams.item);
-
-        this.lastRequest = new Request.JSON({url: _pathAdmin + this.win.getEntryPoint() + '/' + objectId, noCache: true, onComplete: function (res) {
-            //todo, handle errors
-            this.win.softReload();
-            this._deleteSuccess();
-            this.reload();
-        }.bind(this)}).get();
-    },
-
     _deleteSuccess: function () {
     },
 
@@ -488,17 +475,23 @@ ka.WindowList = new Class({
          }*/
     },
 
-    removeSelected: function () {
-        if (this.getSelected() != false) {
-            this.win._confirm(_('Really remove selected?'), function (res) {
+    removeSelected: function (pItems) {
+        if (!pItems) {
+            pItems = this.getSelected();
+        }
+        if ('array' === typeOf(pItems) && 0 < pItems.length) {
+            this.win.confirm(_('Really remove selected?'), function (res) {
                 if (!res) {
                     return;
                 }
 
-                new Request.JSON({url: _pathAdmin + this.win.getEntryPoint() +
-                    '?cmd=removeSelected', noCache: 1, onComplete: function (res) {
+                if (this.lastDeleteRq) {
+                    this.lastDeleteRq.cancel();
+                }
 
-                    //todo, handle errors
+                this.lastDeleteRq = new Request.JSON({url: _pathAdmin + this.win.getEntryPoint(),
+                    noCache: 1, onComplete: function (res) {
+
                     this.win.setLoading(false);
 
                     if (this.combine) {
@@ -508,21 +501,29 @@ ka.WindowList = new Class({
                     }
                     this._deleteSuccess();
 
-                }.bind(this)}).post({
-                        selected: JSON.encode(this.getSelected())
-                    });
+                }.bind(this)}).delete({
+                    pk: pItems
+                });
             }.bind(this));
         }
     },
+
+    deleteItem: function (pItem) {
+        var objectId = ka.getObjectUrlId(this.classProperties['object'], pItem);
+
+        return this.removeSelected([objectId]);
+    },
+
+
 
     getSelected: function () {
         var res = [];
         this.checkboxes.each(function (check) {
             if (check.checked) {
-                res.include(JSON.decode(check.value));
+                res.include(check.value);
             }
         });
-        return ( res.length > 0 ) ? res : false;
+        return res.length > 0 ? res : false;
     },
 
     exportTable: function () {
@@ -709,7 +710,7 @@ ka.WindowList = new Class({
             });
             this.checkboxes.include(checkbox);
 
-            if (!pItem['remove']) {
+            if (!pItem['_deletable']) {
                 checkbox.disabled = true;
             }
             row.push(checkbox);
@@ -780,7 +781,7 @@ ka.WindowList = new Class({
                 });
             }
 
-            if (pItem.edit) {
+            if (pItem._editable) {
                 var editIcon = null;
 
                 if (_this.classProperties.editIcon.substr(0, 1) == '#') {
@@ -797,13 +798,10 @@ ka.WindowList = new Class({
                 }
 
                 editIcon.addEvent('click',function () {
-
-                    ka.entrypoint.open(ka.entrypoint.getRelative(_this.win.getEntryPoint(),
-                        _this.classProperties.editEntrypoint), {item: pItem}, this);
-
-                }).inject(icon);
+                    this.openEditItem(pItem);
+                }.bind(this)).inject(icon);
             }
-            if (pItem['remove']) {
+            if (pItem._deletable) {
 
                 var removeIcon = _this.classProperties.removeIconItem ? _this.classProperties.removeIconItem :
                     _this.classProperties.removeIcon;
@@ -825,13 +823,8 @@ ka.WindowList = new Class({
                     }
 
                     deleteBtn.addEvent('click', function () {
-                        _this.win._confirm(t('Really delete?'), function (res) {
-                            if (!res) {
-                                return;
-                            }
-                            _this.deleteItem(pItem);
-                        });
-                    });
+                        this.deleteItem(pItem);
+                    }.bind(this));
                 }
             }
         }

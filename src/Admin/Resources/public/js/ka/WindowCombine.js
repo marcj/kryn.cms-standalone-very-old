@@ -575,6 +575,7 @@ ka.WindowCombine = new Class({
         } else {
             this.clear();
             this.maxItems = null;
+            this.parent();
             return this.loadItems(this.from, this.loadedCount);
         }
     },

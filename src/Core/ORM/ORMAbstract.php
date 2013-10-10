@@ -435,7 +435,7 @@ abstract class ORMAbstract
         }
 
         if (count($this->primaryKeys) == 1) {
-            return $object[key($this->primaryKeys)];
+            return $object[current($this->primaryKeys)];
         } else {
             $result = array();
             foreach ($this->primaryKeys as $key) {

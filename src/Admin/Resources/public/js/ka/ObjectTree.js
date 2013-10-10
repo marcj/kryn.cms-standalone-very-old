@@ -5,8 +5,6 @@ ka.ObjectTree = new Class({
     ready: false,
 
     options: {
-
-
         /**
          *
          *
@@ -167,7 +165,7 @@ ka.ObjectTree = new Class({
             this.options.treeInterfaceClass = this.definition.treeInterfaceClass;
         }
 
-        if (!this.options.moveable) {
+        if (null === this.options.moveable) {
             this.options.moveable =
                 typeOf(this.definition.treeMoveable) !== 'null' ? this.definition.treeMoveable : true;
         }
@@ -534,12 +532,10 @@ ka.ObjectTree = new Class({
     },
 
     onMousedown: function (e) {
-
         if (e.target && e.target.hasClass('ka-objectTree-item-toggler')) {
             return;
         }
         if (this.options.moveable && e.target) {
-
             var el = e.target;
 
             if (!el.hasClass('ka-objectTree-item')) {

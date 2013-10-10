@@ -1052,7 +1052,9 @@ function dbConditionSingleField($pCondition, &$pData, $pObjectKey, &$pFieldNames
 
     if ($def) {
         $field = $def->getField($fieldName);
-        $columnName = $field->getColumnName();
+        if ($field) {
+            $columnName = $field->getColumnName();
+        }
     } else {
         $columnName = camelcase2Underscore($fieldName);
     }

@@ -2,6 +2,8 @@
 
 namespace Admin\Models;
 
+use Admin\Utils;
+
 class ObjectEntryPoint extends \Core\ORM\ORMAbstract
 {
     /**
@@ -180,23 +182,11 @@ class ObjectEntryPoint extends \Core\ORM\ORMAbstract
      */
     public function getParent($pk)
     {
-        parent::getParent($pk);
-    }
+        if ('/' === $pk['path']) return null;
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getParents($pk)
-    {
-        parent::getParents($pk);
+        $lastSlash = strrpos($pk['path'], '/');
+        return [
+            'path' => substr($pk['path'], 0, $lastSlash) ?: '/'
+        ];
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getParentId($primaryKey)
-    {
-        return parent::getParentId($primaryKey);
-    }
-
 }

@@ -232,20 +232,20 @@ input.users-acl-query {
 .users-acl-object-rule-mover {
     position: absolute;
     left: 4px;
-    top: 5px;
+    top: 7px;
     cursor: move;
 }
 
 .users-acl-object-rule-status {
     position: absolute;
     left: 24px;
-    top: 5px;
+    top: 7px;
 }
 
 .users-acl-object-rule-mode {
     position: absolute;
     left: 44px;
-    top: 5px;
+    top: 7px;
 }
 
 .users-acl-object-rule-actions {

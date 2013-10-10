@@ -569,9 +569,10 @@ class Bundle extends Model
      */
     public function setObjects(array $objects = null)
     {
-        $this->objects = $objects;
-        foreach ($this->objects as $object) {
+        $this->objects = [];
+        foreach ($objects as $object) {
             $object->setBundle($this);
+            $this->objects[\Core\Object::normalizeObjectKey($object->getId())] = $object;
         }
     }
 
@@ -583,11 +584,7 @@ class Bundle extends Model
     public function getObject($id)
     {
         if (null !== $this->objects) {
-            foreach ($this->objects as $object) {
-                if (strtolower($object->getId()) == strtolower($id)) {
-                    return $object;
-                }
-            }
+            return $this->objects[\Core\Object::normalizeObjectKey($id)];
         }
     }
 

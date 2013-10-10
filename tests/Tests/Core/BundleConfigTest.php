@@ -80,7 +80,7 @@ class BundleConfigTest extends TestCaseWithCore
         $this->assertStringEqualsFile(static::$krynObjectsXml, $export, 'no changes');
 
         $objects = $testBundleConfig->getObjects();
-        $objects[0]->setId('Test2');
+        current($objects)->setId('Test2');
         $testBundleConfig->setObjects($objects);
 
         $testBundleConfig->saveFileBased('objects');
@@ -134,7 +134,7 @@ class BundleConfigTest extends TestCaseWithCore
         $this->assertStringEqualsFile(static::$krynXml, $exportCaches, 'no changes');
 
         $objects = $testBundleConfig->getObjects();
-        $objects[0]->setId('Test2');
+        current($objects)->setId('Test2');
         $testBundleConfig->setObjects($objects);
 
         $caches = $testBundleConfig->getCaches();
@@ -249,7 +249,7 @@ class BundleConfigTest extends TestCaseWithCore
         $this->assertCount(2, $testBundleConfig->getCaches());
         $this->assertCount(2, $testBundleConfig->getEvents());
 
-        $this->assertEquals('Test2', $testBundleConfig->getObjects()[0]->getId());
+        $this->assertEquals('Test2', current($testBundleConfig->getObjects())->getId());
         $this->assertEquals('testMethod2', $testBundleConfig->getCaches()[1]->getMethod());
         $this->assertEquals('core/object/updateModified', $testBundleConfig->getEvents()[1]->getKey());
 
