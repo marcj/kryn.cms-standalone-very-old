@@ -256,7 +256,6 @@ ka.FieldTypes.Object = new Class({
 
         var chooserParams = {
             onSelect: function (pUrl) {
-                console.log('onSelect', pUrl);
                 this.setValue(pUrl, true);
             }.bind(this),
             value: this.objectId,

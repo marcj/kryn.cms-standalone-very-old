@@ -660,7 +660,6 @@ class ObjectCrud
                         if (!$def) {
                             $objectArray = $object->toArray();
                             $fields2 = $objectArray['fields'];
-                            var_dump(array_keys($object->getFields())); exit;
                             throw new \Exception(tf(
                                 "Object `%s` does not have field `%s`. \n[%s]\n[%s]",
                                 $fields->getObject(),
