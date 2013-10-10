@@ -729,8 +729,9 @@ class Propel extends ORMAbstract
 
     }
 
-    public function getRoots($condition, $options)
+    public function getRoots($condition = null, $options = null)
     {
+
     }
 
     /**

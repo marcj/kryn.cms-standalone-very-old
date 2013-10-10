@@ -155,7 +155,7 @@ ka.FieldTypes.Tree = new Class({
         }
 
         if (null === this.options.scopeChooser) {
-            this.options.scopeChooser = this.definition.nestedRootObject ? true : false;
+            this.options.scopeChooser = this.definition.nestedRootAsObject ? true : false;
         }
 
         if (null === this.options.moveable) {

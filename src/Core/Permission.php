@@ -136,7 +136,7 @@ class Permission
         }
 
         if (static::getCaching()) {
-            $cacheKey = $targetType.'.'.$targetId.'.'.$objectKey . '.' . $mode;
+            $cacheKey = $targetType.'.'.$targetId.'.'.$inGroups.'.'.$objectKey . '.' . $mode;
             $cached = Kryn::getDistributedCache('core/acl-rules/' . $cacheKey);
             if (null !== $cached) {
                 return $cached;
@@ -596,6 +596,7 @@ class Permission
                 return $cached;
             }
         }
+
 
         $rules = self::getRules($objectKey, $mode, $targetType, $targetId);
 

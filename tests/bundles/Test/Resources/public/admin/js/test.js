@@ -5,6 +5,13 @@ var test_test = new Class({
 
 
         var field1 = new ka.Field({
+            type: 'tree',
+            objectKey: 'core:entrypoint'
+        }, pWin.getContentContainer());
+
+        return;
+
+        var field1 = new ka.Field({
             type: 'layout',
             label: t('Layout')
         }, pWin.getContentContainer());

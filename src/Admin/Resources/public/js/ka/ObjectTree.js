@@ -207,7 +207,7 @@ ka.ObjectTree = new Class({
 
         if (this.objectDefinition && this.objectDefinition.nestedRootAsObject) {
             if (!this.options.rootObject) {
-                this.options.rootObject = this.options.rootObject;
+                this.options.rootObject = this.objectDefinition.nestedRootObject;
             }
         }
 
@@ -412,7 +412,6 @@ ka.ObjectTree = new Class({
     },
 
     renderRoot: function (pResponse) {
-
         var item = pResponse.data;
 
         var id = ka.getObjectUrlId(this.options.rootObject, item);
@@ -931,7 +930,7 @@ ka.ObjectTree = new Class({
             style: 'position: relative; top: 3px;'
         }).inject(pA.span);
 
-        new Request.JSON({url: this.getUrl() + ka.urlEncode(pA.id) + '/branch',
+        new Request.JSON({url: this.getUrl() + pA.id + '/branch',
             noCache: 1, onComplete: function (pResponse) {
 
                 //save height
@@ -1193,7 +1192,7 @@ ka.ObjectTree = new Class({
             if (target && source) {
                 var code = pos[this.dragNDropPos];
 
-                if (this.rootA == this.dragNDropElement) {
+                if (this.rootA == target) {
                     code = 'into';
                 }
 
@@ -1213,8 +1212,8 @@ ka.ObjectTree = new Class({
 
     moveObject: function (pSourceId, pTargetId, pTargetObjectKey, pPosition) {
 
-        new Request.JSON({url: this.getUrl() + ka.urlEncode(pSourceId) + '/move/' +
-            ka.urlEncode(pTargetId), onComplete: function (res) {
+        new Request.JSON({url: this.getUrl() + pSourceId + '/move/' +
+            pTargetId, onComplete: function (res) {
 
             //target item this.dragNDropElement
 

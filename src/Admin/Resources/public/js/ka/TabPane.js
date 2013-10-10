@@ -23,7 +23,6 @@ ka.TabPane = new Class({
     },
 
     getTabs: function () {
-
         var tabs = this.paneBox.getChildren('.ka-tabPane-pane');
         var result = [];
 

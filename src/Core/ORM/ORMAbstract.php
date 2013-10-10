@@ -389,6 +389,19 @@ abstract class ORMAbstract
         throw new \NotImplementedException(t('getBranch is not implemented.'));
     }
 
+    /**
+     * @param array $condition
+     * @param array $options
+     * @throws \LogicException
+     */
+    public function getRoots($condition = null, $options = null)
+    {
+         if (!$this->definition['nested']) {
+            throw new \LogicException(t('Object %s it not a nested set.', $this->objectKey));
+         }
+         return null;
+    }
+
 
     /**
      * Returns the parent if exists otherwise false.

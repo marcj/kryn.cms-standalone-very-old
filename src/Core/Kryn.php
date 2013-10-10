@@ -640,6 +640,9 @@ class Kryn extends Controller
         $bundles = static::getBundleClasses(); //triggers loading of all bundles to $bundleInstances
     }
 
+    /**
+     * @return string[]
+     */
     public static function getBundles()
     {
         return self::$bundles;

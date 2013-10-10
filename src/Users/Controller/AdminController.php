@@ -69,8 +69,8 @@ class AdminController extends Server
                     $ruleObject->setTargetId($targetId);
                     $ruleObject->setTargetId($targetId);
                     $ruleObject->setObject(\Core\Object::normalizeObjectKey($rule['object']));
-                    $ruleObject->setSub($rule['sub']);
-                    $ruleObject->setAccess($rule['access']);
+                    $ruleObject->setSub(filter_var($rule['sub'], FILTER_VALIDATE_BOOLEAN));
+                    $ruleObject->setAccess(filter_var($rule['access'], FILTER_VALIDATE_BOOLEAN));
                     $ruleObject->setFields($rule['fields']);
                     $ruleObject->setConstraintType($rule['constraintType']);
                     $ruleObject->setConstraintCode($rule['constraintCode']);

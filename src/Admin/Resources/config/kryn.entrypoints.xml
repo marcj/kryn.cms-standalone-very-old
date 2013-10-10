@@ -2,27 +2,10 @@
     <bundle>
         <entryPoints>
             <entryPoint path="backend">
-                <label>Backend access</label>
+                <label>Backend</label>
                 <children>
                     <entryPoint path="chooser" type="custom">
                         <label>Chooser</label>
-                    </entryPoint>
-                    <entryPoint path="stores" link="false">
-                        <label>Stores</label>
-                        <children>
-                            <entryPoint path="languages" type="store">
-                                <table_key>code</table_key>
-                                <table_label>title</table_label>
-                                <table>system_langs</table>
-                                <label>Language</label>
-                            </entryPoint>
-                            <entryPoint path="extensions">
-                                <class>adminStoreExtensions</class>
-                                <type>store</type>
-                                <isLink>false</isLink>
-                                <label>Extensions</label>
-                            </entryPoint>
-                        </children>
                     </entryPoint>
                 </children>
             </entryPoint>

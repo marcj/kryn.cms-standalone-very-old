@@ -926,6 +926,23 @@ ka.Select = new Class({
         return this.loadItems();
     },
 
+    setLabel: function (pId, pLabel) {
+
+        var i = 0, max = this.items.length;
+        do {
+            if (this.items[i].id == pId) {
+                this.items[i].label = pLabel;
+                break;
+            }
+        } while (++i && i < max);
+
+        if (this.value == pId) {
+            this.title.set('html', pLabel);
+            this.chooseItem(pId);
+        }
+
+    },
+
     setStyle: function (p, p2) {
         this.box.setStyle(p, p2);
         return this;
@@ -1040,23 +1057,6 @@ ka.Select = new Class({
 
         if (pInternal) {
             this.fireChange();
-        }
-
-    },
-
-    setLabel: function (pId, pLabel) {
-
-        var i = 0, max = this.items.length;
-        do {
-            if (this.items[i].id == pId) {
-                this.items[i].label = pLabel;
-                break;
-            }
-        } while (++i && i < max);
-
-        if (this.value == pId) {
-            this.title.set('html', pLabel);
-            this.chooseItem(pId);
         }
 
     },

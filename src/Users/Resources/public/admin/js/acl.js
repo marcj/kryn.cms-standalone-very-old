@@ -17,10 +17,9 @@ var users_acl = new Class({
     },
 
     createLayout: function () {
-
-        this.win.extendHead();
-
         this.win.content.setStyle('overflow', 'hidden');
+
+        this.win.getTitleGroupContainer().setStyle('height', 42);
 
         this.left = new Element('div', {
             'class': 'users-acl-left ka-List'
@@ -48,9 +47,20 @@ var users_acl = new Class({
         this.entryPointTab = this.tabs.addPane(t('Entry points'), '');
         this.objectTab = this.tabs.addPane(t('Objects'), '');
 
+        this.tabs.addEvent('change', function() {
+            this.updateObjectRulesCounter();
+            this.loadObjectRules();
+        }.bind(this));
+
         this.actions = new ka.ButtonGroup(this.win.titleGroups);
         this.btnSave = this.actions.addButton(t('Save'), null, this.save.bind(this));
         this.btnSave.setButtonStyle('blue');
+
+        document.id(this.actions).setStyles({
+            position: 'absolute',
+            right: 0,
+            top: 5
+        });
 
         this.tabs.hide();
         this.actions.hide();
@@ -64,24 +74,30 @@ var users_acl = new Class({
     },
 
     loadObjectRules: function (pObjectKey) {
-        pObjectKey = ka.normalizeObjectKey(pObjectKey);
-        //ka.getObjectDefinition(pObjectKey);
-        this.currentObject = pObjectKey;
+        if (pObjectKey) {
+            pObjectKey = ka.normalizeObjectKey(pObjectKey);
+            //ka.getObjectDefinition(pObjectKey);
+            this.currentObject = pObjectKey;
+        }
+
+        if (!this.currentObject) {
+            return;
+        }
 
         this.btnAddExact.setStyle('display', 'none');
 
         this.objectsExactContainer.empty();
 
         this.objectList.getElements('.ka-List-item').removeClass('active');
-        this.objectDivs[ka.normalizeObjectKey(pObjectKey)].addClass('active');
+        this.objectDivs[ka.normalizeObjectKey(this.currentObject)].addClass('active');
 
-        this.currentDefinition = ka.getObjectDefinition(pObjectKey);
+        this.currentDefinition = ka.getObjectDefinition(this.currentObject);
 
         if (this.currentDefinition.nested) {
 
             var options = {
                 type: 'tree',
-                objectKey: pObjectKey,
+                objectKey: this.currentObject,
                 openFirstLevel: true,
                 moveable: false,
                 withContext: false,
@@ -210,7 +226,7 @@ var users_acl = new Class({
 
                 if (rule.sub && !item.usersAclSubLine) {
                     item.usersAclSubLine = new Element('div', {
-                        style: 'position: absolute;top: 15px; bottom: 0px; border-right: 1px solid gray;'
+                        style: 'position: absolute; top: 15px; bottom: 0px; border-right: 1px solid gray;'
                     }).inject(item);
 
                     item.usersAclSubLineChildren = new Element('div', {
@@ -218,13 +234,13 @@ var users_acl = new Class({
                     }).inject(item.getNext());
 
                     [item.usersAclSubLine, item.usersAclSubLineChildren].each(function (dom) {
-                        dom.setStyle('left', item.getStyle('padding-left').toInt() + 7);
+                        dom.setStyle('left', item.getStyle('padding-left').toInt() + 13);
                     });
                 }
 
                 if (!item.usersAclCounter) {
                     item.usersAclCounter = new Element('span', {
-                        text: '(1)',
+                        text: ' (1)',
                         style: 'color: green;'
                     }).inject(item.span);
                     item.usersAclCounter.ruleCount = 1;
@@ -284,13 +300,21 @@ var users_acl = new Class({
 
         }.bind(this));
 
-        this.selectModes.setLabel(-1, tc('usersAclModes', 'All rules') + ' (' + all + ')');
-        this.selectModes.setLabel(0, tc('usersAclModes', 'Combined') + ' (' + modeCounter[0] + ')');
-        this.selectModes.setLabel(1, tc('usersAclModes', 'List') + ' (' + modeCounter[1] + ')');
-        this.selectModes.setLabel(2, tc('usersAclModes', 'View') + ' (' + modeCounter[2] + ')');
-        this.selectModes.setLabel(3, tc('usersAclModes', 'Add') + ' (' + modeCounter[3] + ')');
-        this.selectModes.setLabel(4, tc('usersAclModes', 'Edit') + ' (' + modeCounter[4] + ')');
-        this.selectModes.setLabel(5, tc('usersAclModes', 'Delete') + ' (' + modeCounter[5] + ')');
+
+        this.selectModes.setLabel(-1,
+            [tc('usersAclModes', 'All rules') + ' (' + all + ')', 'bundles/admin/images/icons/tick.png']);
+        this.selectModes.setLabel(0,
+            [tc('usersAclModes', 'Combined') + ' (' + modeCounter[0] + ')', 'bundles/admin/images/icons/arrow_in.png']);
+        this.selectModes.setLabel(1,
+            [tc('usersAclModes', 'List') + ' (' + modeCounter[1] + ')', 'bundles/admin/images/icons/application_view_list.png']);
+        this.selectModes.setLabel(2,
+            [tc('usersAclModes', 'View') + ' (' + modeCounter[2] + ')', 'bundles/admin/images/icons/application_form.png']);
+        this.selectModes.setLabel(3,
+            [tc('usersAclModes', 'Add') + ' (' + modeCounter[3] + ')', 'bundles/admin/images/icons/application_form_add.png']);
+        this.selectModes.setLabel(4,
+            [tc('usersAclModes', 'Edit') + ' (' + modeCounter[4] + ')', 'bundles/admin/images/icons/application_form_edit.png']);
+        this.selectModes.setLabel(5,
+            [tc('usersAclModes', 'Delete') + ' (' + modeCounter[5] + ')', 'bundles/admin/images/icons/application_form_delete.png']);
 
         if (!this.currentDefinition.nested) {
             this.objectsExactContainer.empty();
@@ -495,28 +519,35 @@ var users_acl = new Class({
         }).inject(div);
 
         var mode = 'arrow_in'; //0, combined
+        var modeTitle = 'All combined';
 
         switch (parseInt(pRule.mode)) {
             case 1:
                 mode = 'application_view_list';
+                modeTitle = 'List';
                 break; //list
             case 2:
                 mode = 'application_form';
+                modeTitle = 'View';
                 break; //view detail
             case 3:
                 mode = 'application_form_add';
+                modeTitle = 'Add';
                 break; //add
             case 4:
                 mode = 'application_form_edit';
+                modeTitle = 'Edit';
                 break; //edit
             case 5:
                 mode = 'application_form_delete';
+                modeTitle = 'Delete';
                 break; //delete
         }
 
         new Element('img', {
             'class': 'users-acl-object-rule-mode',
-            src: _path + 'bundles/admin/images/icons/' + mode + '.png'
+            src: _path + 'bundles/admin/images/icons/' + mode + '.png',
+            title: modeTitle
         }).inject(div);
 
         var title = t('All objects');
@@ -1261,44 +1292,22 @@ var users_acl = new Class({
     },
 
     getEntryPointIcon: function (pNode) {
-
-        /*
-
-         '': t('Default'),
-         store: t('Store'),
-         'function': t('Background function'),
-         custom: t('[Window] Custom'),
-         iframe: t('[Window] iFrame'),
-         list: t('[Window] Framework list'),
-         edit: t('[Window] Framework edit'),
-         add: t('[Window] Framework add'),
-         combine: t('[Window] Framework Combine')
-
-         */
         switch (pNode.type) {
-
             case 'list':
                 return 'bundles/admin/images/icons/application_view_list.png';
-
             case 'edit':
                 return 'bundles/admin/images/icons/application_form_edit.png';
-
             case 'add':
                 return 'bundles/admin/images/icons/application_form_add.png';
-
             case 'combine':
                 return 'bundles/admin/images/icons/application_side_list.png';
-
             case 'function':
                 return 'bundles/admin/images/icons/script_code.png';
-
             case 'iframe':
             case 'custom':
                 return 'bundles/admin/images/icons/application.png';
-
             case 'store':
                 return 'bundles/admin/images/icons/database.png';
-
             default:
                 return 'bundles/admin/images/icons/folder.png'
         }
@@ -1327,7 +1336,7 @@ var users_acl = new Class({
         a.entryPath = ka.urlEncode(path);
         a.childContainer = childContainer;
         this.currentEntrypointDoms[a.entryPath] = a;
-        this.loadEntryPointChildren(pExtensionConfig.entryPoints, path, childContainer);
+        this.loadEntryPointChildren(pExtensionConfig.entryPoints, pExtensionKey, childContainer);
 
         return a;
 
@@ -1349,7 +1358,7 @@ var users_acl = new Class({
                 src: _path + '' + this.getEntryPointIcon(item)
             }).inject(element, 'top');
 
-            var code = pCode + '/' + index;
+            var code = (pCode == '/' ? '/' : pCode + '/') + index;
             element.entryPath = ka.urlEncode(code);
             this.currentEntrypointDoms[element.entryPath] = element;
             var childContainer = new Element('div',
@@ -1617,8 +1626,9 @@ var users_acl = new Class({
 
             var rule = {
                 object: 'core:entrypoint',
-                constraintType: 2,
+                constraintType: 1,
                 sub: 1,
+                prio: 0,
                 constraintCode: pDom.entryPath,
                 access: 1,
                 targetType: this.currentTargetType,
@@ -1650,7 +1660,6 @@ var users_acl = new Class({
         var fieldContainer = new Element('div').inject(div);
 
         var fields = {
-
             access: {
                 label: t('Access'),
                 'default': 1,
@@ -1685,6 +1694,7 @@ var users_acl = new Class({
 
                 this.currentAcls[index] = Object.merge(pDom.rule, kaFields.getValue());
                 pDom.rule = this.currentAcls[index];
+                console.log(pDom.rule);
             }.bind(this));
 
             this.updateEntryPointRules();

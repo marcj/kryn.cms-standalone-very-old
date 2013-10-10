@@ -11,13 +11,18 @@ class ObjectEntryPoint extends \Core\ORM\ORMAbstract
      */
     public function getItem($pk, $options = null)
     {
-
+        if ('/' === $pk['path']) {
+            return array(
+                'path' => '/',
+                'title' => 'Admin Access (/)'
+            );
+        }
         $entryPoint = Utils::getEntryPoint($pk['path']);
         if ($entryPoint) {
             return array(
                 'path' => $pk['path'],
                 'type' => $entryPoint['type'],
-                'title' => $entryPoint['title'] ? $entryPoint['title'] . ' (' . $pk['path'] . ')' : $pk['path']
+                'title' => $entryPoint['title'] ? $entryPoint['title'] . ' (/' . $pk['path'] . ')' : '/'.$pk['path']
             );
         }
 
@@ -115,42 +120,29 @@ class ObjectEntryPoint extends \Core\ORM\ORMAbstract
      */
     public function getBranch($pk = null, $condition = null, $depth = 1, $scope = null, $options = null)
     {
-
         $result = null;
 
         if (!$pk || !$pk['path']) {
 
-            $config = \Core\Kryn::getModuleConfig('admin');
-            foreach ($config['entryPoints'] as $key => $entryPoint) {
+            return [
+                [
+                    'path' => '/',
+                    'title' => 'Admin Access'
+                ]
+            ];
+
+        } else if ('/' == $pk['path']) {
+            foreach (\Core\Kryn::getBundleClasses() as $bundle) {
+
                 $item = array(
-                    'path' => $key,
-                    'type' => $entryPoint['type'],
-                    'title' => $entryPoint['title'] ? $entryPoint['title'] . ' (' . $key . ')' : $key,
+                    'path' => strtolower($bundle->getName(true)),
+                    'title' => $bundle->getName()
                 );
 
-                $this->setChildren($key, $item, $depth);
+                $this->setChildren(strtolower($bundle->getName(true)), $item, $depth);
+
                 $result[] = $item;
             }
-
-            foreach (\Core\Kryn::$extensions as $extension) {
-                if ($extension == 'admin') {
-                    continue;
-                }
-                $config = \Core\Kryn::getModuleConfig($extension);
-
-                foreach ($config['entryPoints'] as $key => $entryPoint) {
-                    $item = array(
-                        'path' => $extension . '/' . $key,
-                        'type' => $entryPoint['type'],
-                        'title' => $entryPoint['title'] ? $entryPoint['title'] . ' (' . $key . ')' : $key
-                    );
-
-                    $this->setChildren($extension . '/' . $key, $item, $depth);
-
-                    $result[] = $item;
-                }
-            }
-
         } else {
 
             self::normalizePath($pk['path']);

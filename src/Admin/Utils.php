@@ -54,6 +54,18 @@ class Utils
         $bundleName = ucfirst($bundleName) . 'Bundle';
         $config = Kryn::getConfig($bundleName);
 
+        if (!$path && $config) {
+            //root
+            $entryPoint = new EntryPoint();
+            $entryPoint->setType(0);
+            $entryPoint->setPath($code);
+            $entryPoint->setChildren(
+                $config->getEntryPoints()
+            );
+            return $entryPoint;
+        }
+
+        $entryPoint = null;
         if ($config) {
 
             while (!($entryPoint = $config->getEntryPoint($path))) {
