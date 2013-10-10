@@ -30,7 +30,7 @@ var admin_system_languages = new Class({
             this.languageSelect.add(id, lang.langtitle + ' (' + lang.title + ', ' + id + ')');
         }.bind(this));
 
-        this.languageSelect.setValue(window._session.lang);
+        this.languageSelect.setValue(window._session.lang || 'en');
 
         this.win.setLoading(true);
 
