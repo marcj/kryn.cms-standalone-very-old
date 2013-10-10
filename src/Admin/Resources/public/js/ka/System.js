@@ -79,8 +79,8 @@ ka.System = new Class({
             text: entryPoint.label
         })
             .addEvent('click', function() {
-                ka.wm.open(bundleName + '/' + entryPoint.fullPath);
                 this.fireEvent('click', entryPoint)
+                ka.wm.open(bundleName + '/' + entryPoint.fullPath);
             }.bind(this))
             .inject(container);
 

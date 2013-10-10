@@ -7,28 +7,24 @@
 }
 
 .ka-Dashboard-widget {
-    background-color: white;
+    background-color: #fcfcfc;
     margin: 4px;
     display: block;
     float: left;
     width: 255px;
     height: 215px;
     color: #444;
-    border: 1px solid #ddd;
+    border: 1px solid #e2e2e2;
 
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
-
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
 }
 
 .ka-Dashboard-widget h3 {
-    background-color: #f9f9f9;
     margin: 0;
     padding: 5px;
+    font-size: 13px;
 
     -moz-border-radius-topleft: 5px;
     -moz-border-radius-topright: 5px;

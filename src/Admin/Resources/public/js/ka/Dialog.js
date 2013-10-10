@@ -245,6 +245,20 @@ ka.Dialog = new Class({
             this.container.getDocument().body.removeEvent('keyup', this.checkClose);
         }
 
+        this.doClose(pAnimated);
+        if (!pAnimated) {
+            if (this.lastFocusedElement) {
+                this.lastFocusedElement.focus();
+            }
+            this.fireEvent('closed');
+        }
+    },
+
+    /**
+     * @internal
+     * @param {Boolean} pAnimated
+     */
+    doClose: function(pAnimated) {
         if (pAnimated) {
             var dsize = this.main.getSize();
 
@@ -270,13 +284,6 @@ ka.Dialog = new Class({
         } else {
             this.overlay.destroy();
         }
-
-        if (!pAnimated) {
-            if (this.lastFocusedElement) {
-                this.lastFocusedElement.focus();
-            }
-            this.fireEvent('closed');
-        }
     },
 
     /**
@@ -295,6 +302,11 @@ ka.Dialog = new Class({
             this.overlay.inject(this.container);
         }
     },
+
+    isOpen: function() {
+        return !!this.overlay.getParent();
+    },
+
     /**
      * Position the dialog to the correct position.
      *

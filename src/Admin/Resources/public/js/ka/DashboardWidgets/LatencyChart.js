@@ -28,7 +28,7 @@ ka.DashboardWidgets.LatencyChart = new Class({
         }).inject(this.div);
 
         this.canvas = new Element('canvas', {
-            width: 210,
+            width: 240,
             height: 165
         }).inject(this.main);
     },

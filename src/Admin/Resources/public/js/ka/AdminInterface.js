@@ -40,32 +40,69 @@ ka.AdminInterface = new Class({
         }
     },
 
+    getAppDialogAnimation: function() {
+        if (!this.appContainerAnimation) {
+            this.appContainerAnimation = new Fx.Morph(ka.adminInterface.getAppContainer(), {
+                duration: 500,
+                link: 'cancel',
+                transition: Fx.Transitions.Cubic.easeOut
+            });
+        }
+        return this.appContainerAnimation;
+    },
+
     openDashboard: function() {
-        var dialog = new ka.Dialog(this.border, {
-            yOffset: 61,
-            minWidth: '90%',
+        if (this.checkLastSystemDialog('dashboard')) return;
+        this.lastSystemDialog = new ka.SystemDialog(this.getDialogContainer(), {
             autoClose: true
         });
 
-        dialog.inject();
-
         new Element('h1', {
             text: t('Dashboard')
-        }).inject(dialog.getContentContainer());
+        }).inject(this.lastSystemDialog.getContentContainer());
 
-        var dashboardInstance = new ka.Dashboard(dialog.getContentContainer());
+        this.lastSystemDialog.center();
 
-        dialog.addEvent('closed', function() {
+        var dashboardInstance = new ka.Dashboard(this.lastSystemDialog.getContentContainer());
+
+        this.lastSystemDialog.addEvent('closed', function() {
             dashboardInstance.destroy();
-        });
+            this.clearLastSystemDialog();
+        }.bind(this));
 
-        dialog.center(true);
+    },
+
+    getDialogContainer: function(){
+        if (!this.dialogContainer) {
+            this.dialogContainer = new Element('div', {
+                'class': 'ka-main-dialog-container'
+            }).inject(this.mainMenuTop, 'after');
+        }
+        return this.dialogContainer;
+    },
+
+    checkLastSystemDialog: function(id) {
+        if (this.lastSystemDialog && this.lastSystemDialog.isOpen()) {
+            if (id == this.lastSystemDialogId) {
+                delete this.lastSystemDialogId;
+                this.lastSystemDialog.close();
+                return true;
+            }
+            this.lastSystemDialog.close();
+        }
+        this.lastSystemDialogId = id;
+        return false;
+    },
+
+    clearLastSystemDialog: function() {
+        delete this.lastSystemDialog;
+        delete this.lastSystemDialogId;
     },
 
     openApps: function() {
-        var dialog = new ka.Dialog(this.border, {
-            yOffset: 61,
-            minWidth: '60%',
+        if (this.checkLastSystemDialog('apps')) return;
+
+        this.lastSystemDialog = new ka.SystemDialog(this.getDialogContainer(), {
             autoClose: true
         });
 
@@ -108,9 +145,9 @@ ka.AdminInterface = new Class({
                 text: item.label
             })
                 .addEvent('click', function(){
-                    dialog.closeAnimated();
+                    this.lastSystemDialog.close();
                     ka.wm.open(item.fullPath);
-                })
+                }.bind(this))
                 .inject(currentContainer);
 
             if (item.icon) {
@@ -124,13 +161,17 @@ ka.AdminInterface = new Class({
                 }
             }
 
-        };
+        }.bind(this);
 
         Object.each(this.menuItems, function(item, path) {
-            addLink(item, dialog.getContentContainer());
+            addLink(item, this.lastSystemDialog.getContentContainer());
         }.bind(this));
 
-        dialog.center(true);
+        this.lastSystemDialog.addEvent('closed', function() {
+            this.clearLastSystemDialog();
+        }.bind(this));
+
+        this.lastSystemDialog.center();
     },
 
     getMenuItems: function() {
@@ -138,18 +179,22 @@ ka.AdminInterface = new Class({
     },
 
     openSettings: function() {
-        var dialog = new ka.Dialog(this.border, {
-            yOffset: 61,
-            minWidth: '60%',
+        if (this.checkLastSystemDialog('settings')) return;
+        this.lastSystemDialog = new ka.SystemDialog(this.getDialogContainer(), {
             autoClose: true
         });
 
-        var system = new ka.System(dialog.getContentContainer(), this.getMenuItems());
-        system.addEvent('click', function(){
-            dialog.closeAnimated();
-        });
+        var system = new ka.System(this.lastSystemDialog.getContentContainer(), this.getMenuItems());
 
-        dialog.center(true);
+        system.addEvent('click', function(){
+            this.lastSystemDialog.close();
+        }.bind(this));
+
+        this.lastSystemDialog.addEvent('closed', function() {
+            this.clearLastSystemDialog();
+        }.bind(this));
+
+        this.lastSystemDialog.center(true);
     },
 
     createLayout: function() {
@@ -275,9 +320,13 @@ ka.AdminInterface = new Class({
 //            })
 //            .inject(this.mainMenuIconBar);
 
+        this.appContainer = new Element('div', {
+            'class': 'ka-app-container'
+        }).inject(this.border);
+
         this.wmTabContainer = new Element('div', {
             'class': 'ka-main-menu-wm-tabs'
-        }).inject(this.border)
+        }).inject(this.appContainer)
 
         if (this.options.frontPage) {
             this.desktopContainer = this.border;
@@ -293,10 +342,14 @@ ka.AdminInterface = new Class({
         } else {
             this.desktopContainer = new Element('div', {
                 'class': 'ka-desktop ka-admin ka-scrolling'
-            }).inject(this.border);
+            }).inject(this.appContainer);
         }
 
         //this.setupMainLinksDragger();
+    },
+
+    getAppContainer: function() {
+        return this.appContainer;
     },
 
 //    setupMainLinksDragger: function() {

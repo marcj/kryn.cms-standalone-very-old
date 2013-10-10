@@ -294,22 +294,51 @@ span.selectable span, div.selectable div {
     left: 0;
     top: 0;
     right: 0;
+    overflow: hidden;
     bottom: 0;
+}
+
+.ka-app-container {
+    position: absolute;
+    left: 0;
+    top: 61px;
+    right: 0;
+    bottom: 0;
+}
+
+.ka-main-dialog-container > .ka-dialog-overlay {
+    background-color: #F5F5F5;
+}
+
+.ka-main-dialog-container > .ka-dialog-overlay > .ka-dialog {
+    box-shadow: none;
+    position: relative;
+    padding: 0 50px;
+    max-width: 100%;
+    max-height: 100%;
 }
 
 .ka-desktop {
     position: absolute;
-    top: 92px;
+    top: 31px;
     left: 0;
     right: 0;
     bottom: 0;
     overflow: auto;
 }
 
-.ka-main-menu-wm-tabs {
+.ka-main-dialog-container {
     position: absolute;
     left: 0;
     top: 61px;
+    right: 0;
+    bottom: 0;
+}
+
+.ka-main-menu-wm-tabs {
+    position: absolute;
+    left: 0;
+    top: 0;
     height: 30px;
     right: 0;
     background-color: #ddd;
