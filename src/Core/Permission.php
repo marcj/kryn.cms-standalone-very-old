@@ -205,9 +205,7 @@ class Permission
         $query = AclQuery::create();
 
         $query->filterByObject($objectKey);
-
         $query->delete();
-
     }
 
     /**
@@ -548,7 +546,6 @@ class Permission
         self::$cache[$objectKey . '_' . $mode] = null;
 
         $acl->save();
-
         return $acl;
     }
 
@@ -591,7 +588,7 @@ class Permission
             return true;
         }
 
-        if ($pk) {
+        if ($pk && static::getCaching()) {
             $pkString = Object::getObjectUrlId($objectKey, $pk);
             $cacheKey = $targetType.'.'.$targetId . '.'.$objectKey . '/' . $pkString . '/' . $field;
             $cached = Kryn::getDistributedCache('core/acl/'.$cacheKey);
@@ -640,6 +637,9 @@ class Permission
                 }
 
                 //print $acl['id'].', '.$acl['code'] .' == '. $currentObjectPk.'<br/>';
+                /*
+                 * CUSTOM CONSTRAINT
+                 */
                 if ($acl['constraint_type'] == 2 && $pk &&
                     ($objectItem = Object::get($objectKey, $currentObjectPk))
                 ) {
@@ -648,6 +648,9 @@ class Permission
                     }
                 }
 
+                /*
+                 * EXACT
+                 */
                 if (
                     $acl['constraint_type'] != 1 ||
                     ($currentObjectPk && $acl['constraint_type'] == 1 && $acl['constraint_code'] == $currentObjectPkString)
@@ -741,7 +744,7 @@ class Permission
             }
         }
 
-        if ($pk) {
+        if ($pk && static::getCaching()) {
             Kryn::setDistributedCache('core/acl/'.$cacheKey, $access);
         }
 

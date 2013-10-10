@@ -21,6 +21,7 @@ class ObjectTest extends TestCaseWithCore
         ItemCategoryQuery::create()->deleteAll();
         ItemQuery::create()->deleteAll();
         TestQuery::create()->deleteAll();
+        Permission::setCaching(false);
         Permission::removeObjectRules('Test\\Item');
 
         $user = new User();
@@ -85,6 +86,7 @@ class ObjectTest extends TestCaseWithCore
                 )
             )
         );
+
         Permission::setObjectUpdate('Test\\Item', Permission::USER, $user->getId(), true, $fields);
 
         $this->assertTrue(
@@ -144,6 +146,7 @@ class ObjectTest extends TestCaseWithCore
             Permission::checkUpdate('Test\\Item', array('title' => 'peter2'), Permission::USER, $user->getId())
         );
 
+        Permission::setCaching(true);
     }
 
     public function texxstObjectGeneral()
@@ -151,6 +154,7 @@ class ObjectTest extends TestCaseWithCore
         ItemQuery::create()->deleteAll();
         TestQuery::create()->deleteAll();
         Permission::removeObjectRules('Test\\Item');
+        Permission::setCaching(false);
 
         $user = new User();
         $user->setUsername('TestUser');
@@ -293,6 +297,8 @@ class ObjectTest extends TestCaseWithCore
             Permission::checkList('Test\\Test', $test1->getId(), Permission::GROUP, $group->getId()),
             'testGroup has no access test1.'
         );
+
+        Permission::setCaching(true);
     }
 
 }
