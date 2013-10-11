@@ -147,6 +147,7 @@ class ObjectTest extends TestCaseWithCore
         );
 
         Permission::setCaching(true);
+        Permission::removeObjectRules('Test\\Item');
     }
 
     public function texxstObjectGeneral()
@@ -299,6 +300,7 @@ class ObjectTest extends TestCaseWithCore
         );
 
         Permission::setCaching(true);
+        Permission::removeObjectRules('Test\\Item');
     }
 
 }

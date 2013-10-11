@@ -598,7 +598,6 @@ class Permission
             }
         }
 
-
         $rules = self::getRules($objectKey, $mode, $targetType, $targetId);
 
         if (count($rules) == 0) {

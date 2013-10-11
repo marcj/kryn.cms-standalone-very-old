@@ -895,7 +895,7 @@ class Object
             }
 
             foreach ($values as $fieldName => $value) {
-                if (!Permission::checkUpdate($objectKey, $pk, [$fieldName => $value])) {
+                if (!Permission::checkUpdateExact($objectKey, $pk, [$fieldName => $value])) {
                     throw new \NoFieldWritePermission(tf("No update permission to field '%s' in item '%s' from object '%s'", $fieldName, $pk, $objectKey));
                 }
             }
@@ -954,9 +954,9 @@ class Object
             }
 
             foreach ($values as $fieldName => $value) {
-                //if (!Permission::checkUpdate($objectKey, $pk, $fieldName)) {
-                //    throw new \NoFieldWritePermission(tf("No update permission to field '%s' in item '%s' from object '%s'", $fieldName, $pk, $objectKey));
-                //}
+                if (!Permission::checkUpdateExact($objectKey, $pk, [$fieldName => $value])) {
+                    throw new \NoFieldWritePermission(tf("No update permission to field '%s' in item '%s' from object '%s'", $fieldName, $pk, $objectKey));
+                }
             }
         }
 
