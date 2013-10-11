@@ -248,7 +248,7 @@ class ObjectCrudController extends Server
      * @return mixed
      */
     public function getItems($url = null, $_ = null, $limit = null, $offset = null, $fields = null,
-                             $getPosition = null, $q = '')
+                             $getPosition = null, $q = '', $withAcl = false)
     {
         $obj = $this->getObj();
 
@@ -259,7 +259,7 @@ class ObjectCrudController extends Server
         if ($url !== null) {
             $pk = \Core\Object::parsePk($obj->getObject(), $url);
 
-            return $obj->getItem($pk[0], $fields);
+            return $obj->getItem($pk[0], $fields, filter_var($withAcl, FILTER_VALIDATE_BOOLEAN));
         } else {
             return $obj->getItems($_, $limit, $offset, $q, $fields);
         }
@@ -307,17 +307,19 @@ class ObjectCrudController extends Server
 
     }
 
-    public function getItem($pk, $fields = null)
+    public function getItem($pk, $fields = null, $withAcl = false)
     {
         $obj = $this->getObj();
 
         $primaryKeys = \Core\Object::parsePk($obj->getObject(), $pk);
 
+        $withAcl = filter_var($withAcl, FILTER_VALIDATE_BOOLEAN);
+
         if (count($primaryKeys) == 1) {
-            return $obj->getItem($primaryKeys[0], $fields);
+            return $obj->getItem($primaryKeys[0], $fields, $withAcl);
         } else {
             foreach ($primaryKeys as $primaryKey) {
-                if ($item = $obj->getItem($primaryKey, $fields)) {
+                if ($item = $obj->getItem($primaryKey, $fields, $withAcl)) {
                     $items[] = $item;
                 }
             }

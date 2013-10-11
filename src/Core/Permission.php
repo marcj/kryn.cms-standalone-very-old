@@ -591,7 +591,8 @@ class Permission
         if ($pk && static::getCaching()) {
             $pkString = Object::getObjectUrlId($objectKey, $pk);
             $cacheKey = $targetType.'.'.$targetId . '.'.$objectKey . '/' . $pkString . '/' . $field;
-            $cached = Kryn::getDistributedCache('core/acl/'.$cacheKey);
+            $GLOBALS['penis'] = 1;
+            $cached = Kryn::getDistributedCache('core/acl/'.md5($cacheKey));
             if (null !== $cached) {
                 return $cached;
             }
@@ -619,6 +620,10 @@ class Permission
 
             $fKey = key($field);
             $fValue = current($field);
+            if (is_int($fKey)) {
+                $fKey = $fValue;
+                $fValue = null;
+            }
         }
 
         $depth = 0;
@@ -671,7 +676,7 @@ class Permission
                                             if (($f = $definition->getField($fKey)) && $f->getType() == 'object') {
                                                 $uri = $f->getObject() . '/' . $fValue;
                                                 $satisfy = Object::satisfyFromUrl($uri, $fRule['condition']);
-                                            } else {
+                                            } else if (null !== $fValue){
                                                 $satisfy = Object::satisfy($field, $fRule['condition']);
                                             }
                                             if ($satisfy) {
@@ -686,11 +691,9 @@ class Permission
                                         }
 
                                     } else {
-
                                         //simple field rule $field2Acl = ({"value1": yes, "value2": no}
-
-                                        if ($field2Acl[$fValue] !== null) {
-                                            return ($field2Acl[$fValue] == 1) ? true : false;
+                                        if ($field2Acl[$fKey] !== null) {
+                                            return ($field2Acl[$fKey] == 1) ? true : false;
                                         } else {
                                             //current($field) is not exactly defined in $field2Acl, so we set $access to $acl['access']
                                             //

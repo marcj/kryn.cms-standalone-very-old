@@ -16,6 +16,7 @@ ka.FieldForm = new Class({
 
     fields: {},
     fieldDefinitions: {},
+    forcedVisibility: {},
 
     options: {
         allTableItems: false,
@@ -265,6 +266,29 @@ ka.FieldForm = new Class({
         }.bind(this));
     },
 
+    refreshVisibility: function(pTarget) {
+        var obj = pTarget;
+        if (typeOf(pTarget) == 'string') {
+            obj = this.getField(pTarget);
+        }
+
+        console.log(pTarget, obj, obj.field);
+        if ('array' === typeOf(obj.field.againstField)) {
+            Array.each(obj.field.againstField, function (fieldKey) {
+                this.fields[fieldKey].fireEvent('check-depends');
+            });
+        } else if ('string' === typeOf(obj.field.againstField)) {
+            if (this.fields[obj.field.againstField]) {
+                this.fields[obj.field.againstField].fireEvent('check-depends');
+            }
+        } else {
+            obj.show();
+        }
+
+        this.updateChildrenContainerVisibility(obj);
+        this.checkForEmptyTabs();
+    },
+
     attachField: function (id, obj, def) {
         var self = this;
         this.fields[id] = obj;
@@ -275,7 +299,6 @@ ka.FieldForm = new Class({
         if (!instanceOf(obj, ka.FieldForm)) {
             if (obj.field.againstField) {
                 if (typeOf(obj.field.againstField) == 'array') {
-
                     var check = function () {
 
                         var visible = false;
@@ -360,25 +383,82 @@ ka.FieldForm = new Class({
         var visible = this.getVisibility(pTarget, pField);
         if (visible) {
             pField.show();
-        }
-        else {
+        } else {
             pField.hide();
         }
+        this.checkForEmptyTabs();
+    },
+
+    isHidden: function(pField) {
+        var field = pField;
+        if (typeOf(pField) == 'string') {
+            field = this.getField(pField);
+        }
+
+        if (!field) return;
+
+        return field.isHidden();
+    },
+
+    isVisible: function(pField) {
+        return !this.isHidden(pField);
+    },
+
+    checkForEmptyTabs: function() {
+        if (!this.firstLevelTabPane) return;
+
+        Array.each(this.firstLevelTabPane.getTabs(), function(tab) {
+            if (tab.button && tab.button.field && tab.button.field.children) {
+                var allHidden = true;
+                Object.each(tab.button.field.children, function(children, key) {
+                    allHidden &= this.isHidden(key);
+                }.bind(this));
+                console.log('allHidden', allHidden, tab.button);
+                if (allHidden) {
+                    tab.button.hide();
+                } else {
+                    tab.button.show();
+                }
+            }
+        }.bind(this));
     },
 
     setVisibility: function (pTarget, pVisible) {
+        if ('null' !== typeOf(this.forcedVisibility[pTarget])) {
+            return;
+        }
+
         var field = pTarget;
         if (typeOf(pTarget) == 'string') {
             field = this.getField(pTarget);
         }
 
+        if (!field) return;
+
         if (pVisible) {
             field.show();
-        }
-        else {
+        } else {
             field.hide();
         }
+        this.checkForEmptyTabs();
+    },
 
+    hideField: function(pTarget) {
+        delete this.forcedVisibility[pTarget];
+        this.setVisibility(pTarget, false);
+        this.forcedVisibility[pTarget] = false;
+    },
+
+    showField: function(pTarget) {
+        this.forcedVisibility[pTarget] = true;
+        this.refreshVisibility(pTarget);
+    },
+
+    showAll: function() {
+        Object.each(this.forcedVisibility, function(val, key){
+            this.refreshVisibility(key);
+        }.bind(this));
+        this.forcedVisibility = {};
     },
 
     /**

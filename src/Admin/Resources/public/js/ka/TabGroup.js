@@ -98,12 +98,12 @@ ka.TabGroup = new Class({
         }
 
         pButton.hide = function () {
+            if (pButton.isHidden()) return;
             pButton.store('visible', false);
             pButton.setStyle('display', 'none');
             this.rerender();
 
             if (pButton.tabPane && pButton.isPressed()) {
-
                 var items = this.box.getChildren('a');
                 var index = items.indexOf(pButton);
                 if (items[index + 1]) {
@@ -112,12 +112,11 @@ ka.TabGroup = new Class({
                 if (items[index - 1]) {
                     pButton.tabPane.to(index - 1);
                 }
-
             }
-
         }.bind(this);
 
         pButton.show = function () {
+            if (!pButton.isHidden()) return;
             pButton.store('visible', true);
             pButton.setStyle('display');
             this.rerender();

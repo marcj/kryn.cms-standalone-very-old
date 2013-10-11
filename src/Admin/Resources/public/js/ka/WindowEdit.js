@@ -167,13 +167,15 @@ ka.WindowEdit = new Class({
         this.lastRq = new Request.JSON({url: _pathAdmin + this.getEntryPoint() + '/' + id,
             noCache: true, onComplete: function (res) {
                 this._loadItem(res.data);
-            }.bind(this)}).get();
+            }.bind(this)}).get({withAcl: true});
     },
 
     _loadItem: function (pItem) {
         this.item = pItem;
 
         this.setValue(pItem);
+        this.saveBtn.setEnabled(pItem._editable);
+        this.hideNotEditableFields(pItem._notEditable);
 
         this.renderVersionItems();
 
@@ -181,6 +183,16 @@ ka.WindowEdit = new Class({
         this.fireEvent('load', pItem);
 
         this.ritem = this.retrieveData(true);
+    },
+
+    hideNotEditableFields: function(fields) {
+        this.fieldForm.showAll();
+
+        if (fields && 'array' === typeOf(fields)){
+            Array.each(fields, function(field) {
+                this.fieldForm.hideField(field);
+            }.bind(this));
+        }
     },
 
     setValue: function (pValue) {
@@ -485,9 +497,7 @@ ka.WindowEdit = new Class({
     },
 
     renderVersions: function () {
-
         if (this.classProperties.versioning == true) {
-
             var versioningSelectRight = 5;
             if (this.languageSelect) {
                 versioningSelectRight = 150;
@@ -497,9 +507,7 @@ ka.WindowEdit = new Class({
             this.versioningSelect.setStyle('width', 120);
 
             this.versioningSelect.addEvent('change', this.changeVersion.bind(this));
-
         }
-
     },
 
 /*    renderMultilanguage: function () {
@@ -571,7 +579,6 @@ ka.WindowEdit = new Class({
     },
 
     reset: function () {
-
         this.setValue(this.item);
     },
 

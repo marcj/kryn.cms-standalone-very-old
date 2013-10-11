@@ -788,10 +788,12 @@ class ObjectCrud
      * Use dbPrimaryKeyToCondition() to convert it to a full condition definition.
      *
      * @param  array $pk
+     * @param  array $fields
+     * @param  bool $withAcl
      *
      * @return array
      */
-    public function getItem($pk, $fields = null)
+    public function getItem($pk, $fields = null, $withAcl = false)
     {
         $this->primaryKey = $pk;
         $options['fields'] = $this->getSelection($fields);
@@ -816,11 +818,28 @@ class ObjectCrud
             }
         }
 
-        if ($item) {
+        if ($item && $withAcl) {
             $this->prepareRow($item);
+            $this->prepareFieldAcl($item);
         }
 
         return $item;
+    }
+
+    public function prepareFieldAcl(&$item)
+    {
+        if (false === $item['_editable']) {
+            return;
+        }
+        $def = $this->getObjectDefinition();
+        $acl = [];
+        foreach ($def->getFields() as $field) {
+            if (!Permission::checkUpdateExact($this->getObject(), $item, [$field->getId()])) {
+                $acl[] = $field->getId();
+            }
+        }
+
+        $item['_notEditable'] = $acl;
     }
 
     /**
@@ -1794,7 +1813,7 @@ class ObjectCrud
     }
 
     /**
-     * @return array
+     * @return \Core\Config\Object
      */
     public function getObjectDefinition()
     {

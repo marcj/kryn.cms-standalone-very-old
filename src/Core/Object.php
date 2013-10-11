@@ -890,10 +890,14 @@ class Object
                 return false;
             }
 
+            if (!Permission::checkUpdateExact($objectKey, $pk)) {
+                return false;
+            }
+
             foreach ($values as $fieldName => $value) {
-                //if (!Permission::checkUpdate($objectKey, $pk, $fieldName)) {
-                //    throw new \NoFieldWritePermission(tf("No update permission to field '%s' in item '%s' from object '%s'", $fieldName, $pk, $objectKey));
-                //}
+                if (!Permission::checkUpdate($objectKey, $pk, [$fieldName => $value])) {
+                    throw new \NoFieldWritePermission(tf("No update permission to field '%s' in item '%s' from object '%s'", $fieldName, $pk, $objectKey));
+                }
             }
         }
 
