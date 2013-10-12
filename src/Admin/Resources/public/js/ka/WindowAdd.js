@@ -460,26 +460,21 @@ ka.WindowAdd = new Class({
 
                     this.saveBtn.stopTip(t('Added'));
 
-                    if (!pClose && this.saveNoClose) {
-                        this.saveNoClose.stopTip(t('Done'));
-                    }
-
                     if (this.classProperties.loadSettingsAfterSave == true) {
                         ka.loadSettings();
                     }
 
                     this.fireEvent('add', [request, res]);
 
-                    window.fireEvent('softReload', this.getEntryPoint());
+                    ka.getAdminInterface().objectChanged(this.classProperties['object']);
 
                     if ((!pClose || this.inline ) && this.classProperties.versioning == true) {
                         this.loadVersions();
                     }
 
-                    if (pClose) {
+                    if (this.win.isInline()) {
                         this.win.close();
                     }
-
                 }.bind(this)}).post(request);
         }
     }

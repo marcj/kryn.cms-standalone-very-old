@@ -499,7 +499,6 @@ class Propel extends ORMAbstract
         $selects = array_keys($fields);
 
         $this->mapOptions($query, $options);
-
         $this->mapToOneRelationFields($query, $relations, $relationFields);
 
         if ($this->definition->isNested()) {

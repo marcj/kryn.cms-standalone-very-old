@@ -603,7 +603,6 @@ class Object
             $condition = dbPrimaryKeyToCondition($condition, $objectKey);
         }
 
-
         if ($limit = $definition->getLimitDataSets()) {
             $condition = $condition ? array(
                 $condition,

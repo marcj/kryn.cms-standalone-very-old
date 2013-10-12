@@ -40,6 +40,14 @@ ka.AdminInterface = new Class({
         }
     },
 
+    objectChanged: function(object) {
+        object = ka.normalizeObjectKey(object);
+
+        Object.each(ka.wm.getWindows(), function(window) {
+            window.fireEvent('objectChanged', object);
+        });
+    },
+
     getAppDialogAnimation: function() {
         if (!this.appContainerAnimation) {
             this.appContainerAnimation = new Fx.Morph(ka.adminInterface.getAppContainer(), {
@@ -1317,7 +1325,6 @@ ka.AdminInterface = new Class({
 
     addTempLink: function(pWin) {
         var entryPoint = pWin.getEntryPointDefinition();
-        console.log('addTempLink', entryPoint);
 
         var mlink = new Element('a', {
             text: entryPoint.label + ' » ' + pWin.getTitle(),

@@ -804,11 +804,9 @@ class ObjectCrud
 
         //add custom values
         foreach ($this->_fields as $key => $field) {
-
             if ($field['customValue'] && method_exists($this, $method = $field['customValue'])) {
                 $item[$key] = $this->$method($field, $key);
             }
-
         }
 
         //check against additionaly our own custom condition
@@ -859,7 +857,7 @@ class ObjectCrud
      *
      * @return array
      */
-    public function getItems($filter = null, $limit = null, $offset = null, $query = '', $fields = null)
+    public function getItems($filter = null, $limit = null, $offset = null, $query = '', $fields = null, $orderBy = [])
     {
         $options = array();
         $options['permissionCheck'] = $this->getPermissionCheck();
@@ -872,8 +870,7 @@ class ObjectCrud
             $condition = !$condition ? $extraCondition : array($condition, 'AND', $extraCondition);
         }
 
-        $options['order'] = $this->getOrder();
-
+        $options['order'] = $orderBy ?: $this->getOrder();
         $options['fields'] = $this->getSelection($fields);
 
         if ($filter) {

@@ -592,7 +592,9 @@ ka.WindowEdit = new Class({
                 onComplete: function (pResponse) {
                     this.win.setLoading(false);
                     this.fireEvent('remove', this.winParams.item);
+                    ka.getAdminInterface().objectChanged(this.classProperties['object']);
                     this.destroy();
+                    this.win.close();
                 }.bind(this)}).get({_method: 'delete', pk: itemPk});
 
         }.bind(this));
@@ -605,6 +607,12 @@ ka.WindowEdit = new Class({
         this.saveBtn = this.actionGroup.addButton(t('Save'), '#icon-checkmark-6', function () {
             this.save();
         }.bind(this));
+
+        if (this.win.isInline()) {
+            this.closeBtn = this.actionGroup.addButton(t('Close'), '#icon-cancel', function () {
+                this.checkClose();
+            }.bind(this));
+        }
 
         this.saveBtn.setButtonStyle('blue')
 
@@ -895,26 +903,20 @@ ka.WindowEdit = new Class({
 
                     this.saveBtn.stopTip(t('Saved'));
 
-                    if (!pClose && this.saveNoClose) {
-                        this.saveNoClose.stopTip(t('Done'));
-                    }
-
                     if (this.classProperties.loadSettingsAfterSave == true) {
                         ka.loadSettings();
                     }
 
                     this.fireEvent('save', [request, res]);
-
-                    window.fireEvent('softReload', this.getEntryPoint());
+                    ka.getAdminInterface().objectChanged(this.classProperties['object']);
 
                     if ((!pClose || this.inline ) && this.classProperties.versioning == true) {
                         this.loadVersions();
                     }
 
-                    if (pClose) {
+                    if (this.win.isInline()) {
                         this.win.close();
                     }
-
                 }.bind(this)}).post(request);
         }
     }

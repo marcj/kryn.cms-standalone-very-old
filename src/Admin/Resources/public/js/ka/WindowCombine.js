@@ -82,6 +82,7 @@ ka.WindowCombine = new Class({
             }).inject(this.mainLeft, 'top');
 
             this.sortSpan = new Element('span', {
+                'class': 'ka-WindowList-combine-search'
             }).inject(this.mainLeftTop);
 
             this.itemCount = new Element('div', {
@@ -387,28 +388,19 @@ ka.WindowCombine = new Class({
         this.sortSelect.inject(this.sortSpan);
 
         Object.each(this.classProperties.columns, function(column, id) {
-
-            this.sortSelect.add(id + '______asc', [t(column.label), '#icon-arrow-17']);
-            this.sortSelect.add(id + '______desc', [t(column.label), '#icon-arrow-18']);
-
+            this.sortSelect.add(id + '______asc', [t(column.label), '#icon-arrow-up-3']);
+            this.sortSelect.add(id + '______desc', [t(column.label), '#icon-arrow-down-3']);
         }.bind(this));
 
         this.sortSelect.addEvent('change', function() {
             var sortId = this.sortSelect.getValue();
 
-            this.sortField = sortId.split('______')[0];
-
-            /*if( this.classProperties.fields[this.sortField] && (this.classProperties.fields[this.sortField]['type'] == 'datetime' ||
-             this.classProperties.fields[this.sortField]['type'] == 'date') ){
-             this.sortDirection = 'DESC';
-             }*/
-
-            this.sortDirection = sortId.split('______')[1];
+            this.sortCombineField = sortId.split('______')[0];
+            this.sortCombineDirection = sortId.split('______')[1];
 
             this.reload();
+            this.setWinParams();
         }.bind(this));
-
-        this.sortSelect.setValue(this.sortField + '______' + ((this.sortDirection == 'DESC') ? 'desc' : 'asc'));
 
         new Element('div',
             {style: 'color: gray; padding-left: 4px; padding-top:3px;', html: _('Use * as wildcard')}).inject(this.mainLeftSearch);
@@ -570,6 +562,7 @@ ka.WindowCombine = new Class({
             return;
         }
 
+        this.parent();
         if (this.classProperties.asNested) {
             return this.renderLayoutNested(this.treeContainer);
         } else {
@@ -619,7 +612,7 @@ ka.WindowCombine = new Class({
         }
 
         this.order = {};
-        this.order[this.sortField] = this.sortDirection;
+        this.order[this.sortCombineField] = this.sortCombineDirection;
 
         this.lastRequest = new Request.JSON({url: _pathAdmin + this.getEntryPoint(),
             noCache: true, onComplete: function(response) {
@@ -957,30 +950,30 @@ ka.WindowCombine = new Class({
 
         var value = ka.getObjectFieldLabel(
             pItem,
-            this.classProperties.columns[this.sortField],
-            this.sortField,
+            this.classProperties.columns[this.sortCombineField],
+            this.sortCombineField,
             this.classProperties['object']
         );
         if (value == '') {
             return _('-- No value --');
         }
 
-        if (!this.classProperties.columns[this.sortField]) {
+        if (!this.classProperties.columns[this.sortCombineField]) {
             return value;
         }
 
-        if (!this.classProperties.columns[this.sortField]['type'] ||
-            this.classProperties.columns[this.sortField].type == "text") {
+        if (!this.classProperties.columns[this.sortCombineField]['type'] ||
+            this.classProperties.columns[this.sortCombineField].type == "text") {
 
             return '<b>' + ((typeOf(value) == 'string') ? value.substr(0, 1).toUpperCase() : value) + '</b>';
 
         } else {
 
-            if (["datetime", "date"].contains(this.classProperties.columns[this.sortField]['type'])) {
+            if (["datetime", "date"].contains(this.classProperties.columns[this.sortCombineField]['type'])) {
 
-                if (pItem[this.sortField] > 0) {
+                if (pItem[this.sortCombineField] > 0) {
 
-                    var time = new Date(pItem[this.sortField] * 1000);
+                    var time = new Date(pItem[this.sortCombineField] * 1000);
                     value = time.timeDiffInWords();
 
                 } else {
@@ -1104,7 +1097,6 @@ ka.WindowCombine = new Class({
     addSavedMultiple: function(request, response) {
         //since multiple insertion returns a array as response.data, we need to make it
         //compatible with the addSaved method. We select now the first added item.
-        console.log('addSavedMultiple', request, response);
         if ('array' === typeOf(response.data)) {
             response.data = response.data[0];
         }
@@ -1114,8 +1106,6 @@ ka.WindowCombine = new Class({
     addSaved: function(pRequest, pResponse) {
         this.ignoreNextSoftLoad = true;
 
-        console.log('addSaved', pRequest, pResponse);
-        console.log(this.classProperties.asNested);
         if (this.currentAdd.classProperties.primary.length > 1) {
             return;
         }
@@ -1221,6 +1211,10 @@ ka.WindowCombine = new Class({
             win.getSidebar = function() {
                 return this.editAddSidebarContainer;
             }.bind(this);
+
+            win.close = function() {
+
+            };
 
             this.currentEdit = new ka.WindowEdit(win, this.mainRight);
 
@@ -1384,15 +1378,18 @@ ka.WindowCombine = new Class({
 
         this.setView('list', true, true);
 
-        if (this.win.params && this.win.params.list && this.win.params.list.orderBy) {
-            this.sortField = this.win.params.list.orderBy;
-            this.sortDirection = this.win.params.list.orderByDirection;
-        } else if (this.win.params && this.win.params.list && this.win.params.list.order) {
-            Object.each(this.win.params.list.order, function(order, field) {
-                this.sortField = field;
-                this.sortDirection = order;
+        if (this.win.params && this.win.params.list && this.win.params.list.combineOrder) {
+            Object.each(this.win.params.list.combineOrder, function(order, field) {
+                this.sortCombineField = field;
+                this.sortCombineDirection = order;
             }.bind(this));
+        } else {
+            this.sortCombineField = this.sortField;
+            this.sortComineDirection = this.sortDirection;
         }
+
+        if (!this.sortComineDirection) this.sortComineDirection = 'asc';
+        this.sortSelect.setValue(this.sortCombineField + '______' + ((this.sortComineDirection.toLowerCase() == 'desc') ? 'desc' : 'asc'));
 
         if (this.classProperties.startCombine) {
             this.setView('combine', true, true);
@@ -1422,29 +1419,37 @@ ka.WindowCombine = new Class({
 
     setWinParams: function() {
         var selected = null;
-        var params = {type: ''};
+        var params = {};
+        params['list'] = this.parent();
 
-        if ('list' === this.currentViewType) {
-            params.type = 'list';
-            params.list = {order: this.order};
-        } else {
-            if ((this.currentEdit || this.currentRootEdit)) {
-
-                var classProperties = this.currentRootEdit ? this.currentRootEdit.classProperties : this.currentEdit.classProperties;
-                if (classProperties) {
-                    selected = ka.normalizeObjectKey(classProperties['object']) + '/' + ka.getObjectUrlId(classProperties['object'], this.currentItem);
-                    params.type = this.currentRootEdit ? 'rootEdit' : 'edit';
-                }
-            } else if (this.currentAdd || this.currentRootAdd) {
-                params.type = this.currentRootAdd ? 'rootAdd' : 'add';
+        if (this.currentViewType) {
+            if ('list' === this.currentViewType) {
+                params.type = 'list';
             } else {
-                params.type = 'combine';
+                if ((this.currentEdit || this.currentRootEdit)) {
+
+                    var classProperties = this.currentRootEdit ? this.currentRootEdit.classProperties : this.currentEdit.classProperties;
+                    if (classProperties) {
+                        selected = ka.normalizeObjectKey(classProperties['object']) + '/' + ka.getObjectUrlId(classProperties['object'], this.currentItem);
+                        params.type = this.currentRootEdit ? 'rootEdit' : 'edit';
+                    }
+                } else if (this.currentAdd || this.currentRootAdd) {
+                    params.type = this.currentRootAdd ? 'rootAdd' : 'add';
+                } else {
+                    params.type = 'combine';
+                }
+            }
+
+            if (this.sortCombineField) {
+                var order = {};
+                order[this.sortCombineField] = this.sortCombineDirection;
+                params.list.combineOrder = order;
             }
         }
 
         if (this.languageSelect) {
             if (!params.list) params.list = {};
-            params.list.language = this.languageSelect.getValue()
+            params.list.language = this.languageSelect.getValue();
         }
 
         if (selected) {
@@ -1452,7 +1457,7 @@ ka.WindowCombine = new Class({
         }
 
         this.win.setParameters(params);
-
+        return params;
     },
 
     reloadAll: function() {
@@ -1470,7 +1475,7 @@ ka.WindowCombine = new Class({
 
         this.setViewToCombine = true;
         this.order = {};
-        this.order[this.sortField] = this.sortDirection;
+        this.order[this.sortCombineField] = this.sortCombineDirection;
 
         this.lastLoadAroundRequest =
             new Request.JSON({url: _pathAdmin + this.getEntryPoint(), noCache: true, onComplete: function(response) {

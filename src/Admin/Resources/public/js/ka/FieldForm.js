@@ -272,7 +272,6 @@ ka.FieldForm = new Class({
             obj = this.getField(pTarget);
         }
 
-        console.log(pTarget, obj, obj.field);
         if ('array' === typeOf(obj.field.againstField)) {
             Array.each(obj.field.againstField, function (fieldKey) {
                 this.fields[fieldKey].fireEvent('check-depends');
@@ -413,7 +412,6 @@ ka.FieldForm = new Class({
                 Object.each(tab.button.field.children, function(children, key) {
                     allHidden &= this.isHidden(key);
                 }.bind(this));
-                console.log('allHidden', allHidden, tab.button);
                 if (allHidden) {
                     tab.button.hide();
                 } else {

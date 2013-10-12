@@ -29,26 +29,18 @@ ka.WindowList = new Class({
         this.checkboxes = [];
 
         this.sortField = '';
-        this.sortDirection = 'ASC';
+        this.sortDirection = 'asc';
 
         //this.oriWinCode = this.win.code;
         this.oriWinEntryPoint = this.win.entryPoint;
 
         this.load();
         var _this = this;
-
-        this.fReload = this.softReload.bind(this);
-
-        this.win.addEvent('softReload', this.fReload);
-
+        this.win.addEvent('objectChanged', this.objectChanged.bind(this));
     },
 
-    softReload: function (pCode) {
-        if (this.win.closed) {
-            return;
-        }
-
-        if (pCode == this.win.getEntryPoint()) {
+    objectChanged: function (object) {
+        if (object == ka.normalizeObjectKey(this.classProperties['object'])) {
             this.reload();
         }
     },
@@ -80,42 +72,54 @@ ka.WindowList = new Class({
     _deleteSuccess: function () {
     },
 
-    click: function (pColumn) {
+    columnHeaderClick: function (pName, pSort) {
+        var idx = this.columnsIds.indexOf(pName) + 1;
+        var th = this.table.getColumn(idx);
 
-        if (this.columns && this.columns[pColumn]) {
-
-            pItem = this.columns[pColumn];
-
+        if (th) {
             if (!this.sortDirection) {
                 this.sortDirection = 'ASC';
             }
 
-            if (this.sortField != pColumn) {
-                this.sortField = pColumn;
-                this.sortDirection = (this.sortDirection.toLowerCase() == 'asc') ? 'asc' : 'desc';
+            if (pSort) {
+                this.sortDirection = pSort;
             } else {
-                this.sortDirection = (this.sortDirection.toLowerCase() == 'asc') ? 'desc' : 'asc';
+                if (this.sortField != pName) {
+                    this.sortField = pName;
+                    this.sortDirection = (this.sortDirection.toLowerCase() == 'asc') ? 'asc' : 'desc';
+                } else {
+                    this.sortDirection = (this.sortDirection.toLowerCase() == 'asc') ? 'desc' : 'asc';
+                }
             }
 
-            pItem.getParent().getElements('img').each(function (item) {
-                item.destroy();
-            });
-
-            if (this.sortDirection == 'ASC') {
-                pic = 'bullet_arrow_up.png';
-            } else {
-                pic = 'bullet_arrow_down.png';
+            if (this.lastSortedTh) {
+                this.lastSortedTh.removeClass('icon-arrow-up-3');
+                this.lastSortedTh.removeClass('icon-arrow-down-3');
             }
 
-            new Element('img', {
-                src: _path + 'bundles/admin/images/icons/' + pic,
-                align: 'top'
-            }).inject(pItem);
+            this.lastSortedTh = th;
+            this.lastSortedTh.addClass(this.sortDirection === 'asc' ? 'icon-arrow-up-3' : 'icon-arrow-down-3');
         }
 
         this.loadPage(this.currentPage);
+        if (!pSort) {
+            this.setWinParams();
+        }
     },
 
+    setWinParams: function() {
+        var order = {};
+        order[this.sortField] = this.sortDirection;
+        var params = {};
+        params.order = order;
+        this.win.setParameters(params);
+        return params;
+    },
+
+    /**
+     *
+     * @returns {{field: string, direction: string}}
+     */
     getSortField: function () {
 
         var field = null, direction = 'asc';
@@ -174,10 +178,6 @@ ka.WindowList = new Class({
             return false;
         }
 
-        var sort = this.getSortField();
-        this.sortField = sort.field;
-        this.sortDirection = sort.direction;
-
         this.container.empty();
 
         this.renderTopActionBar();
@@ -197,11 +197,21 @@ ka.WindowList = new Class({
             return;
         }
 
+        if (this.win.params && this.win.params.list && this.win.params.list.order) {
+            Object.each(this.win.params.list.order, function(order, field) {
+                this.sortField = field;
+                this.sortDirection = order;
+            }.bind(this));
+        }
+
         if (!this.loadAlreadyTriggeredBySearch) {
             if (this.columns) {
-                var sort = this.getSortField();
-                //logger('sort: '+sort.field);
-                this.click(sort.field);
+                if (!this.sortField) {
+                    var sort = this.getSortField();
+                    this.sortField = sort.field;
+                    this.sortDirection = sort.direction;
+                }
+                this.columnHeaderClick(this.sortField, this.sortDirection);
             } else {
                 this.loadPage(1);
             }
@@ -288,6 +298,10 @@ ka.WindowList = new Class({
     },
 
     renderLayoutTable: function () {
+        this.mainContainer = new Element('div', {
+            'class': 'ka-Table-windowList-container'
+        }).inject(this.container);
+
         this.table = new ka.Table(null, {
             selectable: true,
             safe: false
@@ -295,7 +309,7 @@ ka.WindowList = new Class({
 
         this.win.addEvent('resize', this.table.updateTableHeader);
         document.id(this.table).addClass('ka-Table-windowList');
-        this.table.inject(this.container);
+        this.table.inject(this.mainContainer);
 
         //[ ["label", optionalWidth], ["label", optionalWidth], ... ]
         var columns = [];
@@ -323,10 +337,11 @@ ka.WindowList = new Class({
             throw 'Class does not contain columns.';
         }
 
-        var columnsIds = [];
+        this.columnsIds = 1 === indexOffset ? [false] : [];
+
         Object.each(this.classProperties.columns, function (column, columnId) {
             columns.push([t(column.label || columnId), column.width, column.align]);
-            columnsIds.push(columnId);
+            this.columnsIds.push(columnId);
         }.bind(this));
 
         /*** edit-Th ***/
@@ -336,11 +351,13 @@ ka.WindowList = new Class({
             columns.push(['', 40]);
         }
 
-        this.table.setColumns(columns);
+        var columnThs = this.table.setColumns(columns);
 
         this.table.addEvent('selectHead', function (item) {
-            var index = item.getParent().getChildren().indexOf(item) - indexOffset;
-            this.click(columnsIds[index]);
+            var idx = columnThs.indexOf(item);
+            if (false !== this.columnsIds[idx]) {
+                this.columnHeaderClick(this.columnsIds[idx]);
+            }
         }.bind(this));
         this.titleIconTd = this.table.getColumn(this.titleIconTdIndex);
     },
@@ -358,7 +375,7 @@ ka.WindowList = new Class({
 
         this.actionBarNavigation = new Element('div', {
             'class': 'ka-WindowList-actionBarNavigation'
-        }).inject(this.container);
+        }).inject(this.mainContainer);
 
         this.navigateActionBar = new ka.ButtonGroup(this.actionBarNavigation, {
             onlyIcons: true
@@ -433,6 +450,8 @@ ka.WindowList = new Class({
             'class': 'ka-WindowList-searchContainer'
         }).inject(this.topActionBar);
 
+        this.topActionBar.setStyle('min-height', 30);
+
         this.actionBarSearchInput = new ka.Field({
             noWrapper: true,
             type: 'text',
@@ -493,12 +512,7 @@ ka.WindowList = new Class({
                     noCache: 1, onComplete: function (res) {
 
                     this.win.setLoading(false);
-
-                    if (this.combine) {
-                        this.reload();
-                    } else {
-                        this.loadPage(this.currentPage);
-                    }
+                    ka.getAdminInterface().objectChanged(this.classProperties['object']);
                     this._deleteSuccess();
 
                 }.bind(this)}).delete({

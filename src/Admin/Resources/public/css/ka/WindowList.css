@@ -78,13 +78,20 @@
     top: 35px;
 }
 
-.ka-windowCombine-list-container {
+.ka-Table-windowList-container {
     position: absolute;
     left: 0;
     right: 0;
     top: 0;
     bottom: 0;
     background-color: white;
+    border: 1px solid #dcdcdc;
+}
+
+.ka-Table-windowList th:before {
+    font-size: 10px;
+    color: gray;
+    margin-right: 4px;
 }
 
 .ka-windowCombine-list-container > .ka-Table-absolute {
@@ -224,17 +231,10 @@
     line-height: 14px;
 }
 
-.ka-WindowList-combine-search {
-    -moz-border-radius: 6px;
-    border: 0px;
-    position: relative;
-    background-color: #eee;
-    color: silver;
-    padding-left: 3px;
-    top: -1px;
-    left: -1px;
-    width: 117px;
-    height: 21px;
+.ka-WindowList-combine-search .ka-Select-box .ka-Select-box-title > span:before {
+    font-size: 10px;
+    color: gray;
+    top: 0;
 }
 
 .ka-WindowList-combine-userfilter a img,

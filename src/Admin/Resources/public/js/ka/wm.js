@@ -54,6 +54,10 @@ ka.wm = {
         return ka.wm.windows[ pId ];
     },
 
+    getWindows: function() {
+        return ka.wm.windows;
+    },
+
     sendSoftReload: function (pEntryPoint) {
         ka.wm.softReloadWindows(pEntryPoint);
     },

@@ -143,13 +143,15 @@ ka.Table = new Class({
      * @param {Integer} index Starting at 1
      */
     getColumn: function (index) {
-        return this.tableHead.getChildren()[index - 1];
+        return this.tableHead.getElement('tr').getChildren()[index - 1];
     },
 
     /**
      * Set the columns of the table.
      *
      * @param {Array} pColumns  [ ["label", optionalWidth], ["label", optionalWidth], ... ]
+     *
+     * @return {Element[]} THs
      */
     setColumns: function (pColumns) {
         this.columns = pColumns;
@@ -211,6 +213,8 @@ ka.Table = new Class({
         }
 
         var tr = new Element('tr').inject(this.tableHead);
+
+        var columns = [];
         pColumns.each(function (column, index) {
 
             /**
@@ -231,10 +235,13 @@ ka.Table = new Class({
                 column[0].inject(th);
             }
 
+            columns.push(th);
         }.bind(this));
 
         this.main.empty();
         this.main.appendChild(fragment);
+
+        return columns;
     },
 
     getBody: function() {

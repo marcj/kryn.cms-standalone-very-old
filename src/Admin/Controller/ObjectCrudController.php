@@ -248,7 +248,7 @@ class ObjectCrudController extends Server
      * @return mixed
      */
     public function getItems($url = null, $_ = null, $limit = null, $offset = null, $fields = null,
-                             $getPosition = null, $q = '', $withAcl = false)
+                             $getPosition = null, $orderBy = [], $q = '', $withAcl = false)
     {
         $obj = $this->getObj();
 
@@ -258,10 +258,9 @@ class ObjectCrudController extends Server
 
         if ($url !== null) {
             $pk = \Core\Object::parsePk($obj->getObject(), $url);
-
             return $obj->getItem($pk[0], $fields, filter_var($withAcl, FILTER_VALIDATE_BOOLEAN));
         } else {
-            return $obj->getItems($_, $limit, $offset, $q, $fields);
+            return $obj->getItems($_, $limit, $offset, $q, $fields, $orderBy);
         }
 
     }

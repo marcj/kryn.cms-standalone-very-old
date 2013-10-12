@@ -73,6 +73,13 @@ ka.openFrontend = function () {
 };
 
 /**
+ * @returns {ka.AdminInterface}
+ */
+ka.getAdminInterface = function() {
+    return ka.adminInterface;
+};
+
+/**
  * Return a translated message pMsg with plural and context ability
  *
  * @param string pMsg     message id (msgid)

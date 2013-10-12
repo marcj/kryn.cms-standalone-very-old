@@ -38,7 +38,7 @@ ka.Window = new Class({
 
         if (pEntryPoint) {
             this.loadContent();
-            this.addHotkey('esc', false, false, function (e) {
+            this.addHotkey('esc', !this.isInline(), false, function (e) {
                 (function () {
                     this.close(true);
                 }).delay(50, this);
@@ -1050,15 +1050,7 @@ ka.Window = new Class({
         this.titleGroups =
             new Element('div', {'class': 'kwindow-win-titleGroups'}).inject(this.mainLayout.getCell(1, 1));
 
-        if (this.isInline()) {
-            this.title.setStyle('display', 'none');
-            this.titleGroups.setStyle('display', 'none');
-            if (this.linker) {
-                this.linker.setStyle('display', 'none');
-            }
-        }
         this.content = new Element('div', {'class': 'kwindow-win-content'}).inject(this.mainLayout.getCell(2, 1));
-
         this.inFront = true;
 
         if (this.isInline()) {
@@ -1177,7 +1169,6 @@ ka.Window = new Class({
     },
 
     setBlocked: function (pBlocked) {
-
         if (pBlocked) {
             this.blockedOverlay = this.createOverlay();
         }
@@ -1185,11 +1176,9 @@ ka.Window = new Class({
             this.blockedOverlay.destroy();
             delete this.blockedOverlay;
         }
-
     },
 
     createOverlay: function () {
-
         var overlay = new Element('div', {
             'class': 'ka-kwindow-overlay',
             styles: {
@@ -1206,7 +1195,6 @@ ka.Window = new Class({
     },
 
     deleteOverlay: function () {
-
         if (ka.performance) {
             this.content.setStyle('display', 'block');
             this.getTitleGroupContainer().setStyle('display', 'block');
@@ -1216,7 +1204,6 @@ ka.Window = new Class({
     },
 
     createResizer: function () {
-
         this.sizer = {};
 
         ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'].each(function (item) {
