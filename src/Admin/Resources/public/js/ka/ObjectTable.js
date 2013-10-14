@@ -13,7 +13,6 @@ ka.ObjectTable = new Class({
     currentPage: 1,
 
     initialize: function (pContainer, pChooserBrowserOptions, pWindowInstance, pObjectKey) {
-
         this.container = pContainer;
 
         this.subcontainer = new Element('div', {
@@ -32,7 +31,6 @@ ka.ObjectTable = new Class({
         if (this._createLayout()) {
             this.loadPage(1);
         }
-
     },
 
     _createLayout: function () {
@@ -66,6 +64,10 @@ ka.ObjectTable = new Class({
             this.fireEvent('select');
         }.bind(this));
 
+        this.table.addEvent('instantSelect', function () {
+            this.fireEvent('instantSelect');
+        }.bind(this));
+
         document.id(this.table).inject(this.subcontainer);
 
         this.subcontainer.setStyle('overflow', 'hidden');
@@ -77,17 +79,6 @@ ka.ObjectTable = new Class({
         this.pagination = new Element('div', {
             'class': 'ka-autoChooser-pagination-container gradient'
         }).inject(this.absBar);
-
-        this.searchBtn = new Element('div', {
-            'class': 'ka-autoChooser-searchBtn gradient',
-            text: t('Search')
-        })
-            .addEvent('click', this.toggleSearch.bind(this))
-            .inject(this.absBar);
-
-        this.searchPane = new Element('div', {
-            'class': 'ka-autoChooser-searchPane'
-        });
 
         this.absBar.setStyle('bottom', -25);
 
@@ -140,20 +131,6 @@ ka.ObjectTable = new Class({
         this.absBar.tween('bottom', 0);
 
         return true;
-    },
-
-    toggleSearch: function () {
-
-        if (this.searchBtn.hasClass('ka-autoChooser-searchBtn-expanded')) {
-            this.subcontainer.tween('bottom', 0);
-            this.searchPane.dispose()
-            this.searchBtn.removeClass('ka-autoChooser-searchBtn-expanded');
-        } else {
-            this.subcontainer.tween('bottom', 150);
-            this.searchPane.inject(this.container, 'top');
-            this.searchBtn.addClass('ka-autoChooser-searchBtn-expanded');
-        }
-
     },
 
     pageToLeft: function () {
@@ -244,7 +221,6 @@ ka.ObjectTable = new Class({
     },
 
     renderActions: function (pPage, pMaxPages, pMaxItems) {
-
         this.currentPage = pPage;
         this.maxPages = pMaxPages;
         this.sMaxPages.set('text', pMaxPages + ' (' + pMaxItems + ')');
@@ -252,11 +228,9 @@ ka.ObjectTable = new Class({
 
         this.imgToLeft.setStyle('opacity', (pPage == 1) ? 0.5 : 1);
         this.imgToRight.setStyle('opacity', (pPage == pMaxPages) ? 0.5 : 1);
-
     },
 
     renderResult: function (pItems) {
-
         this.table.empty();
         var objectDefinition = ka.getObjectDefinition(this.objectKey);
 
@@ -283,7 +257,5 @@ ka.ObjectTable = new Class({
             tr.store('item', item);
 
         }.bind(this));
-
     }
-
 });

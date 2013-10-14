@@ -264,7 +264,7 @@ class Controller
     public function getBrowserItems(
         $objectKey,
         $fields = null,
-        $returnHash = true,
+        $returnHash = false,
         $limit = null,
         $offset = null,
         $order = null,

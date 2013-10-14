@@ -261,7 +261,7 @@ ka.WindowList = new Class({
         pContainer.empty();
 
         objectOptions.type = 'tree';
-        objectOptions.objectKey = this.classProperties.object;
+        objectOptions.object = this.classProperties.object;
         objectOptions.entryPoint = this.win.getEntryPoint();
         objectOptions.scopeChooser = false;
         objectOptions.noWrapper = true;

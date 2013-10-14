@@ -534,7 +534,6 @@ ka.Field = new Class({
      *
      */
     dispose: function () {
-
         var field = this.tr || this.main;
 
         this.oldMainParent = field.getParent();
@@ -545,7 +544,6 @@ ka.Field = new Class({
             this.oldChildParent = this.childContainer.getParent();
             this.childContainer.dispose();
         }
-
     },
 
     /**

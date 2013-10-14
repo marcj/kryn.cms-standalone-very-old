@@ -369,3 +369,12 @@ tr.ka-field-main > td div.desc {
     margin: 0 2px;
     cursor: pointer;
 }
+
+.ka-Field-group {
+    border: 1px solid #e4e4e4;
+}
+
+.ka-Field-group-title > div.title {
+    padding-left: 0;
+    color: gray;
+}

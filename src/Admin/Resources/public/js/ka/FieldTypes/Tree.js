@@ -12,7 +12,7 @@ ka.FieldTypes.Tree = new Class({
          *
          * @var {String}
          */
-        objectKey: '',
+        object: '',
 
         /**
          * Use a object key or a entry point.
@@ -125,11 +125,11 @@ ka.FieldTypes.Tree = new Class({
 
     createLayout: function () {
 
-        if (!this.options.objectKey) {
-            throw '`objectKey` option in ka.Field `tree` required.';
+        if (!this.options.object) {
+            throw '`object` option in ka.Field `tree` required.';
         }
 
-        this.definition = ka.getObjectDefinition(this.options.objectKey);
+        this.definition = ka.getObjectDefinition(this.options.object);
 
         if (!this.definition) {
             throw 'Object not found ' + this.options.object;
@@ -202,7 +202,7 @@ ka.FieldTypes.Tree = new Class({
 
     getUrl: function () {
         return _pathAdmin + (this.options.entryPoint ? this.options.entryPoint :
-            'admin/object/' + ka.urlEncode(this.options.objectKey) ) + '/';
+            'admin/object/' + ka.urlEncode(this.options.object) ) + '/';
     },
 
     loadTree: function (pScope) {
@@ -228,6 +228,7 @@ ka.FieldTypes.Tree = new Class({
 
         var options = Object.clone(this.options);
         options.scope = pScope;
+        options.objectKey = options.object;
         if (this.selectItem) {
             options.selectObject = this.selectItem;
         }

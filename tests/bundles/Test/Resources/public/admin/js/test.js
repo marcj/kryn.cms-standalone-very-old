@@ -3,6 +3,169 @@ var test_test = new Class({
     initialize: function(pWin){
         this.win = pWin;
 
+        var defaultFields = {
+            text: {
+                label: 'Text',
+                type: 'text'
+            },
+            password: {
+                label: 'Password',
+                type: 'password'
+            },
+            checkbox: {
+                label: 'Checkbox',
+                type: 'checkbox'
+            },
+            textarea: {
+                label: 'Textarea',
+                type: 'textarea'
+            },
+            date: {
+                label: 'Datetime',
+                type: 'datetime'
+            },
+            number: {
+                label: 'Number',
+                type: 'number'
+            }
+        };
+
+        var defaultFieldsTable = {};
+        Object.each(defaultFields, function(field, key){
+            var clone = Object.clone(field);
+            clone.tableItem = true;
+            defaultFieldsTable[key] = clone;
+        });
+
+        var fields = {
+            tab1: {
+                type: 'tab',
+                label: 'Tab 1',
+                fullPage: true,
+                children: {
+                    group: {
+                        label: 'Group 1',
+                        type: 'group',
+                        children: defaultFieldsTable
+                    },
+                    group2: {
+                        label: 'Group 2',
+                        type: 'group',
+                        children: defaultFields
+                    }
+                }
+            },
+            tab2: {
+                type: 'tab',
+                label: 'Tab 2',
+                fullPage: true,
+                children: {
+                    objectAll: {
+                        label: 'Object All',
+                        type: 'object'
+                    },
+                    objectFile: {
+                        label: 'Object File',
+                        type: 'object',
+                        object: 'core:file'
+                    },
+                    objectFile2: {
+                        label: 'Object File Combo',
+                        type: 'object',
+                        object: 'core:file',
+                        options: {
+                            combobox: true
+                        }
+                    },
+                    objectFile3: {
+                        label: 'Object File Multi',
+                        type: 'object',
+                        object: 'core:file',
+                        options: {
+                            multi: true
+                        }
+                    },
+                    objectNode: {
+                        label: 'Object Node',
+                        type: 'object',
+                        object: 'core:node'
+                    }
+                }
+            },
+            tab3: {
+                type: 'tab',
+                label: 'Tab 3',
+                fullPage: true,
+                children: {
+                    treeNodeGroup: {
+                        type: 'group',
+                        label: 'Node Tree',
+                        children: {
+                            treeNode: {
+                                type: 'tree',
+                                object: 'core:node'
+                            }
+                        }
+                    }
+                }
+            },
+            tab4: {
+                type: 'tab',
+                label: 'Tab 4',
+                fullPage: true,
+                children: {
+                    select: {
+                        label: 'Select',
+                        type: 'select',
+                        items: ['First', 'Second', '...']
+                    },
+                    selectObject: {
+                        label: 'Select Object',
+                        type: 'select',
+                        object: 'users:user'
+                    },
+                    layout: {
+                        label: 'Layout',
+                        type: 'layout'
+                    },
+                    array: {
+                        label: 'Array',
+                        type: 'array',
+                        columns: [
+                            {label: 'Title'},
+                            {label: 'Yes?', width: 50}
+                        ],
+                        fields: {
+                            text: {
+                                type: 'text'
+                            },
+                            checkbox: {
+                                type: 'checkbox'
+                            }
+                        }
+                    },
+                    codemirror: {
+                        label: 'Codemirror',
+                        type: 'codemirror'
+                    },
+                    condition: {
+                        label: 'Condition',
+                        type: 'condition'
+                    }
+                }
+            }
+        };
+
+        var form = new ka.FieldForm(
+            pWin.getContentContainer(),
+            fields,
+            {
+
+            }
+        );
+
+        return;
+
 
         var field1 = new ka.Field({
             type: 'tree',

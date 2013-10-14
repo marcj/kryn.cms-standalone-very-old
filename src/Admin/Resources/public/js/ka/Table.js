@@ -44,6 +44,9 @@ ka.Table = new Class({
         }
 
         if (this.options.selectable == true) {
+            this.main.addEvent('dblclick:relay(td)', function (e, item) {
+                this.fireEvent('instantSelect');
+            }.bind(this));
             this.main.addEvent('click:relay(td)', function (e, item) {
                 this.fireEvent('preSelect');
 

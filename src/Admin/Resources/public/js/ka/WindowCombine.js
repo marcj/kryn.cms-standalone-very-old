@@ -1389,7 +1389,9 @@ ka.WindowCombine = new Class({
         }
 
         if (!this.sortComineDirection) this.sortComineDirection = 'asc';
-        this.sortSelect.setValue(this.sortCombineField + '______' + ((this.sortComineDirection.toLowerCase() == 'desc') ? 'desc' : 'asc'));
+        if (this.sortSelect) {
+            this.sortSelect.setValue(this.sortCombineField + '______' + ((this.sortComineDirection.toLowerCase() == 'desc') ? 'desc' : 'asc'));
+        }
 
         if (this.classProperties.startCombine) {
             this.setView('combine', true, true);

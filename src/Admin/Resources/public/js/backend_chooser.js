@@ -225,7 +225,6 @@ var admin_backend_chooser = new Class({
         }
 
         if (this.objectChooserInstance[pObjectKey] && this.objectChooserInstance[pObjectKey].addEvent) {
-
             this.objectChooserInstance[pObjectKey].addEvent('select', function () {
                 this.deselectAll(pObjectKey);
             }.bind(this));
@@ -233,7 +232,6 @@ var admin_backend_chooser = new Class({
             this.objectChooserInstance[pObjectKey].addEvent('instantSelect', function () {
                 this.choose(pObjectKey);
             }.bind(this));
-
         }
 
     },
