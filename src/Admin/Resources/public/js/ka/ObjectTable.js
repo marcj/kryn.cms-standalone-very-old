@@ -152,7 +152,9 @@ ka.ObjectTable = new Class({
     },
 
     deselect: function () {
-        this.table.deselect();
+        if (this.table) {
+            this.table.deselect();
+        }
     },
 
     getValue: function () {
