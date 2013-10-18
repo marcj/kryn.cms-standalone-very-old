@@ -362,7 +362,7 @@ span.selectable span, div.selectable div {
 .ka-wm-tab > a:link {
     position: absolute;
     right: 3px;
-    top: 3px;
+    top: 8px;
     display: block;
     font-size: 14px;
     height: 12px;

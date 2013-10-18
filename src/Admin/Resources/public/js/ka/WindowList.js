@@ -435,7 +435,7 @@ ka.WindowList = new Class({
         }
 
         if (this.classProperties.remove) {
-            this.removeBtn = new ka.Button([t('Remove'), ka.mediaPath(this.classProperties.removeIcon)])
+            this.removeBtn = new ka.Button([t('Remove selection'), ka.mediaPath(this.classProperties.removeIcon)])
                 .addEvent('click', function() {
                     this.removeSelected();
                 }.bind(this))
@@ -527,8 +527,6 @@ ka.WindowList = new Class({
 
         return this.removeSelected([objectId]);
     },
-
-
 
     getSelected: function () {
         var res = [];

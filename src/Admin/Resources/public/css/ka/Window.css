@@ -457,6 +457,15 @@ h3.kryn-headline {
     background-color: #5c5c5c;
 }
 
+.ka-Window-sidebar-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    overflow: auto;
+}
+
 
 .ka-Window-sidebar h2 {
     color: white;
@@ -505,4 +514,12 @@ h3.kryn-headline {
 
 .ka-Window-sidebar .ka-Button:hover {
     background-color: #6e6e6e;
+}
+
+.ka-Window-sidebar-container-small h2 {
+    display: none;
+}
+
+.ka-Window-sidebar-container-small .ka-Button > span {
+    display: none;
 }

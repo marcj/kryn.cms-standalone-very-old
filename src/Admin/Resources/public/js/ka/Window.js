@@ -1113,12 +1113,19 @@ ka.Window = new Class({
                 'class': 'ka-Window-sidebar'
             }).inject(this.border);
 
-            this.sidebarContainer = new Element('div').inject(this.sidebar);
+            this.sidebarContainer = new Element('div', {
+                'class': 'ka-Window-sidebar-container'
+            }).inject(this.sidebar);
 
             this.sidebarSplitter = new ka.LayoutSplitter(this.sidebar, 'left');
 
             this.sidebarSplitter.addEvent('resize', function() {
                 document.id(this.mainLayout).setStyle('right', this.sidebar.getStyle('width').toInt() + 20);
+                if (this.sidebarContainer.getSize().x < 50) {
+                    this.sidebarContainer.addClass('ka-Window-sidebar-container-small');
+                } else {
+                    this.sidebarContainer.removeClass('ka-Window-sidebar-container-small');
+                }
                 this.fireEvent('resize');
             }.bind(this));
 

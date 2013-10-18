@@ -119,11 +119,12 @@
 .ka-windowCombine-list-actions {
     text-align: left;
     position: absolute;
-    left: 0;
+    left: 1px;
     height: 0;
-    bottom: 0;
-    right: 6px;
+    bottom: -11px;
+    right: 1px;
     overflow: hidden;
+    background-color: white;
 }
 
 .ka-WindowList-combine-item-remove {

@@ -28,7 +28,10 @@ ka.Button = new Class({
         if (typeOf(pText) == 'element' && pText.inject) {
             pText.inject(this.main);
         } else if (typeOf(pText) == 'array') {
-            this.main.set('text', pText[0]);
+            this.main.empty();
+            new Element('span', {
+                text: pText[0]
+            }).inject(this.main)
 
             if (typeOf(pText[1]) == 'string') {
                 if (pText[0] !== '') {
@@ -44,7 +47,10 @@ ka.Button = new Class({
                 }
             }
         } else {
-            this.main.set('text', pText);
+            this.main.empty();
+            new Element('span', {
+                text: pText
+            }).inject(this.main)
         }
     },
 

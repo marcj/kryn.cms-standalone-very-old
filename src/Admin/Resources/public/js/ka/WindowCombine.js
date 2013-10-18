@@ -73,6 +73,14 @@ ka.WindowCombine = new Class({
                 .addEvent('scroll', this.checkScrollPosition.bind(this, true))
                 .inject(this.mainLeft, 'top');
 
+
+            this.mainLeftItems.addEvent('click:relay(.ka-List-item)', function(event, item){
+                if (event.target.hasClass('ka-List-item-remove') || event.target.getParent('.ka-List-item-remove')){
+                    return;
+                }
+                this.loadItem(item._item);
+            }.bind(this));
+
             this.mainLeftSearch = new Element('div', {
                 'class': 'ka-WindowList-combine-searchpane'
             }).inject(this.mainLeft, 'top');
@@ -100,20 +108,23 @@ ka.WindowCombine = new Class({
             }).inject(this.mainLeft);
 
             new ka.Button(t('Select all')).addEvent('click', function() {
-                if (!this.checkboxes) {
+                if (!this.combineCheckboxes) {
                     return;
                 }
                 if (this.checkedAll) {
-                    $$(this.checkboxes).set('checked', false);
+                    $$(this.combineCheckboxes).set('checked', false);
                     this.checkedAll = false;
                 } else {
-                    $$(this.checkboxes).set('checked', true);
+                    $$(this.combineCheckboxes).set('checked', true);
                     this.checkedAll = true;
                 }
             }.bind(this)).inject(this.mainLeftDeleter);
 
-            new ka.Button(t('Remove selected')).addEvent('click',
-                this.removeSelected.bind(this)).inject(this.mainLeftDeleter);
+            this.removeCombineSelectedBtn = new ka.Button(t('Remove selected'))
+                .addEvent('click', this.removeCombineSelected.bind(this))
+                .inject(this.mainLeftDeleter);
+
+            this.removeCombineSelectedBtn.setButtonStyle('blue');
 
             //window.addEvent('resize', this.checkScrollPosition.bind(this));
 
@@ -130,6 +141,66 @@ ka.WindowCombine = new Class({
 
             this.renderSearchPane();
             this.createItemLoader();
+        }
+    },
+
+    removeSelected: function() {
+        if (!this.isCombineView()) {
+            return this.parent();
+        }
+
+        var deleterActionsVisible = !!this.mainLeftDeleter.getStyle('height').toInt();
+        if (!deleterActionsVisible) {
+            //toggle in
+            this.mainLeftDeleter.tween('height', 40);
+            this.mainLeftItems.addClass('ka-List-showRemove');
+            this.mainLeftItems.tween('bottom', 40);
+        } else {
+            this.mainLeftItems.removeClass('ka-List-showRemove');
+            this.mainLeftDeleter.tween('height', 0);
+            this.mainLeftItems.tween('bottom', 0);
+        }
+    },
+
+    getCombinedSelected: function () {
+        var res = [];
+        this.combineCheckboxes.each(function (check) {
+            if (check.checked) {
+                res.include(check.value);
+            }
+        });
+        return res.length > 0 ? res : false;
+    },
+
+    removeCombineSelected: function() {
+
+        ka.getAdminInterface().objectChanged(this.classProperties['object']);
+
+        return;
+        var items  = this.getCombinedSelected();
+        if ('array' === typeOf(items) && 0 < items.length) {
+            this.win.confirm(_('Really remove selected?'), function (res) {
+                if (!res) {
+                    return;
+                }
+
+                if (this.lastDeleteRq) {
+                    this.lastDeleteRq.cancel();
+                }
+
+                this.removeCombineSelectedBtn.startTip(t('Removing ...'));
+
+                this.lastDeleteRq = new Request.JSON({url: _pathAdmin + this.win.getEntryPoint(),
+                    noCache: 1, onComplete: function (res) {
+
+                        this.removeCombineSelectedBtn.stopTip(t('Removed.'));
+                        ka.getAdminInterface().objectChanged(this.classProperties['object']);
+                        this._deleteSuccess();
+
+                    }.bind(this)}).delete({
+                        pk: items
+                    });
+            }.bind(this));
         }
     },
 
@@ -282,6 +353,10 @@ ka.WindowCombine = new Class({
 
     renderActionBar: function() {
         this.parent();
+    },
+
+    isCombineView: function() {
+        return 'list' !== this.currentViewType;
     },
 
     setView: function(viewType, withoutParamsSet, withoutAnimation) {
@@ -496,13 +571,6 @@ ka.WindowCombine = new Class({
             this.loadMore(pAndScrollToSelect);
         } else if (this.maxItems > 0 && (this.mainLeftItems.getScrollSize().y - this.mainLeftItems.getSize().y) == 0) {
             this.loadMore(pAndScrollToSelect);
-
-            /*
-             } else if( this.mainLeftItems.getLast('.ka-List-item') == this.mainLeftItems.getElement('.active')  ){
-             this.loadMore();
-             } else if( this.mainLeftItems.getFirst('.ka-List-item') == this.mainLeftItems.getElement('.active')  ){
-             this.loadPrevious();
-             */
         }
 
         if (this.mainLeftItems.getScroll().y == 0) {
@@ -683,12 +751,7 @@ ka.WindowCombine = new Class({
                     }
                 }
 
-                if (this.from > 0 && this.mainLeftItems.getScroll().y == 0) {
-                    this.loadPrevious(true);
-                } else if (this.maxItems - this.loadedCount > 0 &&
-                    (this.mainLeftItems.getScrollSize().y - this.mainLeftItems.getSize().y) == 0) {
-                    this.loadMore(true);
-                }
+                this.checkScrollPosition(false, pAndScrollToSelect);
 
                 if (this.setViewToCombine) {
                     this.setView('combine');
@@ -731,7 +794,7 @@ ka.WindowCombine = new Class({
         this.from = null;
         this.loadedCount = 0;
 
-        this.checkboxes = [];
+        this.combineCheckboxes = [];
 
         this._lastItems = null;
 
@@ -1592,14 +1655,10 @@ ka.WindowCombine = new Class({
 
         var item = new Element('div', {
             html: layout,
-            'class': 'ka-List-item'
+            'class': 'ka-List-item' + (this.classProperties.edit ? ' editable': '')
         });
         item._item = pItem;
         item._pk = pk;
-
-        if (this.classProperties.edit) {
-            item.addEvent('click', this.loadItem.bind(this, pItem));
-        }
 
         //parse template
         var data = ka.getObjectLabels(
@@ -1613,15 +1672,15 @@ ka.WindowCombine = new Class({
 
         if (this.classProperties.remove == true) {
 
-            if (pItem['remove']) {
+            if (pItem._deletable) {
 
                 var removeBox = new Element('div', {
                     'class': 'ka-List-item-remove'
                 }).inject(item);
 
                 var removeCheckBox = new Element('div', {
-                    'class': 'ka-List-item-removecheck'
-                }).inject(item);
+                    'class': 'ka-List-item-removeCheck'
+                }).inject(removeBox);
 
                 var checkbox = new Element('input', {
                     value: ka.getObjectUrlId(this.classProperties['object'], pItem),
@@ -1631,7 +1690,7 @@ ka.WindowCombine = new Class({
                         e.stopPropagation();
                     }).inject(removeCheckBox);
 
-                this.checkboxes.include(checkbox);
+                this.combineCheckboxes.include(checkbox);
             }
         }
 

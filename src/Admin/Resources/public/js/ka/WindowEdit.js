@@ -617,7 +617,7 @@ ka.WindowEdit = new Class({
         this.saveBtn.setButtonStyle('blue')
 
 
-        this.removeBtn = this.actionGroup.addButton(t('Remove'), '#icon-warning', this.remove.bind(this));
+        this.removeBtn = this.actionGroup.addButton(t('Remove'), ka.mediaPath(this.classProperties.removeIcon), this.remove.bind(this));
         this.removeBtn.setButtonStyle('red');
 
         this.resetBtn = this.actionGroup.addButton(t('Reset'), '#icon-escape', this.reset.bind(this));
