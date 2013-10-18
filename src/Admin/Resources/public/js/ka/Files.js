@@ -90,9 +90,7 @@ ka.Files = new Class({
         new Request.JSON({url: _pathAdmin + 'admin/file/single', noCache: 1, onComplete: function (pResponse) {
 
             if (!pResponse || !pResponse.data || pResponse.error) {
-                this.win._alert(t('Access denied.'), function () {
-                    this.win.close();
-                }.bind(this))
+                this.fileContainer.set('text', t('Access denied.'));
             } else {
                 this.rootFile = pResponse.data;
                 this.path2File['/'] = pResponse.data;
@@ -1294,7 +1292,7 @@ ka.Files = new Class({
                 label: t('Nodes'),
                 type: 'tree',
                 noWrapper: true,
-                objectKey: 'Core\\File'
+                object: 'Core\\File'
             }, this.infos);
 
             this.sideTree.addEvent('select', function (item) {
