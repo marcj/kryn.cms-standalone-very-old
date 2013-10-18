@@ -201,6 +201,7 @@ ka.FieldForm = new Class({
                 };
                 obj.childContainer = tab.pane;
                 obj.parent = pDependField;
+                obj.options = field;
                 obj.toElement = function () {
                     return tab.button;
                 };
