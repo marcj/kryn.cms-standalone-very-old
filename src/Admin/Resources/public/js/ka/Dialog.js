@@ -108,6 +108,7 @@ ka.Dialog = new Class({
 
         if (typeOf(this.options.content) == 'string' && this.options.content) {
             this.content.set('text', this.options.content);
+            this.content.addClass('ka-dialog-plain-content');
         } else if (typeOf(this.options.content) == 'element') {
             this.options.content.inject(this.content);
         }
