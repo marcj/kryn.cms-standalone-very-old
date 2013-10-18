@@ -254,10 +254,10 @@ abstract class ORMAbstract
      *
      * @abstract
      *
-     * @param \Core\Config\Condition $pCondition
-     * @param array $pOptions
+     * @param Condition $condition
+     * @param array $options
      */
-    abstract public function getItems(\Core\Config\Condition $pCondition = null, $pOptions = null);
+    abstract public function getItems(Condition $condition = null, $options = null);
 
     /**
      *
@@ -271,45 +271,45 @@ abstract class ORMAbstract
      *
      * @abstract
      *
-     * @param array $pPk
-     * @param array $pOptions
+     * @param array $pk
+     * @param array $options
      *
      * @return array
      */
-    abstract public function getItem($pPk, $pOptions = null);
+    abstract public function getItem($pk, $options = null);
 
     /**
      *
      * @abstract
      *
-     * @param array $pPk
+     * @param array $pk
      *
      */
-    abstract public function remove($pPk);
+    abstract public function remove($pk);
 
     /**
      * @abstract
      *
-     * @param array  $pValues
-     * @param array  $pTargetPk If nested set
-     * @param string $pPosition `first` (child), `last` (last child), `prev` (sibling), `next` (sibling)
-     * @param int    $pScope    If nested set with scope
+     * @param array  $values
+     * @param array  $targetPk If nested set
+     * @param string $position `first` (child), `last` (last child), `prev` (sibling), `next` (sibling)
+     * @param int    $scope    If nested set with scope
      *
      * @return array inserted/new primary key/s always as a array.
      */
-    abstract public function add($pValues, $pTargetPk = null, $pPosition = 'first', $pScope = null);
+    abstract public function add($values, $targetPk = null, $position = 'first', $scope = null);
 
     /**
      * Updates an object entry.  This means, all fields which are not defined will be saved as NULL.
      *
      * @abstract
      *
-     * @param  array                  $pPk
-     * @param  array                  $pValues
+     * @param  array $pk
+     * @param  array $values
      *
      * @throws \ObjectItemNotModified
      */
-    abstract public function update($pPk, $pValues);
+    abstract public function update($pk, $values);
 
     /**
      * Patches a object entry. This means, only defined fields will be saved. Fields which are not defined will
@@ -317,21 +317,21 @@ abstract class ORMAbstract
      *
      * @abstract
      *
-     * @param  array                  $pPk
-     * @param  array                  $pValues
+     * @param  array                  $pk
+     * @param  array                  $values
      *
      * @throws \ObjectItemNotModified
      */
-    abstract public function patch($pPk, $pValues);
+    abstract public function patch($pk, $values);
 
     /**
      * @abstract
      *
-     * @param array $pCondition
+     * @param Condition $condition
      *
      * @return int
      */
-    abstract public function getCount($pCondition = null);
+    abstract public function getCount(Condition $condition = null);
 
 
     /**
@@ -345,11 +345,11 @@ abstract class ORMAbstract
     /**
      * Builds a condition for the sub-items check in \Core\Permissions::getListingCondition() for nested set objects.
      *
-     * @param mixed $condition        A \Core\Config\Condition object
+     * @param Condition $condition
      *
-     * @return \Core\Config\Condition
+     * @return Condition
      */
-    abstract public function getNestedSubCondition($condition);
+    abstract public function getNestedSubCondition(Condition $condition);
 
 
     /**
@@ -404,18 +404,26 @@ abstract class ORMAbstract
      */
     public function getBranch($pk = null, Condition $condition = null, $depth = 1, $scope = null, $options = null)
     {
-        if (!$this->definition['nested']) {
+        if (!$this->getDefinition()->isNested()) {
+            throw new \Exception(t('Object %s it not a nested set.', $this->objectKey));
+        }
+        throw new \NotImplementedException(t('getBranch is not implemented.'));
+    }
+
+
+    public function getBranchChildrenCount($pk = null, Condition $condition = null, $scope = null){
+        if (!$this->getDefinition()->isNested()) {
             throw new \Exception(t('Object %s it not a nested set.', $this->objectKey));
         }
         throw new \NotImplementedException(t('getBranch is not implemented.'));
     }
 
     /**
-     * @param array $condition
+     * @param Condition $condition
      * @param array $options
      * @throws \LogicException
      */
-    public function getRoots($condition = null, $options = null)
+    public function getRoots(Condition $condition = null, $options = null)
     {
          if (!$this->definition['nested']) {
             throw new \LogicException(t('Object %s it not a nested set.', $this->objectKey));

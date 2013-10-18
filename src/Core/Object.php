@@ -707,7 +707,7 @@ class Object
         }
 
 
-        return $obj->getCount($condition);
+        return $obj->getCount($conditionObject);
     }
 
     /**

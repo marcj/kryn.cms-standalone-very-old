@@ -48,9 +48,10 @@ class Propel extends ORMAbstract
      * So we include with this condition all entries 'inside' the entry
      * defined through $condition.
      *
-     * @param mixed $condition
+     * @param Condition $condition
+     * @return Condition
      */
-    public function getNestedSubCondition($condition)
+    public function getNestedSubCondition(Condition $condition)
     {
         $result = new Condition();
         $sub = new ConditionSubSelect();
@@ -754,7 +755,7 @@ class Propel extends ORMAbstract
 
     }
 
-    public function getRoots($condition = null, $options = null)
+    public function getRoots(Condition $condition = null, $options = null)
     {
 
     }
@@ -958,7 +959,7 @@ class Propel extends ORMAbstract
     /**
      * {@inheritdoc}
      */
-    public function getCount($condition = false)
+    public function getCount(Condition $condition = null)
     {
         $query = $this->getQueryClass();
 
@@ -973,7 +974,10 @@ class Propel extends ORMAbstract
         return current($row) + 0;
     }
 
-    public function getBranchChildrenCount($pk = null, $condition = null, $scope = null)
+    /**
+     * {@inheritdoc}
+     */
+    public function getBranchChildrenCount($pk = null, Condition $condition = null, $scope = null)
     {
         $query = $this->getQueryClass();
 

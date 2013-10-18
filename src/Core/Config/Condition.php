@@ -62,7 +62,7 @@ class  Condition extends Model
      */
     public function fromPk($condition, $objectKey)
     {
-        $this->rules = dbPrimaryKeyToCondition($condition, $objectKey);
+        $this->rules = static::primaryKeyToCondition($condition, $objectKey);
     }
     /**
      * @param array|Condition $condition
