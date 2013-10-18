@@ -10,6 +10,8 @@ ka.WindowCombine = new Class({
 
     currentViewType: '',
 
+    combineCheckboxes: [],
+
     renderLayout: function() {
         this.win.content.addClass('ka-WindowList-combine-content');
 

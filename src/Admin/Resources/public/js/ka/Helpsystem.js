@@ -49,7 +49,9 @@ ka.Helpsystem = new Class({
             html: pTitle
         }).inject(box);
 
-        if (pText) {
+        if ('element' === typeOf(pText)) {
+            pText.inject(box);
+        } else if (pText) {
             new Element('div', {
                 'class': 'ka-helpsystem-bubble-desc',
                 html: pText

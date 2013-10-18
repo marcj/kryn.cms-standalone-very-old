@@ -53,7 +53,7 @@ Request.JSON = new Class({
                 t('Request error'),
                 t('There has been a error occured during the last request. Either you lost your internet connection or the server has serious troubles.') +
                     "<br/>" + 'URI: %s'.replace('%s', this.options.url) +
-                    '<br/><a class="ka-Button" onclick="ka.open(\'admin/system/rest-logger\')">Details</a>',
+                    '<br/><a class="ka-Button" onclick="ka.wm.open(\'admin/system/rest-logger\')">Details</a>',
                 15000);
             throw 'Request Error %s'.replace('%s', this.options.url);
         }
@@ -96,7 +96,7 @@ Request.JSON = new Class({
                         "<br/><br/>" + t('Error code: %s').replace('%s', pResult.error) +
                         "<br/>" + t('Error message: %s').replace('%s', pResult.message) +
                         "<br/>" + 'URI: %s'.replace('%s', this.options.url) +
-                        '<br/><a class="ka-Button" onclick="ka.open(\'admin/system/rest-logger\')">Details</a>',
+                        '<br/><a class="ka-Button" onclick="ka.wm.open(\'admin/system/rest-logger\')">Details</a>',
                     15000
                 );
                 throw 'Request Error %s'.replace('%s', this.options.url);

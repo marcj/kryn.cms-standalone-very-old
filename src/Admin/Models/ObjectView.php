@@ -59,7 +59,7 @@ class ObjectView extends \Core\ORM\Propel
     /**
      * {@inheritDoc}
      */
-    public function getCount($condition = null)
+    public function getCount(Condition $condition = null)
     {
     }
 

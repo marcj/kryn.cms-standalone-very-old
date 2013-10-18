@@ -1059,7 +1059,7 @@ class Object
      *
      * @param  string  $objectKey
      * @param  array   $condition
-     * @param  options $options
+     * @param  array   $options
      *
      * @return array
      * @throws \Exception
@@ -1081,15 +1081,13 @@ class Object
         } else {
             $obj = self::getClass($objectKey);
 
+            $conditionObject = new Condition();
+
             if ($options['permissionCheck'] && $aclCondition = Permission::getListingCondition($objectKey)) {
-                if ($condition) {
-                    $condition = array($aclCondition, 'AND', $condition);
-                } else {
-                    $condition = $aclCondition;
-                }
+                $conditionObject->mergeAndBegin($aclCondition);
             }
 
-            return $obj->getRoots($condition, $options);
+            return $obj->getRoots($conditionObject, $options);
 
         }
     }
