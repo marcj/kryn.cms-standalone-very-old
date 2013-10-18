@@ -56,7 +56,7 @@ class ObjectTest extends TestCaseWithCore
 
     public function testNestedSubPermission()
     {
-        Permission::setCaching(true);
+        Permission::setCaching(false);
         Permission::removeObjectRules('core:node');
 
         \Core\Kryn::getClient()->login('admin', 'admin');
@@ -128,6 +128,7 @@ class ObjectTest extends TestCaseWithCore
         $subNode->delete();
         $rule->delete();
         $rule2->delete();
+        Permission::setCaching(true);
     }
 
     public function xtestSpeed()
