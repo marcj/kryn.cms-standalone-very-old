@@ -27,6 +27,16 @@ var test_test = new Class({
             number: {
                 label: 'Number',
                 type: 'number'
+            },
+            selectArray: {
+                label: 'Select',
+                type: 'select',
+                items: ['A', 'B', 'C', 'D']
+            },
+            selectNumbered: {
+                label: 'Select Numbered',
+                type: 'select',
+                items: {0: 'A', 1: 'B', 2: 'C', 3: 'D'}
             }
         };
 
@@ -47,11 +57,6 @@ var test_test = new Class({
                         label: 'Group 1',
                         type: 'group',
                         children: defaultFieldsTable
-                    },
-                    group2: {
-                        label: 'Group 2',
-                        type: 'group',
-                        children: defaultFields
                     }
                 }
             },
@@ -163,6 +168,22 @@ var test_test = new Class({
 
             }
         );
+
+        var buttonGroup = this.win.addButtonGroup();
+        var saveBtn = buttonGroup.addButton('Save', null, function(){
+
+            var text = "";
+            var value = form.getValue();
+
+            Object.each(value, function(item, key){
+                text += key+': '+JSON.encode(item)+"\n";
+            });
+
+            this.win.alert(text);
+
+        }.bind(this));
+
+        saveBtn.setButtonStyle('blue');
 
         return;
 
