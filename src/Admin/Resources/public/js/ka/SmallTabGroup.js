@@ -17,6 +17,7 @@ ka.SmallTabGroup = new Class({
         }
 
         this.setMethods(button, pOnClick);
+        this.fireEvent('addButton');
 
         return button;
     }

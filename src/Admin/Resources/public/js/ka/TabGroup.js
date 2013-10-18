@@ -1,4 +1,5 @@
 ka.TabGroup = new Class({
+    Implements: [Events],
 
     'className': 'ka-tabGroup',
 
@@ -6,6 +7,12 @@ ka.TabGroup = new Class({
         this.box = new Element('div', {
             'class': this.className
         }).inject(pParent);
+
+        this.addEvent('addButton', this.checkButtons.bind(this));
+    },
+
+    checkButtons: function() {
+
     },
 
     toElement: function () {
@@ -79,6 +86,7 @@ ka.TabGroup = new Class({
         }
 
         this.setMethods(button, pOnClick);
+        this.fireEvent('addButton');
 
         return button;
 
