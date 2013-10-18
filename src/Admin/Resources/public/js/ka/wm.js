@@ -110,9 +110,8 @@ ka.wm = {
     },
 
     close: function (pWindow) {
-        var parent = pWindow.getParentId();
-        if (parent) {
-            parent = ka.wm.getWindow(parent);
+        var parent = pWindow.getParent();
+        if (parent && instanceOf(parent, ka.Window)) {
             parent.removeChildren();
         }
 
@@ -174,7 +173,7 @@ ka.wm = {
 
         var el, icon;
         Object.each(ka.wm.windows, function (win) {
-            if (win.getParentId()) {
+            if (win.getParent()) {
                 return;
             }
 

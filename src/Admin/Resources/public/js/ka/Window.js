@@ -1,7 +1,7 @@
 ka.Window = new Class({
 
     Binds: ['close'],
-    Implements: Events,
+    Implements: [Events, Options],
 
     entryPoint: '',
     module: '',
@@ -12,25 +12,26 @@ ka.Window = new Class({
 
     children: null,
 
-    initialize: function (pEntryPoint, pLink, pInstanceId, pParameter, pInline, pParentId) {
+    options: {
+
+    },
+
+    initialize: function (pEntryPoint, pOptions, pInstanceId, pParameter, pInline, pParent) {
         this.params = pParameter || {};
+        this.setOptions(pOptions);
         this.originParams = Object.clone(this.params);
+        
         this.id = pInstanceId;
         this.entryPoint = pEntryPoint;
         this.inline = pInline;
-        this.link = pLink;
-        this.parentId = pParentId;
+        this.parent = pParent;
 
         if (this.inline) {
-            if (!ka.wm.getWindow(this.parentId)) {
-                throw (tf('Parent window not found. `%s`', this.parentId));
-                return;
-            } else {
-                ka.wm.getWindow(this.parentId).setChildren(this);
+            if (typeOf(this.parent) == 'number' && ka.wm.getWindow(this.parent)) {
+                ka.wm.getWindow(this.parent).setChildren(this);
             }
         }
 
-        this.link = pLink || {};
         this.active = true;
         this.isOpen = true;
 
@@ -97,12 +98,8 @@ ka.Window = new Class({
         ka.wm.reloadHashtag();
     },
 
-    getParentId: function () {
-        return this.parentId;
-    },
-
     getParent: function () {
-        return ka.wm.getWindow(this.parentId);
+        return 'number' == typeOf(this.parent) ? ka.wm.getWindow(this.parent) : this.parent;
     },
 
     isInFront: function () {
@@ -1053,25 +1050,18 @@ ka.Window = new Class({
         this.content = new Element('div', {'class': 'kwindow-win-content'}).inject(this.mainLayout.getCell(2, 1));
         this.inFront = true;
 
-        if (this.isInline()) {
-            this.dialogContainer = new ka.Dialog(ka.wm.getWindow(this.parentId), {
+        if (this.isInline() && instanceOf(this.getParent(), ka.Window)) {
+            this.dialogContainer = new ka.Dialog(this.getParent(), {
                 absolute: true,
                 noBottom: true,
-                width: this.link.width || '75%',
-                height: this.link.height || '75%',
-                minWidth: this.link.minWidth,
-                minHeight: this.link.minHeight
+                width: this.options.width || '75%',
+                height: this.options.height || '75%',
+                minWidth: this.options.minWidth,
+                minHeight: this.options.minHeight
             });
-            /*
-             this.getOpener().inlineContainer.empty();
-             this.border.addClass('kwindow-border-inline');
-             this.border.inject(this.getOpener().inlineContainer);
-             this.updateInlinePosition();
-
-             this.getOpener().addEvent('resize', this.updateInlinePosition.bind(this));
-             */
-
             this.border.inject(this.dialogContainer.getContentContainer());
+        } else if (this.isInline()) {
+            this.border.inject(this.getParent());
         } else {
             this.border.inject(ka.adminInterface.desktopContainer);
         }
@@ -1143,14 +1133,26 @@ ka.Window = new Class({
         document.id(this.mainLayout).setStyle('right', width + 20);
     },
 
+    /**
+     *
+     * @returns {Element}
+     */
     getSidebar: function() {
         return this.sidebarContainer || this.addSidebar();
     },
 
+    /**
+     *
+     * @returns {ka.ButtonGroup}
+     */
     addButtonGroup: function () {
         return new ka.ButtonGroup(this.getTitleGroupContainer());
     },
 
+    /**
+     *
+     * @returns {Element}
+     */
     addBottomBar: function () {
         this.bottomBar = new Element('div', {
             'class': 'ka-Window-bottom'

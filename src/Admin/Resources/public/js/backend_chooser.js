@@ -173,6 +173,7 @@ var admin_backend_chooser = new Class({
 
         var bundle = this.tapPane.addPane(objectDefinition.label || objectDefinition._key, objectDefinition.icon);
         this.pane2ObjectId[bundle.id] = pObjectKey;
+        bundle.pane.addClass('ka-BackendChooser-pane');
 
         var objectOptions = this.options.browserOptions[pObjectKey];
 
@@ -186,12 +187,11 @@ var admin_backend_chooser = new Class({
 
         objectOptions.multi = this.options.multi;
 
+        var win = new ka.Window(null, null, null, null, true, bundle.pane);
+
         if (objectDefinition.browserInterface == 'custom' && objectDefinition.browserInterfaceClass) {
 
-            var chooserClass = window[objectDefinition.browserInterfaceClass];
-
             var chooserClass = ka.getClass(objectDefinition.browserInterfaceClass);
-
             if (!chooserClass) {
                 this.win._alert(t("Can't find chooser class '%class%' in object '%object%'.")
                     .replace('%class%', objectDefinition.browserInterfaceClass)
@@ -199,29 +199,26 @@ var admin_backend_chooser = new Class({
                 );
             } else {
                 this.objectChooserInstance[pObjectKey] = new chooserClass(
-                    bundle.pane,
+                    win.getContentContainer(),
                     objectOptions,
-                    this.win
+                    win
                 );
             }
         } else if (objectDefinition.nested) {
 
             objectOptions.type = 'tree';
-            objectOptions.objectKey = pObjectKey;
+            objectOptions.object = pObjectKey;
             objectOptions.scopeChooser = true;
             objectOptions.noWrapper = true;
-
-            this.objectChooserInstance[pObjectKey] = new ka.Field(objectOptions, bundle.pane);
+            this.objectChooserInstance[pObjectKey] = new ka.Field(objectOptions, win.getContentContainer());
 
         } else {
-
             this.objectChooserInstance[pObjectKey] = new ka.ObjectTable(
-                bundle.pane,
+                win.getContentContainer(),
                 objectOptions,
-                this.win,
+                win,
                 pObjectKey
             );
-
         }
 
         if (this.objectChooserInstance[pObjectKey] && this.objectChooserInstance[pObjectKey].addEvent) {
@@ -233,11 +230,9 @@ var admin_backend_chooser = new Class({
                 this.choose(pObjectKey);
             }.bind(this));
         }
-
     },
 
     deselectAll: function (pWithoutThisObjectKey) {
-
         Object.each(this.objectChooserInstance, function (obj, objectKey) {
 
             if (obj && objectKey != pWithoutThisObjectKey && obj.deselect) {
@@ -245,11 +240,9 @@ var admin_backend_chooser = new Class({
             }
 
         });
-
     },
 
     choose: function (pObjectKey) {
-
         if (!pObjectKey) {
             pObjectKey = this.pane2ObjectId[this.tapPane.index];
         }

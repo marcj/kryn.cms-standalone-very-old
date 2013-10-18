@@ -101,3 +101,27 @@ a.ka-backendChoosers-search-button-active:link {
     padding: 0px 2px;
     cursor: pointer;
 }
+
+.ka-BackendChooser-pane > .kwindow-border > .ka-Layout-main-fixed {
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: 0;
+}
+
+.ka-BackendChooser-pane > .kwindow-border {
+    background-color: #F9F9F9;
+}
+
+.ka-BackendChooser-pane .ka-Files-wrapper {
+    bottom: 35px;
+    left: 25px;
+    right: 25px;
+    top: 25px;
+}
+
+.ka-BackendChooser-pane .ka-Files-wrapper-header {
+    top: 25px;
+    position: relative;
+    margin: 0 25px;
+}
