@@ -273,8 +273,8 @@ ka.Select = new Class({
                     }
 
                 } else {
-                    Array.each(this.options.items, function (label, id) {
-                        this.items.push({id: id, label: label});
+                    Array.each(this.options.items, function (label) {
+                        this.items.push({id: label, label: label});
                     }.bind(this));
                 }
             }
