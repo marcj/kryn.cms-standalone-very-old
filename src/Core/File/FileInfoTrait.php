@@ -37,7 +37,7 @@ trait FileInfoTrait {
     public function getExtension()
     {
         $lastDot = strrpos($this->getName(), '.');
-        return -1 === $lastDot ? '' : strtolower(substr($this->getName(), $lastDot + 1));
+        return false === $lastDot ? null : strtolower(substr($this->getName(), $lastDot + 1));
     }
 
 }
