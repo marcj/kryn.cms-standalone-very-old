@@ -4,6 +4,7 @@
     white-space: nowrap;
     background-color: #E4E4E4;
     padding-bottom: 0;
+    overflow: hidden;
 }
 
 .ka-tabGroup:first-child,
