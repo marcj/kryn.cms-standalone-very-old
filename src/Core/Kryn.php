@@ -1889,6 +1889,11 @@ class Kryn extends Controller
          * Load current language
          */
         self::loadLanguage();
+
+        /*
+         * Initialize the client objects for backend and frontend.
+         */
+        Kryn::initClient();
     }
 
     /**
@@ -1961,9 +1966,6 @@ class Kryn extends Controller
      */
     public static function handleRequest()
     {
-
-        //Initialize the client objects for backend and frontend.
-        Kryn::initClient();
 
         if (self::isAdmin()) {
             $admin = new \Admin\Controller\AdminController();

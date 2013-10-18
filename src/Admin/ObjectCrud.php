@@ -3,6 +3,7 @@
 namespace Admin;
 
 use Admin\Controller\ObjectCrudController;
+use Core\Config\Condition;
 use Core\Config\EntryPoint;
 use Core\Config\Field;
 use Core\Config\Model;
@@ -785,8 +786,6 @@ class ObjectCrud
      *    'secondId' => 5678
      *   )
      *
-     * Use dbPrimaryKeyToCondition() to convert it to a full condition definition.
-     *
      * @param  array $pk
      * @param  array $fields
      * @param  bool $withAcl
@@ -1066,6 +1065,8 @@ class ObjectCrud
         $options['offset'] = $offset;
         $options['limit'] = $limit ? $limit : $this->defaultLimit;
 
+        $conditionObject = new Condition();
+        $conditionObject->from($this->getCondition());
         $condition = $this->getCondition();
 
         if ($filter) {
@@ -1109,6 +1110,7 @@ class ObjectCrud
         }
 
         $items = \Core\Object::getBranch($this->object, $pk, $condition, $depth, $scope, $options);
+
 
         if (is_array($items)) {
             foreach ($items as &$item) {
@@ -1210,9 +1212,7 @@ class ObjectCrud
     /**
      * Here you can define additional conditions for all operations (edit/listing).
      *
-     * See phpDoc of global function dbConditionToSql for more details of the array structure of the result.
-     *
-     * @return array condition definition
+     * @return \Core\Config\Condition definition
      */
     public function getCondition()
     {
@@ -1221,9 +1221,7 @@ class ObjectCrud
     /**
      * Here you can define additional conditions for edit operations.
      *
-     * See phpDoc of global function dbConditionToSql for more details.
-     *
-     * @return array condition definition
+     * @return \Core\Config\Condition definition
      */
     public function getCustomEditCondition()
     {
@@ -1232,9 +1230,7 @@ class ObjectCrud
     /**
      * Here you can define additional conditions for listing operations.
      *
-     * See phpDoc of global function dbConditionToSql for more details.
-     *
-     * @return array condition definition
+     * @return \Core\Config\Condition definition
      */
     public function getCustomListingCondition()
     {

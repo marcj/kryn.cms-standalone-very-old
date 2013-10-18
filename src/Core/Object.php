@@ -2,6 +2,7 @@
 
 namespace Core;
 
+use Core\Config\Condition;
 use Symfony\Component\EventDispatcher\GenericEvent;
 
 class Object
@@ -389,20 +390,20 @@ class Object
     public static function getObjectUrlId($objectKey, $pk)
     {
         $pk = self::normalizePk($objectKey, $pk);
-        $pk2s = self::getPrimaryList($objectKey);
+        $pks = self::getPrimaryList($objectKey);
 
-        if (count($pk2s) == 0) {
+        if (count($pks) == 0) {
             throw new \InvalidArgumentException($objectKey . ' does not have primary keys.');
         }
 
         $withFieldNames = !is_numeric(key($pk));
 
-        if (count($pk2s) == 1 && is_array($pk)) {
-            return Kryn::urlEncode($pk[$withFieldNames ? $pk2s[0] : 0]);
+        if (count($pks) == 1 && is_array($pk)) {
+            return Kryn::urlEncode($pk[$withFieldNames ? $pks[0] : 0]);
         } else {
             $c = 0;
             $urlId = array();
-            foreach ($pk2s as $pk2) {
+            foreach ($pks as $pk2) {
                 $urlId[] = Kryn::urlEncode($pk[$withFieldNames ? $pk2 : $c]);
                 $c++;
             }
@@ -519,7 +520,8 @@ class Object
                 $options['fields'] = explode(',', trim(str_replace(' ', '', $options['fields'])));
             }
 
-            $extraFields = dbExtractConditionFields($limitDataSets);
+
+            $extraFields = $limitDataSets->extractFields();
             $deleteFieldValues = array();
 
             foreach ($extraFields as $field) {
@@ -536,12 +538,6 @@ class Object
 
         if (!$item) {
             return null;
-        }
-
-        if ($options['permissionCheck'] && $aclCondition = Permission::getListingCondition($objectKey)) {
-            if (!self::satisfy($item, $aclCondition)) {
-                return false;
-            }
         }
 
         if ($limitDataSets = $obj->definition->getLimitDataSets()) {
@@ -583,11 +579,10 @@ class Object
      *
      * @static
      *
-     * @param string $objectKey
-     * @param mixed  $condition Condition object from the structure of dbPrimaryKeyToConditionToSql() or dbConditionToSql()
-     * @param array  $options
+     * @param string    $objectKey
+     * @param Condition $condition
+     * @param array     $options
      *
-     * @see \dbConditionToSql
      * @return array|bool
      */
     public static function getList($objectKey, $condition = false, $options = array())
@@ -599,27 +594,25 @@ class Object
             $options['fields'] = $definition->getDefaultSelection() ? : '*';
         }
 
-        if ($condition) {
-            $condition = dbPrimaryKeyToCondition($condition, $objectKey);
+        $conditionObject = new \Core\Config\Condition();
+
+        if ($condition && is_array($condition)) {
+            $conditionObject->fromPk($condition, $objectKey);
+        } else if ($condition instanceof Condition) {
+            $conditionObject = $condition;
+        } else {
+            $conditionObject = new \Core\Config\Condition();
         }
 
-        if ($limit = $definition->getLimitDataSets()) {
-            $condition = $condition ? array(
-                $condition,
-                'AND',
-                $limit
-            ) : $limit;
+        if ($limit = $obj->getDefinition()->getLimitDataSets()) {
+            $conditionObject->mergeAnd($limit);
         }
 
         if ($options['permissionCheck'] && $aclCondition = Permission::getListingCondition($objectKey)) {
-            if ($condition) {
-                $condition = array($aclCondition, 'AND', $condition);
-            } else {
-                $condition = $aclCondition;
-            }
+            $conditionObject->mergeAndBegin($aclCondition);
         }
 
-        return $obj->getItems($condition, $options);
+        return $obj->getItems($conditionObject, $options);
 
     }
 
@@ -634,13 +627,13 @@ class Object
      */
     public static function &getClass($objectKey)
     {
-        $definition = self::getDefinition($objectKey);
-
-        if (!$definition) {
-            throw new \ObjectNotFoundException(tf('Object `%s` not found.', $objectKey));
-        }
-
         if (!self::$instances[$objectKey]) {
+            $definition = self::getDefinition($objectKey);
+
+            if (!$definition) {
+                throw new \ObjectNotFoundException(tf('Object `%s` not found.', $objectKey));
+            }
+
             if ('custom' === $definition->getDataModel()) {
                 if (!class_exists($className = $definition['class'])) {
                     throw new \Exception(tf('Class for %s (%s) not found.', $objectKey, $definition['class']));
@@ -695,28 +688,26 @@ class Object
     {
         $obj = self::getClass($objectKey);
 
-        if ($condition) {
-            $condition = dbPrimaryKeyToCondition($condition, $objectKey);
+        $conditionObject = new \Core\Config\Condition();
+
+        if ($condition && is_array($condition)) {
+            $conditionObject->fromPk($condition, $objectKey);
+        } else if ($condition instanceof Condition) {
+            $conditionObject = $condition;
+        } else {
+            $conditionObject = new \Core\Config\Condition();
         }
 
-        if ($obj->definition['limitDataSets']) {
-            $condition = $condition ? array(
-                $condition,
-                'AND',
-                $obj->definition['limitDataSets']
-            ) : $obj->definition['limitDataSets'];
+        if ($limit = $obj->getDefinition()->getLimitDataSets()) {
+            $conditionObject->mergeAnd($limit);
         }
 
         if ($options['permissionCheck'] && $aclCondition = Permission::getListingCondition($objectKey)) {
-            if ($condition) {
-                $condition = array($aclCondition, 'AND', $condition);
-            } else {
-                $condition = $aclCondition;
-            }
+            $conditionObject->mergeAndBegin($aclCondition);
         }
 
-        return $obj->getCount($condition);
 
+        return $obj->getCount($condition);
     }
 
     /**
@@ -743,27 +734,21 @@ class Object
             $pk = $obj->normalizePrimaryKey($pk);
         }
 
+        $conditionObject = new Condition();
+
         if ($condition) {
-            $condition = dbPrimaryKeyToCondition($condition, $objectKey);
+            $conditionObject->fromPk($condition, $objectKey);
         }
 
-        if ($obj->definition['limitDataSets']) {
-            $condition = $condition ? array(
-                $condition,
-                'AND',
-                $obj->definition['limitDataSets']
-            ) : $obj->definition['limitDataSets'];
+        if ($limit = $obj->getDefinition()->getLimitDataSets()) {
+            $conditionObject->mergeAnd($limit);
         }
 
         if ($options['permissionCheck'] && $aclCondition = Permission::getListingCondition($objectKey)) {
-            if ($condition) {
-                $condition = array($aclCondition, 'AND', $condition);
-            } else {
-                $condition = $aclCondition;
-            }
+            $conditionObject->mergeAndBegin($aclCondition);
         }
 
-        return $obj->getBranchChildrenCount($pk, $condition, $scope, $options);
+        return $obj->getBranchChildrenCount($pk, $conditionObject, $scope, $options);
 
     }
 
@@ -1112,12 +1097,12 @@ class Object
     /**
      * @static
      *
-     * @param       $objectKey
-     * @param  null $pk
-     * @param  null $condition
-     * @param  int  $depth
-     * @param  bool $scope
-     * @param  bool $options
+     * @param        $objectKey
+     * @param  mixed $pk
+     * @param  array $condition
+     * @param  int   $depth
+     * @param  mixed $scope
+     * @param  array $options
      *
      * @return mixed
      * @throws \Exception
@@ -1133,12 +1118,11 @@ class Object
         $obj = self::getClass($objectKey);
         $definition = self::getDefinition($objectKey);
 
-        if ($pk) {
+        if (null !== $pk) {
             $pk = $obj->normalizePrimaryKey($pk);
         }
 
-        if (!$pk && $definition->getNestedRootAsObject() && $scope === null
-        ) {
+        if (null === $pk && $definition->getNestedRootAsObject() && $scope === null) {
             throw new \Exception('No scope defined.');
         }
 
@@ -1158,19 +1142,22 @@ class Object
             $options['fields'] = implode(',', $fields);
         }
 
+
+        $conditionObject = new Condition();
+
         if ($condition) {
-            $condition = dbPrimaryKeyToCondition($condition, $objectKey);
+            $conditionObject->fromPk($condition, $objectKey);
+        }
+
+        if ($limit = $obj->getDefinition()->getLimitDataSets()) {
+            $conditionObject->mergeAnd($limit);
         }
 
         if ($options['permissionCheck'] && $aclCondition = Permission::getListingCondition($objectKey)) {
-            if ($condition) {
-                $condition = array($aclCondition, 'AND', $condition);
-            } else {
-                $condition = $aclCondition;
-            }
+            $conditionObject->mergeAndBegin($aclCondition);
         }
 
-        return $obj->getBranch($pk, $condition, $depth, $scope, $options);
+        return $obj->getBranch($pk, $conditionObject, $depth, $scope, $options);
 
     }
 
@@ -1468,8 +1455,6 @@ class Object
     /**
      * Checks whether the conditions in $condition are complied with the given object item.
      *
-     * $condition is a structure as of dbConditionToSql();
-     *
      * @static
      *
      * @param array $objectItem
@@ -1480,54 +1465,11 @@ class Object
      */
     public static function satisfy(&$objectItem, $condition, $objectKey = null)
     {
-        $complied = null;
-        $lastOperator = 'and';
-
-        if ($condition instanceof \Core\Config\Condition) {
-            $condition = $condition->toArray();
+        if (is_array($condition)) {
+            return Condition::create($condition)->satisfy($objectItem, $objectKey);
+        } else if($condition instanceof Condition) {
+            return $condition->satisfy($objectItem, $objectKey);
         }
-
-        if (is_array($condition) && is_string($condition[0])) {
-            return self::checkRule($objectItem, $condition, $objectKey);
-        }
-
-        if (!is_array($condition)) {
-            throw new \InvalidArgumentException(sprintf('Invalid argument for `$condition`. Needs to be a Array or \Core\Config\Condition.'));
-        }
-        foreach ($condition as $condition2) {
-
-            if (is_string($condition2)) {
-                $lastOperator = strtolower($condition2);
-                continue;
-            }
-
-            if (is_array($condition2) && is_array($condition2[0])) {
-                //group
-                $res = self::satisfy($objectItem, $condition2, $objectKey);
-            } else {
-                $res = self::checkRule($objectItem, $condition2, $objectKey);
-            }
-
-            if (is_null($complied)) {
-                $complied = $res;
-            } else {
-                if ($lastOperator == 'and') {
-                    $complied = $complied && $res;
-                }
-
-                if ($lastOperator == 'and not') {
-                    $complied = $complied && !$res;
-                }
-
-                if ($lastOperator == 'or') {
-                    $complied = $complied || $res;
-                }
-            }
-
-        }
-
-
-        return $complied === null ? true : ($complied ? true : false);
     }
 
     /**
@@ -1568,10 +1510,10 @@ class Object
                 $value = preg_quote($value, '/');
                 $value = str_replace('%', '.*', $value);
                 $value = str_replace('_', '.', $value);
-                return preg_match('/^' . $value . '$/', $ovalue);
+                return !!preg_match('/^' . $value . '$/', $ovalue);
 
             case 'REGEXP':
-                return preg_match('/' . preg_quote($value, '/') . '/', $ovalue);
+                return !!preg_match('/' . preg_quote($value, '/') . '/', $ovalue);
 
             case 'IN':
                 return strpos(',' . $value . ',', ',' . $ovalue . ',') !== false;

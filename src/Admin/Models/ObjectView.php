@@ -2,10 +2,11 @@
 
 namespace Admin\Models;
 
+use Core\Config\Condition;
 use Core\Kryn;
 use Core\SystemFile;
 
-class ObjectView extends \Core\ORM\ORMAbstract
+class ObjectView extends \Core\ORM\Propel
 {
     /**
      * {@inheritDoc}
@@ -23,7 +24,7 @@ class ObjectView extends \Core\ORM\ORMAbstract
     /**
      * {@inheritDoc}
      */
-    public function getItems($condition = null, $options = null)
+    public function getItems(\Core\Config\Condition $condition = null, $options = null)
     {
     }
 
@@ -93,7 +94,7 @@ class ObjectView extends \Core\ORM\ORMAbstract
     /**
      * {@inheritDoc}
      */
-    public function getBranch($pk = null, $condition = null, $depth = 1, $scope = null, $options = null)
+    public function getBranch($pk = null, Condition $condition = null, $depth = 1, $scope = null, $options = null)
     {
         $result = null;
 

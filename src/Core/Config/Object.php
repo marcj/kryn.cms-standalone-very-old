@@ -1093,7 +1093,7 @@ class Object extends Model
     }
 
     /**
-     * @param array $limitDataSets
+     * @param \Core\Config\Condition $limitDataSets
      */
     public function setLimitDataSets($limitDataSets)
     {
@@ -1102,7 +1102,7 @@ class Object extends Model
     }
 
     /**
-     * @return array
+     * @return \Core\Config\Condition
      */
     public function getLimitDataSets()
     {

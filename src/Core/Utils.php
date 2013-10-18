@@ -2,6 +2,7 @@
 
 namespace Core;
 
+use Core\Models\Base\AppLockQuery;
 use Symfony\Component\HttpFoundation\Response;
 
 class Utils
@@ -410,6 +411,7 @@ class Utils
         unset(self::$lockedKeys[$id]);
 
         try {
+            AppLockQuery::create()->filterById($id)->delete();
             dbDelete('system_app_lock', array('id' => $id));
         } catch (\Exception $e) {
         }

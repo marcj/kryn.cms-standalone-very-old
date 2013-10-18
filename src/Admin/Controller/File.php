@@ -9,7 +9,6 @@ use Core\WebFile;
 
 class File
 {
-
     /**
      * Removes a file or folder (recursively).
      *
@@ -24,7 +23,6 @@ class File
         FileQuery::create()->filterByPath($path)->delete();
         return WebFile::remove($path);
     }
-
 
     /**
      * Creates a file.
@@ -210,6 +208,8 @@ class File
             return null;
         }
 
+        // todo: check for Read permission
+
         if ($file['type'] == 'dir'){
             return $this->getFiles($path);
         } else {
@@ -246,6 +246,8 @@ class File
         $imageTypes = array('jpg', 'jpeg', 'png', 'bmp', 'gif');
         foreach ($files as $key => $file) {
             $file = $file->toArray();
+            if (!Permission::checkListExact('core:file', array('id' => $file['id']))) continue;
+
             if (isset($blacklistedFiles[$file['path']]) | (!$showHiddenFiles && substr($file['path'], 0, 2) == '/.')) {
                 unset($files[$key]);
             } else {

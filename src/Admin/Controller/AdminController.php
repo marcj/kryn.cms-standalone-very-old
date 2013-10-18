@@ -542,12 +542,13 @@ class AdminController
                     'userId' => Kryn::getAdminClient()->getUserId(),
                     'username' => Kryn::getAdminClient()->getUser()->getUsername(),
                     'lastLogin' => $lastLogin,
-                    'access' => Permission::check('core:EntryPoint', '/admin'),
+                    'access' => Permission::check('core:entryPoint', '/admin'),
                     'firstName' => Kryn::getAdminClient()->getUser()->getFirstName(),
                     'lastName' => Kryn::getAdminClient()->getUser()->getLastName()
                 );
             }
         }
+
 
         return false;
     }

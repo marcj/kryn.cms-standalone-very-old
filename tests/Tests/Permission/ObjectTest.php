@@ -2,6 +2,12 @@
 
 namespace Tests\Permission;
 
+use Core\Config\Condition;
+use Core\Models\Acl;
+use Core\Models\Base\DomainQuery;
+use Core\Models\Base\NodeQuery;
+use Core\Models\Node;
+use Core\Object;
 use Tests\TestCaseWithCore;
 use Test\Models\Item;
 use Test\Models\ItemQuery;
@@ -16,6 +22,195 @@ use Users\Models\User;
 
 class ObjectTest extends TestCaseWithCore
 {
+    public function testConditionToSql()
+    {
+
+        $condition = new Condition();
+
+        $condition2 = new Condition();
+        $condition2->addAnd([
+            'title', '=', 'TestNode tree'
+        ]);
+
+        $condition->addAnd($condition2);
+        $condition->addOr([
+            '1', '=', '1'
+        ]);
+
+        $params = [];
+        $sql = $condition->toSql($params, 'core:node');
+
+        $expectedArray = [
+            [
+                ['title', '=', 'TestNode tree']
+            ],
+            'OR',
+            [
+                '1', '=', '1'
+            ]
+        ];
+        $this->assertEquals($expectedArray, $condition->toArray());
+        $this->assertEquals([':p1' => 'TestNode tree'], $params);
+        $this->assertEquals(' kryn_system_node.title = :p1  OR 1= 1', $sql);
+    }
+
+    public function testNestedSubPermission()
+    {
+        Permission::setCaching(true);
+        Permission::removeObjectRules('core:node');
+
+        \Core\Kryn::getClient()->login('admin', 'admin');
+
+        $user = \Core\Kryn::getClient()->getUser();
+
+        $domain = DomainQuery::create()->findOne();
+
+        $root = NodeQuery::create()->findRoot($domain->getId());
+
+        $subNode = new Node();
+        $subNode->setTitle('TestNode tree');
+        $subNode->insertAsFirstChildOf($root);
+        $subNode->save();
+
+        $subNode2 = new Node();
+        $subNode2->setTitle('TestNode sub');
+        $subNode2->insertAsFirstChildOf($subNode);
+        $subNode2->Save();
+
+        //make access for all
+        $rule = new Acl();
+        $rule->setAccess(true);
+        $rule->setObject('core:node');
+        $rule->setTargetType(Permission::USER);
+        $rule->setTargetId($user->getId());
+        $rule->setMode(Permission::ALL);
+        $rule->setConstraintType(Permission::CONSTRAINT_ALL);
+        $rule->setPrio(0);
+        $rule->save();
+
+        //revoke access for all children of `TestNode tree`
+        $rule2 = new Acl();
+        $rule2->setAccess(false);
+        $rule2->setObject('core:node');
+        $rule2->setTargetType(Permission::USER);
+        $rule2->setTargetId($user->getId());
+        $rule2->setMode(Permission::ALL);
+        $rule2->setConstraintType(Permission::CONSTRAINT_CONDITION);
+        $rule2->setConstraintCode(json_encode([
+            'title', '=', 'TestNode tree'
+        ]));
+        $rule2->setPrio(1);
+        $rule2->setSub(true);
+        $rule2->save();
+
+        $items = Object::getBranch('core:node', $subNode->getId(), null, 1, null, [
+            'permissionCheck' => true
+        ]);
+        $this->assertNull($items, 'rule2 revokes the access to all elements');
+
+
+        $rule2->setSub(false);
+        $rule2->save();
+        $items = Object::getBranch('core:node', $subNode->getId(), null, 1, null, [
+            'permissionCheck' => true
+        ]);
+        $this->assertEquals('TestNode sub', $items[0]['title'], 'We got TestNode sub');
+
+
+        $rule2->setAccess(true);
+        $rule2->save();
+        $items = Object::getBranch('core:node', $subNode->getId(), null, 1, null, [
+            'permissionCheck' => true
+        ]);
+        $this->assertEquals('TestNode sub', $items[0]['title'], 'We got TestNode sub');
+
+
+        $subNode->delete();
+        $rule->delete();
+        $rule2->delete();
+    }
+
+    public function xtestSpeed()
+    {
+        $item = new Item();
+        $item->setTitle('Item 1');
+        $item->save();
+
+        debugPrint('start');
+        $objectItem = Object::get('test:item', ['id' => $item->getId()]);
+        debugPrint('---');
+        $objectItem = Object::get('test:item', ['id' => $item->getId()]);
+        debugPrint('done');
+
+        $item->delete();
+    }
+
+    public function testRuleCustom()
+    {
+        ItemCategoryQuery::create()->deleteAll();
+        ItemQuery::create()->deleteAll();
+        TestQuery::create()->deleteAll();
+        Permission::setCaching(true);
+        Permission::removeObjectRules('Test\\Item');
+
+        $user = new User();
+        $user->setUsername('testuser');
+        $user->save();
+
+        $item1 = new Item();
+        $item1->setTitle('Item 1');
+        $item1->save();
+
+        $item2 = new Item();
+        $item2->setTitle('Item test');
+        $item2->save();
+
+        $rule = new Acl();
+        $rule->setAccess(true);
+        $rule->setObject('test:item');
+        $rule->setTargetType(Permission::USER);
+        $rule->setTargetId($user->getId());
+        $rule->setMode(Permission::ALL);
+        $rule->setConstraintType(Permission::CONSTRAINT_ALL);
+        $rule->setPrio(0);
+        $rule->save();
+
+        $rule = new Acl();
+        $rule->setAccess(false);
+        $rule->setObject('test:item');
+        $rule->setTargetType(Permission::USER);
+        $rule->setTargetId($user->getId());
+        $rule->setMode(Permission::ALL);
+        $rule->setConstraintType(Permission::CONSTRAINT_CONDITION);
+        $rule->setConstraintCode(json_encode([
+            ['title', 'LIKE', '%test']
+        ]));
+        $rule->setPrio(1);
+        $rule->save();
+
+        $access1 = Permission::checkListExact(
+            'test:item',
+            $item1->getId(),
+            Permission::USER,
+            $user->getId()
+        );
+
+        $access2 = Permission::checkListExact(
+            'test:item',
+            $item2->getId(),
+            Permission::USER,
+            $user->getId()
+        );
+
+        $this->assertTrue($access1, 'item1 has access as the second rule doesnt grab and first rule says all access=true');
+        $this->assertFalse($access2, 'no access to item2 as we have defined access=false in second rule.');
+
+        $user->delete();
+
+        Permission::setCaching(true);
+        Permission::removeObjectRules('Test\\Item');
+    }
+
     public function testRulesWithFields()
     {
         ItemCategoryQuery::create()->deleteAll();

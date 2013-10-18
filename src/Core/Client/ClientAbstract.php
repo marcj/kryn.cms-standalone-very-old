@@ -447,13 +447,15 @@ abstract class ClientAbstract
 
                 $this->setToken($session->getId());
 
-                setCookie(
-                    $this->tokenId,
-                    $this->token,
-                    time() + $this->config['timeout'],
-                    $this->config['cookiePath'],
-                    $this->config['cookieDomain']
-                );
+                if (php_sapi_name() !== 'cli') {
+                    setCookie(
+                        $this->tokenId,
+                        $this->token,
+                        time() + $this->config['timeout'],
+                        $this->config['cookiePath'],
+                        $this->config['cookieDomain']
+                    );
+                }
 
                 \Core\Utils::$latency['session'][] = microtime(true) - $time;
                 return $session;

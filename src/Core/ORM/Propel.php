@@ -2,6 +2,8 @@
 
 namespace Core\ORM;
 
+use Core\Config\Condition;
+use Core\Config\ConditionSubSelect;
 use Core\Config\Object as ConfigObject;
 use Core\Object;
 use Propel\Runtime\ActiveQuery\Criteria;
@@ -39,6 +41,29 @@ class Propel extends ORMAbstract
         $this->query = $this->getQueryClass();
         $this->tableMap = $this->query->getTableMap();
         $this->propelPrimaryKeys = $this->tableMap->getPrimaryKeys();
+    }
+
+    /**
+     * Propels uses for his nested-set objects `lft` and `rgt` fields.
+     * So we include with this condition all entries 'inside' the entry
+     * defined through $condition.
+     *
+     * @param mixed $condition
+     */
+    public function getNestedSubCondition($condition)
+    {
+        $result = new Condition();
+        $sub = new ConditionSubSelect();
+        $sub->select('lft');
+        $sub->setTableName('parent');
+        $sub->addSelfJoin('parent', '%table%.lft BETWEEN parent.lft+1 AND parent.rgt-1');
+        $sub->setRules($condition->getRules());
+
+        $result->addAnd([
+            'lft', 'IN', $sub
+        ]);
+
+        return $result;
     }
 
     /**
@@ -293,7 +318,13 @@ class Propel extends ORMAbstract
         }
     }
 
-    public function getStm(ModelCriteria $query, $condition = null)
+    /**
+     * @param ModelCriteria $query
+     * @param \Core\Config\Condition $condition
+     * @return \PDOStatement
+     * @throws \PDOException
+     */
+    public function getStm(ModelCriteria $query, \Core\Config\Condition $condition = null)
     {
         $condition2 = '';
         $params = [];
@@ -319,19 +350,18 @@ class Propel extends ORMAbstract
         $query->externalBasePreSelect($con);
 
         if ($condition) {
-            $query->where($id . ' != ' . $id);
+            $query->where($id . ' = ' . $id);
         }
 
         $sql = $query->createSelectSql($params);
 
         if ($condition) {
             $condition2Params = $params;
-            $condition2 = dbConditionToSql($condition, $condition2Params, $this->getObjectKey());
+            $conditionSql = $condition->toSql($condition2Params, $this->getObjectKey());
         }
 
-
-        if ($condition) {
-            $sql = str_replace($id . ' != ' . $id, '(' . $condition2 . ')', $sql);
+        if ($condition && $conditionSql) {
+            $sql = str_replace($id . ' = ' . $id, '(' . $conditionSql . ')', $sql);
         }
 
         /** @var \PDOStatement $stmt */
@@ -340,7 +370,7 @@ class Propel extends ORMAbstract
 
         if ($condition2Params) {
             foreach ($condition2Params as $idx => $v) {
-                if (!is_array($v)) { //propel uses arrays as bind values, we with dbConditionToSql not.
+                if (!is_array($v)) { //propel uses arrays as bind values, we with Condition->toSql not.
                     $stmt->bindValue($idx, $v);
                 }
             }
@@ -436,7 +466,8 @@ class Propel extends ORMAbstract
                     }
                 } else {
                     //many-to-many, we need a extra query
-                    if (is_array($relationFields[$name])) {
+                    if (is_array($relationFields[$name]) && $relationField = $this->getDefinition()->getField($name)) {
+                        $relationObjectName = $relationField->getObject();
                         $sClazz = $relation->getRightTable()->getClassname();
 
                         $queryName = $sClazz . 'Query';
@@ -448,9 +479,9 @@ class Propel extends ORMAbstract
                                 $item
                             );
 
-                        $condition = array();
+                        $condition = null;
                         if ($permissionCheck) {
-                            $condition = \Core\Permission::getListingCondition(lcfirst($sClazz));
+                            $condition = \Core\Permission::getListingCondition($relationObjectName);
                         }
                         $sStmt = $this->getStm($sQuery, $condition);
 
@@ -490,7 +521,7 @@ class Propel extends ORMAbstract
     /**
      * {@inheritDoc}
      */
-    public function getItems($condition = null, $options = null)
+    public function getItems(\Core\Config\Condition $condition = null, $options = null)
     {
         $this->init();
         $query = $this->getQueryClass();
@@ -566,11 +597,6 @@ class Propel extends ORMAbstract
         $this->mapToOneRelationFields($query, $relations, $relationFields);
 
         $this->mapPk($query, $pk);
-
-        $item = $query->findOne();
-        if (!$item) {
-            return false;
-        }
 
         $stmt = $this->getStm($query);
 
@@ -995,7 +1021,7 @@ class Propel extends ORMAbstract
     /**
      * {@inheritdoc}
      */
-    public function getBranch($pk = null, $condition = null, $depth = 1, $scope = null, $options = null)
+    public function getBranch($pk = null, Condition $condition = null, $depth = 1, $scope = null, $options = null)
     {
         $query = $this->getQueryClass();
         if (!$pk) {

@@ -1,6 +1,7 @@
 <?php
 
 namespace Core\ORM;
+use Core\Config\Condition;
 use Core\Kryn;
 
 /**
@@ -69,6 +70,17 @@ abstract class ORMAbstract
                 $this->primaryKeys[] = $field->getId();
             }
         }
+    }
+
+    public function getDefinition()
+    {
+        return $this->definition;
+    }
+
+
+    public function setDefinition($definition)
+    {
+        $this->definition = $definition;
     }
 
     public function setPrimaryKeys($pks)
@@ -229,25 +241,6 @@ abstract class ORMAbstract
      *
      *  'fields'          Limit the columns selection. Use a array or a comma separated list (like in SQL SELECT)
      *                    If empty all columns will be selected.
-     *
-     *  'permissionCheck' Defines whether we check against the ACL or not. true or false. default false
-     *
-     *
-     * @abstract
-     *
-     * @param array $pPk
-     * @param array $pOptions
-     *
-     * @return array
-     */
-    abstract public function getItem($pPk, $pOptions = null);
-
-    /**
-     *
-     * $pOptions is a array which can contain following options. All options are optional.
-     *
-     *  'fields'          Limit the columns selection. Use a array or a comma separated list (like in SQL SELECT)
-     *                    If empty all columns will be selected.
      *  'offset'          Offset of the result set (in SQL OFFSET)
      *  'limit'           Limits the result set (in SQL LIMIT)
      *  'order'           The column to order. Example:
@@ -261,10 +254,29 @@ abstract class ORMAbstract
      *
      * @abstract
      *
-     * @param array $pCondition Condition object as it is described in function dbConditionToSql() #Extended.
+     * @param \Core\Config\Condition $pCondition
      * @param array $pOptions
      */
-    abstract public function getItems($pCondition = null, $pOptions = null);
+    abstract public function getItems(\Core\Config\Condition $pCondition = null, $pOptions = null);
+
+    /**
+     *
+     * $pOptions is a array which can contain following options. All options are optional.
+     *
+     *  'fields'          Limit the columns selection. Use a array or a comma separated list (like in SQL SELECT)
+     *                    If empty all columns will be selected.
+     *
+     *  'permissionCheck' Defines whether we check against the ACL or not. true or false. default false
+     *
+     *
+     * @abstract
+     *
+     * @param array $pPk
+     * @param array $pOptions
+     *
+     * @return array
+     */
+    abstract public function getItem($pPk, $pOptions = null);
 
     /**
      *
@@ -330,6 +342,15 @@ abstract class ORMAbstract
      */
     abstract public function clear();
 
+    /**
+     * Builds a condition for the sub-items check in \Core\Permissions::getListingCondition() for nested set objects.
+     *
+     * @param mixed $condition        A \Core\Config\Condition object
+     *
+     * @return \Core\Config\Condition
+     */
+    abstract public function getNestedSubCondition($condition);
+
 
     /**
      * Removes anything that is required to hold the data. E.g. SQL Tables, Drop Sequences, etc.
@@ -371,7 +392,7 @@ abstract class ORMAbstract
      *  )
      *
      * @param  array                    $pk
-     * @param  array                    $condition
+     * @param  Condition                $condition
      * @param  int                      $depth     Started with one. One means, only the first level, no children at all.
      * @param  mixed                    $scope
      * @param  array                    $options
@@ -381,7 +402,7 @@ abstract class ORMAbstract
      *
      * @return array
      */
-    public function getBranch($pk = null, $condition = null, $depth = 1, $scope = null, $options = null)
+    public function getBranch($pk = null, Condition $condition = null, $depth = 1, $scope = null, $options = null)
     {
         if (!$this->definition['nested']) {
             throw new \Exception(t('Object %s it not a nested set.', $this->objectKey));
@@ -406,12 +427,13 @@ abstract class ORMAbstract
     /**
      * Returns the parent if exists otherwise false.
      *
-     * @param  array                    $pk
+     * @param  array  $pk
+     * @param  array  $options
      *
      * @throws \NotImplementedException
      * @return mixed
      */
-    public function getParent($pk)
+    public function getParent($pk, $options = null)
     {
         throw new \NotImplementedException(t('getParent is not implemented.'));
     }

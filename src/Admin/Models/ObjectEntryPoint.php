@@ -3,8 +3,9 @@
 namespace Admin\Models;
 
 use Admin\Utils;
+use Core\Config\Condition;
 
-class ObjectEntryPoint extends \Core\ORM\ORMAbstract
+class ObjectEntryPoint extends \Core\ORM\Propel
 {
     /**
      * {@inheritDoc}
@@ -31,7 +32,7 @@ class ObjectEntryPoint extends \Core\ORM\ORMAbstract
     /**
      * {@inheritDoc}
      */
-    public function getItems($condition = null, $options = null)
+    public function getItems(\Core\Config\Condition $condition = null, $options = null)
     {
     }
 
@@ -118,7 +119,7 @@ class ObjectEntryPoint extends \Core\ORM\ORMAbstract
     /**
      * {@inheritDoc}
      */
-    public function getBranch($pk = null, $condition = null, $depth = 1, $scope = null, $options = null)
+    public function getBranch($pk = null, Condition $condition = null, $depth = 1, $scope = null, $options = null)
     {
         $result = null;
 
@@ -172,7 +173,7 @@ class ObjectEntryPoint extends \Core\ORM\ORMAbstract
     /**
      * {@inheritDoc}
      */
-    public function getParent($pk)
+    public function getParent($pk, $options = null)
     {
         if ('/' === $pk['path']) return null;
 

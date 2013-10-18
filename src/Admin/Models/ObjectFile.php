@@ -2,6 +2,7 @@
 
 namespace Admin\Models;
 
+use Core\Config\Condition;
 use Core\Kryn;
 use Core\WebFile;
 
@@ -163,7 +164,7 @@ class ObjectFile extends \Core\ORM\Propel
     /**
      * {@inheritDoc}
      */
-    public function getItems($condition = null, $options = null)
+    public function getItems(\Core\Config\Condition $condition = null, $options = null)
     {
         throw new \Exception('getItems not available for this object.');
     }
@@ -191,7 +192,7 @@ class ObjectFile extends \Core\ORM\Propel
     /**
      * {@inheritDoc}
      */
-    public function getBranch($pk = null, $condition = null, $depth = 1, $scope = null, $options = null)
+    public function getBranch($pk = null, Condition $condition = null, $depth = 1, $scope = null, $options = null)
     {
         if ($pk) {
             $path = is_numeric($pk['id']) ? WebFile::getPath($pk['id']) : $pk['id'];
@@ -212,7 +213,7 @@ class ObjectFile extends \Core\ORM\Propel
 
         foreach ($files as $file) {
             $file = $file->toArray();
-            if ($condition && !\Core\Object::satisfy($file, $condition, 'core:file')) {
+            if ($condition && $condition->hasRules() && !$condition->satisfy($file, 'core:file')) {
                 continue;
             }
 
@@ -239,5 +240,4 @@ class ObjectFile extends \Core\ORM\Propel
 
         return $result;
     }
-
 }
