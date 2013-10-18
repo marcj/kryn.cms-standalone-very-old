@@ -97,7 +97,7 @@ var users_acl = new Class({
 
             var options = {
                 type: 'tree',
-                objectKey: this.currentObject,
+                object: this.currentObject,
                 openFirstLevel: true,
                 moveable: false,
                 withContext: false,
