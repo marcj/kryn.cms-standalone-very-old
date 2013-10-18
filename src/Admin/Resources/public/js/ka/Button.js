@@ -43,7 +43,6 @@ ka.Button = new Class({
                     }).inject(this.main, 'top');
                 }
             }
-
         } else {
             this.main.set('text', pText);
         }
@@ -51,7 +50,7 @@ ka.Button = new Class({
 
     setButtonStyle: function (pStyle) {
         if (this.oldButtonStyle) {
-            this.main.removeClass('ka-Button-' + oldButtonStyle);
+            this.main.removeClass('ka-Button-' + this.oldButtonStyle);
         }
 
         this.main.addClass('ka-Button-' + pStyle);
