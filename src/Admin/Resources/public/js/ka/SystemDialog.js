@@ -50,7 +50,12 @@ ka.SystemDialog = new Class({
     },
 
     doClose: function(pAnimated) {
-        this.overlay.destroy();
+        if (this.options.destroyOnClose) {
+            this.overlay.destroy();
+        } else {
+            this.overlay.dispose();
+        }
+
         ka.adminInterface.getAppDialogAnimation().removeEvents('complete');
         ka.adminInterface.getAppContainer().setStyle('display');
 

@@ -51,14 +51,18 @@ div.ka-Files-addressFaker {
 }
 
 div.ka-Files-addressFaker + .ka-buttonGroup-item,
-div.ka-Files-addressFaker + .ka-buttonGroup-item:link {
+div.ka-Files-addressFaker + .ka-buttonGroup-item + .ka-buttonGroup-item {
     border-top: 1px solid #cecece;
     border-right: 1px solid #cecece;
     border-left: 1px solid #ececec;
     box-shadow: none;
     position: relative;
-    left: -33px;
+    left: -68px;
     line-height: 29px;
+}
+
+div.ka-Files-addressFaker + .ka-buttonGroup-item {
+    left: -67px;
 }
 
 .ka-Files-addressFaker > a,
@@ -75,7 +79,6 @@ div.ka-Files-addressFaker + .ka-buttonGroup-item:link {
     content: '/';
     padding-left: 3px;
 }
-
 
 .ka-Files-addressFaker > a:hover {
     background-color: silver;

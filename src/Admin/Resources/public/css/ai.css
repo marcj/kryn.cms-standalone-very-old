@@ -53,6 +53,10 @@ html, body {
     font-family: "SourceSansPro-Light", "SourceSansPro-Regular", "Lucida Grande", "DejaVu Sans", "Bitstream Vera Sans", "Segoe UI", "Tahoma", sans-serif;
 }
 
+.ka-clear {
+    clear: both;
+}
+
 .ka-admin h3 {
     text-transform: uppercase;
 }
@@ -471,6 +475,7 @@ div.ka-main-menu-additional img.arrowUp:hover {
     float: right;
     border-left: 1px solid #39739a;
     line-height: 18px;
+    position: relative;
 }
 
 .ka-main-menu-user > h2 {
@@ -995,7 +1000,6 @@ a.ka-create-search-index-icon.red {
     margin-bottom: 1px;
     clear: both;
     cursor: pointer;
-
 }
 
 .ka-pages-tree-elementPropertyToolbarContent {

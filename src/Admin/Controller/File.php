@@ -98,7 +98,6 @@ class File
      */
     public function prepareUpload($path, $name, $overwrite = false)
     {
-
         $oriName = $name;
         $name2 = $name;
         $newPath = ($path == '/') ? '/' . $name2 : $path . '/' . $name2;
@@ -117,6 +116,7 @@ class File
             $res['exist'] = true;
         } else {
             WebFile::createFile($path, "\0\0\0\0\0\0\0\nKrynBlockedFile\n" . Kryn::getAdminClient()->getTokenId());
+            $res['ready'] = true;
         }
 
         return $res;

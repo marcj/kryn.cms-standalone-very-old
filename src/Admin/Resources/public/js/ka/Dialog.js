@@ -28,6 +28,7 @@ ka.Dialog = new Class({
         yOffset: 0,
 
         autoClose: false,
+        destroyOnClose: true,
 
         animatedTransition: Fx.Transitions.Cubic.easeOut,
         animatedTransitionOut: Fx.Transitions.Cubic.easeIn,
@@ -271,7 +272,11 @@ ka.Dialog = new Class({
             }
 
             this.fxOut.addEvent('complete', function () {
-                this.overlay.destroy();
+                if (this.options.destroyOnClose) {
+                    this.overlay.destroy();
+                } else {
+                    this.overlay.dispose();
+                }
                 if (this.lastFocusedElement) {
                     this.lastFocusedElement.focus();
                 }
@@ -283,7 +288,11 @@ ka.Dialog = new Class({
                 top: dsize.y * -1
             });
         } else {
-            this.overlay.destroy();
+            if (this.options.destroyOnClose) {
+                this.overlay.destroy();
+            } else {
+                this.overlay.dispose();
+            }
         }
     },
 
