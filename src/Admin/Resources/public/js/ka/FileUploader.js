@@ -39,7 +39,10 @@ ka.FileUploader = new Class({
                 'class': 'ka-FilesUpload-topBar'
             }).inject(this.dialog.getContentContainer());
 
-            this.fileUploadCancelBtn = new ka.Button(t('Cancel')).addEvent('click',
+            this.fileUploadCancelBtn = new ka.Button(t('Clear')).addEvent('click',
+                this.clear.bind(this)).inject(this.dialog.topBar);
+
+            this.fileUploadCancelBtn = new ka.Button(t('Cancel All')).addEvent('click',
                 this.cancelUploads.bind(this)).inject(this.dialog.topBar);
 
             this.fileUploadMinimizeBtn = new ka.Button(t('Minimize')).addEvent('click',
@@ -270,25 +273,26 @@ ka.FileUploader = new Class({
     },
 
     startHtml5Upload: function(pFileId) {
-
         var file = this.html5FileUploads[ pFileId ];
+        console.log(pFileId, file);
 
         var xhr = new XMLHttpRequest();
 
         this.html5UploadXhr[ pFileId ] = xhr;
 
         if (xhr.upload) {
-
             xhr.upload.addEventListener("progress", function(pEvent) {
                 this.uploadProgress(file, pEvent.loaded, pEvent.total);
             }.bind(this), false);
 
             xhr.onreadystatechange = function(e) {
+                console.log(xhr.readyState);
                 if (xhr.readyState == 4) {
+                    console.log(xhr.status);
                     if (xhr.status == 200) {
                         this.uploadComplete(file);
-                    } else if (xhr.status > 0) {
-                        this.uploadError(file);
+                    } else {
+                        this.uploadError(file, xhr.responseText);
                     }
                 }
             }.bind(this);
@@ -296,19 +300,25 @@ ka.FileUploader = new Class({
             if (!file.post) {
                 file.post = {};
             }
+            xhr.onerror = function (e) {
+                this.uploadError(file);
+            }.bind(this);
 
             this.uploadStart(file);
 
             file.post[window._session.tokenid] = window._session.sessionid;
+            var url = _pathAdmin + "admin/file/upload?" + Object.toQueryString(file.post);
+            console.log(url);
+            xhr.open('POST', url, true);
 
-            xhr.open("POST", _pathAdmin + "admin/file/upload?" + Object.toQueryString(file.post), true);
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 
             var formData = new FormData();
+            console.log(file);
             formData.append('file', file);
+            formData.append('penis', 'hallo');
             xhr.send(formData);
-
         }
-
     },
 
     uploadCheckOverwriteAll: function() {
@@ -349,7 +359,6 @@ ka.FileUploader = new Class({
     },
 
     uploadNext: function() {
-
         var found = false;
         Object.each(this.uploadTrs, function(file, id) {
             if (!found && file && !file.needAction && !file.complete && !file.error) {
@@ -366,7 +375,6 @@ ka.FileUploader = new Class({
             }
 
         }
-
     },
 
     uploadAllProgress: function() {
@@ -377,17 +385,13 @@ ka.FileUploader = new Class({
         var failed = 0;
 
         Object.each(this.uploadTrs, function(tr, id) {
-
             if (!tr.canceled) {
                 count++;
             }
 
-            if (tr.loaded && !tr.canceled) {
-                loaded += tr.loaded;
-            }
-
-            if (!tr.error && !tr.canceled) {
-                all += tr.file.size;
+            if (!tr.canceled && !tr.error) {
+                if (tr.loaded) loaded += tr.loaded;
+                if (tr.error) all += tr.file.size;;
             }
 
             if (tr.complete == true) {
@@ -397,7 +401,6 @@ ka.FileUploader = new Class({
             if (tr.error == true) {
                 failed++;
             }
-
         });
 
         var allDone = done == count;
@@ -408,13 +411,13 @@ ka.FileUploader = new Class({
         this.fileUploadedLoadedBytes = loaded;
         this.fileUploadCalcSpeed();
 
-        var percent = Math.ceil((loaded / all) * 100);
-        if (done == count) {
+        var percent = count > 0 ? Math.ceil((loaded / all) * 100) : 0;
+        if (count && done == count) {
             percent = 100;
         }
         this.fileUploadDialogProgress.setValue(percent);
 
-        this.updateSmallProgressBar(done, count, loaded, all);
+        this.updateSmallProgressBar(done+failed, count, loaded, all);
     },
 
     updateSmallProgressBar: function(uploadedCount, maxCount, uploadedBytes, allBytes) {
@@ -548,7 +551,7 @@ ka.FileUploader = new Class({
 
     },
 
-    uploadError: function(pFile) {
+    uploadError: function(pFile, pResponseText) {
         if (!pFile) {
             return;
         }
@@ -572,13 +575,14 @@ ka.FileUploader = new Class({
             new Element('img', {
                 style: 'position: relative; top: 2px; left: 2px;',
                 src: _path + 'bundles/admin/images/icons/error.png',
-                title: t('The file size exceeds the limit allows by upload_max_filesize or post_max_size on your server. Please contact the administrator.')
+                title: t('The file size exceeds the limit allowed by upload_max_filesize or post_max_size on your server. Please contact the administrator.')
             }).inject(this.uploadTrs[ pFile.id ].status);
         } else {
             if (this.uploadTrs[ pFile.id ].canceled) {
                 this.uploadTrs[ pFile.id ].status.set('html', '<span style="color: red">' + t('Canceled') + '</span>');
             } else {
                 var text = t('Unknown error');
+                console.log(pResponseText);
                 if (xhr) {
                     try {
                         switch (xhr.status) {
@@ -587,20 +591,26 @@ ka.FileUploader = new Class({
                                 break;
                         }
                     } catch (e) {
-
                     }
                 }
                 this.uploadTrs[ pFile.id ].status.set('html', '<span style="color: red">' + text + '</span>');
-
             }
         }
 
         this.uploadTrs[ pFile.id ].error = true;
 
         this.uploadAllProgress();
-
         this.uploadNext();
+    },
 
+    clear: function() {
+        Object.each(this.uploadTrs, function(tr, id) {
+            if (tr.complete || tr.canceled || tr.error) {
+                tr.destroy()
+            }
+        });
+        this.clearUploadVars();
+        this.uploadAllProgress();
     },
 
     clearUploadVars: function() {

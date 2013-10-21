@@ -141,7 +141,11 @@ class File
             $name2 = $name;
         }
 
-        if ($_FILES["file"]['error']) {
+        if (!$_FILES['file']) {
+            throw new \FileUploadException(tf('No file uploaded.'));
+        }
+
+        if ($_FILES['file']['error']) {
 
             switch ($_FILES['file']['error']) {
                 case 1:
@@ -175,16 +179,19 @@ class File
         }
 
         $newPath = ($path == '/') ? '/' . $name2 : $path . '/' . $name2;
-
         if (WebFile::exists($newPath)) {
 
             if (!$overwrite) {
 
-                $content = WebFile::getContent($newPath);
+                if (WebFile::exists($newPath)) {
+                    $content = WebFile::getContent($newPath);
 
-                if ($content != "\0\0\0\0\0\0\0\nKrynBlockedFile\n" . Kryn::getAdminClient()->getTokenId()) {
-                    //not our file, so cancel
-                    throw new \FileUploadException(tf('The target file is currently being uploaded by someone else.'));
+                    if ($content != "\0\0\0\0\0\0\0\nKrynBlockedFile\n" . Kryn::getAdminClient()->getTokenId()) {
+                        //not our file, so cancel
+                        throw new \FileUploadException(tf('The target file is currently being uploaded by someone else.'));
+                    }
+                } else {
+                    throw new \FileUploadException(tf('The target file has not be initialized.'));
                 }
             }
         }
