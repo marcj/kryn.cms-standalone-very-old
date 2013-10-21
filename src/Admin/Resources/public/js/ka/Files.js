@@ -1,48 +1,48 @@
 ka.Files = new Class({
 
-    Binds: ['updateStatusBar'],
+    Binds:      ['updateStatusBar'],
     Implements: [Options, Events],
 
     historyIndex: 0,
-    history: {},
+    history:      {},
 
     current: '',
 
-    _modules: [],
+    _modules:    [],
     isFirstLoad: true,
 
-    __images: ['.jpg', '.jpeg', '.gif', '.png', '.bmp'],
-    __ext: ['.css', '.tpl', '.js', '.html', '.htm'],
+    __images:     ['.jpg', '.jpeg', '.gif', '.png', '.bmp'],
+    __ext:        ['.css', '.tpl', '.js', '.html', '.htm'],
     _krynFolders: ['/kryn/', '/css/', '/images/', '/js/', '/admin/'],
 
     options: {
 
         useWindowHeader: false, //uses the kwindow instance to add smallTabButtons etc
 
-        search: true,
-        path: '/',
+        search:      true,
+        path:        '/',
         withSidebar: false,
 
-        onlyLocal: false, //only local files are selectable. So exludes all magic folders
+        onlyLocal:  false, //only local files are selectable. So exludes all magic folders
         returnPath: false, //return the path instead of the object_id (like in version <= 0.9)
 
         fixed: true,
 
-        selection: true,
+        selection:            true,
         /* if selection is false, all options below will be ignored */
-        selectionValue: false, //not useful, use setValue() instead
-        selectionOnlyFiles: false,
+        selectionValue:       false, //not useful, use setValue() instead
+        selectionOnlyFiles:   false,
         selectionOnlyFolders: false,
-        multi: false
+        multi:                false
     },
 
-    rootFile: {},
+    rootFile:  {},
     path2File: {},
 
     sidebarFiles: {},
 
     container: false,
-    win: false,
+    win:       false,
 
     initialize: function (pContainer, pOptions, pWindowApi, pObjectKey) {
         this.win = pWindowApi;
@@ -79,6 +79,8 @@ ka.Files = new Class({
 
         this.addEvent('select', this.updateStatusBar);
         this.addEvent('deselect', this.updateStatusBar);
+        this.addEvent('select', this.updateSidebar);
+        this.addEvent('deselect', this.updateSidebar);
     },
 
     loadRoot: function () {
@@ -153,25 +155,25 @@ ka.Files = new Class({
     initSWFUpload: function () {
 
         ka.uploads[this.win.id] = new SWFUpload({
-            upload_url: _path + "admin/file/upload/?" + window._session.tokenid + "=" + window._session.sessionid,
-            file_post_name: "file",
-            flash_url: _path + "admin/swfupload.swf",
+            upload_url:        _path + "admin/file/upload/?" + window._session.tokenid + "=" + window._session.sessionid,
+            file_post_name:    "file",
+            flash_url:         _path + "admin/swfupload.swf",
             file_upload_limit: "500",
-            file_queue_limit: "0",
+            file_queue_limit:  "0",
 
-            file_queued_handler: this.newFileUpload.bind(this),
+            file_queued_handler:     this.newFileUpload.bind(this),
             upload_progress_handler: this.uploadProgress.bind(this),
-            upload_start_handler: this.uploadStart.bind(this),
-            upload_success_handler: this.uploadComplete.bind(this),
-            upload_error_handler: this.uploadError.bind(this),
+            upload_start_handler:    this.uploadStart.bind(this),
+            upload_success_handler:  this.uploadComplete.bind(this),
+            upload_error_handler:    this.uploadError.bind(this),
 
-            button_placeholder_id: this.buttonId,
-            button_width: 26,
-            button_height: 20,
-            button_text: '<span class="button"></span>',
+            button_placeholder_id:   this.buttonId,
+            button_width:            26,
+            button_height:           20,
+            button_text:             '<span class="button"></span>',
             button_text_top_padding: 0,
-            button_window_mode: SWFUpload.WINDOW_MODE.TRANSPARENT,
-            button_cursor: SWFUpload.CURSOR.HAND
+            button_window_mode:      SWFUpload.WINDOW_MODE.TRANSPARENT,
+            button_cursor:           SWFUpload.CURSOR.HAND
         });
     },
 
@@ -194,9 +196,9 @@ ka.Files = new Class({
             this.initSWFUpload();
         } else {
             this.uploadFileChooser = new Element('input', {
-                type: 'file',
+                type:     'file',
                 multiple: true,
-                style: 'position: absolute; left: -3000px; top: -9999px'
+                style:    'position: absolute; left: -3000px; top: -9999px'
             }).inject(this.container);
 
             document.id(this.uploadBtn).addEventListener("click", function (e) {
@@ -232,7 +234,7 @@ ka.Files = new Class({
         }
 
         this.headerLayout = new ka.Layout(this.header, {
-            fixed: false,
+            fixed:  false,
             layout: [
                 {
                     columns: [50, null, 150]
@@ -246,26 +248,26 @@ ka.Files = new Class({
 
         actionsContainer.setStyle('white-space', 'nowrap');
 
-//        var boxNavi = new ka.ButtonGroup(actionsContainer, {onlyIcons: true});
-//
-//        var toLeft = new Element('img', {
-//            src: _path + 'bundles/admin/images/admin-files-toLeft.png'
-//        });
-//        boxNavi.addButton(t('Back'), '#icon-arrow-left-15', function () {
-//            this.goHistory('left');
-//        }.bind(this));
-//
-//        boxNavi.addButton(t('Forward'), '#icon-arrow-right-15', function () {
-//            this.goHistory('right');
-//        }.bind(this));
-//
-//        this.upBtn = boxNavi.addButton(t('Up'), '#icon-arrow-up-14', this.up.bind(this));
-//        this.upBtn.fileObj = this;
+        //        var boxNavi = new ka.ButtonGroup(actionsContainer, {onlyIcons: true});
+        //
+        //        var toLeft = new Element('img', {
+        //            src: _path + 'bundles/admin/images/admin-files-toLeft.png'
+        //        });
+        //        boxNavi.addButton(t('Back'), '#icon-arrow-left-15', function () {
+        //            this.goHistory('left');
+        //        }.bind(this));
+        //
+        //        boxNavi.addButton(t('Forward'), '#icon-arrow-right-15', function () {
+        //            this.goHistory('right');
+        //        }.bind(this));
+        //
+        //        this.upBtn = boxNavi.addButton(t('Up'), '#icon-arrow-up-14', this.up.bind(this));
+        //        this.upBtn.fileObj = this;
 
         var sidebar = this.win.getSidebar();
 
         new Element('h2', {
-            text: 'Actions',
+            text:    'Actions',
             'class': 'light'
         }).inject(sidebar);
         var boxAction = new ka.ButtonGroup(sidebar);
@@ -275,20 +277,19 @@ ka.Files = new Class({
 
         this.newUploadBtn();
 
+        this.setupFileOptionsBar();
+
         //this.upBtn.addClass('admin-files-droppables');
 
         //view types
         this.boxTypes = new ka.ButtonGroup(actionsContainer, {onlyIcons: true});
         this.typeButtons = new Hash();
 
-        this.typeButtons['icon'] =
-            this.boxTypes.addIconButton(t('Icon view'), '#icon-grid-2', this.setListType.bind(this, 'icon', null, null));
+        this.typeButtons['icon'] = this.boxTypes.addIconButton(t('Icon view'), '#icon-grid-2', this.setListType.bind(this, 'icon', null, null));
 
-        this.typeButtons['miniatur'] =
-            this.boxTypes.addIconButton(t('Image view'), '#icon-images', this.setListType.bind(this, 'miniatur', null, 70));
+        this.typeButtons['miniatur'] = this.boxTypes.addIconButton(t('Image view'), '#icon-images', this.setListType.bind(this, 'miniatur', null, 70));
 
-        this.typeButtons['detail'] =
-            this.boxTypes.addIconButton(t('Detail view'), '#icon-list-4', this.setListType.bind(this, 'detail', null, null));
+        this.typeButtons['detail'] = this.boxTypes.addIconButton(t('Detail view'), '#icon-list-4', this.setListType.bind(this, 'detail', null, null));
 
         //address
         var addressContainer = this.headerLayout.getCell(1, 2);
@@ -298,7 +299,7 @@ ka.Files = new Class({
         document.id(boxNavi).addClass('ka-Files-addressFaker-container');
 
         this.address = new ka.Field({
-            type: 'text',
+            type:      'text',
             noWrapper: true
         }, boxNavi);
 
@@ -306,10 +307,10 @@ ka.Files = new Class({
 
         this.addressFaker = new Element('div', {
             'class': 'ka-Input-text ka-Files-addressFaker',
-            'text': '/'
+            'text':  '/'
         }).inject(boxNavi);
 
-        this.addressFaker.addEvent('click', function(e){
+        this.addressFaker.addEvent('click', function (e) {
             if (e.target == this.addressFaker) {
                 this.setAddressInput(true);
             }
@@ -338,7 +339,7 @@ ka.Files = new Class({
         searchContainer.set('tween', {duration: 500, transition: Fx.Transitions.Cubic.easeOut});
 
         this.search = new ka.Field({
-            type: 'text',
+            type:      'text',
             noWrapper: true
         }, searchContainer);
 
@@ -357,16 +358,16 @@ ka.Files = new Class({
         }.bind(this));
 
         new Element('img', {
-            src: _path + 'bundles/admin/images/icon-search-loupe.png',
+            src:   _path + 'bundles/admin/images/icon-search-loupe.png',
             style: 'position: absolute; right: 12px; top: 12px;'
         }).inject(searchContainer);
 
         this.mainLayout = new ka.Layout(this.wrapper, {
-            fixed: this.options.fixed,
+            fixed:    this.options.fixed,
             splitter: this.options.withSidebar ? [
                 [1, 1, 'right']
             ] : [],
-            layout: [
+            layout:   [
                 {
                     columns: this.options.withSidebar ? [250, 15, null] : [null]
                 }
@@ -382,8 +383,7 @@ ka.Files = new Class({
             'class': 'admin-files-droppables admin-files-fileContainer ka-scrolling'
         }).addEvent('mousedown', function (pEvent) {
                 this.checkMouseDown(pEvent);
-            }.bind(this))
-            .addEvent('mouseup', function (pEvent) {
+            }.bind(this)).addEvent('mouseup', function (pEvent) {
                 this.drag = false;
 
                 if (this.lastDragTimer) {
@@ -397,8 +397,7 @@ ka.Files = new Class({
                 this.closeSearch();
             }.bind(this)).addEvent('mousemove', function (pEvent) {
                 this.checkMouseMove(pEvent);
-            }.bind(this))
-            .inject(fileContainerCell);
+            }.bind(this)).inject(fileContainerCell);
 
         if (ka.mobile) {
             this.fileContainer.addEvent('click', function (pEvent) {
@@ -462,18 +461,18 @@ ka.Files = new Class({
         }
     },
 
-    setAddressInput: function(input){
-          if (input) {
-              this.addressFaker.setStyle('display', 'none');
-              this.address.show();
-              this.address.focus();
-          } else {
-              this.addressFaker.setStyle('display');
-              this.address.hide();
-          }
+    setAddressInput: function (input) {
+        if (input) {
+            this.addressFaker.setStyle('display', 'none');
+            this.address.show();
+            this.address.focus();
+        } else {
+            this.addressFaker.setStyle('display');
+            this.address.hide();
+        }
     },
 
-    parseAddressFaker: function() {
+    parseAddressFaker: function () {
         var path = this.addressFaker.get('text');
         var paths = '/' == path ? [''] : path.split('/');
 
@@ -485,16 +484,14 @@ ka.Files = new Class({
                 text: ''
             }).inject(fragment);
         } else {
-            paths.each(function(path){
+            paths.each(function (path) {
                 tempPath += '/' + path;
                 var target = tempPath + '';
                 new Element('a', {
                     text: path
-                })
-                .addEvent('click', function(){
-                    this.load(target);
-                }.bind(this))
-                .inject(fragment);
+                }).addEvent('click', function () {
+                        this.load(target);
+                    }.bind(this)).inject(fragment);
             }.bind(this));
         }
 
@@ -504,6 +501,31 @@ ka.Files = new Class({
 
     showLoader: function (pVisible) {
         pVisible ? this.loader.show() : this.loader.hide();
+    },
+
+    updateSidebar: function () {
+        var selected = this.getSelectedFilesAsArray();
+        var showFileOptions = selected.length > 0;
+        showFileOptions ? this.showFileOptions() : this.hideFileOptions();
+    },
+
+    setupFileOptionsBar: function() {
+        var sidebar = this.win.getSidebar();
+        this.fileOptionsBar = new Element('div', {
+            'class': 'ka-Files-fileOptionsBar'
+        }).inject(sidebar);
+
+        this.fileOptionsGroup = new ka.ButtonGroup(this.fileOptionsBar);
+
+        this.fileOptionsGroup.addButton('Delete');
+    },
+
+    showFileOptions: function() {
+        this.fileOptionsBar.setStyle('display', 'block');
+    },
+
+    hideFileOptions: function() {
+        this.fileOptionsBar.setStyle('display');
     },
 
     updateStatusBar: function () {
@@ -658,7 +680,7 @@ ka.Files = new Class({
     },
 
     moveFiles: function (pFilePaths, pTargetDirectory, pOverwrite, pCallback) {
-        if ('/' !== pTargetDirectory.substr(pTargetDirectory.length-1)) {
+        if ('/' !== pTargetDirectory.substr(pTargetDirectory.length - 1)) {
             pTargetDirectory += '/';
         }
 
@@ -683,7 +705,7 @@ ka.Files = new Class({
     },
 
     copyFiles: function (pFilePaths, pTargetDirectory, pOverwrite) {
-        if ('/' !== pTargetDirectory.substr(pTargetDirectory.length-1)) {
+        if ('/' !== pTargetDirectory.substr(pTargetDirectory.length - 1)) {
             pTargetDirectory += '/';
         }
 
@@ -757,10 +779,10 @@ ka.Files = new Class({
     renderTree: function () {
         if (!this.sideTree) {
             this.sideTree = new ka.Field({
-                label: t('Nodes'),
-                type: 'tree',
+                label:     t('Nodes'),
+                type:      'tree',
                 noWrapper: true,
-                object: 'Core\\File'
+                object:    'Core\\File'
             }, this.infos);
 
             this.sideTree.addEvent('select', function (item) {
@@ -782,12 +804,11 @@ ka.Files = new Class({
         var icon = this.getIcon(pFile);
 
         var item = new Element('a', {
-            text: pFile.name,
+            text:    pFile.name,
             'class': 'admin-files-droppables ' + icon
         }).addEvent('mousedown',function (e) {
                 e.stop()
-            }).addEvent('click', this.loadPath.bind(this, pFile.path))
-            .inject(this.infos);
+            }).addEvent('click', this.loadPath.bind(this, pFile.path)).inject(this.infos);
 
         item.fileItem = pFile;
         item.fileObj = this;
@@ -795,7 +816,7 @@ ka.Files = new Class({
         this.sidebarFiles[pFile.path] = item;
     },
 
-    normalizePath: function(path){
+    normalizePath: function (path) {
         if (path != '/' && path.substr(path.length - 1) == '/') {
             path = path.substr(0, path.length - 1);
         }
@@ -821,10 +842,9 @@ ka.Files = new Class({
 
             //we entered a own path
             //check first what it is, and the continue;
-            this.curRequest =
-                new Request.JSON({url: _pathAdmin + 'admin/file/single', noCache: 1,
-                noErrorReporting: ['FileNotExistException', 'AccessDeniedException'],
-                onComplete: function (pResponse) {
+            this.curRequest = new Request.JSON({url: _pathAdmin + 'admin/file/single', noCache: 1,
+                noErrorReporting:                    ['FileNotExistException', 'AccessDeniedException'],
+                onComplete:                          function (pResponse) {
 
                     this.showLoader(false);
 
@@ -844,8 +864,7 @@ ka.Files = new Class({
                     this.path2File[pPath] = this.currentFile;
                     this.path2File[pResponse.data.path] = this.currentFile;
 
-                    if (this.options.selection &&
-                        (this.options.selectionValue == pPath || this.options.selectionValue == pPath.substr(1))) {
+                    if (this.options.selection && (this.options.selectionValue == pPath || this.options.selectionValue == pPath.substr(1))) {
                         if (this.currentFile.path != '/') {
                             this.load(this.currentFile.path.substr(0, this.currentFile.path.lastIndexOf('/')));
                         }
@@ -859,85 +878,84 @@ ka.Files = new Class({
 
         this.setAddressFakerAsFile(this.currentFile.type == 'file');
 
-        this.curRequest =
-            new Request.JSON({url: _pathAdmin + 'admin/file', noCache: 1, onComplete: function (pResponse) {
+        this.curRequest = new Request.JSON({url: _pathAdmin + 'admin/file', noCache: 1, onComplete: function (pResponse) {
 
-                this.showLoader(false);
+            this.showLoader(false);
 
-                if (pResponse.error == 'AccessDeniedException') {
-                    //todo, show access denied in a more beauty way.
-                    this.win._alert(_('%s: Access denied').replace('%s', pPath));
-                    return;
-                }
+            if (pResponse.error == 'AccessDeniedException') {
+                //todo, show access denied in a more beauty way.
+                this.win._alert(_('%s: Access denied').replace('%s', pPath));
+                return;
+            }
 
-                if (pResponse.error == 'FileNotFoundException') {
-                    //todo, show access denied in a more beauty way.
-                    this.win._alert(_('%s: file not found').replace('%s', pPath));
-                    return;
-                }
+            if (pResponse.error == 'FileNotFoundException') {
+                //todo, show access denied in a more beauty way.
+                this.win._alert(_('%s: file not found').replace('%s', pPath));
+                return;
+            }
 
-                if (pPath == '/trash' || pPath.substr(0, 7) == '/trash/') {
-                    this.boxAction.disable();
-                } else {
-                    if (this.currentFile.type == 'dir') {
-                        if (this.currentFile.writeAccess == true) {
-                            this.boxAction.activate();
-                        } else {
-                            this.boxAction.deactivate();
-                        }
-                        this.boxTypes.activate();
+            if (pPath == '/trash' || pPath.substr(0, 7) == '/trash/') {
+                this.boxAction.disable();
+            } else {
+                if (this.currentFile.type == 'dir') {
+                    if (this.currentFile.writeAccess == true) {
+                        this.boxAction.activate();
                     } else {
                         this.boxAction.deactivate();
-                        this.boxTypes.deactivate();
                     }
+                    this.boxTypes.activate();
+                } else {
+                    this.boxAction.deactivate();
+                    this.boxTypes.deactivate();
                 }
+            }
 
-                this.historyIndex++;
-                this.history[ this.historyIndex ] = pPath;
+            this.historyIndex++;
+            this.history[ this.historyIndex ] = pPath;
 
-                this.current = pPath;
+            this.current = pPath;
 
-                this.isFirstLoad = false;
+            this.isFirstLoad = false;
 
-                this.setAddress(this.current);
+            this.setAddress(this.current);
 
-                this.render(pResponse.data);
+            this.render(pResponse.data);
 
-                if (this.options.withSidebar) {
-                    this.renderTree();
-                }
+            if (this.options.withSidebar) {
+                this.renderTree();
+            }
 
-                this.updateStatusBar();
+            this.updateStatusBar();
 
-                if (this.infos) {
-                    this.infos.getChildren().removeClass('admin-files-item-selected');
-                }
-                this.fireDeselect();
+            if (this.infos) {
+                this.infos.getChildren().removeClass('admin-files-item-selected');
+            }
+            this.fireDeselect();
 
-                if (this.sidebarFiles[this.current]) {
-                    this.sidebarFiles[this.current].addClass('admin-files-item-selected');
-                    this.fireSelect();
-                }
+            if (this.sidebarFiles[this.current]) {
+                this.sidebarFiles[this.current].addClass('admin-files-item-selected');
+                this.fireSelect();
+            }
 
-                this.showLoader(false);
+            this.showLoader(false);
 
-                //this.upBtn.fileItem = {type: 'dir', path: this.getUpPath()};
+            //this.upBtn.fileItem = {type: 'dir', path: this.getUpPath()};
 
-                if (typeOf(pCallback) == 'function') {
-                    pCallback();
-                }
+            if (typeOf(pCallback) == 'function') {
+                pCallback();
+            }
 
-                if (this.dragMove) {
-                    this.dragMove.droppables = $$(this.dragMove.options.droppables);
-                    this.dragMove.positions = this.dragMove.droppables.map(function (el) {
-                        return el.getCoordinates();
-                    });
-                }
+            if (this.dragMove) {
+                this.dragMove.droppables = $$(this.dragMove.options.droppables);
+                this.dragMove.positions = this.dragMove.droppables.map(function (el) {
+                    return el.getCoordinates();
+                });
+            }
 
-            }.bind(this)}).get({ path: pPath });
+        }.bind(this)}).get({ path: pPath });
     },
 
-    setAddress: function(path) {
+    setAddress: function (path) {
         this.address.setValue(path);
         this.addressFaker.set('text', path);
         this.parseAddressFaker();
@@ -963,7 +981,7 @@ ka.Files = new Class({
 
         this.editorActionBar = new Element('div', {
             'class': 'ka-Full-top ka-ActionBar',
-            style: 'height: 48px; text-align: right; padding-right: 5px; background-color: #f6f6f6;'
+            style:   'height: 48px; text-align: right; padding-right: 5px; background-color: #f6f6f6;'
         }).inject(this.fileContainer);
 
         var buttonGroup = new ka.ButtonGroup(this.editorActionBar);
@@ -974,29 +992,27 @@ ka.Files = new Class({
         versionsSelect.add('xy', t('Version xy'));
         versionsSelect.inject(buttonGroup);
 
-        new ka.Button(t('Save'))
-            .setButtonStyle('blue')
-            .inject(this.editorActionBar);
+        new ka.Button(t('Save')).setButtonStyle('blue').inject(this.editorActionBar);
 
         this.editorContainer = new Element('div', {
             'class': 'ka-Full',
-            style: 'top: 48px; border-top: 1px solid #e0e0e0'
+            style:   'top: 48px; border-top: 1px solid #e0e0e0'
         }).inject(this.fileContainer);
 
         var mode = 'text';
 
         var modes = {
             'php': 'php',
-            'js': 'javascript',
+            'js':  'javascript',
             'css': 'css'
         };
 
         mode = modes[this.currentFile.extension] || mode;
 
         this.editor = new ka.Field({
-            type: 'codemirror',
-            noWrapper: true,
-            inputHeight: '100%',
+            type:              'codemirror',
+            noWrapper:         true,
+            inputHeight:       '100%',
             codemirrorOptions: {
                 mode: mode
             }
@@ -1085,9 +1101,9 @@ ka.Files = new Class({
             if (position.y > 0 && position.y < containerHeight) {
 
                 var image = _pathAdmin + 'admin/file/preview?' + Object.toQueryString({
-                    path: file.readyToLoadImage.path,
-                    mtime: file.readyToLoadImage.mtime,
-                    width: file.imageContainer.getSize().x - 20,
+                    path:   file.readyToLoadImage.path,
+                    mtime:  file.readyToLoadImage.mtime,
+                    width:  file.imageContainer.getSize().x - 20,
                     height: file.imageContainer.getSize().y - 20
                 });
                 file.image.set('src', image);
@@ -1124,8 +1140,7 @@ ka.Files = new Class({
             file = item.fileItem;
         }
 
-        if (file && file.type == 'dir' && file.path != '/trash' && file.path != '/' &&
-            !item.hasClass('admin-files-fileContainer') && file.writeaccess) {
+        if (file && file.type == 'dir' && file.path != '/trash' && file.path != '/' && !item.hasClass('admin-files-fileContainer') && file.writeaccess) {
             item.addClass('admin-files-item-selected');
             this.fireSelect();
         } else if (this.currentFile.writeaccess) {
@@ -1220,8 +1235,7 @@ ka.Files = new Class({
             } else {
                 var sizeY = this.fileContainer.getSize().y;
                 if (curPos > 0 && sizeY - curPos < 20) {
-                    this.fileContainer.scrollTo(this.fileContainer.getScroll().x,
-                        this.fileContainer.getScroll().y + 10);
+                    this.fileContainer.scrollTo(this.fileContainer.getScroll().x, this.fileContainer.getScroll().y + 10);
                 }
             }
         }
@@ -1245,10 +1259,10 @@ ka.Files = new Class({
 
         this.selectorDiv = new Element('div', {
             'class': 'admin-files-selector',
-            styles: {
-                'top': pEvent.page.y - offset.y + scroll.y + 1,
+            styles:  {
+                'top':  pEvent.page.y - offset.y + scroll.y + 1,
                 'left': pEvent.page.x - offset.x + 1,
-                width: 1,
+                width:  1,
                 height: 1
             }
         }).setStyle('opacity', 0.5).inject(this.fileContainer);
@@ -1276,10 +1290,10 @@ ka.Files = new Class({
         this.nextMouseClickIsInvalid = true;
 
         this.selectorDrag = new Drag(this.selectorDiv, {
-            style: false,
-            preventDefault: false,
+            style:           false,
+            preventDefault:  false,
             stopPropagation: false,
-            onDrag: function (pElement, pEvent) {
+            onDrag:          function (pElement, pEvent) {
 
                 scroll = this.fileContainer.getScroll();
 
@@ -1305,7 +1319,7 @@ ka.Files = new Class({
 
                 curPos = {
                     left: this.selectorDiv.getStyle('left').toInt(),
-                    top: this.selectorDiv.getStyle('top').toInt()
+                    top:  this.selectorDiv.getStyle('top').toInt()
                 };
 
                 if (diffX + curPos.left + 2 < this.selectorMaxSizePos.x) {
@@ -1321,8 +1335,7 @@ ka.Files = new Class({
 
                 Array.each(items, function (item) {
 
-                    if ((item.pos.x + item.size.x) > curPos.left && item.pos.x < (curPos.left + curPos.width) &&
-                        item.pos.y < (curPos.top + curPos.height) && (item.pos.y + item.size.y) > curPos.top) {
+                    if ((item.pos.x + item.size.x) > curPos.left && item.pos.x < (curPos.left + curPos.width) && item.pos.y < (curPos.top + curPos.height) && (item.pos.y + item.size.y) > curPos.top) {
 
                         this.selectItem(item);
 
@@ -1406,8 +1419,7 @@ ka.Files = new Class({
             this.lastClickedItem = pEvent.target;
             if (pEvent.target.hasClass('admin-files-fileContainer')) {
 
-                if (pEvent.target.getSize().y < pEvent.target.getScrollSize().y &&
-                    (pEvent.target.getPosition(document.body).x + pEvent.target.getSize().x) - pEvent.page.x < 20) {
+                if (pEvent.target.getSize().y < pEvent.target.getScrollSize().y && (pEvent.target.getPosition(document.body).x + pEvent.target.getSize().x) - pEvent.page.x < 20) {
                     //if we click on the scrollbar, ignore it
                     return;
                 }
@@ -1638,10 +1650,10 @@ ka.Files = new Class({
 
             this.previewMorph.start({
                 opacity: 0,
-                width: size.x,
-                height: size.y,
-                top: position.y,
-                left: position.x
+                width:   size.x,
+                height:  size.y,
+                top:     position.y,
+                left:    position.x
             });
         }
 
@@ -1665,10 +1677,10 @@ ka.Files = new Class({
 
         var size = this.previewDivSize;
         image = _pathAdmin + 'admin/file/preview?' + Object.toQueryString({
-            path: file.path,
-            width: size.x,
+            path:   file.path,
+            width:  size.x,
             height: size.y,
-            mtime: file.mtime
+            mtime:  file.mtime
         });
 
         if (this.previewLoader) {
@@ -1705,7 +1717,7 @@ ka.Files = new Class({
                 delete this.previewLoader;
 
                 this.lastPreviewImage = new Element('img', {
-                    src: image,
+                    src:   image,
                     style: 'position: relative;'
                 }).inject(this.previewDiv, 'top');
 
@@ -1714,8 +1726,7 @@ ka.Files = new Class({
                         if (!this.previewDiv) {
                             return;
                         }
-                        this.lastPreviewImage.setStyle('top',
-                            this.previewDiv.getSize().y / 2 - this.lastPreviewImage.getSize().y / 2);
+                        this.lastPreviewImage.setStyle('top', this.previewDiv.getSize().y / 2 - this.lastPreviewImage.getSize().y / 2);
                     }).delay(delayMs, this);
                 }.bind(this));
 
@@ -1732,8 +1743,7 @@ ka.Files = new Class({
             pEvent.stop();
         }
 
-        if (pEvent.target && pEvent.target.get('tag') == 'input' &&
-            !pEvent.target.hasClass('admin-files-preview-input')) {
+        if (pEvent.target && pEvent.target.get('tag') == 'input' && !pEvent.target.hasClass('admin-files-preview-input')) {
             return;
         }
 
@@ -1759,14 +1769,11 @@ ka.Files = new Class({
 
             this.previewDiv = new Element('div', {
                 'class': 'admin-files-preview',
-                style: 'display: none;'
+                style:   'display: none;'
             }).inject(this.container);
 
             this.previewDivResizer = new Element('div', {
-                style: 'position: absolute;right: -1px;bottom: -1px;width: 9px;' +
-                    'height: 9px; opacity: 0.7; background-image: url(' + _path +
-                    'bundles/admin/images/win-bottom-resize.png);' +
-                    'cursor: se-resize; background-position: 0px 11px;'
+                style: 'position: absolute;right: -1px;bottom: -1px;width: 9px;' + 'height: 9px; opacity: 0.7; background-image: url(' + _path + 'bundles/admin/images/win-bottom-resize.png);' + 'cursor: se-resize; background-position: 0px 11px;'
             }).inject(this.previewDiv);
 
             var img = this.lastPreviewedItem.getElement('img') || this.lastPreviewedItem.getElement('div');
@@ -1774,15 +1781,15 @@ ka.Files = new Class({
             var size = img.getSize();
 
             this.previewMorph = new Fx.Morph(this.previewDiv, {
-                duration: 200,
+                duration:   200,
                 transition: Fx.Transitions.Quint.easeOut
             });
 
             this.previewDiv.setStyles({
-                width: size.x,
-                height: size.y,
-                top: position.y,
-                left: position.x,
+                width:   size.x,
+                height:  size.y,
+                top:     position.y,
+                left:    position.x,
                 opacity: 0,
                 display: 'block'
             });
@@ -1794,10 +1801,10 @@ ka.Files = new Class({
             this.previewDivSize = size;
 
             this.previewMorph.start({
-                width: size.x,
-                height: size.y,
-                top: (containerSize.y / 2) - (size.y / 2),
-                left: (containerSize.x / 2) - (size.x / 2),
+                width:   size.x,
+                height:  size.y,
+                top:     (containerSize.y / 2) - (size.y / 2),
+                left:    (containerSize.x / 2) - (size.x / 2),
                 opacity: 1
             });
 
@@ -1839,8 +1846,7 @@ ka.Files = new Class({
             this.options.selectionValue = selectedFiles[0];
             if (this.options.returnPath) {
                 return this.options.selectionValue.path;
-            }
-            else {
+            } else {
                 return this.options.selectionValue.id;
             }
 
@@ -1851,8 +1857,7 @@ ka.Files = new Class({
             selectedFiles.each(function (file) {
                 if (this.options.returnPath) {
                     items.include(file.path);
-                }
-                else {
+                } else {
                     items.include(file.object_id);
                 }
             }.bind(this))
@@ -1910,10 +1915,10 @@ ka.Files = new Class({
             var pos = item.getPosition(desktop);
 
             container.setStyles({
-                opacity: 0.7,
-                left: pos.x,
-                'top': pos.y,
-                zIndex: 15000,
+                opacity:  0.7,
+                left:     pos.x,
+                'top':    pos.y,
+                zIndex:   15000,
                 position: 'absolute'
             }).inject(desktop);
 
@@ -1922,13 +1927,13 @@ ka.Files = new Class({
             var pos = this.container.getPosition(document.body);
 
             container = new Element('div').setStyles({
-                opacity: 0.7,
-                zIndex: 15000,
-                width: 50,
-                height: 75,
-                left: pEvent.page.x - pos.x - 10,
-                'top': pEvent.page.y - pos.y - 10,
-                cursor: 'default',
+                opacity:  0.7,
+                zIndex:   15000,
+                width:    50,
+                height:   75,
+                left:     pEvent.page.x - pos.x - 10,
+                'top':    pEvent.page.y - pos.y - 10,
+                cursor:   'default',
                 position: 'absolute'
             }).inject(desktop);
 
@@ -1938,12 +1943,12 @@ ka.Files = new Class({
                 moveFiles.include(item.fileItem.path);
 
                 var clone = item.clone().setStyles({
-                    position: 'absolute',
-                    width: 50,
-                    height: 50,
-                    cursor: 'default',
+                    position:           'absolute',
+                    width:              50,
+                    height:             50,
+                    cursor:             'default',
                     'background-color': 'transparent',
-                    margin: 0
+                    margin:             0
                 }).inject(container);
 
                 clone.set('title');
@@ -1960,7 +1965,7 @@ ka.Files = new Class({
 
                 if (clone.getElement('img')) {
                     clone.getElement('img').setStyles({
-                        width: 30,
+                        width:  30,
                         height: 30
                     });
                 }
@@ -1981,7 +1986,7 @@ ka.Files = new Class({
 
             new Element('div', {
                 style: 'position: absolute; bottom: 0px; left: 0px; width: 100%; text-align: center;',
-                text: _('%d files').replace('%d', Object.getLength(selectedItems))
+                text:  _('%d files').replace('%d', Object.getLength(selectedItems))
             }).inject(container);
 
         } else if (Object.getLength(selectedItems) == 0) {
@@ -1997,7 +2002,7 @@ ka.Files = new Class({
 
         this.dragMove = new Drag.Move(pContainer, {
 
-            droppables: '.admin-files-droppables',
+            droppables:   '.admin-files-droppables',
             precalculate: true,
 
             onDrop: function (element, droppable) {
@@ -2149,8 +2154,7 @@ ka.Files = new Class({
         this.files2View.each(function (file) {
 
             var bg = '';
-            if (file.type != 'dir' &&
-                this.__images.contains(file.path.substr(file.path.lastIndexOf('.')).toLowerCase())) { //is image
+            if (file.type != 'dir' && this.__images.contains(file.path.substr(file.path.lastIndexOf('.')).toLowerCase())) { //is image
                 bg = 'image'
             } else if (file.type == 'dir') {
                 bg = 'dir'
@@ -2288,14 +2292,13 @@ ka.Files = new Class({
 
         var base = new Element('div', {
             'class': (pFile.path == '/trash' ? '' : 'admin-files-droppables ') + 'admin-files-item',
-            title: pFile.object_id + '=' + pFile.name
+            title:   pFile.object_id + '=' + pFile.name
         });
 
         var fileIconClass = null;
         var fileIcon = null;
 
-        if (pFile.path.lastIndexOf('.') &&
-            this.__images.contains(pFile.path.substr(pFile.path.lastIndexOf('.')).toLowerCase())) {
+        if (pFile.path.lastIndexOf('.') && this.__images.contains(pFile.path.substr(pFile.path.lastIndexOf('.')).toLowerCase())) {
 
             fileIcon = pFile;
 
@@ -2320,22 +2323,20 @@ ka.Files = new Class({
 
         var title = new Element('div', {
             'class': 'admin-files-item-title',
-            'text': (pFile.path == '/trash') ? t('Trash') : this.escTitle(pFile.name, base.getSize().x)
+            'text':  (pFile.path == '/trash') ? t('Trash') : this.escTitle(pFile.name, base.getSize().x)
         }).inject(base);
 
         if (fileIcon && pFile.dimensions) {
             new Element('div', {
                 'class': 'admin-files-item-title-dimensions',
-                text: pFile.dimensions.width + 'x' + pFile.dimensions.height + ', ' + ka.bytesToSize(pFile.size)
+                text:    pFile.dimensions.width + 'x' + pFile.dimensions.height + ', ' + ka.bytesToSize(pFile.size)
             }).inject(title, 'top');
         }
 
         if (this.options.selectionValue) {
-            if (typeOf(this.options.selectionValue) == 'string' &&
-                (this.options.selectionValue == pFile.path || this.options.selectionValue == pFile.path.substr(1))) {
+            if (typeOf(this.options.selectionValue) == 'string' && (this.options.selectionValue == pFile.path || this.options.selectionValue == pFile.path.substr(1))) {
                 base.addClass('admin-files-item-selected');
-            } else if (typeOf(this.options.selectionValue) == 'array' &&
-                this.options.selectionValue.contains(pFile.path)) {
+            } else if (typeOf(this.options.selectionValue) == 'array' && this.options.selectionValue.contains(pFile.path)) {
                 base.addClass('admin-files-item-selected');
             }
             this.fireSelect();
@@ -2389,8 +2390,7 @@ ka.Files = new Class({
 
     recover: function (pFile) {
 
-        this.win._confirm(_('This file will be moved to: %s').replace('%s',
-            '<br/><br/>' + pFile['original_path'] + '<br/><br/>') + _('Are you really sure?'), function (res) {
+        this.win._confirm(_('This file will be moved to: %s').replace('%s', '<br/><br/>' + pFile['original_path'] + '<br/><br/>') + _('Are you really sure?'), function (res) {
             if (res) {
 
                 new Request.JSON({url: _pathAdmin + 'admin/file/recover', noCache: 1, onComplete: function () {
@@ -2434,7 +2434,7 @@ ka.Files = new Class({
 
             var remove = new Element('a', {
                 'class': 'delimiter',
-                html: _('Remove')
+                html:    _('Remove')
             }).addEvent('click', this.remove.bind(this, pFile)).inject(this.context);
 
         } else {
@@ -2448,10 +2448,9 @@ ka.Files = new Class({
             }
 
             var openExternal = new Element('a', {
-                html: _('Open external'),
+                html:   _('Open external'),
                 target: '_blank',
-                href: _pathAdmin + 'admin/file/redirect?' +
-                    Object.toQueryString({path: pFile.path, noCache: (new Date()).getTime()})
+                href:   _pathAdmin + 'admin/file/redirect?' + Object.toQueryString({path: pFile.path, noCache: (new Date()).getTime()})
             }).inject(this.context)
 
             if (this.currentFile.path == pFile.path) {
@@ -2465,7 +2464,7 @@ ka.Files = new Class({
 
                 var cut = new Element('a', {
                     'class': 'delimiter',
-                    html: _('Cut (strg+x)')
+                    html:    _('Cut (strg+x)')
                 }).addEvent('click', this.cut.bind(this)).inject(this.context);
 
                 var copy = new Element('a', {
@@ -2482,7 +2481,7 @@ ka.Files = new Class({
 
                 var remove = new Element('a', {
                     'class': 'delimiter',
-                    html: _('Remove')
+                    html:    _('Remove')
                 }).addEvent('click', this.remove.bind(this, pFile)).inject(this.context);
 
                 var rename = new Element('a', {
@@ -2492,9 +2491,8 @@ ka.Files = new Class({
 
             var settings = new Element('a', {
                 'class': 'delimiter',
-                html: _('Properties')
-            }).addEvent('click',
-                function () {
+                html:    _('Properties')
+            }).addEvent('click',function () {
                     ka.wm.open('admin/file/properties', pFile);
                 }).inject(this.context);
 
@@ -2532,8 +2530,7 @@ ka.Files = new Class({
 
         Object.each(selectedFiles, function (myfile) {
 
-            if (myfile.magic || myfile.writeaccess != true || this._krynFolders.indexOf(myfile.path + '/') >= 0 ||
-                this._modules.indexOf(myfile.path + '/') >= 0) {
+            if (myfile.magic || myfile.writeaccess != true || this._krynFolders.indexOf(myfile.path + '/') >= 0 || this._modules.indexOf(myfile.path + '/') >= 0) {
                 //no writeaccess
                 deactivate(cut);
                 deactivate(remove);
@@ -2556,7 +2553,7 @@ ka.Files = new Class({
 
         this.context.setStyles({
             left: (parseInt(pEvent.client.x) + 4 - pos.x) + 'px',
-            top: (parseInt(pEvent.client.y) + 4 - pos.y) + 'px'
+            top:  (parseInt(pEvent.client.y) + 4 - pos.y) + 'px'
         });
 
     },
@@ -2611,8 +2608,7 @@ ka.Files = new Class({
             title = _('%d file copied', Object.getLength(selectedFiles)).replace('%d', Object.getLength(selectedFiles));
         } else {
             Object.each(selectedFiles, function (item) {
-                title =
-                    _('%s file copied').replace('%s', item.name.substr(0, 25) + ((item.name.length > 25) ? '...' : ''));
+                title = _('%s file copied').replace('%s', item.name.substr(0, 25) + ((item.name.length > 25) ? '...' : ''));
             });
         }
         ka.setClipboard(title, 'filemanager', selectedFiles);
@@ -2626,8 +2622,7 @@ ka.Files = new Class({
             title = _('%d files cut').replace('%d', Object.getLength(selectedFiles));
         } else {
             Object.each(selectedFiles, function (item) {
-                title =
-                    _('%s file cut').replace('%s', item.name.substr(0, 25) + ((item.name.length > 25) ? '...' : ''));
+                title = _('%s file cut').replace('%s', item.name.substr(0, 25) + ((item.name.length > 25) ? '...' : ''));
             });
         }
         ka.setClipboard(title, 'filemanagerCut', selectedFiles);
@@ -2661,7 +2656,7 @@ ka.Files = new Class({
     _search: function (pQ) {
         if (!this.searchPane) {
             this.searchPane = new Element('div', {
-                style: 'position: absolute; padding: 5px; top: 0px; right: 0px; bottom: 0px; width: 250px; border-left: 2px solid silver; background-color: #ddd;',
+                style:  'position: absolute; padding: 5px; top: 0px; right: 0px; bottom: 0px; width: 250px; border-left: 2px solid silver; background-color: #ddd;',
                 styles: {
                     opacity: 0.95
                 }
@@ -2672,7 +2667,7 @@ ka.Files = new Class({
             }).inject(this.searchPane);
 
             searchPaneCloser = new Element('div', {
-                style: 'position: absolute; top: 3px; right: 3px; font-weight: bold;',
+                style:   'position: absolute; top: 3px; right: 3px; font-weight: bold;',
                 'class': 'kwindow-win-titleBarIcon kwindow-win-titleBarIcon-close'
             }).addEvent('click', function () {
                     this.closeSearch();
@@ -2683,9 +2678,7 @@ ka.Files = new Class({
             }).inject(this.searchPane);
         }
 
-        this.searchPaneContent.set('html',
-            '<div style="text-align: center; padding-top: 25px;">' + '<img src="' + _path +
-                'bundles/admin/images/ka-tooltip-loading.gif" /><br />' + _('Searching ...') + '</div>');
+        this.searchPaneContent.set('html', '<div style="text-align: center; padding-top: 25px;">' + '<img src="' + _path + 'bundles/admin/images/ka-tooltip-loading.gif" /><br />' + _('Searching ...') + '</div>');
 
         if (this.lastqrq) {
             this.lastqrq.cancel();
@@ -2704,8 +2697,8 @@ ka.Files = new Class({
         this.searchPaneTitle.set('html', _('Results'));
 
         var table = new Element('table', {
-            'class': 'ka-files-search-table',
-            width: '100%',
+            'class':     'ka-files-search-table',
+            width:       '100%',
             cellspacing: 0
         }).inject(this.searchPaneContent);
         var tbody = new Element('tbody').inject(table);
@@ -2718,8 +2711,7 @@ ka.Files = new Class({
                 var td = new Element('td', {width: 20}).inject(tr);
 
                 bg = '';
-                if (file.type != 'dir' &&
-                    this.__images.contains(file.path.substr(file.path.lastIndexOf('.')).toLowerCase())) { //is image
+                if (file.type != 'dir' && this.__images.contains(file.path.substr(file.path.lastIndexOf('.')).toLowerCase())) { //is image
                     bg = 'image'
                 } else if (file.type == 'dir') {
                     bg = 'dir'
@@ -2740,21 +2732,20 @@ ka.Files = new Class({
                 var td = new Element('td').inject(tr);
 
                 div = new Element('div', {
-                    text: file.path,
+                    text:  file.path,
                     style: 'padding-left: 5px; color: #aaa; font-weight: normal;'
                 }).inject(td);
 
                 var a = new Element('a', {
-                    text: file.name,
-                    href: 'javascript: ;',
+                    text:  file.name,
+                    href:  'javascript: ;',
                     style: 'display: block; text-decoration: none; font-weight: bold; padding: 2px; cursor: pointer;'
                 }).inject(div, 'top');
 
                 a.addEvent('click', function () {
                     if (file.type == 'dir') {
                         this.loadPath(file.path);
-                    }
-                    else {
+                    } else {
                         ka.wm.openWindow('admin/file/edit', null, null, {file: file});
                     }
                 }.bind(this));

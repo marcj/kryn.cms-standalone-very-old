@@ -531,7 +531,7 @@ ka.AdminInterface = new Class({
         window.onbeforeunload = function(evt) {
 
             if (ka.wm.getWindowsCount() > 0) {
-                var message = _('There are open windows. Are you sure you want to leaving the administration?');
+                var message = _('There are open windows. Are you sure you want to leave the administration?');
                 if (typeof evt == 'undefined') {
                     evt = window.event;
                 }

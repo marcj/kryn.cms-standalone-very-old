@@ -2,6 +2,19 @@ ka.SystemDialog = new Class({
 
     Extends: ka.Dialog,
 
+    initialize: function(pParent, pOptions) {
+        pParent = ka.getAdminInterface().getDialogContainer();
+        this.closeExistingDialog();
+        this.parent(pParent, pOptions);
+    },
+
+    closeExistingDialog: function() {
+        var lastDialog = ka.getAdminInterface().getDialogContainer().getElement('.ka-dialog-overlay');
+        if (lastDialog && lastDialog.kaDialog) {
+            lastDialog.kaDialog.hide();
+        }
+    },
+
     renderLayout: function () {
         this.parent();
 

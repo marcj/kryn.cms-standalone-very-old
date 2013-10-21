@@ -453,3 +453,8 @@ table.ka-files-search-table tr:hover td {
 .admin-files-infos .ka-objectTree-drag-box {
     color: white;
 }*/
+
+.ka-Files-fileOptionsBar {
+    display: none;
+    border-top: 1px solid #808080;
+}

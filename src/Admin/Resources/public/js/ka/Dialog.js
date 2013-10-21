@@ -317,6 +317,14 @@ ka.Dialog = new Class({
         return !!this.overlay.getParent();
     },
 
+    hide: function() {
+        this.overlay.dispose();
+    },
+
+    show: function() {
+        this.center();
+    },
+
     /**
      * Position the dialog to the correct position.
      *

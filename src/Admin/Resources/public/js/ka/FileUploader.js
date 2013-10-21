@@ -27,7 +27,7 @@ ka.FileUploader = new Class({
         console.log('newFileUploader: ', pFile);
 
         if (!this.dialog) {
-            this.dialog = new ka.SystemDialog(ka.getAdminInterface().getDialogContainer(), {
+            this.dialog = new ka.SystemDialog(null, {
                 autoClose: true
             });
 
@@ -152,6 +152,16 @@ ka.FileUploader = new Class({
 
     showDialog: function() {
         this.dialog.center();
+    },
+
+    toggleDialog: function() {
+        if (this.dialog) {
+            if (this.dialog.isOpen()) {
+                this.dialog.close();
+            } else {
+                this.dialog.show();
+            }
+        }
     },
 
     minimizeUpload: function() {
@@ -417,7 +427,7 @@ ka.FileUploader = new Class({
                 'class': 'ka-FileUploader-smallProgressBar'
             }).inject(ka.getAdminInterface().mainMenuUser, 'after');
 
-            this.smallProgressBar.addEvent('click', this.showDialog.bind(this));
+            this.smallProgressBar.addEvent('click', this.toggleDialog.bind(this));
         } else if (this.smallProgressBar.getStyle('opacity') != 1) {
             this.smallProgressBar.tween('opacity', 1);
         }
@@ -539,7 +549,6 @@ ka.FileUploader = new Class({
     },
 
     uploadError: function(pFile) {
-
         if (!pFile) {
             return;
         }
@@ -547,6 +556,8 @@ ka.FileUploader = new Class({
         if (!this.uploadTrs[ pFile.id ]) {
             return;
         }
+
+        this.showDialog();
 
         var xhr = this.html5UploadXhr[ pFile.id ];
 
