@@ -93,17 +93,18 @@ class Controller
      *
      * @param  string $view
      * @param  array  $data Use this data instead of the data assigned through $this->assign()
+     * @param  bool   $translate
      *
      * @return string
      */
-    public function renderView($view, $data = null)
+    public function renderView($view, $data = null, $translate = true)
     {
         $engine = Kryn::getTemplateEngineForFileName($view);
 
         $view = Kryn::resolvePath($view, 'Views/');
 
         $html = (string)$engine->render($view, $data ? array_merge($this->viewData, $data) : $this->viewData, $this);
-        return Kryn::translate($html);
+        return $translate ? Kryn::translate($html) : $html;
     }
 
     public function getViewDir()

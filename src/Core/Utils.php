@@ -59,7 +59,7 @@ class Utils
                 'Internal Server Error',
                 tf(
                     'The server encountered an internal error and was unable to complete your request. Please contact the administrator. %s',
-                    Kryn::getSystemConfig()->getEmail()
+                    Kryn::getSystemConfig()->getEmail() ?: '[No E-Mail]'
                 )
             );
         }
@@ -97,16 +97,24 @@ class Utils
 
         self::$inErrorHandler = true;
 
-        $exception2s = array();
-        self::extractException($exception, $exception2s);
         $data = array(
-            'exceptions' => $exception2s,
             'output' => $output
         );
+        if (Kryn::getSystemConfig()->getErrors()->getStackTrace()) {
+            $exceptions = array();
+            self::extractException($exception, $exceptions);
+            $data['exceptions'] = $exceptions;
+        } else {
+            $data['exceptions'] = array(
+                array(
+                    'title' => get_class($exception),
+                    'message' => $exception->getMessage()
+                )
+            );
+        }
 
-        $response = new Response(Kryn::translate(
-            Kryn::getInstance()->renderView('@CoreBundle/internal-error.html.smarty', $data)
-        ), 500);
+        $response = new Response(Kryn::getInstance()->renderView('@CoreBundle/internal-error.html.smarty', $data, false), 500);
+
         $response->send();
         exit;
     }

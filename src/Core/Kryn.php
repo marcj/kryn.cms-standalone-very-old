@@ -2434,9 +2434,10 @@ class Kryn extends Controller
         $data = $data ? : array();
         $data['title'] = $title ? : 'Internal system error';
         $data['msg'] = $message;
-        $response = new Response(self::translate(
-            self::getInstance()->renderView('@CoreBundle/internal-message.html.smarty', $data)
-        ), 404);
+        $response = new Response(
+            self::getInstance()->renderView('@CoreBundle/internal-message.html.smarty', $data, false),
+            404
+        );
         $response->send();
         exit;
     }

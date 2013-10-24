@@ -2,7 +2,7 @@
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
-    <title>[[404 - Not found]]</title>
+    <title>Error</title>
     <base href="{Kryn::getBaseUrl()}"/>
     <style type="text/css">
         body {
@@ -124,7 +124,7 @@
     {if $backtrace}
         <div>
             <input class="trace-toggle" id="toggle_{$counter}" type="checkbox"/>
-            <label for="toggle_{$counter++}">[[Show/Hide trace]]</label>
+            <label for="toggle_{$counter++}">Show/Hide trace</label>
 
             <div class="trace">
                 {foreach $backtrace as $trace}
@@ -154,8 +154,10 @@
     <h2>#{$eCounter++} {$exception.title}</h2>
     <div class="msg">
         <pre>{$exception.message}</pre>
+        {if $exception.file}
         <div style="padding-bottom: 5px;">
             File: <q>{$exception.file} +{$exception.line}</q></div>
+        {/if}
         {printBacktrace backtrace=$exception.backtrace}
     </div>
 {/function}
