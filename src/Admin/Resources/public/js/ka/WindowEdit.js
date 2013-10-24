@@ -875,7 +875,11 @@ ka.WindowEdit = new Class({
 
             this.lastSaveRq = new Request.JSON({url: _pathAdmin + this.getEntryPoint() + '/' + objectId + '?_method=' + method,
                 noErrorReporting: ['DuplicateKeysException', 'ObjectItemNotModified'],
-                noCache: true, onComplete: function (res) {
+                noCache: true,
+                onError: function() {
+                    this.saveBtn.stopTip(t('Failed'));
+                }.bind(this),
+                onComplete: function (res) {
 
                     if (res.error == 'RouteNotFoundException') {
                         this.saveBtn.stopTip(t('Failed'));

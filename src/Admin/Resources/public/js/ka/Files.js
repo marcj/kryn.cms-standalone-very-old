@@ -129,7 +129,9 @@ ka.Files = new Class({
         if (!pFile.target)
             pFile.target = this.current;
 
-        this.fileUploader.newFileUpload(pFile);
+        this.fileUploader.newFileUpload(pFile, function(){
+            this.reload();
+        }.bind(this));
     },
 
     uploadProgress: function(pFile, pBytesCompleted, pBytesTotal) {

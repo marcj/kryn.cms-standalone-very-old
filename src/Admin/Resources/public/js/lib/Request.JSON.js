@@ -5,6 +5,9 @@ Request.JSON = new Class({
     Extends: Request.JSON,
 
     initialize: function (options) {
+        if (!'secure' in options) {
+            options.secure = true;
+        }
         this.parent(options);
         this.addEvent('failure', this.booboo.bind(this));
         this.addEvent('error', this.invalidJson.bind(this));

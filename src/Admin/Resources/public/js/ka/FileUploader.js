@@ -11,11 +11,13 @@ ka.FileUploader = new Class({
     html5UploadXhr: {},
     html5FileUploads: {},
 
+    callbacks: {},
+
     initialize: function() {
 
     },
 
-    newFileUpload: function(pFile) {
+    newFileUpload: function(pFile, cb) {
         if (!pFile.id) {
             pFile.id = 'HTML5_' + Object.getLength(this.html5FileUploads);
         }
@@ -24,7 +26,9 @@ ka.FileUploader = new Class({
             this.html5FileUploads[ pFile.id ] = pFile;
         }
 
-        console.log('newFileUploader: ', pFile);
+        if (cb) {
+            this.callbacks[ pFile.id ] = cb;
+        }
 
         if (!this.dialog) {
             this.dialog = new ka.SystemDialog(null, {
@@ -545,6 +549,11 @@ ka.FileUploader = new Class({
 
         if (this && this.reload) {
             this.reload();
+        }
+
+        if ('function' === typeOf(this.callbacks[pFile.id])) {
+            this.callbacks[pFile.id].call();
+            delete this.callbacks[pFile.id];
         }
 
         this.uploadNext();
