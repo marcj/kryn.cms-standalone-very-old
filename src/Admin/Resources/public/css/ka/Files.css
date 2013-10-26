@@ -458,3 +458,71 @@ table.ka-files-search-table tr:hover td {
     display: none;
     border-top: 1px solid #808080;
 }
+
+.ka-Files-sidebar-more-information {
+    color: white;
+}
+
+.ka-Files-sidebar-more-information-title {
+    padding: 5px;
+    font-weight: bold;
+    font-family: "SourceSansPro-Semibold";
+    margin-top: 5px;
+    font-size: 14px;
+}
+
+.ka-Files-sidebar-more-information-title:before {
+    margin-right: 5px;
+}
+
+.ka-Files-sidebar-more-information .ka-Table {
+    border: 0;
+    background-color: transparent;
+    font-size: 11px;
+}
+
+.ka-Files-sidebar-more-information .ka-Table > thead {
+    display: none;
+}
+
+.ka-Files-render-image {
+    overflow: hidden;
+    margin: auto;
+    -webkit-transition: all 0.3s ease-out;
+    -moz-transition: all 0.3s ease-out;
+    -o-transition: all 0.3s ease-out;
+    transition: all 0.3s ease-out;
+}
+
+.ka-Files-imageContainer > table td {
+    vertical-align: middle;
+    text-align: center;
+}
+
+.ka-Files-render-image > img,
+.ka-Files-render-image > canvas {
+    width: 100%;
+    height: 100%;
+}
+
+.ka-Files-render-image .ka-progress {
+    position: absolute;
+    top: 40%;
+    left: 50px;
+    right: 50px;
+}
+
+.ka-Files-render-statusBar-right {
+    float: right;
+    margin-right: 15px;
+}
+
+.ka-Files-render-statusBar-middle {
+    margin: auto;
+    text-align: center;
+}
+
+.ka-Files-render-statusBar-left {
+    float: left;
+    margin-left: 15px;
+}

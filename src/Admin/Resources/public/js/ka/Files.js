@@ -12,6 +12,7 @@ ka.Files = new Class({
     isFirstLoad: true,
 
     __images: ['.jpg', '.jpeg', '.gif', '.png', '.bmp'],
+    imageExtensions: ['jpg', 'jpeg', 'gif', 'png', 'bmp'],
     __ext: ['.css', '.tpl', '.js', '.html', '.htm'],
     _krynFolders: ['/kryn/', '/css/', '/images/', '/js/', '/admin/'],
 
@@ -129,7 +130,7 @@ ka.Files = new Class({
         if (!pFile.target)
             pFile.target = this.current;
 
-        this.fileUploader.newFileUpload(pFile, function(){
+        this.fileUploader.newFileUpload(pFile, function() {
             this.reload();
         }.bind(this));
     },
@@ -507,8 +508,117 @@ ka.Files = new Class({
 
     updateSidebar: function() {
         var selected = this.getSelectedFilesAsArray();
+        if (!selected.length && this.currentFile && 'dir' !== this.currentFile.type) {
+            selected = [this.currentFile];
+        }
         var showFileOptions = selected.length > 0;
         showFileOptions ? this.showFileOptions() : this.hideFileOptions();
+
+        var enabled = {
+            'optionsBarOpen': this.currentFile && 'dir' === this.currentFile.type,
+            'optionsBarOpenExternal': true,
+            'optionsBarCut': true,
+            'optionsBarCopy': true,
+            'optionsBarRename': true,
+            'optionsBarDelete': true,
+            'optionsBarPaste': true,
+            'optionsBarCopyLink': true,
+            'optionsBarSave': this.currentFile && 'dir' !== this.currentFile.type
+        };
+
+        var openText = t('Open');
+
+        if (1 < selected.length) {
+            enabled.optionsBarCopyLink = false;
+            enabled.optionsBarOpen = false;
+            enabled.optionsBarOpenExternal = false;
+            enabled.optionsBarRename = false;
+            enabled.optionsBarPaste = false;
+        }
+
+        Array.each(selected, function(file) {
+            if (!file.writeAccess) {
+                enabled.optionsBarCut = false;
+                enabled.optionsBarRename = false;
+                enabled.optionsBarDelete = false;
+            }
+            if ('dir' !== file.type) {
+                openText = t('Edit');
+                enabled.optionsBarPaste = false;
+            }
+
+        }.bind(this));
+
+        Object.each(enabled, function(enable, id) {
+            this[id].setEnabled(enable);
+        }.bind(this));
+
+        this.optionsBarOpen.setText([openText, '#icon-arrow-right-5']);
+        this.optionsBarSave.setVisible(this.currentFile && 'dir' !== this.currentFile.type);
+        this.optionsBarOpen.setVisible(this.currentFile && 'dir' === this.currentFile.type);
+
+        this.optionsBarMoreInformation.setStyle('display', 1 !== selected.length ? 'none' : null);
+
+        if (1 === selected.length) {
+            this.optionsBarMoreInformation.empty();
+            var file = selected[0];
+
+            var title = new Element('div', {
+                'class': 'ka-Files-sidebar-more-information-title ' + this.getIcon(file),
+                text: file.name
+            }).inject(this.optionsBarMoreInformation);
+
+            var table = new ka.Table([
+                ['', 50],
+                ['']
+            ], {
+                absolute: false
+            });
+
+            table.addRow([
+                t('Size'), ka.bytesToSize(file.size)
+            ]);
+
+            table.addRow([
+                t('Created'), ka.dateTime(file.createdTime)
+            ]);
+
+            table.addRow([
+                t('Modified'), ka.dateTime(file.modifiedTime)
+            ]);
+
+            if (file.dimensions) {
+                table.addRow([
+                    t('Dimension'), file.dimensions.width + ' x ' + file.dimensions.height
+                ]);
+            }
+
+            table.inject(this.optionsBarMoreInformation);
+        }
+
+    },
+
+    openSelected: function() {
+        var selected = this.getSelectedFilesAsArray();
+        if (!selected.length) return;
+        this.loadPath(selected[0].path)
+    },
+
+    openExternalSelected: function() {
+        var selected = this.getSelectedFilesAsArray();
+        if (!selected.length) return;
+
+        Array.each(selected, function(file) {
+            var url = _pathAdmin + 'admin/file/redirect?' + Object.toQueryString({path: file.path, noCache: (new Date()).getTime()})
+            window.open(url, '_blank');
+        });
+    },
+
+    newVersionForSelected: function() {
+        var selected = this.getSelectedFilesAsArray();
+        if (!selected.length) return;
+        var file = selected[0];
+        this.newVersion(file);
     },
 
     setupFileOptionsBar: function() {
@@ -519,7 +629,50 @@ ka.Files = new Class({
 
         this.fileOptionsGroup = new ka.ButtonGroup(this.fileOptionsBar);
 
-        this.fileOptionsGroup.addButton('Delete');
+        this.optionsBarSave = this.fileOptionsGroup.addButton('Save', '#icon-checkmark-6 ', function() {
+            this.save();
+        }.bind(this));
+
+        this.optionsBarOpen = this.fileOptionsGroup.addButton('Edit', '#icon-arrow-right-5', function() {
+            this.openSelected();
+        }.bind(this));
+
+        this.optionsBarOpenExternal = this.fileOptionsGroup.addButton('Open external', '#icon-forward-4', function() {
+            this.openExternalSelected();
+        }.bind(this));
+
+        this.optionsBarRename = this.fileOptionsGroup.addButton('Rename', '#icon-pencil', function() {
+            this.renameSelected();
+        }.bind(this));
+
+        this.optionsBarDelete = this.fileOptionsGroup.addButton('Delete', '#icon-minus-5', function() {
+            this.remove();
+        }.bind(this));
+
+        this.optionsBarClipboardDelimiter = new Element('div', {
+            'class': 'ka-Window-sidebar-delimiter'
+        }).inject(this.optionsBarDelete, 'after');
+
+        this.optionsBarCut = this.fileOptionsGroup.addButton('Cut', '#icon-scissors', function() {
+            this.cut();
+        }.bind(this));
+
+        this.optionsBarCopy = this.fileOptionsGroup.addButton('Copy', '#icon-copy', function() {
+            this.copy();
+        }.bind(this));
+
+        this.optionsBarPaste = this.fileOptionsGroup.addButton('Paste', '#icon-arrow-down-11', function() {
+            this.paste();
+        }.bind(this));
+
+        this.optionsBarCopyLink = this.fileOptionsGroup.addButton('Copy link', '#icon-link-2', function() {
+            this.copyLink();
+        }.bind(this));
+
+        this.optionsBarMoreInformation = new Element('div', {
+            'class': 'ka-Window-sidebar-delimiter ka-Files-sidebar-more-information selectable'
+        }).inject(this.optionsBarCopyLink, 'after');
+
     },
 
     showFileOptions: function() {
@@ -531,6 +684,8 @@ ka.Files = new Class({
     },
 
     updateStatusBar: function() {
+        if ('dir' !== this.currentFile.type) return;
+
         var selected = this.getSelectedFilesAsArray();
         var items = this.fileContainer.getElements('.admin-files-item');
 
@@ -574,7 +729,7 @@ ka.Files = new Class({
 
     newFile: function() {
 
-        if (this.currentFile.writeaccess == false) {
+        if (this.currentFile.writeAccess == false) {
             this.win._alert(_('Access denied'));
             return;
         }
@@ -605,8 +760,14 @@ ka.Files = new Class({
         }.bind(this));
     },
 
+    renameSelected: function() {
+        var selected = this.getSelectedFilesAsArray();
+        if (!selected.length) return;
+        this.rename(selected[0]);
+    },
+
     rename: function(pFile) {
-        this.win._prompt(_('Rename') + ': ', pFile.name, function(name) {
+        this.win.prompt(_('Rename') + ': ', pFile.name, function(name) {
             if (!name) {
                 return;
             }
@@ -630,7 +791,6 @@ ka.Files = new Class({
     },
 
     remove: function() {
-
         var selectedFiles = this.getSelectedFiles();
 
         if (!Object.getLength(selectedFiles) > 0) {
@@ -840,14 +1000,13 @@ ka.Files = new Class({
         this.showLoader(true);
         this.setAddressFakerAsFile(false);
         this.currentFile = this.path2File[pPath];
-        if (!this.currentFile) {
 
+        if (!this.currentFile) {
             //we entered a own path
             //check first what it is, and the continue;
             this.curRequest = new Request.JSON({url: _pathAdmin + 'admin/file/single', noCache: 1,
                 noErrorReporting: ['FileNotExistException', 'AccessDeniedException'],
                 onComplete: function(pResponse) {
-
                     this.showLoader(false);
 
                     if (pResponse.error == 'AccessDeniedException') {
@@ -880,81 +1039,93 @@ ka.Files = new Class({
 
         this.setAddressFakerAsFile(this.currentFile.type == 'file');
 
-        this.curRequest = new Request.JSON({url: _pathAdmin + 'admin/file', noCache: 1, onComplete: function(pResponse) {
+        this.prepareRender();
 
-            this.showLoader(false);
+        if (this.isImage(this.currentFile)) {
+            this.loadImage(pPath, pCallback);
+        } else {
+            this.curRequest = new Request.JSON({
+                url: _pathAdmin + 'admin/file',
+                noCache: 1,
+                onComplete: function(pResponse) {
+                    this.renderLoaded(pResponse, pPath, pCallback);
+                }.bind(this)
+            }).get({ path: pPath });
+        }
+    },
 
-            if (pResponse.error == 'AccessDeniedException') {
-                //todo, show access denied in a more beauty way.
-                this.win._alert(_('%s: Access denied').replace('%s', pPath));
-                return;
-            }
+    renderLoaded: function(pResponse, pPath, pCallback) {
+        this.showLoader(false);
 
-            if (pResponse.error == 'FileNotFoundException') {
-                //todo, show access denied in a more beauty way.
-                this.win._alert(_('%s: file not found').replace('%s', pPath));
-                return;
-            }
+        if (pResponse.error == 'AccessDeniedException') {
+            //todo, show access denied in a more beauty way.
+            this.win._alert(_('%s: Access denied').replace('%s', pPath));
+            return;
+        }
 
-            if (pPath == '/trash' || pPath.substr(0, 7) == '/trash/') {
-                this.boxAction.disable();
-            } else {
-                if (this.currentFile.type == 'dir') {
-                    if (this.currentFile.writeAccess == true) {
-                        this.boxAction.activate();
-                    } else {
-                        this.boxAction.deactivate();
-                    }
-                    this.boxTypes.activate();
+        if (pResponse.error == 'FileNotFoundException') {
+            //todo, show access denied in a more beauty way.
+            this.win._alert(_('%s: file not found').replace('%s', pPath));
+            return;
+        }
+
+        if (pPath == '/trash' || pPath.substr(0, 7) == '/trash/') {
+            this.boxAction.disable();
+        } else {
+            if (this.currentFile.type == 'dir') {
+                if (this.currentFile.writeAccess == true) {
+                    this.boxAction.activate();
                 } else {
                     this.boxAction.deactivate();
-                    this.boxTypes.deactivate();
                 }
+                this.boxTypes.activate();
+            } else {
+                this.boxAction.deactivate();
+                this.boxTypes.deactivate();
             }
+        }
 
-            this.historyIndex++;
-            this.history[ this.historyIndex ] = pPath;
+        this.historyIndex++;
+        this.history[ this.historyIndex ] = pPath;
 
-            this.current = pPath;
+        this.current = pPath;
 
-            this.isFirstLoad = false;
+        this.isFirstLoad = false;
 
-            this.setAddress(this.current);
+        this.setAddress(this.current);
 
-            this.render(pResponse.data);
+        this.render(pResponse.data);
 
-            if (this.options.withSidebar) {
-                this.renderTree();
-            }
+        if (this.options.withSidebar) {
+            this.renderTree();
+        }
 
-            this.updateStatusBar();
+        this.updateStatusBar();
 
-            if (this.infos) {
-                this.infos.getChildren().removeClass('admin-files-item-selected');
-            }
-            this.fireDeselect();
+        if (this.infos) {
+            this.infos.getChildren().removeClass('admin-files-item-selected');
+        }
+        this.fireDeselect();
 
-            if (this.sidebarFiles[this.current]) {
-                this.sidebarFiles[this.current].addClass('admin-files-item-selected');
-                this.fireSelect();
-            }
+        if (this.sidebarFiles[this.current]) {
+            this.sidebarFiles[this.current].addClass('admin-files-item-selected');
+            this.fireSelect();
+        }
 
-            this.showLoader(false);
+        this.showLoader(false);
 
-            //this.upBtn.fileItem = {type: 'dir', path: this.getUpPath()};
+        //this.upBtn.fileItem = {type: 'dir', path: this.getUpPath()};
 
-            if (typeOf(pCallback) == 'function') {
-                pCallback();
-            }
+        if (typeOf(pCallback) == 'function') {
+            pCallback();
+        }
 
-            if (this.dragMove) {
-                this.dragMove.droppables = $$(this.dragMove.options.droppables);
-                this.dragMove.positions = this.dragMove.droppables.map(function(el) {
-                    return el.getCoordinates();
-                });
-            }
-
-        }.bind(this)}).get({ path: pPath });
+        if (this.dragMove) {
+            this.dragMove.droppables = $$(this.dragMove.options.droppables);
+            this.dragMove.positions = this.dragMove.droppables.map(function(el) {
+                return el.getCoordinates();
+            });
+        }
     },
 
     setAddress: function(path) {
@@ -971,6 +1142,10 @@ ka.Files = new Class({
     render: function(data) {
         this.win.setParameters({path: this.currentFile.path});
 
+        if (this.preparedFor !== this.currentFile) {
+            this.prepareRender();
+        }
+
         if (this.currentFile.type == 'file') {
             this.renderFile(data);
         } else {
@@ -978,53 +1153,195 @@ ka.Files = new Class({
         }
     },
 
-    renderFile: function(data) {
+    prepareRender: function() {
+        this.preparedFor = this.currentFile;
+
+        this.fileContainer.removeClass('ka-Files-imageContainer');
+
+        if (this.currentFile.type == 'file') {
+            this.prepareRenderFile();
+        } else {
+            this.prepareRenderFiles();
+        }
+    },
+
+    loadImage: function(path, callback) {
+        this.curRequest = new Request({
+            url: _pathAdmin + 'admin/file/image',
+            noCache: 1,
+            onComplete: function() {
+                this.renderLoaded({}, path, callback);
+            }.bind(this),
+            onProgress: this.renderFileProgress.bind(this)
+        });
+
+        this.curRequest.get({path: path});
+    },
+
+    prepareRenderFiles: function() {
+        this.fileContainer.empty();
+    },
+
+    renderFileProgress: function(event) {
+        var value = parseInt(event.loaded / event.total * 100, 10)
+        this.editorContainerProgress.setValue(value);
+    },
+
+    prepareRenderFile: function() {
         this.fileContainer.empty();
 
-        this.editorActionBar = new Element('div', {
-            'class': 'ka-Full-top ka-ActionBar',
-            style: 'height: 48px; text-align: right; padding-right: 5px; background-color: #f6f6f6;'
-        }).inject(this.fileContainer);
 
-        var buttonGroup = new ka.ButtonGroup(this.editorActionBar);
+        if (!this.isImage(this.currentFile)) {
+            this.editorContainer = new Element('div', {
+                'class': 'ka-Full'
+            }).inject(this.fileContainer);
 
-        buttonGroup.addButton(t('Reset'));
+            var mode = 'text';
+            var modes = {
+                'php': 'php',
+                'js': 'javascript',
+                'css': 'css'
+            };
 
-        var versionsSelect = new ka.Select();
-        versionsSelect.add('xy', t('Version xy'));
-        versionsSelect.inject(buttonGroup);
+            mode = modes[this.currentFile.extension] || mode;
 
-        new ka.Button(t('Save')).setButtonStyle('blue').inject(this.editorActionBar);
+            this.editor = new ka.Field({
+                type: 'codemirror',
+                noWrapper: true,
+                inputHeight: '100%',
+                codemirrorOptions: {
+                    mode: mode
+                }
+            }, this.editorContainer);
+        } else {
+            //image
+            this.fileContainer.addClass('ka-Files-imageContainer');
 
-        this.editorContainer = new Element('div', {
-            'class': 'ka-Full',
-            style: 'top: 48px; border-top: 1px solid #e0e0e0'
-        }).inject(this.fileContainer);
+            this.imageEditorTable = new Element('table', {
+                width: '100%',
+                height: '100%',
+                cellpadding: 0,
+                cellspacing: 0
+            });
+            this.imageEditorTr = new Element('tr').inject(this.imageEditorTable);
+            this.imageEditorTd = new Element('td').inject(this.imageEditorTr);
 
-        var mode = 'text';
+            this.editorContainer = new Element('div', {
+                'class': 'ka-Files-render-image'
+            }).inject(this.imageEditorTd);
 
-        var modes = {
-            'php': 'php',
-            'js': 'javascript',
-            'css': 'css'
-        };
+            this.imageEditorTable.inject(this.fileContainer);
+            this.image = new Element('img').inject(this.editorContainer);
 
-        mode = modes[this.currentFile.extension] || mode;
+            this.statusBarSelected.empty();
 
-        this.editor = new ka.Field({
-            type: 'codemirror',
-            noWrapper: true,
-            inputHeight: '100%',
-            codemirrorOptions: {
-                mode: mode
+            this.editorStatusBarLeft = new Element('div', {
+                'class': 'ka-Files-render-statusBar-left'
+            }).inject(this.statusBarSelected);
+
+            this.editorStatusBarMiddle = new Element('div', {
+                'class': 'ka-Files-render-statusBar-middle'
+            }).inject(this.statusBarSelected);
+
+            this.editorStatusBarRight = new Element('div', {
+                'class': 'ka-Files-render-statusBar-right'
+            }).inject(this.statusBarSelected);
+
+            this.renderZoom = new ka.Select(this.editorStatusBarRight, {
+                })
+                .addEvent('change', function(value){
+                    this.setImageZoom(value);
+                }.bind(this))
+                .inject(this.editorStatusBarLeft);
+
+            this.renderRotateLeft = new ka.Button(['', '#icon-reload-CCW', 'Rotate left'])
+                .addEvent('click', function() {
+                    this.caman.rotate(-90).render();
+                    this.setImageZoom();
+                }.bind(this))
+                .inject(this.editorStatusBarRight);
+
+            this.renderRotateRight = new ka.Button(['', '#icon-reload-CW', 'Rotate right'])
+                .addEvent('click', function() {
+                    this.caman.rotate(90).render();
+                    this.setImageZoom();
+                }.bind(this))
+                .inject(this.editorStatusBarRight);
+        }
+
+        this.editorContainerProgress = new ka.Progress(t('Loading ...'));
+        this.editorContainerProgress.inject(this.editorContainer);
+    },
+
+    setImageDefaultZoom: function() {
+        var maxSize = this.fileContainer.getSize();
+
+        var ratio = 100;
+        if (maxSize.x > maxSize.y) {
+            //use height
+            if (this.caman.originalWidth > this.caman.originalHeight) {
+                ratio = 100 / (this.caman.originalWidth / maxSize.x);
+            } else {
+                ratio = 100 / (this.caman.originalHeight / maxSize.y);
             }
-        }, this.editorContainer);
+        } else {
+            //y > x
+            if (this.caman.originalHeight > this.caman.originalWidth) {
+                ratio = 100 / (this.caman.originalHeight / maxSize.x);
+            } else {
+                ratio = 100 / (this.caman.originalWidth / maxSize.y);
+            }
+        }
 
-        this.editor.setValue(data);
+        ratio = Math.floor(ratio) - 2;
+
+        this.renderZoom.empty();
+
+        var last = 0;
+        Array.each([10, 25, 50, 75, 100, 200], function(item){
+            if (ratio > last && ratio < item) {
+                this.renderZoom.add(ratio, ratio+'%');
+            }
+            this.renderZoom.add(item, item+'%');
+            last = item;
+        }.bind(this));
+
+        this.renderZoom.setValue(ratio);
+        this.setImageZoom(ratio);
+    },
+
+    setImageZoom: function(ratio) {
+        if (!ratio) ratio = this.currentRatio;
+        this.currentRatio = ratio;
+        console.log(this.caman);
+        this.editorContainer.setStyles({
+             width: this.caman.width * (ratio/100),
+            height: this.caman.height * (ratio/100)
+        });
+    },
+
+    renderFile: function(data) {
+
+        if (!this.isImage(this.currentFile)) {
+            this.editor.setValue(data || '');
+        } else {
+            var url = _pathAdmin + 'admin/file/image?' + Object.toQueryString({
+                path: this.currentFile.path
+            });
+            this.image.set('src', url);
+
+            this.image.onload = function() {
+                this.caman = Caman(this.image, function(){
+                    this.editorContainerProgress.destroy();
+                    delete this.editorContainerProgress;
+                    this.setImageDefaultZoom();
+                }.bind(this));
+            }.bind(this);
+
+        }
     },
 
     renderFiles: function(data) {
-
         this.files = data;
         this.fileContainer.empty();
 
@@ -1660,6 +1977,10 @@ ka.Files = new Class({
         }
 
         delete this.lastPreviewedItem;
+    },
+
+    isImage: function(file) {
+        return file.extension && this.imageExtensions.contains(file.extension);
     },
 
     updatePreview: function() {
@@ -2593,7 +2914,7 @@ ka.Files = new Class({
 
     },
 
-    newversion: function(pFile) {
+    newVersion: function(pFile) {
 
         new Request.JSON({url: _pathAdmin + 'admin/file/version', onComplete: function(res) {
             ka.helpsystem.newBubble(_('New version created'), pFile.path, 3000);

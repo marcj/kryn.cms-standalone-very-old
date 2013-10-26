@@ -27,6 +27,10 @@ ka.Progress = new Class({
         }
     },
 
+    destroy: function() {
+        this.main.destroy();
+    },
+
     setValue: function (pValue) {
         if (!pValue) {
             pValue = 0;

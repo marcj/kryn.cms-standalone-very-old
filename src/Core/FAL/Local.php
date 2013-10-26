@@ -444,17 +444,7 @@ class Local extends AbstractFAL
             return false;
         }
 
-        $handle = @fopen($path, "r");
-        $fs = @filesize($path);
-
-        if ($fs > 0) {
-            $content = @fread($handle, $fs);
-        }
-
-        @fclose($handle);
-
-        return $content;
-
+        return file_get_contents($path);
     }
 
     /**

@@ -899,6 +899,11 @@ ka.alreadyLocked = function (pWin, pResult) {
 
 }
 
+/**
+ *
+ * @param {Number} bytes
+ * @returns {String}
+ */
 ka.bytesToSize = function (bytes) {
     var sizes = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB'];
     if (!bytes) {
@@ -910,6 +915,26 @@ ka.bytesToSize = function (bytes) {
     }
     return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i];
 };
+
+/**
+ *
+ * @param {Number} seconds
+ *
+ * @return {String}
+ */
+ka.dateTime = function (seconds) {
+    var date = new Date(seconds * 1000);
+    var nowSeconds = new Date().getTime();
+    var diffForThisWeek = 3600 * 24 * 7;
+
+    var format = '%d. %B %Y, %H:%M';
+    if (nowSeconds - date < diffForThisWeek) {
+        //include full day name if date is within current week.
+        format = '%a., ' + format;
+    }
+
+    return date.format(format);
+}
 
 ka.getDomain = function (pRsn) {
     var result = [];
@@ -1140,6 +1165,7 @@ ka.openDialog = function (item) {
             offset: item.offset
         }
     }
+
     if (!item.secondary) {
         item.secondary = {
             'position': 'upperRight',
@@ -1171,12 +1197,17 @@ ka.openDialog = function (item) {
 
         if (height) {
             if (item.minHeight && height < item.minHeight) {
-                item.element.position(item.secondary);
+                var currentTop = item.element.getStyle('top').toInt();
+                var offsetY = (item.offset ? item.offset.y : 0) || 0;
+                item.element.setStyle('top',
+                    currentTop - item.element.getSize().y - item.target.getSize().y + 1 + (offsetY*-1)
+                );
+                //item.element.position(item.secondary);
             } else {
                 item.element.setStyle('height', height);
             }
         }
-    }
+    };
 
     updatePosition();
     autoPositionLastOverlay.updatePosition = updatePosition;
@@ -1389,9 +1420,3 @@ ka.generateNoise = function (element, opacity) {
 
     element.style.backgroundImage = "url(" + canvas.toDataURL("image/png") + ")";
 }
-
-/*
- initSmallTiny
- initTiny
- initResizeTiny
- initTinyWithoutResize*/

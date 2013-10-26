@@ -29,9 +29,10 @@ ka.Button = new Class({
             pText.inject(this.main);
         } else if (typeOf(pText) == 'array') {
             this.main.empty();
+            this.main.set('title', pText[0]);
             new Element('span', {
                 text: pText[0]
-            }).inject(this.main)
+            }).inject(this.main);
 
             if (typeOf(pText[1]) == 'string') {
                 if (pText[0] !== '') {
@@ -65,7 +66,6 @@ ka.Button = new Class({
     },
 
     setEnabled: function (pEnabled) {
-
         if (this.enabled === pEnabled) {
             return;
         }
@@ -155,7 +155,7 @@ ka.Button = new Class({
     },
 
     show: function () {
-        this.main.setStyle('display', 'inline-block');
+        this.main.setStyle('display');
     },
 
     hide: function () {
@@ -164,6 +164,10 @@ ka.Button = new Class({
 
     isHidden: function () {
         return this.main.getStyle('display') == 'none';
+    },
+
+    setVisible: function(visible) {
+        visible ? this.show() : this.hide();
     },
 
     activate: function () {

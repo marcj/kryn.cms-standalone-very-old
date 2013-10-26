@@ -251,7 +251,6 @@ ka.Select = new Class({
     },
 
     prepareOptions: function () {
-
         if (this.options.items) {
             if (typeOf(this.options.items) == 'object') {
                 Object.each(this.options.items, function (label, id) {
@@ -296,7 +295,6 @@ ka.Select = new Class({
             this.objectFields = fields;
 
         }
-
     },
 
     focus: function () {
@@ -565,7 +563,6 @@ ka.Select = new Class({
 
         this.reset();
         this.loadItems();
-
     },
 
     loadItems: function () {
@@ -861,18 +858,24 @@ ka.Select = new Class({
     },
 
     remove: function (pId) {
-        if (typeOf(this.items[ pId ]) == 'null') {
-            return;
+        var removed = null;
+        Array.each(this.items, function(item){
+            if (null !== removed) return;
+
+            if (item.id === pId) {
+                var pos = this.items.indexOf(item);
+                this.items.splice(pos, 1);
+                removed = item.id;
+                return false;
+            }
+        }.bind(this));
+
+        if (removed === this.value) {
+            this.selectFirst();
         }
-
-        this.hideOption(pId);
-        delete this.items[pId];
-        delete this.a[pId];
-
     },
 
     addSplit: function (pLabel) {
-
         this.items.push({
             label: pLabel,
             isSplit: true
@@ -949,12 +952,10 @@ ka.Select = new Class({
     },
 
     empty: function () {
-
-        this.items = {};
+        this.items = [];
         this.value = null;
         this.title.set('html', '');
         this.chooser.empty();
-
     },
 
     getLabel: function (pId, pCallback) {
@@ -1082,7 +1083,6 @@ ka.Select = new Class({
     },
 
     close: function (pInternal) {
-
         this.chooser.dispose();
         this.box.removeClass('ka-Select-box-open');
         this.reset();

@@ -2,6 +2,7 @@
 
 namespace Admin\Controller;
 
+use Core\File\FileSize;
 use Core\Kryn;
 use Core\Models\Base\FileQuery;
 use Core\Permission;
@@ -222,7 +223,12 @@ class File
         } else {
             return WebFile::getContent($path);
         }
+    }
 
+    public function getBinary($path)
+    {
+        $content = $this->getContent($path);
+        die($content);
     }
 
     /**
@@ -250,27 +256,37 @@ class File
 
         $blacklistedFiles = array('/index.php' => 1, '/install.php' => 1);
 
-        $imageTypes = array('jpg', 'jpeg', 'png', 'bmp', 'gif');
         foreach ($files as $key => $file) {
             $file = $file->toArray();
             if (!Permission::checkListExact('core:file', array('id' => $file['id']))) continue;
 
             if (isset($blacklistedFiles[$file['path']]) | (!$showHiddenFiles && substr($file['path'], 0, 2) == '/.')) {
-                unset($files[$key]);
+                continue;
             } else {
                 $file['writeAccess'] = Permission::checkUpdate('Core\\File', array('id' => $file['id']));
-
-                if (array_search($file['extension'], $imageTypes) !== false) {
-                    $content = WebFile::getContent($file['path']);
-                    $image = \PHPImageWorkshop\ImageWorkshop::initFromString($content);
-
-                    $file['dimensions'] = array('width' => $image->getWidth(), 'height' => $image->getHeight());
-                }
+                self::appendImageInformation($file);
             }
             $result[] = $file;
         }
 
         return $result;
+    }
+
+    public static function appendImageInformation(&$file) {
+        $imageTypes = array('jpg', 'jpeg', 'png', 'bmp', 'gif');
+
+        if (array_search($file['extension'], $imageTypes) !== false) {
+            $content = WebFile::getContent($file['path']);
+
+            $size = new FileSize();
+            $size->setHandleFromBinary($content);
+
+            $file['imageType'] = $size->getType();
+            $size = $size->getSize();
+            if ($size) {
+                $file['dimensions'] = ['width' => $size[0], 'height' => $size[1]];
+            }
+        }
     }
 
     public function search($path, $q, $depth = 1)
@@ -294,8 +310,9 @@ class File
         $file = $file->toArray();
         $file['writeAccess'] = Permission::checkUpdate('Core\\File', $file['id']);
 
-        return $file;
+        self::appendImageInformation($file);
 
+        return $file;
     }
 
     /**
@@ -317,6 +334,38 @@ class File
         header('Content-type: image/png');
 
         imagepng($image->getResult(), null, 8);
+        exit;
+    }
+
+
+    /**
+     * Displays a image.
+     *
+     * @param string $path
+     */
+    public function showImage($path)
+    {
+        $content = \Core\WebFile::getContent($path);
+        $image = \PHPImageWorkshop\ImageWorkshop::initFromString($content);
+
+        $result = $image->getResult();
+
+        $size = new FileSize();
+        $size->setHandleFromBinary($content);
+
+        $expires = 3600;
+        header("Pragma: public");
+        header("Cache-Control: maxage=" . $expires);
+        header('Expires: ' . gmdate('D, d M Y H:i:s', time() + $expires) . ' GMT');
+
+        if ('png' === $size->getType()) {
+            header('Content-Type: image/png');
+            imagepng($result, null, 3);
+        } else {
+            header('Content-Type: image/jpeg');
+            imagejpeg($result, null, 100);
+        }
+
         exit;
     }
 
