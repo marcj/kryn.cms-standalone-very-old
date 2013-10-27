@@ -246,27 +246,9 @@ ka.Files = new Class({
         });
 
         document.id(this.headerLayout).addClass('ka-Files-header');
-
         var actionsContainer = this.headerLayout.getCell(1, 1);
 
         actionsContainer.setStyle('white-space', 'nowrap');
-
-        //        var boxNavi = new ka.ButtonGroup(actionsContainer, {onlyIcons: true});
-        //
-        //        var toLeft = new Element('img', {
-        //            src: _path + 'bundles/admin/images/admin-files-toLeft.png'
-        //        });
-        //        boxNavi.addButton(t('Back'), '#icon-arrow-left-15', function () {
-        //            this.goHistory('left');
-        //        }.bind(this));
-        //
-        //        boxNavi.addButton(t('Forward'), '#icon-arrow-right-15', function () {
-        //            this.goHistory('right');
-        //        }.bind(this));
-        //
-        //        this.upBtn = boxNavi.addButton(t('Up'), '#icon-arrow-up-14', this.up.bind(this));
-        //        this.upBtn.fileObj = this;
-
         var sidebar = this.win.getSidebar();
 
         new Element('h2', {
@@ -289,9 +271,7 @@ ka.Files = new Class({
         this.typeButtons = new Hash();
 
         this.typeButtons['icon'] = this.boxTypes.addIconButton(t('Icon view'), '#icon-grid-2', this.setListType.bind(this, 'icon', null, null));
-
         this.typeButtons['miniatur'] = this.boxTypes.addIconButton(t('Image view'), '#icon-images', this.setListType.bind(this, 'miniatur', null, 70));
-
         this.typeButtons['detail'] = this.boxTypes.addIconButton(t('Detail view'), '#icon-list-4', this.setListType.bind(this, 'detail', null, null));
 
         //address
@@ -446,6 +426,10 @@ ka.Files = new Class({
             if (this.options.withSidebar) {
                 this.mainLayout.getCell(1, 2).destroy(); //destroy the ka-Layout-cell so the ka-Splitter can be moved
             }
+        }
+
+        if (this.options.withSidebar) {
+            this.renderTree();
         }
 
         this.setListType('icon', true); //TODO retrieve cookie
@@ -762,32 +746,47 @@ ka.Files = new Class({
 
     renameSelected: function() {
         var selected = this.getSelectedFilesAsArray();
-        if (!selected.length) return;
-        this.rename(selected[0]);
+        if (selected.length) {
+            this.rename(selected[0]);
+        } else {
+            this.rename(this.currentFile, function(renamed, to) {
+                if (renamed) {
+                    this.current = this.currentFile.path = this.currentFile.dir + '/'+to;
+                    this.currentFile.name = to;
+                    this.setAddress(this.current);
+                    this.updateSidebar();
+                }
+            }.bind(this));
+        }
     },
 
-    rename: function(pFile) {
+    rename: function(pFile, callback) {
         this.win.prompt(_('Rename') + ': ', pFile.name, function(name) {
             if (!name) {
+                if (callback) callback(false);
                 return;
             }
-            this.move(this.current + pFile.name, this.current + name);
+            this.move(this.current + pFile.name, this.current + name, null, function(renamed){
+                if (callback) callback(renamed, name);
+            });
         }.bind(this));
     },
 
-    move: function(pPath, pNewPath, pOverwrite) {
-
-        new Request.JSON({url: _pathAdmin + 'admin/file/move', onComplete: function(res) {
-            if (res.file_exists == 1) {
-                this.win._confirm(_('The new filename already exists. Overwrite?'), function(answer) {
+    move: function(pPath, pNewPath, pOverwrite, callback) {
+        new Request.JSON({url: _pathAdmin + 'admin/file/move', onComplete: function(response) {
+            if (response.data && response.data.targetExists) {
+                this.win.confirm(_('The new filename already exists. Overwrite?'), function(answer) {
                     if (answer) {
-                        this.move(pPath, pNewPath, true);
+                        this.move(pPath, pNewPath, true, callback);
+                    } else {
+                        if (callback) callback(false);
                     }
                 }.bind(this));
             } else {
+                if (callback) callback(!!response.data);
                 this.reload();
             }
-        }.bind(this)}).post({path: pPath, newPath: pNewPath, overwrite: pOverwrite ? 1 : 0});
+        }.bind(this)}).post({path: pPath, target: pNewPath, overwrite: pOverwrite ? 1 : 0});
     },
 
     remove: function() {
@@ -941,7 +940,6 @@ ka.Files = new Class({
     renderTree: function() {
         if (!this.sideTree) {
             this.sideTree = new ka.Field({
-                label: t('Nodes'),
                 type: 'tree',
                 noWrapper: true,
                 object: 'Core\\File'
@@ -951,14 +949,9 @@ ka.Files = new Class({
                 this.loadPath(item.path);
             }.bind(this));
         }
-
-        if (this.sideTree.select) {
-            this.sideTree.select(this.currentFile.id);
-        }
     },
 
     newInfoItem: function(pFile) {
-
         if (pFile.type != 'dir') {
             return;
         }
@@ -1032,12 +1025,15 @@ ka.Files = new Class({
                     } else {
                         this.load(pPath);
                     }
-
                 }.bind(this)}).get({path: pPath});
             return;
         }
 
         this.setAddressFakerAsFile(this.currentFile.type == 'file');
+
+        if (this.sideTree) {
+            this.sideTree.setValue(this.currentFile.id);
+        }
 
         this.prepareRender();
 
@@ -1095,10 +1091,6 @@ ka.Files = new Class({
         this.setAddress(this.current);
 
         this.render(pResponse.data);
-
-        if (this.options.withSidebar) {
-            this.renderTree();
-        }
 
         this.updateStatusBar();
 
@@ -1190,7 +1182,6 @@ ka.Files = new Class({
     prepareRenderFile: function() {
         this.fileContainer.empty();
 
-
         if (!this.isImage(this.currentFile)) {
             this.editorContainer = new Element('div', {
                 'class': 'ka-Full'
@@ -1227,7 +1218,8 @@ ka.Files = new Class({
             this.imageEditorTd = new Element('td').inject(this.imageEditorTr);
 
             this.editorContainer = new Element('div', {
-                'class': 'ka-Files-render-image'
+                'class': 'ka-Files-render-image',
+                style: 'width: 1px; height: 1px;'
             }).inject(this.imageEditorTd);
 
             this.imageEditorTable.inject(this.fileContainer);
@@ -1248,25 +1240,19 @@ ka.Files = new Class({
             }).inject(this.statusBarSelected);
 
             this.renderZoom = new ka.Select(this.editorStatusBarRight, {
-                })
-                .addEvent('change', function(value){
+            }).addEvent('change', function(value) {
                     this.setImageZoom(value);
-                }.bind(this))
-                .inject(this.editorStatusBarLeft);
+                }.bind(this)).inject(this.editorStatusBarLeft);
 
-            this.renderRotateLeft = new ka.Button(['', '#icon-reload-CCW', 'Rotate left'])
-                .addEvent('click', function() {
+            this.renderRotateLeft = new ka.Button(['', '#icon-reload-CCW', 'Rotate left']).addEvent('click', function() {
                     this.caman.rotate(-90).render();
                     this.setImageZoom();
-                }.bind(this))
-                .inject(this.editorStatusBarRight);
+                }.bind(this)).inject(this.editorStatusBarRight);
 
-            this.renderRotateRight = new ka.Button(['', '#icon-reload-CW', 'Rotate right'])
-                .addEvent('click', function() {
+            this.renderRotateRight = new ka.Button(['', '#icon-reload-CW', 'Rotate right']).addEvent('click', function() {
                     this.caman.rotate(90).render();
                     this.setImageZoom();
-                }.bind(this))
-                .inject(this.editorStatusBarRight);
+                }.bind(this)).inject(this.editorStatusBarRight);
         }
 
         this.editorContainerProgress = new ka.Progress(t('Loading ...'));
@@ -1298,11 +1284,11 @@ ka.Files = new Class({
         this.renderZoom.empty();
 
         var last = 0;
-        Array.each([10, 25, 50, 75, 100, 200], function(item){
+        Array.each([10, 25, 50, 75, 100, 200], function(item) {
             if (ratio > last && ratio < item) {
-                this.renderZoom.add(ratio, ratio+'%');
+                this.renderZoom.add(ratio, ratio + '%');
             }
-            this.renderZoom.add(item, item+'%');
+            this.renderZoom.add(item, item + '%');
             last = item;
         }.bind(this));
 
@@ -1313,15 +1299,13 @@ ka.Files = new Class({
     setImageZoom: function(ratio) {
         if (!ratio) ratio = this.currentRatio;
         this.currentRatio = ratio;
-        console.log(this.caman);
         this.editorContainer.setStyles({
-             width: this.caman.width * (ratio/100),
-            height: this.caman.height * (ratio/100)
+            width: this.caman.width * (ratio / 100),
+            height: this.caman.height * (ratio / 100)
         });
     },
 
     renderFile: function(data) {
-
         if (!this.isImage(this.currentFile)) {
             this.editor.setValue(data || '');
         } else {
@@ -1331,13 +1315,12 @@ ka.Files = new Class({
             this.image.set('src', url);
 
             this.image.onload = function() {
-                this.caman = Caman(this.image, function(){
+                this.caman = Caman(this.image, function() {
                     this.editorContainerProgress.destroy();
                     delete this.editorContainerProgress;
                     this.setImageDefaultZoom();
                 }.bind(this));
             }.bind(this);
-
         }
     },
 
@@ -1562,7 +1545,7 @@ ka.Files = new Class({
     },
 
     startSelector: function(pEvent) {
-
+        if ('dir' !== this.currentFile.type) return;
         var offset = this.fileContainer.getPosition(document.body);
         var scroll = this.fileContainer.getScroll();
         this.selectorMaxSizePos = this.fileContainer.getScrollSize();
@@ -1691,7 +1674,6 @@ ka.Files = new Class({
         });
 
         this.selectorDrag.start(pEvent);
-
     },
 
     checkMouseDown: function(pEvent) {
@@ -2193,7 +2175,6 @@ ka.Files = new Class({
     },
 
     startDrag: function(pEvent, pItem) {
-
         this.drag = true;
 
         this.lastDragTimer = (function() {
@@ -2202,7 +2183,6 @@ ka.Files = new Class({
             }
 
         }).delay(300, this);
-
     },
 
     _startDrag: function(pEvent, pItem) {

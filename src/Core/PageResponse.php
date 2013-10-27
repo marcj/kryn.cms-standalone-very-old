@@ -251,7 +251,7 @@ class PageResponse extends Response
     {
         $this->prepare(Kryn::getRequest());
 
-        $this->setCharset('UTF-8');
+        $this->setCharset('utf-8');
 
         $html = $this->buildHtml();
         $this->setContent($html);

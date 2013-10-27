@@ -340,6 +340,7 @@ class AdminController
                     ->addPostRoute('folder', 'createFolder')
                     ->addGetRoute('search', 'search')
 
+                    ->addGetRoute('move', 'moveFile')
                     ->addGetRoute('single', 'getFile')
                     ->addGetRoute('preview', 'showPreview')
                     ->addPostRoute('upload', 'doUpload')

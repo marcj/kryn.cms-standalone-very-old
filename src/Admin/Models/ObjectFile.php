@@ -211,8 +211,17 @@ class ObjectFile extends \Core\ORM\Propel
         $limit = $options['limit'];
         $result = array();
 
+
+        $blacklistedFiles = array('/index.php' => 1, '/install.php' => 1);
+        $showHiddenFiles = false; //todo
+
         foreach ($files as $file) {
             $file = $file->toArray();
+
+            if (isset($blacklistedFiles[$file['path']]) | (!$showHiddenFiles && substr($file['name'], 0, 1) == '.')) {
+                continue;
+            }
+
             if ($condition && $condition->hasRules() && !$condition->satisfy($file, 'core:file')) {
                 continue;
             }

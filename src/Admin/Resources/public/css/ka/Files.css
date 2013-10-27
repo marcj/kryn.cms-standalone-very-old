@@ -139,7 +139,7 @@ div.ka-Files-addressFaker + .ka-buttonGroup-item {
 .admin-files-status-bar-loader {
     position: absolute;
     right: 5px;
-    top: 3px;
+    top: 6px;
 }
 
 .admin-files-fileContainer-selected {
@@ -514,7 +514,7 @@ table.ka-files-search-table tr:hover td {
 
 .ka-Files-render-statusBar-right {
     float: right;
-    margin-right: 15px;
+    margin-right: 30px;
 }
 
 .ka-Files-render-statusBar-middle {

@@ -39,6 +39,18 @@ class File
         return WebFile::createFile($path, $content);
     }
 
+    public function moveFile($path, $target, $overwrite = false)
+    {
+        if (!$overwrite && WebFile::exists($target)){
+            return ['targetExists' => true];
+        }
+
+        $this->checkAccess($path);
+        $this->checkAccess($target);
+
+        return WebFile::move($path, $target);
+    }
+
     /**
      * @param string $target
      * @param array  $files
@@ -54,6 +66,8 @@ class File
         }
         return WebFile::paste($files, $target, $move ? 'move' : 'copy');
     }
+
+
 
     /**
      * Creates a folder
@@ -78,11 +92,20 @@ class File
      */
     public function checkAccess($path)
     {
+        $file = null;
+
         try {
             $file = WebFile::getFile($path);
         } catch (\FileNotExistException $e) {
-            $file = WebFile::getFile(dirname($path));
+            while ('/' !== $path) {
+                try {
+                    $path = dirname($path);
+                    $file = WebFile::getFile($path);
+                } catch (\FileNotExistException $e) {
+                }
+            }
         }
+
         if ($file && !Permission::checkUpdate('Core\\File', array('id' => $file->getId()))) {
             throw new \AccessDeniedException(tf('No access to file `%s`', $path));
         }
@@ -260,7 +283,7 @@ class File
             $file = $file->toArray();
             if (!Permission::checkListExact('core:file', array('id' => $file['id']))) continue;
 
-            if (isset($blacklistedFiles[$file['path']]) | (!$showHiddenFiles && substr($file['path'], 0, 2) == '/.')) {
+            if (isset($blacklistedFiles[$file['path']]) | (!$showHiddenFiles && substr($file['name'], 0, 1) == '.')) {
                 continue;
             } else {
                 $file['writeAccess'] = Permission::checkUpdate('Core\\File', array('id' => $file['id']));
