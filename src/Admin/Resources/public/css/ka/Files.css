@@ -494,6 +494,10 @@ table.ka-files-search-table tr:hover td {
     /*transition: all 0.3s ease-out;*/
 }
 
+.ka-Files-imageContainer {
+    bottom: 41px;
+}
+
 .ka-Files-imageContainer > table td {
     vertical-align: middle;
     text-align: center;
@@ -525,4 +529,19 @@ table.ka-files-search-table tr:hover td {
 .ka-Files-render-statusBar-left {
     float: left;
     margin-left: 15px;
+}
+
+.ka-Files-statusBar-image {
+    -webkit-transition: all 0.3s ease-out;
+    -moz-transition: all 0.3s ease-out;
+    -o-transition: all 0.3s ease-out;
+    transition: all 0.3s ease-out;
+
+    height: 40px;
+    line-height: 40px;
+}
+
+
+.ka-Files-statusBar-image > div {
+    padding-top: 5px;
 }

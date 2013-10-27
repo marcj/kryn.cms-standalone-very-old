@@ -418,7 +418,7 @@ ka.Files = new Class({
         this.loader = new ka.Loader(this.loaderContainer, {
         });
 
-        this.statusBarSelected = new Element('span').inject(this.statusBar);
+        this.statusBarSelected = new Element('div').inject(this.statusBar);
 
         if (this.options.fixed) {
             this.fileContainer.addClass('admin-files-fileContainer-fixed');
@@ -1147,6 +1147,7 @@ ka.Files = new Class({
 
     prepareRender: function() {
         this.preparedFor = this.currentFile;
+        this.caman = null;
 
         this.fileContainer.removeClass('ka-Files-imageContainer');
 
@@ -1171,6 +1172,7 @@ ka.Files = new Class({
     },
 
     prepareRenderFiles: function() {
+        this.statusBar.removeClass('ka-Files-statusBar-image');
         this.fileContainer.empty();
     },
 
@@ -1195,6 +1197,10 @@ ka.Files = new Class({
             };
 
             mode = modes[this.currentFile.extension] || mode;
+
+            this.statusBar.removeClass('ka-Files-statusBar-image');
+
+            this.statusBarSelected.set('text', ka.bytesToSize(this.currentFile.size));
 
             this.editor = new ka.Field({
                 type: 'codemirror',
@@ -1225,6 +1231,8 @@ ka.Files = new Class({
             this.imageEditorTable.inject(this.fileContainer);
             this.image = new Element('img').inject(this.editorContainer);
 
+            this.statusBar.addClass('ka-Files-statusBar-image');
+
             this.statusBarSelected.empty();
 
             this.editorStatusBarLeft = new Element('div', {
@@ -1244,6 +1252,10 @@ ka.Files = new Class({
                     this.setImageZoom(value);
                 }.bind(this)).inject(this.editorStatusBarLeft);
 
+            this.renderCrop = new ka.Button(['Crop', '#icon-crop', 'Crop image']).addEvent('click', function() {
+                    this.showCropUtils();
+                }.bind(this)).inject(this.editorStatusBarLeft);
+
             this.renderRotateLeft = new ka.Button(['', '#icon-reload-CCW', 'Rotate left']).addEvent('click', function() {
                     this.caman.rotate(-90).render();
                     this.setImageZoom();
@@ -1256,6 +1268,16 @@ ka.Files = new Class({
         }
 
         this.editorContainerProgress = new ka.Progress(t('Loading ...'));
+        document.id(this.editorContainerProgress).setStyles({
+            top: this.fileContainer.getSize().y/2 + 50,
+            opacity: 0
+        });
+
+        this.editorContainerProgressFx = new Fx.Morph(this.editorContainerProgress);
+        this.editorContainerProgressFx.start({
+            top: this.fileContainer.getSize().y/2,
+            opacity: 1
+        });
         this.editorContainerProgress.inject(this.editorContainer);
     },
 
@@ -1305,6 +1327,13 @@ ka.Files = new Class({
         });
     },
 
+    showCropUtils: function() {
+        if (this.imageCropUtils) return;
+
+        this.imageCropUtils = new ka.ui.ImageCrop(this.fileContainer);
+
+    },
+
     renderFile: function(data) {
         if (!this.isImage(this.currentFile)) {
             this.editor.setValue(data || '');
@@ -1317,11 +1346,15 @@ ka.Files = new Class({
             Caman.allowRevert = false;
 
             this.image.onload = function() {
-                this.editorContainerProgress.destroy();
+                //this.editorContainerProgress.destroy();
                 this.caman = Caman(this.image, function() {
-                    this.editorContainerProgress.destroy();
-                    delete this.editorContainerProgress;
                     this.setImageDefaultZoom();
+                    this.editorContainerProgressFx.start({
+                        top: this.fileContainer.getSize().y/2 - 50,
+                        opacity: 0
+                    }).chain(function(){
+                            this.editorContainerProgress.destroy();
+                        }.bind(this));
                 }.bind(this));
             }.bind(this);
         }
