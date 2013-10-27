@@ -306,7 +306,6 @@ ka.FieldTypes.Tree = new Class({
     },
 
     setValue: function (pValue) {
-
         Array.each(this.trees, function (tree) {
             tree.setValue(pValue);
         });

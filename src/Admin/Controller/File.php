@@ -381,6 +381,8 @@ class File
         header("Cache-Control: maxage=" . $expires);
         header('Expires: ' . gmdate('D, d M Y H:i:s', time() + $expires) . ' GMT');
 
+        ob_start();
+
         if ('png' === $size->getType()) {
             header('Content-Type: image/png');
             imagepng($result, null, 3);
@@ -388,6 +390,9 @@ class File
             header('Content-Type: image/jpeg');
             imagejpeg($result, null, 100);
         }
+
+        header("Content-Length: ". ob_get_length());
+        ob_end_flush();
 
         exit;
     }

@@ -1175,7 +1175,7 @@ ka.Files = new Class({
     },
 
     renderFileProgress: function(event) {
-        var value = parseInt(event.loaded / event.total * 100, 10)
+        var value = parseInt(event.loaded / event.total * 100, 10);
         this.editorContainerProgress.setValue(value);
     },
 
@@ -1314,7 +1314,10 @@ ka.Files = new Class({
             });
             this.image.set('src', url);
 
+            Caman.allowRevert = false;
+
             this.image.onload = function() {
+                this.editorContainerProgress.destroy();
                 this.caman = Caman(this.image, function() {
                     this.editorContainerProgress.destroy();
                     delete this.editorContainerProgress;
@@ -1368,17 +1371,14 @@ ka.Files = new Class({
 
         this.fileContainer.appendChild(this.filesFragment);
         this.loadImagesInViewPort();
-
     },
 
     loadImagesInViewPort: function() {
-
         if (this.lastLoadImagesInViewPortTimer) {
             clearTimeout(this.lastLoadImagesInViewPortTimer);
         }
 
         this.lastLoadImagesInViewPortTimer = this._loadImagesInViewPort.delay(100, this);
-
     },
 
     _loadImagesInViewPort: function() {

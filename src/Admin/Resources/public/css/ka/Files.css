@@ -488,10 +488,10 @@ table.ka-files-search-table tr:hover td {
 .ka-Files-render-image {
     overflow: hidden;
     margin: auto;
-    -webkit-transition: all 0.3s ease-out;
-    -moz-transition: all 0.3s ease-out;
-    -o-transition: all 0.3s ease-out;
-    transition: all 0.3s ease-out;
+    /*-webkit-transition: all 0.3s ease-out;*/
+    /*-moz-transition: all 0.3s ease-out;*/
+    /*-o-transition: all 0.3s ease-out;*/
+    /*transition: all 0.3s ease-out;*/
 }
 
 .ka-Files-imageContainer > table td {
