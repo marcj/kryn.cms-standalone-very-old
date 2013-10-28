@@ -1337,7 +1337,9 @@ ka.Files = new Class({
             padding: '0 60px'
         });
 
-        this.editorContainerProgressFx = new Fx.Morph(this.editorContainerProgress);
+        this.editorContainerProgressFx = new Fx.Morph(this.editorContainerProgress, {
+            link: 'cancel'
+        });
         this.editorContainerProgressFx.start({
             top: this.fileContainer.getSize().y/2,
             opacity: 1
