@@ -1350,7 +1350,6 @@ ka.ObjectTree = new Class({
             this.lastSelectedObject = this.rootA.objectEntry;
         } else {
             this.startupWithObjectInfo(id, function() {
-                console.log(this.load_object_children);
                 Array.each(this.load_object_children, function(cid) {
                     if (this.items[cid]) {
                         this.openChildren(this.items[cid]);

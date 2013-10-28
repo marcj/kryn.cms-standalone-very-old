@@ -2,7 +2,14 @@ ka.ui = ka.ui || {};
 
 ka.ui.ImageCrop = new Class({
 
-    initialize: function(container) {
+    Implements: [Options],
+
+    options: {
+        initRelativeTo: null
+    },
+
+    initialize: function(container, options) {
+        this.setOptions(options);
         this.container = container;
         this.createLayout();
     },
@@ -25,18 +32,9 @@ ka.ui.ImageCrop = new Class({
                 }
             }).inject(this.main);
         }.bind(this));
-        Array.each(['top', 'right', 'bottom', 'left'], function(direction) {
-            var name = 'overlay' + direction.ucfirst();
-            this[name] = new Element('div', {
-                'class': 'ka-ui-ImageCrop-overlay ka-ui-ImageCrop-' + name,
-                styles: {
-                    opacity: 0.9
-                }
-            }).inject(this.main);
-        }.bind(this));
 
         this.win = new Element('div', {
-            'class': 'ka-ui-imageCrop-window',
+            'class': 'ka-ui-ImageCrop-window',
             styles: {
                 height: '200px',
                 width: '200px'
@@ -45,7 +43,7 @@ ka.ui.ImageCrop = new Class({
         this.main.inject(this.container);
 
         this.win.position({
-            relativeTo: this.main
+            relativeTo: this.options.initRelativeTo || this.main
         });
 
         this.setupSizer();
@@ -64,7 +62,7 @@ ka.ui.ImageCrop = new Class({
     setupSizer: function() {
         this.sizer = {};
 
-        ['n', 'e', 's', 'w', 'ne','se', 'sw', 'nw'].each(function(item) {
+        ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw'].each(function(item) {
             this.sizer[item] = new Element('div', {
                 'class': 'ka-ui-ImageCrop-sizer ka-ui-ImageCrop-sizer-' + item
             }).inject(this.win);
@@ -73,7 +71,7 @@ ka.ui.ImageCrop = new Class({
         this.win.dragX = 0;
         this.win.dragY = 0;
 
-        var canvasSize = this.canvasSize || this.main.getSize();
+        var canvasSize = this.canvasSize || this.main.getScrollSize();
 
         var minWidth = 50;
         var minHeight = 50;
@@ -104,7 +102,6 @@ ka.ui.ImageCrop = new Class({
                     max = canvasSize;
                 },
                 onDrag: function(pElement, pEvent) {
-
                     if (key === 'n' || key == 'ne' || key == 'nw') {
                         newHeight = height - pElement.dragY;
                         newY = y + pElement.dragY;
@@ -123,19 +120,34 @@ ka.ui.ImageCrop = new Class({
                         newX = x + pElement.dragX;
                     }
 
-                    if (newWidth !== null && (newWidth > max.x || newWidth < minWidth)) {
+                    if (newWidth !== null && newWidth < minWidth) {
                         newWidth = newX = null;
                     }
 
-                    if (newHeight !== null && (newHeight > max.y || newHeight < minHeight)) {
+                    if (newX !== null && newX < 0) {
+                        newX = 0;
+                    }
+                    if (newY !== null && newY < 0){
+                        newY = 0;
+                    }
+
+                    if (newWidth !== null && newWidth+(null !== newX ? newX : 0 || x) > max.x) {
+                        newWidth = max.x - (null !== newX ? newX : 0 || x);
+                    }
+
+                    if (newHeight !== null && newHeight < minHeight) {
                         newHeight = newY = null;
                     }
 
-                    if (newX !== null && newX > 0) {
+                    if (newHeight !== null && newHeight+(null !== newY ? newY : 0 || y) > max.y) {
+                        newHeight = max.y - (null !== newY ? newY : 0 || y);
+                    }
+
+                    if (newX !== null && newX >= 0) {
                         pElement.setStyle('left', newX);
                     }
 
-                    if (newY !== null && newY > 0) {
+                    if (newY !== null && newY >= 0) {
                         pElement.setStyle('top', newY);
                     }
 
@@ -146,7 +158,6 @@ ka.ui.ImageCrop = new Class({
                     if (newHeight !== null) {
                         pElement.setStyle('height', newHeight);
                     }
-
 
                     if (newWidth !== null || newHeight !== null || newX !== null || newY !== null) {
                         this.updateOverlay();
@@ -160,24 +171,38 @@ ka.ui.ImageCrop = new Class({
 
     updateOverlay: function() {
         var coordinates = this.win.getCoordinates(this.main);
-        //        var size          = this.win.getSize();
-        var canvasSize = this.canvasSize || (this.canvasSize = this.main.getSize());
+        var canvasSize = this.canvasSize || (this.canvasSize = this.main.getScrollSize());
 
-        //
-        //        console.log(coordinates);
-        //        console.log(canvasSize, size);
-        this.overlayTop.setStyle('height', coordinates.top);
-        this.overlayBottom.setStyle('height', canvasSize.y - coordinates.bottom);
+        this.overlayTop.setStyle('height', coordinates.top > 0 ? coordinates.top : 0);
+        this.overlayBottom.setStyle(
+            'height',
+            canvasSize.y - coordinates.bottom > 0 ? canvasSize.y - coordinates.bottom : 0
+        );
 
         this.overlayLeft.setStyles({
-            width: coordinates.left,
+            width: coordinates.left > 0 ? coordinates.left : 0,
             top: coordinates.top,
             bottom: canvasSize.y - coordinates.bottom
         });
         this.overlayRight.setStyles({
-            width: canvasSize.x - coordinates.right,
+            width: canvasSize.x - coordinates.right > 0 ? canvasSize.x - coordinates.right : 0,
             top: coordinates.top,
             bottom: canvasSize.y - coordinates.bottom
         });
+    },
+
+    destroy: function(){
+        this.main.destroy();
+    },
+
+    getSelection: function() {
+        var size = this.win.getSize();
+        var pos  = this.win.getPosition(this.main);
+        return {
+            width: size.x,
+            height: size.y,
+            left: pos.x,
+            top: pos.y
+        };
     }
 });

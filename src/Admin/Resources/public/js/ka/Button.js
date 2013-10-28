@@ -8,12 +8,14 @@ ka.Button = new Class({
      * @param {String}       pOnClick
      * @param {String}       pTooltip
      */
-    initialize: function (pTitle, pOnClick, pTooltip) {
+    initialize: function(pTitle, pOnClick, pTooltip) {
         this.main = new Element('a', {
             'class': 'ka-Button',
             href: 'javascript:void(0)',
             title: (pTooltip) ? pTooltip : null
         });
+
+        this.mainLabel = new Element('span').inject(this.main);
 
         this.main.kaButton = this;
 
@@ -24,15 +26,18 @@ ka.Button = new Class({
         }
     },
 
-    setText: function (pText) {
+    setText: function(pText) {
+        if (this.lastIconClass) {
+            this.main.removeClass(this.lastIconClass);
+            delete this.lastIconClass;
+        }
+
         if (typeOf(pText) == 'element' && pText.inject) {
-            pText.inject(this.main);
+            pText.inject(this.mainLabel);
         } else if (typeOf(pText) == 'array') {
-            this.main.empty();
+            this.mainLabel.empty();
             this.main.set('title', pText[0]);
-            new Element('span', {
-                text: pText[0]
-            }).inject(this.main);
+            this.mainLabel.set('text', pText[0]);
 
             if (typeOf(pText[1]) == 'string') {
                 if (pText[0] !== '') {
@@ -40,22 +45,24 @@ ka.Button = new Class({
                 }
 
                 if (pText[1].substr(0, 1) == '#') {
+                    this.lastIconClass = pText[1].substr(1);
                     this.main.addClass(pText[1].substr(1));
                 } else {
                     new Element('img', {
                         src: ka.mediaPath(pText[1])
-                    }).inject(this.main, 'top');
+                    }).inject(this.mainLabel, 'top');
                 }
             }
         } else {
-            this.main.empty();
-            new Element('span', {
-                text: pText
-            }).inject(this.main)
+            this.mainLabel.set('text', pText);
         }
     },
 
-    setButtonStyle: function (pStyle) {
+    getText: function() {
+        return this.mainLabel.get('text');
+    },
+
+    setButtonStyle: function(pStyle) {
         if (this.oldButtonStyle) {
             this.main.removeClass('ka-Button-' + this.oldButtonStyle);
         }
@@ -65,7 +72,7 @@ ka.Button = new Class({
         return this;
     },
 
-    setEnabled: function (pEnabled) {
+    setEnabled: function(pEnabled) {
         if (this.enabled === pEnabled) {
             return;
         }
@@ -94,29 +101,29 @@ ka.Button = new Class({
 
     },
 
-    toElement: function () {
+    toElement: function() {
         return this.main;
     },
 
-    inject: function (pTarget, pWhere) {
+    inject: function(pTarget, pWhere) {
         this.main.inject(pTarget, pWhere);
         return this;
     },
 
-    addEvent: function (pType, pFn) {
+    addEvent: function(pType, pFn) {
         (this.$eventsBackuper || this.main).addEvent(pType, pFn);
         return this;
     },
 
-    fireEvent: function (pType, pParams) {
+    fireEvent: function(pType, pParams) {
         (this.$eventsBackuper || this.main).fireEvent(pType, pParams);
     },
 
-    focus: function () {
+    focus: function() {
         this.main.focus();
     },
 
-    startTip: function (pText) {
+    startTip: function(pText) {
         if (!this.toolTip) {
             this.toolTip = new ka.Tooltip(this.main, pText);
         }
@@ -125,26 +132,87 @@ ka.Button = new Class({
         this.toolTip.show();
     },
 
+    startLoading: function(text) {
+        this.mainLabel.dispose();
+        if (this.loadingLabel) this.loadingLabel.destroy();
+
+        this.loadingLabel = new Element('span', {
+            text: text
+        }).inject(this.main);
+
+        if (this.lastIconClass) {
+            this.main.removeClass(this.lastIconClass);
+        }
+
+        this.main.addClass('ka-Button-loading');
+    },
+
+    setProgress: function(value) {
+        if (!value) {
+            if (this.progress) this.progress.destroy();
+            return;
+        }
+
+        if (!this.progress) {
+            this.progress = new Element('div', {
+                'class': 'ka-Button-progress',
+                styles: {
+                    opacity: 0.7
+                }
+            }).inject(this.main, 'top');
+        }
+
+        this.progress.setStyle('width', value+'%');
+    },
+
+    stopLoading: function(text, highlightClass) {
+        this.main.removeClass('ka-Button-loading');
+
+        var displayOldText = function(){
+            this.loadingLabel.destroy();
+            this.mainLabel.inject(this.main);
+            if (this.lastIconClass) {
+                this.main.addClass(this.lastIconClass);
+            }
+            this.main.removeClass('ka-Button-stopLoading-' + highlightClass);
+        }.bind(this);
+
+        if (text) {
+            this.loadingLabel.set('text', text);
+            this.main.addClass('ka-Button-stopLoading-' + highlightClass);
+            displayOldText.delay(2000);
+        } else {
+            displayOldText();
+        }
+    },
+
+    doneLoading: function(text){
+        if (!text) text = t('Done');
+        this.stopLoading(text, 'done');
+    },
+
+    failedLoading: function(text){
+        if (!text) text = t('Done');
+        this.stopLoading(text, 'failed');
+    },
+
     /**
      *
      * @param {String} pText
      * @param {Integer} pDelay Default is 300
      */
-    startLaggedTip: function (pText, pDelay) {
-
+    startLaggedTip: function(pText, pDelay) {
         if (!this.toolTip) {
             this.toolTip = new ka.Tooltip(this.main, pText);
         }
 
         this.toolTip.setText(pText);
-        this.laggedTip = (function () {
-
+        this.laggedTip = (function() {
             this.toolTip.show();
-
         }).delay(pDelay ? pDelay : 300, this);
     },
 
-    stopTip: function (pText) {
+    stopTip: function(pText) {
         if (this.laggedTip) {
             clearTimeout(this.laggedTip);
         }
@@ -154,15 +222,15 @@ ka.Button = new Class({
         }
     },
 
-    show: function () {
+    show: function() {
         this.main.setStyle('display');
     },
 
-    hide: function () {
+    hide: function() {
         this.main.setStyle('display', 'none');
     },
 
-    isHidden: function () {
+    isHidden: function() {
         return this.main.getStyle('display') == 'none';
     },
 
@@ -170,15 +238,15 @@ ka.Button = new Class({
         visible ? this.show() : this.hide();
     },
 
-    activate: function () {
+    activate: function() {
         this.setEnabled(true);
     },
 
-    deactivate: function () {
+    deactivate: function() {
         this.setEnabled(false);
     },
 
-    setPressed: function (pressed) {
+    setPressed: function(pressed) {
         if (pressed) {
             this.main.addClass('ka-Button-pressed');
         } else {

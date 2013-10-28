@@ -488,6 +488,7 @@ table.ka-files-search-table tr:hover td {
 .ka-Files-render-image {
     overflow: hidden;
     margin: auto;
+    position: relative;
     /*-webkit-transition: all 0.3s ease-out;*/
     /*-moz-transition: all 0.3s ease-out;*/
     /*-o-transition: all 0.3s ease-out;*/
@@ -498,9 +499,13 @@ table.ka-files-search-table tr:hover td {
     bottom: 41px;
 }
 
-.ka-Files-imageContainer > table td {
+.ka-Files-imageContainer > div > table td {
     vertical-align: middle;
     text-align: center;
+}
+
+.ka-Files-imageContainer > div {
+    overflow: auto;
 }
 
 .ka-Files-render-image > img,

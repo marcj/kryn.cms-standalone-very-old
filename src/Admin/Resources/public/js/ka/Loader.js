@@ -5,7 +5,7 @@ ka.Loader = new Class({
 
     options: {
         loader: 'bundles/admin/images/loader-sprites-18.png',
-            spriteWidth: 18,
+        spriteWidth: 18,
         absolute: false,
         big: false,
         overlay: false
@@ -17,7 +17,6 @@ ka.Loader = new Class({
     posX: 0,
 
     initialize: function (pContainer, pOptions) {
-
         this.setOptions(pOptions);
 
         if (this.options.big) {

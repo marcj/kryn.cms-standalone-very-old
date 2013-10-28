@@ -360,6 +360,13 @@ class File
         exit;
     }
 
+    public function setContent($path, $content = '', $contentEncoding = 'plain') {
+        if ('base64' === $contentEncoding){
+            $content = base64_decode($content);
+        }
+        $this->checkAccess($path);
+        return WebFile::setContent($path, $content);
+    }
 
     /**
      * Displays a image.

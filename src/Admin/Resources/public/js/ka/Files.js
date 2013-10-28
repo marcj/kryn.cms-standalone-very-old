@@ -934,6 +934,8 @@ ka.Files = new Class({
     },
 
     reload: function() {
+        this.path2File = {};
+        delete this.currentFile;
         this.load(this.current);
     },
 
@@ -1148,6 +1150,7 @@ ka.Files = new Class({
     prepareRender: function() {
         this.preparedFor = this.currentFile;
         this.caman = null;
+        this.imageCropUtils = null;
 
         this.fileContainer.removeClass('ka-Files-imageContainer');
 
@@ -1158,17 +1161,59 @@ ka.Files = new Class({
         }
     },
 
+    save: function() {
+        var content = '';
+
+        if ('dir' === this.currentFile.type) return;
+
+        this.optionsBarSave.startLoading(t('Saving ...'));
+
+        this.lastSaveRequest = new Request.JSON({
+            url: _pathAdmin+ 'admin/file/content',
+            onProgress: function(event){
+                this.optionsBarSave.setProgress(parseInt(event.loaded / event.total * 100));
+            }.bind(this),
+            onComplete: function(response) {
+                if (!response.error) {
+                    this.optionsBarSave.doneLoading();
+                } else {
+                    this.optionsBarSave.failedLoading();
+                }
+                this.currentFile.modifiedTime = (new Date()).getTime();
+                this.optionsBarSave.setProgress(0);
+            }.bind(this)
+        });
+
+
+        var post = {
+            path: this.currentFile.path,
+            content: '',
+            contentEncoding: 'text/plain'
+        };
+
+        if (this.isImage(this.currentFile)) {
+            post.content = this.caman.toBase64().substr('data:image/png;base64,'.length);
+            post.contentEncoding = 'base64';
+        } else {
+            post.content = this.editor.getValue();
+        }
+
+        this.lastSaveRequest.post(post);
+    },
+
     loadImage: function(path, callback) {
         this.curRequest = new Request({
             url: _pathAdmin + 'admin/file/image',
-            noCache: 1,
             onComplete: function() {
                 this.renderLoaded({}, path, callback);
             }.bind(this),
             onProgress: this.renderFileProgress.bind(this)
         });
 
-        this.curRequest.get({path: path});
+        this.curRequest.get({
+            path: path,
+            mtime: this.currentFile.modifiedTime
+        });
     },
 
     prepareRenderFiles: function() {
@@ -1214,12 +1259,16 @@ ka.Files = new Class({
             //image
             this.fileContainer.addClass('ka-Files-imageContainer');
 
+            this.imageEditorTableContainer = new Element('div', {
+                'class': 'ka-Full'
+            }).inject(this.fileContainer);
+
             this.imageEditorTable = new Element('table', {
                 width: '100%',
                 height: '100%',
                 cellpadding: 0,
                 cellspacing: 0
-            });
+            }).inject(this.imageEditorTableContainer);
             this.imageEditorTr = new Element('tr').inject(this.imageEditorTable);
             this.imageEditorTd = new Element('td').inject(this.imageEditorTr);
 
@@ -1228,7 +1277,6 @@ ka.Files = new Class({
                 style: 'width: 1px; height: 1px;'
             }).inject(this.imageEditorTd);
 
-            this.imageEditorTable.inject(this.fileContainer);
             this.image = new Element('img').inject(this.editorContainer);
 
             this.statusBar.addClass('ka-Files-statusBar-image');
@@ -1252,9 +1300,16 @@ ka.Files = new Class({
                     this.setImageZoom(value);
                 }.bind(this)).inject(this.editorStatusBarLeft);
 
-            this.renderCrop = new ka.Button(['Crop', '#icon-crop', 'Crop image']).addEvent('click', function() {
-                    this.showCropUtils();
+            this.renderCrop = new ka.Button(['Crop', '#icon-crop']).addEvent('click', function() {
+                    this.toggleCropUtils();
                 }.bind(this)).inject(this.editorStatusBarLeft);
+
+            this.renderCropSave = new ka.Button(['Apply', '#icon-checkmark-6']).addEvent('click', function() {
+                    this.saveCropUtils();
+                }.bind(this)).inject(this.editorStatusBarLeft);
+
+            this.renderCropSave.setButtonStyle('blue');
+            this.renderCropSave.hide();
 
             this.renderRotateLeft = new ka.Button(['', '#icon-reload-CCW', 'Rotate left']).addEvent('click', function() {
                     this.caman.rotate(-90).render();
@@ -1270,7 +1325,11 @@ ka.Files = new Class({
         this.editorContainerProgress = new ka.Progress(t('Loading ...'));
         document.id(this.editorContainerProgress).setStyles({
             top: this.fileContainer.getSize().y/2 + 50,
-            opacity: 0
+            position: 'absolute',
+            opacity: 0,
+            left: this.fileContainer.getSize().y/2 - document.id(this.editorContainerProgress).getSize().x,
+            marginLeft: -30,
+            padding: '0 60px'
         });
 
         this.editorContainerProgressFx = new Fx.Morph(this.editorContainerProgress);
@@ -1278,7 +1337,7 @@ ka.Files = new Class({
             top: this.fileContainer.getSize().y/2,
             opacity: 1
         });
-        this.editorContainerProgress.inject(this.editorContainer);
+        this.editorContainerProgress.inject(this.imageEditorTableContainer);
     },
 
     setImageDefaultZoom: function() {
@@ -1287,21 +1346,25 @@ ka.Files = new Class({
         var ratio = 100;
         if (maxSize.x > maxSize.y) {
             //use height
-            if (this.caman.originalWidth > this.caman.originalHeight) {
-                ratio = 100 / (this.caman.originalWidth / maxSize.x);
+            if (this.caman.width > this.caman.height) {
+                ratio = 100 / (this.caman.width / maxSize.x);
             } else {
-                ratio = 100 / (this.caman.originalHeight / maxSize.y);
+                ratio = 100 / (this.caman.height / maxSize.y);
             }
         } else {
             //y > x
-            if (this.caman.originalHeight > this.caman.originalWidth) {
-                ratio = 100 / (this.caman.originalHeight / maxSize.x);
+            if (this.caman.height > this.caman.width) {
+                ratio = 100 / (this.caman.height / maxSize.x);
             } else {
-                ratio = 100 / (this.caman.originalWidth / maxSize.y);
+                ratio = 100 / (this.caman.width / maxSize.y);
             }
         }
 
         ratio = Math.floor(ratio) - 2;
+
+        if (ratio > 100) {
+            ratio = 100;
+        }
 
         this.renderZoom.empty();
 
@@ -1313,6 +1376,10 @@ ka.Files = new Class({
             this.renderZoom.add(item, item + '%');
             last = item;
         }.bind(this));
+
+        if (ratio > 200) {
+            this.renderZoom.add(ratio, ratio + '%');
+        }
 
         this.renderZoom.setValue(ratio);
         this.setImageZoom(ratio);
@@ -1327,11 +1394,40 @@ ka.Files = new Class({
         });
     },
 
-    showCropUtils: function() {
-        if (this.imageCropUtils) return;
+    toggleCropUtils: function() {
+        if (this.imageCropUtils) {
+            this.imageCropUtils.destroy();
+            this.imageCropUtils = null;
+            this.renderCropSave.hide();
+            this.renderCrop.setPressed(false);
+        } else {
+            this.renderCropSave.show();
+            this.renderCrop.setPressed(true);
 
-        this.imageCropUtils = new ka.ui.ImageCrop(this.fileContainer);
+            var scrollPos  = this.imageEditorTableContainer.getScroll();
+            var scrollSize = this.imageEditorTableContainer.getScrollSize();
 
+            this.imageCropUtils = new ka.ui.ImageCrop(this.editorContainer, {
+                initRelativeTo: this.imageEditorTableContainer
+            });
+        }
+    },
+
+    saveCropUtils: function() {
+        var selection = this.imageCropUtils.getSelection();
+        var ratio = this.renderZoom.getValue() || 100;
+
+        ratio = 100 / ratio;
+
+        this.caman.crop(selection.width*ratio, selection.height*ratio, selection.left*ratio, selection.top*ratio);
+        this.caman.render();
+
+        this.renderCropSave.hide();
+        this.imageCropUtils.destroy();
+        this.imageCropUtils = null;
+        this.renderCrop.setPressed(false);
+
+        this.setImageDefaultZoom();
     },
 
     renderFile: function(data) {
@@ -1339,7 +1435,8 @@ ka.Files = new Class({
             this.editor.setValue(data || '');
         } else {
             var url = _pathAdmin + 'admin/file/image?' + Object.toQueryString({
-                path: this.currentFile.path
+                path: this.currentFile.path,
+                mtime: this.currentFile.modifiedTime
             });
             this.image.set('src', url);
 
@@ -1349,12 +1446,13 @@ ka.Files = new Class({
                 //this.editorContainerProgress.destroy();
                 this.caman = Caman(this.image, function() {
                     this.setImageDefaultZoom();
+                    this.editorContainerProgress.setText('Loaded.');
                     this.editorContainerProgressFx.start({
                         top: this.fileContainer.getSize().y/2 - 50,
                         opacity: 0
                     }).chain(function(){
-                            this.editorContainerProgress.destroy();
-                        }.bind(this));
+                        this.editorContainerProgress.destroy();
+                    }.bind(this));
                 }.bind(this));
             }.bind(this);
         }
@@ -1437,7 +1535,7 @@ ka.Files = new Class({
 
                 var image = _pathAdmin + 'admin/file/preview?' + Object.toQueryString({
                     path: file.readyToLoadImage.path,
-                    mtime: file.readyToLoadImage.mtime,
+                    mtime: file.readyToLoadImage.modifiedTime,
                     width: file.imageContainer.getSize().x - 20,
                     height: file.imageContainer.getSize().y - 20
                 });
@@ -2018,7 +2116,7 @@ ka.Files = new Class({
             path: file.path,
             width: size.x,
             height: size.y,
-            mtime: file.mtime
+            mtime: file.modifiedTime
         });
 
         if (this.previewLoader) {
@@ -2515,7 +2613,7 @@ ka.Files = new Class({
             }
 
             rows.include([
-                image, file.name, size, new Date(file.mtime * 1000).format('db')
+                image, file.name, size, new Date(file.modifiedTime * 1000).format('db')
             ]);
 
         }.bind(this));

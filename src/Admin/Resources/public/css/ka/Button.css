@@ -3,6 +3,8 @@
     white-space: nowrap;
     padding: 0px 10px;
 
+    position: relative;
+
     cursor: default;
     color: #444;
     line-height: 28px;
@@ -24,6 +26,10 @@
 
     display: inline-block;
     border: 1px solid #ddd;
+}
+
+.ka-Button > span {
+    position: relative;
 }
 
 .ka-ActionBar .ka-Button,
@@ -84,6 +90,8 @@
 .ka-Button-pressed:hover,
 .ka-Button-pressed:active {
     background-color: #e8e8e8;
+    background-color: #f0f0f0;
+    border: 1px solid #d6d6d6;
 }
 
 div.button-list {
@@ -141,4 +149,34 @@ a.ka-Button-deactivate:hover {
     cursor: default;
     color: gray;
     background-color: transparent;
+}
+
+.ka-Button-loading:before {
+    content: url(../../images/loading.gif?v1);
+}
+
+.ka-Button-progress {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    background-color: gray;
+}
+
+.ka-Button-stopLoading-done,
+.ka-Button-stopLoading-failed {
+    -webkit-transition: all 0.3s ease-out;
+    -moz-transition: all 0.3s ease-out;
+    -o-transition: all 0.3s ease-out;
+    transition: all 0.3s ease-out;
+}
+
+body .ka-Window-sidebar .ka-Button-stopLoading-done,
+.ka-Button-stopLoading-done {
+    background-color: #487E48;
+}
+
+body .ka-Window-sidebar .ka-Button-stopLoading-failed,
+.ka-Button-stopLoading-failed {
+    background-color: #7E4848;
 }

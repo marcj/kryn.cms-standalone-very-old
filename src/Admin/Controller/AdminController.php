@@ -334,6 +334,7 @@ class AdminController
                 ->addSubController('file', '\Admin\Controller\File')
                     ->addGetRoute('', 'getContent')
                     ->addGetRoute('image', 'showImage')
+                    ->addPostRoute('content', 'setContent')
 
                     ->addPostRoute('', 'createFile')
                     ->addDeleteRoute('', 'deleteFile')
