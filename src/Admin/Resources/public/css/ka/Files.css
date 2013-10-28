@@ -469,6 +469,7 @@ table.ka-files-search-table tr:hover td {
     font-family: "SourceSansPro-Semibold";
     margin-top: 5px;
     font-size: 14px;
+    word-wrap: break-word;
 }
 
 .ka-Files-sidebar-more-information-title:before {

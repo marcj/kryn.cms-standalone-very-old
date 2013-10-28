@@ -278,7 +278,6 @@ ka.FileUploader = new Class({
 
     startHtml5Upload: function(pFileId) {
         var file = this.html5FileUploads[ pFileId ];
-        console.log(pFileId, file);
 
         var xhr = new XMLHttpRequest();
 
@@ -290,9 +289,7 @@ ka.FileUploader = new Class({
             }.bind(this), false);
 
             xhr.onreadystatechange = function(e) {
-                console.log(xhr.readyState);
                 if (xhr.readyState == 4) {
-                    console.log(xhr.status);
                     if (xhr.status == 200) {
                         this.uploadComplete(file);
                     } else {
@@ -312,13 +309,11 @@ ka.FileUploader = new Class({
 
             file.post[window._session.tokenid] = window._session.sessionid;
             var url = _pathAdmin + "admin/file/upload?" + Object.toQueryString(file.post);
-            console.log(url);
             xhr.open('POST', url, true);
 
             xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 
             var formData = new FormData();
-            console.log(file);
             formData.append('file', file);
             formData.append('penis', 'hallo');
             xhr.send(formData);
@@ -591,7 +586,6 @@ ka.FileUploader = new Class({
                 this.uploadTrs[ pFile.id ].status.set('html', '<span style="color: red">' + t('Canceled') + '</span>');
             } else {
                 var text = t('Unknown error');
-                console.log(pResponseText);
                 if (xhr) {
                     try {
                         switch (xhr.status) {

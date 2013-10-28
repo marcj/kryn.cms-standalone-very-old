@@ -936,6 +936,9 @@ ka.Files = new Class({
     reload: function() {
         this.path2File = {};
         delete this.currentFile;
+        if (this.sideTree) {
+            this.sideTree.getFieldObject().reloadSelected();
+        }
         this.load(this.current);
     },
 

@@ -1255,12 +1255,10 @@ ka.ObjectTree = new Class({
     },
 
     reloadSelected: function() {
-
         var item = this.getSelectedElement();
         if (item) {
             this.reloadChildren(item);
         }
-
     },
 
     isReady: function() {

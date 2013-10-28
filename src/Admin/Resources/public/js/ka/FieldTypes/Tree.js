@@ -261,6 +261,14 @@ ka.FieldTypes.Tree = new Class({
         }
     },
 
+    reloadSelected: function(){
+        if (0 < this.trees.length) {
+            this.trees.each(function(tree){
+                tree.reloadSelected();
+            }.bind(this));
+        }
+    },
+
     getSelectedTree: function () {
         var selected = null;
         Array.each(this.trees, function (tree) {
