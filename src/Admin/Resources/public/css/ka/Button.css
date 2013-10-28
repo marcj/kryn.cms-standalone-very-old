@@ -172,11 +172,15 @@ a.ka-Button-deactivate:hover {
 }
 
 body .ka-Window-sidebar .ka-Button-stopLoading-done,
+body .ka-Window-sidebar .ka-Button-stopLoading-done:hover,
+.ka-Button-stopLoading-done:hover,
 .ka-Button-stopLoading-done {
     background-color: #487E48;
 }
 
 body .ka-Window-sidebar .ka-Button-stopLoading-failed,
+body .ka-Window-sidebar .ka-Button-stopLoading-failed:hover,
+.ka-Button-stopLoading-failed:hover,
 .ka-Button-stopLoading-failed {
     background-color: #7E4848;
 }

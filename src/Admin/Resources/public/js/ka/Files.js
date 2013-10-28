@@ -1184,6 +1184,11 @@ ka.Files = new Class({
             }.bind(this)
         });
 
+        if (this.lastSaveRequest.xhr.upload) {
+            this.lastSaveRequest.xhr.upload.addEventListener('progress', function(event){
+                this.optionsBarSave.setProgress(parseInt(event.loaded / event.total * 100));
+            }.bind(this));
+        }
 
         var post = {
             path: this.currentFile.path,
