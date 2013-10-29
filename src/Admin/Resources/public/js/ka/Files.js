@@ -1413,7 +1413,9 @@ ka.Files = new Class({
             }
         }
 
-        ratio = Math.floor(ratio) - 2;
+        ratio = Math.floor(ratio) - 10;
+
+        if (0 >= ratio) ratio = 1;
 
         if (ratio > 100) {
             ratio = 100;
