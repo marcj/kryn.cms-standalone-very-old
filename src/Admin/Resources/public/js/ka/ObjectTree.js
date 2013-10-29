@@ -111,6 +111,8 @@ ka.ObjectTree = new Class({
 
     },
 
+    dndOnlyInside: false,
+
     loadChildrenRequests: {},
 
     loadingDone: false,
@@ -130,7 +132,6 @@ ka.ObjectTree = new Class({
     objectDefinition: null,
 
     initialize: function(pContainer, pOptions, pRefs) {
-
         this.items = {};
 
         this.setOptions(pOptions);
@@ -991,7 +992,7 @@ ka.ObjectTree = new Class({
 
                 pA.toggler.setStyle('visibility');
 
-                if (typeOf(pResponse.data) == 'array' && pResponse.data.length == 0) {
+                if ('array' !== typeOf(pResponse.data) || pResponse.data.length == 0) {
                     pA.toggler.setStyle('visibility', 'hidden');
                     return;
                 }
@@ -1073,9 +1074,9 @@ ka.ObjectTree = new Class({
                     var size = pEvent.target.getSize();
                     var mrposy = pEvent.client.y - pos.y;
 
-                    if (mrposy < size.y / 3) {
+                    if (!this.dndOnlyInside && mrposy < size.y / 3) {
                         this.createDropElement(element, 'before');
-                    } else if (mrposy > ((size.y / 3) * 2)) {
+                    } else if (!this.dndOnlyInside && mrposy > ((size.y / 3) * 2)) {
                         this.createDropElement(element, 'after');
                     } else {
                         //middle
