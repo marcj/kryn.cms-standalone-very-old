@@ -166,7 +166,14 @@ ka.Select = new Class({
          *
          * @var {Boolean}
          */
-        selectFirst: true
+        selectFirst: true,
+
+        /**
+         * Selects the first entry if the value is null.
+         *
+         * @var {Boolean}
+         */
+        selectFirstOnNull: true
 
     },
 
@@ -1044,7 +1051,11 @@ ka.Select = new Class({
         }
 
         if (typeOf(this.value) == 'null' || null === this.value) {
-            return this.title.set('text', '');
+            if (!this.options.selectFirstOnNull) {
+                return this.title.set('text', '');
+            } else {
+                return this.selectFirst();
+            }
         }
 
         this.getLabel(this.value, function (item) {
