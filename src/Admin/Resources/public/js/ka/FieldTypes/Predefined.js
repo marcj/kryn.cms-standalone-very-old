@@ -1,4 +1,4 @@
-ka.FieldTypes.Predfined = new Class({
+ka.FieldTypes.Predefined = new Class({
     Extends: ka.FieldAbstract,
 
     Statics: {
