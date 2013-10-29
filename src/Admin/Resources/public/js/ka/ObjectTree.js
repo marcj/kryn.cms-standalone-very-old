@@ -781,7 +781,6 @@ ka.ObjectTree = new Class({
 
         a.childrenLoaded = (pItem._children) ? true : false;
 
-
         if (this.opens[a.pk]) {
             this.openChildren(a);
         }
@@ -989,6 +988,8 @@ ka.ObjectTree = new Class({
                 }
 
                 pA.childrenLoaded = true;
+
+                pA.toggler.setStyle('visibility');
 
                 if (typeOf(pResponse.data) == 'array' && pResponse.data.length == 0) {
                     pA.toggler.setStyle('visibility', 'hidden');
