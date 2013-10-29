@@ -158,6 +158,10 @@ ka.FieldTypes.Tree = new Class({
             this.options.scopeChooser = this.definition.nestedRootAsObject ? true : false;
         }
 
+        if (null !== this.options.selectObject) {
+            this.selectObject = this.options.selectObject;
+        }
+
         if (null === this.options.moveable) {
             this.options.moveable =
                 typeOf(this.definition.treeMoveable) !== 'null' ? this.definition.treeMoveable : true;
@@ -265,6 +269,14 @@ ka.FieldTypes.Tree = new Class({
         if (0 < this.trees.length) {
             this.trees.each(function(tree){
                 tree.reloadSelected();
+            }.bind(this));
+        }
+    },
+
+    reload: function(){
+        if (0 < this.trees.length) {
+            this.trees.each(function(tree){
+                tree.reload();
             }.bind(this));
         }
     },
