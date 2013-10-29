@@ -300,7 +300,7 @@ ka.WindowAdd = new Class({
         var fieldObject;
 
         objectOptions.type = 'tree';
-        objectOptions.objectKey = this.classProperties.object;
+        objectOptions.object = this.classProperties.object;
         objectOptions.scopeChooser = false;
         objectOptions.noWrapper = true;
         objectOptions.selectable = false;
@@ -309,7 +309,6 @@ ka.WindowAdd = new Class({
         var lastSelected;
 
         var choosePosition = function(pChooser, pDom, pDirection, pItem, pTree) {
-
             if (lastSelected) {
                 lastSelected.removeClass('ka-objectTree-positionChooser-item-active');
             }
@@ -318,8 +317,7 @@ ka.WindowAdd = new Class({
             lastSelected.addClass('ka-objectTree-positionChooser-item-active');
 
             fieldObject.fireEvent('positionChoose', [pDom, pDirection, pItem, pChooser, pTree]);
-
-        }
+        };
 
         var addChooser = function(pDom, pDirection, pItem, pTree) {
             var div;
