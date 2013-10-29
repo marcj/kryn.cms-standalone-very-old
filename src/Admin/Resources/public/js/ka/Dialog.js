@@ -128,7 +128,7 @@ ka.Dialog = new Class({
 
         if (!this.options.noBottom) {
             this.bottom = new Element('div', {
-                'class': 'ka-dialog-bottom'
+                'class': 'ka-dialog-bottom ka-ActionBar'
             }).inject(this.main);
         }
 

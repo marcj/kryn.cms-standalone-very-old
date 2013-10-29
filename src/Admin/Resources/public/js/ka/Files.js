@@ -15,7 +15,8 @@ ka.Files = new Class({
     imageExtensions: ['jpg', 'jpeg', 'gif', 'png', 'bmp'],
     textExtensions: ['html', 'js', 'scss', 'sass', 'less', 'css', 'txt'],
     __ext: ['.css', '.tpl', '.js', '.html', '.htm'],
-    _krynFolders: ['/kryn/', '/css/', '/images/', '/js/', '/admin/'],
+
+    systemFolders: ['/', '/bundles', '/cache'],
 
     options: {
 
@@ -522,10 +523,18 @@ ka.Files = new Class({
         }
 
         Array.each(selected, function(file) {
-            if (!file.writeAccess) {
+            if (!file.writeAccess || this.systemFolders.contains(file.path)) {
                 enabled.optionsBarCut = false;
                 enabled.optionsBarRename = false;
                 enabled.optionsBarDelete = false;
+            }
+            if (file.path === this.currentFile) {
+                this.optionsBarOpen = false;
+            }
+            if (this.systemFolders.contains(file.path)) {
+                enabled.optionsBarCopy = false;
+                enabled.optionsBarRename = false;
+                enabled.optionsBarCopyLink = false;
             }
             if ('dir' !== file.type) {
                 openText = t('Edit');
@@ -941,11 +950,15 @@ ka.Files = new Class({
     },
 
     reload: function() {
+        if (this.sideTree) {
+            if ('/' === this.currentFile.path) {
+                this.sideTree.getFieldObject().reload();
+            } else {
+                this.sideTree.getFieldObject().reloadSelected();
+            }
+        }
         this.path2File = {};
         delete this.currentFile;
-        if (this.sideTree) {
-            this.sideTree.getFieldObject().reloadSelected();
-        }
         this.load(this.current);
     },
 
@@ -1269,9 +1282,12 @@ ka.Files = new Class({
     prepareRenderFile: function() {
         this.fileContainer.empty();
         this.fileContainer.removeClass('ka-Files-fileContainer-iframe');
+        this.fileContainer.removeClass('ka-Files-fileContainer-editor');
+        this.statusBar.removeClass('ka-Files-statusBar-image');
+
 
         if (!this.isImage(this.currentFile)) {
-            this.statusBar.removeClass('ka-Files-statusBar-image');
+            this.fileContainer.addClass('ka-Files-fileContainer-editor');
 
             if (this.isText(this.currentFile)) {
                 this.editorContainer = new Element('div', {
@@ -2673,162 +2689,6 @@ ka.Files = new Class({
 
             }
         }.bind(this));
-
-    },
-
-    destroyContext: function() {
-        if (this.context) {
-            this.context.destroy();
-        }
-        delete this.context;
-    },
-
-    openContext: function(pFile, pEvent) {
-
-        if (this.context) {
-            this.context.destroy();
-        }
-
-        if (pFile.path == '/trash') {
-            return;
-        }
-
-        this.context = new Element('div', {
-            'class': 'admin-files-context'
-        }).inject(this.win.border);
-
-        if (pFile.path.substr(0, 6) == '/trash') {
-            //pressed on a item in the trash folder
-
-            var recover = new Element('a', {
-                html: _('Recover')
-            }).addEvent('click', function() {
-                    this.recover(pFile);
-                }.bind(this)).inject(this.context)
-
-            var remove = new Element('a', {
-                'class': 'delimiter',
-                html: _('Remove')
-            }).addEvent('click', this.remove.bind(this, pFile)).inject(this.context);
-
-        } else {
-
-            if (this.currentFile.path != pFile.path) {
-                var open = new Element('a', {
-                    html: _('Open')
-                }).addEvent('click', function() {
-                        this.loadPath(pFile.path);
-                    }.bind(this)).inject(this.context)
-            }
-
-            var openExternal = new Element('a', {
-                html: _('Open external'),
-                target: '_blank',
-                href: this.getDownloadUrl(pFile)
-            }).inject(this.context)
-
-            if (this.currentFile.path == pFile.path) {
-                //clicked on the background
-
-                var paste = new Element('a', {
-                    html: _('Paste (strg+v)')
-                }).addEvent('click', this.paste.bind(this)).inject(this.context);
-
-            } else {
-
-                var cut = new Element('a', {
-                    'class': 'delimiter',
-                    html: _('Cut (strg+x)')
-                }).addEvent('click', this.cut.bind(this)).inject(this.context);
-
-                var copy = new Element('a', {
-                    html: _('Copy (strg+c)')
-                }).addEvent('click', this.copy.bind(this)).inject(this.context);
-
-                var duplicate = new Element('a', {
-                    html: _('Duplicate')
-                }).addEvent('click', this.duplicate.bind(this, pFile)).inject(this.context);
-
-                var newversion = new Element('a', {
-                    html: _('New version')
-                }).addEvent('click', this.newversion.bind(this, pFile)).inject(this.context);
-
-                var remove = new Element('a', {
-                    'class': 'delimiter',
-                    html: _('Remove')
-                }).addEvent('click', this.remove.bind(this, pFile)).inject(this.context);
-
-                var rename = new Element('a', {
-                    html: _('Rename')
-                }).addEvent('click', this.rename.bind(this, pFile)).inject(this.context);
-            }
-
-            var settings = new Element('a', {
-                'class': 'delimiter',
-                html: _('Properties')
-            }).addEvent('click',function() {
-                    ka.wm.open('admin/file/properties', pFile);
-                }).inject(this.context);
-
-        }
-
-        var deactivate = function(item) {
-            if (!item) {
-                return;
-            }
-            item.addClass('notactive')
-            item.removeEvents('click');
-        }
-
-        var selectedFiles = this.getSelectedFiles();
-
-        if (Object.getLength(selectedFiles) > 1 || pFile.type == 'dir') {
-            if (duplicate) {
-                duplicate.destroy();
-            }
-            if (newversion) {
-                newversion.destroy();
-            }
-        }
-
-        if (Object.getLength(selectedFiles) > 1) {
-            deactivate(open);
-            deactivate(openExternal);
-            deactivate(settings);
-            deactivate(rename);
-        }
-
-        if (ka.getClipboard().type != 'filemanager' && ka.getClipboard().type != 'filemanagerCut') {
-            deactivate(paste);
-        }
-
-        Object.each(selectedFiles, function(myfile) {
-
-            if (myfile.magic || myfile.writeaccess != true || this._krynFolders.indexOf(myfile.path + '/') >= 0 || this._modules.indexOf(myfile.path + '/') >= 0) {
-                //no writeaccess
-                deactivate(cut);
-                deactivate(remove);
-                deactivate(rename);
-                deactivate(newversion);
-            }
-
-            if (myfile.magic) {
-                deactivate(settings);
-                deactivate(openExternal);
-            }
-
-        }.bind(this));
-
-        if (this.currentFile.writeaccess != true) {
-            deactivate(paste);
-        }
-
-        var pos = this.win.border.getPosition(document.body);
-
-        this.context.setStyles({
-            left: (parseInt(pEvent.client.x) + 4 - pos.x) + 'px',
-            top: (parseInt(pEvent.client.y) + 4 - pos.y) + 'px'
-        });
 
     },
 

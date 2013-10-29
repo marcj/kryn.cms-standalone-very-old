@@ -118,7 +118,8 @@ div.ka-Files-addressFaker + .ka-buttonGroup-item {
     bottom: 31px;
 }
 
-.ka-Files-fileContainer-iframe {
+.ka-Files-fileContainer-iframe,
+.ka-Files-fileContainer-editor {
     padding: 0;
     overflow: hidden;
 }

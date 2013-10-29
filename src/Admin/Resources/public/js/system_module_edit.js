@@ -63,7 +63,7 @@ var admin_system_module_edit = new Class({
         }).inject(this.panes['plugins']);
 
         this.pluginTBody = new Element('table', {
-            'class': 'ka-Table-head ka-Table-body',
+            'class': 'ka-Table-head ka-Table-body ka-Table-hover',
             style: 'position: relative; top: 0px; background-color: #eee; width: 100%; table-layout: auto;',
             cellpadding: 0, cellspacing: 0
         }).inject(this.pluginsPane);
@@ -420,7 +420,7 @@ var admin_system_module_edit = new Class({
         this.windowsPaneItems = p;
 
         this.windowsTBody = new Element('table', {
-            'class': 'ka-Table-head ka-Table-body',
+            'class': 'ka-Table-head ka-Table-body ka-Table-hover',
             style: 'position: relative; top: 0px; background-color: #eee',
             cellpadding: 0, cellspacing: 0
         }).inject(this.windowsPaneItems);
@@ -778,7 +778,7 @@ var admin_system_module_edit = new Class({
         }).inject(this.panes['entryPoints']);
 
         this.entryPointsTable = new Element('table', {
-            'class': 'ka-Table-body'
+            'class': 'ka-Table-body ka-Table-hover'
         });
 
         this.entryPointsHeader = new Element('table', {

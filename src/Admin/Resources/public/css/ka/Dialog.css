@@ -44,9 +44,7 @@
 .ka-dialog-bottom {
     position: relative;
     text-align: right;
-    height: 40px;
-    line-height: 40px;
-    padding: 0 5px;
+    padding-right: 5px;
 }
 
 .ka-dialog-content {
