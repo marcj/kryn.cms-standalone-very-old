@@ -57,7 +57,6 @@ Features
 Screenshot
 ----------
 
-![Kryn.cms](https://raw.github.com/kryncms/Kryn.cms/refactoring/documentation/images/kryn-photo.jpg)
 ![Administration Dashboard](https://raw.github.com/kryncms/Kryn.cms/refactoring/documentation/images/admin-dashboard.png)
 ![Administration Frontend Edit](https://raw.github.com/kryncms/Kryn.cms/refactoring/documentation/images/admin-frontend-edit.png)
 ![Administration File manager](https://raw.github.com/kryncms/Kryn.cms/refactoring/documentation/images/admin-files-context-image.png)

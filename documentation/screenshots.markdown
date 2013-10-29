@@ -4,8 +4,6 @@ Screenshots
 General
 -------
 
-![Administration movie](https://raw.github.com/kryncms/Kryn.cms/refactoring/documentation/images/admin-animation.gif)
-
 Frontend Inline Edit
 ![Administration Frontend Edit](https://raw.github.com/kryncms/Kryn.cms/refactoring/documentation/images/admin-frontend-edit.png)
 
