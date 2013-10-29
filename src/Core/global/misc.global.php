@@ -432,7 +432,6 @@ if (!function_exists('mime_content_type')) {
 function mime_content_type_for_name($pPath)
 {
     $mime_types = array(
-
         'txt' => 'text/plain',
         'htm' => 'text/html',
         'html' => 'text/html',
@@ -475,9 +474,11 @@ function mime_content_type_for_name($pPath)
         'ico' => 'image/vnd.microsoft.icon',
     );
 
-    $ext = strtolower(array_pop(explode('.', $pPath)));
-    if (array_key_exists($ext, $mime_types)) {
-        return $mime_types[$ext];
+    if (false !== ($lastDot = strrpos($pPath, '.'))) {
+        $pPath = substr($pPath, $lastDot + 1);
+    }
+    if (isset($mime_types[$pPath])) {
+        return $mime_types[$pPath];
     }
     return false;
 }

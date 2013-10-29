@@ -17,6 +17,7 @@ interface FileInfoInterface {
 
     public function getCreatedTime();
     public function getModifiedTime();
+    public function getMimeType();
 
     /**
      * @return array

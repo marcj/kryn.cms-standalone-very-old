@@ -28,7 +28,7 @@ class TempFile extends WebFile
 {
     public static $fsObjects = array();
 
-    //not permission check, since file object is only for media/ folder, so for File:: class.
+    //no permission checks, since file object is only for media/ folder, so for File:: class.
     public static $checkObject = false;
 
 

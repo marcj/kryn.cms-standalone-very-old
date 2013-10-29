@@ -1181,16 +1181,27 @@ class ObjectCrud
 
     }
 
-    public function moveItem($pk, $targetPk, $position = 'first', $targetObjectKey = '')
+    public function moveItem($sourceUrl, $targetUrl, $position = 'first', $targetObjectKey = '', $overwrite = false)
     {
         $options = array('permissionCheck' => $this->getPermissionCheck());
 
-        $targetPk = \Core\Object::normalizePkString(
-            $targetObjectKey ? $targetObjectKey : $this->getObject(),
-            $targetPk
+        $sourceObjectKey = Object::getObjectKey($sourceUrl) ?: $this->getObject();
+        $targetObjectKey = Object::getObjectKey($targetUrl) ?: $this->getObject();
+
+        $sourcePkString = Object::getCroppedObjectId($sourceUrl);
+        $targetPkString = Object::getCroppedObjectId($targetUrl);
+
+        $sourcePk = \Core\Object::normalizePkString(
+            $sourceObjectKey,
+            $sourcePkString
         );
 
-        return \Core\Object::move($this->getObject(), $pk, $targetPk, $position, $targetObjectKey, $options);
+        $targetPk = \Core\Object::normalizePkString(
+            $targetObjectKey,
+            $targetPkString
+        );
+
+        return \Core\Object::move($sourceObjectKey, $sourcePk, $targetPk, $position, $targetObjectKey, $options, $overwrite);
     }
 
     public function getRoots()

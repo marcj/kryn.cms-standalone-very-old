@@ -55,6 +55,7 @@ class ObjectCrudController extends Server
                 ->addGetRoute(':count', 'getCount')
                 ->addGetRoute(':roots', 'getRoots')
                 ->addGetRoute(':root', 'getRoot')
+                ->addPutRoute(':move', 'moveItem')
 
                 ->addGetRoute('', 'getItems')
                 ->addGetRoute('([^/]+)', 'getItem')
@@ -63,7 +64,6 @@ class ObjectCrudController extends Server
                 ->addGetRoute('([^/]+)/parent', 'getParent')
                 ->addGetRoute('([^/]+)/version/([0-9]*)', 'getVersion')
                 ->addGetRoute('([^/]+)/versions', 'getVersions')
-                ->addPutRoute('([^/]+)/move/([^/]+)', 'moveItem')
 
                 ->addGetRoute('([^/]+)/parents', 'getParents')
                 ->addGetRoute('([^/]+)/children-count', 'getBranchChildrenCount')
@@ -104,11 +104,11 @@ class ObjectCrudController extends Server
         return $obj->getCount();
     }
 
-    public function moveItem($pk, $targetPk, $position = 'first', $targetObjectKey = '')
+    public function moveItem($source, $target, $position = 'first', $targetObjectKey = '', $overwrite = false)
     {
         $obj = $this->getObj();
 
-        return $obj->moveItem($pk, $targetPk, $position, $targetObjectKey);
+        return $obj->moveItem($source, $target, $position, $targetObjectKey, filter_var($overwrite, FILTER_VALIDATE_BOOLEAN));
 
     }
 

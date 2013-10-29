@@ -375,7 +375,7 @@ class Object
 
         $idx = strpos($url, '/');
 
-        return substr($url, $idx + 1);
+        return false === $idx ? $url : substr($url, $idx + 1);
     }
 
     /**
@@ -410,7 +410,6 @@ class Object
 
             return implode(',', $urlId);
         }
-
     }
 
     /**
@@ -1405,7 +1404,8 @@ class Object
         $targetPk,
         $position = 'first',
         $targetObjectKey = null,
-        $options = null
+        $options = null,
+        $overwrite = false
     ) {
         $obj = self::getClass($objectKey);
 
@@ -1413,7 +1413,7 @@ class Object
         $targetPk = self::normalizePk($targetObjectKey ? $targetObjectKey : $objectKey, $targetPk);
 
         //todo check access
-        return $obj->move($pk2, $targetPk, $position, $targetObjectKey);
+        return $obj->move($pk2, $targetPk, $position, $targetObjectKey, $overwrite);
     }
 
     /**

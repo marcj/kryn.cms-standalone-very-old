@@ -334,6 +334,7 @@ class AdminController
                 ->addSubController('file', '\Admin\Controller\File')
                     ->addGetRoute('', 'getContent')
                     ->addGetRoute('image', 'showImage')
+                    ->addgetRoute('content', 'viewFile')
                     ->addPostRoute('content', 'setContent')
 
                     ->addPostRoute('', 'createFile')
@@ -341,7 +342,7 @@ class AdminController
                     ->addPostRoute('folder', 'createFolder')
                     ->addGetRoute('search', 'search')
 
-                    ->addGetRoute('move', 'moveFile')
+                    ->addPostRoute('move', 'moveFile')
                     ->addGetRoute('single', 'getFile')
                     ->addGetRoute('preview', 'showPreview')
                     ->addPostRoute('upload', 'doUpload')

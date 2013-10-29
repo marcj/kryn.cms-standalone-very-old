@@ -34,6 +34,11 @@ trait FileInfoTrait {
         return false;
     }
 
+    public function getMimeType()
+    {
+        return mime_content_type_for_name($this->getExtension());
+    }
+
     public function getExtension()
     {
         $lastDot = strrpos($this->getName(), '.');

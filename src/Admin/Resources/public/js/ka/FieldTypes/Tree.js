@@ -237,7 +237,7 @@ ka.FieldTypes.Tree = new Class({
         tree.addEvent('change', this.fieldInstance.fireChange);
         tree.addEvent('select', this.selected);
 
-        var proxyEvents = ['ready', 'childrenLoaded', 'select'];
+        var proxyEvents = ['ready', 'childrenLoaded', 'select', 'move'];
         proxyEvents.each(function (event) {
             tree.addEvent(event, function () {
                 var args = Array.from(arguments);
@@ -286,6 +286,18 @@ ka.FieldTypes.Tree = new Class({
     deselect: function () {
         Array.each(this.trees, function (tree) {
             tree.deselect();
+        });
+    },
+
+    reloadParent: function (parent) {
+        Array.each(this.trees, function (tree) {
+            tree.reloadParent(parent);
+        });
+    },
+
+    updateBranch: function (pk) {
+        Array.each(this.trees, function (tree) {
+            tree.updateBranch(pk);
         });
     },
 

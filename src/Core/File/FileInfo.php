@@ -55,9 +55,15 @@ class FileInfo implements FileInfoInterface
             'type' => $this->getType(),
             'size' => $this->getSize(),
             'extension' => $this->getExtension(),
+            'mimeType' => $this->getMimeType(),
             'createdTime' => $this->getCreatedTime(),
             'modifiedTime' => $this->getModifiedTime()
         ];
+    }
+
+    public function getMimeType()
+    {
+        return mime_content_type_for_name($this->getExtension());
     }
 
     /**

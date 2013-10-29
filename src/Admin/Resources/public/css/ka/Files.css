@@ -102,7 +102,7 @@ div.ka-Files-addressFaker + .ka-buttonGroup-item {
 .admin-files-fileContainer {
     position: relative;
     cursor: default;
-    padding: 0 15px;
+    padding: 2px 15px;
     background-color: #fcfcfc;
     border: 1px solid #e0e0e0;
     border-bottom: 0;
@@ -116,6 +116,11 @@ div.ka-Files-addressFaker + .ka-buttonGroup-item {
     top: 0;
     right: 0;
     bottom: 31px;
+}
+
+.ka-Files-fileContainer-iframe {
+    padding: 0;
+    overflow: hidden;
 }
 
 .admin-files-status-bar {
@@ -144,16 +149,7 @@ div.ka-Files-addressFaker + .ka-buttonGroup-item {
 
 .admin-files-fileContainer-selected {
     border: 2px solid #ff8;
-    padding: 0px;
-}
-
-.admin-files-fileContainer-details.admin-files-fileContainer-selected {
-    border: 0px;
-    padding: 2px;
-}
-
-.admin-files-fileContainer-details.admin-files-fileContainer-selected .ka-Table-body-container {
-    border: 2px solid #ff8;
+    padding: 1px 14px;
 }
 
 .admin-files-preview {
@@ -295,7 +291,7 @@ div.ka-Files-addressFaker + .ka-buttonGroup-item {
 }
 
 /* files items */
-.admin-files-item {
+.admin-files-fileContainer .admin-files-item {
     display: inline-block;
     width: 120px;
     margin: 15px 5px;
@@ -411,7 +407,7 @@ table.ka-files-search-table tr:hover td {
     background-color: #e5e5e5;
 }
 
-.admin-files-item .admin-files-item-icon {
+.admin-files-fileContainer .admin-files-item .admin-files-item-icon {
     font-size: 46px;
     height: 45px;
     background-repeat: no-repeat;
@@ -487,7 +483,6 @@ table.ka-files-search-table tr:hover td {
 }
 
 .ka-Files-render-image {
-    overflow: hidden;
     margin: auto;
     position: relative;
     /*-webkit-transition: all 0.3s ease-out;*/
@@ -513,6 +508,7 @@ table.ka-files-search-table tr:hover td {
 .ka-Files-render-image > canvas {
     width: 100%;
     height: 100%;
+    box-shadow: 2px 2px 11px #444;
 }
 
 .ka-Files-render-image .ka-progress {
@@ -547,7 +543,14 @@ table.ka-files-search-table tr:hover td {
     line-height: 40px;
 }
 
-
 .ka-Files-statusBar-image > div {
     padding-top: 5px;
+}
+
+.ka-Files-iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    padding: 0;
+    margin: 0;
 }

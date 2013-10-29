@@ -336,13 +336,13 @@ class WebFile
         //$access = krynAcl::check(3, $path, 'read', true);
         //if (!$access) return false;
         $fs = static::getLayer($path);
-        $path2 = static::normalizePath($path);
+        $path = static::normalizePath($path);
 
         if ($path == '/trash') {
             return static::getTrashFiles();
         }
 
-        $items = $fs->getFiles(static::normalizePath($path));
+        $items = $fs->getFiles($path);
         if (!is_array($items)) {
             return $items;
         }
@@ -435,7 +435,9 @@ class WebFile
 
             $newFs = static::getLayer($newPath);
 
+            $file = null;
             if ($newFs === $oldFs) {
+                $file = static::getFile($oldFile);
                 $result = $newFs->$action(static::normalizePath($oldFile), static::normalizePath($newPath));
             } else {
                 //we need to move a folder from one file layer to another.
@@ -458,7 +460,15 @@ class WebFile
                 }
                 if ('move' === $action) {
                     $oldFs->deleteFile(static::normalizePath($oldFile));
+                    if (static::$checkObject) {
+                        $file->setPath(static::normalizePath($newPath));
+                        $file->save();
+                    }
                 }
+            }
+            if (static::$checkObject && 'move' === $action) {
+                $file->setPath(static::normalizePath($newPath));
+                $file->save();
             }
         }
 

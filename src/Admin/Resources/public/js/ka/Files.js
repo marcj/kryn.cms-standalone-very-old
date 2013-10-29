@@ -13,6 +13,7 @@ ka.Files = new Class({
 
     __images: ['.jpg', '.jpeg', '.gif', '.png', '.bmp'],
     imageExtensions: ['jpg', 'jpeg', 'gif', 'png', 'bmp'],
+    textExtensions: ['html', 'js', 'scss', 'sass', 'less', 'css', 'txt'],
     __ext: ['.css', '.tpl', '.js', '.html', '.htm'],
     _krynFolders: ['/kryn/', '/css/', '/images/', '/js/', '/admin/'],
 
@@ -391,10 +392,11 @@ ka.Files = new Class({
 
         this.fileContainer.addEvent('scroll', this.loadImagesInViewPort.bind(this));
 
-        if (this.container.addEventListener) {
-            this.container.addEventListener('dragover', this.checkFileDragOver.bind(this));
-            this.container.addEventListener('dragleave', this.checkFileDragLeave.bind(this));
-            this.container.addEventListener('drop', this.checkFileDrop.bind(this));
+        if (this.fileContainer.addEventListener) {
+            this.fileContainer.addEventListener('dragover', this.checkFileDragOver.bind(this));
+            this.fileContainer.addEventListener('dragleave', this.checkFileDragLeave.bind(this));
+            this.fileContainer.addEventListener('drop', this.checkFileDrop.bind(this));
+            this.fileContainer.addEventListener('dragstart', this.startDrag.bind(this));
         }
 
         this.fileContainer.fileObj = this;
@@ -492,7 +494,7 @@ ka.Files = new Class({
 
     updateSidebar: function() {
         var selected = this.getSelectedFilesAsArray();
-        if (!selected.length && this.currentFile && 'dir' !== this.currentFile.type) {
+        if (!selected.length && this.currentFile) {
             selected = [this.currentFile];
         }
         var showFileOptions = selected.length > 0;
@@ -515,7 +517,6 @@ ka.Files = new Class({
         if (1 < selected.length) {
             enabled.optionsBarCopyLink = false;
             enabled.optionsBarOpen = false;
-            enabled.optionsBarOpenExternal = false;
             enabled.optionsBarRename = false;
             enabled.optionsBarPaste = false;
         }
@@ -529,6 +530,9 @@ ka.Files = new Class({
             if ('dir' !== file.type) {
                 openText = t('Edit');
                 enabled.optionsBarPaste = false;
+            } else {
+                //is dir
+                enabled.optionsBarOpenExternal = false;
             }
 
         }.bind(this));
@@ -593,9 +597,9 @@ ka.Files = new Class({
         if (!selected.length) return;
 
         Array.each(selected, function(file) {
-            var url = _pathAdmin + 'admin/file/redirect?' + Object.toQueryString({path: file.path, noCache: (new Date()).getTime()})
+            var url = this.getDownloadUrl(file);
             window.open(url, '_blank');
-        });
+        }.bind(this));
     },
 
     newVersionForSelected: function() {
@@ -734,13 +738,17 @@ ka.Files = new Class({
             return;
         }
 
+        if ('dir' !== this.currentFile.type) {
+            return;
+        }
+
         this.win._prompt(t('Folder name'), '', function(name) {
             if (!name) {
                 return;
             }
             new Request.JSON({url: _pathAdmin + 'admin/file/folder', onComplete: function(res) {
                 this.reload();
-            }.bind(this)}).post({path: this.currentFile.dir + name});
+            }.bind(this)}).post({path: this.currentFile.path + '/' + name});
         }.bind(this));
     },
 
@@ -751,7 +759,7 @@ ka.Files = new Class({
         } else {
             this.rename(this.currentFile, function(renamed, to) {
                 if (renamed) {
-                    this.current = this.currentFile.path = this.currentFile.dir + '/'+to;
+                    this.current = this.currentFile.path = this.currentFile.dir + '/' + to;
                     this.currentFile.name = to;
                     this.setAddress(this.current);
                     this.updateSidebar();
@@ -766,7 +774,7 @@ ka.Files = new Class({
                 if (callback) callback(false);
                 return;
             }
-            this.move(this.current + pFile.name, this.current + name, null, function(renamed){
+            this.move(this.current + pFile.name, this.current + name, null, function(renamed) {
                 if (callback) callback(renamed, name);
             });
         }.bind(this));
@@ -812,7 +820,6 @@ ka.Files = new Class({
     },
 
     paste: function() {
-
         if (!ka.getClipboard().type == 'filemanager' && !ka.getClipboard().type == 'filemanagerCut') {
             return;
         }
@@ -828,7 +835,7 @@ ka.Files = new Class({
         }
 
         if (clipboard) {
-            Object.each(clipboard.value, function(file) {
+            Array.each(clipboard.value, function(file) {
                 files.include(file.path);
             });
         }
@@ -846,7 +853,7 @@ ka.Files = new Class({
         }
 
         new Request.JSON({url: _pathAdmin + 'admin/file/paste', noCache: 1, onComplete: function(res) {
-            if (res.exist) {
+            if (res.data && res.data.targetExists) {
                 this.win._confirm(_('One or more files already exist. Overwrite ?'), function(p) {
 
                     if (!p) {
@@ -871,7 +878,7 @@ ka.Files = new Class({
         }
 
         new Request.JSON({url: _pathAdmin + 'admin/file/paste', noCache: 1, onComplete: function(res) {
-            if (res.exist) {
+            if (res.data && res.data.targetExists) {
                 this.win._confirm(_('One or more files already exist. Overwrite ?'), function(p) {
                     if (!p) {
                         return;
@@ -881,7 +888,7 @@ ka.Files = new Class({
             } else {
                 this.reload();
             }
-        }.bind(this)}).post({files: pFilePaths, path: pTargetDirectory, overwrite: pOverwrite});
+        }.bind(this)}).post({files: pFilePaths, target: pTargetDirectory, overwrite: pOverwrite});
 
     },
 
@@ -947,13 +954,32 @@ ka.Files = new Class({
             this.sideTree = new ka.Field({
                 type: 'tree',
                 noWrapper: true,
-                object: 'Core\\File'
+                object: 'Core\\File',
+                onMove: this.sidebarTreeMoved.bind(this),
+                onReady: this.sidebarTreeReady.bind(this)
             }, this.infos);
 
             this.sideTree.addEvent('select', function(item) {
                 this.loadPath(item.path);
             }.bind(this));
         }
+    },
+
+    sidebarTreeMoved: function(source, target) {
+        var sourcePk = ka.getObjectId(source);
+        var targetPk = ka.getObjectId(target);
+
+        if (this.currentFile.id == sourcePk.id || this.currentFile.id == targetPk.id) {
+            this.load(this.currentFile.id);
+        }
+    },
+
+    sidebarTreeReady: function() {
+        var tree = this.sideTree.getFieldObject().getTree();
+        var container = document.id(tree);
+        container.addEventListener('dragover', this.checkFileDragOver.bind(this));
+        container.addEventListener('dragleave', this.checkFileDragLeave.bind(this));
+        container.addEventListener('drop', this.checkFileDrop.bind(this));
     },
 
     newInfoItem: function(pFile) {
@@ -977,6 +1003,8 @@ ka.Files = new Class({
     },
 
     normalizePath: function(path) {
+        if ('string' !== typeOf(path)) return;
+
         if (path != '/' && path.substr(path.length - 1) == '/') {
             path = path.substr(0, path.length - 1);
         }
@@ -1020,15 +1048,15 @@ ka.Files = new Class({
                     }
 
                     this.currentFile = pResponse.data;
-                    this.path2File[pPath] = this.currentFile;
+                    this.path2File[this.currentFile.path] = this.currentFile;
                     this.path2File[pResponse.data.path] = this.currentFile;
 
-                    if (this.options.selection && (this.options.selectionValue == pPath || this.options.selectionValue == pPath.substr(1))) {
+                    if (this.options.selection && (this.options.selectionValue == this.currentFile.path || this.options.selectionValue == this.currentFile.path.substr(1))) {
                         if (this.currentFile.path != '/') {
                             this.load(this.currentFile.path.substr(0, this.currentFile.path.lastIndexOf('/')));
                         }
                     } else {
-                        this.load(pPath);
+                        this.load(this.currentFile.path);
                     }
                 }.bind(this)}).get({path: pPath});
             return;
@@ -1045,13 +1073,17 @@ ka.Files = new Class({
         if (this.isImage(this.currentFile)) {
             this.loadImage(pPath, pCallback);
         } else {
-            this.curRequest = new Request.JSON({
-                url: _pathAdmin + 'admin/file',
-                noCache: 1,
-                onComplete: function(pResponse) {
-                    this.renderLoaded(pResponse, pPath, pCallback);
-                }.bind(this)
-            }).get({ path: pPath });
+            if ('dir' === this.currentFile.type || this.isText(this.currentFile)) {
+                this.curRequest = new Request.JSON({
+                    url: _pathAdmin + 'admin/file',
+                    noCache: 1,
+                    onComplete: function(pResponse) {
+                        this.renderLoaded(pResponse, pPath, pCallback);
+                    }.bind(this)
+                }).get({ path: pPath });
+            } else {
+                this.renderLoaded({}, pPath, pCallback);
+            }
         }
     },
 
@@ -1172,8 +1204,8 @@ ka.Files = new Class({
         this.optionsBarSave.startLoading(t('Saving ...'));
 
         this.lastSaveRequest = new Request.JSON({
-            url: _pathAdmin+ 'admin/file/content',
-            onProgress: function(event){
+            url: _pathAdmin + 'admin/file/content',
+            onProgress: function(event) {
                 this.optionsBarSave.setProgress(parseInt(event.loaded / event.total * 100));
             }.bind(this),
             onComplete: function(response) {
@@ -1188,7 +1220,7 @@ ka.Files = new Class({
         });
 
         if (this.lastSaveRequest.xhr.upload) {
-            this.lastSaveRequest.xhr.upload.addEventListener('progress', function(event){
+            this.lastSaveRequest.xhr.upload.addEventListener('progress', function(event) {
                 this.optionsBarSave.setProgress(parseInt(event.loaded / event.total * 100));
             }.bind(this));
         }
@@ -1236,33 +1268,43 @@ ka.Files = new Class({
 
     prepareRenderFile: function() {
         this.fileContainer.empty();
+        this.fileContainer.removeClass('ka-Files-fileContainer-iframe');
 
         if (!this.isImage(this.currentFile)) {
-            this.editorContainer = new Element('div', {
-                'class': 'ka-Full'
-            }).inject(this.fileContainer);
-
-            var mode = 'text';
-            var modes = {
-                'php': 'php',
-                'js': 'javascript',
-                'css': 'css'
-            };
-
-            mode = modes[this.currentFile.extension] || mode;
-
             this.statusBar.removeClass('ka-Files-statusBar-image');
 
-            this.statusBarSelected.set('text', ka.bytesToSize(this.currentFile.size));
+            if (this.isText(this.currentFile)) {
+                this.editorContainer = new Element('div', {
+                    'class': 'ka-Full'
+                }).inject(this.fileContainer);
 
-            this.editor = new ka.Field({
-                type: 'codemirror',
-                noWrapper: true,
-                inputHeight: '100%',
-                codemirrorOptions: {
-                    mode: mode
-                }
-            }, this.editorContainer);
+                var mode = 'text';
+                var modes = {
+                    'php': 'php',
+                    'js': 'javascript',
+                    'css': 'css'
+                };
+
+                mode = modes[this.currentFile.extension] || mode;
+
+                this.statusBarSelected.set('text', ka.bytesToSize(this.currentFile.size));
+
+                this.editor = new ka.Field({
+                    type: 'codemirror',
+                    noWrapper: true,
+                    inputHeight: '100%',
+                    codemirrorOptions: {
+                        mode: mode
+                    }
+                }, this.editorContainer);
+            } else {
+                this.fileContainer.addClass('ka-Files-fileContainer-iframe');
+                this.statusBarSelected.set('text', '');
+                this.editorIframe = new Element('iframe', {
+                    'class': 'ka-Files-iframe',
+                    frameborder: 0
+                }).inject(this.fileContainer);
+            }
         } else {
             //image
             this.fileContainer.addClass('ka-Files-imageContainer');
@@ -1309,45 +1351,46 @@ ka.Files = new Class({
                 }.bind(this)).inject(this.editorStatusBarLeft);
 
             this.renderCrop = new ka.Button(['Crop', '#icon-crop']).addEvent('click', function() {
-                    this.toggleCropUtils();
-                }.bind(this)).inject(this.editorStatusBarLeft);
+                this.toggleCropUtils();
+            }.bind(this)).inject(this.editorStatusBarLeft);
 
             this.renderCropSave = new ka.Button(['Apply', '#icon-checkmark-6']).addEvent('click', function() {
-                    this.saveCropUtils();
-                }.bind(this)).inject(this.editorStatusBarLeft);
+                this.saveCropUtils();
+            }.bind(this)).inject(this.editorStatusBarLeft);
 
             this.renderCropSave.setButtonStyle('blue');
             this.renderCropSave.hide();
 
             this.renderRotateLeft = new ka.Button(['', '#icon-reload-CCW', 'Rotate left']).addEvent('click', function() {
-                    this.caman.rotate(-90).render();
-                    this.setImageZoom();
-                }.bind(this)).inject(this.editorStatusBarRight);
+                this.caman.rotate(-90).render();
+                this.setImageZoom();
+            }.bind(this)).inject(this.editorStatusBarRight);
 
             this.renderRotateRight = new ka.Button(['', '#icon-reload-CW', 'Rotate right']).addEvent('click', function() {
-                    this.caman.rotate(90).render();
-                    this.setImageZoom();
-                }.bind(this)).inject(this.editorStatusBarRight);
+                this.caman.rotate(90).render();
+                this.setImageZoom();
+            }.bind(this)).inject(this.editorStatusBarRight);
+
+            this.editorContainerProgress = new ka.Progress(t('Loading ...'));
+            document.id(this.editorContainerProgress).setStyles({
+                top: this.fileContainer.getSize().y / 2 + 50,
+                position: 'absolute',
+                opacity: 0,
+                left: this.fileContainer.getSize().y / 2 - document.id(this.editorContainerProgress).getSize().x,
+                marginLeft: -30,
+                padding: '0 60px'
+            });
+
+            this.editorContainerProgressFx = new Fx.Morph(this.editorContainerProgress, {
+                link: 'cancel'
+            });
+            this.editorContainerProgressFx.start({
+                top: this.fileContainer.getSize().y / 2,
+                opacity: 1
+            });
+            this.editorContainerProgress.inject(this.imageEditorTableContainer);
         }
 
-        this.editorContainerProgress = new ka.Progress(t('Loading ...'));
-        document.id(this.editorContainerProgress).setStyles({
-            top: this.fileContainer.getSize().y/2 + 50,
-            position: 'absolute',
-            opacity: 0,
-            left: this.fileContainer.getSize().y/2 - document.id(this.editorContainerProgress).getSize().x,
-            marginLeft: -30,
-            padding: '0 60px'
-        });
-
-        this.editorContainerProgressFx = new Fx.Morph(this.editorContainerProgress, {
-            link: 'cancel'
-        });
-        this.editorContainerProgressFx.start({
-            top: this.fileContainer.getSize().y/2,
-            opacity: 1
-        });
-        this.editorContainerProgress.inject(this.imageEditorTableContainer);
     },
 
     setImageDefaultZoom: function() {
@@ -1414,7 +1457,7 @@ ka.Files = new Class({
             this.renderCropSave.show();
             this.renderCrop.setPressed(true);
 
-            var scrollPos  = this.imageEditorTableContainer.getScroll();
+            var scrollPos = this.imageEditorTableContainer.getScroll();
             var scrollSize = this.imageEditorTableContainer.getScrollSize();
 
             this.imageCropUtils = new ka.ui.ImageCrop(this.editorContainer, {
@@ -1429,7 +1472,7 @@ ka.Files = new Class({
 
         ratio = 100 / ratio;
 
-        this.caman.crop(selection.width*ratio, selection.height*ratio, selection.left*ratio, selection.top*ratio);
+        this.caman.crop(selection.width * ratio, selection.height * ratio, selection.left * ratio, selection.top * ratio);
         this.caman.render();
 
         this.renderCropSave.hide();
@@ -1442,7 +1485,11 @@ ka.Files = new Class({
 
     renderFile: function(data) {
         if (!this.isImage(this.currentFile)) {
-            this.editor.setValue(data || '');
+            if (this.isText(this.currentFile)) {
+                this.editor.setValue(data || '');
+            } else {
+                this.editorIframe.set('src', this.getDownloadUrl(this.currentFile));
+            }
         } else {
             var url = _pathAdmin + 'admin/file/image?' + Object.toQueryString({
                 path: this.currentFile.path,
@@ -1458,11 +1505,11 @@ ka.Files = new Class({
                     this.setImageDefaultZoom();
                     this.editorContainerProgress.setText('Loaded.');
                     this.editorContainerProgressFx.start({
-                        top: this.fileContainer.getSize().y/2 - 50,
+                        top: this.fileContainer.getSize().y / 2 - 50,
                         opacity: 0
-                    }).chain(function(){
-                        this.editorContainerProgress.destroy();
-                    }.bind(this));
+                    }).chain(function() {
+                            this.editorContainerProgress.destroy();
+                        }.bind(this));
                 }.bind(this));
             }.bind(this);
         }
@@ -1559,15 +1606,35 @@ ka.Files = new Class({
 
     },
 
+    getDownloadUrl: function(file) {
+        return document.location.origin + '/' + _pathAdmin + 'admin/file/content?' + Object.toQueryString({
+            path: file.path || file.id,
+            mtime: file.modifiedTime
+        });
+    },
+
+    startDrag: function(event) {
+        this.currentDrag = null;
+
+        var item = event.target;
+
+        if (!item.hasClass('admin-files-item')) {
+            item = item.getParent('.admin-files-item');
+        }
+        if (!item) return;
+
+        this.currentDrag = item.fileItem;
+        event.dataTransfer.setData(
+            'DownloadURL',
+            this.currentDrag.mimeType + ':' + this.currentDrag.name + ':' +this.getDownloadUrl(this.currentDrag)
+        );
+
+        event.dataTransfer.effectAllowed = 'move';
+        event.dataTransfer.setData('text/x-kryn-file', this.currentDrag.path);
+    },
+
     checkFileDragOver: function(pEvent) {
         var file;
-
-        pEvent.stopPropagation();
-        pEvent.preventDefault();
-
-        if (!window.FormData) {
-            return;
-        }
 
         var item = pEvent.target;
 
@@ -1583,11 +1650,22 @@ ka.Files = new Class({
             file = item.fileItem;
         }
 
-        if (file && file.type == 'dir' && file.path != '/trash' && file.path != '/' && !item.hasClass('admin-files-fileContainer') && file.writeaccess) {
+        var validDrop = false;
+        if (file && file.type == 'dir' && file.path != '/trash' && file.path != '/' && !item.hasClass('admin-files-fileContainer') && file.writeAccess) {
             item.addClass('admin-files-item-selected');
-            this.fireSelect();
-        } else if (this.currentFile.writeaccess) {
-            this.fileContainer.addClass('admin-files-fileContainer-selected');
+            item.addClass('admin-files-item-drag-selected');
+            validDrop = true;
+        } else if (this.currentFile.writeAccess) {
+            if (!this.currentDrag || this.currentDrag.dir !== this.currentFile.path) {
+                this.fileContainer.addClass('admin-files-fileContainer-selected');
+                validDrop = true;
+            }
+        }
+
+        if (validDrop) {
+            pEvent.stopPropagation();
+            pEvent.preventDefault();
+            pEvent.dataTransfer.dropEffect = 'move';
         }
     },
 
@@ -1607,7 +1685,6 @@ ka.Files = new Class({
 
         if (item) {
             item.removeClass('admin-files-item-selected');
-            this.fireDeselect();
         }
 
         this.fileContainer.removeClass('admin-files-fileContainer-selected');
@@ -1620,10 +1697,6 @@ ka.Files = new Class({
         if (pEvent) {
             pEvent.stopPropagation();
             pEvent.preventDefault();
-        }
-
-        if (!window.FormData) {
-            return;
         }
 
         this.fileContainer.removeClass('admin-files-fileContainer-selected');
@@ -1645,7 +1718,6 @@ ka.Files = new Class({
         if (item) {
             file = item.fileItem;
             item.removeClass('admin-files-item-selected');
-            this.fireDeselect();
         }
 
         if (file && (file.type != 'dir' || file.path == '/trash')) {
@@ -1656,16 +1728,27 @@ ka.Files = new Class({
             return;
         }
 
-        Array.each(files, function(chosenFile) {
-            if (file) {
-                chosenFile.target = file.path;
+        if (files && 0 < files.length) {
+            //external file drop
+            Array.each(files, function(chosenFile) {
+                if (file) {
+                    chosenFile.target = file.path;
+                }
+
+                chosenFile.html5 = true;
+
+                this.newFileUpload(chosenFile);
+            }.bind(this));
+        } else {
+            //maybe internal drag'n'drop
+            var dragged = pEvent.dataTransfer.getData('text/x-kryn-file');
+            if (dragged) {
+                this.move(dragged, file.path + '/' + dragged.basename(), null, function() {
+                    this.sideTree.getFieldObject().updateBranch(file);
+                    this.sideTree.getFieldObject().updateBranch(this.currentFile);
+                }.bind(this));
             }
-
-            chosenFile.html5 = true;
-
-            this.newFileUpload(chosenFile);
-        }.bind(this));
-
+        }
     },
 
     checkAutoScroll: function(pEvent) {
@@ -1851,13 +1934,9 @@ ka.Files = new Class({
                 if (this._modules.indexOf(file.path + '/') >= 0) {
                     return;
                 }
-                if (!pEvent.rightClick) {
-                    this.startDrag(pEvent, item);
-                }
             }
 
         } else if (!pEvent.rightClick) {
-
             this.lastClickedItem = pEvent.target;
             if (pEvent.target.hasClass('admin-files-fileContainer')) {
 
@@ -2106,6 +2185,10 @@ ka.Files = new Class({
         return file.extension && this.imageExtensions.contains(file.extension);
     },
 
+    isText: function(file) {
+        return file.extension && this.textExtensions.contains(file.extension);
+    },
+
     updatePreview: function() {
 
         if (!this.lastClickedItem && this.lastPreviewedItem) {
@@ -2184,7 +2267,6 @@ ka.Files = new Class({
     },
 
     preview: function(pEvent) {
-
         if (pEvent && 'stop' in pEvent) {
             pEvent.stop();
         }
@@ -2285,7 +2367,6 @@ ka.Files = new Class({
     },
 
     getValue: function() {
-
         var selectedFiles = this.getSelectedFilesAsArray();
 
         if (selectedFiles.length == 1) {
@@ -2313,260 +2394,6 @@ ka.Files = new Class({
         }
 
         return false;
-    },
-
-    startDrag: function(pEvent, pItem) {
-        this.drag = true;
-
-        this.lastDragTimer = (function() {
-            if (this.drag == true) {
-                this._startDrag(pEvent, pItem);
-            }
-
-        }).delay(300, this);
-    },
-
-    _startDrag: function(pEvent, pItem) {
-        selection = window.getSelection();
-        selection.removeAllRanges();
-
-        if (!pItem.hasClass('admin-files-item-selected')) {
-            this.selectItem(pItem);
-        }
-
-        var desktop = this.container;
-
-        var selectedItems = this.getSelectedItems();
-        var container;
-
-        var draggedItems = [];
-        var moveFiles = [];
-
-        draggedItems.include(pItem);
-
-        if (Object.getLength(selectedItems) == 1) {
-
-            var item;
-            Object.each(selectedItems, function(selectedItem) {
-                item = selectedItem;
-            });
-
-            moveFiles.include(item.fileItem.path);
-
-            container = item.clone();
-            container.removeClass('admin-files-item-selected')
-            container.removeClass('admin-files-droppables');
-            var pos = item.getPosition(desktop);
-
-            container.setStyles({
-                opacity: 0.7,
-                left: pos.x,
-                'top': pos.y,
-                zIndex: 15000,
-                position: 'absolute'
-            }).inject(desktop);
-
-        } else if (Object.getLength(selectedItems) > 1) {
-
-            var pos = this.container.getPosition(document.body);
-
-            container = new Element('div').setStyles({
-                opacity: 0.7,
-                zIndex: 15000,
-                width: 50,
-                height: 75,
-                left: pEvent.page.x - pos.x - 10,
-                'top': pEvent.page.y - pos.y - 10,
-                cursor: 'default',
-                position: 'absolute'
-            }).inject(desktop);
-
-            Object.each(selectedItems, function(item) {
-
-                draggedItems.include(item);
-                moveFiles.include(item.fileItem.path);
-
-                var clone = item.clone().setStyles({
-                    position: 'absolute',
-                    width: 50,
-                    height: 50,
-                    cursor: 'default',
-                    'background-color': 'transparent',
-                    margin: 0
-                }).inject(container);
-
-                clone.set('title');
-                clone.removeClass('admin-files-item-selected');
-                clone.removeClass('admin-files-droppables');
-
-                clone.getElement('.admin-files-item-title').destroy();
-
-                if (item.get('tag') == 'tr') {
-                    var imgClone = clone.getElement('img').clone();
-                    clone.empty();
-                    imgClone.inject(clone);
-                }
-
-                if (clone.getElement('img')) {
-                    clone.getElement('img').setStyles({
-                        width: 30,
-                        height: 30
-                    });
-                }
-
-                var i = Math.random();
-                var r = (40 * i) - 20;
-
-                if (this.lastRotateValue && this.lastRotateValue < 0 && r < 0) {
-                    r = r * -1;
-                }
-
-                this.lastRotateValue = r;
-
-                clone.setStyle('-webkit-transform', 'rotate(' + r + 'deg)');
-                clone.setStyle('-moz-transform', 'rotate(' + r + 'deg)');
-
-            }.bind(this));
-
-            new Element('div', {
-                style: 'position: absolute; bottom: 0px; left: 0px; width: 100%; text-align: center;',
-                text: _('%d files').replace('%d', Object.getLength(selectedItems))
-            }).inject(container);
-
-        } else if (Object.getLength(selectedItems) == 0) {
-            return;
-        }
-
-        var fromDir = this.current;
-
-        this.newDragMove(pEvent, container, draggedItems, moveFiles, fromDir);
-    },
-
-    newDragMove: function(pEvent, pContainer, pDraggedItems, pFilePaths, pFromDir) {
-
-        this.dragMove = new Drag.Move(pContainer, {
-
-            droppables: '.admin-files-droppables',
-            precalculate: true,
-
-            onDrop: function(element, droppable) {
-
-                ka.inFileDragMode = false;
-                element.destroy();
-
-                if (droppable.get('tag') == 'td') {
-                    droppable = droppable.getParent();
-                }
-
-                if (!droppable) {
-                    return;
-                }
-
-                if (droppable.fileObj && droppable.fileObj.activeAutoDirOpenerTimeout) {
-                    clearTimeout(droppable.fileObj.activeAutoDirOpenerTimeout);
-                }
-
-                if (this.activeAutoDirOpenerTimeout) {
-                    clearTimeout(this.activeAutoDirOpenerTimeout);
-                }
-
-                var file = droppable.fileItem;
-                if (!file || pFromDir == file.path || file.path == '/trash') {
-                    return;
-                }
-                if (file.type == 'file' || pFilePaths.contains(file.path)) {
-                    return;
-                }
-
-                if (file.writeaccess == false) {
-                    return;
-                }
-
-                if (!pDraggedItems.contains(droppable)) {
-                    droppable.removeClass('admin-files-item-selected');
-                    this.fileContainer.removeClass('admin-files-fileContainer-selected');
-
-                    droppable.fileObj.moveFiles(pFilePaths, file.path, false, function() {
-
-                        if (droppable.fileObj != this) {
-                            this.reload();
-                        }
-
-                    }.bind(this));
-
-                }
-            }.bind(this),
-
-            onEnter: function(element, droppable) {
-
-                if (droppable != pContainer) {
-
-                    if (droppable.get('tag') == 'td') {
-                        droppable = droppable.getParent();
-                    }
-
-                    var file = droppable.fileItem;
-                    if (!file) {
-                        return;
-                    }
-
-                    if (file.writeaccess == false) {
-                        return;
-                    }
-                    if (!file || file.path == '/trash') {
-                        return;
-                    }
-                    if (file.type == 'file' || pFilePaths.contains(file.path)) {
-                        return;
-                    }
-
-                    if (!droppable.hasClass('admin-files-fileContainer')) {
-                        droppable.addClass('admin-files-item-selected');
-                        droppable.fileObj.startAutoDirOpener(file, this.updateDragMoveDroppables.bind(this));
-                    }
-
-                    if (droppable.hasClass('admin-files-fileContainer')) {
-                        if (file.path == pFromDir) {
-                            return;
-                        }
-                        droppable.addClass('admin-files-fileContainer-selected');
-                    }
-
-                }
-            }.bind(this),
-
-            onLeave: function(element, droppable) {
-
-                if (droppable.get('tag') == 'td') {
-                    droppable = droppable.getParent();
-                }
-
-                if (droppable.fileObj && droppable.fileObj.activeAutoDirOpenerTimeout) {
-                    clearTimeout(droppable.fileObj.activeAutoDirOpenerTimeout);
-                }
-
-                droppable.removeClass('admin-files-fileContainer-selected');
-                if (!pDraggedItems.contains(droppable)) {
-                    droppable.removeClass('admin-files-item-selected');
-                }
-            },
-
-            onCancel: function(dragging) {
-                dragging.destroy();
-                ka.inFileDragMode = false;
-            }
-
-        });
-
-        this.dragMove.start(pEvent);
-
-        ka.inFileDragMode = true;
-    },
-
-    updateDragMoveDroppables: function() {
-        if (this.dragMove) {
-            this.dragMove.droppables = $$('.admin-files-droppables');
-        }
     },
 
     startAutoDirOpener: function(pFile, pCallback) {
@@ -2736,7 +2563,8 @@ ka.Files = new Class({
 
         var base = new Element('div', {
             'class': (pFile.path == '/trash' ? '' : 'admin-files-droppables ') + 'admin-files-item',
-            title: pFile.object_id + '=' + pFile.name
+            title: pFile.object_id + '=' + pFile.name,
+            draggable: true
         });
 
         var fileIconClass = null;
@@ -2894,7 +2722,7 @@ ka.Files = new Class({
             var openExternal = new Element('a', {
                 html: _('Open external'),
                 target: '_blank',
-                href: _pathAdmin + 'admin/file/redirect?' + Object.toQueryString({path: pFile.path, noCache: (new Date()).getTime()})
+                href: this.getDownloadUrl(pFile)
             }).inject(this.context)
 
             if (this.currentFile.path == pFile.path) {
@@ -3045,13 +2873,16 @@ ka.Files = new Class({
 
     copy: function() {
         var title = '';
+        var selectedFiles = this.getSelectedFilesAsArray();
 
-        var selectedFiles = this.getSelectedFiles();
+        if (!selectedFiles.length) {
+            selectedFiles = [this.currentFile];
+        }
 
-        if (Object.getLength(selectedFiles) > 1) {
-            title = _('%d file copied', Object.getLength(selectedFiles)).replace('%d', Object.getLength(selectedFiles));
+        if (selectedFiles.length > 1) {
+            title = _('%d file copied', selectedFiles.length).replace('%d', Object.getLength(selectedFiles));
         } else {
-            Object.each(selectedFiles, function(item) {
+            Array.each(selectedFiles, function(item) {
                 title = _('%s file copied').replace('%s', item.name.substr(0, 25) + ((item.name.length > 25) ? '...' : ''));
             });
         }
@@ -3059,22 +2890,19 @@ ka.Files = new Class({
     },
 
     cut: function() {
+        var selectedFiles = this.getSelectedFilesAsArray();
 
-        var selectedFiles = this.getSelectedFiles();
-
-        if (Object.getLength(selectedFiles) > 1) {
-            title = _('%d files cut').replace('%d', Object.getLength(selectedFiles));
+        if (selectedFiles.length > 1) {
+            title = _('%d files cut').replace('%d', selectedFiles.length);
         } else {
-            Object.each(selectedFiles, function(item) {
+            Array.each(selectedFiles, function(item) {
                 title = _('%s file cut').replace('%s', item.name.substr(0, 25) + ((item.name.length > 25) ? '...' : ''));
             });
         }
         ka.setClipboard(title, 'filemanagerCut', selectedFiles);
-
     },
 
     deselect: function() {
-
         this.fileContainer.getElements('.admin-files-item-selected').removeClass('admin-files-item-selected');
 
         this.fireDeselect();
@@ -3094,7 +2922,6 @@ ka.Files = new Class({
         } else {
             this._searchTimer = this._search.delay(300, this, this.search.getValue());
         }
-
     },
 
     _search: function(pQ) {

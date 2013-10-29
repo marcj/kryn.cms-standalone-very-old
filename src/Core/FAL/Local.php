@@ -293,7 +293,7 @@ class Local extends AbstractFAL
         }
 
         if (!is_dir($path)) {
-            throw new \FileNotExistException(tf('File `%s` is not a directory.', $path));
+            throw new \Core\Exceptions\NotADirectoryException(tf('File `%s` is not a directory.', $path));
         };
 
         if (substr($path, -1) != '/') {

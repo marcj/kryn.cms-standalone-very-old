@@ -4,6 +4,7 @@ namespace Admin\Models;
 
 use Core\Config\Condition;
 use Core\Kryn;
+use Core\Permission;
 use Core\WebFile;
 
 class ObjectFile extends \Core\ORM\Propel
@@ -188,6 +189,58 @@ class ObjectFile extends \Core\ORM\Propel
         ];
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public function move($pk, $targetPk, $position = 'first', $targetObjectKey = null, $overwrite = false)
+    {
+        if ($pk) {
+            $path = is_numeric($pk['id']) ? WebFile::getPath($pk['id']) : $pk['id'];
+        } else {
+            $path = '/';
+        }
+
+        $target = is_numeric($targetPk['id']) ? WebFile::getPath($targetPk['id']) : $targetPk['id'];
+        $target = $target .'/'. basename($path);
+
+        if (!$overwrite && WebFile::exists($target)){
+            return ['targetExists' => true];
+        }
+
+        $this->checkAccess($path);
+        $this->checkAccess($target);
+
+        return WebFile::move($path, $target);
+    }
+
+    /**
+     * Checks the file access.
+     *
+     * @param $path
+     *
+     * @throws \FileIOException
+     * @throws \AccessDeniedException
+     */
+    public function checkAccess($path)
+    {
+        $file = null;
+
+        try {
+            $file = WebFile::getFile($path);
+        } catch (\FileNotExistException $e) {
+            while ('/' !== $path) {
+                try {
+                    $path = dirname($path);
+                    $file = WebFile::getFile($path);
+                } catch (\FileNotExistException $e) {
+                }
+            }
+        }
+
+        if ($file && !Permission::checkUpdate('Core\\File', array('id' => $file->getId()))) {
+            throw new \AccessDeniedException(tf('No access to file `%s`', $path));
+        }
+    }
 
     /**
      * {@inheritDoc}
@@ -204,7 +257,11 @@ class ObjectFile extends \Core\ORM\Propel
             $depth = 1;
         }
 
-        $files = WebFile::getFiles($path);
+        try {
+            $files = WebFile::getFiles($path);
+        } catch (\Core\Exceptions\NotADirectoryException $e) {
+            return null;
+        }
 
         $c = 0;
         $offset = $options['offset'];
@@ -225,6 +282,8 @@ class ObjectFile extends \Core\ORM\Propel
             if ($condition && $condition->hasRules() && !$condition->satisfy($file, 'core:file')) {
                 continue;
             }
+
+            $file['writeAccess'] = Permission::checkUpdate('Core\\File', array('id' => $file['id']));
 
             $c++;
             if ($offset && $offset >= $c) {

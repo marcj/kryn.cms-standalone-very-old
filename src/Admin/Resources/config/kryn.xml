@@ -11,6 +11,7 @@
             <asset>@AdminBundle/js/ka/Button.js</asset>
             <asset>@AdminBundle/js/ka/Select.js</asset>
             <asset>@AdminBundle/js/ka/Checkbox.js</asset>
+            <asset>@AdminBundle/js/ka/Base.js</asset>
 
             <asset>@AdminBundle/js/ka/ObjectTree.js</asset>
             <asset>@AdminBundle/js/ka/TabGroup.js</asset>

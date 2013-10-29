@@ -7,6 +7,7 @@ use Core\Models\Base\File as BaseFile;
 use Core\WebFile;
 use Core\File\FileInfoInterface;
 use Core\File\FileInfoTrait;
+use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\Map\TableMap;
 
 class File extends BaseFile implements FileInfoInterface
@@ -39,7 +40,10 @@ class File extends BaseFile implements FileInfoInterface
             }
 
             $files = FileQuery::create()
-                ->findByPath($paths)
+                ->orderById(Criteria::ASC)
+                ->filterByPath($paths)
+                ->groupByPath()
+                ->find()
                 ->toKeyIndex('path');
 
             foreach ($fileInfo as $file) {
@@ -56,7 +60,7 @@ class File extends BaseFile implements FileInfoInterface
                 return $fileInfo; //it's already a `File`, return it.
             }
             $path = $fileInfo->getPath();
-            $fileObj = FileQuery::create()->findOneByPath($path);
+            $fileObj = FileQuery::create()->orderById()->filterByPath($path)->groupByPath()->findOne();
             if (!$fileObj) {
                 $fileObj = static::createFromPathInfo($fileInfo);
             } else {

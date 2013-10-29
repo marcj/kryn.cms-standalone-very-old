@@ -63,7 +63,13 @@ class File
         $this->checkAccess($target);
         foreach ($files as $file) {
             $this->checkAccess($file);
+
+            $newPath = $target . '/' . basename($file);
+            if (!$overwrite && WebFile::exists($newPath)) {
+                return ['targetExists' => true];
+            }
         }
+
         return WebFile::paste($files, $target, $move ? 'move' : 'copy');
     }
 
@@ -86,11 +92,13 @@ class File
      * Checks the file access.
      *
      * @param $path
+     * @param $fields
+     * @param $method
      *
      * @throws \FileIOException
      * @throws \AccessDeniedException
      */
-    public function checkAccess($path)
+    public function checkAccess($path, $fields = null, $method = null)
     {
         $file = null;
 
@@ -106,7 +114,9 @@ class File
             }
         }
 
-        if ($file && !Permission::checkUpdate('Core\\File', array('id' => $file->getId()))) {
+        $method = $method ? 'check' . ucfirst($method) . 'Exact' : 'checkUpdateExact';
+
+        if ($file && !Permission::$method('Core\\File', array('id' => $file->getId()), $fields)) {
             throw new \AccessDeniedException(tf('No access to file `%s`', $path));
         }
     }
@@ -348,10 +358,22 @@ class File
      */
     public function showPreview($path, $width = 50, $height = 50)
     {
+        $this->checkAccess($path, null, 'view');
+        $file = WebFile::getFile($path);
+        if ($file->isDir()) return;
+
+        $ifModifiedSince = Kryn::getRequest()->headers->get('If-Modified-Since');
+        if (isset($ifModifiedSince) && (strtotime($ifModifiedSince) == $file->getModifiedTime())) {
+            // Client's cache IS current, so we just respond '304 Not Modified'.
+            header('Last-Modified: '.gmdate('D, d M Y H:i:s', $file->getModifiedTime()).' GMT', true, 304);
+            exit;
+        }
+
         $image = WebFile::getResizeMax($path, $width, $height);
 
         $expires = 3600;
         header("Pragma: public");
+        header('Last-Modified: '.gmdate('D, d M Y H:i:s', $file->getModifiedTime()).' GMT');
         header("Cache-Control: maxage=" . $expires);
         header('Expires: ' . gmdate('D, d M Y H:i:s', time() + $expires) . ' GMT');
         header('Content-type: image/png');
@@ -361,11 +383,39 @@ class File
     }
 
     public function setContent($path, $content = '', $contentEncoding = 'plain') {
+        $this->checkAccess($path);
         if ('base64' === $contentEncoding){
             $content = base64_decode($content);
         }
-        $this->checkAccess($path);
         return WebFile::setContent($path, $content);
+    }
+
+    public function viewFile($path) {
+        $this->checkAccess($path, null, 'view');
+
+        $file = WebFile::getFile($path);
+        if ($file->isDir()) return;
+
+        $ifModifiedSince = Kryn::getRequest()->headers->get('If-Modified-Since');
+        if (isset($ifModifiedSince) && (strtotime($ifModifiedSince) == $file->getModifiedTime())) {
+            // Client's cache IS current, so we just respond '304 Not Modified'.
+            header('Last-Modified: '.gmdate('D, d M Y H:i:s', $file->getModifiedTime()).' GMT', true, 304);
+            exit;
+        }
+
+        $content = \Core\WebFile::getContent($path);
+        $mime = mime_content_type_for_name($file->getExtension());
+
+        $expires = 3600;
+        header("Pragma: public");
+        header('Last-Modified: '.gmdate('D, d M Y H:i:s', $file->getModifiedTime()).' GMT');
+        header("Cache-Control: maxage=" . $expires);
+        header('Expires: ' . gmdate('D, d M Y H:i:s', time() + $expires) . ' GMT');
+        header('Content-Type: ' . $mime);
+        header('Content-length: ' . strlen($content));
+
+        echo $content;
+        exit;
     }
 
     /**
@@ -375,6 +425,17 @@ class File
      */
     public function showImage($path)
     {
+        $this->checkAccess($path, null, 'view');
+        $file = WebFile::getFile($path);
+        if ($file->isDir()) return;
+
+        $ifModifiedSince = Kryn::getRequest()->headers->get('If-Modified-Since');
+        if (isset($ifModifiedSince) && (strtotime($ifModifiedSince) == $file->getModifiedTime())) {
+            // Client's cache IS current, so we just respond '304 Not Modified'.
+            header('Last-Modified: '.gmdate('D, d M Y H:i:s', $file->getModifiedTime()).' GMT', true, 304);
+            exit;
+        }
+
         $content = \Core\WebFile::getContent($path);
         $image = \PHPImageWorkshop\ImageWorkshop::initFromString($content);
 
@@ -385,6 +446,7 @@ class File
 
         $expires = 3600;
         header("Pragma: public");
+        header('Last-Modified: '.gmdate('D, d M Y H:i:s', $file->getModifiedTime()).' GMT');
         header("Cache-Control: maxage=" . $expires);
         header('Expires: ' . gmdate('D, d M Y H:i:s', time() + $expires) . ' GMT');
 

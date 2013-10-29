@@ -320,6 +320,16 @@ class Permission
         return self::check($objectKey, null, $fields, self::UPDATE, $targetType, $targetId, $rootHasAccess);
     }
 
+    public static function checkView(
+        $objectKey,
+        $fields = null,
+        $targetType = null,
+        $targetId = null,
+        $rootHasAccess = false
+    ) {
+        return self::check($objectKey, null, $fields, self::VIEW, $targetType, $targetId, $rootHasAccess);
+    }
+
     public static function checkDelete(
         $objectKey,
         $fields = null,
@@ -339,6 +349,17 @@ class Permission
         $rootHasAccess = false
     ) {
         return self::check($objectKey, $objectId, $fields, self::UPDATE, $targetType, $targetId, $rootHasAccess);
+    }
+
+    public static function checkViewExact(
+        $objectKey,
+        $objectId,
+        $fields = null,
+        $targetType = null,
+        $targetId = null,
+        $rootHasAccess = false
+    ) {
+        return self::check($objectKey, $objectId, $fields, self::VIEW, $targetType, $targetId, $rootHasAccess);
     }
 
     public static function checkDeleteExact(

@@ -14,6 +14,8 @@
           <icon id="dir">#icon-folder-4</icon>
         </treeIconMapping>
         <treeDefaultIcon>#icon-paper</treeDefaultIcon>
+        <treeInterfaceClass>ka.FileTree</treeInterfaceClass>
+        <treeInterface>custom</treeInterface>
         <browserInterfaceClass>ka.Files</browserInterfaceClass>
         <browserInterface>custom</browserInterface>
         <browserOptions>
