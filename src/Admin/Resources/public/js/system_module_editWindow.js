@@ -46,6 +46,7 @@ var admin_system_module_editWindow = new Class({
             object: {
                 needValue: 'object',
                 label: t('Object key'),
+                type: 'objectKey',
                 onChange: function () {
                     this.objectKeyChanged();
                 }.bind(this)
@@ -67,8 +68,7 @@ var admin_system_module_editWindow = new Class({
                 type: 'checkbox',
                 needValue: 'object',
                 againstField: 'dataModel',
-                help: 'admin/extensions-object-workspace',
-                desc: t('This is a kind of a versioning. All changes goes into the workspace versioning table and will only be merged in your orin table behind the object, when the user publishs his workspace to LIVE. The object or table needs a extra field \'live\' for this.')
+                help: 'admin/extensions-object-workspace'
             },
 
             multiLanguage: {
@@ -81,18 +81,6 @@ var admin_system_module_editWindow = new Class({
                 label: t('Multi domain'),
                 type: 'checkbox',
                 desc: t("Useful, when these objects are categorized usually under domains. The windows gets then a domain chooser on the right top bar. The object or table needs a extra field 'domain_id' for this.")
-            },
-
-            __optional__: {
-                label: t('Optional'),
-                type: 'childrenSwitcher',
-                children: {
-                    versioning: {
-                        label: t('Versioning'),
-                        type: 'checkbox',
-                        desc: t('This is the old way of versioning. Stores a json copy of the table row in the table system_frameworkversion. Please consider to use workspace option instead.')
-                    }
-                }
             }
 
         };
@@ -109,7 +97,7 @@ var admin_system_module_editWindow = new Class({
         }).inject(this.windowTabEdit.pane);
 
         this.actionBar = new Element('div', {
-            'class': 'ka-system-module-editWindow-actionbar'
+            'class': 'ka-system-module-editWindow-actionbar ka-ActionBar ka-ActionBar-left'
         }).inject(this.windowTabEdit.pane);
 
         this.windowEditAddTabBtn = new ka.Button(t('Add tab'))

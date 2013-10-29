@@ -115,8 +115,6 @@ class NodeCrud extends \Admin\ObjectCrud
 
     public $editIcon = '#icon-pencil-8';
 
-    public $nestedRootAddLabel = '[[Domain]]';
-
     public $edit = true;
 
     public $remove = false;
@@ -126,6 +124,8 @@ class NodeCrud extends \Admin\ObjectCrud
     public $nestedRootAddIcon = '#icon-plus-2';
 
     public $nestedRootAddEntrypoint = 'root/';
+
+    public $nestedRootAddLabel = '[[New Domain]]';
 
     public $nestedRootAdd = true;
 

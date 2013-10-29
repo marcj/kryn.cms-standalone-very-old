@@ -5,7 +5,7 @@ ka.WindowList = new Class({
 
     options: {
 
-        nestedRootNewLabel: null,
+        nestedRootAddLabel: null,
         newLabel: null
 
     },
@@ -265,6 +265,7 @@ ka.WindowList = new Class({
         objectOptions.entryPoint = this.win.getEntryPoint();
         objectOptions.scopeChooser = false;
         objectOptions.noWrapper = true;
+        objectOptions.selectObject = this.selected;
 
         if (this.languageSelect) {
             objectOptions.scopeLanguage = this.languageSelect.getValue();
@@ -426,8 +427,8 @@ ka.WindowList = new Class({
         }
 
         if (this.classProperties.asNested && (this.classProperties.nestedRootAdd)) {
-            this.addRootBtn = new ka.Button([this.options.nestedRootNewLabel ||
-                this.classProperties.nestedRootNewLabel, ka.mediaPath(this.classProperties.nestedRootAddIcon)])
+            this.addRootBtn = new ka.Button([this.options.nestedRootAddLabel ||
+                this.classProperties.nestedRootAddLabel, ka.mediaPath(this.classProperties.nestedRootAddIcon)])
                 .addEvent('click', function() {
                     this.addNestedRoot();
                 }.bind(this))
@@ -576,7 +577,6 @@ ka.WindowList = new Class({
     },
 
     loadItemCount: function (callback) {
-
         var req = {};
 
         if (this.searchEnabled) {

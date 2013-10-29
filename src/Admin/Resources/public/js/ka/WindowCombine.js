@@ -1291,7 +1291,6 @@ ka.WindowCombine = new Class({
             }.bind(this));
 
         } else {
-
             var hasUnsaved = false && this.currentEdit.hasUnsavedChanges(); //todo debugging
 
             if (hasUnsaved) {
@@ -1400,9 +1399,7 @@ ka.WindowCombine = new Class({
 
     setActiveItem: function(pItem, objectKey) {
         this.currentItem = pItem;
-        if ('string' !== typeOf(objectKey)) {
-            objectKey = null;
-        }
+        this.selected = ka.normalizeObjectKey(objectKey) + '/' + ka.getObjectUrlId(objectKey, pItem);
         this.currentItemObjectKey = objectKey;
         this.selectItem(pItem, objectKey);
     },

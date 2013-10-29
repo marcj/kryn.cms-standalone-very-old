@@ -213,7 +213,7 @@ class ObjectCrud
     protected $nestedRootAdd = false;
     protected $nestedAddWithPositionSelection = true;
     protected $nestedRootAddIcon = '#icon-plus-2';
-    protected $nestedRootNewLabel = '[[New Root]]';
+    protected $nestedRootAddLabel = '[[New Root]]';
     protected $nestedRootRemove = false;
 
     protected $nestedRootEditEntrypoint = 'root/';
@@ -481,7 +481,7 @@ class ObjectCrud
             }
         }
 
-        $this->translate($this->nestedRootNewLabel);
+        $this->translate($this->nestedRootAddLabel);
         $this->translate($this->newLabel);
     }
 
@@ -2028,14 +2028,14 @@ class ObjectCrud
         return $this->nestedRootAddIcon;
     }
 
-    public function setNestedRootNewLabel($nestedRootNewLabel)
+    public function setNestedRootAddLabel($nestedRootAddLabel)
     {
-        $this->nestedRootNewLabel = $nestedRootNewLabel;
+        $this->nestedRootAddLabel = $nestedRootAddLabel;
     }
 
-    public function getNestedRootNewLabel()
+    public function getNestedRootAddLabel()
     {
-        return $this->nestedRootNewLabel;
+        return $this->nestedRootAddLabel;
     }
 
     public function setNestedRootEdit($nestedRootEdit)
