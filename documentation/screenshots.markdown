@@ -17,7 +17,7 @@ System
 
 CRUD Framework
 
-![Administration CRUD Framework Window List](https://raw.github.com/kryncms/Kryn.cms/refactoring/documentation/images/admin-users-list.png)
+![Administration CRUD Framework Window List](https://raw.github.com/kryncms/Kryn.cms/refactoring/documentation/images/admin-list.png)
 ![Administration CRUD Framework Window](https://raw.github.com/kryncms/Kryn.cms/refactoring/documentation/images/admin-users.png)
 
 Administration login
