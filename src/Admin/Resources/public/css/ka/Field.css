@@ -83,6 +83,10 @@ div.desc {
     font-size: 13px;
 }
 
+div.desc a {
+    color: #666;
+}
+
 tr.ka-field-main > td div.desc {
     padding-left: 0;
     line-height: 14px;
@@ -376,5 +380,9 @@ tr.ka-field-main > td div.desc {
 
 .ka-Field-group-title > div.title {
     padding-left: 0;
+    color: gray;
+}
+
+.ka-Field-info {
     color: gray;
 }
