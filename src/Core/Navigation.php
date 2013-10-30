@@ -40,7 +40,7 @@ class Navigation
         $navigation = false;
         $fromCache = false;
 
-        $viewPath = Kryn::resolvePath($view, 'Views/');
+        $viewPath = Kryn::resolvePath($view, 'Resources/views/');
 
         if (!file_exists($viewPath)) {
             throw new \FileNotFoundException(sprintf('File `%s` not found.', $viewPath));

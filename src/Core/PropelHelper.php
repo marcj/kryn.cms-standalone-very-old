@@ -200,15 +200,19 @@ class PropelHelper
             if (!$bundle) {
                 throw new BundleNotFoundException(tf('Bundle `%s` not found.', $bundleName));
             }
-            $source = $tmp . 'propel-classes/' . ucfirst($bundle->getNamespace()) . '/Models';
+            $source = $tmp
+                . 'propel-classes/'
+                . str_replace('\\', '/', ucfirst($bundle->getNamespace()))
+                . '/Models';
 
             $files = find($source . '/*.php');
+
+            $result .= "$source" . "\n";
 
             foreach ($files as $file) {
                 $target = $bundle->getPath() . 'Models/' . basename($file);
 
-                $result .= "$file => " . (file_exists($target) + 0) . "\n";
-
+                //$result .= "$file => " . (file_exists($target) + 0) . "\n";
                 if (!file_exists($target)) {
                     SystemFile::createFolder(dirname($target));
                     if (!copy($file, $target)) {

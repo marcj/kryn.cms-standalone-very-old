@@ -2897,8 +2897,8 @@ class Kryn extends Controller
     }
 
     /**
-     * Resolves a internal path (`@PublicationBundle/in/view/folder`, `Views`) into the real filesystem path.
-     * => `vendor/krynlabs/publication-bundle/Views/in/view/folder.
+     * Resolves a internal path (`@PublicationBundle/Resources/view/folder`, `Resources/views`) into the real filesystem path.
+     * => `vendor/krynlabs/publication-bundle/Resources/views/in/view/folder.
      *
      * @param        $path
      * @param string $suffix Will be appended onto the replaced module path

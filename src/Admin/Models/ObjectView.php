@@ -15,7 +15,7 @@ class ObjectView extends \Core\ORM\Propel
     {
         $path = $pk['path'];
 
-        $file = Kryn::resolvePath($path, 'Views/');
+        $file = Kryn::resolvePath($path, 'Resources/views/');
         $fileObj = SystemFile::getFile($file);
 
         return $fileObj->toArray();
@@ -116,7 +116,7 @@ class ObjectView extends \Core\ORM\Propel
 
             $result = array();
             foreach (\Core\Kryn::getBundles() as $extension) {
-                $directory = Kryn::resolvePath('@' . $extension, 'Views');
+                $directory = Kryn::resolvePath('@' . $extension, 'Resources/views');
                 $file = SystemFile::getFile($directory);
                 if (!$file) {
                     continue;
@@ -145,7 +145,7 @@ class ObjectView extends \Core\ORM\Propel
         } else {
             $bundle = Kryn::getBundle($path);
 
-            $directory = Kryn::resolvePath($path, 'Views');
+            $directory = Kryn::resolvePath($path, 'Resources/views');
             $files = SystemFile::getFiles($directory);
 
             foreach ($files as $file) {

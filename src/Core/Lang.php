@@ -286,7 +286,7 @@ class Lang
         $bundleObject = Kryn::getBundle($bundle);
         $path = $bundleObject->getPath();
 
-        self::readDirectory($path. 'Views');
+        self::readDirectory($path. 'Resources/views');
         self::readDirectory($path. 'Resources/public');
         self::readConfig($bundleObject);
 

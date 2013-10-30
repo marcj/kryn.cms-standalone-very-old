@@ -101,7 +101,7 @@ class Controller
     {
         $engine = Kryn::getTemplateEngineForFileName($view);
 
-        $view = Kryn::resolvePath($view, 'Views/');
+        $view = Kryn::resolvePath($view, 'Resources/views/');
 
         $html = (string)$engine->render($view, $data ? array_merge($this->viewData, $data) : $this->viewData, $this);
         return $translate ? Kryn::translate($html) : $html;
@@ -115,12 +115,12 @@ class Controller
             $dir .= '/..';
         }
 
-        return $dir . '/Views';
+        return $dir . '/Resources/views';
     }
 
     public function getViewMTime($view)
     {
-        $view = Kryn::resolvePath($view, 'Views/');
+        $view = Kryn::resolvePath($view, 'Resources/views/');
 
         if (!file_exists($view)) {
             throw new \FileNotFoundException(sprintf('File `%s` not found.', $view));
