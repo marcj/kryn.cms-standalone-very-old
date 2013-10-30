@@ -210,6 +210,11 @@ ka.Dialog = new Class({
         return this.close(pInternal, true);
     },
 
+    /**
+     * Cancels the (only) next closing call.
+     *
+     * Useful in the 'apply' event.
+     */
     cancelClosing: function () {
         this.cancelNextClosing = true;
     },
@@ -322,7 +327,7 @@ ka.Dialog = new Class({
     },
 
     show: function() {
-        this.center();
+        this.center(true);
     },
 
     /**
