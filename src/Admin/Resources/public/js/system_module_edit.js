@@ -7,7 +7,11 @@ var admin_system_module_edit = new Class({
             this.win.alert('No bundle given.');
             return;
         }
-        this.win.setTitle(this.mod);
+        var bundleName = this.mod;
+        if (-1 !== bundleName.lastIndexOf('\\')) {
+            bundleName = bundleName.substr(bundleName.lastIndexOf('\\') + 1);
+        }
+        this.win.setTitle(bundleName);
         this._createLayout();
     },
 
@@ -377,18 +381,23 @@ var admin_system_module_edit = new Class({
         }).inject(this.panes['docu']);
 
         var buttonBar = new ka.ButtonBar(this.panes['docu']);
-        buttonBar.addButton(t('Save'), this.saveDocu.bind(this));
+        var saveBtn = buttonBar.addButton(t('Save'), this.saveDocu.bind(this));
+
+        saveBtn.setButtonStyle('blue');
 
         this.text = new ka.Field({
-            label: t('Documentation'), type: 'wysiwyg'}, p, {win: this.win});
+            label: t('Documentation'),
+            width: 'auto',
+            inputHeight: 'auto',
+            type: 'textarea',
+            desc: t('This displays the content of ./Resources/doc/index.md. Markdown format.'),
+            readMore: 'http://en.wikipedia.org/wiki/Markdown'
+        }, p, {win: this.win});
         this.text.setValue(t('Loading ...'));
 
-        this.text.input.setStyle('height', '100%');
-        this.text.input.setStyle('width', '100%');
-
         this.lr = new Request.JSON({url: _pathAdmin +
-            'admin/system/module/editor/docu', noCache: 1, onComplete: function(res) {
-            this.text.setValue(res);
+            'admin/system/module/editor/docu', noCache: 1, onComplete: function(response) {
+            this.text.setValue(response.data || '');
         }.bind(this)}).get({bundle: this.mod});
 
         this.win.setLoading(false);
@@ -1221,17 +1230,18 @@ var admin_system_module_edit = new Class({
             name: {
                 label: t('Name'),
                 type: 'text',
-                desc: t('Should be in format &lt;vendor&gt;/&lt;name&gt;. Example: krynlabs/kryn.cms'),
+                required: true,
+                requiredRegex: '^([a-zA-Z0-9_-]+)/([a-zA-Z0-9_.-]+)$',
+                desc: t('Should be in format &lt;vendor&gt;/&lt;name&gt;. Example: peter/blog'),
+                readMore: 'http://getcomposer.org/doc/01-basic-usage.md#package-names',
                 required: true
             },
             description: {
                 label: t('Description'),
-                required: true,
                 type: 'textarea'
             },
             license: {
                 label: t('License'),
-                required: true,
                 type: 'text'
             },
             keywords: {
@@ -1250,6 +1260,7 @@ var admin_system_module_edit = new Class({
             version: {
                 label: t('Version'),
                 type: 'text',
+                readMore: 'http://getcomposer.org/doc/01-basic-usage.md#package-versions',
                 desc: t('Composer uses VCS repositories, so you can specify own branches or git tags to specify a version. Use this field only if you provide this package not through a VCS.')
             },
             screenshots: {
@@ -1288,6 +1299,7 @@ var admin_system_module_edit = new Class({
             require: {
                 label: t('Dependencies'),
                 desc: t(''),
+                readMore: 'http://getcomposer.org/doc/01-basic-usage.md#package-versions',
                 type: 'array',
                 asHash: true,
                 withOrder: true,
@@ -1413,7 +1425,7 @@ var admin_system_module_edit = new Class({
             fields: {
                 id: {
                     type: 'text',
-                    modifier: 'camelcase'
+                    modifier: 'camelcase|trim|'
                 },
                 label: {
                     type: 'text'
@@ -1528,9 +1540,6 @@ var admin_system_module_edit = new Class({
 
         var buttonBar = new ka.ButtonBar(this.panes['themes']);
 
-        buttonBar.addButton(t('Add theme'), function() {
-            this.addTheme('Theme title', {});
-        }.bind(this));
         this.saveBtn = buttonBar.addButton(t('Save'), this.saveThemes.bind(this));
         this.saveBtn.setButtonStyle('blue');
     },
@@ -1830,31 +1839,55 @@ var admin_system_module_edit = new Class({
             text: t('Translations')
         }).inject(div);
 
-        var left = new Element('div', {style: 'position: absolute; left: 5px; top: 50px; right: 90px;'}).inject(div);
+        this.languageLanguageSelect = new ka.Field({
+            type: 'lang',
+            label: 'Language'
+        }, div);
+
+        var table = new Element('table', {
+            width: '100%'
+        }).inject(div);
+        var tr = new Element('tr').inject(table);
+
+        var left = new Element('td').inject(tr);
+        var right = new Element('td', {
+            width: 100
+        }).inject(tr);
+
         this.langProgressBars = new ka.Progress(t('Extracting ...'), true);
         this.langProgressBars.inject(left);
 
-        var right = new Element('div', {style: 'position: absolute; right: 10px; top: 50px;'}).inject(div)
         this.langTranslateBtn = new ka.Button(t('Translate')).inject(right);
         this.langTranslateBtn.addEvent('click', function() {
-            ka.wm.open('admin/system/languages/edit', {/*lang: this.languageSelect.value, */module: this.mod});
+            ka.wm.open('admin/system/languages/edit', {lang: this.languageLanguageSelect.getValue(), bundle: this.mod});
         }.bind(this));
         this.langTranslateBtn.deactivate();
 
-        this.lr = new Request.JSON({url: _path + 'admin/system/languages/overviewExtract', noCache: 1,
-            onComplete: function(pRes) {
 
-                this.langProgressBars.setUnlimited(false);
-                this.langProgressBars.setValue((pRes.countTranslated / pRes.count) * 100);
+        this.extractLanguage(this.languageLanguageSelect.getValue());
+    },
 
-                this.langProgressBars.setText(
-                    t('%1 of %2 translated')
-                        .replace('%1', pRes.countTranslated)
-                        .replace('%2', pRes['count'])
-                );
+    extractLanguage: function(language) {
+        this.lr = new Request.JSON({url: _pathAdmin + 'admin/system/module/editor/language/overview', noCache: 1,
+            onComplete: function(pResponse) {
+                if (!pResponse.data) {
 
+                    this.langProgressBars.setText(
+                        'Error.'
+                    );
+                } else {
+                    this.langProgressBars.setUnlimited(false);
+                    this.langProgressBars.setValue((pResponse.data.countTranslated / pResponse.data.count) *
+                        100);
+
+                    this.langProgressBars.setText(
+                        _('%1 of %2 translated')
+                            .replace('%1', pResponse.data.countTranslated)
+                            .replace('%2', pResponse.data['count'])
+                    );
+                }
                 this.langTranslateBtn.activate();
-            }.bind(this)}).post({module: this.mod/*, lang: this.languageSelect.value*/});
+            }.bind(this)}).get({bundle: this.mod, lang: language});
 
     },
 
@@ -2031,15 +2064,11 @@ var admin_system_module_edit = new Class({
     },
 
     writeObjectModel: function(pObjectKey) {
-
         this.win.setLoading(true, t('Write model to model.xml'));
 
         new Request.JSON({url: _path + 'admin/system/module/editor/model/from-object', onComplete: function(pResult) {
-
             this.win.setLoading(false);
-
         }.bind(this)}).post({bundle: this.mod, object: pObjectKey});
-
     },
 
     saveObjects: function(pWithUpdate) {
@@ -2068,7 +2097,11 @@ var admin_system_module_edit = new Class({
         req.bundle = this.mod;
 
         this.lr = new Request.JSON({url: _pathAdmin +
-            'admin/system/module/editor/objects', noCache: 1, onComplete: function(response) {
+            'admin/system/module/editor/objects', noCache: 1,
+            onFailure: function() {
+                this.saveButton.stopTip(t('Failed.'));
+            },
+            onComplete: function(response) {
             if (response.status == 200) {
                 ka.loadSettings(['configs']);
                 if (pWithUpdate) {
@@ -2085,7 +2118,6 @@ var admin_system_module_edit = new Class({
     },
 
     openObjectSettings: function(pTr) {
-
         this.dialog = this.win.newDialog('', true);
 
         this.dialog.setStyles({

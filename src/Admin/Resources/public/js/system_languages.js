@@ -71,11 +71,18 @@ var admin_system_languages = new Class({
         var div = this.extensionsDivs[ pExtensionId ];
         div.empty();
 
-        var left = new Element('div', {style: 'position: absolute; left: 50px; top: 10px; right: 90px; max-width: 350px'}).inject(div);
+        var table = new Element('table', {
+            width: '100%'
+        }).inject(div);
+        var tr = new Element('tr').inject(table);
+
+        var left = new Element('td').inject(tr);
+        var right = new Element('td', {
+            width: 100
+        }).inject(tr);
         this.progressBars[pExtensionId] = new ka.Progress(t('Extracting ...'), true);
         this.progressBars[pExtensionId].inject(left);
 
-        var right = new Element('div', {style: 'position: absolute; right: 10px; top: 7px;'}).inject(div);
         this.translateBtn[pExtensionId] = new ka.Button(t('Translate')).inject(right);
         this.translateBtn[pExtensionId].addEvent('click', function () {
             ka.wm.open('admin/system/languages/edit', {lang: this.languageSelect.getValue(), bundle: pExtensionId});

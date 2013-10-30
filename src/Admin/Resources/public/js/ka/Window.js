@@ -265,7 +265,7 @@ ka.Window = new Class({
      *
      * @param pText
      * @param pCallback
-     * @returns {*}
+     * @returns {ka.Dialog}
      */
     alert: function (pText, pCallback) {
         return this._alert(pText, pCallback);
@@ -333,7 +333,7 @@ ka.Window = new Class({
         var main = this.newDialog(pDesc);
 
         if (pOpts['alert'] != 1 && pOpts['confirm'] != 1) {
-            var input = new Element('input', {
+            var input = main.input = new Element('input', {
                 'class': 'text',
                 'type': (pOpts.pw == 1) ? 'password' : 'text',
                 value: pDefaultValue
@@ -360,7 +360,8 @@ ka.Window = new Class({
             ok = new ka.Button(t('OK')).addEvent('keyup',function (e) {
                 e.stopPropagation();
                 e.stop();
-            }).addEvent('click', function (e) {
+            })
+                .addEvent('click', function (e) {
                     if (e) {
                         e.stop();
                     }
@@ -374,7 +375,9 @@ ka.Window = new Class({
                     if (pCallback) {
                         pCallback(res);
                     }
-                }.bind(this)).inject(main.bottom);
+                }.bind(this))
+                .setButtonStyle('blue')
+                .inject(main.bottom);
         }
 
         if (pOpts && pOpts['alert'] == 1) {
@@ -390,6 +393,7 @@ ka.Window = new Class({
                     }
                     main.close(true);
                 }.bind(this))
+                .setButtonStyle('blue')
                 .inject(main.bottom);
         }
 

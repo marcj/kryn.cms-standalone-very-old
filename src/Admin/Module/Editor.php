@@ -192,6 +192,22 @@ class Editor
         return $config->saveFileBased('themes');
     }
 
+    public function getDocu($bundle)
+    {
+        $bundle = $this->getBundle($bundle);
+        $path = $bundle->getPath() . 'Resources/doc/index.md';
+
+        return SystemFile::getContent($path);
+    }
+
+    public function saveDocu($bundle, $content)
+    {
+        $bundle = $this->getBundle($bundle);
+        $path = $bundle->getPath() . 'Resources/doc/index.md';
+
+        return SystemFile::setContent($path, $content);
+    }
+
     /**
      * Saves plugins.  Usually in Resources/config/kryn.plugins.xml
      *

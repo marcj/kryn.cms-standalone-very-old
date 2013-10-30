@@ -16,6 +16,7 @@ use Composer\Repository\PlatformRepository;
 use Composer\Repository\RepositoryInterface;
 use Core\Exceptions\BundleNotFoundException;
 use Core\Exceptions\FileNotWritableException;
+use Core\Exceptions\InvalidArgumentException;
 use Core\Exceptions\PackageNotFoundException;
 use Core\Kryn;
 use Core\SystemFile;
@@ -73,6 +74,90 @@ class Manager
         \Admin\Utils::clearModuleCache($bundle);
 
         return Kryn::getSystemConfig()->save();
+    }
+
+    public function createBundle($package, $namespace, $directoryStructure = false)
+    {
+        if (!preg_match('/^([a-zA-Z0-9_-]+)\\/([a-zA-Z0-9_\\.-]+)$/', $package)) {
+            throw new InvalidArgumentException('`package` is not a correct composer name.');
+        }
+        if (!preg_match('/^(([a-zA-Z0-9_-]+)\\\\)*([a-zA-Z0-9_-]*)Bundle/', $namespace)) {
+            throw new InvalidArgumentException('`package` is not a correct composer name.');
+        }
+
+        $directoryStructure = filter_var($directoryStructure, FILTER_VALIDATE_BOOLEAN);
+
+        $classDir = './src/' . str_replace('\\', '/', $namespace);
+        mkdirr($classDir);
+
+        $bundleClassName = str_replace('\\Bundle\\', '\\', $namespace);
+        $bundleClassName = str_replace('\\', '', $namespace);
+        $classFile = $classDir . '/' . $bundleClassName . '.php';
+        $composerFile = $classDir . '/composer.json';
+
+        $classPhp = sprintf('<?php
+
+namespace %s;
+
+use \Core\Bundle;
+
+class %s extends Bundle {
+
+}
+',
+            $namespace,
+            $bundleClassName
+        );
+
+        SystemFile::setContent($classFile, $classPhp);
+
+        $composer = array(
+            'repositories' => array(
+                array(
+                    'type' => 'composer',
+                    'url' =>  'http:\/\/packages.kryn.org\/'
+                )
+            ),
+            'name' => $package,
+            'target-dir' => str_replace('\\', '/', $namespace),
+            'autoload' => array(
+                'psr-0' => array(
+                    $namespace => './'
+                )
+            )
+        );
+
+        SystemFile::setContent($composerFile, json_format($composer));
+
+        if ($directoryStructure) {
+            SystemFile::createFolder($classDir . '/Controller');
+            SystemFile::createFolder($classDir . '/Resources');
+            SystemFile::createFolder($classDir . '/Resources/views');
+            SystemFile::createFolder($classDir . '/Resources/screenshots');
+            SystemFile::createFolder($classDir . '/Resources/doc');
+            SystemFile::createFolder($classDir . '/Resources/doc/images');
+            SystemFile::createFolder($classDir . '/Resources/public');
+            SystemFile::createFolder($classDir . '/Resources/config');
+
+            $krynXml = "<config>
+  <bundle>
+    <label>$bundleClassName</label>
+  </bundle>
+</config>";
+            SystemFile::createFile($classDir . '/Resources/config/kryn.xml', $krynXml);
+
+            $line = str_repeat('=', strlen($bundleClassName));
+            $docuIndex = "$bundleClassName
+$line
+
+This is the bundle $bundleClassName.
+";
+
+            SystemFile::createFile($classDir . '/Resources/doc/index.md', $docuIndex);
+
+        }
+
+        return true;
     }
 
     /**

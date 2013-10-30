@@ -71,7 +71,7 @@ class TypePlugin extends AbstractType
                         $request->attributes->add(
                             array(
                                  '_controller' => $clazz . '::' . $method,
-                                 'options' => $this->plugin['options']
+                                 'options' => $this->plugin['options'] ?: array()
                             )
                         );
 

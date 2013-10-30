@@ -269,6 +269,8 @@ class AdminController
                         ->addPostRoute('install', 'install')
                         ->addPostRoute('uninstall', 'uninstall')
 
+                        ->addPutRoute('', 'createBundle')
+
                         ->addPostRoute('activate', 'activate')
                         ->addPostRoute('deactivate', 'deactivate')
 
@@ -316,6 +318,9 @@ class AdminController
 
                         ->addPostRoute('themes', 'saveThemes')
                         ->addGetRoute('themes', 'getThemes')
+
+                        ->addPostRoute('docu', 'saveDocu')
+                        ->addGetRoute('docu', 'getDocu')
 
                         ->addSubController('language', '\Admin\Controller\Languages')
                             ->addGetRoute('overview', 'getOverviewExtract')
@@ -471,7 +476,6 @@ class AdminController
         );
 
         if (Kryn::getSystemConfig()->isDebug()) {
-
             foreach (Kryn::$configs as $bundleConfig) {
                 if (!$options['noJs']) {
                     foreach ($bundleConfig->getAdminAssetsPaths(false, '.*\.js', $regex = true) as $assetPath) {
@@ -484,7 +488,6 @@ class AdminController
                 }
             }
         } else {
-
             $response->addCssFile(Kryn::getAdminPrefix() . '/admin/backend/style');
             if (!$options['noJs']) {
                 $response->addJsFile(Kryn::getAdminPrefix() . '/admin/backend/script');

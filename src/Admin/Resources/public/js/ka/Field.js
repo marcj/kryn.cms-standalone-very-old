@@ -24,11 +24,16 @@ ka.Field = new Class({
 
         width: null,
 
+        required: false,
+        requiredRegex: null,
+
         'default': null,
         designMode: false,
         disabled: false,
 
         invisible: false,
+
+        readMore: null,
 
         returnDefault: false, //If this field has a default value, the field value won't be returned in the ka.FieldForm object per default if the value is the default value.
 
@@ -205,6 +210,17 @@ ka.Field = new Class({
                     'class': 'desc',
                     html: this.options.desc
                 }).inject(this.title);
+            }
+
+            if (this.options.readMore) {
+                this.readMore = new Element('div', {
+                    'class': 'desc'
+                }).inject(this.title);
+                new Element('a', {
+                    text: t('» Read more'),
+                    href: this.options.readMore,
+                    target: '_blank'
+                }).inject(this.readMore);
             }
 
             this.fieldPanel = new Element('div', {
@@ -431,6 +447,7 @@ ka.Field = new Class({
 
         this.fireEvent('change', [value, this, this.key]);
         this.fireEvent('check-depends');
+        this.checkValid();
 
         this.updateCookieStorage(value);
     },
