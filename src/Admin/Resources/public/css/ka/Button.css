@@ -26,6 +26,11 @@
 
     display: inline-block;
     border: 1px solid #ddd;
+
+    -webkit-transition: all 0.3s ease-out;
+    -moz-transition: all 0.3s ease-out;
+    -o-transition: all 0.3s ease-out;
+    transition: all 0.3s ease-out;
 }
 
 .ka-Button > span {
@@ -165,10 +170,6 @@ a.ka-Button-deactivate:hover {
 
 .ka-Button-stopLoading-done,
 .ka-Button-stopLoading-failed {
-    -webkit-transition: all 0.3s ease-out;
-    -moz-transition: all 0.3s ease-out;
-    -o-transition: all 0.3s ease-out;
-    transition: all 0.3s ease-out;
 }
 
 body .ka-Window-sidebar .ka-Button-stopLoading-done,

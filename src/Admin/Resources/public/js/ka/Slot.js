@@ -150,7 +150,7 @@ ka.Slot = new Class({
                 }
             }
 
-            pEvent.dataTransfer.dropEffect = 'copy';
+            //pEvent.dataTransfer.dropEffect = 'move';
 
             delete this.removePlaceholder;
 

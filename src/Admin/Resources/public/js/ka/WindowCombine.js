@@ -1238,6 +1238,10 @@ ka.WindowCombine = new Class({
     loadItem: function(pItem, objectKey) {
         var _this = this;
 
+        if (!objectKey) {
+            objectKey = this.classProperties['object'];
+        }
+
         if (this.currentAdd) {
             //TODO check unsaved
             var hasUnsaved = this.currentAdd.hasUnsavedChanges();

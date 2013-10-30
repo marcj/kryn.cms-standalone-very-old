@@ -188,7 +188,7 @@ ka.FieldTypes.Content = new Class({
 
         var targetLayout = this.layoutSelection.getValue() || this.firstSelectedLayout;
 
-        if (this.currentNode == nodeId && this.currentLayout == targetLayout && this.getEditor()) {
+        if (this.currentNode && this.currentNode == nodeId && this.currentLayout == targetLayout && this.getEditor()) {
             this.getEditor().setValue(contents);
             return;
         }
@@ -237,8 +237,10 @@ ka.FieldTypes.Content = new Class({
                 this.lastSaveRq.cancel();
             }
 
-            this.lastSaveRq = new Request.JSON({url: this.getUrl(), onComplete: function (pResponse) {
+            this.saveBtn.startLoading(t('Saving ...'));
 
+            this.lastSaveRq = new Request.JSON({url: this.getUrl(), onComplete: function (pResponse) {
+                this.saveBtn.stopLoading(t('Saved!'));
             }.bind(this)}).post({content: value});
         }
     },
