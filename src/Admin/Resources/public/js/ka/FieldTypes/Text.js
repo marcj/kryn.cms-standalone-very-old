@@ -51,18 +51,18 @@ ka.FieldTypes.Text = new Class({
                 return v.replace(/[^\\a-zA-Z0-9_]/g, '');
             },
             'underscore': function (v) {
-                return v.replace(/([^a-z])/g, function ($1) {
-                    return "_" + $1.toLowerCase().replace(/[^a-z]/, '');
+                return v.replace(/([^a-z]+)/g, function ($1) {
+                    return "_" + $1.toLowerCase().replace(/[^a-z]/g, '');
                 });
             },
             'camelcase': function (v) {
-                return v.replace(/([^a-zA-Z0-9][a-z])/g, function ($1) {
-                    return $1.toUpperCase().replace(/[^a-zA-Z0-9]/, '');
+                return v.replace(/([^a-zA-Z0-9]+[a-z])/g, function ($1) {
+                    return $1.toUpperCase().replace(/[^a-zA-Z0-9]/g, '');
                 });
             },
             'dash': function (v) {
-                return v.replace(/([^a-zA-Z0-9])/g, function ($1) {
-                    return "-" + $1.toLowerCase().replace(/[^a-z]/, '');
+                return v.replace(/([^a-zA-Z0-9]+)/g, function ($1) {
+                    return "-" + $1.toLowerCase().replace(/[^a-z]/g, '');
                 });
             }
         }
