@@ -202,6 +202,10 @@ ka.FieldForm = new Class({
                 obj.childContainer = tab.pane;
                 obj.parent = pDependField;
                 obj.options = field;
+                obj.key = id;
+                obj.getKey = function() {
+                    return obj.key;
+                };
                 obj.toElement = function () {
                     return tab.button;
                 };
@@ -216,12 +220,18 @@ ka.FieldForm = new Class({
                 obj.hasParent = function () {
                     return obj.parent;
                 };
+                obj.setForm = function (form) {
+                    obj.fieldForm = form;
+                };
+                obj.getForm = function () {
+                    return obj.fieldForm;
+                };
 
                 obj.field = field;
                 obj.handleChildsMySelf = true;
 
             } else {
-                obj = new ka.Field(field, target, id);
+                obj = new ka.Field(field, target, id, this);
             }
 
             if (pDependField) {
@@ -294,6 +304,7 @@ ka.FieldForm = new Class({
         this.fields[id] = obj;
         this.fieldDefinitions[id] = def || obj.getDefinition();
 
+        obj.setForm(this);
         obj.addEvent('change', this.fireChange);
 
         if (!instanceOf(obj, ka.FieldForm)) {
@@ -413,9 +424,10 @@ ka.FieldForm = new Class({
                 Object.each(tab.button.field.children, function(children, key) {
                     allHidden &= this.isHidden(key);
                 }.bind(this));
+
                 if (allHidden) {
                     tab.button.hide();
-                } else {
+                } else if (this.isVisible(tab.button.getKey())){
                     tab.button.show();
                 }
             }
@@ -605,6 +617,8 @@ ka.FieldForm = new Class({
             }
         }
 
+        this.value = Object.clone(pValues);
+
         Object.each(this.fields, function (obj, id) {
             if (instanceOf(obj, ka.FieldForm)) {
                 obj.setValue(pValues, pInternal);
@@ -619,8 +633,6 @@ ka.FieldForm = new Class({
             }
         });
 
-        this.value = Object.clone(this.getValue());
-
         if (true !== pInternal) {
             this.fireEvent('setValue', this.value);
         }
@@ -629,7 +641,8 @@ ka.FieldForm = new Class({
     /**
      * Returns the value that was set via setValue. `getValue` instead retrieves all
      * real values from all ka.Fields.
-     * @returns {*}
+     *
+     * @returns {Object}
      */
     getOriginValue: function() {
         return this.value;

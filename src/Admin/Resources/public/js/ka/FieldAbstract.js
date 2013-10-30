@@ -81,6 +81,15 @@ ka.FieldAbstract = new Class({
     },
 
     /**
+     * Return the ka.Field instance.
+     *
+     * @returns {ka.Field}
+     */
+    getField: function() {
+        return this.fieldInstance;
+    },
+
+    /**
      * Renders the UI with the new value.
      * Do not call this function in your code.
      *
@@ -128,7 +137,7 @@ ka.FieldAbstract = new Class({
 
         //example of using highlight
         //this calls toElement() and highlight the background of it.
-        if (document.id(this)) {
+        if (this.toElement()) {
             document.id(this).highlight();
         }
 
@@ -207,7 +216,6 @@ ka.FieldAbstract = new Class({
      * @param  {String} pText text to display
      */
     showInvalid: function (pText) {
-
         if (!((this.main || this.input) && (this.wrapper || this.input))) {
             return;
         }
