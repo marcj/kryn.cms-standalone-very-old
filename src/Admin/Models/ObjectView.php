@@ -115,8 +115,8 @@ class ObjectView extends \Core\ORM\Propel
         if (!$path) {
 
             $result = array();
-            foreach (\Core\Kryn::$extensions as $extension) {
-                $directory = Kryn::resolvePath('@' . $extension, 'Views/');
+            foreach (\Core\Kryn::getBundles() as $extension) {
+                $directory = Kryn::resolvePath('@' . $extension, 'Views');
                 $file = SystemFile::getFile($directory);
                 if (!$file) {
                     continue;
@@ -143,11 +143,13 @@ class ObjectView extends \Core\ORM\Propel
                 }
             }
         } else {
-            $directory = Kryn::resolvePath($path, 'Views/');
+            $bundle = Kryn::getBundle($path);
+
+            $directory = Kryn::resolvePath($path, 'Views');
             $files = SystemFile::getFiles($directory);
 
             foreach ($files as $file) {
-                if ($condition && !\Core\Object::satisfy($file, $condition)) {
+                if ($condition && $condition->hasRules() && !$condition->satisfy($file, 'core:file')) {
                     continue;
                 }
 
@@ -163,7 +165,7 @@ class ObjectView extends \Core\ORM\Propel
 
                 $item = array(
                     'name' => $item['name'],
-                    'path' => $path . substr($item['path'], strlen($directory))
+                    'path' => '@' . $bundle->getName() . substr($item['path'], strlen($directory))
                 );
 
                 if ($file->isDir()) {
@@ -174,6 +176,7 @@ class ObjectView extends \Core\ORM\Propel
                     }
                 }
 
+
                 if ($file->isFile()) {
                     $result[] = $item;
                 }
@@ -181,30 +184,6 @@ class ObjectView extends \Core\ORM\Propel
         }
 
         return $result;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getParent($pk)
-    {
-        parent::getParent($pk);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getParents($pk)
-    {
-        parent::getParents($pk);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getParentId($primaryKey)
-    {
-        return parent::getParentId($primaryKey);
     }
 
 }

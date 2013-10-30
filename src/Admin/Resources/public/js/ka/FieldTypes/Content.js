@@ -9,12 +9,13 @@ ka.FieldTypes.Content = new Class({
     },
 
     preview: 0,
+    currentNode: null,
 
     createLayout: function() {
         this.mainLayout = new ka.Layout(this.getContainer(), {
             layout: [
                 {columns: [null], height: 50},
-                {columns: [null, 230]}
+                {columns: [null, 180]}
             ],
             splitter: [
                 [2, 2, 'left']
@@ -41,17 +42,19 @@ ka.FieldTypes.Content = new Class({
         this.headerLayout.getCell(1, 2).setStyle('text-align', 'right');
         this.headerLayout.getCell(1, 2).setStyle('white-space', 'nowrap');
 
+        new Element('span', {
+            text: t('Layout:'),
+            style: 'line-height: 30px; display: inline-block; padding-right: 5px;'
+        }).inject(this.headerLayout.getCell(1, 2));
+
+        this.layoutSelection = new ka.Field({
+            noWrapper: true,
+            type: 'layout',
+            onChange: this.onLayoutChange.bind(this),
+            onSelectFirst: this.onLayoutSelectFirst.bind(this)
+        }, this.headerLayout.getCell(1, 2));
+
         if (this.options.standalone) {
-            new Element('span', {
-                text: t('Layout:'),
-                style: 'line-height: 30px; display: inline-block; padding-right: 5px;'
-            }).inject(this.headerLayout.getCell(1, 2));
-
-            this.layoutSelection = new ka.Field({
-                noWrapper: true,
-                type: 'layout'
-            }, this.headerLayout.getCell(1, 2));
-
             this.actionGroup = new ka.ButtonGroup(this.headerLayout.getCell(1, 2));
 
             this.actionGroup.addButton(t('Reset'), '#icon-escape');
@@ -123,8 +126,6 @@ ka.FieldTypes.Content = new Class({
                     this.loadEditor(this.domainSelection.getValue());
                 }.bind(this)
             });
-        } else {
-            this.loadEditor(this.options.domainId);
         }
 
         this.slider.addEvent('change', function(step) {
@@ -134,14 +135,63 @@ ka.FieldTypes.Content = new Class({
             document.id(this.iframe.contentWindow.document.body).setStyle('zoom', step + '%');
         }.bind(this));
 
-        this.renderSidebar()
+        this.renderSidebar();
+
+        this.setupEvents();
     },
 
-    loadEditor: function(domainId) {
+    setupEvents: function() {
+        var typeField;
+        if (this.getField().getForm() && (typeField = this.getField().getForm().getField('type'))) {
+            typeField.addEvent('change', function() {
+                this.setValue();
+            }.bind(this));
+        }
+    },
+
+    setValue: function(contents, internal) {
+        var originValue = this.getField().getForm().getOriginValue();
+
+        if (!contents) {
+            if (!this.currentNode || this.currentNode == originValue.id) {
+                contents = this.lastContents;
+            }
+        } else {
+            this.lastContents = contents;
+        }
+
+        var typeValue = this.getField().getForm().getValue('type');
+
+        if (0 != typeValue && 1 != typeValue) {
+            return;
+        }
+
+        this.layoutSelection.setValue(originValue.layout || null, internal);
+
+        this.currentNode = originValue.id;
+        this.loadEditor(originValue.domainId, originValue.id, contents);
+    },
+
+    onLayoutSelectFirst: function(layout) {
+        this.firstSelectedLayout = layout;
+    },
+
+    onLayoutChange: function(layout) {
+        var contents = this.getValue();
+        this.setValue(contents);
+    },
+
+    loadEditor: function(domainId, nodeId, contents) {
         var options = {
-            standalone: this.options.standalone,
-            domainId: domainId
+            standalone: this.options.standalone
         };
+
+        var targetLayout = this.layoutSelection.getValue() || this.firstSelectedLayout;
+
+        if (this.currentNode == nodeId && this.currentLayout == targetLayout && this.getEditor()) {
+            this.getEditor().setValue(contents);
+            return;
+        }
 
         var id = (Math.random() * 10 * (Math.random() * 10)).toString(36).slice(2);
 
@@ -149,12 +199,30 @@ ka.FieldTypes.Content = new Class({
             if (editor && editor.getId() == id) {
                 this.setEditor(editor);
                 editor.setContentField(this);
+                if (!this.options.standalone) {
+                    editor.deactivateLinks();
+                    editor.setValue(contents);
+                }
             }
         }.bind(this));
 
+        if (!nodeId && this.currentNode) {
+            nodeId = this.currentNode;
+        }
+
+        if (!domainId && this.currentDomain) {
+            domainId = this.currentDomain;
+        }
+
+        this.currentLayout = targetLayout;
         var params = {
             '_kryn_editor': 1,
             '_kryn_editor_id': id,
+            '_kryn_editor_node': nodeId,
+            '_kryn_editor_domain': domainId,
+            '_kryn_editor_path': location.pathname,
+            '_kryn_editor_host': location.host,
+            '_kryn_editor_layout': targetLayout,
             '_kryn_editor_options': options
         };
 
@@ -169,11 +237,14 @@ ka.FieldTypes.Content = new Class({
                 this.lastSaveRq.cancel();
             }
 
-            console.log('save', value);
             this.lastSaveRq = new Request.JSON({url: this.getUrl(), onComplete: function (pResponse) {
 
             }.bind(this)}).post({content: value});
         }
+    },
+
+    getValue: function() {
+        return this.editor ? this.editor.getValue() : null;
     },
 
     getUrl: function () {
@@ -212,6 +283,10 @@ ka.FieldTypes.Content = new Class({
 
     setEditor: function(editor) {
         this.editor = editor;
+    },
+
+    getEditor: function() {
+        return this.editor;
     },
 
     renderSidebar: function() {

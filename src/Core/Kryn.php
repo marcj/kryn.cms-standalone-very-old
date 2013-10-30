@@ -15,6 +15,7 @@ Namespace Core;
 use Core\Config\Client;
 use Core\Config\SystemConfig;
 use Core\Exceptions\BundleNotFoundException;
+use Core\Models\Base\DomainQuery;
 use Core\Models\ContentQuery;
 use Core\Models\Node;
 use Core\Models\NodeQuery;
@@ -1235,7 +1236,7 @@ class Kryn extends Controller
      *
      * @param int $domainId If not defined, it returns the current domain.
      *
-     * @return \Domain
+     * @return \Core\Models\Domain
      * @static
      */
     public static function getDomain($domainId = null)
@@ -1266,7 +1267,7 @@ class Kryn extends Controller
      * @param  int   $objectClassName If not defined, it returns the current page.
      * @param  mixed $objectPk        Propel PK for $objectClassName int, string or array
      *
-     * @return \BaseObject Propel object
+     * @return mixed Propel object
      * @static
      */
     public static function getPropelCacheObject($objectClassName, $objectPk)
@@ -1434,7 +1435,11 @@ class Kryn extends Controller
     {
         $request = self::getRequest();
         $dispatcher = self::getEventDispatcher();
-        $hostname = $request->get('kryn_domain') ? : $request->getHost();
+        if (static::isEditMode() && $domainId = $request->get('_kryn_editor_domain')) {
+            $hostname = DomainQuery::create()->select('domain')->findPk($domainId);
+        } else {
+            $hostname = $request->get('_kryn_domain') ? : $request->getHost();
+        }
 
         $possibleLanguage = self::getPossibleLanguage();
         $hostnameWithLanguage = $hostname . '/' . $possibleLanguage;
@@ -1488,9 +1493,7 @@ class Kryn extends Controller
             $redirectToDomain = $cachedDomains['!redirects'][$hostname]
         ) {
             $domain = $cachedDomains[$redirectToDomain];
-
             $dispatcher->dispatch('core/domain-redirect', new GenericEvent($domain));
-
             return null;
         }
 
@@ -1506,7 +1509,6 @@ class Kryn extends Controller
 
         if (!$domain) {
             $dispatcher->dispatch('core/domain-not-found', new GenericEvent($hostname));
-
             return;
         }
 
@@ -1579,28 +1581,25 @@ class Kryn extends Controller
      */
     public static function setupPageRoutes()
     {
-        self::$domain = self::detectDomain();
-        if (!self::$domain) {
-            return;
-        }
         $dispatcher = self::getEventDispatcher();
 
-        $page = self::searchPage();
+        if (!Kryn::$page) {
+            $page = self::searchPage();
 
-        if (!$page) {
-            $dispatcher->dispatch('core/page-not-found');
+            if (!$page) {
+                $dispatcher->dispatch('core/page-not-found');
+                return;
+            }
 
-            return;
+            Kryn::$page = self::getPage($page);
+
+            if (!$page) {
+                $dispatcher->dispatch('core/page-not-found');
+                return;
+            }
         }
 
-        Kryn::$page = self::getPage($page);
         Kryn::$page = self::checkPageAccess(Kryn::$page);
-
-        if (!$page) {
-            $dispatcher->dispatch('core/page-not-found');
-
-            return;
-        }
 
         $dispatcher->dispatch('core/set-page', new GenericEvent(Kryn::$page));
 
@@ -1686,7 +1685,7 @@ class Kryn extends Controller
             if (!$pluginDefinition) {
                 self::getLogger()->addAlert(
                     tf(
-                        'In bundle `%s the plugin `%s` on page `%s` [%d] does not not exist.',
+                        'In bundle `%s` the plugin `%s` on page `%s` [%d] does not not exist.',
                         $bundleName,
                         $data['plugin'],
                         Kryn::$page->getTitle(),
@@ -1966,10 +1965,8 @@ class Kryn extends Controller
      */
     public static function handleRequest()
     {
-
         if (self::isAdmin()) {
             $admin = new \Admin\Controller\AdminController();
-
             return $admin->run();
         }
 
@@ -2001,15 +1998,33 @@ class Kryn extends Controller
             }
         );
 
-        //search domain and set to Core\Kryn::$domain
-        self::detectDomain();
+        if ($nodeId = $request->get('_kryn_editor_node')) {
+            Kryn::$page = self::getPage($request->get('_kryn_editor_node'));
+            if (Kryn::isEditMode()){
+                Kryn::$domain = static::getDomain(Kryn::$page->getDomainId());
 
-        //setup page/plugin routes
-        if (!self::isAdmin()) {
+                $hostname = $request->get('_kryn_editor_host') ?: $request->getHost();
+                $path     = $request->get('_kryn_editor_path') ?: $request->getBasePath();
+
+                if ($layout = $request->get('_kryn_editor_layout')){
+                    Kryn::$page->setLayout($layout);
+                }
+
+                Kryn::$domain->setRealDomain($hostname);
+                Kryn::$domain->setPath($path);
+                $response = Kryn::getResponse();
+            } else {
+                Kryn::internalError('Access Denied', 'No Access.');
+            }
+        } else {
+            //search domain and set to Core\Kryn::$domain
+            Kryn::$domain = self::detectDomain();
+
+            //setup page/plugin routes
             self::setupPageRoutes();
-        }
 
-        $response = $kernel->handle($request);
+            $response = $kernel->handle($request);
+        }
 
         if ($response instanceof PluginResponse) {
             $response = Kryn::getResponse()->setPluginResponse($response);
@@ -2032,7 +2047,6 @@ class Kryn extends Controller
         }
 
         if (Kryn::isEditMode() && $response instanceof PageResponse) {
-
             \Admin\Controller\AdminController::handleKEditor();
         }
 

@@ -44,6 +44,7 @@ ka.FieldAbstract = new Class({
         this.fieldInstance = pFieldInstance;
         this.win = this.fieldInstance.win;
         this.setOptions(pOptions);
+        this.options = Object.merge(pOptions, this.options); //keep on* keys available. setOptions will delete those
         this.createLayout(this.fieldInstance.fieldPanel);
     },
 

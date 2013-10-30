@@ -436,8 +436,7 @@ class Propel extends ORMAbstract
         if ($relations) {
             foreach ($relations as $name => $relation) {
 
-                if ($relation->getType() != RelationMap::MANY_TO_MANY && $relation->getType(
-                ) != RelationMap::ONE_TO_MANY
+                if ($relation->getType() != RelationMap::MANY_TO_MANY && $relation->getType() != RelationMap::ONE_TO_MANY
                 ) {
 
                     if (is_array($relationFields[$name])) {
@@ -466,7 +465,7 @@ class Propel extends ORMAbstract
                         }
                     }
                 } else {
-                    //many-to-many, we need a extra query
+                    //many-toone and many-to-many, we need a extra query
                     if (is_array($relationFields[$name]) && $relationField = $this->getDefinition()->getField($name)) {
                         $relationObjectName = $relationField->getObject();
                         $sClazz = $relation->getRightTable()->getClassname();

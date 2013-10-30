@@ -304,10 +304,11 @@ ka.FieldForm = new Class({
         this.fields[id] = obj;
         this.fieldDefinitions[id] = def || obj.getDefinition();
 
-        obj.setForm(this);
         obj.addEvent('change', this.fireChange);
 
         if (!instanceOf(obj, ka.FieldForm)) {
+            obj.setForm(this);
+
             if (obj.field.againstField) {
                 if (typeOf(obj.field.againstField) == 'array') {
                     var check = function () {
@@ -634,6 +635,7 @@ ka.FieldForm = new Class({
         });
 
         if (true !== pInternal) {
+            this.fireEvent('change', this.value);
             this.fireEvent('setValue', this.value);
         }
     },

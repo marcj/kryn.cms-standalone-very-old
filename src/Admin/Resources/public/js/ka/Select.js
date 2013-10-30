@@ -1,5 +1,5 @@
 ka.Select = new Class({
-    Implements: [Events, Options],
+    Implements: [Options, Events],
 
     Binds: ['addItemToChooser', 'checkScroll', 'search', 'actions', 'focus', 'blur', 'fireChange'],
 
@@ -39,13 +39,7 @@ ka.Select = new Class({
     loaderId: 0,
     backupedTitle: false,
 
-    labelTemplate: '{if kaSelectImage}' +
-        '{var isVectorIcon = kaSelectImage.substr(0,1) == "#"} ' +
-        '{if kaSelectImage && isVectorIcon}<span class="{kaSelectImage.substr(1)}">{/if}' +
-        '{if kaSelectImage && !isVectorIcon}<img src="{kaSelectImage}" />{/if}' +
-        '{/if}' +
-        '{label}' +
-        '{if kaSelectImage && isVectorIcon}</span>{/if}',
+    labelTemplate: '{if kaSelectImage}' + '{var isVectorIcon = kaSelectImage.substr(0,1) == "#"} ' + '{if kaSelectImage && isVectorIcon}<span class="{kaSelectImage.substr(1)}">{/if}' + '{if kaSelectImage && !isVectorIcon}<img src="{kaSelectImage}" />{/if}' + '{/if}' + '{label}' + '{if kaSelectImage && isVectorIcon}</span>{/if}',
 
     options: {
 
@@ -174,11 +168,9 @@ ka.Select = new Class({
          * @var {Boolean}
          */
         selectFirstOnNull: true
-
     },
 
-    initialize: function (pContainer, pOptions) {
-
+    initialize: function(pContainer, pOptions) {
         this.setOptions(pOptions);
         this.container = pContainer;
 
@@ -187,7 +179,7 @@ ka.Select = new Class({
         this.prepareOptions();
 
         if (this.options.selectFirst) {
-            this.selectFirst();
+            this.selectFirst(null, true);
         }
 
         if (this.options.disabled)
@@ -196,11 +188,11 @@ ka.Select = new Class({
         if (this.options.transparent) {
             this.box.addClass('ka-Select-transparent');
         }
-        this.fireEvent('ready');
 
+        this.fireEvent('ready');
     },
 
-    createLayout: function () {
+    createLayout: function() {
         this.box = new Element('a', {
             href: 'javascript: ;',
             'class': 'ka-normalize ka-Select-box ka-Select-box-active'
@@ -210,11 +202,9 @@ ka.Select = new Class({
 
         this.title = new Element('div', {
             'class': 'ka-Select-box-title'
-        })
-            .addEvent('mousedown', function (e) {
+        }).addEvent('mousedown', function(e) {
                 e.preventDefault();
-            })
-            .inject(this.box);
+            }).inject(this.box);
 
         this.arrowBox = new Element('div', {
             'class': 'ka-Select-arrow icon-arrow-17'
@@ -229,19 +219,19 @@ ka.Select = new Class({
         }
     },
 
-    mapEvents: function () {
+    mapEvents: function() {
         this.box.addEvent('keydown', this.actions);
         this.box.addEvent('keyup', this.search);
         this.box.addEvent('focus', this.focus);
-        this.box.addEvent('blur', function () {
+        this.box.addEvent('blur', function() {
             this.blur.delay(50, this);
         }.bind(this));
 
-        this.chooser.addEvent('mousedown', function () {
+        this.chooser.addEvent('mousedown', function() {
             this.blockNextBlur = true;
         }.bind(this));
 
-        this.chooser.addEvent('click', function (e) {
+        this.chooser.addEvent('click', function(e) {
             if (!e || !(item = e.target)) {
                 return;
             }
@@ -257,10 +247,10 @@ ka.Select = new Class({
         this.chooser.addEvent('scroll', this.checkScroll);
     },
 
-    prepareOptions: function () {
+    prepareOptions: function() {
         if (this.options.items) {
             if (typeOf(this.options.items) == 'object') {
-                Object.each(this.options.items, function (label, id) {
+                Object.each(this.options.items, function(label, id) {
                     this.items.push({id: id, label: label});
                 }.bind(this));
             }
@@ -269,30 +259,30 @@ ka.Select = new Class({
                 if (this.options.itemsKey) {
 
                     if (this.options.itemsLabel) {
-                        Array.each(this.options.items, function (item) {
+                        Array.each(this.options.items, function(item) {
                             this.items.push({id: item[this.options.itemsKey], label: item[this.options.itemsLabel]});
                         }.bind(this));
                     } else {
-                        Array.each(this.options.items, function (item) {
+                        Array.each(this.options.items, function(item) {
                             this.items.push({id: item[this.options.itemsKey], label: item});
                         }.bind(this));
                     }
 
                 } else {
-                    Array.each(this.options.items, function (label, idx) {
+                    Array.each(this.options.items, function(label, idx) {
                         this.items.push({id: idx, label: label});
                     }.bind(this));
                 }
             }
 
         } else if (this.options.object) {
+            this.options.object = ka.normalizeObjectKey(this.options.object);
             this.objectDefinition = ka.getObjectDefinition(this.options.object);
 
             var fields = [];
             if (this.options.objectFields) {
                 fields = this.options.objectFields;
-            }
-            else if (this.options.objectLabel) {
+            } else if (this.options.objectLabel) {
                 fields.push(this.options.objectLabel);
             }
 
@@ -304,17 +294,17 @@ ka.Select = new Class({
         }
     },
 
-    focus: function () {
+    focus: function() {
     },
 
-    blur: function () {
+    blur: function() {
         if (this.blockNextBlur) {
             return this.blockNextBlur = false;
         }
         this.close();
     },
 
-    loadObjectItems: function (pOffset, pCallback, pCount) {
+    loadObjectItems: function(pOffset, pCallback, pCount) {
         if (!pCount) {
             pCount = this.options.maxItemsPerLoad;
         }
@@ -328,10 +318,10 @@ ka.Select = new Class({
 
             this.lastRq = new Request.JSON({url: _pathAdmin + storePath,
                 noErrorReporting: ['NoAccessException'],
-                onCancel: function () {
+                onCancel: function() {
                     pCallback(false);
                 },
-                onComplete: function (response) {
+                onComplete: function(response) {
                     if (response.error) {
                         //todo, handle error
                         return false;
@@ -340,7 +330,7 @@ ka.Select = new Class({
                         var items = [];
 
                         if (null !== response.data) {
-                            Object.each(response.data, function (item, id) {
+                            Object.each(response.data, function(item, id) {
 
                                 items.push({
                                     id: id,
@@ -368,10 +358,10 @@ ka.Select = new Class({
 
             this.lastRq = new Request.JSON({url: this.getObjectUrl(),
                 noErrorReporting: ['NoAccessException'],
-                onCancel: function () {
+                onCancel: function() {
                     pCallback(false);
                 },
-                onComplete: function (response) {
+                onComplete: function(response) {
 
                     if (response.error) {
                         //todo, handle error
@@ -381,7 +371,7 @@ ka.Select = new Class({
                         var items = [];
 
                         if (null !== response.data) {
-                            Array.each(response.data, function (item) {
+                            Array.each(response.data, function(item) {
 
                                 var id = ka.getObjectUrlId(this.options.object, item);
 
@@ -413,7 +403,7 @@ ka.Select = new Class({
         }
     },
 
-    getObjectUrl: function () {
+    getObjectUrl: function() {
         var uri = _pathAdmin + 'admin/object/' + ka.urlEncode(this.options.object);
 
         if (this.options.objectBranch) {
@@ -427,7 +417,7 @@ ka.Select = new Class({
         return uri;
     },
 
-    reset: function () {
+    reset: function() {
         this.chooser.empty();
         this.maximumItemsReached = false;
 
@@ -439,7 +429,7 @@ ka.Select = new Class({
         }
     },
 
-    checkScroll: function () {
+    checkScroll: function() {
         if (this.maximumItemsReached) {
             return;
         }
@@ -458,7 +448,7 @@ ka.Select = new Class({
         this.loadItems();
     },
 
-    actions: function (pEvent) {
+    actions: function(pEvent) {
         if (pEvent.key == 'esc') {
             this.searchValue = '';
             this.close(true);
@@ -534,8 +524,7 @@ ka.Select = new Class({
                 var height = +current.getSize().y;
 
                 if (position.y + height > this.chooser.getSize().y) {
-                    this.chooser.scrollTo(this.chooser.getScroll().x,
-                        this.chooser.getScroll().y + (position.y - this.chooser.getSize().y) + height);
+                    this.chooser.scrollTo(this.chooser.getScroll().x, this.chooser.getScroll().y + (position.y - this.chooser.getSize().y) + height);
                 }
 
                 if (position.y < 0) {
@@ -547,7 +536,7 @@ ka.Select = new Class({
         }
     },
 
-    search: function (pEvent) {
+    search: function(pEvent) {
         if (this.blockNextSearch) {
             return this.blockNextSearch = false;
         }
@@ -572,7 +561,7 @@ ka.Select = new Class({
         this.loadItems();
     },
 
-    loadItems: function () {
+    loadItems: function() {
         if (this.lrct) {
             clearTimeout(this.lrct);
         }
@@ -580,7 +569,7 @@ ka.Select = new Class({
         this.lrct = this._loadItems.delay(1, this);
     },
 
-    _loadItems: function () {
+    _loadItems: function() {
         if (!this.box.hasClass('ka-Select-box-open')) {
             return false;
         }
@@ -624,14 +613,14 @@ ka.Select = new Class({
 
         var loaderId = this.lastLoader.loaderId;
 
-        (function () {
+        (function() {
             if (this.lastLoader && this.lastLoader.loaderId == loaderId) {
                 this.lastLoader.setStyle('display', 'block');
                 this.displayChooser();
             }
         }).delay(1000, this);
 
-        this.dataProxy(this.loaded, function (pItems) {
+        this.dataProxy(this.loaded, function(pItems) {
 
             if (typeOf(pItems) == 'array') {
 
@@ -657,7 +646,7 @@ ka.Select = new Class({
 
     },
 
-    addItemToChooser: function (pItem) {
+    addItemToChooser: function(pItem) {
         var a;
 
         if (pItem.isSplit) {
@@ -695,15 +684,14 @@ ka.Select = new Class({
 
     },
 
-    checkIfCurrentValue: function (pItem, pA) {
-
+    checkIfCurrentValue: function(pItem, pA) {
         if (pItem.id == this.value) {
             pA.addClass('icon-checkmark-6');
             pA.addClass('ka-select-chooser-item-selected');
         }
     },
 
-    renderLabel: function (pData) {
+    renderLabel: function(pData) {
         if (typeOf(pData) == 'null') {
             return '';
         }
@@ -717,8 +705,7 @@ ka.Select = new Class({
 
         if (typeOf(data) == 'string') {
             data = {label: data};
-        }
-        else if (typeOf(data) == 'array') {
+        } else if (typeOf(data) == 'array') {
             //image
             data = {label: data[0], kaSelectImage: data[1]};
         }
@@ -736,7 +723,7 @@ ka.Select = new Class({
         if (template == this.labelTemplate && this.options.object && this.objectFields.length > 0) {
             //we have no custom layout, but objectFields
             var label = [];
-            Array.each(this.objectFields, function (field) {
+            Array.each(this.objectFields, function(field) {
                 label.push(pData[field]);
             });
             data.label = label.join(', ');
@@ -753,25 +740,26 @@ ka.Select = new Class({
         return mowla.fetch(template, data);
     },
 
-    selectFirst: function (pOffset) {
+    selectFirst: function(pOffset, pInternal) {
         this.duringFirstSelectLoading = true;
 
         if (!pOffset) {
             pOffset = 0;
         }
 
-        this.dataProxy(pOffset, function (items) {
+        this.dataProxy(pOffset, function(items) {
             this.duringFirstSelectLoading = false;
 
             if (items && items.length > 0) {
                 var i = 0;
                 for (i = 0; i < items.length; i++) {
                     var item = items[i];
-                    if (item && (!item.label || !item.label.isSplit)) {
+                    if (item && !item.isSplit) {
                         if (null === this.value) {
-                            this.chooseItem(item.id, true);
+                            this.chooseItem(item.id, pInternal);
                         }
-                        this.fireEvent('firstItemLoaded', item);
+                        this.fireEvent('firstItemLoaded', item.id);
+                        this.fireEvent('selectFirst', item.id);
                         return;
                     }
                 }
@@ -785,7 +773,7 @@ ka.Select = new Class({
      * @param {Integer}  pOffset
      * @param {Function} pCallback
      */
-    dataProxy: function (pOffset, pCallback, pCount) {
+    dataProxy: function(pOffset, pCallback, pCount) {
 
         if (!pCount) {
             pCount = this.options.maxItemsPerLoad;
@@ -825,7 +813,7 @@ ka.Select = new Class({
 
     },
 
-    setEnabled: function (pEnabled) {
+    setEnabled: function(pEnabled) {
         if (this.enabled === pEnabled) {
             return;
         }
@@ -851,22 +839,22 @@ ka.Select = new Class({
         }
     },
 
-    inject: function (p, p2) {
+    inject: function(p, p2) {
         this.box.inject(p, p2);
 
         return this;
     },
 
-    destroy: function () {
+    destroy: function() {
         this.chooser.destroy();
         this.box.destroy();
         this.chooser = null;
         this.box = null;
     },
 
-    remove: function (pId) {
+    remove: function(pId) {
         var removed = null;
-        Array.each(this.items, function(item){
+        Array.each(this.items, function(item) {
             if (null !== removed) return;
 
             if (item.id === pId) {
@@ -882,7 +870,7 @@ ka.Select = new Class({
         }
     },
 
-    addSplit: function (pLabel) {
+    addSplit: function(pLabel) {
         this.items.push({
             label: pLabel,
             isSplit: true
@@ -891,14 +879,14 @@ ka.Select = new Class({
         this.loadItems();
     },
 
-    showOption: function (pId) {
+    showOption: function(pId) {
         if (!this.hideOptions) {
             this.hideOptions = [];
         }
         this.hideOptions.push(pId);
     },
 
-    hideOption: function (pId) {
+    hideOption: function(pId) {
         if (!this.hideOptions) {
             return;
         }
@@ -909,7 +897,7 @@ ka.Select = new Class({
         this.hideOptions.splice(idx, 1);
     },
 
-    addImage: function (pId, pLabel, pImage, pPos) {
+    addImage: function(pId, pLabel, pImage, pPos) {
         return this.add(pId, [pLabel, pImage], pPos);
     },
 
@@ -920,7 +908,7 @@ ka.Select = new Class({
      * @param {Mixed}  pLabel String or array ['label', 'imageSrcOr#Class']
      * @param {int}    pPos   Starts with 0
      */
-    add: function (pId, pLabel, pPos) {
+    add: function(pId, pLabel, pPos) {
         if (pPos == 'top') {
             this.items.splice(0, 1, {id: pId, label: pLabel});
         } else if (pPos > 0) {
@@ -936,7 +924,7 @@ ka.Select = new Class({
         return this.loadItems();
     },
 
-    setLabel: function (pId, pLabel) {
+    setLabel: function(pId, pLabel) {
 
         var i = 0, max = this.items.length;
         do {
@@ -953,19 +941,19 @@ ka.Select = new Class({
 
     },
 
-    setStyle: function (p, p2) {
+    setStyle: function(p, p2) {
         this.box.setStyle(p, p2);
         return this;
     },
 
-    empty: function () {
+    empty: function() {
         this.items = [];
         this.value = null;
         this.title.set('html', '');
         this.chooser.empty();
     },
 
-    getLabel: function (pId, pCallback) {
+    getLabel: function(pId, pCallback) {
 
         var data;
         if (this.items.length > 0) {
@@ -995,7 +983,7 @@ ka.Select = new Class({
 
                     this.lastLabelRequest = new Request.JSON({
                         url: _pathAdmin + this.options.store + '/' + ka.urlEncode(pId),
-                        onComplete: function (response) {
+                        onComplete: function(response) {
 
                             if (!response.error) {
 
@@ -1016,7 +1004,7 @@ ka.Select = new Class({
                 } else if (this.options.object) {
                     this.lastLabelRequest = new Request.JSON({
                         url: _pathAdmin + 'admin/object/' + ka.urlEncode(this.options.object) + '/' + ka.urlEncode(pId),
-                        onComplete: function (response) {
+                        onComplete: function(response) {
 
                             if (!response.error) {
 
@@ -1039,11 +1027,11 @@ ka.Select = new Class({
         }
     },
 
-    chooseItem: function (pValue, pInternal) {
+    chooseItem: function(pValue, pInternal) {
         this.setValue(pValue, pInternal);
     },
 
-    setValue: function (pValue, pInternal) {
+    setValue: function(pValue, pInternal) {
         this.value = pValue;
 
         if (this.options.object && typeOf(this.value) == 'object') {
@@ -1054,15 +1042,14 @@ ka.Select = new Class({
             if (!this.options.selectFirstOnNull) {
                 return this.title.set('text', '');
             } else {
-                return this.selectFirst();
+                return this.selectFirst(null, pInternal);
             }
         }
 
-        this.getLabel(this.value, function (item) {
+        this.getLabel(this.value, function(item) {
             if (typeOf(item) != 'null' && item !== false) {
                 this.title.set('html', this.renderLabel(item.label));
-            }
-            else {
+            } else {
                 this.title.set('text', '');
             }
         }.bind(this));
@@ -1073,11 +1060,11 @@ ka.Select = new Class({
 
     },
 
-    fireChange: function () {
+    fireChange: function() {
         this.fireEvent('change', this.getValue());
     },
 
-    getValue: function () {
+    getValue: function() {
         if (this.options.object) {
             return ka.getObjectId(this.options.object + '/' + this.value);
         }
@@ -1085,7 +1072,7 @@ ka.Select = new Class({
         return this.value;
     },
 
-    toggle: function () {
+    toggle: function() {
         if (this.chooser.getParent()) {
             this.close(true);
         } else {
@@ -1093,7 +1080,7 @@ ka.Select = new Class({
         }
     },
 
-    close: function (pInternal) {
+    close: function(pInternal) {
         this.chooser.dispose();
         this.box.removeClass('ka-Select-box-open');
         this.reset();
@@ -1112,19 +1099,18 @@ ka.Select = new Class({
         this.title.inSearchMode = false;
     },
 
-    isOpen: function () {
+    isOpen: function() {
         return this.box.hasClass('ka-Select-box-open');
     },
 
-    open: function (pWithoutLoad) {
+    open: function(pWithoutLoad) {
         if (!this.enabled) {
             return;
         }
 
         if (this.box.getParent('.kwindow-win-titleGroups')) {
             this.chooser.addClass('ka-Select-darker');
-        }
-        else {
+        } else {
             this.chooser.removeClass('ka-Select-darker');
         }
 
@@ -1141,12 +1127,12 @@ ka.Select = new Class({
         }
     },
 
-    displayChooser: function () {
+    displayChooser: function() {
         if (!this.lastOverlay) {
             this.lastOverlay = ka.openDialog({
                 element: this.chooser,
                 target: this.box,
-                onClose: function () {
+                onClose: function() {
                     this.close(true);
                 }.bind(this),
                 offset: {y: -1}
@@ -1186,7 +1172,7 @@ ka.Select = new Class({
 
     },
 
-    toElement: function () {
+    toElement: function() {
         return this.box;
     }
 

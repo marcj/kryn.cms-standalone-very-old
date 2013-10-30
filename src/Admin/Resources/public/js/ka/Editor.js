@@ -11,7 +11,7 @@ ka.Editor = new Class({
 
     container: null,
 
-    initialize: function (pOptions, pContainer) {
+    initialize: function(pOptions, pContainer) {
         this.setOptions(pOptions);
 
         this.container = pContainer || document.documentElement;
@@ -49,11 +49,11 @@ ka.Editor = new Class({
         return this.options.id;
     },
 
-    getNode: function(){
+    getNode: function() {
         return this.options.node;
     },
 
-    onOver: function (pEvent, pElement) {
+    onOver: function(pEvent, pElement) {
         if (this.lastHoveredContentInstance) {
             this.lastHoveredContentInstance.onOut();
         }
@@ -68,14 +68,14 @@ ka.Editor = new Class({
         }
     },
 
-    onOut: function (pEvent, pElement) {
+    onOut: function(pEvent, pElement) {
         if (pElement && pElement.kaContentInstance) {
             pElement.kaContentInstance.onOut(pEvent);
             delete this.lastHoveredContentInstance;
         }
     },
 
-    adjustAnchors: function () {
+    adjustAnchors: function() {
         var params = {};
         params._kryn_editor = 1;
         params._kryn_editor_id = this.options.id;
@@ -87,25 +87,52 @@ ka.Editor = new Class({
 
         params = Object.toQueryString(params);
 
-        this.container.getElements('a').each(function (a) {
+        this.container.getElements('a').each(function(a) {
             if (a.href) {
                 a.href = a.href + ((a.href.indexOf('?') > 0) ? '&' : '?') + params
             }
         }.bind(this));
     },
 
-    getValue: function () {
+    getValue: function() {
         this.slots = this.container.getElements('.ka-slot');
 
         var contents = [];
 
-        Array.each(this.slots, function (slot) {
+        Array.each(this.slots, function(slot) {
             if (slot.kaSlotInstance) {
                 contents = contents.concat(slot.kaSlotInstance.getValue());
             }
         });
 
         return contents;
+    },
+
+    setValue: function(contents) {
+        var boxContents = {};
+
+        if ('array' === typeOf(contents)) {
+            Array.each(contents, function(content) {
+                if (!boxContents[content.boxId]) {
+                    boxContents[content.boxId] = [];
+                }
+
+                boxContents[content.boxId].push(content);
+            });
+        }
+
+        Array.each(this.slots, function(slot) {
+            var instance = slot.kaSlotInstance;
+            if (instance) {
+                instance.setValue(boxContents[instance.getBoxId()] || null);
+            }
+        });
+    },
+
+    deactivateLinks: function() {
+        this.container.addEvent('click:relay(a)', function(event){
+            event.stop();
+        });
     },
 
     setContentField: function(contentField) {
@@ -116,23 +143,23 @@ ka.Editor = new Class({
         return this.contentField;
     },
 
-    getUrl: function () {
+    getUrl: function() {
         return _pathAdmin + 'admin/object/Core:Node/' + this.options.node.id + '?_method=patch';
     },
 
-    save: function () {
+    save: function() {
         if (this.lastSaveRq) {
             this.lastSaveRq.cancel();
         }
 
         var contents = this.getValue();
 
-        this.lastSaveRq = new Request.JSON({url: this.getUrl(), onComplete: function (pResponse) {
+        this.lastSaveRq = new Request.JSON({url: this.getUrl(), onComplete: function(pResponse) {
 
         }.bind(this)}).post({content: contents});
     },
 
-    highlightSlotsBubbles: function (pHighlight) {
+    highlightSlotsBubbles: function(pHighlight) {
         if (!pHighlight) {
             if (this.lastBubbles) {
                 this.lastBubbles.invoke('destroy');
@@ -145,7 +172,7 @@ ka.Editor = new Class({
 
         this.lastBubbles = [];
 
-        this.slots.each(function (slot) {
+        this.slots.each(function(slot) {
 
             var bubble = new Element('div', {
                 'class': 'ka-editor-slot-infobubble',
@@ -170,9 +197,9 @@ ka.Editor = new Class({
 
         var delta = 8;
 
-        var jump = function () {
+        var jump = function() {
 
-            Array.each(this.lastBubbles, function (bubble) {
+            Array.each(this.lastBubbles, function(bubble) {
 
                 if (bubble.kaEditorIsOrigin) {
                     bubble.tween('top', bubble.kaEditorOriginTop - delta);
@@ -190,7 +217,7 @@ ka.Editor = new Class({
         this.lastBubbleTimer = jump.periodical(1500, this);
     },
 
-    highlightSave: function (pHighlight) {
+    highlightSave: function(pHighlight) {
         if (this.saveBtn) {
             if (!pHighlight && this.lastTimer) {
                 clearInterval(this.lastTimer);
@@ -203,7 +230,7 @@ ka.Editor = new Class({
 
             this.timerIdx = 0;
 
-            this.lastTimer = (function () {
+            this.lastTimer = (function() {
                 if (++this.timerIdx % 2) {
                     this.saveBtn.tween('color', '#2A8AEC');
                 } else {
@@ -213,14 +240,13 @@ ka.Editor = new Class({
         }
     },
 
-    setPreview: function (visible) {
+    setPreview: function(visible) {
         Array.each(this.slots, function(slot) {
             slot.kaSlotInstance.setPreview(visible);
         });
     },
 
-
-    highlightSlots: function (pEnter) {
+    highlightSlots: function(pEnter) {
         if (pEnter) {
             this.slots.addClass('ka-slot-highlight');
         } else {
@@ -228,20 +254,20 @@ ka.Editor = new Class({
         }
     },
 
-    searchSlots: function () {
+    searchSlots: function() {
         this.slots = this.container.getElements('.ka-slot');
 
-        Array.each(this.slots, function (slot) {
+        Array.each(this.slots, function(slot) {
             this.initSlot(slot);
         }.bind(this));
     },
 
-    hasChanges: function () {
+    hasChanges: function() {
         this.slots = this.container.getElements('.ka-slot');
 
         var hasChanges = false;
 
-        Array.each(this.slots, function (slot) {
+        Array.each(this.slots, function(slot) {
             if (slot.kaSlotInstance) {
                 hasChanges |= slot.kaSlotInstance.hasChanges();
             }
@@ -250,11 +276,11 @@ ka.Editor = new Class({
         return hasChanges;
     },
 
-    checkChange: function () {
+    checkChange: function() {
         this.highlightSave(this.hasChanges());
     },
 
-    initSlot: function (pDomSlot) {
+    initSlot: function(pDomSlot) {
         pDomSlot.slotInstance = new ka.Slot(pDomSlot, this.options, this);
         pDomSlot.slotInstance.addEvent('change', this.checkChange);
     }

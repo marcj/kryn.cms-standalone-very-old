@@ -29,7 +29,7 @@ ka.FieldTypes.View = new Class({
 
     initialize: function (pFieldInstance, pOptions) {
 
-        pOptions.object = 'Core\\View';
+        pOptions.object = 'core:view';
 
         if (!pOptions.directory) {
             throw 'Option `directory` is empty in ka.Field `view`.';

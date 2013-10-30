@@ -26,8 +26,8 @@ class KrynUsers extends ClientAbstract
 
         $row = dbExfetch(
             "
-                        SELECT id, passwd, passwd_salt
-                        FROM " . pfx . "system_user
+            SELECT id, passwd, passwd_salt
+            FROM " . pfx . "system_user
             WHERE
                 id > 0
                 AND $userColumn = ?

@@ -29,6 +29,10 @@ ka.FieldTypes.ObjectKey = new Class({
                 }.bind(this));
             }
         }.bind(this));
+
+        if (this.select.options.selectFirst) {
+            this.select.selectFirst();
+        }
     },
 
     setValue: function(value) {

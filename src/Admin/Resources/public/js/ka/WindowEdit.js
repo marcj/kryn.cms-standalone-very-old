@@ -173,7 +173,7 @@ ka.WindowEdit = new Class({
     _loadItem: function (pItem) {
         this.item = pItem;
 
-        this.setValue(pItem);
+        this.setValue(pItem, true);
         this.saveBtn.setEnabled(pItem._editable);
         this.hideNotEditableFields(pItem._notEditable);
 
@@ -195,11 +195,11 @@ ka.WindowEdit = new Class({
         }
     },
 
-    setValue: function (pValue) {
+    setValue: function (pValue, pInternal) {
 
         pValue = pValue || {};
 
-        this.fieldForm.setValue(pValue);
+        this.fieldForm.setValue(pValue, pInternal);
 
         if (this.getTitleValue()) {
             this.win.setTitle(this.getTitleValue());
@@ -579,7 +579,7 @@ ka.WindowEdit = new Class({
     },
 
     reset: function () {
-        this.setValue(this.item);
+        this.setValue(this.item, true);
     },
 
     remove: function () {

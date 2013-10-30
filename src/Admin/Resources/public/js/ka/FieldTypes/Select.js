@@ -72,8 +72,8 @@ ka.FieldTypes.Select = new Class({
         return this.select;
     },
 
-    setValue: function (pValue) {
-        this.select.setValue(pValue);
+    setValue: function (pValue, pInternal) {
+        this.select.setValue(pValue, pInternal);
     },
 
     getValue: function () {

@@ -4,7 +4,8 @@ ka.Slot = new Class({
     Implements: [Options, Events],
 
     options: {
-        node: {}
+        node: {},
+        standalone: true
     },
 
     slot: null,
@@ -23,7 +24,9 @@ ka.Slot = new Class({
         this.renderLayout();
         this.mapDragEvents();
 
-        this.loadContents();
+        if (this.options.standalone) {
+            this.loadContents();
+        }
     },
 
     getParam: function(key) {
@@ -32,6 +35,10 @@ ka.Slot = new Class({
 
     getEditor: function() {
         return this.editor;
+    },
+
+    getBoxId: function() {
+        return this.slotParams.id;
     },
 
     mapDragEvents: function() {
@@ -204,11 +211,18 @@ ka.Slot = new Class({
     },
 
     renderContents: function(pResponse) {
-        Array.each(pResponse.data, function(content) {
-            this.addContent(content)
-        }.bind(this));
+        this.setValue(pResponse.data);
 
         this.oldValue = this.getValue();
+    },
+
+    setValue: function(contents) {
+        this.slot.empty();
+        if ('array' === typeOf(contents)) {
+            Array.each(contents, function(content) {
+                this.addContent(content)
+            }.bind(this));
+        }
     },
 
     toElement: function() {
@@ -252,7 +266,7 @@ ka.Slot = new Class({
             pContent.template = '@CoreBundle/content_default.tpl';
         }
 
-        var content = new ka.Content(pContent, this, pDrop);
+        var content = new ka.Content(pContent, this.slot, pDrop);
         content.addEvent('change', this.fireChange);
 
         if (pFocus) {

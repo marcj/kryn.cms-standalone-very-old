@@ -208,7 +208,7 @@ ka.Content = new Class({
             return this.updateUI();
         }.bind(this));
 
-        this.template.setValue(this.value.template);
+        this.template.setValue(this.value.template || null);
 
         this.inspectorContainer = new Element('div', {
             style: 'padding-top: 5px;'

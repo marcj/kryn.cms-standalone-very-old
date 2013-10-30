@@ -82,6 +82,16 @@ class ObjectCrud
     protected $fields = array();
 
     /**
+     * Defines additional to $fields more selected field keys, so you can
+     * provide through the API more values without defining those in the editor ($fields) itself.
+     *
+     * Comma separated or as array.
+     *
+     * @var string|array
+     */
+    protected $extraSelection = array();
+
+    /**
      * Defines the fields of your table which should be displayed.
      * Only one level, no children, no tabs. Use the window editor,
      * to get the list of possible types.
@@ -795,7 +805,7 @@ class ObjectCrud
     public function getItem($pk, $fields = null, $withAcl = false)
     {
         $this->primaryKey = $pk;
-        $options['fields'] = $this->getSelection($fields);
+        $options['fields'] = $this->getSelection($fields, false);
 
         $options['permissionCheck'] = $this->getPermissionCheck();
 
@@ -920,20 +930,21 @@ class ObjectCrud
      * Returns the selection (field names)
      *
      * @param array $fields
+     * @param bool  $getColumns
      * @return array
      */
-    public function getSelection($fields)
+    public function getSelection($fields, $getColumns = true)
     {
         $result = [];
         if ($fields && $this->getAllowCustomSelectFields()) {
             if (!is_array($fields)) {
                 if ('*' !== $fields) {
-                    $result = explode(',', trim(preg_replace('/[^a-zA-Z0-9_\.\-,]/', '', $fields)));
+                    $result = explode(',', trim(preg_replace('/[^a-zA-Z0-9_\.\-,\*]/', '', $fields)));
                 }
             }
         }
 
-        if (!$result) {
+        if (!$result && $getColumns) {
             $result = array_keys($this->getColumns() ? : array());
         }
 
@@ -941,7 +952,25 @@ class ObjectCrud
             $result = $this->getDefaultFieldList();
         }
 
+        if ($extraSelects = $this->getExtraSelection()) {
+            $result = $result ? array_merge($result, $extraSelects) : $extraSelects;
+        }
+
         return $result;
+    }
+
+    public function getExtraSelection()
+    {
+        if (is_string($this->extraSelection)) {
+            return explode(',', trim(preg_replace('/[^a-zA-Z0-9_\.\-,\*]/', '', $this->extraSelection)));
+        }
+
+        return $this->extraSelection;
+    }
+
+    public function setExtraSelection($selection)
+    {
+        $this->extraSelection = $selection;
     }
 
     public function getQueryCondition($query, $fields)

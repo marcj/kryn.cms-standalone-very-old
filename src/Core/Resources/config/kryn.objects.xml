@@ -13,9 +13,9 @@
         <treeIconMapping>
           <icon id="dir">#icon-folder-4</icon>
         </treeIconMapping>
-        <treeDefaultIcon>#icon-paper</treeDefaultIcon>
         <treeInterfaceClass>ka.FileTree</treeInterfaceClass>
         <treeInterface>custom</treeInterface>
+        <treeDefaultIcon>#icon-paper</treeDefaultIcon>
         <browserInterfaceClass>ka.Files</browserInterfaceClass>
         <browserInterface>custom</browserInterface>
         <browserOptions>
@@ -138,6 +138,14 @@
           <field id="accessFromGroups" type="text"/>
           <field id="searchWords" type="text"/>
           <field id="unsearchable" type="checkbox"/>
+          <field id="layout" type="layout"/>
+          <field id="content" type="object">
+            <label>Contents</label>
+            <object>core:content</object>
+            <objectRelation>1ToN</objectRelation>
+            <objectRelationName>content</objectRelationName>
+            <options/>
+          </field>
         </fields>
         <publicUrlGenerator>Core\PageController::getPublicUrl</publicUrlGenerator>
       </object>

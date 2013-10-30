@@ -29,5 +29,9 @@ ka.FieldTypes.ContentTemplate = new Class({
                 }.bind(this))
             }
         }.bind(this));
+
+        if (this.select.options.selectFirst) {
+            this.select.selectFirst();
+        }
     }
 });

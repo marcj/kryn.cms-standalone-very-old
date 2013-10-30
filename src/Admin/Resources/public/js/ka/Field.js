@@ -1,7 +1,6 @@
 ka.FieldTypes = {};
 
 ka.Field = new Class({
-
     Implements: [Options, Events],
 
     Binds: ['fireChange', 'checkValid'],
@@ -286,10 +285,11 @@ ka.Field = new Class({
             this.options = Object.merge(this.options, field);
         }
 
-        this.options.type = this.options.type ? this.options.type : 'text';
-        var clazz = ka.FieldTypes[this.options.type] || ka.FieldTypes[this.options.type.capitalize()];
+        var options = Object.clone(this.calledDefinition);
+        options.type = this.options.type ? this.options.type : 'text';
+        var clazz = ka.FieldTypes[options.type] || ka.FieldTypes[options.type.capitalize()];
 
-        var options = Object.merge(this.options, this.options.options || {});
+        options = Object.merge(options, this.options.options || {});
 
         if (clazz) {
             this.fieldObject = new clazz(this, options);

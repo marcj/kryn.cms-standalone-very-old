@@ -160,7 +160,7 @@ abstract class ClientAbstract
     {
         $this->getSession()->setTime(time());
         $this->getSession()->setRefreshed($this->session->getRefreshed() + 1);
-        $this->getSession()->setPage(Kryn::getRequestedPath(true));
+        $this->getSession()->setPage(substr(Kryn::getRequestedPath(true), 0, 255));
 
         setCookie(
             $this->getTokenId(),

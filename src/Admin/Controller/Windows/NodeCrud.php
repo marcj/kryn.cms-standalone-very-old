@@ -68,16 +68,18 @@ class NodeCrud extends \Admin\ObjectCrud
         '__Content__' => array(
             'label' => 'Content',
             'type' => 'tab',
-            'needValue' => [0, 1],
+            'needValue' => 0,
             'againstField' => 'type',
             'children' => array(
-                'content.*' => array(
+                'content' => array(
                     'noWrapper' => true,
-                    'type' => 'content',
+                    'type' => 'content'
                 ),
             ),
         ),
     );
+
+    public $extraSelection = 'domainId, layout, content.*';
 
     public $columns = array(
         'type' => array(

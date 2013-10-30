@@ -427,6 +427,7 @@ class AdminController
 
         if (is_array($_GET['_kryn_editor_options'])) {
             $options = array_merge($options, $_GET['_kryn_editor_options']);
+            $options['standalone'] = filter_var($options['standalone'], FILTER_VALIDATE_BOOLEAN);
         }
         $response->addJs(
             'window.editor = new parent.ka.Editor(' . json_encode($options) . ', document.documentElement);',
