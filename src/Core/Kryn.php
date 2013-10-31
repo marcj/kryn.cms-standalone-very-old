@@ -674,6 +674,8 @@ class Kryn extends Controller
             if (!mkdir($bundles)) {
                 die(sprintf('Can not create `%s` directory. Please check permissions.', getcwd().'/'.$bundles));
             }
+
+            chmod('vendor/google/closure-compiler/compiler.jar', 0644);
         }
 
         foreach (Kryn::$bundles as $bundle) {
@@ -686,6 +688,40 @@ class Kryn extends Controller
                         symlink(realpath($public), $web);
                     }
                 }
+            }
+        }
+
+        $createSymlink = function ($path, $link) {
+            mkdirr(dirname($link));
+            if (file_exists($link)) {
+                unlink($link);
+            }
+            symlink(realpath($path), $link);
+        };
+
+        $dir = __DIR__ . '/Resources/public/tinymce';
+        if (!file_exists($dir)) {
+            $createSymlink('vendor/tinymce/tinymce/js/tinymce', $dir);
+        }
+
+        /*
+         * Move important CodeMirror from vendor to our public available folder
+         */
+        $files = array(
+            'addon',
+            'keymap',
+            'lib',
+            'mode',
+            'theme',
+            'LICENSE',
+            'README.md'
+        );
+
+        $dir = __DIR__ . '/Resources/public/codemirror/';
+
+        if (!file_exists($dir)) {
+            foreach ($files as $file) {
+                $createSymlink('vendor/marijnh/codemirror/' . $file, $dir . $file);
             }
         }
     }

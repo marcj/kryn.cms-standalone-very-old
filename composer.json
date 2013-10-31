@@ -21,10 +21,6 @@
             "email": "marc@kryn.org"
         }
     ],
-    "scripts": {
-        "post-update-cmd": "Core\\Composer::update",
-        "post-install-cmd": "Core\\Composer::update"
-    },
     "autoload": {
         "psr-0": {
             "Core": "src/",
