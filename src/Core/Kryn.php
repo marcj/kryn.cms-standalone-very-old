@@ -671,7 +671,9 @@ class Kryn extends Controller
     {
         $bundles = PATH_WEB . 'bundles/';
         if (!is_dir($bundles)) {
-            WebFile::createFolder('bundles');
+            if (!mkdir($bundles)) {
+                die(sprintf('Can not create `%s` directory. Please check permissions.', getcwd().'/'.$bundles));
+            }
         }
 
         foreach (Kryn::$bundles as $bundle) {

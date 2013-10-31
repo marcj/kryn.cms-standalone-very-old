@@ -358,26 +358,27 @@ class Backend
                 $cmd .= ' ' . implode(' ', $files);
                 $cmd .= ' 2>&1';
                 $output = shell_exec($cmd);
-                if (0 === strpos($output, 'Unable to access jarfile')) {
-                    die('Can not access google compiler: ' . $closure);
+                if (0 !== strpos($output, 'Unable to access jarfile')) {
+                    $content = file_get_contents($oFile);
+                    $sourceMapUrl = '//@ sourceMappingURL=script-map';
+                    $content = $md5Line . $content . $sourceMapUrl;
+                    file_put_contents($oFile, $content);
+
+                    echo substr($content, 35);
+                    exit;
                 }
 
-                $content = file_get_contents($oFile);
-                $sourceMapUrl = '//@ sourceMappingURL=script-map';
-                $content = $md5Line . $content . $sourceMapUrl;
-                file_put_contents($oFile, $content);
-
-                echo substr($content, 35);
-            } else {
-                foreach ($assets as $assetPath) {
-                    echo "/* $assetPath */\n\n";
-                    $path = Kryn::resolvePath($assetPath, 'Resources/public');
-                    echo file_get_contents($path);
-                }
             }
+
+
+            foreach ($assets as $assetPath) {
+                echo "/* $assetPath */\n\n";
+                $path = Kryn::resolvePath($assetPath, 'Resources/public');
+                echo file_get_contents(PATH . $path);
+            }
+            exit;
         }
 
-        exit;
     }
 
     public function getMenus()

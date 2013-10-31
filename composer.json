@@ -22,7 +22,8 @@
         }
     ],
     "scripts": {
-        "post-update-cmd": "php src\/Core\/Resources\/package\/composer.update.php"
+        "post-update-cmd": "Core\\Composer::update",
+        "post-install-cmd": "Core\\Composer::update"
     },
     "autoload": {
         "psr-0": {

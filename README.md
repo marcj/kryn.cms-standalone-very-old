@@ -13,11 +13,11 @@ __So, please do not install or use it, yet. Most things don't work.__
 Installation
 ------------
 
-1. Extract the tar/zip-ball or `git clone https://github.com/kryncms/Kryn.cms.git`.
-2. Download `composer` through `wget http://getcomposer.org/composer.phar`.
-3. Install vendor libraries with `php composer.phar install`.
-4. Setup a `VirtualHost` pointing to the `./web/` directory.
-5. Open `domain.tld/install.php` in your browser and follow the instruction.
+Use the create-project command to get a kryn.cms application:
+
+    php composer.phar create-project --prefer-dist --stability=dev kryncms/kryn.cms-standard-edition path/to/install
+
+Go to https://github.com/kryncms/kryn.cms-standard-edition for more information.
 
 Requirements
 ------------
