@@ -291,6 +291,7 @@ class SystemConfigTest extends TestCaseWithCore
     public function testSystemConfigDefaultConfig()
     {
         $config = new SystemConfig();
+        $config->setDebug(true);
 
         $database = new Database();
         $database->setPrefix('kryn_');
