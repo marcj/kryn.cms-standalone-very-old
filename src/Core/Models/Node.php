@@ -144,6 +144,11 @@ class Node extends BaseNode
             $url = substr($url, 0, -1);
         }
 
+        //crop first /
+        if (substr($url, 0, 1) == '/') {
+            $url = substr($url, 1);
+        }
+
         if ($url == '/') {
             $url = '.';
         }
