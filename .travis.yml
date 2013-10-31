@@ -1,0 +1,40 @@
+language: php
+
+php:
+  - 5.4
+  - 5.5
+
+env:
+  - DB_TYPE=mysql DB_USER=root
+  - DB_TYPE=pgsql DB_USER=postgres DB_NAME=postgres
+  - DB_TYPE=sqlite DB_SERVER=test.sq3
+
+before_script:
+
+  # DB
+  - sh -c "if [ '$DB_TYPE' = 'mysql' ]; then mysql -e 'DROP DATABASE IF EXISTS test; CREATE DATABASE test;'; fi"
+  - sh -c "if [ '$DB_TYPE' = 'pgsql' ]; then psql -c 'CREATE DATABASE test;' -U postgres; fi"
+  - sh -c "if [ '$DB_TYPE' = 'sqlite' ]; then touch test.sq3; chmod 777 test.sq3; fi"
+
+  # Composer
+  - wget http://getcomposer.org/composer.phar
+  - php composer.phar install
+
+  # File access
+  - sudo chmod -R g-w .
+  - ls -al
+  - ls -al app
+
+  # Start local server
+  - nohup php -S 127.0.0.1:8000 -t web/ &
+
+script:
+  - phpunit
+
+after_script:
+  # Kill local server
+  - killall php
+
+after_failure:
+  - cat nohup.out
+  - ls -al /app/cache

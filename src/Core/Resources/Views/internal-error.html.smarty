@@ -1,0 +1,178 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+    <title>Error</title>
+    <base href="{Kryn::getBaseUrl()}"/>
+    <style type="text/css">
+        body {
+            color: white;
+            line-height: 150%;
+            font-size: 13px;
+            margin: 0px;
+            font-family: Verdana, Sans;
+            background-color: #22628d;
+        }
+
+        #error {
+            margin: 5px 50px;
+            padding: 5px 45px;
+            text-align: left;
+        }
+
+        #error > h2 {
+            margin-top: 50px;
+            color: red;
+            text-shadow: 0 1px 0 black;
+        }
+
+        .msg {
+            color: #444;
+            overflow-x: auto;
+            background-color: #f7f7f7;
+            padding: 15px;
+            border-top: 3px solid red;
+            border-bottom: 3px solid red;
+        }
+
+        .msg > pre {
+            white-space: pre-wrap;
+            background-color: white;
+            padding: 5px;
+        }
+        .trace {
+            display: none;
+        }
+
+        .trace-toggle:checked ~ .trace {
+            display: block;
+        }
+
+        q {
+            background-color: white;
+            padding: 1px 4px;
+            font-family: monospace;
+            color: gray;
+            border: 1px solid #ddd;
+            -webkit-border-radius: 2px;
+            -moz-border-radius: 2px;
+            border-radius: 2px;
+        }
+
+        q:before,
+        q:after {
+            content: '';
+        }
+
+        .trace-code-block {
+            border-bottom: 1px solid silver;
+            margin: 5px;
+            position: relative;
+        }
+
+        .trace-code {
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            white-space: nowrap;
+            font-family: monospace;
+            position: relative;
+            -webkit-border-radius: 2px;
+            -moz-border-radius: 2px;
+            border-radius: 2px;
+            overflow-x: auto;
+        }
+
+        .trace-lines {
+            float: left;
+            font-family: monospace;
+            margin-top: 5px;
+            padding: 1px 5px;
+        }
+
+        .trace-lines span {
+            position: relative;
+        }
+
+        div.highlight {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 20px;
+            background-color: #ddd;
+        }
+
+        .logo {
+            margin-bottom: 15px;
+        }
+
+        .output {
+            background-color: white;
+            padding: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            margin-top: 10px;
+            border-top: 2px solid forestgreen;
+            border-bottom: 2px solid forestgreen;
+            color: black;
+        }
+
+    </style>
+</head>
+<body>
+{$counter = 0}
+{function printBacktrace backtrace=null}
+    {if $backtrace}
+        <div>
+            <input class="trace-toggle" id="toggle_{$counter}" type="checkbox"/>
+            <label for="toggle_{$counter++}">Show/Hide trace</label>
+
+            <div class="trace">
+                {foreach $backtrace as $trace}
+                    <div class="trace-code-block">
+                        <div>#{$trace.id} <q>{$trace.file} +{$trace.line}</q></div>
+                        {if $trace.function}
+                            <div style="color: gray;">(triggers {$trace.function}({$trace.args_string}))</div>
+                        {/if}
+                        <div class="trace-lines">
+                            {section name="loop" start=$trace.startLine loop=$trace.startLine+$trace.countLines}
+                                <div>
+                                    {if $smarty.section.loop.index eq $trace.line}<div class="highlight"></div>{/if}
+                                    <span>{$smarty.section.loop.index}</span>
+                                </div>
+                            {/section}
+                        </div>
+                        <div relline="{$trace.relLine}" class="trace-code cm-s-default">{$trace.code}</div>
+                    </div>
+                {/foreach}
+            </div>
+        </div>
+    {/if}
+{/function}
+
+{$eCounter = 1}
+{function printException exception=null}
+    <h2>#{$eCounter++} {$exception.title}</h2>
+    <div class="msg">
+        <pre>{$exception.message}</pre>
+        {if $exception.file}
+        <div style="padding-bottom: 5px;">
+            File: <q>{$exception.file} +{$exception.line}</q></div>
+        {/if}
+        {printBacktrace backtrace=$exception.backtrace}
+    </div>
+{/function}
+
+<div id="error">
+    <div class="logo">
+        <img src="bundles/core/images/logo_white.png"/>
+    </div>
+    {if $output}
+        Already generated output:
+        <div class="output">{$output|escape}</div>
+    {/if}
+    {foreach $exceptions as $exception}
+        {printException exception=$exception}
+    {/foreach}
+</div>
+</body>
+</html>

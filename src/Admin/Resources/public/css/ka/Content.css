@@ -1,0 +1,109 @@
+.ka-content {
+    min-height: 15px;
+    padding: 1px;
+    position: relative;
+}
+
+.ka-editor-dragMode .ka-content:hover {
+    outline: 0;
+    background-color: transparent;
+}
+
+.ka-content-onDrag {
+    position: absolute;
+    cursor: move;
+}
+
+.ka-content-onDrag .ka-content-inner {
+    cursor: move;
+}
+
+.ka-content-text.mce-edit-focus {
+    outline: 0;
+}
+
+.ka-content-actionBar {
+    min-height: 25px;
+    min-width: 50px;
+    background-color: #eee;
+    border: 1px solid silver;
+    border-bottom: 0px;
+    padding: 0 5px;
+    line-height: 25px;
+    position: absolute;
+    left: 3px;
+    top: -27px;
+    display: none;
+}
+
+.ka-content:hover .ka-content-actionBar {
+    display: block;
+}
+
+.ka-content-actionBar a:link {
+    color: black;
+    font-size: 14px;
+    text-decoration: none;
+    line-height: 25px;
+    padding: 0 5px;
+}
+
+.ka-content-selected {
+    border: 1px dashed #FFF;
+    padding: 0;
+    box-shadow: 0 0 2px #000;
+}
+
+.ka-content-actionBar a:hover {
+    color: #444;
+}
+
+.ka-content-plugin {
+    position: relative;
+}
+
+.ka-content-text:focus {
+    outline: 0;
+}
+
+.ka-content-inner {
+    background: #22638E;
+    padding: 5px;
+    border-radius: 2px;
+    color: white;
+    padding-right: 40px;
+    text-shadow: 0 1px 0 #333;
+    cursor: pointer;
+
+    min-height: 25px;
+
+    border-top: 1px solid #eee;
+}
+
+.ka-content-inner-icon {
+    position: absolute;
+    right: 6px;
+    top: 4px;
+    font-size: 28px;
+    color: white;
+    text-shadow: 1px 1px 0px #6F6F6F;
+}
+
+.ka-content-inner-title {
+    font-weight: bold;
+}
+
+.ka-content-inner-subtitle {
+}
+
+.ka-content-plugin-options {
+    display: none;
+}
+
+.ka-content-plugin:hover .ka-content-plugin-options {
+    display: block;
+}
+
+.ka-content-actionBar-move {
+    cursor: move;
+}

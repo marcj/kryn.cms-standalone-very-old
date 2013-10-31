@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<database>
+    <table name="system_user" phpName="User">
+        <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true"/>
+        <column name="username" type="VARCHAR"/>
+        <column name="auth_class" type="VARCHAR"/>
+        <column name="passwd" type="LONGVARCHAR"/>
+        <column name="passwd_salt" type="VARCHAR"/>
+        <column name="activation_key" type="VARCHAR"/>
+        <column name="email" type="VARCHAR"/>
+        <column name="desktop" type="OBJECT"/>
+        <column name="settings" type="OBJECT"/>
+        <column name="widgets" type="OBJECT"/>
+        <column name="activate" type="BOOLEAN"/>
+        <column name="logins" type="INTEGER"/>
+        <column name="last_login" type="INTEGER"/>
+        <column name="created" type="BIGINT"/>
+        <column name="modified" type="BIGINT"/>
+        <column name="first_name" type="VARCHAR"/>
+        <column name="last_name" type="VARCHAR"/>
+        <vendor type="mysql">
+            <parameter name="Charset" value="utf8"/>
+        </vendor>
+    </table>
+    <table name="system_group" phpName="Group">
+        <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true"/>
+        <column name="name" type="VARCHAR"/>
+        <column name="description" type="VARCHAR"/>
+        <vendor type="mysql">
+            <parameter name="Charset" value="utf8"/>
+        </vendor>
+    </table>
+    <table name="system_session" phpName="Session" idMethod="native">
+        <column name="id" type="VARCHAR" size="255" primaryKey="true" required="true"/>
+        <column name="user_id" type="INTEGER" required="false"/>
+        <column name="time" type="INTEGER" required="true"/>
+        <column name="ip" type="VARCHAR" size="255" required="false"/>
+        <column name="useragent" type="VARCHAR" size="255" required="false"/>
+        <column name="language" type="VARCHAR" size="255" required="false"/>
+        <column name="page" type="VARCHAR" size="255" required="false"/>
+        <column name="refreshed" type="INTEGER" required="false"/>
+        <column name="extra" type="LONGVARCHAR" required="false"/>
+        <column name="created" type="INTEGER" required="false"/>
+        <foreign-key foreignTable="system_user" onDelete="cascade">
+            <reference local="user_id" foreign="id"/>
+        </foreign-key>
+        <vendor type="mysql">
+            <parameter name="Charset" value="utf8"/>
+        </vendor>
+    </table>
+    <table name="system_user_group" isCrossRef="true" phpName="UserGroup">
+        <column name="user_id" type="INTEGER" primaryKey="true" required="true"/>
+        <column name="group_id" type="INTEGER" primaryKey="true" required="true"/>
+        <foreign-key foreignTable="system_user" onDelete="cascade" phpName="GroupMembershipUser">
+            <reference local="user_id" foreign="id"/>
+        </foreign-key>
+        <foreign-key foreignTable="system_group" phpName="GroupMembership" onDelete="cascade">
+            <reference local="group_id" foreign="id"/>
+        </foreign-key>
+        <vendor type="mysql">
+            <parameter name="Charset" value="utf8"/>
+        </vendor>
+    </table>
+</database>
