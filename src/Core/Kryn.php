@@ -1793,7 +1793,7 @@ class Kryn extends Controller
         /**
          * Check and loading config.php or redirect to install.php
          */
-        $configFile = PATH . 'app/config/config.xml';
+        $configFile = 'app/config/config.xml';
 
         if (!file_exists($configFile) && !defined('KRYN_INSTALLER') && false === strpos($_SERVER['PHP_SELF'], 'install.php')) {
             header("Location: install.php");

@@ -9,7 +9,10 @@ error_reporting(E_ALL & ~E_NOTICE);
 date_default_timezone_set('Europe/Berlin');
 
 if (!defined('PATH')) {
-    chdir(getcwd() . '/../');
+    if (file_exists('../web')) {
+        chdir(getcwd() . '/../');
+    }
+
     define('PATH', getcwd() . '/');
     define('PATH_CORE', __DIR__ . '/');
     define('PATH_MODULE', 'module/');
