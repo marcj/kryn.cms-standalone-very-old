@@ -26,7 +26,10 @@
     },
     "autoload": {
         "psr-0": {
-            "": "src\/"
+            "Core": "src/",
+            "Admin": "src/",
+            "Users": "src/",
+            "Test": "tests/bundles/"
         }
     },
     "minimum-stability": "dev",
