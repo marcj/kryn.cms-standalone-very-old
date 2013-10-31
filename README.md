@@ -8,7 +8,7 @@ We're in development. This means, there are still a _lot_ of issues in this prod
 __So, please do not install or use it, yet. Most things don't work.__
 
 [![Build Status Drone.io](https://drone.io/marcj/Kryn.cms/status.png)](https://drone.io/marcj/Kryn.cms/latest)
-[![Build Status Travis](https://travis-ci.org/kryncms/Kryn.cms.png?branch=refactoring)](https://travis-ci.org/kryncms/Kryn.cms)
+[![Build Status Travis](https://travis-ci.org/kryncms/Kryn.cms.png?branch=develop)](https://travis-ci.org/kryncms/Kryn.cms)
 
 Installation
 ------------
