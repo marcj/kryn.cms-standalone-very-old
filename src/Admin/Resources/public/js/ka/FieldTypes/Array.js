@@ -305,7 +305,7 @@ ka.FieldTypes.Array = new Class({
     setValue: function (pValue) {
         this.tbody.empty();
 
-        if (null === typeOf(pValue)) {
+        if ('null' === typeOf(pValue)) {
             return;
         }
 
@@ -314,7 +314,6 @@ ka.FieldTypes.Array = new Class({
         }
 
         if (this.options.asHash) {
-
             if (this.fieldLength > 2) {
 
                 Object.each(pValue, function (item, idx) {

@@ -14,6 +14,11 @@ class NodeCrud extends \Admin\ObjectCrud
                     'type' => 'text',
                     'required' => 'true',
                 ),
+                'alternativeTitle' => array(
+                    'label' => 'Alternative title',
+                    'type' => 'text',
+                    'desc' => 'Overwrites the page title (not navigation).'
+                ),
                 'type' => array(
                     'label' => 'Type',
                     'type' => 'select',
@@ -44,6 +49,37 @@ class NodeCrud extends \Admin\ObjectCrud
                         'combobox' => 'true',
                     )
                 ),
+                '__metas__' => array(
+                    'needValue' => [0, 1],
+                    'againstField' => 'type',
+                    'label' => 'Metas',
+                    'type' => 'childrenSwitcher',
+                    'children' => array(
+                        'metaDescription' => array(
+                            'label' => 'Meta Description',
+                            'type' => 'text'
+                        ),
+                        'metas' => array(
+                            'label' => 'Custom Meta-Tags',
+                            'type' => 'array',
+                            'options' => array(
+                                'columns' => array(
+                                    array('label' => 'Name'),
+                                    array('label' => 'Content')
+                                ),
+                                'fields' => array(
+                                    'name' => array(
+                                        'type' => 'text',
+                                        'required' => 'true'
+                                    ),
+                                    'content' => array(
+                                        'type' => 'text'
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
             ),
         ),
         '__Access__' => array(
@@ -63,6 +99,18 @@ class NodeCrud extends \Admin\ObjectCrud
                     'label' => 'Force HTTPS',
                     'type' => 'checkbox',
                 ),
+                'accessFrom' => array(
+                    'label' => 'Allow access from',
+                    'type' => 'datetime'
+                ),
+                'accessTo' => array(
+                    'label' => 'Allow access until',
+                    'type' => 'datetime'
+                ),
+                'accessNohidenavi' => array(
+                    'label' => 'Do not hide when no access',
+                    'type' => 'checkbox'
+                ),
             ),
         ),
         '__Content__' => array(
@@ -74,6 +122,24 @@ class NodeCrud extends \Admin\ObjectCrud
                 'content' => array(
                     'noWrapper' => true,
                     'type' => 'content'
+                ),
+            ),
+        ),
+        '__Search__' => array(
+            'label' => 'Search',
+            'type' => 'tab',
+            'needValue' => 0,
+            'againstField' => 'type',
+            'children' => array(
+                'unsearchable' => array(
+                    'label' => 'Unsearchable',
+                    'type' => 'checkbox',
+                    'desc' => 'Hides this page from the search results if active.'
+                ),
+                'search_words' => array(
+                    'label' => 'Search words',
+                    'type' => 'textarea',
+                    'desc' => 'Additional keywords.'
                 ),
             ),
         ),
