@@ -351,9 +351,11 @@ This is the bundle $bundleClassName.
         $finder
             ->files()
             ->name('*Bundle.php')
+            ->notPath('/Tests/')
+            ->notPath('/Test/')
             ->in('vendor')
-            ->in('tests/bundles')
             ->in('src');
+
         return $this->getBundles($finder);
     }
 
