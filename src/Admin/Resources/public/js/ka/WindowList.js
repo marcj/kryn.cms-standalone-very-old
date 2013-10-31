@@ -516,7 +516,8 @@ ka.WindowList = new Class({
                     ka.getAdminInterface().objectChanged(this.classProperties['object']);
                     this._deleteSuccess();
 
-                }.bind(this)}).delete({
+                }.bind(this)}).get({
+                    _method: 'delete',
                     pk: pItems
                 });
             }.bind(this));

@@ -692,11 +692,15 @@ class Kryn extends Controller
         }
 
         $createSymlink = function ($path, $link) {
-            mkdirr(dirname($link));
             if (file_exists($link)) {
-                unlink($link);
+                return;
             }
-            symlink(realpath($path), $link);
+            if (!@mkdirr(dirname($link))) {
+                die(sprintf('Can not create directory `%s`. Please check permissions.', dirname($link)));
+            }
+            if (!@symlink(realpath($path), $link) ){
+                die(sprintf('Can not create symlink `%s`. Please check permissions.', $link));
+            }
         };
 
         $dir = __DIR__ . '/Resources/public/tinymce';

@@ -227,7 +227,7 @@ function mkdirr($pathname, $mode = 0775)
 {
     is_dir(dirname($pathname)) || mkdirr(dirname($pathname), $mode);
 
-    return is_dir($pathname) || @mkdir($pathname, $mode);
+    return is_dir($pathname) || mkdir($pathname, $mode);
 }
 
 

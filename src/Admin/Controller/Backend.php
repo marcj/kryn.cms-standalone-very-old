@@ -284,19 +284,48 @@ class Backend
 
     public function loadJs($printSourceMap = false)
     {
+        chdir('web/');
+        $oFile = 'cache/admin.script-compiled.js';
+
+        $files = array();
+        $assets = array();
+        $md5String = '';
+        $newestMTime = 0;
+
+
+        chdir('../');
+        foreach (Kryn::$configs as $bundleConfig) {
+            foreach ($bundleConfig->getAdminAssetsPaths(false, '.*\.js', true, true) as $assetPath) {
+                $path = Kryn::resolvePath($assetPath, 'Resources/public');
+                if (file_exists($path)) {
+                    $assets[] = $assetPath;
+                    $files[] = '--js ' . escapeshellarg(Kryn::resolvePublicPath($assetPath));
+                    $mtime = filemtime($path);
+                    $newestMTime = max($newestMTime, $mtime);
+                    $md5String .= ">$path.$mtime<";
+                }
+            }
+        }
+        chdir('web/');
+
+        $ifModifiedSince = Kryn::getRequest()->headers->get('If-Modified-Since');
+        if (isset($ifModifiedSince) && (strtotime($ifModifiedSince) == $newestMTime)) {
+            // Client's cache IS current, so we just respond '304 Not Modified'.
+            header('Last-Modified: '.gmdate('D, d M Y H:i:s', $newestMTime).' GMT', true, 304);
+            exit;
+        }
 
         header('Content-Type: application/x-javascript');
-        $expires = 60 * 60 * 24 * 14;
+        $expires = 60 * 60 * 24 * 14; //2 weeks
         header('Pragma: public');
         header('Cache-Control: max-age=' . $expires);
+        header('Last-Modified: '.gmdate('D, d M Y H:i:s', $newestMTime).' GMT');
         header('Expires: ' . gmdate('D, d M Y H:i:s', time() + $expires) . ' GMT');
 
         if (extension_loaded("zlib") && (ini_get("output_handler") != "ob_gzhandler")) {
-            ini_set("zlib.output_compression", 1);
+            @ini_set("zlib.output_compression", 1);
         }
 
-        chdir('web/');
-        $oFile = 'cache/admin.script-compiled.js';
         $sourceMap = $oFile . '.map';
         $cmdTest = 'java -version';
         $closure = 'vendor/google/closure-compiler/compiler.jar';
@@ -313,24 +342,6 @@ class Backend
             exit;
         }
 
-        $files = array();
-        $assets = array();
-        $md5String = '';
-
-        chdir('../');
-        foreach (Kryn::$configs as $bundleConfig) {
-            foreach ($bundleConfig->getAdminAssetsPaths(false, '.*\.js', true, true) as $assetPath) {
-                $path = Kryn::resolvePath($assetPath, 'Resources/public');
-                if (file_exists($path)) {
-                    $assets[] = $assetPath;
-                    $files[] = '--js ' . escapeshellarg(Kryn::resolvePublicPath($assetPath));
-                    $mtime = filemtime($path);
-                    $md5String .= ">$path.$mtime<";
-                }
-            }
-        }
-        chdir('web/');
-
         $handle = @fopen($oFile, 'r');
         $fileUpToDate = false;
         $md5Line = '//' . md5($md5String) . "\n";
@@ -346,6 +357,7 @@ class Backend
         if ($fileUpToDate) {
             $content = file_get_contents($oFile);
             echo substr($content, 35);
+            exit;
         } else {
             if (!$debugMode) {
                 system($cmdTest, $returnVal);
@@ -359,6 +371,11 @@ class Backend
                 $cmd .= ' 2>&1';
                 $output = shell_exec($cmd);
                 if (0 !== strpos($output, 'Unable to access jarfile')) {
+                    if (false !== strpos($output, 'ERROR - Parse error')) {
+                        echo 'alert(\'Parse Error\;);';
+                        echo $output;
+                        exit;
+                    }
                     $content = file_get_contents($oFile);
                     $sourceMapUrl = '//@ sourceMappingURL=script-map';
                     $content = $md5Line . $content . $sourceMapUrl;

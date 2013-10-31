@@ -37,7 +37,7 @@ ka.FieldTypes.Wysiwyg = new Class({
                 ],
                 toolbar1: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image",
                 toolbar2: "print preview media | forecolor backcolor emoticons",
-                tools: "inserttable",
+                tools: "inserttable"
             }
         }
 
@@ -99,6 +99,6 @@ ka.FieldTypes.Wysiwyg = new Class({
         } else {
             return this.editor.getContent();
         }
-    },
+    }
 
 });

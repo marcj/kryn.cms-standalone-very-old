@@ -199,7 +199,8 @@ ka.WindowCombine = new Class({
                         ka.getAdminInterface().objectChanged(this.classProperties['object']);
                         this._deleteSuccess();
 
-                    }.bind(this)}).delete({
+                    }.bind(this)}).get({
+                        _method: 'delete',
                         pk: items
                     });
             }.bind(this));
@@ -245,7 +246,6 @@ ka.WindowCombine = new Class({
         }
 
         var active = this.mainLeftItems.getElement('.active');
-
         var newTarget;
 
         if (pE.key == 'down') {

@@ -9,7 +9,7 @@ ka.FieldTypes.Info = new Class({
             safeInfo: {
                 label: 'Safe info',
                 desc: t('Sets the value as a `text` not as `html` if true'),
-                default: true,
+                'default': true,
                 type: 'checkbox'
             }
         }
