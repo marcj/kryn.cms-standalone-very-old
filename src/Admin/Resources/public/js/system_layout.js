@@ -9,6 +9,9 @@ var admin_system_layout = new Class({
 
     _createLayout: function () {
 
+        this.win.content.set('text', 'Todo');
+        return;
+
         this.topNavi = this.win.addSmallTabGroup();
 
         this.buttons = {};

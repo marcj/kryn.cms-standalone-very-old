@@ -20,6 +20,8 @@ var admin_system_backup = new Class({
 
         this.win = pWin;
 
+        this.win.content.set('text', 'Todo');
+        return;
         this.win.addEvent('close', function () {
             this.closed = true;
         }.bind(this));
