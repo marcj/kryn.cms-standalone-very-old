@@ -3,7 +3,6 @@ ka.ContentTypes = ka.ContentTypes || {};
 ka.ContentTypes.Plugin = new Class({
 
     Extends: ka.ContentAbstract,
-    Binds: ['applyValue', 'openDialog'],
 
     Statics: {
         icon: 'icon-cube-2',
@@ -27,45 +26,6 @@ ka.ContentTypes.Plugin = new Class({
             'class': 'ka-content-inner ka-normalize'
         }).inject(this.main);
 
-        //this.main.addEvent('click', this.openDialog);
-    },
-
-    openDialog: function () {
-        this.dialog = new ka.Dialog(ka.wm.lastWindow || this.main.getDocument().body, {
-            title: t('Edit plugin'),
-            minWidth: '80%',
-            minHeight: '80%',
-            fixed: !ka.wm.lastWindow,
-            absolute: true,
-            withButtons: true
-        });
-
-        this.dialog.addEvent('apply', function () {
-            this.applyValue();
-        }.bind(this));
-
-        this.dialogPluginChoser = new ka.Field({
-            type: 'plugin'
-        }, this.dialog.getContentContainer());
-
-        this.dialogPluginChoser.setValue(this.value);
-
-        this.dialogPluginChoser.addEvent('change', function () {
-            this.dialog.center();
-        }.bind(this));
-
-        this.dialog.center(true);
-    },
-
-    applyValue: function () {
-        this.dialog.close();
-
-        this.value = this.dialogPluginChoser.getValue();
-        this.value = this.normalizeValue(this.value);
-
-        this.renderValue();
-
-        this.contentInstance.fireChange();
     },
 
     /**
