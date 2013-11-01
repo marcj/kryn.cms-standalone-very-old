@@ -490,7 +490,7 @@ ka.getCroppedObjectId = function (pUri) {
 
     var idx = pUri.indexOf('/');
 
-    return pUri.substr(idx + 1);
+    return -1 === idx ? pUri : pUri.substr(idx + 1);
 }
 
 /**
@@ -631,11 +631,12 @@ ka.getObjectId = function (pUrl) {
  *
  */
 ka.getObjectLabel = function (pUri, pCb) {
-
-    var objectKey = ka.getObjectKey(pUri);
+    var objectKey = ka.normalizeObjectKey(ka.getObjectKey(pUri));
+    var pkString = ka.getCroppedObjectId(pUri);
+    var uri = 'object://' + objectKey + '/' + pkString;
 
     if (ka.getObjectLabelBusy[objectKey]) {
-        ka.getObjectLabel.delay(10, ka.getObjectLabel, [pUri, pCb]);
+        ka.getObjectLabel.delay(10, ka.getObjectLabel, [uri, pCb]);
         return;
     }
 
@@ -647,11 +648,11 @@ ka.getObjectLabel = function (pUri, pCb) {
         ka.getObjectLabelQ[objectKey] = {};
     }
 
-    if (!ka.getObjectLabelQ[objectKey][pUri]) {
-        ka.getObjectLabelQ[objectKey][pUri] = [];
+    if (!ka.getObjectLabelQ[objectKey][uri]) {
+        ka.getObjectLabelQ[objectKey][uri] = [];
     }
 
-    ka.getObjectLabelQ[objectKey][pUri].push(pCb);
+    ka.getObjectLabelQ[objectKey][uri].push(pCb);
 
     ka.getObjectLabelQTimer[objectKey] = (function () {
 
@@ -668,23 +669,19 @@ ka.getObjectLabel = function (pUri, pCb) {
         new Request.JSON({url: _pathAdmin + 'admin/objects',
             noCache: 1, noErrorReporting: true,
             onComplete: function (pResponse) {
-
-                var result, id, cb;
+                var result, fullId, cb;
 
                 Object.each(pResponse.data, function (item, pk) {
-
                     if (item === null) {
                         return;
                     }
 
-                    id = 'object://' + objectKey + '/' + pk;
+                    fullId = 'object://' + objectKey + '/' + pk;
                     result = ka.getObjectLabelByItem(objectKey, item);
 
-                    //TODO, search solution for this
-
-                    if (ka.getObjectLabelQ[objectKey][id]) {
-                        while ((cb = ka.getObjectLabelQ[objectKey][id].pop())) {
-                            cb(result);
+                    if (ka.getObjectLabelQ[objectKey][fullId]) {
+                        while ((cb = ka.getObjectLabelQ[objectKey][fullId].pop())) {
+                            cb(result, item);
                         }
                     }
 
@@ -702,9 +699,10 @@ ka.getObjectLabel = function (pUri, pCb) {
 
             }}).get({url: uri, returnKeyAsRequested: 1});
 
-    }).delay(50);
+    }).delay(30);
 
-}
+};
+
 ka.getObjectLabelQ = {};
 ka.getObjectLabelBusy = {};
 ka.getObjectLabelQTimer = {};

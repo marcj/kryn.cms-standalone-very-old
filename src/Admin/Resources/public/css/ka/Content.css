@@ -84,7 +84,7 @@
     position: absolute;
     right: 6px;
     top: 4px;
-    font-size: 28px;
+    font-size: 24px;
     color: white;
     text-shadow: 1px 1px 0px #6F6F6F;
 }
@@ -106,4 +106,9 @@
 
 .ka-content-actionBar-move {
     cursor: move;
+}
+
+.ka-content-html-toolbarContainer {
+    text-align: center;
+    padding: 10px 0;
 }

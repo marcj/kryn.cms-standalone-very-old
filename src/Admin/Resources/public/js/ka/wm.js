@@ -83,6 +83,10 @@ ka.wm = {
         });
     },
 
+    getActiveWindow: function() {
+        return ka.wm.lastWindow;
+    },
+
     setFrontWindow: function (pWindow) {
         Object.each(ka.wm.windows, function (win, winId) {
             if (win && pWindow.id != winId) {

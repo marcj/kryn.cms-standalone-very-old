@@ -8,7 +8,7 @@ ka.FieldTypes.Page = new Class({
 
     initialize: function (pFieldInstance, pOptions) {
         pOptions.withoutObjectWrapper = 1;
-        pOptions.objects = ['Core\\Node'];
+        pOptions.objects = ['core:node'];
 
         this.parent(pFieldInstance, pOptions);
     }

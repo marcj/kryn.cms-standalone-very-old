@@ -37,6 +37,13 @@ ka.Editor = new Class({
         }
     },
 
+    /**
+     * @return {ka.Window}
+     */
+    getWin: function() {
+        return this.getContentField().getWin();
+    },
+
     selectElement: function(element) {
         this.getContentField().selectElement(element);
     },
@@ -94,18 +101,64 @@ ka.Editor = new Class({
         }.bind(this));
     },
 
-    getValue: function() {
+    /**
+     *
+     * @param {ka.SaveProgressManager} saveManager
+     * @returns {Array}
+     */
+    getValue: function(saveManager) {
         this.slots = this.container.getElements('.ka-slot');
 
         var contents = [];
-
         Array.each(this.slots, function(slot) {
             if (slot.kaSlotInstance) {
-                contents = contents.concat(slot.kaSlotInstance.getValue());
+                contents = contents.concat(slot.kaSlotInstance.getContents());
             }
         });
 
-        return contents;
+        contents.each(function(content) {
+            content.editorSaveProgress = saveManager.newSaveProgress({
+//                onPreDone: function(saveProgress) {
+//                    var content = saveProgress.getValue();
+//                    var content = saveProgress.getContext();
+//                    content.setBoxId()
+//                    value.content = content;
+//                    value.sort = saveProgress.getContext().getSortId();
+//                    value.boxId = saveProgress.getContext().getBoxId();
+//                    saveProgress.setValue(value);
+//                }
+            }, content);
+        });
+
+        contents.each(function(content) {
+             content.getValue(content.editorSaveProgress);
+        });
+
+//        var resultManager = new ka.SaveProgressManager({
+//            onDone: function(saveProgress) {
+//                contents = contents.concat(saveProgress.getValue());
+//            },
+//            onAllDone: function() {
+//                saveManager.allDone(contents);
+//            },
+//            onAllProgress: function(progress) {
+//                saveManager.allProgress(progress);
+//            }
+//        });
+//
+//        Array.each(this.slots, function(slot) {
+//            if (slot.kaSlotInstance) {
+//                slot.editorSaveProgress = resultManager.newSaveProgress();
+//            }
+//        });
+//
+//        Array.each(this.slots, function(slot) {
+//            if (slot.kaSlotInstance) {
+//                slot.kaSlotInstance.getValue(slot.editorSaveProgress);
+//            }
+//        });
+//
+//        return contents;
     },
 
     setValue: function(contents) {

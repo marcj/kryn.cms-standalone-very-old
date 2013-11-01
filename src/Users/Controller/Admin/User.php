@@ -35,8 +35,7 @@ class User extends \Admin\ObjectCrud
         ),
         'groupMembership.name' =>
         array(
-            'label' => 'Group membership',
-            'type' => 'text'
+            'label' => 'Group membership'
         ),
     );
 

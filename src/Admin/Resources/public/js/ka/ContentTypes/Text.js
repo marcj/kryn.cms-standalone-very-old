@@ -5,7 +5,7 @@ ka.ContentTypes.Text = new Class({
 
     Statics: {
         icon: 'icon-font',
-        label: 'Text'
+        label: 'Rich Text'
     },
 
     options: {

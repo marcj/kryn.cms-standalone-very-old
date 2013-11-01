@@ -12,70 +12,36 @@ ka.FileUploader = new Class({
     html5FileUploads: {},
 
     callbacks: {},
+    fileWatcher: {},
 
     initialize: function() {
 
     },
 
+    /**
+     * @param {Object} pFile
+     * @param {Function} cb
+     *
+     * @returns {ka.FileUploadWatcher}
+     */
     newFileUpload: function(pFile, cb) {
         if (!pFile.id) {
             pFile.id = 'HTML5_' + Object.getLength(this.html5FileUploads);
         }
 
+        var fileUploaderWatcher = new ka.FileUploadWatcher(pFile);
+
         if (pFile.html5) {
-            this.html5FileUploads[ pFile.id ] = pFile;
+            this.html5FileUploads[pFile.id] = pFile;
         }
 
         if (cb) {
-            this.callbacks[ pFile.id ] = cb;
+            this.callbacks[pFile.id] = cb;
         }
 
-        if (!this.dialog) {
-            this.dialog = new ka.SystemDialog(null, {
-                autoClose: true
-            });
+        this.fileWatcher[pFile.id] = fileUploaderWatcher;
 
-            new Element('h1', {
-                text: tc('fileUpload', 'Uploads')
-            }).inject(this.dialog.getContentContainer());
-            
-            this.dialog.topBar = new Element('div', {
-                'class': 'ka-FilesUpload-topBar'
-            }).inject(this.dialog.getContentContainer());
-
-            this.fileUploadCancelBtn = new ka.Button(t('Clear')).addEvent('click',
-                this.clear.bind(this)).inject(this.dialog.topBar);
-
-            this.fileUploadCancelBtn = new ka.Button(t('Cancel All')).addEvent('click',
-                this.cancelUploads.bind(this)).inject(this.dialog.topBar);
-
-            this.fileUploadMinimizeBtn = new ka.Button(t('Minimize')).addEvent('click',
-                this.minimizeUpload.bind(this)).inject(this.dialog.topBar);
-
-            var table = new Element('table',
-                {style: 'width: 100%;', 'class': 'admin-file-uploadtable'}).inject(this.dialog.content);
-            this.fileUploadTBody = new Element('tbody').inject(table);
-
-            this.dialog.topBarLeft = new Element('div', {
-                'class': 'ka-FilesUpload-topBarLeft'
-            }).inject(this.dialog.topBar);
-
-            this.fileUploadDialogProgress = new ka.Progress();
-            document.id(this.fileUploadDialogProgress).inject(this.dialog.topBarLeft);
-            document.id(this.fileUploadDialogProgress).setStyle('width', 132);
-            document.id(this.fileUploadDialogProgress).setStyle('display', 'inline-block');
-
-            this.fileUploadDialogAll = new Element('div', {
-                style: 'color: gray;'
-            }).inject(this.dialog.topBarLeft);
-
-            this.fileUploadDialogAllText = new Element('span').inject(this.fileUploadDialogAll);
-            this.fileUploadDialogAllSpeed = new Element('span').inject(this.fileUploadDialogAll);
-
-            new Element('div',{
-                'class': 'ka-clear'
-            }).inject(this.dialog.topBar);
-        }
+        this.prepareDialog();
 
         this.fileUploadMinimizeBtn.show();
         this.fileUploadCancelBtn.setText(t('Cancel'));
@@ -123,8 +89,7 @@ ka.FileUploader = new Class({
             style: 'cursor: pointer;',
             title: _('Cancel upload')
         }).addEvent('click', function() {
-                tr.canceled = true;
-                ka.uploads[this.win.id].cancelUpload(pFile.id);
+                this.cancelUpload(pFile.id, true);
             }.bind(this)).inject(tr.deleteTd);
 
         this.uploadTrs[ pFile.id ] = tr;
@@ -137,24 +102,72 @@ ka.FileUploader = new Class({
 
             pFile.post.path = pFile.target;
         } else {
-            ka.uploads[this.win.id].addFileParam(pFile.id, 'path', pFile.target);
+//            ka.uploads[this.win.id].addFileParam(pFile.id, 'path', pFile.target);
         }
 
-        if (ka.settings.upload_max_filesize && ka.settings.upload_max_filesize < pFile.size) {
-
-            this.uploadError(pFile);
-
-        } else {
-
-            if (pFile.html5) {
-                this.fileUploadCheck(this.html5FileUploads[ pFile.id ]);
+        (function() {
+            if (ka.settings.upload_max_filesize && ka.settings.upload_max_filesize < pFile.size) {
+                this.uploadError(pFile);
             } else {
-                this.fileUploadCheck(ka.uploads[this.win.id].getFile(pFile.id));
+
+                if (pFile.html5) {
+                    this.fileUploadCheck(this.html5FileUploads[ pFile.id ]);
+                } else {
+                    //this.fileUploadCheck(ka.uploads[this.win.id].getFile(pFile.id));
+                }
             }
-        }
+        }.bind(this)).delay(50);
 
         this.uploadAllProgress();
 
+        return fileUploaderWatcher;
+    },
+
+    prepareDialog: function() {
+        if (!this.dialog) {
+            this.dialog = new ka.SystemDialog(null, {
+                autoClose: true
+            });
+
+            new Element('h1', {
+                text: tc('fileUpload', 'Uploads')
+            }).inject(this.dialog.getContentContainer());
+
+            this.dialog.topBar = new Element('div', {
+                'class': 'ka-FilesUpload-topBar'
+            }).inject(this.dialog.getContentContainer());
+
+            this.fileUploadCancelBtn = new ka.Button(t('Clear')).addEvent('click', this.clear.bind(this)).inject(this.dialog.topBar);
+
+            this.fileUploadCancelBtn = new ka.Button(t('Cancel All')).addEvent('click', function(){
+                this.cancelUploads(true);
+            }).inject(this.dialog.topBar);
+
+            this.fileUploadMinimizeBtn = new ka.Button(t('Minimize')).addEvent('click', this.minimizeUpload.bind(this)).inject(this.dialog.topBar);
+
+            var table = new Element('table', {style: 'width: 100%;', 'class': 'admin-file-uploadtable'}).inject(this.dialog.content);
+            this.fileUploadTBody = new Element('tbody').inject(table);
+
+            this.dialog.topBarLeft = new Element('div', {
+                'class': 'ka-FilesUpload-topBarLeft'
+            }).inject(this.dialog.topBar);
+
+            this.fileUploadDialogProgress = new ka.Progress();
+            document.id(this.fileUploadDialogProgress).inject(this.dialog.topBarLeft);
+            document.id(this.fileUploadDialogProgress).setStyle('width', 132);
+            document.id(this.fileUploadDialogProgress).setStyle('display', 'inline-block');
+
+            this.fileUploadDialogAll = new Element('div', {
+                style: 'color: gray;'
+            }).inject(this.dialog.topBarLeft);
+
+            this.fileUploadDialogAllText = new Element('span').inject(this.fileUploadDialogAll);
+            this.fileUploadDialogAllSpeed = new Element('span').inject(this.fileUploadDialogAll);
+
+            new Element('div', {
+                'class': 'ka-clear'
+            }).inject(this.dialog.topBar);
+        }
     },
 
     showDialog: function() {
@@ -215,14 +228,13 @@ ka.FileUploader = new Class({
                     if (pFile.html5) {
                         this.html5FileUploads[ pFile.id ].post.name = res.name;
                     } else {
-                        ka.uploads[this.win.id].addFileParam(pFile.id, 'name', res);
+//                        ka.uploads[this.win.id].addFileParam(pFile.id, 'name', res);
                     }
                 }
 
                 if (res.exist) {
                     this.showDialog();
-                    this.uploadTrs[ pFile.id ].status.set('html',
-                        '<div style="color: red">' + _('Filename already exists') + '</div>');
+                    this.uploadTrs[ pFile.id ].status.set('html', '<div style="color: red">' + _('Filename already exists') + '</div>');
 
                     this.uploadTrs[ pFile.id ].needAction = true;
 
@@ -238,8 +250,8 @@ ka.FileUploader = new Class({
                                     this.html5FileUploads[ pFile.id ].post.name = res;
                                     this.fileUploadCheck(this.html5FileUploads[ pFile.id ]);
                                 } else {
-                                    ka.uploads[this.win.id].addFileParam(pFile.id, 'name', res);
-                                    this.fileUploadCheck(ka.uploads[this.win.id].getFile(pFile.id));
+//                                    ka.uploads[this.win.id].addFileParam(pFile.id, 'name', res);
+//                                    this.fileUploadCheck(ka.uploads[this.win.id].getFile(pFile.id));
                                 }
                             }
 
@@ -255,10 +267,9 @@ ka.FileUploader = new Class({
                                 this.html5FileUploads[ pFile.id ].post.overwrite = 1;
                                 this.fileUploadCheck(this.html5FileUploads[ pFile.id ]);
                             } else {
-                                ka.uploads[this.win.id].addFileParam(pFile.id, 'overwrite', '1');
-                                this.fileUploadCheck(ka.uploads[this.win.id].getFile(pFile.id));
+//                                ka.uploads[this.win.id].addFileParam(pFile.id, 'overwrite', '1');
+//                                this.fileUploadCheck(ka.uploads[this.win.id].getFile(pFile.id));
                             }
-
                         }.bind(this))
 
                         .inject(this.uploadTrs[ pFile.id ].status);
@@ -269,11 +280,16 @@ ka.FileUploader = new Class({
                     if (pFile.html5) {
                         this.startHtml5Upload(pFile.id);
                     } else {
-                        ka.uploads[this.win.id].startUpload(pFile.id);
+//                        ka.uploads[this.win.id].startUpload(pFile.id);
                     }
                 }
 
-            }.bind(this)}).post({path: pFile.post.path, name: name, overwrite: overwrite });
+            }.bind(this)}).post({
+                path: pFile.post.path,
+                name: name,
+                overwrite: overwrite,
+                autoRename: pFile.autoRename
+            });
     },
 
     startHtml5Upload: function(pFileId) {
@@ -301,7 +317,7 @@ ka.FileUploader = new Class({
             if (!file.post) {
                 file.post = {};
             }
-            xhr.onerror = function (e) {
+            xhr.onerror = function(e) {
                 this.uploadError(file);
             }.bind(this);
 
@@ -342,8 +358,8 @@ ka.FileUploader = new Class({
                             this.html5FileUploads[ tr.file.id ].post.overwrite = 1;
                             this.fileUploadCheck(this.html5FileUploads[  tr.file.id ]);
                         } else {
-                            ka.uploads[this.win.id].addFileParam(tr.file.id, 'overwrite', '1');
-                            this.fileUploadCheck(ka.uploads[this.win.id].getFile(tr.file.id));
+//                            ka.uploads[this.win.id].addFileParam(tr.file.id, 'overwrite', '1');
+//                            this.fileUploadCheck(ka.uploads[this.win.id].getFile(tr.file.id));
                         }
 
                     }.bind(this));
@@ -370,7 +386,7 @@ ka.FileUploader = new Class({
             if (found.file.html5) {
                 this.startHtml5Upload(found.file.id);
             } else {
-                ka.uploads[this.win.id].startUpload(found.file.id);
+//                ka.uploads[this.win.id].startUpload(found.file.id);
             }
 
         }
@@ -390,7 +406,8 @@ ka.FileUploader = new Class({
 
             if (!tr.canceled && !tr.error) {
                 if (tr.loaded) loaded += tr.loaded;
-                if (tr.error) all += tr.file.size;;
+                if (tr.error) all += tr.file.size;
+                ;
             }
 
             if (tr.complete == true) {
@@ -416,7 +433,7 @@ ka.FileUploader = new Class({
         }
         this.fileUploadDialogProgress.setValue(percent);
 
-        this.updateSmallProgressBar(done+failed, count, loaded, all);
+        this.updateSmallProgressBar(done + failed, count, loaded, all);
     },
 
     updateSmallProgressBar: function(uploadedCount, maxCount, uploadedBytes, allBytes) {
@@ -517,20 +534,22 @@ ka.FileUploader = new Class({
         this.uploadTrs[ pFile.id ].progress.setValue(percent);
         this.uploadTrs[ pFile.id ].loaded = pBytesCompleted;
 
+        this.fileWatcher[pFile.id].setProgress(percent, true);
+
         this.uploadAllProgress();
     },
 
     uploadStart: function(pFile) {
-
         this.uploadTrs[ pFile.id ].status.set('html', t('Uploading ...'));
-
+        this.fileWatcher[pFile.id].fireEvent('start');
     },
 
     uploadComplete: function(pFile) {
-
         if (!this.uploadTrs[ pFile.id ]) {
             return;
         }
+
+        this.fileWatcher[pFile.id].setDone(true, true);
 
         this.uploadTrs[ pFile.id ].status.set('html', '<span style="color: green">' + _('Complete') + '</span>');
         this.uploadTrs[ pFile.id ].progress.setValue(100);
@@ -552,7 +571,6 @@ ka.FileUploader = new Class({
         }
 
         this.uploadNext();
-
     },
 
     uploadError: function(pFile, pResponseText) {
@@ -573,9 +591,10 @@ ka.FileUploader = new Class({
             xhr.abort();
         }
 
+        var error = 'error';
         if (ka.settings.upload_max_filesize && ka.settings.upload_max_filesize < pFile.size) {
-            this.uploadTrs[ pFile.id ].status.set('html',
-                '<span style="color: red">' + t('File size limit exceeded') + '</span>');
+            error = 'fileSizeLimit';
+            this.uploadTrs[ pFile.id ].status.set('html', '<span style="color: red">' + t('File size limit exceeded') + '</span>');
             new Element('img', {
                 style: 'position: relative; top: 2px; left: 2px;',
                 src: _path + 'bundles/admin/images/icons/error.png',
@@ -590,6 +609,7 @@ ka.FileUploader = new Class({
                     try {
                         switch (xhr.status) {
                             case 413:
+                                error = 'RequestEntityTooLarge';
                                 text = t('413: Request Entity Too Large');
                                 break;
                         }
@@ -600,6 +620,9 @@ ka.FileUploader = new Class({
             }
         }
 
+        if (!this.uploadTrs[ pFile.id ].canceled) {
+            this.fileWatcher[pFile.id].fireEvent('error', error);
+        }
         this.uploadTrs[ pFile.id ].error = true;
 
         this.uploadAllProgress();
@@ -640,20 +663,24 @@ ka.FileUploader = new Class({
         delete this.uploadOverwriteAllButton;
     },
 
-    cancelUploads: function() {
+    cancelUpload: function(fileId, internal) {
+        var tr = this.uploadTrs[ fileId ];
+        tr.canceled = true;
+        if (this.html5UploadXhr[ fileId ]) {
+            this.html5UploadXhr[ fileId ].abort();
+        }
+        if (internal) {
+            this.fileWatcher[pFile.id].fireEvent('cancel');
+        }
+//        ka.uploads[this.win.id].cancelUpload(pFile.id);
+    },
 
+    cancelUploads: function(internal) {
         try {
             //flash calls are sometimes a bit buggy.
-
             Object.each(this.uploadTrs, function(tr, id) {
                 if (!tr.complete && tr.file) {
-                    if (tr.file.html5) {
-                        if (this.html5UploadXhr[ tr.file.id ]) {
-                            this.html5UploadXhr[ tr.file.id ].abort();
-                        }
-                    } else {
-                        ka.uploads[this.win.id].cancelUpload(id);
-                    }
+                    this.cancelUpload(tr.file, internal);
                 }
             }.bind(this))
         } catch (e) {
@@ -665,8 +692,6 @@ ka.FileUploader = new Class({
         }
 
         this.clearUploadVars();
-
     }
-
 
 });

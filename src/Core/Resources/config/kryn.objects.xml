@@ -70,7 +70,7 @@
       </object>
       <object id="Node">
         <label>Node</label>
-        <desc>Pages, Links, Deposits and Navigation folder</desc>
+        <desc>Pages, Links, Trays and Navigation folder</desc>
         <table>system_node</table>
         <labelField>title</labelField>
         <defaultSelection>type, title, alternativeTitle, urn, layout, visible, target</defaultSelection>

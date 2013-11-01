@@ -7,7 +7,8 @@ ka.FieldTypes.Codemirror = new Class({
     },
 
     options: {
-        inputHeight: 'auto'
+        inputHeight: 'auto',
+        mode: null
     },
 
     createLayout: function () {
@@ -40,7 +41,7 @@ ka.FieldTypes.Codemirror = new Class({
 
         var options = {
             lineNumbers: true,
-            mode: 'htmlmixed',
+            mode: this.options.mode || 'htmlmixed',
             value: ''
             //onChange: this.fieldInstance.fireChange
         };

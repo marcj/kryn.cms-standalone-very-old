@@ -11,6 +11,8 @@ ka.FieldTypes.Content = new Class({
     preview: 0,
     currentNode: null,
 
+    lastContents: null,
+
     createLayout: function() {
         this.mainLayout = new ka.Layout(this.getContainer(), {
             layout: [
@@ -62,7 +64,7 @@ ka.FieldTypes.Content = new Class({
 
             this.saveBtn = new ka.Button(t('Save'))
                 .setButtonStyle('blue')
-                .addEvent('click', this.save.bind(this))
+                .addEvent('click', this.saveStandalone.bind(this))
                 .inject(this.headerLayout.getCell(1, 2));
         } else {
             this.mainLayout.getCell(1, 1).addClass('ka-Field-content-actionBar');
@@ -229,24 +231,40 @@ ka.FieldTypes.Content = new Class({
         this.iframe.set('src', _path + '?' + Object.toQueryString(params));
     },
 
-    save: function() {
+    saveStandalone: function() {
         if (this.editor) {
-            var value = this.editor.getValue();
+
+            this.saveBtn.startLoading(t('Saving ...'));
 
             if (this.lastSaveRq) {
                 this.lastSaveRq.cancel();
             }
 
-            this.saveBtn.startLoading(t('Saving ...'));
+            var value = [];
+            var saveProgressManager = new ka.SaveProgressManager({
+                onDone: function(saveProgress) {
+                    value.push(saveProgress.getValue());
+                },
+                onAllDone: function() {
+                    this.saveBtn.setProgress(100);
+                    this.lastSaveRq = new Request.JSON({url: this.getUrl(), onComplete: function (pResponse) {
+                        this.saveBtn.stopLoading(t('Saved!'));
+                        this.saveBtn.setProgress(false);
+                    }.bind(this)}).post({content: value});
+                }.bind(this),
 
-            this.lastSaveRq = new Request.JSON({url: this.getUrl(), onComplete: function (pResponse) {
-                this.saveBtn.stopLoading(t('Saved!'));
-            }.bind(this)}).post({content: value});
+                onAllProgress: function(progress) {
+                    this.saveBtn.setProgress(progress);
+                }.bind(this)
+            });
+
+            this.saveBtn.startLoading(t('Saving ...'));
+            this.editor.getValue(saveProgressManager);
         }
     },
 
     getValue: function() {
-        return this.editor ? this.editor.getValue() : null;
+        return this.editor ? this.editor.getValue() : this.lastContents;
     },
 
     getUrl: function () {

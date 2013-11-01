@@ -78,7 +78,7 @@ ka.Slot = new Class({
                 data, content;
 
             if (!items && pEvent.dataTransfer.types) {
-                items = []
+                items = [];
                 Array.each(pEvent.dataTransfer.types, function(type) {
                     var dataType = pEvent.dataTransfer.getData(type);
                     items.push({
@@ -212,8 +212,6 @@ ka.Slot = new Class({
 
     renderContents: function(pResponse) {
         this.setValue(pResponse.data);
-
-        this.oldValue = this.getValue();
     },
 
     setValue: function(contents) {
@@ -239,22 +237,74 @@ ka.Slot = new Class({
         });
     },
 
-    getValue: function() {
+//    /**
+//     *
+//     * @param {ka.SaveProgress} saveProgress
+//     * @returns {Array}
+//     */
+//    getValue: function(saveProgress) {
+//        var contents = [], result = [];
+//
+//        var slotSaveManager = new ka.SaveProgressManager({
+//            /**
+//             *
+//             * @param {ka.SaveProgress} saveProgress
+//             */
+//            onDone: function(saveProgress) {
+//                contents.push(saveProgress.getValue());
+//            },
+//            onAllDone: function(){
+//                saveProgress.done(contents);
+//            },
+//            onAllProgress: function(progress) {
+//                saveProgress.progress(progress);
+//            }
+//        });
+//
+//        var self = this;
+//        var contentItems = this.slot.getChildren('.ka-content');
+//        contentItems.each(function(content, idx) {
+//            if (!content.kaContentInstance) {
+//                return;
+//            }
+//
+//            var contentSaveProgress = new ka.SaveProgress({
+//                onDone: function(saveProgress) {
+//                    var value = saveProgress.getValue();
+//                    value.boxId = self.slotParams.id;
+//                    value.sortableId = idx;
+//                    this.setValue(value);
+//                    slotSaveManager.done(this);
+//                },
+//                onProgress: function(){
+//                    slotSaveManager.progress(this);
+//                }
+//            });
+//            slotSaveManager.addSaveProgress(contentSaveProgress);
+//            content.contentSaveProgress = contentSaveProgress;
+//        }.bind(this));
+//
+//        contentItems.each(function(content, idx) {
+//            result.push(content.kaContentInstance.getValue(content.contentSaveProgress));
+//        });
+//
+//        return result;
+//    },
+
+    getId: function() {
+        return this.slotParams.id;
+    },
+
+    getContents: function() {
         var contents = [];
-        var data;
-
         this.slot.getChildren('.ka-content').each(function(content, idx) {
-            if (!content.kaContentInstance) {
-                return;
+            if (content.kaContentInstance) {
+                content.kaContentInstance.setBoxId(parseInt(this.getId()));
+                content.kaContentInstance.setSortId(idx + 1);
+                contents.push(content.kaContentInstance);
             }
-            data = content.kaContentInstance.getValue();
-            data.boxId = this.slotParams.id;
-            data.sortableId = idx;
-            contents.push(data);
         }.bind(this));
-
         return contents;
-
     },
 
     addContent: function(pContent, pFocus, pDrop) {

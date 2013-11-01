@@ -148,7 +148,7 @@ ka.Button = new Class({
     },
 
     setProgress: function(value) {
-        if (!value) {
+        if (false === value) {
             if (this.progress) this.progress.destroy();
             return;
         }

@@ -1,5 +1,4 @@
 ka.FieldAbstract = new Class({
-
     Implements: [Options, Events],
 
     /**
@@ -49,10 +48,19 @@ ka.FieldAbstract = new Class({
     },
 
     /**
+     *
+     * @returns {ka.Field}
+     */
+    getParentInstance: function() {
+        return this.fieldInstance;
+    },
+
+    /**
      * @returns {ka.Window}
      */
     getWin: function() {
-        return this.win || this.fieldInstance.findWin();
+        if (this.win) return this.win;
+        if (this.getParentInstance()) this.getParentInstance().getWin();
     },
 
     /**
@@ -99,8 +107,33 @@ ka.FieldAbstract = new Class({
      *
      * @param {Mixed} pValue
      */
-    setValue: function (pValue) {
+    setValue: function (pValue, pInternal) {
         /* Override it to your needs */
+    },
+
+    /**
+     * Triggers the 'change' event.
+     */
+    fireChange: function() {
+        this.fieldInstance.fireChange();
+    },
+
+    /**
+     * A asynchronous saving mechanism.
+     * @param {ka.SaveProgress} saveProgress
+     */
+    save: function(saveProgress) {
+        this.lastSaveProgress = saveProgress;
+        saveProgress.done(this.getValue());
+    },
+
+    /**
+     * Stops the current asynchronous saving process.
+     */
+    stopSaving: function() {
+        if (!this.lastSaveProgress.isFinished()) {
+            this.lastSaveProgress.cancel();
+        }
     },
 
     /**

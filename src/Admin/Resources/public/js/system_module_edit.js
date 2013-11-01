@@ -1590,7 +1590,7 @@ var admin_system_module_edit = new Class({
             text: 'Text',
             'number': 'Number',
             'checkbox': 'Checkbox',
-            page: 'Page/Deposit',
+            page: 'Page/Tray',
             file: 'File'
         }, function(title, key) {
             new Element('option', {

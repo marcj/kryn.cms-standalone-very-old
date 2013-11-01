@@ -27,7 +27,7 @@ class NodeCrud extends \Admin\ObjectCrud
                             array('Page', '#icon-newspaper'),
                             array('Link', '#icon-link-5'),
                             array('Navigation', '#icon-folder-4'),
-                            array('Deposit', '#icon-clipboard-2')
+                            array('Tray', '#icon-clipboard-2')
                         ),
                     ),
                     'required' => 'true',
@@ -156,7 +156,7 @@ class NodeCrud extends \Admin\ObjectCrud
                     array('Page', '#icon-newspaper'),
                     array('Link', '#icon-link-5'),
                     array('Navigation', '#icon-folder-4'),
-                    array('Deposit', '#icon-clipboard-2')
+                    array('Tray', '#icon-clipboard-2')
                 ),
             ),
             'width' => 30
@@ -229,7 +229,7 @@ class NodeCrud extends \Admin\ObjectCrud
                     0 => 'Page',
                     1 => 'Link',
                     2 => 'Folder',
-                    3 => 'Deposit',
+                    3 => 'Tray',
                 ),
             ),
             'type' => 'select',

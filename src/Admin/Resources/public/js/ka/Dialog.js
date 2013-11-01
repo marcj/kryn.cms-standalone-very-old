@@ -38,8 +38,12 @@ ka.Dialog = new Class({
     canClosed: true,
 
     initialize: function (pParent, pOptions) {
-        if ('null' === typeOf(pParent)) {
-            throw 'First argument has to be a HTMLElement or ka.Window instance. Null given.';
+        if (!pParent) {
+            pParent = ka.wm.getActiveWindow();
+        }
+
+        if (!pParent) {
+            throw 'No parent found.';
         }
 
         this.lastFocusedElement = document.activeElement;
@@ -170,7 +174,7 @@ ka.Dialog = new Class({
         }
 
         if (this.options.autoDisplay) {
-            this.center();
+            this.center(true);
         }
     },
 

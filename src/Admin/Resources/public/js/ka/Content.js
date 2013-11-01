@@ -9,6 +9,9 @@ ka.Content = new Class({
     currentType: null,
     currentTemplate: null,
 
+    boxId: null,
+    sortableId: null,
+
     contentContainer: null,
 
     initialize: function(pContent, pContainer, pDrop) {
@@ -23,6 +26,22 @@ ka.Content = new Class({
 
     getEditor: function() {
         return this.getSlot().getEditor();
+    },
+
+    setBoxId: function(boxId) {
+        this.boxId = boxId;
+    },
+
+    setSortId: function(sortableId) {
+        this.sortId = sortableId;
+    },
+
+    getBoxId: function() {
+        return this.boxId;
+    },
+
+    getSortId: function(){
+        return this.sortId;
     },
 
     renderLayout: function(container) {
@@ -178,11 +197,32 @@ ka.Content = new Class({
         }
     },
 
-    getValue: function() {
+    /**
+     * @param {ka.SaveProgress} saveProgress
+     *
+     * @returns {*}
+     */
+    getValue: function(saveProgress) {
         if (this.selected) {
             this.value = this.value || {};
 
             this.value.template = this.template.getValue();
+        }
+
+        if (saveProgress) {
+            var content = this.value;
+
+            var self = this;
+            saveProgress.addEvent('preDone', function(){
+                self.value.content = this.getValue();
+                self.value.boxId = self.getBoxId();
+                self.value.sort = self.getSortId();
+                this.setValue(self.value);
+            });
+
+            if (this.contentObject && saveProgress) {
+                this.contentObject.save(saveProgress);
+            }
         }
 
         if (this.contentObject) {
@@ -266,7 +306,7 @@ ka.Content = new Class({
             if (clazz) {
                 this.contentObject = new clazz(this, this.options);
             } else {
-                throw tf('ka.ContentType `%s` not found.', pValue.type);
+                console.error(tf('ka.ContentType `%s` not found.', pValue.type));
             }
 
             this.contentObject.addEvent('change', this.fireChange);

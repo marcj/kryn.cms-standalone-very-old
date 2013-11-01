@@ -381,11 +381,16 @@ ka.Field = new Class({
     /**
      * Returns the value of the field.
      *
+     * @param {ka.SaveProgress} saveProgress
+     *
      * @return {Mixed}
      */
-    getValue: function() {
+    getValue: function(saveProgress) {
         if (!this.fieldObject) {
             return null;
+        }
+        if (saveProgress) {
+            this.fieldObject.save(saveProgress);
         }
         return this.fieldObject.getValue();
     },
@@ -458,6 +463,13 @@ ka.Field = new Class({
             Cookie.write(this.options.cookieStorage, JSON.encode(pValue));
         }
 
+    },
+
+    /**
+     * @returns {ka.Window}
+     */
+    getWin: function() {
+        return this.findWin();
     },
 
     /**

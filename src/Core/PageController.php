@@ -53,6 +53,11 @@ class PageController extends Controller
         return Kryn::getResponse();
     }
 
+    /**
+     * @param integer $pageId
+     * @param integer $slotId
+     * @return \Core\Models\Content[]
+     */
     public static function getSlotContents($pageId, $slotId)
     {
         $cacheKey = 'core/contents/' . $pageId . '.' . $slotId;
@@ -60,7 +65,6 @@ class PageController extends Controller
         $cacheCreated = Kryn::getCache($cacheKey . '.created');
 
         if (!$cache || $cache['created'] != $cacheCreated) {
-
             $contents = ContentQuery::create()
                 ->filterByNodeId($pageId)
                 ->filterByBoxId($slotId)
@@ -77,14 +81,14 @@ class PageController extends Controller
 
     }
 
+    /**
+     * @param string $slotId
+     * @param array $slotProperties
+     * @return string
+     */
     public static function getSlotHtml($slotId, $slotProperties)
     {
-        if (!self::$slotContents[$slotId]) {
-            self::$slotContents[$slotId] = self::getSlotContents(Kryn::$page->getId(), $slotId);
-        }
-
-        return Render::renderContents(self::$slotContents[$slotId], $slotProperties);
-
+        return Render::getInstance(Kryn::$page->getId())->getRenderedSlot($slotId, $slotProperties);
     }
 
     /**

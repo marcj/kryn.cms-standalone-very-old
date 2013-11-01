@@ -1279,8 +1279,6 @@ ka.ObjectTree = new Class({
 
             this.fireEvent('move', [pSourceId, pTargetId]);
 
-            ka.loadSettings(['r2d']);
-
         }.bind(this)}).put({
                 source: pSourceId,
                 target: pTargetId,

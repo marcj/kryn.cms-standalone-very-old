@@ -183,18 +183,6 @@ class Backend
             $res['system']->setPasswordHashKey('');
         }
 
-        if ($loadKeys == false || in_array('r2d', $loadKeys)) {
-            $res['r2d'] =& Kryn::getCache("systemPages2Domain");
-
-            if (!$res['r2d']) {
-                $res['r2d'] = \Core\Render::updatePage2DomainCache();
-            }
-
-            if (!$res['r2d']) {
-                $res['r2d'] = array();
-            }
-        }
-
         if ($loadKeys == false || in_array('domains', $loadKeys)) {
             $res['domains'] = \Core\Object::getList('Core\Domain', null, array('permissionCheck' => true));
         }

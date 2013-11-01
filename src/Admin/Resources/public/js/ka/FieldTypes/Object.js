@@ -285,7 +285,7 @@ ka.FieldTypes.Object = new Class({
         }.bind(this))
         .inject(rightTd);
 
-        this.setValue = function (pVal, pIntern) {
+        this.setValue = function (pVal, pInternal) {
             if (typeOf(pVal) == 'null' || pVal === false || pVal === '' || !ka.getCroppedObjectId(pVal)) {
                 this.objectId = '';
                 this.input.value = '';
@@ -304,7 +304,7 @@ ka.FieldTypes.Object = new Class({
                 if (pLabel === false) {
                     this.input.removeClass('ka-Input-text-disabled');
                     if (!this.options.combobox) {
-                        this.input.value = '[Not Found]: ' + pObjectUri;
+                        this.input.value = '[Not Found]: ' + pVal;
                     } else {
                         this.input.value = pVal;
                     }
@@ -316,6 +316,9 @@ ka.FieldTypes.Object = new Class({
             }.bind(this));
 
             this.input.title = ka.urlDecode(ka.getCroppedObjectId(pVal));
+            if (pInternal) {
+                this.fireChange();
+            }
         };
 
         this.getValue = function () {
@@ -330,7 +333,6 @@ ka.FieldTypes.Object = new Class({
             }
             return val;
         }
-
     },
 
     renderChooserMulti: function () {

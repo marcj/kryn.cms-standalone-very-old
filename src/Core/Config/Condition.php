@@ -116,6 +116,9 @@ class  Condition extends Model
      */
     public function merge($join, $condition)
     {
+        if (!$condition || ($condition instanceof Condition && !$condition->hasRules())) {
+            return;
+        }
         if (0 < count($this->rules)) {
             $this->rules = array($this->rules, $join, $this->normalizeToArray($condition));
         } else {
@@ -362,6 +365,11 @@ class  Condition extends Model
         //
         // pk:
         // [ ["bla" => 1], ["bla" => 2] ]
+
+        if ($condition instanceof Condition) {
+            return $condition->getRules();
+        }
+
         if (is_array($condition) && array_key_exists(0, $condition) && is_array($condition[0]) && is_numeric(
                 key($condition)
             ) && is_numeric(key($condition[0]))
@@ -515,7 +523,7 @@ class  Condition extends Model
             $ovalue = $field;
         } else {
             $ovalue = $objectItem[$field];
-            if (null === $ovalue && $objectKey && $definition = static::getDefinition($objectKey)) {
+            if (null === $ovalue && $objectKey && $definition = \Core\Object::getDefinition($objectKey)) {
                 $tableName = substr($field, 0, strpos($field, '.'));
                 $fieldName = substr($field, strpos($field, '.') + 1);
                 if ($tableName === Kryn::getSystemConfig()->getDatabase()->getPrefix().$definition->getTable()) {

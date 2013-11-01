@@ -217,7 +217,7 @@ class ObjectCrud
      *
      * @var bool
      */
-    protected $allowCustomSelectFields = false;
+    protected $allowCustomSelectFields = true;
 
     protected $nestedRootEdit = false;
     protected $nestedRootAdd = false;
@@ -819,8 +819,9 @@ class ObjectCrud
         }
 
         //check against additionaly our own custom condition
-        if ($item && $condition = $this->getCondition()) {
-            if (!\Core\Object::satisfy($item, $condition)) {
+        if ($item && ($condition = $this->getCondition()) && $condition->hasRules()) {
+            var_dump($condition);
+            if (!$condition->satisfy($item, $this->getObject())) {
                 $item = null;
             }
         }
@@ -876,40 +877,31 @@ class ObjectCrud
         $condition = $this->getCondition();
 
         if ($extraCondition = $this->getCustomListingCondition()) {
-            $condition = !$condition ? $extraCondition : array($condition, 'AND', $extraCondition);
+            $condition->mergeAnd($extraCondition);
         }
 
         $options['order'] = $orderBy ?: $this->getOrder();
         $options['fields'] = $this->getSelection($fields);
 
-        if ($filter) {
-            $condition = self::buildFilter($filter);
+        if ($filter && $filterCondition = self::buildFilter($filter)) {
+            $condition->mergeAnd($filterCondition);
         }
 
         if ($this->getMultiLanguage()) {
             //does the object have a lang field?
             if ($this->objectDefinition->getField('lang')) {
-
                 //add language condition
-                $langCondition = array(
-                    array('lang', '=', substr((string)getArgv('lang'), 0, 3)),
-                    'OR',
-                    array('lang', 'IS NULL'),
-                );
-                if ($condition) {
-                    $condition = array($condition, 'AND', $langCondition);
-                } else {
-                    $condition = $langCondition;
-                }
+                $langCondition = new Condition();
+                $langCondition->addAnd(array('lang', '=', substr((string)getArgv('lang'), 0, 3)));
+                $langCondition->addOr(array('lang', 'IS NULL'));
+
+                $condition->addAnd($langCondition);
             }
         }
 
         if ($query) {
-            $queryCondition = $this->getQueryCondition($query, $options['fields']);
-            if ($condition) {
-                $condition = array($condition, 'AND', $queryCondition);
-            } else {
-                $condition = $queryCondition;
+            if ($queryCondition = $this->getQueryCondition($query, $options['fields'])){
+                $condition->mergeAnd($queryCondition);
             }
         }
 
@@ -952,7 +944,7 @@ class ObjectCrud
             $result = $this->getDefaultFieldList();
         }
 
-        if ($extraSelects = $this->getExtraSelection()) {
+        if (!$fields && $extraSelects = $this->getExtraSelection()) {
             $result = $result ? array_merge($result, $extraSelects) : $extraSelects;
         }
 
@@ -982,6 +974,10 @@ class ObjectCrud
 
         $result = [];
         foreach ($fields as $field) {
+            if (!$fieldObj = $this->getObjectDefinition()->getField($field)) {
+                continue;
+            }
+
             if ($result) {
                 $result[] = 'OR';
             }
@@ -1256,6 +1252,7 @@ class ObjectCrud
      */
     public function getCondition()
     {
+        return new Condition();
     }
 
     /**
@@ -1423,9 +1420,9 @@ class ObjectCrud
         $data = $this->collectData();
 
         //check against additionally our own custom condition
-        if ($condition = $this->getCondition()) {
+        if (($condition = $this->getCondition()) && $condition->hasRules()) {
             $item = \Core\Object::get($this->getObject(), $pk, $options);
-            if (!\Core\Object::satisfy($item, $condition)) {
+            if (!$condition->satisfy($item, $this->getObject())) {
                 return null;
             }
         }
@@ -1470,8 +1467,8 @@ class ObjectCrud
         }
 
         //check against additionally our own custom condition
-        if ($condition = $this->getCondition()) {
-            if (!\Core\Object::satisfy($item, $condition)) {
+        if (($condition = $this->getCondition()) && $condition->hasRules()) {
+            if (!$condition->satisfy($item, $this->getObject())) {
                 return null;
             }
         }

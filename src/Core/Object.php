@@ -519,7 +519,6 @@ class Object
                 $options['fields'] = explode(',', trim(str_replace(' ', '', $options['fields'])));
             }
 
-
             $extraFields = $limitDataSets->extractFields();
             $deleteFieldValues = array();
 
@@ -1138,7 +1137,6 @@ class Object
             }
             $options['fields'] = implode(',', $fields);
         }
-
 
         $conditionObject = new Condition();
 

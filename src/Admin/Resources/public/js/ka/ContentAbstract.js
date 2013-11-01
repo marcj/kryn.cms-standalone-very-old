@@ -1,5 +1,4 @@
 ka.ContentAbstract = new Class({
-
     Implements: [Options, Events],
 
     /**
@@ -43,10 +42,31 @@ ka.ContentAbstract = new Class({
         this.createLayout();
     },
 
+    /**
+     * @returns {ka.Content}
+     */
+    getParentInstance: function() {
+        return this.contentInstance;
+    },
+
+    /**
+     * @returns {ka.Window}
+     */
+    getWin: function() {
+        if (this.win) return this.win;
+        if (this.getEditor()) this.getEditor().getWin();
+    },
+
+    /**
+     * @returns {ka.Editor}
+     */
     getEditor: function() {
         return this.contentInstance.getEditor();
     },
 
+    /**
+     * @returns {ka.Slot}
+     */
     getSlot: function() {
         return this.contentInstance.getSlot();
     },
@@ -116,6 +136,24 @@ ka.ContentAbstract = new Class({
     },
 
     /**
+     * A asynchronous saving mechanism.
+     * @param {ka.SaveProgress} saveProgress
+     */
+    save: function(saveProgress) {
+        this.lastSaveProgress = saveProgress;
+        saveProgress.done(this.getValue());
+    },
+
+    /**
+     * Stops the current asynchronous saving process.
+     */
+    stopSaving: function() {
+        if (!this.lastSaveProgress.isFinished()) {
+            this.lastSaveProgress.cancel();
+        }
+    },
+
+    /**
      * If a field is empty but required and the user wanna save,
      * then the frameworkWindows use this method to say the user 'hey it\'s required'.
      *
@@ -123,7 +161,6 @@ ka.ContentAbstract = new Class({
      *
      */
     highlight: function () {
-
         //example of using highlight
         //this calls toElement() and highlight the background of it.
         if (document.id(this)) {
@@ -132,7 +169,6 @@ ka.ContentAbstract = new Class({
 
         //or
         //document.id(this.input).highlight();
-
     },
 
     /**
@@ -144,7 +180,6 @@ ka.ContentAbstract = new Class({
      * @return {Boolean}
      */
     isValid: function () {
-
         if (this.fieldInstance.options.required && this.getValue() === '') {
             return false;
         }
@@ -194,7 +229,6 @@ ka.ContentAbstract = new Class({
      * @param  {String} pText text to display
      */
     showInvalid: function (pText) {
-
         if (this.invalidIcon) {
             return;
         } //we're already displaying invalid stuff
@@ -213,7 +247,6 @@ ka.ContentAbstract = new Class({
         if (this.main) {
             this.main.addClass('ka-field-invalid');
         }
-
     },
 
     /**

@@ -127,31 +127,57 @@ class File
      * @param string $path
      * @param string $name
      * @param bool   $overwrite
+     * @param bool   $autoRename
      *
      * @return array
      */
-    public function prepareUpload($path, $name, $overwrite = false)
+    public function prepareUpload($path, $name, $overwrite = false, $autoRename = false)
     {
         $oriName = $name;
-        $name2 = $name;
-        $newPath = ($path == '/') ? '/' . $name2 : $path . '/' . $name2;
+        $newPath = ($path == '/') ? '/' . $name : $path . '/' . $name;
+
+        $overwrite = filter_var($overwrite, FILTER_VALIDATE_BOOLEAN);
+        $autoRename = filter_var($autoRename, FILTER_VALIDATE_BOOLEAN);
 
         $this->checkAccess($path);
 
         $res = array();
 
-        if ($name2 != $oriName) {
+        if ($name != $oriName) {
             $res['renamed'] = true;
-            $res['name'] = $name2;
+            $res['name'] = $name;
         }
 
         $exist = WebFile::exists($newPath);
         if ($exist && !$overwrite) {
-            $res['exist'] = true;
-        } else {
-            WebFile::createFile($path, "\0\0\0\0\0\0\0\nKrynBlockedFile\n" . Kryn::getAdminClient()->getTokenId());
-            $res['ready'] = true;
+            if ($autoRename) {
+                //find new name
+                $lastDot = strrpos($oriName, '.');
+                if (false !== $lastDot) {
+                    $firstName = substr($oriName, 0, $lastDot);
+                    $extension = substr($oriName, $lastDot + 1);
+                }
+
+                $i = 0;
+                do {
+                    $i++;
+                    $name = $firstName .'-'. $i . '.' . $extension;
+                    $newPath = ($path == '/') ? '/' . $name : $path . '/' . $name;
+                    if (!WebFile::exists($newPath)) {
+                        break;
+                    }
+                } while (true);
+
+                $res['renamed'] = true;
+                $res['name'] = $name;
+            } else {
+                $res['exist'] = true;
+                return $res;
+            }
         }
+
+        WebFile::createFile($newPath, "\0\0\0\0\0\0\0\nKrynBlockedFile\n" . Kryn::getAdminClient()->getTokenId());
+        $res['ready'] = true;
 
         return $res;
     }
@@ -214,9 +240,7 @@ class File
 
         $newPath = ($path == '/') ? '/' . $name2 : $path . '/' . $name2;
         if (WebFile::exists($newPath)) {
-
             if (!$overwrite) {
-
                 if (WebFile::exists($newPath)) {
                     $content = WebFile::getContent($newPath);
 
