@@ -53,11 +53,7 @@ ka.Files = new Class({
 
         this.setOptions(pOptions);
 
-        if (!ka.getAdminInterface().kaFilesFileUploader) {
-            ka.getAdminInterface().kaFilesFileUploader = new ka.FileUploader();
-        }
-
-        this.fileUploader = ka.getAdminInterface().kaFilesFileUploader;
+        this.fileUploader = ka.getAdminInterface().getFileUploader();
 
         this._createLayout();
         this.loadModules();

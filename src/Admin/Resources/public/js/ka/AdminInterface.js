@@ -40,6 +40,18 @@ ka.AdminInterface = new Class({
         }
     },
 
+    /**
+     *
+     * @returns {ka.FileUploader}
+     */
+    getFileUploader: function() {
+        if (!this.kaFilesFileUploader) {
+            this.kaFilesFileUploader = new ka.FileUploader();
+        }
+
+        return this.kaFilesFileUploader;
+    },
+
     objectChanged: function(object) {
         object = ka.normalizeObjectKey(object);
 
