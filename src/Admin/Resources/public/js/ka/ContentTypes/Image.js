@@ -26,6 +26,38 @@ ka.ContentTypes.Image = new Class({
         } else {
             this.renderChooser();
         }
+
+        this.main.addEventListener('dragover', function(event) {
+            var validDrop = true;
+            if (validDrop) {
+                event.stopPropagation();
+                event.preventDefault();
+                event.dataTransfer.dropEffect = 'move';
+            }
+        }.bind(this));
+
+        this.main.addEventListener('drop', function(event) {
+            var items = event.dataTransfer.files.length > 0 ? event.dataTransfer.files : null;
+
+            if (!items && event.dataTransfer.types) {
+                items = [];
+                Array.each(event.dataTransfer.types, function(type) {
+                    var dataType = event.dataTransfer.getData(type);
+                    items.push({
+                        type: type,
+                        getAsString: function(cb) {
+                            cb(dataType);
+                        }
+                    });
+                });
+            }
+
+            if (0 < items.length) {
+                event.stopPropagation();
+                event.preventDefault();
+                this.renderDrop(items[0]);
+            }
+        }.bind(this));
     },
 
     renderDrop: function(file) {
@@ -46,7 +78,7 @@ ka.ContentTypes.Image = new Class({
         this.main.set('text', t('Reading ...'));
 
         this.progressBar = new Element('div', {
-            src: '0%',
+            text: '0%',
             styles: {
                 textAlign: 'center'
             }
@@ -83,17 +115,63 @@ ka.ContentTypes.Image = new Class({
         return this.value;
     },
 
-    save: function(callback) {
+    /**
+     *
+     * @param {ka.SaveProgress} saveProgress
+     */
+    save: function(saveProgress) {
+        saveProgress.setProgressRange(100);
+        if (this.file && !this.fileWatcher) {
+            this.file.target = '/Unclassified/';
+            this.file.autoRename = true;
+            this.file.html5 = true;
+            this.fileWatcher = ka.getAdminInterface().getFileUploader().newFileUpload(this.file);
+            this.fileWatcher.addEvent('done', function() {
+                saveProgress.done();
+            });
+            this.fileWatcher.addEvent('progress', function(progress) {
+                saveProgress.progress(progress);
+            });
+            this.fileWatcher.addEvent('cancel', function() {
+                saveProgress.cancel();
+            });
+            this.fileWatcher.addEvent('error', function() {
+                saveProgress.error();
+            });
+        } else {
+            saveProgress.done();
+        }
+    },
 
+    stopSaving: function() {
+        if (this.fileWatcher) {
+            this.fileWatcher.cancel();
+        }
     },
 
     renderChooser: function() {
-        new Element('input', {
-            type: 'file'
+        this.iconDiv = new Element('div', {
+            'class': 'ka-content-inner-icon icon-images'
+        }).inject(this.main);
+
+        this.inner = new Element('div', {
+            'class': 'ka-content-inner ka-normalize',
+            text: t('Choose or drop a image.')
         }).inject(this.main);
     },
 
-    loadInspector: function(parent) {
+    selected: function(inspectorContainer) {
+        var toolbarContainer = new Element('div', {
+            'class': 'ka-content-image-toolbarContainer'
+        }).inject(inspectorContainer);
 
+        this.input = new ka.Field({
+            label: 'Image',
+            type: 'file',
+            width: 'auto',
+            onChange: function(file) {
+                console.log(file);
+            }
+        }, toolbarContainer);
     }
 });
